@@ -776,6 +776,12 @@ body {
     animation-delay: 0.2s;
 }
 
+@media (min-width: 1025px) and (max-width: 1200px) {
+    .hero-title {
+        font-size: 45px;
+    }
+}
+
 .services-grid .grid-item {
     opacity: 0;
     transform: translateY(30px);
