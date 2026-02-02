@@ -814,9 +814,10 @@ body {
     line-height: 1.4;
     margin: 8px 0 30px;
     color: inherit;
-    opacity: 1;
-    transform: none;
-    animation: none;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: heroFadeIn 0.8s ease forwards;
+    animation-delay: 0.45s;
 }
 
 /* Пульсация кнопок - легкое сердцебиение */
@@ -5552,7 +5553,7 @@ button[class*="btn-"]:hover,
 
 .minimal-main-title {
     font-family: "Cormorant Garamond", serif;
-    font-size: 30px;
+    font-size: 44px;
     font-weight: 400;
     color: var(--dark-text);
     margin-bottom: 10px;
@@ -5561,7 +5562,7 @@ button[class*="btn-"]:hover,
 
 .minimal-main-title-name {
     display: inline-block;
-    font-weight: 600;
+    font-weight: 400;
     letter-spacing: 4px;
 }
 
@@ -5584,7 +5585,7 @@ button[class*="btn-"]:hover,
 
 .minimal-main-subtitle {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 23px;
+    font-size: 22px;
     font-weight: 300;
     line-height: 1.5;
     color: var(--dark-text);
@@ -5592,23 +5593,31 @@ button[class*="btn-"]:hover,
     letter-spacing: 0.5px;
 }
 
+.title-heart {
+    display: inline-block;
+    margin: 0 8px;
+    font-size: 0.75em;
+    color: var(--sage-green);
+    transform: translateY(-1px);
+}
+
 @media (max-width: 1200px) {
     .minimal-main-title {
-        font-size: 26px;
+        font-size: 40px;
     }
 
     .minimal-main-subtitle {
-        font-size: 23px;
+        font-size: 20px;
     }
 }
 
 @media (max-width: 992px) {
     .minimal-main-title {
-        font-size: 25px;
+        font-size: 36px;
     }
 
     .minimal-main-subtitle {
-        font-size: 23px;
+        font-size: 19px;
     }
 }
 
@@ -5671,7 +5680,7 @@ button[class*="btn-"]:hover,
 
 .minimal-image-overlay span {
     font-family: 'Playfair Display', serif;
-    font-size: 20px;
+    font-size: 17px;
     color: var(--white);
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -5704,12 +5713,32 @@ button[class*="btn-"]:hover,
 /* ВАРИАНТ 1: Крупный акцент (оригинал) */
 .text-variant-1 .accent-phrase {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 27px;
+    font-size: 28px;
     font-weight: 300;
 	font-style: italic;
    color: var(--dark-text);
     line-height: 1.5;
     margin-bottom: 10px;
+}
+
+@media (max-width: 1200px) {
+    .text-variant-1 .accent-phrase {
+        font-size: 24px;
+    }
+
+    .about-profession-title {
+        font-size: 34px;
+    }
+}
+
+@media (max-width: 992px) {
+    .text-variant-1 .accent-phrase {
+        font-size: 22px;
+    }
+
+    .about-profession-title {
+        font-size: 30px;
+    }
 }
 
 /* ========================================
@@ -6012,11 +6041,11 @@ button[class*="btn-"]:hover,
     }
 
     .minimal-main-title {
-        font-size: 23px;
+        font-size: 30px;
     }
 
     .minimal-main-subtitle {
-        font-size: 22px;
+        font-size: 17px;
     }
 
     .minimal-images-row {
@@ -6048,12 +6077,12 @@ button[class*="btn-"]:hover,
 
 @media (max-width: 480px) {
     .minimal-main-title {
-        font-size: 22px;
+        font-size: 24px;
         letter-spacing: 1.5px;
     }
 
     .minimal-main-subtitle {
-        font-size: 21px;
+        font-size: 15px;
     }
 }
 
@@ -6625,7 +6654,7 @@ button[class*="btn-"]:hover,
 
 /* About Profession Title */
 .about-profession-title {
-    font-size: 42px;
+    font-size: 40px;
     color: var(--dark-sage);
     text-align: center;
     padding: 30px 40px;
@@ -6732,7 +6761,7 @@ button[class*="btn-"]:hover,
 
 @media (max-width: 768px) {
     .about-profession-title {
-        font-size: 28px;
+        font-size: 26px;
         line-height: 1.4;
         padding: 22px 20px;
         color: var(--dark-text);
@@ -7944,6 +7973,18 @@ button[class*="btn-"]:hover,
     margin-bottom: 15px;
 }
 
+@media (max-width: 1200px) {
+    .guides-page-title {
+        font-size: 48px;
+    }
+}
+
+@media (max-width: 992px) {
+    .guides-page-title {
+        font-size: 40px;
+    }
+}
+
 .guides-page-subtitle {
     font-size: 20px;
     line-height: 1.5;
@@ -8530,7 +8571,7 @@ button[class*="btn-"]:hover,
     }
 
     .guides-page-title {
-        font-size: 42px;
+        font-size: 34px;
     }
 
     .guides-page-subtitle {
@@ -8589,6 +8630,12 @@ button[class*="btn-"]:hover,
     .guide-btn-read,
     .guide-btn-save {
         width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .guides-page-title {
+        font-size: 28px;
     }
 }
 
@@ -10198,12 +10245,12 @@ button[class*="btn-"]:hover,
     }
 
     .accent-phrase {
-        font-size: 15px;
+        font-size: 18px;
         line-height: 1.6;
     }
 
     .about-profession-title {
-        font-size: 23px;
+        font-size: 22px;
         line-height: 1.45;
         padding: 18px 16px;
         color: var(--dark-text);
@@ -10503,10 +10550,22 @@ button[class*="btn-"]:hover,
 }
 
 .blog-page-title {
-    font-size: 40px;
+    font-size: 48px;
     color: var(--dark-sage);
     margin-bottom: 30px;
     animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+@media (max-width: 1200px) {
+    .blog-page-title {
+        font-size: 42px;
+    }
+}
+
+@media (max-width: 992px) {
+    .blog-page-title {
+        font-size: 36px;
+    }
 }
 
 .blog-channel-card {
@@ -10700,7 +10759,7 @@ button[class*="btn-"]:hover,
     }
 
     .blog-page-title {
-        font-size: 40px;
+        font-size: 30px;
     }
 
     .blog-channel-card {
@@ -10753,7 +10812,7 @@ button[class*="btn-"]:hover,
 
 @media (max-width: 480px) {
     .blog-page-title {
-        font-size: 32px;
+        font-size: 26px;
     }
 
     .blog-channel-card {
