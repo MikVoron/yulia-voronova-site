@@ -4370,6 +4370,25 @@ button[class*="btn-"]:hover,
 }
 
 @media (max-width: 900px) {
+    .diploma-modal-content {
+        max-width: 96vw;
+        width: 96vw;
+        max-height: 92vh;
+    }
+
+    .diploma-modal-content img {
+        width: 100%;
+        max-height: 88vh;
+        padding: 10px;
+        border-width: 10px;
+    }
+
+    .diploma-modal-nav {
+        padding: 0 8px;
+    }
+}
+
+@media (max-width: 900px) {
     .diploma-modal-prev,
     .diploma-modal-next {
         width: 40px;
