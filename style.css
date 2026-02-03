@@ -7277,8 +7277,9 @@ button[class*="btn-"]:hover,
         width: 100%;
         text-align: center;
         background: #e8e8e8;
-        padding: 0;
+        padding: 10px 0 0;
         overflow: hidden;
+        min-height: 260px;
     }
 
     .about-youtube-section.variant-3 .youtube-computer-image img {
@@ -7286,7 +7287,7 @@ button[class*="btn-"]:hover,
         max-width: none;
         height: auto;
         margin-left: -15%;
-        margin-top: -170px;
+        margin-top: -120px;
         display: block;
     }
 
