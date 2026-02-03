@@ -5074,7 +5074,7 @@ button[class*="btn-"]:hover,
     justify-content: center;
     color: var(--sage-green);
     background: transparent;
-    border: 2px solid var(--sage-green);
+    border: 1px solid var(--sage-green);
     border-radius: 50%;
     transition: all 0.3s ease;
     text-decoration: none;
@@ -7172,6 +7172,59 @@ button[class*="btn-"]:hover,
 
 .about-youtube-section.variant-3 .youtube-subscribe-btn {
     margin: 0 auto;
+}
+
+.about-youtube-section.variant-3 .youtube-cta-note {
+    margin: 22px 0 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+}
+
+.about-youtube-section.variant-3 .youtube-cta-note-title {
+    display: block;
+    font-size: 17px;
+    font-weight: 500;
+    color: #444;
+}
+
+.about-youtube-section.variant-3 .youtube-cta-social {
+    justify-content: center;
+    margin-top: 12px;
+}
+
+@media (min-width: 1025px) {
+    .about-youtube-section.variant-3 {
+        min-height: auto;
+        padding: 0;
+        background: none;
+        margin: 0;
+        gap: 0;
+    }
+
+    .about-youtube-section.variant-3 .youtube-computer-image {
+        display: block;
+        width: 100%;
+        text-align: center;
+        background: #e8e8e8;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .about-youtube-section.variant-3 .youtube-computer-image img {
+        width: 130%;
+        max-width: none;
+        height: auto;
+        margin-left: -15%;
+        margin-top: -210px;
+        display: block;
+    }
+
+    .about-youtube-section.variant-3 .youtube-btn-wrapper {
+        padding: 20px 0 30px;
+        background: #e8e8e8;
+    }
 }
 
 @media (max-width: 1024px) {
