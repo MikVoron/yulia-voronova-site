@@ -951,18 +951,20 @@ button[class*="btn-"]:hover,
     cursor: pointer;
     opacity: 1;
     transform: none;
-    transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1),
-                opacity 0.9s ease,
-                box-shadow 1.2s cubic-bezier(0.2, 0.8, 0.2, 1),
-                border-color 0.9s ease,
-                outline-color 0.9s ease;
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.6s ease,
+                box-shadow 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.6s ease,
+                outline-color 0.6s ease,
+                filter 0.8s ease;
     will-change: transform, opacity, box-shadow;
     z-index: 1;
 }
 
 .grid:hover .grid-item:not(:hover) {
-    transform: scale(0.92) !important;
-    opacity: 0.7 !important;
+    transform: scale(0.96) !important;
+    opacity: 0.75 !important;
+    filter: saturate(0.9) brightness(0.98);
 }
 
 .grid:hover .grid-item.hidden:not(:hover) {
@@ -975,23 +977,25 @@ button[class*="btn-"]:hover,
 
 .grid-item:hover,
 .grid-item.tapped {
-    transform: scale(1.15) !important;
+    transform: translateY(-6px) scale(1.06) !important;
     opacity: 1 !important;
     z-index: 10;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     border: 3px solid rgba(255, 255, 255, 0.9);
     outline: 1px solid rgba(0, 0, 0, 0.1);
     outline-offset: -4px;
+    filter: saturate(1.05) brightness(1.02);
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .grid-item.hidden:hover,
 .grid-item.hidden.tapped {
-    transform: translateY(30px) scale(1.15) !important;
+    transform: translateY(24px) scale(1.06) !important;
 }
 
 .grid-item.hidden.animate:hover,
 .grid-item.hidden.animate.tapped {
-    transform: translateY(0) scale(1.15) !important;
+    transform: translateY(-6px) scale(1.06) !important;
 }
 
 .grid-item.hidden {
@@ -1180,7 +1184,7 @@ button[class*="btn-"]:hover,
 .grid-item img {
 
     object-fit: cover;
-    transition: transform 0.5s;
+    transition: transform 0.8s ease;
 }
 
 .grid-item .card-icon {
@@ -1193,7 +1197,7 @@ button[class*="btn-"]:hover,
     object-fit: contain;
     z-index: 5;
     opacity: 1;
-    transition: opacity 0.6s ease;
+    transition: opacity 0.8s ease;
 }
 
 .grid-item:hover .card-icon,
@@ -1223,7 +1227,7 @@ button[class*="btn-"]:hover,
     justify-content: space-between;
     background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 60%);
     color: var(--white);
-    transition: padding 0.6s ease;
+    transition: padding 0.8s ease;
 }
 
 .grid-item:hover .grid-overlay,
@@ -1247,13 +1251,15 @@ button[class*="btn-"]:hover,
     font-weight: 400;
     margin: 0;
     opacity: 1;
-    transition: opacity 0.6s ease;
+    transform: translateY(0);
+    transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
 /* Заголовки видны по умолчанию, скрываются при ховере */
 .grid-item:hover .grid-overlay h3,
 .grid-item.tapped .grid-overlay h3 {
     opacity: 0;
+    transform: translateY(-6px);
 }
 
 /* Заголовки наверху карточки */
@@ -1283,13 +1289,15 @@ button[class*="btn-"]:hover,
     opacity: 0;
     max-height: 0;
     overflow: hidden;
-    transition: opacity 0.6s ease, max-height 0.6s ease;
+    transform: translateY(8px);
+    transition: opacity 0.8s ease, max-height 0.8s ease, transform 0.8s ease;
 }
 
 .grid-item:hover .grid-overlay p {
-    opacity: 0.9;
+    opacity: 0.95;
     max-height: 300px;
-    transition: opacity 0.6s ease 0.1s, max-height 0.6s ease;
+    transform: translateY(0);
+    transition: opacity 0.8s ease 0.15s, max-height 0.8s ease, transform 0.8s ease 0.1s;
 }
 
 .btn-link {
