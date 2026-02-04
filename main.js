@@ -610,7 +610,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const tariffsSection = document.querySelector('.tariffs') || document.getElementById('tariffs');
             if (tariffsSection) {
                 setTimeout(() => {
-                    tariffsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    tariffsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 100);
             }
         }
