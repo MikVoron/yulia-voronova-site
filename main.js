@@ -97,6 +97,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (index >= cards.length) index = cards.length - 1;
                 currentIndex = index;
 
+                // Закрываем все открытые карточки при смене
+                if (typeof window.closeAllTariffCards === 'function') {
+                    window.closeAllTariffCards();
+                }
+
                 cards.forEach((card, i) => {
                     // Убираем все классы
                     card.classList.remove('active', 'stack-back-1', 'stack-back-2');
@@ -561,6 +566,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Инициализация: присваиваем уникальные ID и ЯВНО закрываем все карточки
     const allCards = document.querySelectorAll('.tariff-card-collapsible');
+    const tariffsGrid = document.querySelector('.tariffs-grid');
     console.log('Found cards:', allCards.length);
 
     allCards.forEach((card, index) => {
@@ -575,19 +581,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Переменная для отслеживания открытой карточки
     let currentlyOpenCardId = null;
 
-    // Функция переключения карточки
-    function toggleCard(clickedCard) {
-        if (!clickedCard) return;
-
-        const clickedCardId = clickedCard.getAttribute('data-card-id');
-        const clickedDetails = clickedCard.querySelector('.tariff-details');
-        const clickedBtn = clickedCard.querySelector('.expand-indicator-line');
-        const clickedLineText = clickedBtn ? clickedBtn.querySelector('.line-text') : null;
-
-        // Проверяем, является ли эта карточка уже открытой
-        const isThisCardOpen = (currentlyOpenCardId === clickedCardId);
-
-        // СНАЧАЛА закрываем ВСЕ карточки
+    // Функция закрытия всех карточек
+    function closeAllCards() {
         document.querySelectorAll('.tariff-card-collapsible').forEach((card) => {
             const details = card.querySelector('.tariff-details');
             const btn = card.querySelector('.expand-indicator-line');
@@ -604,6 +599,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 lineText.textContent = 'Подробнее';
             }
         });
+        
+        // Убираем класс с grid
+        if (tariffsGrid) {
+            tariffsGrid.classList.remove('has-open-card');
+        }
+        
+        currentlyOpenCardId = null;
+    }
+
+    // Экспортируем функцию для использования в carousel
+    window.closeAllTariffCards = closeAllCards;
+
+    // Функция переключения карточки
+    function toggleCard(clickedCard) {
+        if (!clickedCard) return;
+
+        const clickedCardId = clickedCard.getAttribute('data-card-id');
+        const clickedDetails = clickedCard.querySelector('.tariff-details');
+        const clickedBtn = clickedCard.querySelector('.expand-indicator-line');
+        const clickedLineText = clickedBtn ? clickedBtn.querySelector('.line-text') : null;
+
+        // Проверяем, является ли эта карточка уже открытой
+        const isThisCardOpen = (currentlyOpenCardId === clickedCardId);
+
+        // СНАЧАЛА закрываем ВСЕ карточки
+        closeAllCards();
 
         // ПОТОМ, если нужно, открываем только нажатую карточку
         if (!isThisCardOpen) {
@@ -618,8 +639,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 clickedLineText.textContent = 'Свернуть';
             }
             currentlyOpenCardId = clickedCardId;
-        } else {
-            currentlyOpenCardId = null;
+            
+            // Добавляем класс на grid
+            if (tariffsGrid) {
+                tariffsGrid.classList.add('has-open-card');
+            }
+            
+            // Прокручиваем к карточке на мобильном
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    clickedCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
         }
     }
 

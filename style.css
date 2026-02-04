@@ -10149,6 +10149,27 @@ button[class*="btn-"]:hover,
         box-shadow: 0 8px 30px rgba(139, 166, 139, 0.15);
     }
 
+    /* Раскрытая карточка - переходит на static позицию */
+    .tariff-card-collapsible.active.is-open {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    /* Когда карточка раскрыта - скрываем остальные */
+    .tariffs-grid.has-open-card .tariff-card-collapsible:not(.is-open) {
+        display: none;
+    }
+
+    /* Когда карточка раскрыта - высота контейнера авто */
+    .tariffs-grid.has-open-card {
+        min-height: auto;
+    }
+
     /* Точки-индикаторы */
     .tariffs-dots {
         display: flex;
@@ -10215,7 +10236,7 @@ button[class*="btn-"]:hover,
         cursor: pointer;
         color: var(--white);
         transition: background 0.3s ease, opacity 0.3s ease;
-        z-index: 100;
+        z-index: 1000;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
