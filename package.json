@@ -1,0 +1,21 @@
+{
+  "name": "yulia-voronova-site",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "build:css": "cleancss -o style.min.css style.css",
+    "build:js": "terser main.js -o main.min.js -c -m",
+    "build": "npm run build:css && npm run build:js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "cssnano": "^7.1.2",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "terser": "^5.46.0"
+  }
+}

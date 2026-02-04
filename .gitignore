@@ -1,2 +1,10 @@
 # Claude Code settings
 .claude/
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Lighthouse reports
+mob-LH.html
+*-lighthouse*.html

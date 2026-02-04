@@ -2,30 +2,6 @@
 <html lang="ru">
 
 <head>
-	<!-- Google tag (gtag.js) -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-4KF0TQR0VD"></script>
-	<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag() { dataLayer.push(arguments); }
-		gtag('js', new Date());
-
-		gtag('config', 'G-4KF0TQR0VD');
-	</script>
-	<!-- Yandex.Metrika counter -->
-	<script type="text/javascript">
-		(function (m, e, t, r, i, k, a) {
-			m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
-			m[i].l = 1 * new Date();
-			for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
-			k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
-		})(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=106549400', 'ym');
-
-		ym(106549400, 'init', { ssr: true, webvisor: true, clickmap: true, ecommerce: "dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce: true, trackLinks: true });
-	</script>
-	<noscript>
-		<div><img src="https://mc.yandex.ru/watch/106549400" style="position:absolute; left:-9999px;" alt="" /></div>
-	</noscript>
-	<!-- /Yandex.Metrika counter -->
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="robots" content="index, follow">
@@ -50,10 +26,10 @@
 	<link rel="icon" type="image/svg+xml" href="images/favicons/favicon.svg">
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 	<link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon.png">
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="style.min.css">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -247,6 +223,33 @@
 			});
 		});
 	</script>
+
+	<script src="main.min.js" defer></script>
+	
+	<!-- Deferred Analytics -->
+	<script>
+		window.addEventListener('load', function() {
+			var ga = document.createElement('script');
+			ga.src = 'https://www.googletagmanager.com/gtag/js?id=G-4KF0TQR0VD';
+			ga.async = true;
+			document.head.appendChild(ga);
+			ga.onload = function() {
+				window.dataLayer = window.dataLayer || [];
+				function gtag() { dataLayer.push(arguments); }
+				gtag('js', new Date());
+				gtag('config', 'G-4KF0TQR0VD');
+			};
+			(function (m, e, t, r, i, k, a) {
+				m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+				m[i].l = 1 * new Date();
+				k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+			})(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=106549400', 'ym');
+			ym(106549400, 'init', { clickmap: true, trackLinks: true, accurateTrackBounce: true });
+		});
+	</script>
+	<noscript>
+		<div><img src="https://mc.yandex.ru/watch/106549400" style="position:absolute; left:-9999px;" alt="" /></div>
+	</noscript>
 </body>
 
 </html>
