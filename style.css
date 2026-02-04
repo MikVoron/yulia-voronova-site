@@ -658,7 +658,7 @@ body {
 
 .nav {
     display: flex;
-    gap: 15px;
+    gap: 25px;
 }
 
 .nav a {
@@ -7271,7 +7271,7 @@ button[class*="btn-"]:hover,
         max-width: none;
         height: auto;
         margin-left: -15%;
-        margin-top: -210px;
+        margin-top: -130px;
         display: block;
     }
 
@@ -9809,8 +9809,9 @@ button[class*="btn-"]:hover,
         height: 100vh;
         background: linear-gradient(135deg, var(--dark-sage) 0%, var(--sage-green) 100%);
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
+        padding-top: 100px;
         gap: 5px;
         z-index: 1000;
         opacity: 0;

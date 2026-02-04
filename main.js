@@ -605,6 +605,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // СНАЧАЛА закрываем ВСЕ карточки
         closeAllCards();
 
+        // Если карточка была открыта и мы её закрываем - прокручиваем к секции тарифов
+        if (isThisCardOpen && window.innerWidth <= 768) {
+            const tariffsSection = document.querySelector('.tariffs') || document.getElementById('tariffs');
+            if (tariffsSection) {
+                setTimeout(() => {
+                    tariffsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+        }
+
         // ПОТОМ, если нужно, открываем только нажатую карточку
         if (!isThisCardOpen) {
             clickedCard.classList.add('is-open');
