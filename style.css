@@ -658,7 +658,7 @@ body {
 
 .nav {
     display: flex;
-    gap: 35px;
+    gap: 20px;
 }
 
 .nav a {
