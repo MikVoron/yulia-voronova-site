@@ -819,7 +819,7 @@ body {
 
 .hero-title {
     font-family: var(--font-cormorant);
-    font-size: 49px;
+    font-size: 56px;
     font-weight: 400;
     line-height: 1.2;
     margin-bottom: 15px;
@@ -862,7 +862,7 @@ body {
 
 .hero-subtitle {
     font-family: var(--font-cormorant);
-    font-size: 24px;
+    font-size: 27px;
     font-weight: 300;
     line-height: 1.4;
     margin: 8px 0 30px;
@@ -5659,6 +5659,7 @@ button[class*="btn-"]:hover,
     display: inline-block;
     font-weight: 400;
     letter-spacing: 4px;
+    margin-bottom: 8px;
 }
 
 .minimal-main-title-role {
@@ -5667,6 +5668,7 @@ button[class*="btn-"]:hover,
     font-size: 0.85em;
     color: var(--sage-green);
     letter-spacing: 2px;
+    margin-bottom: 15px;
 }
 
 .minimal-subtitle {
