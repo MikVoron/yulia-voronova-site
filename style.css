@@ -11036,3 +11036,39 @@ button[class*="btn-"]:hover,
         margin-top: 30px;
     }
 }
+
+/* Performance: отключаем анимации при запросе пользователя */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Performance: упрощаем анимации на мобильных для экономии батареи */
+@media (max-width: 768px) {
+    .services-grid .grid-item,
+    .hero-title,
+    .hero-subtitle,
+    .hero-cta,
+    .mission-text {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+    
+    .grid-item:hover,
+    .grid-item.tapped {
+        transform: none !important;
+        box-shadow: none;
+    }
+    
+    .grid:hover .grid-item:not(:hover) {
+        transform: none !important;
+        opacity: 1 !important;
+        filter: none;
+    }
+}

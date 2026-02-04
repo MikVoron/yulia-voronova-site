@@ -44,7 +44,7 @@
 				"https://vk.com/voronova_nutrition",
 				"https://youtube.com/@voronova_nutrition"
 			],
-			"knowsAbout": ["Нутрициология", "Здоровое питание", "Коррекция веса", "Анализ крови", "Диетология", "Профилактическая медицина"],
+			"knowsAbout": ["Нутрициология", "Здоровое питание", "Коррекция веса", "Разбор анализов", "Диетология", "Снижение холестерина", "Правильное питание", "Фитнес и питание", "Добор белка", "Повышение ферритина"],
 			"hasOccupation": {
 				"@type": "Occupation",
 				"name": "Нутрициолог",
@@ -57,25 +57,72 @@
 	<link rel="icon" type="image/svg+xml" href="images/favicons/favicon.svg">
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 	<link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon.png">
-	
+
 	<!-- Critical CSS -->
 	<style>
-		:root{--sage-green:#9cb07e;--text-dark:#333;--font-montserrat:'Montserrat',sans-serif}
-		*{margin:0;padding:0;box-sizing:border-box}
-		body{font-family:var(--font-montserrat);color:var(--text-dark);line-height:1.6;background:#fff}
-		.container{max-width:1200px;margin:0 auto;padding:0 20px}
-		.header{position:fixed;top:0;left:0;width:100%;background:#fff;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,.05);padding:10px 0}
-		.header-content{display:flex;justify-content:space-between;align-items:center}
-		.logo{display:flex;align-items:center;text-decoration:none;color:var(--text-dark)}
-		.logo-img{width:40px;height:40px;margin-right:10px;object-fit:contain}
+		:root {
+			--sage-green: #9cb07e;
+			--text-dark: #333;
+			--font-montserrat: 'Montserrat', sans-serif
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box
+		}
+
+		body {
+			font-family: var(--font-montserrat);
+			color: var(--text-dark);
+			line-height: 1.6;
+			background: #fff
+		}
+
+		.container {
+			max-width: 1200px;
+			margin: 0 auto;
+			padding: 0 20px
+		}
+
+		.header {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			background: #fff;
+			z-index: 1000;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+			padding: 10px 0
+		}
+
+		.header-content {
+			display: flex;
+			justify-content: space-between;
+			align-items: center
+		}
+
+		.logo {
+			display: flex;
+			align-items: center;
+			text-decoration: none;
+			color: var(--text-dark)
+		}
+
+		.logo-img {
+			width: 40px;
+			height: 40px;
+			margin-right: 10px;
+			object-fit: contain
+		}
 	</style>
-	
+
 	<!-- DNS Prefetch for third-party domains -->
 	<link rel="dns-prefetch" href="https://www.googletagmanager.com">
 	<link rel="dns-prefetch" href="https://mc.yandex.ru">
 	<link rel="dns-prefetch" href="https://fonts.googleapis.com">
 	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
-	
+
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -270,8 +317,8 @@
 				</a>
 				<a href="https://rutube.ru/channel/47038007/" class="social-link" aria-label="Rutube">
 					<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-						<circle cx="12" cy="12" r="12" fill="currentColor"/>
-						<path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff"/>
+						<circle cx="12" cy="12" r="12" fill="currentColor" />
+						<path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff" />
 					</svg>
 				</a>
 			</div>
@@ -436,9 +483,10 @@
 			<div class="footer-content">
 				<div class="footer-left">
 					<a href="/" class="logo">
-					<img src="images/icons/logo-small.svg" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="36" height="36">
-					<span>ЮЛИЯ ВОРОНОВА</span>
-				</a>			</div>
+						<img src="images/icons/logo-small.svg" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="36" height="36">
+						<span>ЮЛИЯ ВОРОНОВА</span>
+					</a>
+				</div>
 				<div class="footer-center">
 					<nav class="footer-nav footer-nav-grid">
 						<a href="/#home">Главная</a>
@@ -475,8 +523,8 @@
 						</a>
 						<a href="https://rutube.ru/channel/47038007/" class="social-link" aria-label="RuTube">
 							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-								<circle cx="12" cy="12" r="12" fill="currentColor"/>
-								<path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff"/>
+								<circle cx="12" cy="12" r="12" fill="currentColor" />
+								<path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff" />
 							</svg>
 						</a>
 					</div>
@@ -491,15 +539,15 @@
 	</footer>
 
 	<script src="main.min.js" defer></script>
-	
+
 	<!-- Deferred Analytics -->
 	<script>
-		window.addEventListener('load', function() {
+		window.addEventListener('load', function () {
 			var ga = document.createElement('script');
 			ga.src = 'https://www.googletagmanager.com/gtag/js?id=G-4KF0TQR0VD';
 			ga.async = true;
 			document.head.appendChild(ga);
-			ga.onload = function() {
+			ga.onload = function () {
 				window.dataLayer = window.dataLayer || [];
 				function gtag() { dataLayer.push(arguments); }
 				gtag('js', new Date());
