@@ -18,10 +18,14 @@
 			m[i].l = 1 * new Date();
 			for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
 			k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
-		})(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=106549400', 'ym');
+		})(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=106615581', 'ym');
 
-		ym(106549400, 'init', { ssr: true, webvisor: true, clickmap: true, ecommerce: "dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce: true, trackLinks: true });
+		ym(106615581, 'init', { ssr: true, clickmap: true, ecommerce: "dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce: true, trackLinks: true });
 	</script>
+	<noscript>
+		<div><img src="https://mc.yandex.ru/watch/106615581" style="position:absolute; left:-9999px;" alt="" /></div>
+	</noscript>
+	<!-- /Yandex.Metrika counter -->
 	<noscript>
 		<div><img src="https://mc.yandex.ru/watch/106549400" style="position:absolute; left:-9999px;" alt="" /></div>
 	</noscript>
@@ -181,10 +185,17 @@
 	<link rel="icon" type="image/svg+xml" href="images/favicons/favicon.svg">
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 	<link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon.png">
-	<link rel="stylesheet" href="style.css">
+	<link rel="preload" as="image" href="images/YV-big.webp">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=A+Day+Without+Sun&family=Sensa+Serif&family=Terek&family=Amatic+SC&family=Baskervville:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&family=Prata&family=Libre+Bodoni:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+	<noscript>
+		<link href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+	</noscript>
+	<link rel="preload" href="style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+	<noscript>
+		<link rel="stylesheet" href="style.css">
+	</noscript>
 </head>
 
 <body>
@@ -193,7 +204,7 @@
 		<div class="container">
 			<div class="header-content">
 				<a href="/" class="logo">
-					<img src="images/icons/logo.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img">
+					<img src="images/icons/logo.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="36" height="36">
 					<span>ЮЛИЯ ВОРОНОВА</span>
 				</a>
 				<button class="burger-menu" aria-label="Меню">
@@ -218,293 +229,296 @@
 		</div>
 	</header>
 
-	<!-- Hero Section -->
-	<section class="hero" id="home">
-		<div class="container">
-			<div class="hero-content">
-				<div class="hero-image hero-image-variants">
-					<img src="images/YV-big.webp" alt="Юлия Воронова, нутрициолог — консультации по питанию">
-					<div class="hero-tag">
-						<span class="script-text"></span>
-						@voronova_nutrition
+	<main id="main">
+
+		<!-- Hero Section -->
+		<section class="hero" id="home">
+			<div class="container">
+				<div class="hero-content">
+					<div class="hero-image hero-image-variants">
+						<img src="images/YV-big.webp" srcset="images/YV-small.webp 400w, images/YV-big.webp 900w" sizes="(max-width: 768px) 70vw, 420px" alt="Юлия Воронова, нутрициолог — консультации по питанию" loading="eager" fetchpriority="high" decoding="async" width="400" height="500">
+						<div class="hero-tag">
+							<span class="script-text"></span>
+							@voronova_nutrition
+						</div>
+					</div>
+					<div class="hero-text">
+						<h1 class="hero-title">
+							Юлия Воронова<br> доказательный нутрициолог
+						</h1>
+						<p class="hero-subtitle">Моя цель услышать ваш внутренний запрос и бережно поддержать на пути к самочувствию, которое важно именно вам.</p>
 					</div>
 				</div>
-				<div class="hero-text">
-					<h1 class="hero-title">
-						Юлия Воронова<br> доказательный нутрициолог
-					</h1>
-					<p class="hero-subtitle">Моя цель услышать ваш внутренний запрос и бережно поддержать на пути к самочувствию, которое важно именно вам.</p>
+				<div class="hero-cta">
+					<a href="about.html" class="btn-hero-call">Обо мне</a>
 				</div>
 			</div>
-			<div class="hero-cta">
-				<a href="about.html" class="btn-hero-call">Обо мне</a>
-			</div>
-		</div>
-	</section>
+		</section>
 
-	<!-- Mission Statement -->
-	<section class="mission">
-		<div class="container">
-			<p class="mission-text script-text">
-				Ваши цели. Ваш темп. Моя поддержка.
-			</p>
-		</div>
-	</section>
-
-	<!-- About Section -->
-	<section class="about">
-		<div class="container">
-			<div class="about-content">
-				<p class="about-text">
-					УЧИМСЯ СЛЫШАТЬ СВОЕ ТЕЛО. НАСТРАИВАЕМ РАЦИОН, СОН И АКТИВНОСТЬ. УПРАВЛЯЕМ СТРЕССОМ.<br>ТОЛЬКО ТАКОЙ ПОДХОД ДАЕТ <em>РЕЗУЛЬТАТ</em>, КОТОРЫЙ <em>ОСТАЕТСЯ С ВАМИ НАВСЕГДА.</em>
+		<!-- Mission Statement -->
+		<section class="mission defer-render">
+			<div class="container">
+				<p class="mission-text script-text">
+					Ваши цели. Ваш темп. Моя поддержка.
 				</p>
 			</div>
-		</div>
-	</section>
+		</section>
 
-	<!-- Services Grid -->
-	<section class="services-grid">
-		<div class="container-wide">
-			<div class="grid">
-				<div class="grid-item first-card">
-					<div class="first-card-content">
-						<h3>Как я работаю</h3>
-						<div class="first-card-image">
-							<img src="images/YV-small.webp" alt="Юлия Воронова, нутрициолог — консультации по питанию">
+		<!-- About Section -->
+		<section class="about defer-render">
+			<div class="container">
+				<div class="about-content">
+					<p class="about-text">
+						УЧИМСЯ СЛЫШАТЬ СВОЕ ТЕЛО. НАСТРАИВАЕМ РАЦИОН, СОН И АКТИВНОСТЬ. УПРАВЛЯЕМ СТРЕССОМ.<br>ТОЛЬКО ТАКОЙ ПОДХОД ДАЕТ <em>РЕЗУЛЬТАТ</em>, КОТОРЫЙ <em>ОСТАЕТСЯ С ВАМИ НАВСЕГДА.</em>
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- Services Grid -->
+		<section class="services-grid defer-render">
+			<div class="container-wide">
+				<h2 class="section-title visually-hidden">Как я работаю</h2>
+				<div class="grid">
+					<div class="grid-item first-card">
+						<div class="first-card-content">
+							<h3>Как я работаю</h3>
+							<div class="first-card-image">
+								<img src="images/YV-small.webp" alt="Юлия Воронова, нутрициолог — консультации по питанию" loading="lazy" decoding="async" width="267" height="267">
+							</div>
+						</div>
+						<div class="first-card-hover">
+							<p>Вместе ставим реальные цели и идем к ним маленькими шагами.</p>
 						</div>
 					</div>
-					<div class="first-card-hover">
-						<p>Вместе ставим реальные цели и идем к ним маленькими шагами.</p>
+					<div class="grid-item discuss-card">
+						<img src="images/icons/discuss.png" alt="Обсуждение запросов и анализ питания" class="card-icon" loading="lazy" width="60" height="60">
+						<div class="grid-overlay dark">
+							<p>Обсуждаем запросы, симптомы, анализируем дневник питания, образ жизни и, если необходимо, разбираем анализы.</p>
+							<h3>Обсуждение</h3>
+						</div>
 					</div>
-				</div>
-				<div class="grid-item discuss-card">
-					<img src="images/icons/discuss.png" alt="Обсуждение запросов и анализ питания" class="card-icon" loading="lazy">
-					<div class="grid-overlay dark">
-						<p>Обсуждаем запросы, симптомы, анализируем дневник питания, образ жизни и, если необходимо, разбираем анализы.</p>
-						<h3>Обсуждение</h3>
+					<div class="grid-item scientific-card">
+						<div class="grid-overlay dark">
+							<h3>Научный подход</h3>
+							<p>Мои рекомендации основаны на мировых научных стандартах, а не на мифах из соцсетей. Я перевожу сложные знания в простые шаги, которые легко внедрить в вашу жизнь.</p>
+						</div>
 					</div>
-				</div>
-				<div class="grid-item scientific-card">
-					<div class="grid-overlay dark">
-						<h3>Научный подход</h3>
-						<p>Мои рекомендации основаны на мировых научных стандартах, а не на мифах из соцсетей. Я перевожу сложные знания в простые шаги, которые легко внедрить в вашу жизнь.</p>
+					<div class="grid-item">
+						<img src="images/icons/goal.png" alt="Индивидуальный подбор БАДов" class="card-icon" loading="lazy" width="60" height="60">
+						<div class="grid-overlay dark">
+							<h3>Ничего лишнего</h3>
+							<p>БАДы не назначаю «на всякий случай». Только точечно, по делу и строго по результатам анализов.</p>
+						</div>
 					</div>
-				</div>
-				<div class="grid-item">
-					<img src="images/icons/goal.png" alt="Индивидуальный подбор БАДов" class="card-icon" loading="lazy">
-					<div class="grid-overlay dark">
-						<h3>Ничего лишнего</h3>
-						<p>БАДы не назначаю «на всякий случай». Только точечно, по делу и строго по результатам анализов.</p>
+					<div class="grid-item habits-card">
+						<div class="grid-overlay dark">
+							<p>Шаг за шагом в комфортном для вас темпе, мы двигаемся к вашим поставленым целям.</p>
+							<h3>Новые привычки</h3>
+						</div>
 					</div>
-				</div>
-				<div class="grid-item habits-card">
-					<div class="grid-overlay dark">
-						<p>Шаг за шагом в комфортном для вас темпе, мы двигаемся к вашим поставленым целям.</p>
-						<h3>Новые привычки</h3>
-					</div>
-				</div>
-				<div class="grid-item">
-					<img src="images/icons/progress.png" alt="Отслеживание прогресса положительных изменений в питании и привычках клиента" class="card-icon" loading="lazy">
-					<div class="grid-overlay light">
-						<h3 class="progress-title">Ваш прогресс</h3>
-						<p>Мы фиксируем не только внешние перемены, но и ваше внутреннее состояние: уровень энергии, качество сна и легкость, которые становятся вашей новой нормой.</p>
+					<div class="grid-item">
+						<img src="images/icons/progress.png" alt="Отслеживание прогресса положительных изменений в питании и привычках клиента" class="card-icon" loading="lazy" width="60" height="60">
+						<div class="grid-overlay light">
+							<h3 class="progress-title">Ваш прогресс</h3>
+							<p>Мы фиксируем не только внешние перемены, но и ваше внутреннее состояние: уровень энергии, качество сна и легкость, которые становятся вашей новой нормой.</p>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	</section>
+		</section>
 
-	<!-- Services Section -->
-	<section class="services-range">
-		<div class="container">
-			<h2 class="section-title script-text">Чем я могу вам помочь?</h2>
-			<div class="services-columns">
-				<div class="service-column">
-					<div class="service-icon-small service-icon-food"></div>
-					<h3 class="script-text">Питание</h3>
-					<p>Бережно подстрою питание под ваши цели - будь то стройность, энергия или женское здоровье. Мы не будем всё запрещать, а научимся адаптировать ваши любимые блюда, сделав их полезными.</p>
-				</div>
-				<div class="service-column">
-					<div class="service-icon-small service-icon-medical"></div>
-					<h3 class="script-text">Анализы и дефициты</h3>
-					<p>Помогу разобраться, какие показатели стоит проверить именно вам, исходя из ваших жалоб, и расшифрую результаты, чтобы мы могли восполнить дефициты.</p>
-				</div>
-				<div class="service-column">
-					<div class="service-icon-small service-icon-habits"></div>
-					<h3 class="script-text">Здоровые привычки</h3>
-					<p>Помогу вам бережно внедрить привычки, которые влияют на самочувствие не меньше, чем еда - это работа со стрессом, качественный сон и движение в удовольствие.</p>
+		<!-- Services Section -->
+		<section class="services-range defer-render">
+			<div class="container">
+				<h2 class="section-title script-text">Чем я могу вам помочь?</h2>
+				<div class="services-columns">
+					<div class="service-column">
+						<div class="service-icon-small service-icon-food"></div>
+						<h3 class="script-text">Питание</h3>
+						<p>Бережно подстрою питание под ваши цели - будь то стройность, энергия или женское здоровье. Мы не будем всё запрещать, а научимся адаптировать ваши любимые блюда, сделав их полезными.</p>
+					</div>
+					<div class="service-column">
+						<div class="service-icon-small service-icon-medical"></div>
+						<h3 class="script-text">Анализы и дефициты</h3>
+						<p>Помогу разобраться, какие показатели стоит проверить именно вам, исходя из ваших жалоб, и расшифрую результаты, чтобы мы могли восполнить дефициты.</p>
+					</div>
+					<div class="service-column">
+						<div class="service-icon-small service-icon-habits"></div>
+						<h3 class="script-text">Здоровые привычки</h3>
+						<p>Помогу вам бережно внедрить привычки, которые влияют на самочувствие не меньше, чем еда - это работа со стрессом, качественный сон и движение в удовольствие.</p>
+					</div>
 				</div>
 			</div>
-		</div>
-	</section>
+		</section>
 
-	<!-- Список с линиями -->
-	<section class="first-meeting-v4">
-		<div class="container">
-			<div class="meeting-centered">
-				<h2 class="badge-line">Первая встреча - это знакомство без обязательств</h2>
+		<!-- Список с линиями -->
+		<section class="first-meeting-v4 defer-render">
+			<div class="container">
+				<div class="meeting-centered">
+					<h2 class="badge-line">Первая встреча - это знакомство без обязательств</h2>
 
-				<div class="meeting-steps">
-					<div class="step-item">
-						<div class="step-marker"></div>
-						<div class="step-content">
-							<h3>Общаемся</h3>
-							<p>Ставим реалистичные цели</p>
+					<div class="meeting-steps">
+						<div class="step-item">
+							<div class="step-marker"></div>
+							<div class="step-content">
+								<h3>Общаемся</h3>
+								<p>Ставим реалистичные цели</p>
+							</div>
+						</div>
+						<div class="step-item">
+							<div class="step-marker"></div>
+							<div class="step-content">
+								<h3>Намечаем путь</h3>
+								<p>Создаем понятный план, который органично впишется в вашу жизнь</p>
+							</div>
+						</div>
+						<div class="step-item">
+							<div class="step-marker"></div>
+							<div class="step-content">
+								<h3>Выбираем формат</h3>
+								<p>После встречи вы сможете выбрать удобный формат сопровождения, который лучше всего вам подходит</p>
+							</div>
 						</div>
 					</div>
-					<div class="step-item">
-						<div class="step-marker"></div>
-						<div class="step-content">
-							<h3>Намечаем путь</h3>
-							<p>Создаем понятный план, который органично впишется в вашу жизнь</p>
-						</div>
-					</div>
-					<div class="step-item">
-						<div class="step-marker"></div>
-						<div class="step-content">
-							<h3>Выбираем формат</h3>
-							<p>После встречи вы сможете выбрать удобный формат сопровождения, который лучше всего вам подходит</p>
-						</div>
-					</div>
-				</div>
 
-				<a href="https://t.me/YuliaVoronova78" class="btn-soft">Записаться на консультацию</a>
-			</div>
-		</div>
-	</section>
-
-	<!-- ВАРИАНТ ТАРИФОВ 1: Карточки с раскрытием -->
-	<section class="tariffs tariffs-v1" id="tariffs">
-		<div class="container">
-			<h2 class="section-title script-text">Выберите свой комфортный темп</h2>
-			<p class="tariffs-subtitle">До консультации я попрошу вас заполнить небольшую анкету.</p>
-
-			<div class="tariffs-carousel-wrapper">
-				<button class="tariffs-arrow tariffs-arrow-left" aria-label="Предыдущий">
-					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<path d="M15 18l-6-6 6-6" />
-					</svg>
-				</button>
-				<div class="tariffs-grid">
-					<!-- Тариф 1: Разовая консультация -->
-					<div class="tariff-card-collapsible">
-						<div class="tariff-card-preview">
-							<div class="tariff-header-compact">
-								<h3 class="tariff-name-compact">РАЗОВАЯ КОНСУЛЬТАЦИЯ</h3>
-								<p class="tariff-subtitle-compact">Первые шаги</p>
-								<p class="tariff-duration-compact">Формат: онлайн<br>
-									Одна встреча 60-90 минут</p>
-							</div>
-							<div class="tariff-price-compact">
-								<span class="price-amount-compact">3 000</span>
-								<span class="price-currency-compact">₽</span>
-							</div>
-							<button class="expand-indicator-line">
-								<span class="line-text">Подробнее</span>
-							</button>
-						</div>
-						<div class="tariff-details">
-							<div class="tariff-description">
-
-							</div>
-							<h4 class="features-title">Что вы получите</h4>
-							<ul class="tariff-features">
-								<li>Найдем связь между вашим рационом, образом жизни и симптомами</li>
-								<li>Проанализируем анкету и дневник питания за 3-5 дней</li>
-								<li>Разберем уже имеющиеся анализы или составим список рекомендуемых</li>
-								<li>Поддержка в чате в течение недели</li>
-								<li>Письменные индивидуальные рекомендации - чёткий план по питанию и образу жизни</li>
-							</ul>
-						</div>
-						<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed">Записаться на консультацию</a>
-					</div>
-
-					<!-- Тариф 2: Консультация 1+1 (популярный) -->
-					<div class="tariff-card-collapsible popular">
-						<span class="popular-badge">Чаще выбирают</span>
-						<div class="tariff-card-preview">
-							<div class="tariff-header-compact">
-								<h3 class="tariff-name-compact">КОНСУЛЬТАЦИЯ 1+1</h3>
-								<p class="tariff-subtitle-compact">Оптимальный выбор</p>
-								<p class="tariff-duration-compact">Формат: онлайн<br>
-									Две встречи по 60-90 минут</p>
-							</div>
-							<div class="tariff-price-compact">
-								<span class="price-amount-compact">6 000</span>
-								<span class="price-currency-compact">₽</span>
-							</div>
-							<button class="expand-indicator-line">
-								<span class="line-text">Подробнее</span>
-							</button>
-						</div>
-						<div class="tariff-details">
-							<h4 class="features-title">Первая встреча:</h4>
-							<ul class="tariff-features">
-								<li>Найдем связь между вашим рационом, образом жизни и симптомами</li>
-								<li>Проанализируем анкету и дневник питания за 3-5 дней</li>
-								<li>Разберем уже имеющиеся анализы и составим список рекомендуемых</li>
-								<li>Поддержка в чате в течение недели</li>
-								<li>Письменные индивидуальные рекомендации</li>
-							</ul>
-							<h4 class="features-title">Вторая встреча через 4-6 недель:</h4>
-							<ul class="tariff-features">
-								<li>Оценим перемены в самочувствии и результаты повторных анализов</li>
-								<li>Скорректируем наши шаги и составим новые рекомендации</li>
-								<li><strong>БОНУС!</strong> Сборник моих собственных рецептов в подарок!</li>
-							</ul>
-						</div>
-						<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed">Записаться на консультацию</a>
-					</div>
-
-					<!-- Тариф 3: За руку -->
-					<div class="tariff-card-collapsible">
-						<div class="tariff-card-preview">
-							<div class="tariff-header-compact">
-								<h3 class="tariff-name-compact">ЗА РУКУ</h3>
-								<p class="tariff-subtitle-compact">Устойчивые перемены</p>
-								<p class="tariff-duration-compact">Формат: онлайн <br>
-									Один месяц <br>(возможно продление)</p>
-							</div>
-							<div class="tariff-price-compact">
-								<span class="price-amount-compact">12 000</span>
-								<span class="price-currency-compact">₽</span>
-							</div>
-							<button class="expand-indicator-line">
-								<span class="line-text">Подробнее</span>
-							</button>
-						</div>
-						<div class="tariff-details">
-							<h4 class="features-title">Что вы получите:</h4>
-							<ul class="tariff-features">
-								<li>Четыре онлайн-встречи (1 раз в неделю, продолжительность 30-60 минут)</li>
-								<li>Детальный разбор вашего состояния: от анализов до персонального рациона</li>
-								<li>Личное сопровождение: я на связи в рабочее время</li>
-								<li>Гибкий подход: корректируем план питания, если это необходимо</li>
-								<li>Живой формат: ваше самочувствие и удобство - главный приоритет</li>
-								<li>Письменные индивидуальные рекомендации</li>
-								<li><strong>БОНУС!</strong> Сборник моих собственных рецептов в подарок!</li>
-							</ul>
-						</div>
-						<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed">Записаться на консультацию</a>
-					</div>
-				</div>
-				<button class="tariffs-arrow tariffs-arrow-right" aria-label="Следующий">
-					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<path d="M9 18l6-6-6-6" />
-					</svg>
-				</button>
-				<!-- Точки-индикаторы -->
-				<div class="tariffs-dots">
-					<span class="tariff-dot" data-index="0"></span>
-					<span class="tariff-dot" data-index="1"></span>
-					<span class="tariff-dot" data-index="2"></span>
+					<a href="https://t.me/YuliaVoronova78" class="btn-soft">Записаться на консультацию</a>
 				</div>
 			</div>
-		</div>
-	</section>
+		</section>
 
-	<!-- ВАРИАНТ ТАРИФОВ 5: Карточки с табами -->
-	<!--<section class="tariffs tariffs-v5" id="tariffs-v5" style="display: none;">
+		<!-- ВАРИАНТ ТАРИФОВ 1: Карточки с раскрытием -->
+		<section class="tariffs tariffs-v1 defer-render" id="tariffs">
+			<div class="container">
+				<h2 class="section-title script-text">Выберите свой комфортный темп</h2>
+				<p class="tariffs-subtitle">До консультации я попрошу вас заполнить небольшую анкету.</p>
+
+				<div class="tariffs-carousel-wrapper">
+					<button class="tariffs-arrow tariffs-arrow-left" aria-label="Предыдущий">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M15 18l-6-6 6-6" />
+						</svg>
+					</button>
+					<div class="tariffs-grid">
+						<!-- Тариф 1: Разовая консультация -->
+						<div class="tariff-card-collapsible">
+							<div class="tariff-card-preview">
+								<div class="tariff-header-compact">
+									<h3 class="tariff-name-compact">РАЗОВАЯ КОНСУЛЬТАЦИЯ</h3>
+									<p class="tariff-subtitle-compact">Первые шаги</p>
+									<p class="tariff-duration-compact">Формат: онлайн<br>
+										Одна встреча 60-90 минут</p>
+								</div>
+								<div class="tariff-price-compact">
+									<span class="price-amount-compact">3 000</span>
+									<span class="price-currency-compact">₽</span>
+								</div>
+								<button class="expand-indicator-line">
+									<span class="line-text">Подробнее</span>
+								</button>
+							</div>
+							<div class="tariff-details">
+								<div class="tariff-description">
+
+								</div>
+								<h4 class="features-title">Что вы получите</h4>
+								<ul class="tariff-features">
+									<li>Найдем связь между вашим рационом, образом жизни и симптомами</li>
+									<li>Проанализируем анкету и дневник питания за 3-5 дней</li>
+									<li>Разберем уже имеющиеся анализы или составим список рекомендуемых</li>
+									<li>Поддержка в чате в течение недели</li>
+									<li>Письменные индивидуальные рекомендации - чёткий план по питанию и образу жизни</li>
+								</ul>
+							</div>
+							<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed">Записаться на консультацию</a>
+						</div>
+
+						<!-- Тариф 2: Консультация 1+1 (популярный) -->
+						<div class="tariff-card-collapsible popular">
+							<span class="popular-badge">Чаще выбирают</span>
+							<div class="tariff-card-preview">
+								<div class="tariff-header-compact">
+									<h3 class="tariff-name-compact">КОНСУЛЬТАЦИЯ 1+1</h3>
+									<p class="tariff-subtitle-compact">Оптимальный выбор</p>
+									<p class="tariff-duration-compact">Формат: онлайн<br>
+										Две встречи по 60-90 минут</p>
+								</div>
+								<div class="tariff-price-compact">
+									<span class="price-amount-compact">6 000</span>
+									<span class="price-currency-compact">₽</span>
+								</div>
+								<button class="expand-indicator-line">
+									<span class="line-text">Подробнее</span>
+								</button>
+							</div>
+							<div class="tariff-details">
+								<h4 class="features-title">Первая встреча:</h4>
+								<ul class="tariff-features">
+									<li>Найдем связь между вашим рационом, образом жизни и симптомами</li>
+									<li>Проанализируем анкету и дневник питания за 3-5 дней</li>
+									<li>Разберем уже имеющиеся анализы и составим список рекомендуемых</li>
+									<li>Поддержка в чате в течение недели</li>
+									<li>Письменные индивидуальные рекомендации</li>
+								</ul>
+								<h4 class="features-title">Вторая встреча через 4-6 недель:</h4>
+								<ul class="tariff-features">
+									<li>Оценим перемены в самочувствии и результаты повторных анализов</li>
+									<li>Скорректируем наши шаги и составим новые рекомендации</li>
+									<li><strong>БОНУС!</strong> Сборник моих собственных рецептов в подарок!</li>
+								</ul>
+							</div>
+							<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed">Записаться на консультацию</a>
+						</div>
+
+						<!-- Тариф 3: За руку -->
+						<div class="tariff-card-collapsible">
+							<div class="tariff-card-preview">
+								<div class="tariff-header-compact">
+									<h3 class="tariff-name-compact">ЗА РУКУ</h3>
+									<p class="tariff-subtitle-compact">Устойчивые перемены</p>
+									<p class="tariff-duration-compact">Формат: онлайн <br>
+										Один месяц <br>(возможно продление)</p>
+								</div>
+								<div class="tariff-price-compact">
+									<span class="price-amount-compact">12 000</span>
+									<span class="price-currency-compact">₽</span>
+								</div>
+								<button class="expand-indicator-line">
+									<span class="line-text">Подробнее</span>
+								</button>
+							</div>
+							<div class="tariff-details">
+								<h4 class="features-title">Что вы получите:</h4>
+								<ul class="tariff-features">
+									<li>Четыре онлайн-встречи (1 раз в неделю, продолжительность 30-60 минут)</li>
+									<li>Детальный разбор вашего состояния: от анализов до персонального рациона</li>
+									<li>Личное сопровождение: я на связи в рабочее время</li>
+									<li>Гибкий подход: корректируем план питания, если это необходимо</li>
+									<li>Живой формат: ваше самочувствие и удобство - главный приоритет</li>
+									<li>Письменные индивидуальные рекомендации</li>
+									<li><strong>БОНУС!</strong> Сборник моих собственных рецептов в подарок!</li>
+								</ul>
+							</div>
+							<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed">Записаться на консультацию</a>
+						</div>
+					</div>
+					<button class="tariffs-arrow tariffs-arrow-right" aria-label="Следующий">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M9 18l6-6-6-6" />
+						</svg>
+					</button>
+					<!-- Точки-индикаторы -->
+					<div class="tariffs-dots">
+						<span class="tariff-dot" data-index="0"></span>
+						<span class="tariff-dot" data-index="1"></span>
+						<span class="tariff-dot" data-index="2"></span>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- ВАРИАНТ ТАРИФОВ 5: Карточки с табами -->
+		<!--<section class="tariffs tariffs-v5" id="tariffs-v5" style="display: none;">
 		<div class="container">
 			<h2 class="section-title script-text">Инвестируйте в своё здоровье</h2>
 			<p class="tariffs-subtitle">Выберите формат сопровождения, который подходит именно вам
@@ -643,246 +657,248 @@
 	</section>
 
 	<!-- FAQ Section -->
-	<section class="faq" id="faq">
-		<div class="container">
-			<h2 class="section-title script-text">Частые вопросы (FAQ)</h2>
+		<section class="faq defer-render" id="faq">
+			<div class="container">
+				<h2 class="section-title script-text">Частые вопросы (FAQ)</h2>
 
-			<div class="faq-list">
-				<!-- Вопрос 1 -->
-				<div class="faq-item">
-					<div class="faq-question">
-						<span class="faq-icon">+</span>
-						<h3>Когда стоит обратиться к нутрициологу?</h3>
+				<div class="faq-list">
+					<!-- Вопрос 1 -->
+					<div class="faq-item">
+						<div class="faq-question">
+							<span class="faq-icon">+</span>
+							<h3>Когда стоит обратиться к нутрициологу?</h3>
+						</div>
+						<div class="faq-answer">
+							<p>Врачи редко спрашивают о питании и образе жизни, но именно эти факторы лежат в основе большинства проблем со здоровьем. Обращайтесь, если вы чувствуете усталость, проблемы с пищеварением, хотите наладить вес или просто улучшить качество жизни через питание.</p>
+						</div>
 					</div>
-					<div class="faq-answer">
-						<p>Врачи редко спрашивают о питании и образе жизни, но именно эти факторы лежат в основе большинства проблем со здоровьем. Обращайтесь, если вы чувствуете усталость, проблемы с пищеварением, хотите наладить вес или просто улучшить качество жизни через питание.</p>
+
+					<!-- Вопрос 2 -->
+					<div class="faq-item">
+						<div class="faq-question">
+							<span class="faq-icon">+</span>
+							<h3>Можно ли работать без анализов?</h3>
+						</div>
+						<div class="faq-answer">
+							<p>Да, конечно. На первой консультации я всегда исхожу из вашего запроса, симптомов и анкеты. Анализы помогают углубить работу и скорректировать дефициты, но они не обязательны для старта. Мы можем обсудить, какие показатели стоит проверить именно в вашем случае.</p>
+						</div>
+					</div>
+
+					<!-- Вопрос 3 -->
+					<div class="faq-item">
+						<div class="faq-question">
+							<span class="faq-icon">+</span>
+							<h3>Нужно ли будет покупать БАДы?</h3>
+						</div>
+						<div class="faq-answer">
+							<p>Нет, я не назначаю добавки «на всякий случай». Если у вас есть реальный дефицит (подтверждённый анализами), я порекомендую только то, что действительно нужно. В остальных случаях мы работаем с питанием и образом жизни.</p>
+						</div>
+					</div>
+
+					<!-- Вопрос 4 -->
+					<div class="faq-item">
+						<div class="faq-question">
+							<span class="faq-icon">+</span>
+							<h3>Придется ли отказываться от любимых блюд?</h3>
+						</div>
+						<div class="faq-answer">
+							<p>Нет! Я не верю в строгие запреты. Мы адаптируем ваши любимые блюда, сделаем их более сбалансированными и научимся наслаждаться едой без чувства вины. Здоровое питание — это гибкость, а не ограничения.</p>
+						</div>
+					</div>
+
+					<!-- Вопрос 5 -->
+					<div class="faq-item">
+						<div class="faq-question">
+							<span class="faq-icon">+</span>
+							<h3>Сколько времени нужно, чтобы увидеть результат?</h3>
+						</div>
+						<div class="faq-answer">
+							<p>Это зависит от ваших целей и исходного состояния. Первые изменения в самочувствии (энергия, пищеварение) могут появиться уже через 2–3 недели. Более глубокие изменения (вес, гормональный фон, кожа) требуют нескольких месяцев регулярной работы.</p>
+						</div>
+					</div>
+
+					<!-- Вопрос 6 -->
+					<div class="faq-item">
+						<div class="faq-question">
+							<span class="faq-icon">+</span>
+							<h3>Как проходят консультации?</h3>
+						</div>
+						<div class="faq-answer">
+							<p>Консультация проходит онлайн на удобной для вас платформе. До ее начала, при необходимости, вы заполняете анкеты и дневник питания (или просто присылаете мне фото ваших блюд), чтобы я могла все проанализировать и подготовиться. На консультации мы подробно обсуждаем ваш запрос, разбираем привычки и составляем план действий. По итогу вы получаете письменные рекомендации.</p>
+						</div>
 					</div>
 				</div>
 
-				<!-- Вопрос 2 -->
-				<div class="faq-item">
-					<div class="faq-question">
-						<span class="faq-icon">+</span>
-						<h3>Можно ли работать без анализов?</h3>
-					</div>
-					<div class="faq-answer">
-						<p>Да, конечно. На первой консультации я всегда исхожу из вашего запроса, симптомов и анкеты. Анализы помогают углубить работу и скорректировать дефициты, но они не обязательны для старта. Мы можем обсудить, какие показатели стоит проверить именно в вашем случае.</p>
-					</div>
-				</div>
+				<!-- CTA блок -->
+				<div class="faq-cta">
+					<h3 class="faq-cta-title">Остались вопросы?</h3>
+					<p class="faq-cta-subtitle">Свяжитесь со мной удобным способом</p>
 
-				<!-- Вопрос 3 -->
-				<div class="faq-item">
-					<div class="faq-question">
-						<span class="faq-icon">+</span>
-						<h3>Нужно ли будет покупать БАДы?</h3>
-					</div>
-					<div class="faq-answer">
-						<p>Нет, я не назначаю добавки «на всякий случай». Если у вас есть реальный дефицит (подтверждённый анализами), я порекомендую только то, что действительно нужно. В остальных случаях мы работаем с питанием и образом жизни.</p>
-					</div>
-				</div>
+					<div class="contact-options">
+						<!-- Телеграм виджет -->
+						<div class="telegram-chat-widget">
+							<div class="telegram-chat-input">
+								<span class="telegram-placeholder">Напишите мне в Телеграм @YuliaVoronova78</span>
+							</div>
+							<a href="https://t.me/YuliaVoronova78" class="telegram-send-btn" target="_blank" rel="noopener noreferrer" aria-label="Написать в Telegram">
+								<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor" />
+								</svg>
+							</a>
+						</div>
 
-				<!-- Вопрос 4 -->
-				<div class="faq-item">
-					<div class="faq-question">
-						<span class="faq-icon">+</span>
-						<h3>Придется ли отказываться от любимых блюд?</h3>
-					</div>
-					<div class="faq-answer">
-						<p>Нет! Я не верю в строгие запреты. Мы адаптируем ваши любимые блюда, сделаем их более сбалансированными и научимся наслаждаться едой без чувства вины. Здоровое питание — это гибкость, а не ограничения.</p>
-					</div>
-				</div>
+						<div class="contact-divider">
+							<span>или</span>
+						</div>
 
-				<!-- Вопрос 5 -->
-				<div class="faq-item">
-					<div class="faq-question">
-						<span class="faq-icon">+</span>
-						<h3>Сколько времени нужно, чтобы увидеть результат?</h3>
-					</div>
-					<div class="faq-answer">
-						<p>Это зависит от ваших целей и исходного состояния. Первые изменения в самочувствии (энергия, пищеварение) могут появиться уже через 2–3 недели. Более глубокие изменения (вес, гормональный фон, кожа) требуют нескольких месяцев регулярной работы.</p>
-					</div>
-				</div>
+						<!-- Email форма -->
+						<form action="https://api.web3forms.com/submit" method="POST" class="contact-email-form" id="contact-form">
+							<input type="hidden" name="access_key" value="88b78c43-b948-4c57-bddc-5e15238da35c">
+							<input type="hidden" name="subject" value="Вопрос с сайта">
 
-				<!-- Вопрос 6 -->
-				<div class="faq-item">
-					<div class="faq-question">
-						<span class="faq-icon">+</span>
-						<h3>Как проходят консультации?</h3>
-					</div>
-					<div class="faq-answer">
-						<p>Консультация проходит онлайн на удобной для вас платформе. До ее начала, при необходимости, вы заполняете анкеты и дневник питания (или просто присылаете мне фото ваших блюд), чтобы я могла все проанализировать и подготовиться. На консультации мы подробно обсуждаем ваш запрос, разбираем привычки и составляем план действий. По итогу вы получаете письменные рекомендации.</p>
+							<div class="form-row">
+								<input type="email" name="email" placeholder="Ваш email" required class="contact-input">
+							</div>
+							<div class="form-row">
+								<textarea name="message" placeholder="Ваш вопрос..." rows="3" required class="contact-textarea"></textarea>
+							</div>
+							<div class="form-row form-privacy">
+								<div class="privacy-tooltip">Необходимо согласие с политикой обработки данных</div>
+								<label class="privacy-checkbox">
+									<input type="checkbox" name="privacy" required>
+									<span class="privacy-checkmark"></span>
+									<span class="privacy-text">Я согласен с <a href="personal-data-processing-policy.html" target="_blank">политикой обработки персональных данных</a></span>
+								</label>
+							</div>
+							<button type="submit" class="contact-submit-btn">Отправить</button>
+						</form>
 					</div>
 				</div>
 			</div>
+		</section>
 
-			<!-- CTA блок -->
-			<div class="faq-cta">
-				<h3 class="faq-cta-title">Остались вопросы?</h3>
-				<p class="faq-cta-subtitle">Свяжитесь со мной удобным способом</p>
-
-				<div class="contact-options">
-					<!-- Телеграм виджет -->
-					<div class="telegram-chat-widget">
-						<div class="telegram-chat-input">
-							<span class="telegram-placeholder">Напишите мне в Телеграм @YuliaVoronova78</span>
-						</div>
-						<a href="https://t.me/YuliaVoronova78" class="telegram-send-btn" target="_blank" rel="noopener noreferrer">
-							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor" />
-							</svg>
-						</a>
-					</div>
-
-					<div class="contact-divider">
-						<span>или</span>
-					</div>
-
-					<!-- Email форма -->
-					<form action="https://api.web3forms.com/submit" method="POST" class="contact-email-form" id="contact-form">
-						<input type="hidden" name="access_key" value="88b78c43-b948-4c57-bddc-5e15238da35c">
-						<input type="hidden" name="subject" value="Вопрос с сайта">
-
-						<div class="form-row">
-							<input type="email" name="email" placeholder="Ваш email" required class="contact-input">
-						</div>
-						<div class="form-row">
-							<textarea name="message" placeholder="Ваш вопрос..." rows="3" required class="contact-textarea"></textarea>
-						</div>
-						<div class="form-row form-privacy">
-							<div class="privacy-tooltip">Необходимо согласие с политикой обработки данных</div>
-							<label class="privacy-checkbox">
-								<input type="checkbox" name="privacy" required>
-								<span class="privacy-checkmark"></span>
-								<span class="privacy-text">Я согласен с <a href="personal-data-processing-policy.html" target="_blank">политикой обработки персональных данных</a></span>
-							</label>
-						</div>
-						<button type="submit" class="contact-submit-btn">Отправить</button>
-					</form>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<!-- Social Testimonials Section -->
-	<section class="testimonials-social">
-		<div class="container">
-			<h2 class="section-title script-text">Отзывы</h2>
-			<div class="testimonials-carousel-wrapper">
-				<button class="carousel-btn carousel-btn-prev" aria-label="Предыдущий отзыв">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<path d="M15 18l-6-6 6-6" />
-					</svg>
-				</button>
-				<div class="testimonials-carousel">
-					<div class="testimonials-carousel-track">
-						<div class="social-testimonial-card" data-testimonial="images/feedback-1.webp" data-name="Константин" data-age="36 лет" data-request="Нехватка энергии, тяжесть в желудке. Определение перечня анализов для проверки своих дефицитов, уровня холестерина и общего состояния здоровья.">
-							<img src="images/feedback-1.webp" alt="Положительный реальный отзыв клиента о консультации нутрициолога Юлии Вороновой" class="testimonial-screenshot" loading="lazy">
-							<div class="card-overlay">
-								<span class="tap-hint">Нажмите для просмотра</span>
+		<!-- Social Testimonials Section -->
+		<section class="testimonials-social defer-render">
+			<div class="container">
+				<h2 class="section-title script-text">Отзывы</h2>
+				<div class="testimonials-carousel-wrapper">
+					<button class="carousel-btn carousel-btn-prev" aria-label="Предыдущий отзыв">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M15 18l-6-6 6-6" />
+						</svg>
+					</button>
+					<div class="testimonials-carousel">
+						<div class="testimonials-carousel-track">
+							<div class="social-testimonial-card" data-testimonial="images/feedback-1.webp" data-name="Константин" data-age="36 лет" data-request="Нехватка энергии, тяжесть в желудке. Определение перечня анализов для проверки своих дефицитов, уровня холестерина и общего состояния здоровья.">
+								<img src="images/feedback-1.webp" alt="Положительный реальный отзыв клиента о консультации нутрициолога Юлии Вороновой" class="testimonial-screenshot" loading="lazy" width="300" height="400">
+								<div class="card-overlay">
+									<span class="tap-hint">Нажмите для просмотра</span>
+								</div>
 							</div>
-						</div>
 
-						<div class="social-testimonial-card" data-testimonial="images/feedback-2.webp" data-name="Елена" data-age="34 года" data-request="Хроническая усталость и проблемы со сном. Коррекция питания для восстановления энергии и нормализации сна.">
-							<img src="images/feedback-2.webp" alt="Положительный реальный отзыв клиента нутрициолога Юлии Вороновой по коррекции сна и восстановлении энергии" class="testimonial-screenshot" loading="lazy">
-							<div class="card-overlay">
-								<span class="tap-hint">Нажмите для просмотра</span>
+							<div class="social-testimonial-card" data-testimonial="images/feedback-2.webp" data-name="Елена" data-age="34 года" data-request="Хроническая усталость и проблемы со сном. Коррекция питания для восстановления энергии и нормализации сна.">
+								<img src="images/feedback-2.webp" alt="Положительный реальный отзыв клиента нутрициолога Юлии Вороновой по коррекции сна и восстановлении энергии" class="testimonial-screenshot" loading="lazy" width="300" height="400">
+								<div class="card-overlay">
+									<span class="tap-hint">Нажмите для просмотра</span>
+								</div>
 							</div>
-						</div>
 
-						<div class="social-testimonial-card" data-testimonial="images/feedback-3.webp" data-name="Мария" data-age="42 года" data-request="Снижение веса без строгих диет. Формирование здоровых пищевых привычек на долгосрочную перспективу.">
-							<img src="images/feedback-3.webp" alt="Положительный реальный отзыв о результатах работы с нутрициологом Юлией Вороновой по проблеме с питанием" class="testimonial-screenshot" loading="lazy">
-							<div class="card-overlay">
-								<span class="tap-hint">Нажмите для просмотра</span>
+							<div class="social-testimonial-card" data-testimonial="images/feedback-3.webp" data-name="Мария" data-age="42 года" data-request="Снижение веса без строгих диет. Формирование здоровых пищевых привычек на долгосрочную перспективу.">
+								<img src="images/feedback-3.webp" alt="Положительный реальный отзыв о результатах работы с нутрициологом Юлией Вороновой по проблеме с питанием" class="testimonial-screenshot" loading="lazy" width="300" height="400">
+								<div class="card-overlay">
+									<span class="tap-hint">Нажмите для просмотра</span>
+								</div>
 							</div>
-						</div>
-						<div class="social-testimonial-card" data-testimonial="images/feedback-4.webp" data-name="Анна" data-age="28 лет" data-request="Проблемы с пищеварением, вздутие после еды. Подбор рациона для улучшения работы ЖКТ.">
-							<img src="images/feedback-4.webp" alt="Положительный реальный отзыв о нутрициологе Юлии Вороновой по программе питания, снижении веса" class="testimonial-screenshot" loading="lazy">
-							<div class="card-overlay">
-								<span class="tap-hint">Нажмите для просмотра</span>
+							<div class="social-testimonial-card" data-testimonial="images/feedback-4.webp" data-name="Анна" data-age="28 лет" data-request="Проблемы с пищеварением, вздутие после еды. Подбор рациона для улучшения работы ЖКТ.">
+								<img src="images/feedback-4.webp" alt="Положительный реальный отзыв о нутрициологе Юлии Вороновой по программе питания, снижении веса" class="testimonial-screenshot" loading="lazy" width="300" height="400">
+								<div class="card-overlay">
+									<span class="tap-hint">Нажмите для просмотра</span>
+								</div>
 							</div>
-						</div>
 
-						<div class="social-testimonial-card" data-testimonial="images/feedback-5.webp" data-name="Наталья" data-age="69 лет" data-request="Разобраться с холестерином на фоне проблем с печенью и не желанием принимать статины. Убрать реакцию на молочные продукты, снизить животные жиры, изменить питание без ограничений.">
-							<img src="images/feedback-5.webp" alt="Положительный реальный отзыв за консультацию нутрициолога" class="testimonial-screenshot" loading="lazy">
-							<div class="card-overlay">
-								<span class="tap-hint">Нажмите для просмотра</span>
+							<div class="social-testimonial-card" data-testimonial="images/feedback-5.webp" data-name="Наталья" data-age="69 лет" data-request="Разобраться с холестерином на фоне проблем с печенью и не желанием принимать статины. Убрать реакцию на молочные продукты, снизить животные жиры, изменить питание без ограничений.">
+								<img src="images/feedback-5.webp" alt="Положительный реальный отзыв за консультацию нутрициолога" class="testimonial-screenshot" loading="lazy" width="300" height="400">
+								<div class="card-overlay">
+									<span class="tap-hint">Нажмите для просмотра</span>
+								</div>
 							</div>
-						</div>
-						<!-- <div class="social-testimonial-card" data-testimonial="images/feedback-6.webp" data-name="Ольга" data-age="31 год" data-request="Переход на растительное питание без потери нутриентов. Составление сбалансированного веганского меню.">
+							<!-- <div class="social-testimonial-card" data-testimonial="images/feedback-6.webp" data-name="Ольга" data-age="31 год" data-request="Переход на растительное питание без потери нутриентов. Составление сбалансированного веганского меню.">
 							<img src="images/feedback-6.webp" alt="Положительный реальный отзыв о работе с Юлией Вороновой" class="testimonial-screenshot" loading="lazy">
 							<div class="card-overlay">
 								<span class="tap-hint">Нажмите для просмотра</span>
 							</div>
 						</div> -->
+						</div>
+					</div>
+					<button class="carousel-btn carousel-btn-next" aria-label="Следующий отзыв">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M9 18l6-6-6-6" />
+						</svg>
+					</button>
+				</div>
+				<div class="carousel-dots"></div>
+			</div>
+		</section>
+
+		<!-- Testimonial Modal -->
+		<div id="testimonial-modal" class="testimonial-modal">
+			<span class="testimonial-modal-close">&times;</span>
+			<button class="testimonial-modal-nav testimonial-modal-prev" aria-label="Предыдущий отзыв">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M15 18l-6-6 6-6" />
+				</svg>
+			</button>
+			<div class="testimonial-modal-wrapper">
+				<div class="testimonial-modal-content">
+					<img id="testimonial-modal-image" src="" alt="Отзыв">
+				</div>
+				<div class="testimonial-info-card">
+					<div class="testimonial-info-header">
+						<span class="testimonial-info-name" id="testimonial-info-name"></span>
+						<span class="testimonial-info-age" id="testimonial-info-age"></span>
+					</div>
+					<div class="testimonial-info-request">
+						<span class="testimonial-info-label">Основной запрос:</span>
+						<p class="testimonial-info-text" id="testimonial-info-request"></p>
 					</div>
 				</div>
-				<button class="carousel-btn carousel-btn-next" aria-label="Следующий отзыв">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<path d="M9 18l6-6-6-6" />
-					</svg>
-				</button>
 			</div>
-			<div class="carousel-dots"></div>
+			<button class="testimonial-modal-nav testimonial-modal-next" aria-label="Следующий отзыв">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M9 18l6-6-6-6" />
+				</svg>
+			</button>
 		</div>
-	</section>
 
-	<!-- Testimonial Modal -->
-	<div id="testimonial-modal" class="testimonial-modal">
-		<span class="testimonial-modal-close">&times;</span>
-		<button class="testimonial-modal-nav testimonial-modal-prev" aria-label="Предыдущий отзыв">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-				<path d="M15 18l-6-6 6-6" />
-			</svg>
-		</button>
-		<div class="testimonial-modal-wrapper">
-			<div class="testimonial-modal-content">
-				<img id="testimonial-modal-image" src="" alt="Отзыв">
-			</div>
-			<div class="testimonial-info-card">
-				<div class="testimonial-info-header">
-					<span class="testimonial-info-name" id="testimonial-info-name"></span>
-					<span class="testimonial-info-age" id="testimonial-info-age"></span>
+		<!-- Telegram Channel Subscribe -->
+		<section class="telegram-subscribe">
+			<div class="container">
+				<div class="telegram-subscribe-content">
+					<div class="telegram-icon-large">
+						<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8C16.49 10.38 15.84 14.22 15.51 15.99C15.37 16.74 15.09 16.99 14.83 17.02C14.25 17.07 13.81 16.64 13.25 16.27C12.37 15.69 11.87 15.33 11.02 14.77C10.03 14.12 10.67 13.76 11.24 13.18C11.39 13.03 13.95 10.7 14 10.49C14.0069 10.4582 14.006 10.4252 13.9973 10.3938C13.9886 10.3624 13.9724 10.3337 13.95 10.31C13.89 10.26 13.81 10.28 13.74 10.29C13.65 10.31 12.25 11.24 9.52 13.08C9.12 13.35 8.76 13.49 8.44 13.48C8.08 13.47 7.4 13.28 6.89 13.11C6.26 12.91 5.77 12.8 5.81 12.45C5.83 12.27 6.08 12.09 6.55 11.9C9.47 10.63 11.41 9.79 12.38 9.39C15.16 8.23 15.73 8.03 16.11 8.03C16.19 8.03 16.38 8.05 16.5 8.15C16.6 8.23 16.63 8.34 16.64 8.42C16.63 8.48 16.65 8.66 16.64 8.8Z" fill="currentColor" />
+						</svg>
+					</div>
+					<h2 class="telegram-subscribe-title script-text">Подписывайтесь на мой Telegram-канал</h2>
+					<p class="telegram-subscribe-subtitle">«Здоровье. Еда. Анализы.»</p>
+					<ul class="telegram-subscribe-list">
+						<li>Полезные советы о питании</li>
+						<li>Разборы анализов</li>
+						<li>Простые рецепты для здорового образа жизни</li>
+					</ul>
+					<a href="https://t.me/voronova_nutrition" class="btn-telegram" target="_blank" rel="noopener noreferrer">
+						<svg class="btn-telegram-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8C16.49 10.38 15.84 14.22 15.51 15.99C15.37 16.74 15.09 16.99 14.83 17.02C14.25 17.07 13.81 16.64 13.25 16.27C12.37 15.69 11.87 15.33 11.02 14.77C10.03 14.12 10.67 13.76 11.24 13.18C11.39 13.03 13.95 10.7 14 10.49C14.0069 10.4582 14.006 10.4252 13.9973 10.3938C13.9886 10.3624 13.9724 10.3337 13.95 10.31C13.89 10.26 13.81 10.28 13.74 10.29C13.65 10.31 12.25 11.24 9.52 13.08C9.12 13.35 8.76 13.49 8.44 13.48C8.08 13.47 7.4 13.28 6.89 13.11C6.26 12.91 5.77 12.8 5.81 12.45C5.83 12.27 6.08 12.09 6.55 11.9C9.47 10.63 11.41 9.79 12.38 9.39C15.16 8.23 15.73 8.03 16.11 8.03C16.19 8.03 16.38 8.05 16.5 8.15C16.6 8.23 16.63 8.34 16.64 8.42C16.63 8.48 16.65 8.66 16.64 8.8Z" fill="currentColor" />
+						</svg>
+						Подписаться
+					</a>
 				</div>
-				<div class="testimonial-info-request">
-					<span class="testimonial-info-label">Основной запрос:</span>
-					<p class="testimonial-info-text" id="testimonial-info-request"></p>
-				</div>
 			</div>
-		</div>
-		<button class="testimonial-modal-nav testimonial-modal-next" aria-label="Следующий отзыв">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-				<path d="M9 18l6-6-6-6" />
-			</svg>
-		</button>
-	</div>
+		</section>
 
-	<!-- Telegram Channel Subscribe -->
-	<section class="telegram-subscribe">
-		<div class="container">
-			<div class="telegram-subscribe-content">
-				<div class="telegram-icon-large">
-					<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8C16.49 10.38 15.84 14.22 15.51 15.99C15.37 16.74 15.09 16.99 14.83 17.02C14.25 17.07 13.81 16.64 13.25 16.27C12.37 15.69 11.87 15.33 11.02 14.77C10.03 14.12 10.67 13.76 11.24 13.18C11.39 13.03 13.95 10.7 14 10.49C14.0069 10.4582 14.006 10.4252 13.9973 10.3938C13.9886 10.3624 13.9724 10.3337 13.95 10.31C13.89 10.26 13.81 10.28 13.74 10.29C13.65 10.31 12.25 11.24 9.52 13.08C9.12 13.35 8.76 13.49 8.44 13.48C8.08 13.47 7.4 13.28 6.89 13.11C6.26 12.91 5.77 12.8 5.81 12.45C5.83 12.27 6.08 12.09 6.55 11.9C9.47 10.63 11.41 9.79 12.38 9.39C15.16 8.23 15.73 8.03 16.11 8.03C16.19 8.03 16.38 8.05 16.5 8.15C16.6 8.23 16.63 8.34 16.64 8.42C16.63 8.48 16.65 8.66 16.64 8.8Z" fill="currentColor" />
-					</svg>
-				</div>
-				<h2 class="telegram-subscribe-title script-text">Подписывайтесь на мой Telegram-канал</h2>
-				<p class="telegram-subscribe-subtitle">«Здоровье. Еда. Анализы.»</p>
-				<ul class="telegram-subscribe-list">
-					<li>Полезные советы о питании</li>
-					<li>Разборы анализов</li>
-					<li>Простые рецепты для здорового образа жизни</li>
-				</ul>
-				<a href="https://t.me/voronova_nutrition" class="btn-telegram" target="_blank" rel="noopener noreferrer">
-					<svg class="btn-telegram-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8C16.49 10.38 15.84 14.22 15.51 15.99C15.37 16.74 15.09 16.99 14.83 17.02C14.25 17.07 13.81 16.64 13.25 16.27C12.37 15.69 11.87 15.33 11.02 14.77C10.03 14.12 10.67 13.76 11.24 13.18C11.39 13.03 13.95 10.7 14 10.49C14.0069 10.4582 14.006 10.4252 13.9973 10.3938C13.9886 10.3624 13.9724 10.3337 13.95 10.31C13.89 10.26 13.81 10.28 13.74 10.29C13.65 10.31 12.25 11.24 9.52 13.08C9.12 13.35 8.76 13.49 8.44 13.48C8.08 13.47 7.4 13.28 6.89 13.11C6.26 12.91 5.77 12.8 5.81 12.45C5.83 12.27 6.08 12.09 6.55 11.9C9.47 10.63 11.41 9.79 12.38 9.39C15.16 8.23 15.73 8.03 16.11 8.03C16.19 8.03 16.38 8.05 16.5 8.15C16.6 8.23 16.63 8.34 16.64 8.42C16.63 8.48 16.65 8.66 16.64 8.8Z" fill="currentColor" />
-					</svg>
-					Подписаться
-				</a>
-			</div>
-		</div>
-	</section>
+		<!-- Footer -->
+	</main>
 
-	<!-- Footer -->
 	<footer class="footer" id="footer">
 		<div class="footer-divider"></div>
 		<div class="container">
@@ -890,7 +906,7 @@
 				<!-- Левая часть: Логотип как в хедере -->
 				<div class="footer-left">
 					<a href="/" class="logo">
-						<img src="images/icons/logo.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img">
+						<img src="images/icons/logo.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="36" height="36">
 						<span>ЮЛИЯ ВОРОНОВА</span>
 					</a>
 				</div>
@@ -932,10 +948,9 @@
 							</svg>
 						</a>
 						<a href="https://rutube.ru/channel/47038007/" class="social-link" aria-label="RuTube">
-							<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-								<rect x="2" y="2" width="20" height="20" rx="4" fill="none" stroke="currentColor" stroke-width="1.5" />
-								<text x="11.5" y="16" text-anchor="middle" font-family="Montserrat, sans-serif" font-size="12" font-weight="700" fill="currentColor">R</text>
-								<circle cx="18.5" cy="6.5" r="2" fill="currentColor" />
+							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+								<circle cx="12" cy="12" r="12" fill="currentColor" />
+								<path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff" />
 							</svg>
 						</a>
 						<!-- <a href="https://www.instagram.com/voronova_nutrition/" class="social-link" aria-label="Instagram">

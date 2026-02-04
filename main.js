@@ -706,6 +706,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const nextBtn = document.querySelector('.diploma-modal-next');
     const diplomaCards = document.querySelectorAll('.diploma-card');
 
+    if (!modal || !modalImg || !closeBtn || !prevBtn || !nextBtn || diplomaCards.length === 0) {
+        return;
+    }
+
     let currentDiplomaIndex = 0;
     const diplomaImages = Array.from(diplomaCards).map(card => card.getAttribute('data-diploma'));
 
