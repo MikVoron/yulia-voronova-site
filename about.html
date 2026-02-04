@@ -53,7 +53,8 @@
 	<link rel="stylesheet" href="style.css">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=A+Day+Without+Sun&family=Sensa+Serif&family=Terek&family=Amatic+SC&family=Baskervville:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&family=Prata&family=Libre+Bodoni:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap">
+	<link href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -62,7 +63,7 @@
 		<div class="container">
 			<div class="header-content">
 				<a href="/" class="logo">
-					<img src="images/icons/logo.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img">
+					<img src="images/icons/logo.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="40" height="40">
 					<span>ЮЛИЯ ВОРОНОВА</span>
 				</a>
 				<button class="burger-menu" aria-label="Меню">
@@ -99,16 +100,16 @@
 			<!-- Четыре картинки в ряд -->
 			<div class="minimal-images-row animation-v3">
 				<div class="minimal-image-card">
-					<img src="images/cook-healthy-food.webp" alt="Готовим полезную еду вместе с нутрициологом Юлией Вороновой" loading="lazy">
+					<img src="images/cook-healthy-food.webp" alt="Готовим полезную еду вместе с нутрициологом Юлией Вороновой" loading="lazy" width="300" height="400">
 				</div>
 				<div class="minimal-image-card">
-					<img src="images/healthy-habbits.webp" alt="Обрабатываем продукты правильно по советам нутрициолога Юлии Вороновой" loading="lazy">
+					<img src="images/healthy-habbits.webp" alt="Обрабатываем продукты правильно по советам нутрициолога Юлии Вороновой" loading="lazy" width="300" height="400">
 				</div>
 				<div class="minimal-image-card">
-					<img src="images/our-health-your-hands.webp	" alt="Полезные продукты от нутрициолога Юлии Вороновой" loading="lazy">
+					<img src="images/our-health-your-hands.webp" alt="Полезные продукты от нутрициолога Юлии Вороновой" loading="lazy" width="300" height="400">
 				</div>
 				<div class="minimal-image-card">
-					<img src="images/drink-lot-water.webp" alt="Формирование новых здоровых привычек по советам нутрициолога Юлии Вороновой" loading="lazy">
+					<img src="images/drink-lot-water.webp" alt="Формирование новых здоровых привычек по советам нутрициолога Юлии Вороновой" loading="lazy" width="300" height="400">
 				</div>
 			</div>
 
@@ -215,7 +216,7 @@
 			</div>
 		</div>
 		<div class="youtube-computer-image">
-			<img src="images/background-youtube.webp" alt="YouTube канал нутрициолога Юлии Вороновой" loading="lazy">
+			<img src="images/background-youtube.webp" alt="YouTube канал нутрициолога Юлии Вороновой" loading="lazy" width="600" height="400">
 		</div>
 		<div class="youtube-btn-wrapper">
 			<a href="https://youtube.com/@voronova_nutrition" target="_blank" class="youtube-subscribe-btn">
@@ -224,7 +225,7 @@
 				</svg>
 				Хочу посмотреть рецепты
 			</a>
-			<p class="youtube-cta-note"><span class="youtube-cta-note-title">Все выпуски также тут:</span></p>
+			<p class="youtube-cta-note"><span class="youtube-cta-note-title">Дублирую свои выпуски тут:</span></p>
 			<div class="youtube-cta-social footer-social">
 				<a href="https://vk.com/voronova_nutrition" class="social-link" aria-label="VK">
 					<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -237,10 +238,9 @@
 					</svg>
 				</a>
 				<a href="https://rutube.ru/channel/47038007/" class="social-link" aria-label="Rutube">
-					<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-						<rect x="2" y="2" width="20" height="20" rx="4" fill="none" stroke="currentColor" stroke-width="1.5" />
-						<text x="11.5" y="16" text-anchor="middle" font-family="Montserrat, sans-serif" font-size="12" font-weight="700" fill="currentColor">R</text>
-						<circle cx="18.5" cy="6.5" r="2" fill="currentColor" />
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+						<circle cx="12" cy="12" r="12" fill="currentColor"/>
+						<path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff"/>
 					</svg>
 				</a>
 			</div>
@@ -348,22 +348,22 @@
 				<div class="diplomas-grid">
 
 					<div class="diploma-card" data-diploma="images/certifiсate.webp">
-						<img src="images/certifiсate.webp" alt="Сертификат нутрициолога Юлии Вороновой" loading="lazy">
+						<img src="images/certifiсate.webp" alt="Сертификат нутрициолога Юлии Вороновой" loading="lazy" width="300" height="420">
 					</div>
 					<div class="diploma-card" data-diploma="images/Diploma.webp">
-						<img src="images/Diploma.webp" alt="Диплом о профессиональной переподготовке Юлии Вороновой" loading="lazy">
+						<img src="images/Diploma.webp" alt="Диплом о профессиональной переподготовке Юлии Вороновой" loading="lazy" width="300" height="420">
 					</div>
 					<div class="diploma-card" data-diploma="images/certifiсate-2.webp">
-						<img src="images/certifiсate-2.webp" alt="Сертификат о повышении квалификации Юлии Вороновой" loading="lazy">
+						<img src="images/certifiсate-2.webp" alt="Сертификат о повышении квалификации Юлии Вороновой" loading="lazy" width="300" height="420">
 					</div>
 					<div class="diploma-card" data-diploma="images/certifiсate-3.webp">
-						<img src="images/certifiсate-3.webp" alt="Сертификат по нутрициологии Юлии Вороновой" loading="lazy">
+						<img src="images/certifiсate-3.webp" alt="Сертификат по нутрициологии Юлии Вороновой" loading="lazy" width="300" height="420">
 					</div>
 					<div class="diploma-card" data-diploma="images/certifiсate-4.webp">
-						<img src="images/certifiсate-4.webp" alt="Сертификат о прохождении курса Юлии Вороновой" loading="lazy">
+						<img src="images/certifiсate-4.webp" alt="Сертификат о прохождении курса Юлии Вороновой" loading="lazy" width="300" height="420">
 					</div>
 					<div class="diploma-card" data-diploma="images/certifiсate-5.webp">
-						<img src="images/certifiсate-5.webp" alt="Дополнительный сертификат нутрициолога Юлии Вороновой" loading="lazy">
+						<img src="images/certifiсate-5.webp" alt="Дополнительный сертификат нутрициолога Юлии Вороновой" loading="lazy" width="300" height="420">
 					</div>
 				</div>
 				<button class="diplomas-arrow diplomas-arrow-right" aria-label="Следующий">
@@ -405,7 +405,7 @@
 			<div class="footer-content">
 				<div class="footer-left">
 					<a href="/" class="logo">
-						<img src="images/icons/logo.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img">
+						<img src="images/icons/logo.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="40" height="40">
 						<span>ЮЛИЯ ВОРОНОВА</span>
 					</a>
 				</div>
@@ -445,10 +445,9 @@
 							</svg>
 						</a>
 						<a href="https://rutube.ru/channel/47038007/" class="social-link" aria-label="RuTube">
-							<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-								<rect x="2" y="2" width="20" height="20" rx="4" fill="none" stroke="currentColor" stroke-width="1.5" />
-								<text x="11.5" y="16" text-anchor="middle" font-family="Montserrat, sans-serif" font-size="12" font-weight="700" fill="currentColor">R</text>
-								<circle cx="18.5" cy="6.5" r="2" fill="currentColor" />
+							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+								<circle cx="12" cy="12" r="12" fill="currentColor"/>
+								<path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff"/>
 							</svg>
 						</a>
 					</div>
