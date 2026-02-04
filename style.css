@@ -10222,30 +10222,29 @@ button[class*="btn-"]:hover,
     }
 
     .tariffs-arrow {
-        position: fixed;
-        top: 50%;
-        transform: translateY(-50%);
+        position: absolute;
+        top: 240px;
         display: none;
         align-items: center;
         justify-content: center;
         width: 44px;
         height: 44px;
-        background: rgba(139, 166, 139, 0.5);
+        background: rgba(139, 166, 139, 0.85);
         border: none;
         border-radius: 50%;
         cursor: pointer;
         color: var(--white);
         transition: background 0.3s ease, opacity 0.3s ease;
-        z-index: 1000;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
     }
 
     .tariffs-arrow.tariffs-arrow-left {
-        left: 10px;
+        left: 5px;
     }
 
     .tariffs-arrow.tariffs-arrow-right {
-        right: 10px;
+        right: 5px;
     }
 
     .tariffs-arrow:hover:not(.disabled) {
@@ -10259,7 +10258,7 @@ button[class*="btn-"]:hover,
     }
 
     .tariffs-arrow:active {
-        transform: translateY(-50%) scale(0.95);
+        transform: scale(0.95);
     }
 
     .tariffs-arrow svg {

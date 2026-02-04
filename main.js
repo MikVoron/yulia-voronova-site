@@ -163,28 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            // Свайп пальцем
-            let touchStartX = 0;
-            let touchEndX = 0;
-
-            tariffsGrid.addEventListener('touchstart', (e) => {
-                touchStartX = e.changedTouches[0].screenX;
-            }, { passive: true });
-
-            tariffsGrid.addEventListener('touchend', (e) => {
-                touchEndX = e.changedTouches[0].screenX;
-                const diff = touchStartX - touchEndX;
-
-                if (Math.abs(diff) > 50) { // Минимальное расстояние свайпа
-                    if (diff > 0 && currentIndex < cards.length - 1) {
-                        // Свайп влево - следующая карточка
-                        updateStack(currentIndex + 1);
-                    } else if (diff < 0 && currentIndex > 0) {
-                        // Свайп вправо - предыдущая карточка
-                        updateStack(currentIndex - 1);
-                    }
-                }
-            }, { passive: true });
+            // Свайп отключен - навигация только стрелками
 
             // Показываем/скрываем стрелки при видимости секции тарифов
             // Стрелки появляются когда карточки видны на экране
