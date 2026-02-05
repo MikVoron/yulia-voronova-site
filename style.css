@@ -7471,8 +7471,8 @@ button[class*="btn-"]:hover,
     display: flex;
     align-items: flex-end;
     gap: 10px;
-    opacity: 1;
-    transform: none;
+    opacity: 0;
+    transform: translateY(10px);
 }
 
 /* Анимация отключена для CLS fix */
@@ -11014,11 +11014,9 @@ button[class*="btn-"]:hover,
 .about-youtube-section .youtube-intro,
 .about-youtube-section .youtube-features-cards,
 .about-youtube-section .youtube-feature-card,
-.about-youtube-section .youtube-computer-image,
 .about-youtube-section .youtube-btn-wrapper,
 .tg-chat-section .tg-chat-header,
 .tg-chat-section .tg-chat-window,
-.tg-chat-section .tg-msg,
 .tg-chat-section .tg-chat-btn-wrap,
 .diplomas .section-title,
 .diplomas .diploma-card {
