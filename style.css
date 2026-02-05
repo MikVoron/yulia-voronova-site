@@ -7477,13 +7477,28 @@ button[class*="btn-"]:hover,
     display: flex;
     align-items: flex-end;
     gap: 10px;
-    opacity: 1;
-    transform: none;
+    opacity: 0.85;
+    transform: scale(0.97) translateY(8px);
 }
 
-/* Анимация сообщений отключена для Lighthouse performance */
+/* Subtle animation - elements already visible, just enhance */
 .tg-chat-section.animate-visible .tg-msg {
-    animation: none;
+    animation: subtleBubble 0.4s ease forwards;
+}
+
+.tg-chat-section.animate-visible .tg-msg:nth-child(1) { animation-delay: 0.05s; }
+.tg-chat-section.animate-visible .tg-msg:nth-child(2) { animation-delay: 0.15s; }
+.tg-chat-section.animate-visible .tg-msg:nth-child(3) { animation-delay: 0.25s; }
+.tg-chat-section.animate-visible .tg-msg:nth-child(4) { animation-delay: 0.35s; }
+.tg-chat-section.animate-visible .tg-msg:nth-child(5) { animation-delay: 0.45s; }
+.tg-chat-section.animate-visible .tg-msg:nth-child(6) { animation-delay: 0.55s; }
+.tg-chat-section.animate-visible .tg-msg:nth-child(7) { animation-delay: 0.65s; }
+
+@keyframes subtleBubble {
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 .tg-msg.outgoing {
