@@ -7481,18 +7481,10 @@ button[class*="btn-"]:hover,
     transform: none;
 }
 
-/* Анимация сообщений при скролле к секции */
+/* Анимация сообщений отключена для Lighthouse performance */
 .tg-chat-section.animate-visible .tg-msg {
-    animation: bubbleFadeIn 0.5s ease forwards;
+    animation: none;
 }
-
-.tg-chat-section.animate-visible .tg-msg:nth-child(1) { animation-delay: 0.3s; }
-.tg-chat-section.animate-visible .tg-msg:nth-child(2) { animation-delay: 0.6s; }
-.tg-chat-section.animate-visible .tg-msg:nth-child(3) { animation-delay: 0.9s; }
-.tg-chat-section.animate-visible .tg-msg:nth-child(4) { animation-delay: 1.2s; }
-.tg-chat-section.animate-visible .tg-msg:nth-child(5) { animation-delay: 1.5s; }
-.tg-chat-section.animate-visible .tg-msg:nth-child(6) { animation-delay: 1.8s; }
-.tg-chat-section.animate-visible .tg-msg:nth-child(7) { animation-delay: 2.1s; }
 
 .tg-msg.outgoing {
     align-self: flex-start;
@@ -7711,7 +7703,7 @@ button[class*="btn-"]:hover,
 
 .about-cta-content {
     text-align: center;
-    max-width: 750px;
+    max-width: 790px;
     margin: 0 auto;
 }
 
