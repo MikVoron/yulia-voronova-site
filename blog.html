@@ -144,6 +144,12 @@
 				display: flex
 			}
 		}
+
+		/* Reserve space for Telegram widgets to prevent CLS */
+		.telegram-post-widget {
+			min-height: 400px;
+			contain: layout style
+		}
 	</style>
 
 	<!-- DNS Prefetch for third-party domains -->
