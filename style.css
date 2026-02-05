@@ -1472,7 +1472,7 @@ button[class*="btn-"]:hover,
 .section-title {
     font-size: 42px;
     margin-bottom: 15px;
-    color: var(--dark-text);
+    color: var(--dark-sage);
 }
 
 .services-grid .section-title {
@@ -2302,10 +2302,11 @@ button[class*="btn-"]:hover,
 .first-meeting-v4 .badge-line {
     display: inline-block;
     font-family: 'Great Vibes', cursive;
-        font-size: 42px;
+    font-size: 42px;
     font-weight: 500;
     margin-bottom: 50px;
     letter-spacing: 0.5px;
+    color: var(--dark-sage);
 }
 
 .first-meeting-v4 .meeting-steps {
@@ -4029,7 +4030,7 @@ button[class*="btn-"]:hover,
 .faq-cta-title {
     font-family: var(--font-cormorant);
     font-size: 36px;
-    color: var(--dark-text);
+    color: var(--dark-sage);
     margin-bottom: 10px;
 }
 
