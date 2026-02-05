@@ -220,6 +220,34 @@
 			object-fit: contain
 		}
 
+		.nav {
+			display: flex;
+			gap: 25px
+		}
+
+		.nav a {
+			text-decoration: none;
+			color: var(--text-dark);
+			font-size: 0.9rem;
+			font-weight: 400
+		}
+
+		.burger-menu {
+			display: none;
+			flex-direction: column;
+			gap: 5px;
+			background: none;
+			border: none;
+			cursor: pointer;
+			padding: 5px
+		}
+
+		.burger-menu span {
+			width: 25px;
+			height: 2px;
+			background: var(--text-dark)
+		}
+
 		.hero {
 			min-height: 100vh;
 			display: flex;
@@ -257,6 +285,29 @@
 			line-height: 1.2
 		}
 
+		.hero-subtitle {
+			font-size: 1.1rem;
+			color: #666;
+			line-height: 1.7;
+			margin-bottom: 20px
+		}
+
+		.hero-cta {
+			text-align: center;
+			margin-top: 30px
+		}
+
+		.btn-hero-call {
+			display: inline-block;
+			padding: 12px 30px;
+			background: var(--sage-green);
+			color: #fff;
+			text-decoration: none;
+			border-radius: 25px;
+			font-weight: 500;
+			transition: background .3s
+		}
+
 		@media(max-width:768px) {
 			.hero-content {
 				flex-direction: column;
@@ -275,6 +326,16 @@
 			.nav {
 				display: none
 			}
+
+			.burger-menu {
+				display: flex
+			}
+		}
+
+		/* Optimize rendering of below-fold content */
+		.defer-render {
+			content-visibility: auto;
+			contain-intrinsic-size: auto 500px
 		}
 	</style>
 
@@ -290,10 +351,12 @@
 	<link rel="dns-prefetch" href="https://www.googletagmanager.com">
 	<link rel="dns-prefetch" href="https://mc.yandex.ru">
 	
-	<!-- Load fonts asynchronously with display=swap -->
-	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+	<!-- Critical font: Montserrat for above-fold content -->
+	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+	<!-- Non-critical fonts: loaded after page render -->
+	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Baskervville&family=Cormorant+Garamond:wght@400;500&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 	<noscript>
-		<link href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&family=Baskervville&family=Cormorant+Garamond:wght@400;500&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 	</noscript>
 	<link rel="stylesheet" href="style.min.css" media="print" onload="this.media='all'">
 	<noscript>
@@ -307,7 +370,7 @@
 		<div class="container">
 			<div class="header-content">
 				<a href="/" class="logo">
-					<img src="images/icons/logo-small.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="36" height="36">
+					<img src="images/icons/logo-small.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="36" height="36" decoding="async">
 					<span>ЮЛИЯ ВОРОНОВА</span>
 				</a>
 				<button class="burger-menu" aria-label="Меню">
@@ -387,7 +450,7 @@
 						<div class="first-card-content">
 							<h3>Как я работаю</h3>
 							<div class="first-card-image">
-								<img src="images/YV-small.webp" alt="Юлия Воронова, нутрициолог — консультации по питанию" loading="lazy" decoding="async" width="267" height="267">
+								<img src="images/YV-small.webp" alt="Юлия Воронова, нутрициолог — консультации по питанию" loading="lazy" decoding="async" fetchpriority="low" width="267" height="267">
 							</div>
 						</div>
 						<div class="first-card-hover">
@@ -395,7 +458,7 @@
 						</div>
 					</div>
 					<div class="grid-item discuss-card">
-						<img src="images/icons/discuss.png" alt="Обсуждение запросов и анализ питания" class="card-icon" loading="lazy" width="60" height="60">
+						<img src="images/icons/discuss.png" alt="Обсуждение запросов и анализ питания" class="card-icon" loading="lazy" decoding="async" fetchpriority="low" width="60" height="60">
 						<div class="grid-overlay dark">
 							<p>Обсуждаем запросы, симптомы, анализируем дневник питания, образ жизни и, если необходимо, разбираем анализы.</p>
 							<h3>Обсуждение</h3>
@@ -408,7 +471,7 @@
 						</div>
 					</div>
 					<div class="grid-item">
-						<img src="images/icons/goal.png" alt="Индивидуальный подбор БАДов" class="card-icon" loading="lazy" width="60" height="60">
+						<img src="images/icons/goal.png" alt="Индивидуальный подбор БАДов" class="card-icon" loading="lazy" decoding="async" fetchpriority="low" width="60" height="60">
 						<div class="grid-overlay dark">
 							<h3>Ничего лишнего</h3>
 							<p>БАДы не назначаю «на всякий случай». Только точечно, по делу и строго по результатам анализов.</p>
@@ -421,7 +484,7 @@
 						</div>
 					</div>
 					<div class="grid-item">
-						<img src="images/icons/progress.png" alt="Отслеживание прогресса положительных изменений в питании и привычках клиента" class="card-icon" loading="lazy" width="60" height="60">
+						<img src="images/icons/progress.png" alt="Отслеживание прогресса положительных изменений в питании и привычках клиента" class="card-icon" loading="lazy" decoding="async" fetchpriority="low" width="60" height="60">
 						<div class="grid-overlay light">
 							<h3 class="progress-title">Ваш прогресс</h3>
 							<p>Мы фиксируем не только внешние перемены, но и ваше внутреннее состояние: уровень энергии, качество сна и легкость, которые становятся вашей новой нормой.</p>
@@ -893,40 +956,40 @@
 					<div class="testimonials-carousel">
 						<div class="testimonials-carousel-track">
 							<div class="social-testimonial-card" data-testimonial="images/feedback-1.webp" data-name="Константин" data-age="36 лет" data-request="Нехватка энергии, тяжесть в желудке. Определение перечня анализов для проверки своих дефицитов, уровня холестерина и общего состояния здоровья.">
-								<img src="images/feedback-1.webp" alt="Положительный реальный отзыв клиента о консультации нутрициолога Юлии Вороновой" class="testimonial-screenshot" loading="lazy" width="300" height="400">
+								<img src="images/feedback-1.webp" alt="Положительный реальный отзыв клиента о консультации нутрициолога Юлии Вороновой" class="testimonial-screenshot" loading="lazy" decoding="async" fetchpriority="low" width="300" height="400">
 								<div class="card-overlay">
 									<span class="tap-hint">Нажмите для просмотра</span>
 								</div>
 							</div>
 
 							<div class="social-testimonial-card" data-testimonial="images/feedback-2.webp" data-name="Елена" data-age="34 года" data-request="Хроническая усталость и проблемы со сном. Коррекция питания для восстановления энергии и нормализации сна.">
-								<img src="images/feedback-2.webp" alt="Положительный реальный отзыв клиента нутрициолога Юлии Вороновой по коррекции сна и восстановлении энергии" class="testimonial-screenshot" loading="lazy" width="300" height="400">
+								<img src="images/feedback-2.webp" alt="Положительный реальный отзыв клиента нутрициолога Юлии Вороновой по коррекции сна и восстановлении энергии" class="testimonial-screenshot" loading="lazy" decoding="async" fetchpriority="low" width="300" height="400">
 								<div class="card-overlay">
 									<span class="tap-hint">Нажмите для просмотра</span>
 								</div>
 							</div>
 
 							<div class="social-testimonial-card" data-testimonial="images/feedback-3.webp" data-name="Мария" data-age="42 года" data-request="Снижение веса без строгих диет. Формирование здоровых пищевых привычек на долгосрочную перспективу.">
-								<img src="images/feedback-3.webp" alt="Положительный реальный отзыв о результатах работы с нутрициологом Юлией Вороновой по проблеме с питанием" class="testimonial-screenshot" loading="lazy" width="300" height="400">
+								<img src="images/feedback-3.webp" alt="Положительный реальный отзыв о результатах работы с нутрициологом Юлией Вороновой по проблеме с питанием" class="testimonial-screenshot" loading="lazy" decoding="async" fetchpriority="low" width="300" height="400">
 								<div class="card-overlay">
 									<span class="tap-hint">Нажмите для просмотра</span>
 								</div>
 							</div>
 							<div class="social-testimonial-card" data-testimonial="images/feedback-4.webp" data-name="Анна" data-age="28 лет" data-request="Проблемы с пищеварением, вздутие после еды. Подбор рациона для улучшения работы ЖКТ.">
-								<img src="images/feedback-4.webp" alt="Положительный реальный отзыв о нутрициологе Юлии Вороновой по программе питания, снижении веса" class="testimonial-screenshot" loading="lazy" width="300" height="400">
+								<img src="images/feedback-4.webp" alt="Положительный реальный отзыв о нутрициологе Юлии Вороновой по программе питания, снижении веса" class="testimonial-screenshot" loading="lazy" decoding="async" fetchpriority="low" width="300" height="400">
 								<div class="card-overlay">
 									<span class="tap-hint">Нажмите для просмотра</span>
 								</div>
 							</div>
 
 							<div class="social-testimonial-card" data-testimonial="images/feedback-5.webp" data-name="Наталья" data-age="69 лет" data-request="Разобраться с холестерином на фоне проблем с печенью и не желанием принимать статины. Убрать реакцию на молочные продукты, снизить животные жиры, изменить питание без ограничений.">
-								<img src="images/feedback-5.webp" alt="Положительный реальный отзыв за консультацию нутрициолога" class="testimonial-screenshot" loading="lazy" width="300" height="400">
+								<img src="images/feedback-5.webp" alt="Положительный реальный отзыв за консультацию нутрициолога" class="testimonial-screenshot" loading="lazy" decoding="async" fetchpriority="low" width="300" height="400">
 								<div class="card-overlay">
 									<span class="tap-hint">Нажмите для просмотра</span>
 								</div>
 							</div>
 							<!-- <div class="social-testimonial-card" data-testimonial="images/feedback-6.webp" data-name="Ольга" data-age="31 год" data-request="Переход на растительное питание без потери нутриентов. Составление сбалансированного веганского меню.">
-							<img src="images/feedback-6.webp" alt="Положительный реальный отзыв о работе с Юлией Вороновой" class="testimonial-screenshot" loading="lazy" width="300" height="400">
+							<img src="images/feedback-6.webp" alt="Положительный реальный отзыв о работе с Юлией Вороновой" class="testimonial-screenshot" loading="lazy" decoding="async" fetchpriority="low" width="300" height="400">
 							<div class="card-overlay">
 								<span class="tap-hint">Нажмите для просмотра</span>
 							</div>
@@ -1009,7 +1072,7 @@
 				<!-- Левая часть: Логотип как в хедере -->
 				<div class="footer-left">
 					<a href="/" class="logo">
-						<img src="images/icons/logo-small.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="36" height="36">
+						<img src="images/icons/logo-small.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="36" height="36" decoding="async">
 						<span>ЮЛИЯ ВОРОНОВА</span>
 					</a>
 				</div>
