@@ -285,6 +285,11 @@
 			line-height: 1.2
 		}
 
+		.hero-name,
+		.hero-role {
+			display: block
+		}
+
 		.hero-subtitle {
 			font-size: 1.1rem;
 			color: #666;
@@ -320,7 +325,30 @@
 			}
 
 			.hero-title {
-				font-size: 1.8rem
+				font-size: 1.8rem;
+				margin-bottom: 25px
+			}
+
+			.hero-name {
+				font-size: 2rem;
+				font-weight: 700;
+				color: var(--text-dark);
+				margin-bottom: 8px
+			}
+
+			.hero-role {
+				font-size: 1.1rem;
+				font-weight: 500;
+				color: var(--sage-green);
+				text-transform: uppercase;
+				letter-spacing: 2px
+			}
+
+			.hero-subtitle {
+				margin-top: 20px;
+				font-size: 1rem;
+				border-top: 1px solid rgba(156, 176, 126, 0.3);
+				padding-top: 20px
 			}
 
 			.nav {
@@ -410,7 +438,8 @@
 					</div>
 					<div class="hero-text">
 						<h1 class="hero-title">
-							Юлия Воронова<br> доказательный нутрициолог
+							<span class="hero-name">Юлия Воронова</span>
+							<span class="hero-role">доказательный нутрициолог</span>
 						</h1>
 						<p class="hero-subtitle">Моя цель услышать ваш внутренний запрос и бережно поддержать на пути к самочувствию, которое важно именно вам.</p>
 					</div>
