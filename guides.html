@@ -215,6 +215,8 @@
 	<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<!-- Preload LCP image -->
+	<link rel="preload" as="image" href="images/covers/cover-fibers.svg" fetchpriority="high">
 	<!-- Critical fonts: Montserrat + Cormorant Garamond for above-fold LCP content -->
 	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
 	<!-- Non-critical fonts: loaded after page render -->
@@ -279,7 +281,7 @@
 					<div class="guide-card-decor guide-decor-tr">✧</div>
 					<span class="guide-card-label">МИНИ-ГАЙД</span>
 					<div class="guide-card-image-wrap">
-						<img src="images/covers/cover-fibers.svg" alt="Гайд: Клетчатка не в сезон — нутрициолог Юлия Воронова" class="guide-cover-image" width="200" height="280" decoding="async">
+						<img src="images/covers/cover-fibers.svg" alt="Гайд: Клетчатка не в сезон — нутрициолог Юлия Воронова" class="guide-cover-image" width="200" height="280" loading="eager" fetchpriority="high" decoding="async">
 					</div>
 					<h3 class="guide-card-title-minimal">Клетчатка<br>не в сезон</h3>
 					<div class="guide-card-actions-minimal">
