@@ -115,6 +115,52 @@
 			margin-right: 10px;
 			object-fit: contain
 		}
+
+		.nav {
+			display: flex;
+			gap: 25px
+		}
+
+		.nav a {
+			text-decoration: none;
+			color: var(--text-dark);
+			font-size: 0.9rem;
+			font-weight: 400
+		}
+
+		.burger-menu {
+			display: none;
+			flex-direction: column;
+			gap: 5px;
+			background: none;
+			border: none;
+			cursor: pointer;
+			padding: 5px
+		}
+
+		.burger-menu span {
+			width: 25px;
+			height: 2px;
+			background: var(--text-dark)
+		}
+
+		@media(max-width:768px) {
+			.nav {
+				display: none
+			}
+
+			.burger-menu {
+				display: flex
+			}
+		}
+
+		/* Optimize rendering of below-fold content */
+		.about-help-section,
+		.about-youtube-section,
+		.tg-chat-section {
+			content-visibility: auto;
+			contain-intrinsic-size: auto 500px
+		}
 	</style>
 
 	<!-- DNS Prefetch for third-party domains -->
@@ -125,9 +171,12 @@
 
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+	<!-- Critical font: Montserrat for above-fold content -->
+	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+	<!-- Non-critical fonts: loaded after page render -->
+	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Baskervville&family=Cormorant+Garamond:wght@400;500&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 	<noscript>
-		<link href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&family=Baskervville&family=Cormorant+Garamond:wght@400;500&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 	</noscript>
 	<link rel="stylesheet" href="style.min.css" media="print" onload="this.media='all'">
 	<noscript>
@@ -141,7 +190,7 @@
 		<div class="container">
 			<div class="header-content">
 				<a href="/" class="logo">
-					<img src="images/icons/logo-small.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="40" height="40">
+					<img src="images/icons/logo-small.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="40" height="40" decoding="async">
 					<span>ЮЛИЯ ВОРОНОВА</span>
 				</a>
 				<button class="burger-menu" aria-label="Меню">
@@ -178,16 +227,16 @@
 			<!-- Четыре картинки в ряд -->
 			<div class="minimal-images-row animation-v3">
 				<div class="minimal-image-card">
-					<img src="images/cook-healthy-food.webp" alt="Готовим полезную еду вместе с нутрициологом Юлией Вороновой" loading="lazy" width="300" height="400">
+					<img src="images/cook-healthy-food.webp" alt="Готовим полезную еду вместе с нутрициологом Юлией Вороновой" loading="lazy" decoding="async" fetchpriority="low" width="300" height="400">
 				</div>
 				<div class="minimal-image-card">
-					<img src="images/healthy-habbits.webp" alt="Обрабатываем продукты правильно по советам нутрициолога Юлии Вороновой" loading="lazy" width="300" height="400">
+					<img src="images/healthy-habbits.webp" alt="Обрабатываем продукты правильно по советам нутрициолога Юлии Вороновой" loading="lazy" decoding="async" fetchpriority="low" width="300" height="400">
 				</div>
 				<div class="minimal-image-card">
-					<img src="images/our-health-your-hands.webp" alt="Полезные продукты от нутрициолога Юлии Вороновой" loading="lazy" width="300" height="400">
+					<img src="images/our-health-your-hands.webp" alt="Полезные продукты от нутрициолога Юлии Вороновой" loading="lazy" decoding="async" fetchpriority="low" width="300" height="400">
 				</div>
 				<div class="minimal-image-card">
-					<img src="images/drink-lot-water.webp" alt="Формирование новых здоровых привычек по советам нутрициолога Юлии Вороновой" loading="lazy" width="300" height="400">
+					<img src="images/drink-lot-water.webp" alt="Формирование новых здоровых привычек по советам нутрициолога Юлии Вороновой" loading="lazy" decoding="async" fetchpriority="low" width="300" height="400">
 				</div>
 			</div>
 
@@ -294,7 +343,7 @@
 			</div>
 		</div>
 		<div class="youtube-computer-image">
-			<img src="images/background-youtube.webp" alt="YouTube канал нутрициолога Юлии Вороновой" loading="lazy" width="600" height="400">
+			<img src="images/background-youtube.webp" alt="YouTube канал нутрициолога Юлии Вороновой" loading="lazy" decoding="async" fetchpriority="low" width="600" height="400">
 		</div>
 		<div class="youtube-btn-wrapper">
 			<a href="https://youtube.com/@voronova_nutrition" target="_blank" class="youtube-subscribe-btn">
