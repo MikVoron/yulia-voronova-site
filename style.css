@@ -7208,6 +7208,12 @@ button[class*="btn-"]:hover,
     }
 }
 
+@media (min-width: 1280px) {
+    .about-youtube-section.variant-3 .youtube-computer-image img {
+        margin-top: -400px;
+    }
+}
+
 @media (max-width: 1024px) {
     /* YouTube секция - как на мобильном, но с адаптацией для планшета */
     .about-youtube-section.variant-3 {
