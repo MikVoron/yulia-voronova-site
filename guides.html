@@ -148,6 +148,19 @@
 				display: flex
 			}
 		}
+
+		/* Ensure guide cards are visible before full CSS loads */
+		.guide-card-minimal {
+			opacity: 1 !important;
+			transform: none !important
+		}
+
+		.guides-cards-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+			gap: 30px;
+			padding: 40px 20px
+		}
 	</style>
 
 	<!-- DNS Prefetch for third-party domains -->

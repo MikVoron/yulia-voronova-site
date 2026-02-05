@@ -154,11 +154,22 @@
 			}
 		}
 
+		/* Disable animation that causes CLS */
+		.animation-v3 .minimal-image-card {
+			opacity: 1 !important;
+			transform: none !important;
+			animation: none !important
+		}
+
 		/* Reserve space for images to prevent CLS */
+		.minimal-image-card {
+			aspect-ratio: 3/4
+		}
+
 		.minimal-image-card img {
-			aspect-ratio: 3/4;
 			width: 100%;
-			height: auto
+			height: 100%;
+			object-fit: cover
 		}
 
 		.diploma-card img {
