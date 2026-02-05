@@ -225,7 +225,7 @@
 		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&family=Baskervville&family=Cormorant+Garamond:wght@400;500&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 	</noscript>
 	<link rel="stylesheet" href="style.min.css">
-	</head>
+</head>
 
 <body>
 	<!-- Header -->
@@ -233,7 +233,7 @@
 		<div class="container">
 			<div class="header-content">
 				<a href="/" class="logo">
-				<img src="images/icons/logo-small.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="36" height="36" decoding="async">
+					<img src="images/icons/logo-small.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="36" height="36" decoding="async">
 					<span>ЮЛИЯ ВОРОНОВА</span>
 				</a>
 				<button class="burger-menu" aria-label="Меню">
@@ -262,7 +262,7 @@
 	<section class="guides-section">
 		<div class="container">
 			<h1 class="guides-page-title script-text">Мои полезные материалы и гайды</h1>
-			<p class="guides-page-subtitle">Простые пошаговые инструкции для тех, кто заботится о своем здоровье и самочувствии</p>
+			<p class="guides-page-subtitle">Простые инструкции для тех, кто заботится о своем здоровье и самочувствии</p>
 
 			<!-- Telegram блок под заголовком -->
 			<div class="guides-telegram-banner">
@@ -384,9 +384,10 @@
 			<div class="footer-content">
 				<div class="footer-left">
 					<a href="/" class="logo">
-					<img src="images/icons/logo-small.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="36" height="36" decoding="async">
-					<span>ЮЛИЯ ВОРОНОВА</span>
-				</a>			</div>
+						<img src="images/icons/logo-small.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="36" height="36" decoding="async">
+						<span>ЮЛИЯ ВОРОНОВА</span>
+					</a>
+				</div>
 				<div class="footer-center">
 					<nav class="footer-nav footer-nav-grid">
 						<a href="/#home">Главная</a>
@@ -594,15 +595,15 @@
 	</script>
 
 	<script src="main.min.js" defer></script>
-	
+
 	<!-- Deferred Analytics -->
 	<script>
-		window.addEventListener('load', function() {
+		window.addEventListener('load', function () {
 			var ga = document.createElement('script');
 			ga.src = 'https://www.googletagmanager.com/gtag/js?id=G-4KF0TQR0VD';
 			ga.async = true;
 			document.head.appendChild(ga);
-			ga.onload = function() {
+			ga.onload = function () {
 				window.dataLayer = window.dataLayer || [];
 				function gtag() { dataLayer.push(arguments); }
 				gtag('js', new Date());
@@ -623,15 +624,15 @@
 	<!-- PDF.js - load only when needed -->
 	<script>
 		var pdfLoaded = false;
-		document.querySelectorAll('.guide-btn-read').forEach(function(btn) {
-			btn.addEventListener('click', function() {
+		document.querySelectorAll('.guide-btn-read').forEach(function (btn) {
+			btn.addEventListener('click', function () {
 				if (!pdfLoaded) {
 					var s = document.createElement('script');
 					s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 					document.body.appendChild(s);
 					pdfLoaded = true;
 				}
-			}, {once: true});
+			}, { once: true });
 		});
 	</script>
 </body>
