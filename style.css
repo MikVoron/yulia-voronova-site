@@ -1878,103 +1878,30 @@ button[class*="btn-"]:hover,
 
 /* About Page - анимации появления секций */
 
-/* Помогаю клиентам - анимация */
+/* Помогаю клиентам - animations disabled for CLS fix */
 .about-help-section .help-section-title,
 .about-help-section .help-numbered-card {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.about-help-section.animate-visible .help-section-title {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
 }
 
-.about-help-section.animate-visible .help-numbered-card {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.about-help-section .help-numbered-card:nth-child(1) { transition-delay: 0.1s; }
-.about-help-section .help-numbered-card:nth-child(2) { transition-delay: 0.2s; }
-.about-help-section .help-numbered-card:nth-child(3) { transition-delay: 0.3s; }
-.about-help-section .help-numbered-card:nth-child(4) { transition-delay: 0.4s; }
-.about-help-section .help-numbered-card:nth-child(5) { transition-delay: 0.5s; }
-.about-help-section .help-numbered-card:nth-child(6) { transition-delay: 0.6s; }
-
-/* YouTube Section - анимация */
+/* YouTube Section - animations disabled for CLS fix */
 .about-youtube-section .youtube-title-row,
 .about-youtube-section .youtube-channel-name,
 .about-youtube-section .youtube-handle,
 .about-youtube-section .youtube-subscribers,
 .about-youtube-section .youtube-intro,
 .about-youtube-section .youtube-features-cards {
-    opacity: 0;
-    transform: translateY(25px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.about-youtube-section.animate-visible .youtube-title-row {
     opacity: 1;
-    transform: translateY(0);
-    transition-delay: 0s;
+    transform: none;
 }
 
-.about-youtube-section.animate-visible .youtube-channel-name {
-    opacity: 1;
-    transform: translateY(0);
-    transition-delay: 0.1s;
-}
-
-.about-youtube-section.animate-visible .youtube-handle {
-    opacity: 1;
-    transform: translateY(0);
-    transition-delay: 0.15s;
-}
-
-.about-youtube-section.animate-visible .youtube-subscribers {
-    opacity: 1;
-    transform: translateY(0);
-    transition-delay: 0.2s;
-}
-
-.about-youtube-section.animate-visible .youtube-intro {
-    opacity: 1;
-    transform: translateY(0);
-    transition-delay: 0.25s;
-}
-
-.about-youtube-section.animate-visible .youtube-features-cards {
-    opacity: 1;
-    transform: translateY(0);
-    transition-delay: 0.35s;
-}
-
-/* Дипломы - анимация */
+/* Дипломы - animations disabled for CLS fix */
 .diplomas .section-title,
 .diplomas .diploma-card {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.diplomas.animate-visible .section-title {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
 }
-
-.diplomas.animate-visible .diploma-card {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.diplomas .diploma-card:nth-child(1) { transition-delay: 0.1s; }
-.diplomas .diploma-card:nth-child(2) { transition-delay: 0.2s; }
-.diplomas .diploma-card:nth-child(3) { transition-delay: 0.3s; }
-.diplomas .diploma-card:nth-child(4) { transition-delay: 0.4s; }
-.diplomas .diploma-card:nth-child(5) { transition-delay: 0.5s; }
-.diplomas .diploma-card:nth-child(6) { transition-delay: 0.6s; }
 
 /* Footer */
 .footer {
@@ -7544,11 +7471,11 @@ button[class*="btn-"]:hover,
     display: flex;
     align-items: flex-end;
     gap: 10px;
-    opacity: 0;
-    transform: translateY(20px);
+    opacity: 1;
+    transform: none;
 }
 
-/* Анимация запускается только когда секция видима */
+/* Анимация отключена для CLS fix */
 .tg-chat-section.animate-visible .tg-msg {
     animation: bubbleFadeIn 0.5s ease forwards;
 }
