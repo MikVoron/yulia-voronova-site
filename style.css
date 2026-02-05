@@ -7210,7 +7210,7 @@ button[class*="btn-"]:hover,
 
 @media (min-width: 1280px) {
     .about-youtube-section.variant-3 .youtube-computer-image img {
-        margin-top: -400px;
+        margin-top: -450px;
     }
 }
 
@@ -7481,7 +7481,7 @@ button[class*="btn-"]:hover,
     transform: translateY(10px);
 }
 
-/* Анимация отключена для CLS fix */
+/* Анимация сообщений при скролле к секции */
 .tg-chat-section.animate-visible .tg-msg {
     animation: bubbleFadeIn 0.5s ease forwards;
 }
@@ -10992,13 +10992,13 @@ button[class*="btn-"]:hover,
         opacity: 1 !important;
         transform: none !important;
     }
-    
+
     .grid-item:hover,
     .grid-item.tapped {
         transform: none !important;
         box-shadow: none;
     }
-    
+
     .grid:hover .grid-item:not(:hover) {
         transform: none !important;
         opacity: 1 !important;
