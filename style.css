@@ -11072,3 +11072,45 @@ button[class*="btn-"]:hover,
         filter: none;
     }
 }
+
+/* ========================================
+   CLS FIX: Disable animations that cause layout shift
+   ======================================== */
+
+/* About page - disable all scroll-triggered animations */
+.about-help-section .help-section-title,
+.about-help-section .help-numbered-card,
+.about-youtube-section .youtube-title-row,
+.about-youtube-section .youtube-channel-name,
+.about-youtube-section .youtube-handle,
+.about-youtube-section .youtube-subscribers-badge,
+.about-youtube-section .youtube-intro,
+.about-youtube-section .youtube-features-cards,
+.about-youtube-section .youtube-feature-card,
+.about-youtube-section .youtube-computer-image,
+.about-youtube-section .youtube-btn-wrapper,
+.tg-chat-section .tg-chat-header,
+.tg-chat-section .tg-chat-window,
+.tg-chat-section .tg-msg,
+.tg-chat-section .tg-chat-btn-wrap,
+.diplomas .section-title,
+.diplomas .diploma-card {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+}
+
+/* Guides page - disable card animations */
+.guide-card-minimal,
+.guide-card-bordered {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+}
+
+/* Blog page - telegram widgets */
+.telegram-post-widget {
+    opacity: 1 !important;
+    transform: none !important;
+}
