@@ -326,6 +326,8 @@
 
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<!-- Preload LCP image -->
+	<link rel="preload" as="image" href="images/cook-healthy-food.webp" fetchpriority="high">
 	<!-- Critical fonts: Montserrat + Cormorant Garamond for above-fold LCP content -->
 	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
 	<!-- Non-critical fonts: loaded after page render -->
@@ -379,7 +381,7 @@
 			<!-- Четыре картинки в ряд -->
 			<div class="minimal-images-row">
 				<div class="minimal-image-card">
-					<img src="images/cook-healthy-food.webp" alt="Готовим полезную еду вместе с нутрициологом Юлией Вороновой" loading="lazy" decoding="async" fetchpriority="low" width="300" height="400">
+					<img src="images/cook-healthy-food.webp" alt="Готовим полезную еду вместе с нутрициологом Юлией Вороновой" loading="eager" decoding="async" fetchpriority="high" width="300" height="400">
 				</div>
 				<div class="minimal-image-card">
 					<img src="images/healthy-habbits.webp" alt="Обрабатываем продукты правильно по советам нутрициолога Юлии Вороновой" loading="lazy" decoding="async" fetchpriority="low" width="300" height="400">
