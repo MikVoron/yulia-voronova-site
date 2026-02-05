@@ -7478,8 +7478,7 @@ button[class*="btn-"]:hover,
     align-items: flex-end;
     gap: 10px;
     opacity: 1;
-    transform: scale(0.92);
-    transform-origin: left center;
+    transform: none;
 }
 
 /* Анимация сообщений при скролле к секции */
@@ -7498,7 +7497,6 @@ button[class*="btn-"]:hover,
 .tg-msg.outgoing {
     align-self: flex-start;
     flex-direction: row-reverse;
-    transform-origin: right center;
 }
 
 .tg-msg.incoming {
@@ -7544,10 +7542,12 @@ button[class*="btn-"]:hover,
 
 @keyframes bubbleFadeIn {
     from {
-        transform: scale(0.92);
+        opacity: 0;
+        transform: translateY(20px);
     }
     to {
-        transform: scale(1);
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
