@@ -269,11 +269,16 @@
 		.youtube-btn-wrapper,
 		.tg-chat-header,
 		.tg-chat-window,
-		.tg-chat-btn-wrap,
-		.tg-msg {
+		.tg-chat-btn-wrap {
 			opacity: 1 !important;
 			transform: none !important;
 			animation: none !important
+		}
+
+		/* Telegram messages: reserve space but allow animation */
+		.tg-msg {
+			opacity: 0;
+			min-height: 50px
 		}
 
 		/* About text and profession title */
