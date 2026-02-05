@@ -63,7 +63,8 @@
 		:root {
 			--sage-green: #9cb07e;
 			--text-dark: #333;
-			--font-montserrat: 'Montserrat', sans-serif
+			--font-montserrat: 'Montserrat', sans-serif;
+			--font-cormorant: 'Cormorant Garamond', serif
 		}
 
 		* {
@@ -154,9 +155,75 @@
 			}
 		}
 
-		/* Reserve space for images to prevent CLS */
+		/* Hero section - above the fold LCP content */
+		.about-hero-minimal {
+			background: #fff;
+			padding: 60px 0 10px
+		}
+
+		.minimal-header {
+			text-align: center;
+			margin-bottom: 25px
+		}
+
+		.minimal-main-title {
+			font-family: var(--font-cormorant);
+			font-size: 44px;
+			font-weight: 400;
+			color: var(--text-dark);
+			margin-bottom: 0;
+			letter-spacing: 3px;
+			line-height: 1.1
+		}
+
+		.minimal-main-title-name {
+			display: inline-block;
+			font-weight: 400;
+			letter-spacing: 4px;
+			margin-bottom: 8px
+		}
+
+		.minimal-main-title-role {
+			display: inline-block;
+			font-weight: 500;
+			font-size: 0.85em;
+			color: var(--sage-green);
+			letter-spacing: 2px;
+			margin-bottom: 15px
+		}
+
+		.minimal-main-subtitle {
+			font-family: var(--font-cormorant);
+			font-size: 22px;
+			font-weight: 300;
+			line-height: 1.5;
+			color: var(--text-dark);
+			margin: 5px 0 0;
+			letter-spacing: 0.5px
+		}
+
+		.title-heart {
+			display: inline-block;
+			margin: 0 8px;
+			font-size: 0.75em;
+			color: var(--sage-green);
+			font-family: var(--font-cormorant);
+			transform: translateY(-1px)
+		}
+
+		/* Images grid */
+		.minimal-images-row {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 5px;
+			margin-bottom: 20px
+		}
+
 		.minimal-image-card {
-			aspect-ratio: 3/4
+			position: relative;
+			overflow: hidden;
+			border-radius: 8px;
+			aspect-ratio: 1/1
 		}
 
 		.minimal-image-card img {
@@ -169,6 +236,44 @@
 			aspect-ratio: 300/420;
 			width: 100%;
 			height: auto
+		}
+
+		@media(max-width:992px) {
+			.minimal-main-title {
+				font-size: 36px
+			}
+
+			.minimal-main-subtitle {
+				font-size: 19px
+			}
+		}
+
+		@media(max-width:768px) {
+			.minimal-images-row {
+				grid-template-columns: repeat(2, 1fr)
+			}
+		}
+
+		/* Disable animations to prevent CLS */
+		.help-numbered-card,
+		.help-section-title,
+		.diploma-card,
+		.diplomas .section-title,
+		.youtube-title-row,
+		.youtube-channel-name,
+		.youtube-handle,
+		.youtube-subscribers-badge,
+		.youtube-intro,
+		.youtube-features-cards,
+		.youtube-feature-card,
+		.youtube-computer-image,
+		.youtube-btn-wrapper,
+		.tg-chat-header,
+		.tg-chat-window,
+		.tg-msg,
+		.tg-chat-btn-wrap {
+			opacity: 1 !important;
+			transform: none !important
 		}
 
 		/* Optimize rendering of below-fold content */
@@ -188,10 +293,10 @@
 
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<!-- Critical font: Montserrat for above-fold content -->
-	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+	<!-- Critical fonts: Montserrat + Cormorant Garamond for above-fold LCP content -->
+	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
 	<!-- Non-critical fonts: loaded after page render -->
-	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Baskervville&family=Cormorant+Garamond:wght@400;500&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Baskervville&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 	<noscript>
 		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&family=Baskervville&family=Cormorant+Garamond:wght@400;500&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 	</noscript>

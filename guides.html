@@ -57,8 +57,10 @@
 	<style>
 		:root {
 			--sage-green: #9cb07e;
+			--dark-sage: #7a9a5a;
 			--text-dark: #333;
-			--font-montserrat: 'Montserrat', sans-serif
+			--font-montserrat: 'Montserrat', sans-serif;
+			--font-cormorant: 'Cormorant Garamond', serif
 		}
 
 		* {
@@ -149,6 +151,37 @@
 			}
 		}
 
+		/* Page title - LCP element */
+		.guides-section {
+			padding: 100px 0 60px
+		}
+
+		.guides-page-title {
+			font-size: 56px;
+			color: var(--dark-sage);
+			text-align: center;
+			margin-bottom: 15px
+		}
+
+		.script-text {
+			font-family: var(--font-cormorant);
+			font-style: italic;
+			font-weight: 300
+		}
+
+		.guides-page-subtitle {
+			text-align: center;
+			color: #666;
+			font-size: 18px;
+			margin-bottom: 40px
+		}
+
+		@media(max-width:768px) {
+			.guides-page-title {
+				font-size: 40px
+			}
+		}
+
 		/* Ensure guide cards are visible before full CSS loads */
 		.guide-card-minimal {
 			opacity: 1 !important;
@@ -169,10 +202,10 @@
 	<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<!-- Critical font: Montserrat for above-fold content -->
-	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+	<!-- Critical fonts: Montserrat + Cormorant Garamond for above-fold LCP content -->
+	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
 	<!-- Non-critical fonts: loaded after page render -->
-	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Baskervville&family=Cormorant+Garamond:wght@400;500&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Baskervville&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 	<noscript>
 		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&family=Baskervville&family=Cormorant+Garamond:wght@400;500&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 	</noscript>
