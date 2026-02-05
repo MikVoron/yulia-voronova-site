@@ -223,7 +223,7 @@
 			position: relative;
 			overflow: hidden;
 			border-radius: 8px;
-			aspect-ratio: 1/1
+			aspect-ratio: 3/4
 		}
 
 		.minimal-image-card img {
@@ -276,12 +276,45 @@
 			animation: none !important
 		}
 
-		/* Optimize rendering of below-fold content */
-		.about-help-section,
-		.about-youtube-section,
-		.tg-chat-section {
-			content-visibility: auto;
-			contain-intrinsic-size: auto 500px
+		/* About text and profession title */
+		.about-text-clean {
+			max-width: 1200px;
+			margin: 0 auto 10px;
+			text-align: center;
+			padding: 20px 40px;
+			background: #fff
+		}
+
+		.text-variant-1 .accent-phrase {
+			font-family: var(--font-cormorant);
+			font-size: 28px;
+			font-weight: 300;
+			font-style: italic;
+			color: var(--text-dark);
+			line-height: 1.5;
+			margin-bottom: 10px
+		}
+
+		.about-profession-title {
+			text-align: center;
+			font-family: 'Great Vibes', cursive;
+			font-size: 32px;
+			font-weight: 400;
+			color: var(--sage-green);
+			margin: 20px 0 30px;
+			line-height: 1.3
+		}
+
+		@media(max-width:768px) {
+			.text-variant-1 .accent-phrase {
+				font-size: 22px
+			}
+			.about-profession-title {
+				font-size: 26px
+			}
+			.about-text-clean {
+				padding: 15px 20px
+			}
 		}
 	</style>
 
@@ -300,10 +333,7 @@
 	<noscript>
 		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&family=Baskervville&family=Cormorant+Garamond:wght@400;500&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 	</noscript>
-	<link rel="stylesheet" href="style.min.css" media="print" onload="this.media='all'">
-	<noscript>
-		<link rel="stylesheet" href="style.min.css">
-	</noscript>
+	<link rel="stylesheet" href="style.min.css">
 </head>
 
 <body>

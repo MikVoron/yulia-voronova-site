@@ -5658,7 +5658,7 @@ button[class*="btn-"]:hover,
     position: relative;
     overflow: hidden;
     border-radius: 8px;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 3 / 4;
 }
 
 /* Анимация: Слайд слева направо */
