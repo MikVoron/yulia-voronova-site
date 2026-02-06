@@ -2931,9 +2931,10 @@ button[class*="btn-"]:hover,
 
 .tariffs .section-title {
     text-align: center;
-    font-size: 52px;
+    font-size: 44px;
     margin-bottom: 15px;
-    color: var(--dark-text);
+	color: var(--dark-sage);
+
 }
 
 .tariffs-subtitle {
