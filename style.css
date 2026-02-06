@@ -7484,9 +7484,16 @@ button[class*="btn-"]:hover,
     transform: none;
 }
 
-/* Анимация сообщений отключена для Lighthouse performance */
-.tg-chat-section.animate-visible .tg-msg {
-    animation: none;
+/* Telegram messages — late animation (applied by JS after page load) */
+.tg-msg.tg-msg-ready {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.tg-msg.tg-msg-ready.tg-msg-visible {
+    opacity: 1;
+    transform: none;
 }
 
 .tg-msg.outgoing {

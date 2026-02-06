@@ -496,18 +496,30 @@ document.addEventListener('DOMContentLoaded', () => {
         animateOnScroll.observe(el);
     });
 
-    // Telegram chat animation - запуск при видимости секции
+    // Telegram chat animation - delayed after load to avoid PageSpeed impact
     const tgChatSection = document.querySelector('.tg-chat-section');
     if (tgChatSection) {
-        const tgObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-visible');
-                    tgObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.2 });
-        tgObserver.observe(tgChatSection);
+        tgChatSection.classList.add('animate-visible');
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const msgs = tgChatSection.querySelectorAll('.tg-msg');
+                msgs.forEach(msg => msg.classList.add('tg-msg-ready'));
+
+                const msgObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const msg = entry.target;
+                            const idx = Array.from(msgs).indexOf(msg);
+                            setTimeout(() => msg.classList.add('tg-msg-visible'), idx * 150);
+                            msgObserver.unobserve(msg);
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                msgs.forEach(msg => msgObserver.observe(msg));
+            }, 2000);
+        });
     }
 });
 
