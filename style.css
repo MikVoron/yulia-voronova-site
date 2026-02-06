@@ -4031,6 +4031,7 @@ button[class*="btn-"]:hover,
 .faq-cta-title {
     font-family: var(--font-cormorant);
     font-size: 36px;
+	font-weight: 400;
     color: var(--dark-sage);
     margin-bottom: 10px;
 }
@@ -8048,7 +8049,7 @@ button[class*="btn-"]:hover,
 
 .guides-page-title {
 
-    font-size: 56px;
+    font-size: 44px;
     color: var(--dark-sage);
     text-align: center;
     margin-bottom: 15px;
@@ -10653,7 +10654,7 @@ button[class*="btn-"]:hover,
 }
 
 .blog-page-title {
-    font-size: 48px;
+    font-size: 44px;
     color: var(--dark-sage);
     margin-bottom: 30px;
     animation: fadeInUp 0.8s ease-out 0.2s both;

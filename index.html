@@ -401,15 +401,15 @@
 	<!-- Preconnect to critical third-party origins -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	
+
 	<!-- Preload LCP image with responsive variants -->
 	<link rel="preload" as="image" href="images/YV-small.webp" fetchpriority="high" media="(max-width: 768px)">
 	<link rel="preload" as="image" href="images/YV-big.webp" fetchpriority="high" media="(min-width: 769px)">
-	
+
 	<!-- DNS Prefetch for analytics (non-critical) -->
 	<link rel="dns-prefetch" href="https://www.googletagmanager.com">
 	<link rel="dns-prefetch" href="https://mc.yandex.ru">
-	
+
 	<!-- Critical font: Montserrat for above-fold content -->
 	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 	<!-- Non-critical fonts: loaded after page render -->
@@ -743,146 +743,7 @@
 			</div>
 		</section>
 
-		<!-- ВАРИАНТ ТАРИФОВ 5: Карточки с табами -->
-		<!--<section class="tariffs tariffs-v5" id="tariffs-v5" style="display: none;">
-		<div class="container">
-			<h2 class="section-title script-text">Инвестируйте в своё здоровье</h2>
-			<p class="tariffs-subtitle">Выберите формат сопровождения, который подходит именно вам
-				<span class="meta-item">⏱ Перед консультацией понадобится заполнить анкету и зафиксировать рацион в дневнике питания.</span>
-			</p>
-
-			<div class="tabs-container">
-				<div class="tabs-navigation">
-					<button class="tab-btn active" data-tab="tab1">
-						<span class="tab-name">Разовая консультация</span>
-					</button>
-					<button class="tab-btn" data-tab="tab2">
-						<span class="tab-badge">Популярно</span>
-						<span class="tab-name">Консультация 1+1</span>
-					</button>
-					<button class="tab-btn" data-tab="tab3">
-						<span class="tab-name">За руку</span>
-
-					</button>
-				</div>
-
-				<div class="tabs-content">
-					<div class="tab-panel active" id="tab1">
-						<div class="tab-layout">
-							<div class="tab-left">
-								<h3 class="tab-title">РАЗОВАЯ КОНСУЛЬТАЦИЯ</h3>
-								<p class="tab-subtitle">Первые шаги</p>
-								<div class="tab-meta">
-									<span class="meta-item">📍 Формат: онлайн</span>
-									<span class="meta-item">⏱ Длительность: 60-90 минут</span>
-
-								</div>
-								<div class="tab-price-large">
-									<span class="amount">3 000</span>
-									<span class="currency">₽</span>
-								</div>
-								<a href="#booking" class="btn-tab">Выбрать тариф</a>
-							</div>
-							<div class="tab-right">
-								<div class="tab-note">
-									<p><strong>Для кого:</strong> Тем, кто хочет разобраться в основах здорового питания и получить первые рекомендации</p>
-								</div>
-								<h4 class="features-heading">Что вы получите:</h4>
-								<ul class="tab-features">
-									<li>Найдем связь между вашим рационом, образом жизни и симптомами. Проанализируем анкету и дневник питания за 3–5 дней.</li>
-									<li>Разберем уже имеющиеся анализы или составим список рекомендуемых, чтобы не сдавать лишнего.</li>
-									<li>Поддержка в чате в течение недели.</li>
-									<li>Письменные индивидуальные рекомендации - чёткий план по питанию и образу жизни.</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-
-					<div class="tab-panel" id="tab2">
-						<div class="tab-layout">
-							<div class="tab-left">
-								<h3 class="tab-title">КОНСУЛЬТАЦИЯ 1+1</h3>
-								<p class="tab-subtitle">Оптимальный выбор</p>
-								<div class="tab-meta">
-									<span class="meta-item">📍 Формат: онлайн</span>
-									<span class="meta-item">⏱ Две встречи по 60-90 минут</span>
-								</div>
-								<div class="tab-price-large">
-									<span class="amount">6 000</span>
-									<span class="currency">₽</span>
-								</div>
-								<a href="#booking" class="btn-tab btn-tab-popular">Выбрать тариф</a>
-							</div>
-							<div class="tab-right">
-								<div class="tab-note">
-									<p><strong>Для кого:</strong> Тем, кто хочет не просто получить рекомендации, но и скорректировать их после первых недель применения</p>
-								</div>
-								<h4 class="features-heading">Что вы получите:</h4>
-
-								<div class="meeting-section">
-									<h5 class="meeting-label">Первая встреча:</h5>
-									<ul class="tab-features">
-										<li>Найдем связь между вашим рационом, образом жизни и симптомами. Проанализируем анкету и дневник питания за 3–5 дней.</li>
-										<li>Разберем уже имеющиеся анализы и составим список рекомендуемых, чтобы не сдавать лишнего.</li>
-										<li>Поддержка в чате в течение недели.</li>
-										<li>Письменные индивидуальные рекомендации - чёткий план по питанию и образу жизни.</li>
-									</ul>
-								</div>
-
-								<div class="meeting-section">
-									<h5 class="meeting-label">Вторая встреча через 4-6 недель:</h5>
-									<ul class="tab-features">
-										<li>Оценим перемены в самочувствии и результаты повторных анализов.</li>
-										<li>Скорректируем наши шаги и составим новые рекомендации.</li>
-									</ul>
-								</div>
-
-								<div class="bonus-highlight">
-									🎁 <strong>БОНУС!</strong> Сборник моих собственных рецептов в подарок!
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="tab-panel" id="tab3">
-						<div class="tab-layout">
-							<div class="tab-left">
-								<h3 class="tab-title">《 ЗА РУКУ 》</h3>
-								<p class="tab-subtitle">Полное сопровождение на пути к здоровью</p>
-								<div class="tab-meta">
-									<span class="meta-item">📍 Формат: онлайн</span>
-									<span class="meta-item">⏱ 1-3 месяца, 4 встречи/месяц</span>
-								</div>
-								<div class="tab-price-large">
-									<span class="amount">12 000</span>
-									<span class="currency">₽</span>
-								</div>
-								<a href="#booking" class="btn-tab">Выбрать тариф</a>
-							</div>
-							<div class="tab-right">
-								<div class="tab-note">
-									<p><strong>Для кого:</strong> Тем, кто готов серьёзно заняться своим здоровьем и хочет профессиональное сопровождение на каждом шаге</p>
-								</div>
-								<h4 class="features-heading">Максимальная поддержка:</h4>
-								<ul class="tab-features">
-									<li>Детальный разбор: анализы + персональный рацион</li>
-									<li>Постоянная связь в рабочее время</li>
-									<li>Гибкая корректировка плана питания</li>
-									<li>Ваше самочувствие — главный приоритет</li>
-									<li>Письменные рекомендации и материалы</li>
-								</ul>
-								<div class="bonus-highlight">
-									🎁 <strong>БОНУС!</strong> Сборник рецептов в подарок!
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<!-- FAQ Section -->
+		<!-- FAQ Section -->
 		<section class="faq defer-render" id="faq">
 			<div class="container">
 				<h2 class="section-title script-text">Частые вопросы (FAQ)</h2>
@@ -989,11 +850,11 @@
 								<textarea name="message" placeholder="Ваш вопрос..." rows="3" required class="contact-textarea"></textarea>
 							</div>
 							<div class="form-row form-privacy">
-								<div class="privacy-tooltip">Необходимо согласие с политикой обработки данных</div>
+								<div class="privacy-tooltip">Необходимо согласие с Политикой обработки данных</div>
 								<label class="privacy-checkbox">
-									<input type="checkbox" name="privacy" required>
+									<input type="checkbox" name="privacy">
 									<span class="privacy-checkmark"></span>
-									<span class="privacy-text">Я согласен с <a href="personal-data-processing-policy.html" target="_blank">политикой обработки персональных данных</a></span>
+									<span class="privacy-text">Я согласен с <a href="personal-data-processing-policy.html" target="_blank">Политикой обработки персональных данных</a></span>
 								</label>
 							</div>
 							<button type="submit" class="contact-submit-btn">Отправить</button>
