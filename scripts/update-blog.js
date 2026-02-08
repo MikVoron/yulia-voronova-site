@@ -7,9 +7,13 @@ const MAX_POSTS = 6;
 
 const WIDGET_TEMPLATE = (postNumber, index) =>
 `			<!-- Пост ${index + 1} -->
-				<div class="telegram-post-widget">
-					<script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-post="${CHANNEL}/${postNumber}" data-width="100%" data-userpic="true" data-color="8B7355" data-dark-color="A89070">
-					</script>
+				<div class="telegram-post-wrap">
+					<div class="telegram-post-widget">
+						<script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-post="${CHANNEL}/${postNumber}" data-width="100%" data-userpic="true" data-color="8B7355" data-dark-color="A89070">
+						</script>
+					</div>
+					<button class="btn-discuss" data-post="${CHANNEL}/${postNumber}">Обсудить</button>
+					<div class="post-discussion" id="discussion-${postNumber}"></div>
 				</div>`;
 
 async function fetchPostNumbers() {
@@ -50,10 +54,10 @@ function updateBlogHtml(postNumbers) {
         process.exit(1);
     }
 
-    const endMarker = '<!-- Discussion Widget -->';
+    const endMarker = '<div class="blog-channel-link">';
     const endIdx = html.indexOf(endMarker, startIdx);
     if (endIdx === -1) {
-        console.error('Could not find Discussion Widget marker in blog.html');
+        console.error('Could not find blog-channel-link in blog.html');
         process.exit(1);
     }
 
@@ -63,14 +67,6 @@ function updateBlogHtml(postNumbers) {
     const newGrid = startMarker + nl + widgets + nl + `\t\t\t</div>${nl}${nl}\t\t\t`;
 
     html = before + newGrid + after;
-
-    // Update Discussion Widget with the latest post number
-    const latestPost = postNumbers[0];
-    html = html.replace(
-        /data-telegram-discussion="voronova_nutrition\/\d+"/,
-        `data-telegram-discussion="${CHANNEL}/${latestPost}"`
-    );
-
     fs.writeFileSync(BLOG_FILE, html, 'utf8');
 }
 

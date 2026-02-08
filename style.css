@@ -10833,26 +10833,39 @@ button[class*="btn-"]:hover,
 }
 
 /* Channel Link Button */
-/* Blog Discussion Widget */
-.blog-discussion {
-    margin-top: 50px;
-    padding: 30px;
-    background: rgba(156, 176, 126, 0.06);
-    border-radius: 16px;
-    border: 1px solid rgba(156, 176, 126, 0.15);
+/* Blog Discuss Button & Discussion Container */
+.telegram-post-wrap {
+    display: flex;
+    flex-direction: column;
 }
 
-.blog-discussion-title {
-    font-family: var(--font-cormorant);
-    font-size: 28px;
+.btn-discuss {
+    align-self: center;
+    margin-top: 8px;
+    padding: 8px 24px;
+    background: none;
+    border: 1px solid var(--sage-green);
+    border-radius: 20px;
+    color: var(--sage-green);
+    font-family: var(--font-montserrat);
+    font-size: 14px;
     font-weight: 500;
-    color: var(--dark-sage);
-    text-align: center;
-    margin-bottom: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.blog-discussion-widget {
-    min-height: 200px;
+.btn-discuss:hover {
+    background: var(--sage-green);
+    color: #fff;
+}
+
+.post-discussion {
+    display: none;
+    margin-top: 10px;
+}
+
+.post-discussion.open {
+    display: block;
 }
 
 .blog-channel-link {
@@ -10994,13 +11007,9 @@ button[class*="btn-"]:hover,
         margin-top: 30px;
     }
 
-    .blog-discussion {
-        margin-top: 35px;
-        padding: 20px 15px;
-    }
-
-    .blog-discussion-title {
-        font-size: 24px;
+    .btn-discuss {
+        font-size: 13px;
+        padding: 7px 20px;
     }
 }
 
