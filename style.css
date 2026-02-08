@@ -10833,6 +10833,28 @@ button[class*="btn-"]:hover,
 }
 
 /* Channel Link Button */
+/* Blog Discussion Widget */
+.blog-discussion {
+    margin-top: 50px;
+    padding: 30px;
+    background: rgba(156, 176, 126, 0.06);
+    border-radius: 16px;
+    border: 1px solid rgba(156, 176, 126, 0.15);
+}
+
+.blog-discussion-title {
+    font-family: var(--font-cormorant);
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--dark-sage);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.blog-discussion-widget {
+    min-height: 200px;
+}
+
 .blog-channel-link {
     text-align: center;
     margin-top: 40px;
@@ -10970,6 +10992,15 @@ button[class*="btn-"]:hover,
 
     .blog-channel-link {
         margin-top: 30px;
+    }
+
+    .blog-discussion {
+        margin-top: 35px;
+        padding: 20px 15px;
+    }
+
+    .blog-discussion-title {
+        font-size: 24px;
     }
 }
 

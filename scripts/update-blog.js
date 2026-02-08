@@ -50,10 +50,10 @@ function updateBlogHtml(postNumbers) {
         process.exit(1);
     }
 
-    const endMarker = '<div class="blog-channel-link">';
+    const endMarker = '<!-- Discussion Widget -->';
     const endIdx = html.indexOf(endMarker, startIdx);
     if (endIdx === -1) {
-        console.error('Could not find blog-channel-link in blog.html');
+        console.error('Could not find Discussion Widget marker in blog.html');
         process.exit(1);
     }
 
@@ -63,6 +63,14 @@ function updateBlogHtml(postNumbers) {
     const newGrid = startMarker + nl + widgets + nl + `\t\t\t</div>${nl}${nl}\t\t\t`;
 
     html = before + newGrid + after;
+
+    // Update Discussion Widget with the latest post number
+    const latestPost = postNumbers[0];
+    html = html.replace(
+        /data-telegram-discussion="voronova_nutrition\/\d+"/,
+        `data-telegram-discussion="${CHANNEL}/${latestPost}"`
+    );
+
     fs.writeFileSync(BLOG_FILE, html, 'utf8');
 }
 
