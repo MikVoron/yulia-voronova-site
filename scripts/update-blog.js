@@ -30,6 +30,28 @@ function truncateText(text, maxLen) {
     return (lastSpace > maxLen * 0.7 ? truncated.substring(0, lastSpace) : truncated) + '...';
 }
 
+function extractTitle(text) {
+    // Take first non-empty line as title, max 80 chars
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    if (!lines.length) return '';
+    let title = lines[0];
+    if (title.length > 80) {
+        const cut = title.substring(0, 80);
+        const lastSpace = cut.lastIndexOf(' ');
+        title = (lastSpace > 50 ? cut.substring(0, lastSpace) : cut) + '...';
+    }
+    return title;
+}
+
+function extractBody(text) {
+    // Everything after the first line
+    const lines = text.split('\n');
+    const firstNonEmpty = lines.findIndex(l => l.trim().length > 0);
+    if (firstNonEmpty === -1) return '';
+    const rest = lines.slice(firstNonEmpty + 1).join('\n').trim();
+    return rest;
+}
+
 function escapeHtml(text) {
     return text
         .replace(/&/g, '&amp;')
@@ -75,8 +97,8 @@ async function fetchPostsData() {
         const dateMatch = part.match(/datetime="([^"]+)"/);
         const dateISO = dateMatch ? dateMatch[1] : null;
 
-        // Extract first image
-        const imgMatch = part.match(/tgme_widget_message_photo_wrap[^>]*style="background-image:url\('([^']+)'\)/);
+        // Extract first image (style may have width before background-image)
+        const imgMatch = part.match(/tgme_widget_message_photo_wrap[^>]*background-image:url\('([^']+)'\)/);
         const imageUrl = imgMatch ? imgMatch[1] : null;
 
         posts.push({ postNumber, plainText, dateISO, imageUrl });
@@ -94,21 +116,24 @@ async function fetchPostsData() {
 }
 
 function articleCardTemplate(post, index) {
-    const preview = escapeHtml(truncateText(post.plainText, PREVIEW_LENGTH));
+    const title = escapeHtml(extractTitle(post.plainText));
+    const body = extractBody(post.plainText);
+    const preview = body ? escapeHtml(truncateText(body, PREVIEW_LENGTH)) : '';
     const dateFormatted = formatDateRu(post.dateISO);
     const postUrl = `https://t.me/${CHANNEL}/${post.postNumber}`;
 
     const imageBlock = post.imageUrl
-        ? `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${post.imageUrl}" alt="" loading="lazy" decoding="async">\n\t\t\t\t\t</div>`
+        ? `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${post.imageUrl}" alt="${title}" loading="lazy" decoding="async">\n\t\t\t\t\t</div>`
         : '';
 
     return `\t\t\t<!-- Пост ${index + 1} -->
 \t\t\t\t<article class="blog-article-card" data-post="${post.postNumber}">${imageBlock}
 \t\t\t\t\t<div class="blog-card-body">
 ${dateFormatted ? `\t\t\t\t\t\t<time class="blog-card-date" datetime="${post.dateISO}">${dateFormatted}</time>` : ''}
-\t\t\t\t\t\t<p class="blog-card-text">${preview}</p>
+\t\t\t\t\t\t<h3 class="blog-card-title">${title}</h3>
+${preview ? `\t\t\t\t\t\t<p class="blog-card-text">${preview}</p>` : ''}
 \t\t\t\t\t\t<a href="${postUrl}" target="_blank" rel="noopener" class="btn-read-more">
-\t\t\t\t\t\t\tПодробнее
+\t\t\t\t\t\t\tЧитать в Telegram
 \t\t\t\t\t\t\t<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
 \t\t\t\t\t\t</a>
 \t\t\t\t\t</div>
@@ -119,7 +144,7 @@ function generateJsonLd(posts) {
     const items = posts.map(post => {
         const entry = {
             "@type": "BlogPosting",
-            "headline": truncateText(post.plainText, 110),
+            "headline": extractTitle(post.plainText),
             "url": `https://t.me/${CHANNEL}/${post.postNumber}`,
             "author": { "@type": "Person", "name": "Юлия Воронова", "url": "https://voronova.online" },
             "publisher": { "@type": "Person", "name": "Юлия Воронова", "url": "https://voronova.online" },
