@@ -10840,8 +10840,7 @@ button[class*="btn-"]:hover,
 }
 
 .btn-discuss {
-    align-self: center;
-    margin-top: 8px;
+    margin: 8px auto 0;
     padding: 8px 24px;
     background: none;
     border: 1px solid var(--sage-green);
@@ -11010,6 +11009,49 @@ button[class*="btn-"]:hover,
     .btn-discuss {
         font-size: 13px;
         padding: 7px 20px;
+    }
+}
+
+/* Floating Telegram Button */
+.floating-tg {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 999;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2AABEE, #229ED9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(42, 171, 238, 0.4);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none;
+}
+
+.floating-tg:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(42, 171, 238, 0.5);
+}
+
+.floating-tg svg {
+    fill: #fff;
+    width: 28px;
+    height: 28px;
+}
+
+@media (max-width: 768px) {
+    .floating-tg {
+        bottom: 18px;
+        right: 18px;
+        width: 50px;
+        height: 50px;
+    }
+
+    .floating-tg svg {
+        width: 24px;
+        height: 24px;
     }
 }
 
