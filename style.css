@@ -10804,67 +10804,95 @@ button[class*="btn-"]:hover,
     fill: white;
 }
 
-/* Telegram Posts Container */
-.telegram-posts-grid {
-    max-width: 560px;
+/* Blog Posts Container */
+.blog-posts-grid {
+    max-width: 640px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 28px;
 }
 
-.telegram-post-widget {
+/* Article Card */
+.blog-article-card {
     background: var(--white);
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
     opacity: 0;
     transform: translateY(30px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease;
 }
 
-.telegram-post-widget.visible {
+.blog-article-card.visible {
     opacity: 1;
     transform: translateY(0);
 }
 
-.telegram-post-widget iframe {
-    border-radius: 12px;
+.blog-article-card:hover {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
 }
 
-/* Channel Link Button */
-/* Blog Discuss Button & Discussion Container */
-.telegram-post-wrap {
-    display: flex;
-    flex-direction: column;
+.blog-card-image {
+    overflow: hidden;
+    max-height: 280px;
 }
 
-.btn-discuss {
-    margin: 8px auto 0;
-    padding: 8px 24px;
+.blog-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.blog-card-body {
+    padding: 24px 28px;
+}
+
+.blog-card-date {
+    display: block;
+    font-family: var(--font-montserrat);
+    font-size: 13px;
+    color: var(--sage-green);
+    margin-bottom: 10px;
+}
+
+.blog-card-text {
+    font-size: 15px;
+    line-height: 1.65;
+    color: #444;
+    margin: 0 0 18px;
+    white-space: pre-line;
+}
+
+.btn-read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 26px;
     background: none;
-    border: 1px solid var(--sage-green);
-    border-radius: 20px;
+    border: 1.5px solid var(--sage-green);
+    border-radius: 24px;
     color: var(--sage-green);
     font-family: var(--font-montserrat);
     font-size: 14px;
     font-weight: 500;
-    cursor: pointer;
+    text-decoration: none;
     transition: all 0.3s ease;
 }
 
-.btn-discuss:hover {
+.btn-read-more:hover {
     background: var(--sage-green);
     color: #fff;
 }
 
-.post-discussion {
-    display: none;
-    margin-top: 10px;
+.btn-read-more svg {
+    transition: transform 0.3s ease;
 }
 
-.post-discussion.open {
-    display: block;
+.btn-read-more:hover svg {
+    transform: translateX(3px);
+    stroke: #fff;
 }
 
 .blog-channel-link {
@@ -10945,9 +10973,17 @@ button[class*="btn-"]:hover,
         font-size: 14px;
     }
 
-    .telegram-posts-grid {
+    .blog-posts-grid {
         padding: 0 10px;
         gap: 20px;
+    }
+
+    .blog-card-body {
+        padding: 20px 22px;
+    }
+
+    .blog-card-image {
+        max-height: 240px;
     }
 
     .btn-open-channel {
@@ -10998,17 +11034,24 @@ button[class*="btn-"]:hover,
         margin-bottom: 35px;
     }
 
-    .telegram-posts-grid {
+    .blog-posts-grid {
         gap: 16px;
+    }
+
+    .blog-card-body {
+        padding: 18px 18px;
+    }
+
+    .blog-card-text {
+        font-size: 14px;
+    }
+
+    .blog-card-image {
+        max-height: 200px;
     }
 
     .blog-channel-link {
         margin-top: 30px;
-    }
-
-    .btn-discuss {
-        font-size: 13px;
-        padding: 7px 20px;
     }
 }
 
@@ -11125,8 +11168,8 @@ button[class*="btn-"]:hover,
     animation: none !important;
 }
 
-/* Blog page - telegram widgets */
-.telegram-post-widget {
+/* Blog page - article cards */
+.blog-article-card {
     opacity: 1 !important;
     transform: none !important;
 }
