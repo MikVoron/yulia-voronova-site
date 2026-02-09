@@ -4,7 +4,7 @@ const path = require('path');
 const CHANNEL = 'voronova_nutrition';
 const BLOG_FILE = path.join(__dirname, '..', 'blog.html');
 const MAX_POSTS = 5;
-const PREVIEW_LENGTH = 200;
+const PREVIEW_LENGTH = 400;
 
 function stripHtml(html) {
     return html
