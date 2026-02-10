@@ -126,8 +126,12 @@ function articleCardTemplate(post, index) {
         ? `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${post.imageUrl}" alt="${title}" loading="lazy" decoding="async">\n\t\t\t\t\t</div>`
         : '';
 
+    const badgeHtml = index === 0
+        ? `\n\t\t\t\t\t<span class="blog-badge-new">Новый пост</span>`
+        : '';
+
     return `\t\t\t<!-- Пост ${index + 1} -->
-\t\t\t\t<article class="blog-article-card" data-post="${post.postNumber}">${imageBlock}
+\t\t\t\t<article class="blog-article-card${index === 0 ? ' latest' : ''}" data-post="${post.postNumber}">${badgeHtml}${imageBlock}
 \t\t\t\t\t<div class="blog-card-body">
 ${dateFormatted ? `\t\t\t\t\t\t<time class="blog-card-date" datetime="${post.dateISO}">${dateFormatted}</time>` : ''}
 \t\t\t\t\t\t<h3 class="blog-card-title">${title}</h3>
