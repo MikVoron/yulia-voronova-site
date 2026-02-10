@@ -10731,49 +10731,6 @@ button[class*="btn-"]:hover,
     color: var(--dark-sage);
 }
 
-/* Description block */
-.blog-hero-desc {
-    font-family: var(--font-montserrat);
-    margin: 0 auto 20px;
-    max-width: 480px;
-    text-align: left;
-}
-
-.blog-hero-desc-intro {
-    font-size: 14px;
-    color: #555;
-    margin: 0 0 10px;
-    font-weight: 500;
-}
-
-.blog-hero-benefits {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 12px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 8px;
-}
-
-.blog-hero-benefits li {
-    font-size: 13px;
-    color: #555;
-    padding: 4px 14px;
-    background: rgba(156, 176, 126, 0.1);
-    border-radius: 20px;
-    line-height: 1.5;
-}
-
-.blog-hero-desc-accent {
-    font-size: 13.5px;
-    font-weight: 700;
-    color: var(--sage-green);
-    margin: 0;
-    text-align: center;
-    letter-spacing: 0.3px;
-    text-transform: uppercase;
-}
-
 /* Tag pills */
 .blog-hero-tags {
     display: flex;
@@ -11023,14 +10980,6 @@ button[class*="btn-"]:hover,
         font-size: 20px;
     }
 
-    .blog-hero-benefits {
-        justify-content: center;
-    }
-
-    .blog-hero-desc-intro {
-        text-align: center;
-    }
-
     .blog-posts-grid {
         padding: 0 16px;
         gap: 28px;
@@ -11075,15 +11024,6 @@ button[class*="btn-"]:hover,
 
     .blog-hero-title {
         font-size: 18px;
-    }
-
-    .blog-hero-benefits li {
-        font-size: 12px;
-        padding: 3px 11px;
-    }
-
-    .blog-hero-desc-accent {
-        font-size: 12px;
     }
 
     .blog-tag {
