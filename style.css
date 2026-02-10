@@ -10724,17 +10724,23 @@ button[class*="btn-"]:hover,
 .blog-hero-desc {
     font-family: var(--font-montserrat);
     font-size: 13.5px;
-    color: #666;
-    margin: 8px 0 6px;
-    line-height: 1.55;
-    max-width: 420px;
+    color: #444;
+    margin: 10px 0 8px;
+    line-height: 1.6;
+    max-width: 440px;
+    background: linear-gradient(135deg, rgba(156, 176, 126, 0.1) 0%, rgba(156, 176, 126, 0.05) 100%);
+    padding: 10px 14px;
+    border-radius: 10px;
+    border-left: 3px solid var(--sage-green);
 }
 
 .blog-hero-handle {
     font-family: var(--font-montserrat);
-    font-size: 13px;
-    color: #999;
+    font-size: 14px;
+    color: var(--sage-green);
+    font-weight: 600;
     margin: 0;
+    letter-spacing: 0.2px;
 }
 
 .blog-hero-action {
