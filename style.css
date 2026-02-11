@@ -1757,27 +1757,31 @@ button[class*="btn-"]:hover,
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    background: var(--white);
-    color: var(--sage-green);
-    padding: 18px 45px;
+    background-color: var(--cream);
+    color: var(--dark-text);
+    border: 1px solid var(--beige);
+    padding: 14px 40px;
     text-decoration: none;
-    font-size: 18px;
-    font-weight: 600;
-    border-radius: 50px;
+    font-family: var(--font-playfair);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    border-radius: 30px;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     margin-top: 15px;
 }
 
 .btn-telegram:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-    background: var(--cream);
+    background-color: var(--beige);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
 }
 
 .btn-telegram-icon {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
+    fill: var(--dark-text);
 }
 
 .btn-submit:hover {
@@ -2395,23 +2399,24 @@ button[class*="btn-"]:hover,
 
 .first-meeting-v4 .btn-soft {
     display: inline-block;
-    background: var(--cream);
-    color: var(--sage-green);
-    padding: 16px 50px;
-    text-decoration: none;
-    font-size: 16px;
-    letter-spacing: 1px;
-    border-radius: 50px;
-    transition: all 0.3s ease;
-    font-weight: 500;
+    background-color: var(--cream);
+    color: var(--dark-text);
     border: 1px solid var(--beige);
+    padding: 14px 40px;
+    text-decoration: none;
+    font-family: var(--font-playfair);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .first-meeting-v4 .btn-soft:hover {
-    background: var(--sage-green);
-    color: var(--white);
+    background-color: var(--beige);
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(138, 154, 141, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
 }
 
 /* ========================================
@@ -3460,37 +3465,37 @@ button[class*="btn-"]:hover,
 
 .btn-tariff-fixed {
     display: block;
-    background: var(--sage-green);
-    color: var(--white);
+    background-color: var(--cream);
+    color: var(--dark-text);
     text-align: center;
-    padding: 10px 20px;
+    padding: 12px 20px;
     text-decoration: none;
-    font-size: 13px;
-    letter-spacing: 0.8px;
-    border-radius: 50px;
+    font-family: var(--font-playfair);
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    border-radius: 30px;
     transition: all 0.3s ease;
-    font-weight: 500;
-    border: 2px solid var(--sage-green);
+    border: 1px solid var(--beige);
     margin: auto auto 35px auto;
     max-width: 200px;
     min-height: 44px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .btn-tariff-fixed:hover {
-    background: var(--dark-sage);
-    border-color: var(--dark-sage);
+    background-color: var(--beige);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(138, 154, 141, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
 }
 
 .tariff-card-collapsible.popular .btn-tariff-fixed {
-    background: var(--dark-sage);
-    border-color: var(--dark-sage);
+    background-color: var(--cream);
+    border-color: var(--beige);
 }
 
 .tariff-card-collapsible.popular .btn-tariff-fixed:hover {
-    background: var(--sage-green);
-    border-color: var(--sage-green);
+    background-color: var(--beige);
 }
 
 /* Старые стили для варианта 1 */
@@ -7737,23 +7742,24 @@ button[class*="btn-"]:hover,
 
 .btn-cta {
     display: inline-block;
-    background: var(--sage-green);
-    color: var(--white);
-    padding: 18px 30px;
+    background-color: var(--cream);
+    color: var(--dark-text);
+    border: 1px solid var(--beige);
+    padding: 14px 40px;
     text-decoration: none;
-    font-size: 16px;
+    font-family: var(--font-playfair);
+    font-size: 15px;
+    font-weight: 400;
     letter-spacing: 1px;
-    border-radius: 50px;
+    border-radius: 30px;
     transition: all 0.3s ease;
-    font-weight: 500;
-    border: 2px solid var(--sage-green);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .btn-cta:hover {
-    background: var(--dark-sage);
-    border-color: var(--dark-sage);
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(138, 154, 141, 0.3);
+    background-color: var(--beige);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
 }
 
 /* ========================================
@@ -10519,7 +10525,11 @@ button[class*="btn-"]:hover,
     /* Buttons */
     .btn-hero-call,
     .btn-soft,
-    .btn-cta {
+    .btn-cta,
+    .btn-telegram,
+    .btn-subscribe,
+    .btn-read-more,
+    .btn-open-channel {
         padding: 12px 30px;
         font-size: 14px;
     }
@@ -10756,27 +10766,29 @@ button[class*="btn-"]:hover,
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
-    color: white;
-    padding: 13px 32px;
-    border-radius: 28px;
-    font-family: var(--font-montserrat);
-    font-size: 14px;
-    font-weight: 500;
+    background-color: var(--cream);
+    color: var(--dark-text);
+    border: 1px solid var(--beige);
+    padding: 14px 40px;
+    border-radius: 30px;
+    font-family: var(--font-playfair);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 1px;
     text-decoration: none;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 16px rgba(139, 166, 139, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     white-space: nowrap;
 }
 
 .btn-subscribe:hover {
-    background: linear-gradient(135deg, var(--dark-sage) 0%, var(--sage-green) 100%);
+    background-color: var(--beige);
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(139, 166, 139, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
 }
 
 .btn-subscribe svg {
-    fill: white;
+    fill: var(--dark-text);
 }
 
 /* Blog Posts Container */
@@ -10898,32 +10910,34 @@ button[class*="btn-"]:hover,
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 11px 28px;
-    background: none;
-    border: 1.5px solid var(--sage-green);
-    border-radius: 28px;
-    color: var(--sage-green);
-    font-family: var(--font-montserrat);
+    padding: 12px 28px;
+    background-color: var(--cream);
+    border: 1px solid var(--beige);
+    border-radius: 30px;
+    color: var(--dark-text);
+    font-family: var(--font-playfair);
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
+    letter-spacing: 1px;
     text-decoration: none;
     align-self: flex-start;
-    transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .btn-read-more:hover {
-    background: var(--sage-green);
-    color: #fff;
-    transform: translateY(-1px);
+    background-color: var(--beige);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
 }
 
 .btn-read-more svg {
     transition: transform 0.3s ease;
+    stroke: var(--dark-text);
 }
 
 .btn-read-more:hover svg {
     transform: translateX(4px);
-    stroke: #fff;
 }
 
 .blog-channel-link {
@@ -10935,26 +10949,28 @@ button[class*="btn-"]:hover,
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
-    color: white;
-    padding: 16px 35px;
+    background-color: var(--cream);
+    color: var(--dark-text);
+    border: 1px solid var(--beige);
+    padding: 14px 40px;
     border-radius: 30px;
-    font-family: var(--font-montserrat);
-    font-size: 16px;
-    font-weight: 500;
+    font-family: var(--font-playfair);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 1px;
     text-decoration: none;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 20px rgba(139, 166, 139, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .btn-open-channel:hover {
-    background: linear-gradient(135deg, var(--dark-sage) 0%, var(--sage-green) 100%);
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(139, 166, 139, 0.4);
+    background-color: var(--beige);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
 }
 
 .btn-open-channel svg {
-    fill: white;
+    fill: var(--dark-text);
 }
 
 /* Blog Mobile Styles */
