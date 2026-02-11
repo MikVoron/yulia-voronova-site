@@ -7027,28 +7027,26 @@ button[class*="btn-"]:hover,
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background-color: var(--beige);
-    color: var(--dark-text);
-    border: 1px solid #d4c9b5;
-    padding: 14px 40px;
+    background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
+    color: white;
+    padding: 16px 35px;
     border-radius: 30px;
     text-decoration: none;
-    font-family: var(--font-playfair);
-    font-size: 15px;
-    font-weight: 400;
-    letter-spacing: 1px;
+    font-family: var(--font-montserrat);
+    font-size: 16px;
+    font-weight: 500;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 20px rgba(139, 166, 139, 0.3);
 }
 
 .youtube-subscribe-btn:hover {
-    background-color: #d4c9b5;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, var(--dark-sage) 0%, var(--sage-green) 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(139, 166, 139, 0.4);
 }
 
 .youtube-subscribe-btn svg {
-    fill: var(--dark-text);
+    fill: white;
 }
 
 /* ========== YouTube секция: Текст над компьютером, кнопка под ним ========== */
@@ -10700,9 +10698,9 @@ button[class*="btn-"]:hover,
     height: 88px;
     border-radius: 50%;
     flex-shrink: 0;
-    background: conic-gradient(#34b7f1, #00a884, #25d366, #34b7f1);
+    background: conic-gradient(var(--beige), #d4c9b5, var(--cream), var(--beige));
     padding: 3px;
-    box-shadow: 0 4px 16px rgba(138, 154, 141, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .blog-hero-avatar img {
@@ -10738,14 +10736,14 @@ button[class*="btn-"]:hover,
 .blog-hero-handle {
     font-family: var(--font-montserrat);
     font-size: 13.5px;
-    color: var(--sage-green);
-    font-weight: 600;
+    color: #999;
+    font-weight: 500;
     text-decoration: none;
     transition: color 0.2s ease;
 }
 
 .blog-hero-handle:hover {
-    color: var(--dark-sage);
+    color: #666;
 }
 
 /* Tag pills */
@@ -10760,8 +10758,9 @@ button[class*="btn-"]:hover,
     font-family: var(--font-montserrat);
     font-size: 12px;
     font-weight: 600;
-    color: var(--sage-green);
-    background: rgba(156, 176, 126, 0.12);
+    color: #999;
+    background: transparent;
+    border: 1px solid #d4c9b5;
     padding: 5px 16px;
     border-radius: 20px;
     letter-spacing: 0.3px;
