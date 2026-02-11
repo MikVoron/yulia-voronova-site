@@ -10717,9 +10717,9 @@ button[class*="btn-"]:hover,
 }
 
 .blog-hero-title {
-    font-family: var(--font-montserrat);
-    font-size: 24px;
-    font-weight: 700;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 500;
     color: #2c2c2c;
     margin: 0 0 2px;
     line-height: 1.25;
@@ -10892,9 +10892,9 @@ button[class*="btn-"]:hover,
 }
 
 .blog-card-title {
-    font-family: var(--font-montserrat);
-    font-size: 22px;
-    font-weight: 700;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 500;
     line-height: 1.35;
     color: #1e1e1e;
     margin: 0 0 18px;
