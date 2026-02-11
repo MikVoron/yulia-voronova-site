@@ -7064,7 +7064,7 @@ button[class*="btn-"]:hover,
 }
 
 .about-youtube-section.variant-3 .youtube-text-content {
-    background: #e8e8e8;
+    background: #d5cfc5;
     padding: 25px 0 0;
     width: 100%;
 }
@@ -7199,7 +7199,7 @@ button[class*="btn-"]:hover,
         display: block;
         width: 100%;
         text-align: center;
-        background: #e8e8e8;
+        background: #d5cfc5;
         padding: 0;
         overflow: hidden;
     }
@@ -7215,7 +7215,7 @@ button[class*="btn-"]:hover,
 
     .about-youtube-section.variant-3 .youtube-btn-wrapper {
         padding: 20px 0 30px;
-        background: #e8e8e8;
+        background: #d5cfc5;
     }
 }
 
@@ -7274,7 +7274,7 @@ button[class*="btn-"]:hover,
         display: block;
         width: 100%;
         text-align: center;
-        background: #e8e8e8;
+        background: #d5cfc5;
         padding: 10px 0 0;
         overflow: hidden;
         min-height: 260px;
@@ -7291,7 +7291,7 @@ button[class*="btn-"]:hover,
 
     .about-youtube-section.variant-3 .youtube-btn-wrapper {
         padding: 20px 0 30px;
-        background: #e8e8e8;
+        background: #d5cfc5;
     }
 }
 
@@ -7308,7 +7308,7 @@ button[class*="btn-"]:hover,
         display: block;
         width: 100%;
         text-align: center;
-        background: #e8e8e8;
+        background: #d5cfc5;
         padding: 10px 0 0;
         overflow: hidden;
         margin-top: -10px;
