@@ -1672,7 +1672,7 @@ button[class*="btn-"]:hover,
 /* Newsletter */
 /* Telegram Subscribe Section */
 .telegram-subscribe {
-    background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
+    background: linear-gradient(135deg, #a3b1a5 0%, var(--sage-green) 100%);
     padding: 70px 0;
     color: var(--white);
     text-align: center;
