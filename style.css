@@ -1672,9 +1672,9 @@ button[class*="btn-"]:hover,
 /* Newsletter */
 /* Telegram Subscribe Section */
 .telegram-subscribe {
-    background: var(--cream);
+    background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
     padding: 70px 0;
-    color: var(--dark-text);
+    color: var(--white);
     text-align: center;
 }
 
@@ -1687,7 +1687,7 @@ button[class*="btn-"]:hover,
     width: 80px;
     height: 80px;
     margin: 0 auto 30px;
-    color: var(--sage-green);
+    color: var(--white);
     animation: float 3s ease-in-out infinite;
 }
 
@@ -1748,7 +1748,7 @@ button[class*="btn-"]:hover,
     content: '✓';
     position: absolute;
     left: 0;
-    color: var(--sage-green);
+    color: var(--white);
     font-weight: 600;
     font-size: 16px;
 }
@@ -7027,9 +7027,9 @@ button[class*="btn-"]:hover,
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background-color: var(--cream);
+    background-color: var(--beige);
     color: var(--dark-text);
-    border: 1px solid var(--beige);
+    border: 1px solid #d4c9b5;
     padding: 14px 40px;
     border-radius: 30px;
     text-decoration: none;
@@ -7038,13 +7038,13 @@ button[class*="btn-"]:hover,
     font-weight: 400;
     letter-spacing: 1px;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .youtube-subscribe-btn:hover {
-    background-color: var(--beige);
+    background-color: #d4c9b5;
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .youtube-subscribe-btn svg {
@@ -7064,7 +7064,7 @@ button[class*="btn-"]:hover,
 }
 
 .about-youtube-section.variant-3 .youtube-text-content {
-    background: #d5cfc5;
+    background: #e8e8e8;
     padding: 25px 0 0;
     width: 100%;
 }
@@ -7199,7 +7199,7 @@ button[class*="btn-"]:hover,
         display: block;
         width: 100%;
         text-align: center;
-        background: #d5cfc5;
+        background: #e8e8e8;
         padding: 0;
         overflow: hidden;
     }
@@ -7215,7 +7215,7 @@ button[class*="btn-"]:hover,
 
     .about-youtube-section.variant-3 .youtube-btn-wrapper {
         padding: 20px 0 30px;
-        background: #d5cfc5;
+        background: #e8e8e8;
     }
 }
 
@@ -7274,7 +7274,7 @@ button[class*="btn-"]:hover,
         display: block;
         width: 100%;
         text-align: center;
-        background: #d5cfc5;
+        background: #e8e8e8;
         padding: 10px 0 0;
         overflow: hidden;
         min-height: 260px;
@@ -7291,7 +7291,7 @@ button[class*="btn-"]:hover,
 
     .about-youtube-section.variant-3 .youtube-btn-wrapper {
         padding: 20px 0 30px;
-        background: #d5cfc5;
+        background: #e8e8e8;
     }
 }
 
@@ -7308,7 +7308,7 @@ button[class*="btn-"]:hover,
         display: block;
         width: 100%;
         text-align: center;
-        background: #d5cfc5;
+        background: #e8e8e8;
         padding: 10px 0 0;
         overflow: hidden;
         margin-top: -10px;
