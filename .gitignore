@@ -5,6 +5,9 @@
 node_modules/
 package-lock.json
 
+# Windows reserved names
+nul
+
 # Lighthouse reports
 mob-LH.html
 *-lighthouse*.html

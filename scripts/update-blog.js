@@ -123,15 +123,17 @@ function articleCardTemplate(post, index) {
     const postUrl = `https://t.me/${CHANNEL}/${post.postNumber}`;
 
     const badgeHtml = index === 0
-        ? `\n\t\t\t\t\t\t<span class="blog-badge-new">Новый пост</span>`
+        ? `\n\t\t\t\t\t<span class="blog-badge-new">Новый пост</span>`
         : '';
 
     const imageBlock = post.imageUrl
-        ? `\n\t\t\t\t\t<div class="blog-card-image">${badgeHtml}\n\t\t\t\t\t\t<img src="${post.imageUrl}" alt="${title}" loading="lazy" decoding="async">\n\t\t\t\t\t</div>`
+        ? `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${post.imageUrl}" alt="${title}" loading="lazy" decoding="async">\n\t\t\t\t\t</div>`
         : '';
 
+    const noImageClass = !post.imageUrl ? ' no-image' : '';
+
     return `\t\t\t<!-- Пост ${index + 1} -->
-\t\t\t\t<article class="blog-article-card${index === 0 ? ' latest' : ''}" data-post="${post.postNumber}">${imageBlock}
+\t\t\t\t<article class="blog-article-card${index === 0 ? ' latest' : ''}${noImageClass}" data-post="${post.postNumber}">${badgeHtml}${imageBlock}
 \t\t\t\t\t<div class="blog-card-body">
 ${dateFormatted ? `\t\t\t\t\t\t<time class="blog-card-date" datetime="${post.dateISO}">${dateFormatted}</time>` : ''}
 \t\t\t\t\t\t<h3 class="blog-card-title">${title}</h3>
@@ -207,7 +209,8 @@ function updateBlogHtml(posts) {
         process.exit(1);
     }
 
-    const cards = posts.map((p, i) => articleCardTemplate(p, i)).join(nl + nl);
+    const divider = `${nl}\t\t\t\t<hr class="blog-divider">${nl}${nl}`;
+    const cards = posts.map((p, i) => articleCardTemplate(p, i)).join(divider);
     const before = html.substring(0, startIdx);
     const after = html.substring(endIdx);
     const newGrid = startMarker + nl + cards + nl + `\t\t\t</div>${nl}${nl}\t\t\t`;
