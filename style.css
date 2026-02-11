@@ -10699,9 +10699,9 @@ button[class*="btn-"]:hover,
     width: 88px;
     height: 88px;
     border-radius: 50%;
-    overflow: hidden;
     flex-shrink: 0;
-    border: 3px solid var(--sage-green);
+    background: conic-gradient(#34b7f1, #00a884, #25d366, #34b7f1);
+    padding: 3px;
     box-shadow: 0 4px 16px rgba(138, 154, 141, 0.3);
 }
 
@@ -10710,6 +10710,8 @@ button[class*="btn-"]:hover,
     height: 100%;
     object-fit: cover;
     display: block;
+    border-radius: 50%;
+    border: 2px solid #fff;
 }
 
 .blog-hero-identity {
