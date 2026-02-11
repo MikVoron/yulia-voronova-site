@@ -1672,9 +1672,9 @@ button[class*="btn-"]:hover,
 /* Newsletter */
 /* Telegram Subscribe Section */
 .telegram-subscribe {
-    background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
+    background: var(--cream);
     padding: 70px 0;
-    color: var(--white);
+    color: var(--dark-text);
     text-align: center;
 }
 
@@ -1687,7 +1687,7 @@ button[class*="btn-"]:hover,
     width: 80px;
     height: 80px;
     margin: 0 auto 30px;
-    color: var(--white);
+    color: var(--sage-green);
     animation: float 3s ease-in-out infinite;
 }
 
@@ -1748,7 +1748,7 @@ button[class*="btn-"]:hover,
     content: '✓';
     position: absolute;
     left: 0;
-    color: var(--white);
+    color: var(--sage-green);
     font-weight: 600;
     font-size: 16px;
 }
@@ -7027,26 +7027,28 @@ button[class*="btn-"]:hover,
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
-    color: white;
-    padding: 16px 35px;
+    background-color: var(--cream);
+    color: var(--dark-text);
+    border: 1px solid var(--beige);
+    padding: 14px 40px;
     border-radius: 30px;
     text-decoration: none;
-    font-family: var(--font-montserrat);
-    font-size: 16px;
-    font-weight: 500;
+    font-family: var(--font-playfair);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 1px;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 20px rgba(139, 166, 139, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .youtube-subscribe-btn:hover {
-    background: linear-gradient(135deg, var(--dark-sage) 0%, var(--sage-green) 100%);
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(139, 166, 139, 0.4);
+    background-color: var(--beige);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
 }
 
 .youtube-subscribe-btn svg {
-    fill: white;
+    fill: var(--dark-text);
 }
 
 /* ========== YouTube секция: Текст над компьютером, кнопка под ним ========== */
@@ -7625,25 +7627,28 @@ button[class*="btn-"]:hover,
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
-    color: white;
-    padding: 16px 40px;
+    background-color: var(--cream);
+    color: var(--dark-text);
+    border: 1px solid var(--beige);
+    padding: 14px 40px;
     border-radius: 30px;
     text-decoration: none;
-    font-family: var(--font-montserrat);
-    font-size: 16px;
-    font-weight: 500;
+    font-family: var(--font-playfair);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 1px;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 20px rgba(139, 166, 139, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .tg-chat-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(139, 166, 139, 0.4);
+    background-color: var(--beige);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
 }
 
 .tg-chat-btn svg {
-    fill: white;
+    fill: var(--dark-text);
     width: 20px;
     height: 20px;
 }
