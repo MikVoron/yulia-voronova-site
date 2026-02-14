@@ -10909,7 +10909,7 @@ button[class*="btn-"]:hover,
     flex-direction: column;
     border: 1px solid var(--beige);
     border-radius: 8px;
-    margin: 0 8px 8px;
+    margin: 8px 8px;
     flex: 1;
 }
 
