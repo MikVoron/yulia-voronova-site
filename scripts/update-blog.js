@@ -3,8 +3,8 @@ const path = require('path');
 
 const CHANNEL = 'voronova_nutrition';
 const BLOG_FILE = path.join(__dirname, '..', 'blog.html');
-const MAX_POSTS = 5;
-const PREVIEW_LENGTH = 400;
+const MAX_POSTS = 6;
+const PREVIEW_LENGTH = 200;
 
 function stripHtml(html) {
     return html
@@ -123,19 +123,23 @@ function articleCardTemplate(post, index) {
     const postUrl = `https://t.me/${CHANNEL}/${post.postNumber}`;
 
     const badgeHtml = index === 0
-        ? `\n\t\t\t\t\t<span class="blog-badge-new">Новый пост</span>`
+        ? `<span class="blog-badge-new">Новый пост</span>`
         : '';
 
-    const imageBlock = post.imageUrl
-        ? `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${post.imageUrl}" alt="${title}" loading="lazy" decoding="async">\n\t\t\t\t\t</div>`
-        : '';
+    const DEFAULT_IMAGE = 'images/YV-big.webp';
+    const imgSrc = post.imageUrl || DEFAULT_IMAGE;
+    const imageBlock = `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${imgSrc}" alt="${title}" loading="lazy" decoding="async">\n\t\t\t\t\t</div>`;
 
     const noImageClass = !post.imageUrl ? ' no-image' : '';
 
+    const dateRow = dateFormatted
+        ? `\t\t\t\t\t\t<div class="blog-card-meta">\n\t\t\t\t\t\t\t<time class="blog-card-date" datetime="${post.dateISO}">${dateFormatted}</time>\n\t\t\t\t\t\t</div>`
+        : '';
+
     return `\t\t\t<!-- Пост ${index + 1} -->
-\t\t\t\t<article class="blog-article-card${index === 0 ? ' latest' : ''}${noImageClass}" data-post="${post.postNumber}">${badgeHtml}${imageBlock}
+\t\t\t\t<article class="blog-article-card${index === 0 ? ' latest' : ''}${noImageClass}" data-post="${post.postNumber}">${badgeHtml ? `\n\t\t\t\t\t${badgeHtml}` : ''}${imageBlock}
 \t\t\t\t\t<div class="blog-card-body">
-${dateFormatted ? `\t\t\t\t\t\t<time class="blog-card-date" datetime="${post.dateISO}">${dateFormatted}</time>` : ''}
+${dateRow}
 \t\t\t\t\t\t<h3 class="blog-card-title">${title}</h3>
 ${preview ? `\t\t\t\t\t\t<p class="blog-card-text">${preview}</p>` : ''}
 \t\t\t\t\t\t<a href="${postUrl}" target="_blank" rel="noopener" class="btn-read-more">

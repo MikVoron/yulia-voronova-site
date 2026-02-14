@@ -10799,31 +10799,27 @@ button[class*="btn-"]:hover,
 
 /* Blog Posts Container */
 .blog-posts-grid {
-    max-width: 900px;
+    max-width: 1100px;
     margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
 }
 
 /* Divider between posts */
 .blog-divider {
-    border: none;
-    width: 80px;
-    height: 1px;
-    background: var(--beige);
-    margin: 0 auto;
+    display: none;
 }
 
 /* Article Card — horizontal layout */
 .blog-article-card {
     position: relative;
     background: var(--white);
-    border-radius: 20px;
+    border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 24px rgba(0, 0, 0, 0.06);
-    display: grid;
-    grid-template-columns: 320px 1fr;
+    display: flex;
+    flex-direction: column;
     opacity: 0;
     transform: translateY(30px);
     transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.35s ease;
@@ -10838,39 +10834,35 @@ button[class*="btn-"]:hover,
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 12px 40px rgba(0, 0, 0, 0.1);
 }
 
-/* "Новый пост" badge */
+/* Date + badge row */
+.blog-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+/* "Новый пост" badge — diagonal ribbon on top-left corner */
 .blog-badge-new {
     position: absolute;
-    top: 24px;
-    left: 24px;
-    z-index: 2;
+    top: 22px;
+    left: -30px;
+    z-index: 10;
+    background: var(--sage-green);
+    color: #fff;
     font-family: var(--font-montserrat);
-    font-size: 11.5px;
+    font-size: 9px;
     font-weight: 700;
-    padding: 6px 16px;
-    border-radius: 20px;
+    padding: 5px 40px;
     letter-spacing: 0.5px;
-    border: 1.5px solid var(--sage-green);
-    box-shadow: 0 2px 10px rgba(138, 154, 141, 0.25);
     text-transform: uppercase;
-    animation: badgePulse 2.5s ease-in-out infinite;
+    transform: rotate(-45deg);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
-@keyframes badgePulse {
-    0%, 100% { box-shadow: 0 2px 10px rgba(138, 154, 141, 0.25); }
-    50% { box-shadow: 0 2px 18px rgba(138, 154, 141, 0.45); }
-}
-
-/* Card without image — centered single-column layout */
-.blog-article-card.no-image {
-    grid-template-columns: 1fr;
-    max-width: 620px;
-    margin: 0 auto;
-}
-
+/* Card without image — same size as others */
 .blog-article-card.no-image .blog-card-body {
     text-align: center;
-    padding: 36px 40px;
 }
 
 .blog-article-card.no-image .blog-card-title {
@@ -10890,9 +10882,10 @@ button[class*="btn-"]:hover,
 .blog-card-image {
     position: relative;
     overflow: hidden;
-    min-height: 260px;
+    aspect-ratio: 3/4;
+    flex-shrink: 0;
     background: var(--cream);
-    padding: 12px;
+    padding: 8px;
 }
 
 .blog-card-image img {
@@ -10911,61 +10904,73 @@ button[class*="btn-"]:hover,
 
 /* Card Body */
 .blog-card-body {
-    padding: 24px 28px;
+    padding: 14px 16px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     border: 1px solid var(--beige);
     border-radius: 8px;
-    margin: 12px 12px 12px 12px;
+    margin: 0 8px 8px;
+    flex: 1;
 }
 
 .blog-card-date {
     display: inline-block;
     font-family: var(--font-montserrat);
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 500;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     color: #aaa;
-    margin-bottom: 10px;
+    margin-bottom: 0;
 }
 
 .blog-card-title {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 24px;
-    font-weight: 500;
-    line-height: 1.35;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.3;
     color: #1e1e1e;
-    margin: 0 0 18px;
-    padding-bottom: 16px;
-    border-bottom: 2px solid rgba(138, 154, 141, 0.2);
+    margin: 0 0 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(138, 154, 141, 0.15);
+    min-height: 52px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .blog-card-text {
-    font-size: 16px;
-    line-height: 1.7;
+    font-size: 14px;
+    line-height: 1.5;
     color: #555;
-    margin: 0 0 22px;
-    white-space: pre-line;
+    margin: 0 0 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 8;
+    line-clamp: 8;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 /* Read More Button */
 .btn-read-more {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 28px;
+    gap: 6px;
+    padding: 8px 20px;
     background-color: var(--cream);
     border: 1px solid var(--beige);
     border-radius: 30px;
     color: var(--dark-text);
     font-family: var(--font-playfair);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
+    align-self: center;
+    margin-top: auto;
+    padding-top: 12px;
     text-decoration: none;
-    align-self: flex-start;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
@@ -11042,21 +11047,18 @@ button[class*="btn-"]:hover,
     }
 
     .blog-posts-grid {
+        grid-template-columns: repeat(2, 1fr);
         padding: 0 16px;
-        gap: 28px;
-    }
-
-    .blog-article-card {
-        grid-template-columns: 1fr;
+        gap: 20px;
     }
 
     .blog-card-image {
-        min-height: auto;
-        max-height: 360px;
+        flex: 0 0 auto;
+        max-height: 200px;
     }
 
     .blog-card-body {
-        padding: 24px 26px 28px;
+        padding: 14px 16px;
     }
 
     .blog-card-title {
@@ -11097,7 +11099,8 @@ button[class*="btn-"]:hover,
     }
 
     .blog-posts-grid {
-        gap: 22px;
+        grid-template-columns: 1fr;
+        gap: 18px;
         padding: 0 10px;
     }
 
@@ -11106,11 +11109,11 @@ button[class*="btn-"]:hover,
     }
 
     .blog-card-image {
-        max-height: 280px;
+        max-height: 240px;
     }
 
     .blog-card-body {
-        padding: 20px 20px 24px;
+        padding: 16px 16px 20px;
     }
 
     .blog-card-title {
