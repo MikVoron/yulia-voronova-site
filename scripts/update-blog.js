@@ -3,8 +3,32 @@ const path = require('path');
 
 const CHANNEL = 'voronova_nutrition';
 const BLOG_FILE = path.join(__dirname, '..', 'blog.html');
+const BLOG_IMAGES_DIR = path.join(__dirname, '..', 'images', 'blog');
 const MAX_POSTS = 6;
 const PREVIEW_LENGTH = 200;
+
+async function downloadImage(url, postNumber) {
+    const ext = path.extname(new URL(url).pathname).split('?')[0] || '.jpg';
+    const filename = `post-${postNumber}${ext}`;
+    const filepath = path.join(BLOG_IMAGES_DIR, filename);
+
+    // Skip if already downloaded
+    if (fs.existsSync(filepath)) {
+        return `images/blog/${filename}`;
+    }
+
+    try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const buffer = Buffer.from(await res.arrayBuffer());
+        fs.writeFileSync(filepath, buffer);
+        console.log(`  Downloaded: ${filename}`);
+        return `images/blog/${filename}`;
+    } catch (e) {
+        console.error(`  Failed to download image for post ${postNumber}: ${e.message}`);
+        return null;
+    }
+}
 
 function stripHtml(html) {
     return html
@@ -112,7 +136,20 @@ async function fetchPostsData() {
         return true;
     }).sort((a, b) => b.postNumber - a.postNumber);
 
-    return unique.slice(0, MAX_POSTS);
+    const top = unique.slice(0, MAX_POSTS);
+
+    // Download images locally
+    if (!fs.existsSync(BLOG_IMAGES_DIR)) {
+        fs.mkdirSync(BLOG_IMAGES_DIR, { recursive: true });
+    }
+    for (const post of top) {
+        if (post.imageUrl) {
+            const localPath = await downloadImage(post.imageUrl, post.postNumber);
+            post.localImage = localPath;
+        }
+    }
+
+    return top;
 }
 
 function articleCardTemplate(post, index) {
@@ -127,7 +164,7 @@ function articleCardTemplate(post, index) {
         : '';
 
     const DEFAULT_IMAGE = 'images/YV-big.webp';
-    const imgSrc = post.imageUrl || DEFAULT_IMAGE;
+    const imgSrc = post.localImage || DEFAULT_IMAGE;
     const imageBlock = `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${imgSrc}" alt="${title}" loading="lazy" decoding="async">\n\t\t\t\t\t</div>`;
 
     const noImageClass = !post.imageUrl ? ' no-image' : '';
