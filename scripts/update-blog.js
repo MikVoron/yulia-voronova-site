@@ -296,6 +296,17 @@ async function main() {
     console.log('Updating blog.html...');
     updateBlogHtml(posts);
     console.log('Done! blog.html updated with article cards.');
+
+    // Clean up images of posts no longer displayed
+    const activeFiles = new Set(posts.map(p => p.localImage ? path.basename(p.localImage) : null).filter(Boolean));
+    if (fs.existsSync(BLOG_IMAGES_DIR)) {
+        for (const file of fs.readdirSync(BLOG_IMAGES_DIR)) {
+            if (!activeFiles.has(file)) {
+                fs.unlinkSync(path.join(BLOG_IMAGES_DIR, file));
+                console.log(`  Removed old image: ${file}`);
+            }
+        }
+    }
 }
 
 main().catch(err => {

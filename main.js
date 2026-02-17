@@ -352,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Active link highlighting based on scroll position
 function updateActiveLink() {
     const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav a, .footer-nav a');
+    const navLinks = document.querySelectorAll('.nav a:not(.nav-dropdown-toggle):not(.nav-dropdown-menu a), .footer-nav a');
 
     let currentSection = '';
 
@@ -365,19 +365,33 @@ function updateActiveLink() {
         }
     });
 
+    // На страницах, не являющихся главной — не трогаем active вообще
+    var isMainPage = window.location.pathname === '/' || window.location.pathname === '/index.html' || window.location.pathname.endsWith('/index.html');
+
     navLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        // Не трогаем ссылки на другие страницы (без #) или с уже установленным active в HTML
-        if (!href.startsWith('#') && !href.includes('#')) {
-            return; // Пропускаем ссылки на другие страницы
+        var href = link.getAttribute('href');
+
+        // Не трогаем ссылки на другие страницы (about.html, blog.html и т.д.)
+        if (!href.startsWith('#') && !href.startsWith('/#')) {
+            return;
         }
-        // Для ссылок с якорями на другие страницы (например jana-morris-landing.html#home)
-        if (href.includes('.html#')) {
-            return; // Не трогаем их на других страницах
+
+        // Ссылки вида /#section — обрабатываем только на главной
+        if (href.startsWith('/#')) {
+            if (!isMainPage) return;
+            link.classList.remove('active');
+            if (currentSection && href === '/#' + currentSection) {
+                link.classList.add('active');
+            }
+            return;
         }
-        link.classList.remove('active');
-        if (href === '#' + currentSection) {
-            link.classList.add('active');
+
+        // Ссылки вида #section — обрабатываем только если есть секции на странице
+        if (href.startsWith('#') && href.length > 1) {
+            link.classList.remove('active');
+            if (currentSection && href === '#' + currentSection) {
+                link.classList.add('active');
+            }
         }
     });
 }
