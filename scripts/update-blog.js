@@ -6,6 +6,13 @@ const BLOG_FILE = path.join(__dirname, '..', 'blog.html');
 const BLOG_IMAGES_DIR = path.join(__dirname, '..', 'images', 'blog');
 const MAX_POSTS = 6;
 const PREVIEW_LENGTH = 200;
+const RANDOM_PICS = [
+    'images/blog/random-pic-blog-1.webp',
+    'images/blog/random-pic-blog-2.webp',
+    'images/blog/random-pic-blog-3.webp',
+    'images/blog/random-pic-blog-4.webp',
+    'images/blog/random-pic-blog-5..webp',
+];
 
 async function downloadImage(url, postNumber) {
     const ext = path.extname(new URL(url).pathname).split('?')[0] || '.jpg';
@@ -163,18 +170,16 @@ function articleCardTemplate(post, index) {
         ? `<span class="blog-badge-new">Новый пост</span>`
         : '';
 
-    const DEFAULT_IMAGE = 'images/YV-big.webp';
-    const imgSrc = post.localImage || DEFAULT_IMAGE;
+    const fallbackSrc = RANDOM_PICS[index % RANDOM_PICS.length];
+    const imgSrc = post.localImage || fallbackSrc;
     const imageBlock = `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${imgSrc}" alt="${title}" loading="lazy" decoding="async">\n\t\t\t\t\t</div>`;
-
-    const noImageClass = !post.imageUrl ? ' no-image' : '';
 
     const dateRow = dateFormatted
         ? `\t\t\t\t\t\t<div class="blog-card-meta">\n\t\t\t\t\t\t\t<time class="blog-card-date" datetime="${post.dateISO}">${dateFormatted}</time>\n\t\t\t\t\t\t</div>`
         : '';
 
     return `\t\t\t<!-- Пост ${index + 1} -->
-\t\t\t\t<article class="blog-article-card${index === 0 ? ' latest' : ''}${noImageClass}" data-post="${post.postNumber}">${badgeHtml ? `\n\t\t\t\t\t${badgeHtml}` : ''}${imageBlock}
+\t\t\t\t<article class="blog-article-card${index === 0 ? ' latest' : ''}" data-post="${post.postNumber}">${badgeHtml ? `\n\t\t\t\t\t${badgeHtml}` : ''}${imageBlock}
 \t\t\t\t\t<div class="blog-card-body">
 ${dateRow}
 \t\t\t\t\t\t<h3 class="blog-card-title">${title}</h3>
@@ -301,7 +306,7 @@ async function main() {
     const activeFiles = new Set(posts.map(p => p.localImage ? path.basename(p.localImage) : null).filter(Boolean));
     if (fs.existsSync(BLOG_IMAGES_DIR)) {
         for (const file of fs.readdirSync(BLOG_IMAGES_DIR)) {
-            if (!activeFiles.has(file)) {
+            if (!activeFiles.has(file) && !file.startsWith('random-pic')) {
                 fs.unlinkSync(path.join(BLOG_IMAGES_DIR, file));
                 console.log(`  Removed old image: ${file}`);
             }
