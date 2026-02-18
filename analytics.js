@@ -8,6 +8,17 @@ Tawk_API.onLoad = function () {
 Tawk_API.onChatMinimized = function () {
 	Tawk_API.hideWidget();
 };
+// Показываем бейдж на нашей кнопке при непрочитанных сообщениях (включая автосообщения)
+Tawk_API.onUnreadCountChanged = function (count) {
+	var badge = document.getElementById('chatBadge');
+	if (!badge) return;
+	if (count > 0) {
+		badge.textContent = count > 9 ? '9+' : count;
+		badge.classList.add('visible');
+	} else {
+		badge.classList.remove('visible');
+	}
+};
 
 window.addEventListener('load', function () {
 	// Google Analytics

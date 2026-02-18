@@ -69,6 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
             tawkOpenBtn.addEventListener('click', () => {
                 chatLauncher.classList.remove('open');
                 chatLauncherBtn.setAttribute('aria-expanded', 'false');
+                // Сбрасываем бейдж при открытии чата
+                const badge = document.getElementById('chatBadge');
+                if (badge) badge.classList.remove('visible');
                 if (typeof Tawk_API !== 'undefined' && typeof Tawk_API.maximize === 'function') {
                     Tawk_API.maximize();
                 }
