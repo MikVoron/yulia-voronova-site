@@ -69,9 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
             tawkOpenBtn.addEventListener('click', () => {
                 chatLauncher.classList.remove('open');
                 chatLauncherBtn.setAttribute('aria-expanded', 'false');
-                if (typeof Tawk_API !== 'undefined' && typeof Tawk_API.toggle === 'function') {
-                    Tawk_API.showWidget();
-                    Tawk_API.toggle();
+                if (typeof Tawk_API !== 'undefined' && typeof Tawk_API.maximize === 'function') {
+                    Tawk_API.maximize();
                 }
             });
         }
