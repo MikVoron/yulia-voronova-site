@@ -1,4 +1,4 @@
-/* Font fallback with size-adjust for reduced CLS */
+﻿/* Font fallback with size-adjust for reduced CLS */
 @font-face {
     font-family: 'Montserrat-fallback';
     src: local('Arial');
@@ -44,8 +44,8 @@
     size-adjust: 78%;
 }
 
-/* Удалены стили aboutme-block-mockup */
-/* --- Новый блок "Обо мне" по макету --- */
+/* РЈРґР°Р»РµРЅС‹ СЃС‚РёР»Рё aboutme-block-mockup */
+/* --- РќРѕРІС‹Р№ Р±Р»РѕРє "РћР±Рѕ РјРЅРµ" РїРѕ РјР°РєРµС‚Сѓ --- */
 .aboutme-block-mockup {
     width: 100%;
     background: #f6f7fa;
@@ -216,7 +216,7 @@
         font-size: 2.3rem;
     }
 }
-/* --- About Hero V4: Фоновое изображение --- */
+/* --- About Hero V4: Р¤РѕРЅРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ --- */
 .about-hero-v4-bg {
     position: relative;
     min-height: 420px;
@@ -367,7 +367,7 @@
         border-radius: 8px;
     }
 }
-/* --- YouTube Shorts: Градиентная рамка (about + hero) --- */
+/* --- YouTube Shorts: Р“СЂР°РґРёРµРЅС‚РЅР°СЏ СЂР°РјРєР° (about + hero) --- */
 .short-variant {
     display: flex;
     flex-direction: column;
@@ -406,7 +406,7 @@
         border-radius: 12px;
     }
 }
-/* --- YouTube Shorts Hero Варианты --- */
+/* --- YouTube Shorts Hero Р’Р°СЂРёР°РЅС‚С‹ --- */
 .hero-image-variants {
     display: flex;
     gap: 32px;
@@ -427,7 +427,7 @@
     color: #888;
     text-align: center;
 }
-/* Вариант 3: Градиентная рамка */
+/* Р’Р°СЂРёР°РЅС‚ 3: Р“СЂР°РґРёРµРЅС‚РЅР°СЏ СЂР°РјРєР° */
 .short-gradient .gradient-frame {
     display: inline-block;
     padding: 7px;
@@ -588,7 +588,7 @@ body {
     filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
 }
 
-/* Планшет: убираем текст "Юлия Воронова", уменьшаем gap навигации */
+/* РџР»Р°РЅС€РµС‚: СѓР±РёСЂР°РµРј С‚РµРєСЃС‚ "Р®Р»РёСЏ Р’РѕСЂРѕРЅРѕРІР°", СѓРјРµРЅСЊС€Р°РµРј gap РЅР°РІРёРіР°С†РёРё */
 @media (min-width: 769px) and (max-width: 1100px) {
     .header {
         padding: 12px 0;
@@ -641,7 +641,7 @@ body {
     }
 }
 
-/* Узкие планшеты: дополнительное уменьшение для 600-768px */
+/* РЈР·РєРёРµ РїР»Р°РЅС€РµС‚С‹: РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ СѓРјРµРЅСЊС€РµРЅРёРµ РґР»СЏ 600-768px */
 @media (min-width: 600px) and (max-width: 768px) {
     .header .logo-img {
         height: 38px;
@@ -697,7 +697,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* Активная ссылка в хедере */
+/* РђРєС‚РёРІРЅР°СЏ СЃСЃС‹Р»РєР° РІ С…РµРґРµСЂРµ */
 .nav a.active:not(.nav-dropdown-toggle) {
     position: relative !important;
 }
@@ -715,12 +715,12 @@ body {
     transition: width 0.3s ease !important;
 }
 
-/* При ховере на nav — скрыть подчёркивание активной ссылки */
+/* РџСЂРё С…РѕРІРµСЂРµ РЅР° nav вЂ” СЃРєСЂС‹С‚СЊ РїРѕРґС‡С‘СЂРєРёРІР°РЅРёРµ Р°РєС‚РёРІРЅРѕР№ СЃСЃС‹Р»РєРё */
 .nav:hover a.active:not(.nav-dropdown-toggle)::after {
     width: 0 !important;
 }
 
-/* Но если ховер на самой активной ссылке — вернуть подчёркивание */
+/* РќРѕ РµСЃР»Рё С…РѕРІРµСЂ РЅР° СЃР°РјРѕР№ Р°РєС‚РёРІРЅРѕР№ СЃСЃС‹Р»РєРµ вЂ” РІРµСЂРЅСѓС‚СЊ РїРѕРґС‡С‘СЂРєРёРІР°РЅРёРµ */
 .nav a.active:not(.nav-dropdown-toggle):hover::after {
     width: 100% !important;
 }
@@ -732,6 +732,11 @@ body {
 }
 
 .nav-dropdown-toggle {
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: none;
+    padding: 0 0 6px;
     color: var(--white);
     text-decoration: none;
     font-size: 15px;
@@ -742,7 +747,6 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding-bottom: 6px;
     position: relative;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -772,16 +776,29 @@ body {
     transform: translateY(-2px);
 }
 
+.nav-dropdown-toggle:active {
+    background: none;
+}
+
+.nav-dropdown-toggle:focus {
+    outline: none;
+}
+
+.nav-dropdown-toggle:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.45);
+    border-radius: 3px;
+}
+
 .nav-dropdown-arrow {
     transition: transform 0.3s ease;
 }
 
-.nav-dropdown:hover .nav-dropdown-arrow {
+.nav-dropdown.open .nav-dropdown-arrow {
     transform: rotate(180deg);
 }
 
-/* Hide active underline on hover */
-.nav-dropdown:hover .nav-dropdown-toggle.active .nav-dropdown-text::after {
+/* Hide active underline when dropdown is open */
+.nav-dropdown.open .nav-dropdown-toggle.active .nav-dropdown-text::after {
     width: 0 !important;
     transition: width 0.3s ease !important;
 }
@@ -803,10 +820,14 @@ body {
     z-index: 100;
 }
 
-.nav-dropdown:hover .nav-dropdown-menu {
+.nav-dropdown.open .nav-dropdown-menu {
     opacity: 1;
     visibility: visible;
     transform: translateX(-50%) translateY(0);
+}
+
+.nav-dropdown.open .nav-dropdown-arrow {
+    transform: rotate(180deg);
 }
 
 .nav-dropdown-menu a {
@@ -864,7 +885,7 @@ body {
     transform: scale(1.05);
 }
 
-/* Убираем подчеркивание у логотипа (когда он ссылка) */
+/* РЈР±РёСЂР°РµРј РїРѕРґС‡РµСЂРєРёРІР°РЅРёРµ Сѓ Р»РѕРіРѕС‚РёРїР° (РєРѕРіРґР° РѕРЅ СЃСЃС‹Р»РєР°) */
 .header a.logo,
 .header a.logo:hover,
 .header a.logo::after {
@@ -1025,7 +1046,7 @@ body {
     animation-delay: 0.45s;
 }
 
-/* Пульсация кнопок - легкое сердцебиение */
+/* РџСѓР»СЊСЃР°С†РёСЏ РєРЅРѕРїРѕРє - Р»РµРіРєРѕРµ СЃРµСЂРґС†РµР±РёРµРЅРёРµ */
 @keyframes buttonPulse {
     0%, 100% {
         box-shadow: 0 2px 8px rgba(139, 166, 139, 0.2);
@@ -1035,7 +1056,7 @@ body {
     }
 }
 
-/* Применяем пульсацию только к кнопкам, не к обёрткам */
+/* РџСЂРёРјРµРЅСЏРµРј РїСѓР»СЊСЃР°С†РёСЋ С‚РѕР»СЊРєРѕ Рє РєРЅРѕРїРєР°Рј, РЅРµ Рє РѕР±С‘СЂС‚РєР°Рј */
 a[class*="btn-"]:not(:hover):not([class*="wrap"]),
 button[class*="btn-"]:not(:hover),
 .tg-chat-btn:not(:hover),
@@ -1070,7 +1091,7 @@ button[class*="btn-"]:hover,
     border-color: #B8A994;
 }
 
-/* Hero Call Button - стиль как на скриншоте */
+/* Hero Call Button - СЃС‚РёР»СЊ РєР°Рє РЅР° СЃРєСЂРёРЅС€РѕС‚Рµ */
 .btn-hero-call {
     display: inline-block;
     background-color: var(--cream);
@@ -1216,7 +1237,6 @@ button[class*="btn-"]:hover,
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
-
 }
 
 .grid-item.habits-card .grid-overlay.dark {
@@ -1272,7 +1292,7 @@ button[class*="btn-"]:hover,
     overflow: hidden;
 }
 
-/* Контент первой карточки - заголовок сверху, фото по центру */
+/* РљРѕРЅС‚РµРЅС‚ РїРµСЂРІРѕР№ РєР°СЂС‚РѕС‡РєРё - Р·Р°РіРѕР»РѕРІРѕРє СЃРІРµСЂС…Сѓ, С„РѕС‚Рѕ РїРѕ С†РµРЅС‚СЂСѓ */
 .first-card-content {
     position: relative;
     width: 100%;
@@ -1311,7 +1331,7 @@ button[class*="btn-"]:hover,
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Hover состояние */
+/* Hover СЃРѕСЃС‚РѕСЏРЅРёРµ */
 .first-card-hover {
     position: absolute;
     top: 0;
@@ -1443,13 +1463,13 @@ button[class*="btn-"]:hover,
     transition: transform 0.5s ease;
 }
 
-/* При ховере h3 и p разъезжаются */
+/* РџСЂРё С…РѕРІРµСЂРµ h3 Рё p СЂР°Р·СЉРµР·Р¶Р°СЋС‚СЃСЏ */
 .grid-item:hover .grid-overlay,
 .grid-item.tapped .grid-overlay {
     justify-content: space-between;
 }
 
-/* Заголовки наверху → текст внизу (scientific, progress, ничего лишнего) */
+/* Р—Р°РіРѕР»РѕРІРєРё РЅР°РІРµСЂС…Сѓ в†’ С‚РµРєСЃС‚ РІРЅРёР·Сѓ (scientific, progress, РЅРёС‡РµРіРѕ Р»РёС€РЅРµРіРѕ) */
 .grid-item.scientific-card .grid-overlay,
 .grid-item:has(.progress-title) .grid-overlay,
 .grid-item:not(.first-card):not(.discuss-card):not(.scientific-card):not(.habits-card):not(:has(.progress-title)) .grid-overlay.dark {
@@ -1474,7 +1494,7 @@ button[class*="btn-"]:hover,
     margin-top: auto;
 }
 
-/* Заголовки внизу → текст вверху (discuss, habits) */
+/* Р—Р°РіРѕР»РѕРІРєРё РІРЅРёР·Сѓ в†’ С‚РµРєСЃС‚ РІРІРµСЂС…Сѓ (discuss, habits) */
 .grid-item.discuss-card .grid-overlay,
 .grid-item.habits-card .grid-overlay {
     justify-content: flex-end;
@@ -1896,7 +1916,7 @@ button[class*="btn-"]:hover,
 }
 
 .telegram-subscribe-list li::before {
-    content: '✓';
+    content: 'вњ“';
     position: absolute;
     left: 0;
     color: var(--white);
@@ -1944,7 +1964,7 @@ button[class*="btn-"]:hover,
    SCROLL ANIMATIONS
    ======================================== */
 
-/* Services Range - анимация появления */
+/* Services Range - Р°РЅРёРјР°С†РёСЏ РїРѕСЏРІР»РµРЅРёСЏ */
 .services-range .section-title,
 .services-range .service-column {
     opacity: 0;
@@ -1966,7 +1986,7 @@ button[class*="btn-"]:hover,
 .services-range .service-column:nth-child(2) { transition-delay: 0.25s; }
 .services-range .service-column:nth-child(3) { transition-delay: 0.4s; }
 
-/* FAQ - анимация появления */
+/* FAQ - Р°РЅРёРјР°С†РёСЏ РїРѕСЏРІР»РµРЅРёСЏ */
 .faq .section-title,
 .faq-item {
     opacity: 0;
@@ -1991,7 +2011,7 @@ button[class*="btn-"]:hover,
 .faq-item:nth-child(5) { transition-delay: 0.5s; }
 .faq-item:nth-child(6) { transition-delay: 0.6s; }
 
-/* Telegram Subscribe - анимация появления */
+/* Telegram Subscribe - Р°РЅРёРјР°С†РёСЏ РїРѕСЏРІР»РµРЅРёСЏ */
 .telegram-subscribe .telegram-icon-large,
 .telegram-subscribe .telegram-subscribe-title,
 .telegram-subscribe .telegram-subscribe-subtitle,
@@ -2032,9 +2052,9 @@ button[class*="btn-"]:hover,
     transition-delay: 0.45s;
 }
 
-/* About Page - анимации появления секций */
+/* About Page - Р°РЅРёРјР°С†РёРё РїРѕСЏРІР»РµРЅРёСЏ СЃРµРєС†РёР№ */
 
-/* Помогаю клиентам - animations disabled for CLS fix */
+/* РџРѕРјРѕРіР°СЋ РєР»РёРµРЅС‚Р°Рј - animations disabled for CLS fix */
 .about-help-section .help-section-title,
 .about-help-section .help-numbered-card {
     opacity: 1;
@@ -2052,7 +2072,7 @@ button[class*="btn-"]:hover,
     transform: none;
 }
 
-/* Дипломы - animations disabled for CLS fix */
+/* Р”РёРїР»РѕРјС‹ - animations disabled for CLS fix */
 .diplomas .section-title,
 .diplomas .diploma-card {
     opacity: 1;
@@ -2149,7 +2169,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   ВАРИАНТ 1: Минималистичный с акцентом на текст
+   Р’РђР РРђРќРў 1: РњРёРЅРёРјР°Р»РёСЃС‚РёС‡РЅС‹Р№ СЃ Р°РєС†РµРЅС‚РѕРј РЅР° С‚РµРєСЃС‚
    ======================================== */
 .first-meeting-v1 {
     background: var(--cream);
@@ -2221,7 +2241,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   ВАРИАНТ 2: С карточками преимуществ
+   Р’РђР РРђРќРў 2: РЎ РєР°СЂС‚РѕС‡РєР°РјРё РїСЂРµРёРјСѓС‰РµСЃС‚РІ
    ======================================== */
 .first-meeting-v2 {
     background: var(--white);
@@ -2331,7 +2351,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   ВАРИАНТ 3: Двухколоночный с иконками слева
+   Р’РђР РРђРќРў 3: Р”РІСѓС…РєРѕР»РѕРЅРѕС‡РЅС‹Р№ СЃ РёРєРѕРЅРєР°РјРё СЃР»РµРІР°
    ======================================== */
 .first-meeting-v3 {
     background: var(--beige);
@@ -2442,7 +2462,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   ВАРИАНТ 4: Список с линиями
+   Р’РђР РРђРќРў 4: РЎРїРёСЃРѕРє СЃ Р»РёРЅРёСЏРјРё
    ======================================== */
 .first-meeting-v4 {
     background: var(--white);
@@ -2571,7 +2591,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   ВАРИАНТ 5: Широкая карточка с акцентом
+   Р’РђР РРђРќРў 5: РЁРёСЂРѕРєР°СЏ РєР°СЂС‚РѕС‡РєР° СЃ Р°РєС†РµРЅС‚РѕРј
    ======================================== */
 .first-meeting-v5 {
     background: var(--cream);
@@ -2650,7 +2670,7 @@ button[class*="btn-"]:hover,
 }
 
 .first-meeting-v5 .banner-list li::before {
-    content: '✓';
+    content: 'вњ“';
     position: absolute;
     left: 0;
     font-weight: 600;
@@ -2691,7 +2711,7 @@ button[class*="btn-"]:hover,
 }
 
 
-/* Responsive для всех вариантов */
+/* Responsive РґР»СЏ РІСЃРµС… РІР°СЂРёР°РЅС‚РѕРІ */
 @media (max-width: 1024px) {
     .first-meeting-v3 .meeting-split {
         grid-template-columns: 1fr;
@@ -2784,7 +2804,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   ВАРИАНТ 6: Крупная цитата с минимальной структурой
+   Р’РђР РРђРќРў 6: РљСЂСѓРїРЅР°СЏ С†РёС‚Р°С‚Р° СЃ РјРёРЅРёРјР°Р»СЊРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂРѕР№
    ======================================== */
 .first-meeting-v6 {
     background: var(--cream);
@@ -2844,7 +2864,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   ВАРИАНТ 7: Горизонтальные карточки-этапы
+   Р’РђР РРђРќРў 7: Р“РѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅС‹Рµ РєР°СЂС‚РѕС‡РєРё-СЌС‚Р°РїС‹
    ======================================== */
 .first-meeting-v7 {
     background: var(--white);
@@ -2955,7 +2975,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   ВАРИАНТ 8: Разделённый блок с акцентом
+   Р’РђР РРђРќРў 8: Р Р°Р·РґРµР»С‘РЅРЅС‹Р№ Р±Р»РѕРє СЃ Р°РєС†РµРЅС‚РѕРј
    ======================================== */
 .first-meeting-v8 {
     background: var(--beige);
@@ -3108,7 +3128,7 @@ button[class*="btn-"]:hover,
     gap: 30px;
     max-width: 1200px;
     margin: 0 auto;
-    align-items: start; /* Карточки не растягиваются по высоте */
+    align-items: start; /* РљР°СЂС‚РѕС‡РєРё РЅРµ СЂР°СЃС‚СЏРіРёРІР°СЋС‚СЃСЏ РїРѕ РІС‹СЃРѕС‚Рµ */
 }
 
 .tariff-card {
@@ -3246,7 +3266,7 @@ button[class*="btn-"]:hover,
     border-color: var(--sage-green);
 }
 
-/* Дополнительные стили для варианта 1 - Collapsible Cards */
+/* Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ СЃС‚РёР»Рё РґР»СЏ РІР°СЂРёР°РЅС‚Р° 1 - Collapsible Cards */
 .tariff-card-collapsible {
     background: var(--white);
     border-radius: 16px;
@@ -3269,8 +3289,8 @@ button[class*="btn-"]:hover,
 .tariff-card-collapsible.popular {
     border-color: var(--sage-green);
     box-shadow: 0 10px 35px rgba(138, 154, 141, 0.2);
-    transform: scale(1.08); /* Увеличиваем больше */
-    z-index: 10; /* Выдвигаем на передний план */
+    transform: scale(1.08); /* РЈРІРµР»РёС‡РёРІР°РµРј Р±РѕР»СЊС€Рµ */
+    z-index: 10; /* Р’С‹РґРІРёРіР°РµРј РЅР° РїРµСЂРµРґРЅРёР№ РїР»Р°РЅ */
 }
 
 .tariff-card-collapsible.popular:hover {
@@ -3282,16 +3302,16 @@ button[class*="btn-"]:hover,
     padding: 40px 35px 20px;
     display: flex;
     flex-direction: column;
-    flex: 1; /* Растягиваем до конца карточки */
+    flex: 1; /* Р Р°СЃС‚СЏРіРёРІР°РµРј РґРѕ РєРѕРЅС†Р° РєР°СЂС‚РѕС‡РєРё */
 }
 
 .tariff-header-compact {
     text-align: center;
     margin-bottom: 20px;
-    min-height: 160px; /* Увеличена для всех элементов */
+    min-height: 160px; /* РЈРІРµР»РёС‡РµРЅР° РґР»СЏ РІСЃРµС… СЌР»РµРјРµРЅС‚РѕРІ */
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Выравнивание сверху */
+    justify-content: flex-start; /* Р’С‹СЂР°РІРЅРёРІР°РЅРёРµ СЃРІРµСЂС…Сѓ */
 }
 
 .tariff-name-compact {
@@ -3319,7 +3339,7 @@ button[class*="btn-"]:hover,
 .tariff-price-compact {
     text-align: center;
     margin-bottom: 20px;
-    min-height: 80px; /* Фиксированная высота для цены */
+    min-height: 80px; /* Р¤РёРєСЃРёСЂРѕРІР°РЅРЅР°СЏ РІС‹СЃРѕС‚Р° РґР»СЏ С†РµРЅС‹ */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3375,10 +3395,10 @@ button[class*="btn-"]:hover,
 }
 
 /* ============================================
-   АЛЬТЕРНАТИВНЫЕ ВАРИАНТЫ ИНДИКАТОРА РАСКРЫТИЯ
+   РђР›Р¬РўР•Р РќРђРўРР’РќР«Р• Р’РђР РРђРќРўР« РРќР”РРљРђРўРћР Рђ Р РђРЎРљР Р«РўРРЇ
    ============================================ */
 
-/* ВАРИАНТ A: Пульсирующий индикатор с кругом */
+/* Р’РђР РРђРќРў A: РџСѓР»СЊСЃРёСЂСѓСЋС‰РёР№ РёРЅРґРёРєР°С‚РѕСЂ СЃ РєСЂСѓРіРѕРј */
 .expand-indicator-pulse {
     display: flex;
     align-items: center;
@@ -3425,7 +3445,7 @@ button[class*="btn-"]:hover,
     background: var(--dark-sage);
 }
 
-/* ВАРИАНТ B: Анимированная стрелка с градиентом */
+/* Р’РђР РРђРќРў B: РђРЅРёРјРёСЂРѕРІР°РЅРЅР°СЏ СЃС‚СЂРµР»РєР° СЃ РіСЂР°РґРёРµРЅС‚РѕРј */
 .expand-indicator-arrow {
     display: flex;
     align-items: center;
@@ -3447,7 +3467,7 @@ button[class*="btn-"]:hover,
 }
 
 .expand-indicator-arrow::after {
-    content: '↓';
+    content: 'в†“';
     font-size: 16px;
     animation: bounceArrow 1.2s ease-in-out infinite;
     display: inline-block;
@@ -3470,11 +3490,11 @@ button[class*="btn-"]:hover,
 }
 
 .expand-indicator-arrow.expanded::after {
-    content: '↑';
+    content: 'в†‘';
     animation: none;
 }
 
-/* ВАРИАНТ C: Минималистичная линия с текстом */
+/* Р’РђР РРђРќРў C: РњРёРЅРёРјР°Р»РёСЃС‚РёС‡РЅР°СЏ Р»РёРЅРёСЏ СЃ С‚РµРєСЃС‚РѕРј */
 .expand-indicator-line {
     display: flex;
     flex-direction: column;
@@ -3527,7 +3547,7 @@ button[class*="btn-"]:hover,
 }
 
 .expand-indicator-line.expanded .line-text::after {
-    content: ' ↑';
+    content: ' в†‘';
 }
 
 .expand-indicator-line.expanded::after {
@@ -3608,7 +3628,7 @@ button[class*="btn-"]:hover,
 }
 
 .tariff-details .tariff-features li::before {
-    content: '•';
+    content: 'вЂў';
     color: var(--sage-green);
     font-weight: bold;
     margin-right: 10px;
@@ -3649,7 +3669,7 @@ button[class*="btn-"]:hover,
     background-color: var(--beige);
 }
 
-/* Старые стили для варианта 1 */
+/* РЎС‚Р°СЂС‹Рµ СЃС‚РёР»Рё РґР»СЏ РІР°СЂРёР°РЅС‚Р° 1 */
 .tariff-subtitle-card {
     font-size: 14px;
     color: var(--sage-green);
@@ -3696,14 +3716,14 @@ button[class*="btn-"]:hover,
 }
 
 .tariff-features li::before {
-    content: '•';
+    content: 'вЂў';
     color: var(--sage-green);
     font-weight: bold;
     margin-right: 10px;
 }
 
 /* ========================================
-   Responsive для тарифов
+   Responsive РґР»СЏ С‚Р°СЂРёС„РѕРІ
    ======================================== */
 @media (max-width: 1024px) {
     .tariffs-grid {
@@ -3735,7 +3755,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   ВАРИАНТ ТАРИФОВ 5: Карточки с табами
+   Р’РђР РРђРќРў РўРђР РР¤РћР’ 5: РљР°СЂС‚РѕС‡РєРё СЃ С‚Р°Р±Р°РјРё
    ======================================== */
 .tabs-container {
     max-width: 1200px;
@@ -3958,7 +3978,7 @@ button[class*="btn-"]:hover,
 }
 
 .tab-features li::before {
-    content: '✓';
+    content: 'вњ“';
     position: absolute;
     left: 0;
     color: var(--sage-green);
@@ -3984,7 +4004,7 @@ button[class*="btn-"]:hover,
     color: var(--dark-text);
 }
 
-/* Стили для разделения встреч */
+/* РЎС‚РёР»Рё РґР»СЏ СЂР°Р·РґРµР»РµРЅРёСЏ РІСЃС‚СЂРµС‡ */
 .meeting-section {
     margin-bottom: 25px;
     padding-bottom: 20px;
@@ -4007,7 +4027,7 @@ button[class*="btn-"]:hover,
     margin-top: 10px;
 }
 
-/* Стили для выделения бонуса */
+/* РЎС‚РёР»Рё РґР»СЏ РІС‹РґРµР»РµРЅРёСЏ Р±РѕРЅСѓСЃР° */
 .bonus-highlight {
     background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
     color: var(--white);
@@ -4035,7 +4055,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   Responsive для варианта 5
+   Responsive РґР»СЏ РІР°СЂРёР°РЅС‚Р° 5
    ======================================== */
 @media (max-width: 1024px) {
     .tab-layout {
@@ -4286,7 +4306,7 @@ button[class*="btn-"]:hover,
     z-index: 1;
 }
 
-/* Десктоп - стрелки скрыты */
+/* Р”РµСЃРєС‚РѕРї - СЃС‚СЂРµР»РєРё СЃРєСЂС‹С‚С‹ */
 .diplomas-arrow {
     display: none;
 }
@@ -4324,7 +4344,7 @@ button[class*="btn-"]:hover,
     border-image: linear-gradient(135deg, var(--sage-green), var(--dark-sage), #6b7d6e) 1;
 }
 
-/* Убираем наклон - дипломы висят ровно */
+/* РЈР±РёСЂР°РµРј РЅР°РєР»РѕРЅ - РґРёРїР»РѕРјС‹ РІРёСЃСЏС‚ СЂРѕРІРЅРѕ */
 .diploma-card:nth-child(1),
 .diploma-card:nth-child(2),
 .diploma-card:nth-child(3),
@@ -4362,7 +4382,7 @@ button[class*="btn-"]:hover,
     height: auto;
     display: block;
     object-fit: cover;
-    aspect-ratio: 4/3; /* Горизонтальная ориентация */
+    aspect-ratio: 4/3; /* Р“РѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅР°СЏ РѕСЂРёРµРЅС‚Р°С†РёСЏ */
 }
 
 /* Diploma Modal */
@@ -4521,7 +4541,7 @@ button[class*="btn-"]:hover,
     }
 }
 
-/* Responsive для дипломов */
+/* Responsive РґР»СЏ РґРёРїР»РѕРјРѕРІ */
 @media (max-width: 1024px) {
     .diplomas-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -4536,7 +4556,7 @@ button[class*="btn-"]:hover,
         padding: 60px 0;
     }
 
-    /* Карусель дипломов на мобильном */
+    /* РљР°СЂСѓСЃРµР»СЊ РґРёРїР»РѕРјРѕРІ РЅР° РјРѕР±РёР»СЊРЅРѕРј */
     .diplomas-carousel-wrapper {
         display: flex;
         align-items: center;
@@ -4752,7 +4772,7 @@ button[class*="btn-"]:hover,
     transform: scale(1.2);
 }
 
-/* Карточка отзыва - в стиле тарифных карточек */
+/* РљР°СЂС‚РѕС‡РєР° РѕС‚Р·С‹РІР° - РІ СЃС‚РёР»Рµ С‚Р°СЂРёС„РЅС‹С… РєР°СЂС‚РѕС‡РµРє */
 .social-testimonial-card {
     position: relative;
     background: var(--white);
@@ -4775,7 +4795,7 @@ button[class*="btn-"]:hover,
     transition: transform 0.4s ease;
 }
 
-/* Оверлей с подсказкой */
+/* РћРІРµСЂР»РµР№ СЃ РїРѕРґСЃРєР°Р·РєРѕР№ */
 .social-testimonial-card .card-overlay {
     position: absolute;
     inset: 0;
@@ -4798,7 +4818,7 @@ button[class*="btn-"]:hover,
     transition: transform 0.3s ease;
 }
 
-/* Hover эффекты */
+/* Hover СЌС„С„РµРєС‚С‹ */
 .social-testimonial-card:hover {
     transform: translateY(-8px) scale(1.03);
     box-shadow: 0 20px 45px rgba(139, 166, 139, 0.3);
@@ -4817,7 +4837,7 @@ button[class*="btn-"]:hover,
     transform: translateY(0);
 }
 
-/* Модальное окно - простое увеличение */
+/* РњРѕРґР°Р»СЊРЅРѕРµ РѕРєРЅРѕ - РїСЂРѕСЃС‚РѕРµ СѓРІРµР»РёС‡РµРЅРёРµ */
 .testimonial-modal {
     display: none;
     position: fixed;
@@ -4837,7 +4857,7 @@ button[class*="btn-"]:hover,
     justify-content: center;
 }
 
-/* Обёртка для контента (изображение + инфо-карточка) */
+/* РћР±С‘СЂС‚РєР° РґР»СЏ РєРѕРЅС‚РµРЅС‚Р° (РёР·РѕР±СЂР°Р¶РµРЅРёРµ + РёРЅС„Рѕ-РєР°СЂС‚РѕС‡РєР°) */
 .testimonial-modal-wrapper {
     display: flex;
     align-items: center;
@@ -4848,7 +4868,7 @@ button[class*="btn-"]:hover,
     cursor: default;
 }
 
-/* Контейнер для изображения */
+/* РљРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ */
 .testimonial-modal-content {
     position: relative;
     flex-shrink: 0;
@@ -4875,7 +4895,7 @@ button[class*="btn-"]:hover,
     cursor: pointer;
 }
 
-/* Инфо-карточка */
+/* РРЅС„Рѕ-РєР°СЂС‚РѕС‡РєР° */
 .testimonial-info-card {
     background: var(--white);
     border-radius: 20px;
@@ -4938,7 +4958,7 @@ button[class*="btn-"]:hover,
     margin: 0;
 }
 
-/* Кнопки навигации */
+/* РљРЅРѕРїРєРё РЅР°РІРёРіР°С†РёРё */
 .testimonial-modal-nav {
     position: absolute;
     top: 50%;
@@ -4976,7 +4996,7 @@ button[class*="btn-"]:hover,
     right: 20px;
 }
 
-/* Кнопка закрытия */
+/* РљРЅРѕРїРєР° Р·Р°РєСЂС‹С‚РёСЏ */
 .testimonial-modal-close {
     position: absolute;
     top: 20px;
@@ -5007,7 +5027,7 @@ button[class*="btn-"]:hover,
     opacity: 1;
 }
 
-/* Адаптив для модального окна */
+/* РђРґР°РїС‚РёРІ РґР»СЏ РјРѕРґР°Р»СЊРЅРѕРіРѕ РѕРєРЅР° */
 @media (max-width: 900px) {
     .testimonial-modal-wrapper {
         flex-direction: column;
@@ -5140,7 +5160,7 @@ button[class*="btn-"]:hover,
     gap: 30px;
 }
 
-/* Навигация в две колонки по 3 ссылки в каждой */
+/* РќР°РІРёРіР°С†РёСЏ РІ РґРІРµ РєРѕР»РѕРЅРєРё РїРѕ 3 СЃСЃС‹Р»РєРё РІ РєР°Р¶РґРѕР№ */
 .footer-nav.footer-nav-grid {
     display: grid;
     grid-template-columns: repeat(2, auto);
@@ -5186,7 +5206,7 @@ button[class*="btn-"]:hover,
     width: 100%;
 }
 
-/* Активная ссылка в футере */
+/* РђРєС‚РёРІРЅР°СЏ СЃСЃС‹Р»РєР° РІ С„СѓС‚РµСЂРµ */
 .footer-nav a.active {
     color: var(--sage-green);
 }
@@ -5196,12 +5216,12 @@ button[class*="btn-"]:hover,
     transition: width 0.3s ease;
 }
 
-/* При ховере на footer-nav — скрыть подчёркивание активной ссылки */
+/* РџСЂРё С…РѕРІРµСЂРµ РЅР° footer-nav вЂ” СЃРєСЂС‹С‚СЊ РїРѕРґС‡С‘СЂРєРёРІР°РЅРёРµ Р°РєС‚РёРІРЅРѕР№ СЃСЃС‹Р»РєРё */
 .footer-nav:hover a.active::after {
     width: 0;
 }
 
-/* Но если ховер на самой активной ссылке — вернуть */
+/* РќРѕ РµСЃР»Рё С…РѕРІРµСЂ РЅР° СЃР°РјРѕР№ Р°РєС‚РёРІРЅРѕР№ СЃСЃС‹Р»РєРµ вЂ” РІРµСЂРЅСѓС‚СЊ */
 .footer-nav a.active:hover::after {
     width: 100%;
 }
@@ -5268,7 +5288,7 @@ button[class*="btn-"]:hover,
     text-decoration: underline;
 }
 
-/* Логотип в футере как в хедере */
+/* Р›РѕРіРѕС‚РёРї РІ С„СѓС‚РµСЂРµ РєР°Рє РІ С…РµРґРµСЂРµ */
 .footer .footer-left .logo {
     display: flex;
 	justify-content: center;
@@ -5290,7 +5310,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   RESPONSIVE для FAQ, Отзывов и Футера
+   RESPONSIVE РґР»СЏ FAQ, РћС‚Р·С‹РІРѕРІ Рё Р¤СѓС‚РµСЂР°
    ======================================== */
 @media (max-width: 1024px) {
     .testimonials-carousel-track .social-testimonial-card {
@@ -5479,7 +5499,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   ВАРИАНТ 4: Минималистичный с большим фото слева
+   Р’РђР РРђРќРў 4: РњРёРЅРёРјР°Р»РёСЃС‚РёС‡РЅС‹Р№ СЃ Р±РѕР»СЊС€РёРј С„РѕС‚Рѕ СЃР»РµРІР°
    ======================================== */
 .about-hero-v4-bg {
     position: relative;
@@ -5610,7 +5630,7 @@ button[class*="btn-"]:hover,
 
 
 /* ========================================
-   ВАРИАНТ 6: Центрированный с декоративными элементами
+   Р’РђР РРђРќРў 6: Р¦РµРЅС‚СЂРёСЂРѕРІР°РЅРЅС‹Р№ СЃ РґРµРєРѕСЂР°С‚РёРІРЅС‹РјРё СЌР»РµРјРµРЅС‚Р°РјРё
    ======================================== */
 .about-hero-v6 {
     background: linear-gradient(180deg, var(--cream) 0%, var(--white) 100%);
@@ -5731,14 +5751,14 @@ button[class*="btn-"]:hover,
 
 
 /* ========================================
-   ВАРИАНТ 16: Минималистичный
+   Р’РђР РРђРќРў 16: РњРёРЅРёРјР°Р»РёСЃС‚РёС‡РЅС‹Р№
    ======================================== */
 .about-hero-minimal {
     background: #ffffff;
     padding: 60px 0 10px;
 }
 
-/* Шапка с именем */
+/* РЁР°РїРєР° СЃ РёРјРµРЅРµРј */
 .minimal-header {
     text-align: center;
     margin-bottom: 25px;
@@ -5818,7 +5838,7 @@ button[class*="btn-"]:hover,
     }
 }
 
-/* Четыре картинки в ряд */
+/* Р§РµС‚С‹СЂРµ РєР°СЂС‚РёРЅРєРё РІ СЂСЏРґ */
 .minimal-images-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -5833,7 +5853,7 @@ button[class*="btn-"]:hover,
     aspect-ratio: 3 / 4;
 }
 
-/* Анимация: Слайд слева направо */
+/* РђРЅРёРјР°С†РёСЏ: РЎР»Р°Р№Рґ СЃР»РµРІР° РЅР°РїСЂР°РІРѕ */
 .animation-v3 .minimal-image-card {
     opacity: 0;
     transform: translateX(-50px);
@@ -5884,7 +5904,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   ТЕКСТОВАЯ СЕКЦИЯ: Чистый белый фон с акцентом
+   РўР•РљРЎРўРћР’РђРЇ РЎР•РљР¦РРЇ: Р§РёСЃС‚С‹Р№ Р±РµР»С‹Р№ С„РѕРЅ СЃ Р°РєС†РµРЅС‚РѕРј
    ======================================== */
 .about-text-clean {
     max-width: 1200px;
@@ -5907,7 +5927,7 @@ button[class*="btn-"]:hover,
     margin-top: 20px;
 }
 
-/* ВАРИАНТ 1: Крупный акцент (оригинал) */
+/* Р’РђР РРђРќРў 1: РљСЂСѓРїРЅС‹Р№ Р°РєС†РµРЅС‚ (РѕСЂРёРіРёРЅР°Р») */
 .text-variant-1 .accent-phrase {
     font-family: var(--font-cormorant);
     font-size: 28px;
@@ -5939,7 +5959,7 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
-   СТАРЫЕ СТИЛИ (для обратной совместимости)
+   РЎРўРђР Р«Р• РЎРўРР›Р (РґР»СЏ РѕР±СЂР°С‚РЅРѕР№ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё)
    ======================================== */
 .about-text-v1 {
     max-width: 800px;
@@ -5988,7 +6008,7 @@ button[class*="btn-"]:hover,
     margin-top: 20px;
 }
 
-/* Градиентный фон для цитаты */
+/* Р“СЂР°РґРёРµРЅС‚РЅС‹Р№ С„РѕРЅ РґР»СЏ С†РёС‚Р°С‚С‹ */
 .about-text-v1-gradient {
     background: linear-gradient(135deg, var(--light-sage) 0%, #e8f0e8 100%);
     box-shadow: none;
@@ -6002,14 +6022,14 @@ button[class*="btn-"]:hover,
     display: none;
 }
 
-/* СТИЛЬ 1: Кавычки-ёлочки слева */
+/* РЎРўРР›Р¬ 1: РљР°РІС‹С‡РєРё-С‘Р»РѕС‡РєРё СЃР»РµРІР° */
 .quote-style-1 .about-quote-v1 {
     position: relative;
     padding-left: 60px;
 }
 
 .quote-style-1 .about-quote-v1::before {
-    content: '«';
+    content: 'В«';
     display: block;
     font-family: var(--font-playfair);
     font-size: 100px;
@@ -6021,14 +6041,14 @@ button[class*="btn-"]:hover,
     line-height: 1;
 }
 
-/* СТИЛЬ 2: Двойные кавычки сверху по центру */
+/* РЎРўРР›Р¬ 2: Р”РІРѕР№РЅС‹Рµ РєР°РІС‹С‡РєРё СЃРІРµСЂС…Сѓ РїРѕ С†РµРЅС‚СЂСѓ */
 .quote-style-2 .about-quote-v1 {
     position: relative;
     padding-top: 50px;
 }
 
 .quote-style-2 .about-quote-v1::before {
-    content: '„ "';
+    content: 'вЂћ "';
     display: block;
     font-family: var(--font-playfair);
     font-size: 60px;
@@ -6041,7 +6061,7 @@ button[class*="btn-"]:hover,
     letter-spacing: 20px;
 }
 
-/* СТИЛЬ 3: Линия сверху с маленькой кавычкой */
+/* РЎРўРР›Р¬ 3: Р›РёРЅРёСЏ СЃРІРµСЂС…Сѓ СЃ РјР°Р»РµРЅСЊРєРѕР№ РєР°РІС‹С‡РєРѕР№ */
 .quote-style-3 .about-quote-v1 {
     position: relative;
     padding-top: 40px;
@@ -6070,7 +6090,7 @@ button[class*="btn-"]:hover,
     transform: translateX(-50%);
 }
 
-/* ВАРИАНТ 4: Рамка с кавычками и закрашенным полем (смещение) */
+/* Р’РђР РРђРќРў 4: Р Р°РјРєР° СЃ РєР°РІС‹С‡РєР°РјРё Рё Р·Р°РєСЂР°С€РµРЅРЅС‹Рј РїРѕР»РµРј (СЃРјРµС‰РµРЅРёРµ) */
 .about-quote-framed {
     max-width: 800px;
     margin: 0 auto 80px;
@@ -6084,7 +6104,7 @@ button[class*="btn-"]:hover,
     padding: 30px 30px 30px 50px;
 }
 
-/* Рамка смещена относительно закрашенного блока */
+/* Р Р°РјРєР° СЃРјРµС‰РµРЅР° РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ Р·Р°РєСЂР°С€РµРЅРЅРѕРіРѕ Р±Р»РѕРєР° */
 .quote-frame-outer::before {
     content: '';
     position: absolute;
@@ -6172,7 +6192,7 @@ button[class*="btn-"]:hover,
     }
 }
 
-/* Адаптив для вариантов текста */
+/* РђРґР°РїС‚РёРІ РґР»СЏ РІР°СЂРёР°РЅС‚РѕРІ С‚РµРєСЃС‚Р° */
 @media (max-width: 768px) {
     .about-text-v1 {
         padding: 40px 25px;
@@ -6291,7 +6311,7 @@ button[class*="btn-"]:hover,
     overflow: hidden;
 }
 
-/* Белый фон для hero */
+/* Р‘РµР»С‹Р№ С„РѕРЅ РґР»СЏ hero */
 .about-hero.about-hero-white {
     background: var(--white);
     padding: 60px 0 40px;
@@ -6596,7 +6616,7 @@ button[class*="btn-"]:hover,
     overflow: hidden;
 }
 
-/* Секция дипломов на всю ширину с фоновым изображением */
+/* РЎРµРєС†РёСЏ РґРёРїР»РѕРјРѕРІ РЅР° РІСЃСЋ С€РёСЂРёРЅСѓ СЃ С„РѕРЅРѕРІС‹Рј РёР·РѕР±СЂР°Р¶РµРЅРёРµРј */
 .diplomas-fullwidth {
     background: url('images/Diplomas-background-images.webp') center center / cover no-repeat;
     position: relative;
@@ -6631,7 +6651,7 @@ button[class*="btn-"]:hover,
     z-index: 1;
 }
 
-/* Вертикальный layout для секции с телефонами */
+/* Р’РµСЂС‚РёРєР°Р»СЊРЅС‹Р№ layout РґР»СЏ СЃРµРєС†РёРё СЃ С‚РµР»РµС„РѕРЅР°РјРё */
 .social-content-vertical {
     position: relative;
     z-index: 1;
@@ -6656,7 +6676,7 @@ button[class*="btn-"]:hover,
     margin: 20px auto 0;
 }
 
-/* Контейнер для телефонов */
+/* РљРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ С‚РµР»РµС„РѕРЅРѕРІ */
 .phones-container {
     display: flex;
     justify-content: center;
@@ -6665,7 +6685,7 @@ button[class*="btn-"]:hover,
     flex-wrap: wrap;
 }
 
-/* Стили для телефона */
+/* РЎС‚РёР»Рё РґР»СЏ С‚РµР»РµС„РѕРЅР° */
 .phone-mockup {
     text-align: center;
 }
@@ -6805,7 +6825,7 @@ button[class*="btn-"]:hover,
 }
 
 .social-features li::before {
-    content: '✓';
+    content: 'вњ“';
     position: absolute;
     left: 0;
     color: var(--white);
@@ -6865,7 +6885,7 @@ button[class*="btn-"]:hover,
 
 .about-profession-title::before,
 .about-profession-title::after {
-    content: '✧';
+    content: 'вњ§';
     position: absolute;
     color: var(--sage-green);
     font-size: 24px;
@@ -7212,7 +7232,7 @@ button[class*="btn-"]:hover,
     fill: white;
 }
 
-/* ========== YouTube секция: Текст над компьютером, кнопка под ним ========== */
+/* ========== YouTube СЃРµРєС†РёСЏ: РўРµРєСЃС‚ РЅР°Рґ РєРѕРјРїСЊСЋС‚РµСЂРѕРј, РєРЅРѕРїРєР° РїРѕРґ РЅРёРј ========== */
 .about-youtube-section.variant-3 {
     background: url('images/background-youtube.webp') center 60% / contain no-repeat;
 
@@ -7258,7 +7278,7 @@ button[class*="btn-"]:hover,
 }
 
 
-/* Feature Cards - 3 в ряд */
+/* Feature Cards - 3 РІ СЂСЏРґ */
 .about-youtube-section.variant-3 .youtube-features-cards {
     display: flex;
     flex-direction: row;
@@ -7387,7 +7407,7 @@ button[class*="btn-"]:hover,
 }
 
 @media (max-width: 1024px) {
-    /* YouTube секция - как на мобильном, но с адаптацией для планшета */
+    /* YouTube СЃРµРєС†РёСЏ - РєР°Рє РЅР° РјРѕР±РёР»СЊРЅРѕРј, РЅРѕ СЃ Р°РґР°РїС‚Р°С†РёРµР№ РґР»СЏ РїР»Р°РЅС€РµС‚Р° */
     .about-youtube-section.variant-3 {
         min-height: auto;
         padding: 0;
@@ -7430,7 +7450,7 @@ button[class*="btn-"]:hover,
         font-size: 12px;
     }
 
-    /* Показываем изображение компьютера как отдельный div */
+    /* РџРѕРєР°Р·С‹РІР°РµРј РёР·РѕР±СЂР°Р¶РµРЅРёРµ РєРѕРјРїСЊСЋС‚РµСЂР° РєР°Рє РѕС‚РґРµР»СЊРЅС‹Р№ div */
     .about-youtube-section.variant-3 .youtube-computer-image {
         display: block;
         width: 100%;
@@ -7574,7 +7594,7 @@ button[class*="btn-"]:hover,
     }
 }
 
-/* About Telegram Section — Чат-пузыри */
+/* About Telegram Section вЂ” Р§Р°С‚-РїСѓР·С‹СЂРё */
 .tg-chat-section {
     background: #ffffff;
     padding: 60px 0;
@@ -7653,7 +7673,7 @@ button[class*="btn-"]:hover,
     transform: none;
 }
 
-/* Telegram messages — late animation (applied by JS after page load) */
+/* Telegram messages вЂ” late animation (applied by JS after page load) */
 .tg-msg.tg-msg-ready {
     opacity: 0;
     transform: translateY(20px);
@@ -7675,7 +7695,7 @@ button[class*="btn-"]:hover,
     margin-left: 60px;
 }
 
-/* На планшете - сообщения центрее */
+/* РќР° РїР»Р°РЅС€РµС‚Рµ - СЃРѕРѕР±С‰РµРЅРёСЏ С†РµРЅС‚СЂРµРµ */
 @media (min-width: 768px) {
     .tg-chat-window {
         max-width: 600px;
@@ -7691,7 +7711,7 @@ button[class*="btn-"]:hover,
     }
 }
 
-/* На десктопе - ответы шире, меньше высоты */
+/* РќР° РґРµСЃРєС‚РѕРїРµ - РѕС‚РІРµС‚С‹ С€РёСЂРµ, РјРµРЅСЊС€Рµ РІС‹СЃРѕС‚С‹ */
 @media (min-width: 1024px) {
     .tg-chat-window {
         max-width: 800px;
@@ -8071,7 +8091,7 @@ button[class*="btn-"]:hover,
         min-width: auto;
     }
 
-    /* Отзывы на мобильных */
+    /* РћС‚Р·С‹РІС‹ РЅР° РјРѕР±РёР»СЊРЅС‹С… */
     .testimonials-carousel-wrapper {
         flex-direction: column;
         gap: 15px;
@@ -9314,7 +9334,7 @@ button[class*="btn-"]:hover,
     fill: var(--sage-green);
 }
 
-/* Инлайновые иконки в тексте (замена эмодзи) */
+/* РРЅР»Р°Р№РЅРѕРІС‹Рµ РёРєРѕРЅРєРё РІ С‚РµРєСЃС‚Рµ (Р·Р°РјРµРЅР° СЌРјРѕРґР·Рё) */
 .inline-icon {
     width: 16px;
     height: 16px;
@@ -9720,7 +9740,7 @@ button[class*="btn-"]:hover,
    RESPONSIVE DESIGN
    ======================================== */
 
-/* Tariffs carousel wrapper - скрываем стрелки на десктопе */
+/* Tariffs carousel wrapper - СЃРєСЂС‹РІР°РµРј СЃС‚СЂРµР»РєРё РЅР° РґРµСЃРєС‚РѕРїРµ */
 .tariffs-carousel-wrapper {
     display: block;
 }
@@ -9752,12 +9772,12 @@ button[class*="btn-"]:hover,
     transition: all 0.3s ease;
 }
 
-/* Прячем бургер когда меню открыто (крестик только внутри nav) */
+/* РџСЂСЏС‡РµРј Р±СѓСЂРіРµСЂ РєРѕРіРґР° РјРµРЅСЋ РѕС‚РєСЂС‹С‚Рѕ (РєСЂРµСЃС‚РёРє С‚РѕР»СЊРєРѕ РІРЅСѓС‚СЂРё nav) */
 .burger-menu.active {
     display: none;
 }
 
-/* Burger hover animation - темнее для видимости */
+/* Burger hover animation - С‚РµРјРЅРµРµ РґР»СЏ РІРёРґРёРјРѕСЃС‚Рё */
 .burger-menu:hover span {
     background-color: var(--dark-sage);
 }
@@ -9896,7 +9916,7 @@ button[class*="btn-"]:hover,
    MOBILE (< 768px)
    ======================================== */
 @media (max-width: 768px) {
-    /* Burger Menu показываем */
+    /* Burger Menu РїРѕРєР°Р·С‹РІР°РµРј */
     .burger-menu {
         display: flex;
     }
@@ -9906,7 +9926,7 @@ button[class*="btn-"]:hover,
         position: relative;
     }
 
-    /* Navigation - анимация выезда снизу с масштабированием */
+    /* Navigation - Р°РЅРёРјР°С†РёСЏ РІС‹РµР·РґР° СЃРЅРёР·Сѓ СЃ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёРµРј */
     .nav {
         display: flex;
         position: fixed;
@@ -9933,7 +9953,7 @@ button[class*="btn-"]:hover,
         transform: translateY(0);
     }
 
-    /* Close button в мобильном меню */
+    /* Close button РІ РјРѕР±РёР»СЊРЅРѕРј РјРµРЅСЋ */
     .nav-close {
         display: block;
     }
@@ -10084,7 +10104,7 @@ button[class*="btn-"]:hover,
         width: 50%;
     }
 
-    /* Services Range - карточки одинакового размера */
+    /* Services Range - РєР°СЂС‚РѕС‡РєРё РѕРґРёРЅР°РєРѕРІРѕРіРѕ СЂР°Р·РјРµСЂР° */
     .services-range {
         padding: 40px 0;
     }
@@ -10119,7 +10139,7 @@ button[class*="btn-"]:hover,
         font-size: 24px;
     }
 
-    /* First Meeting - дизайн как на десктопе */
+    /* First Meeting - РґРёР·Р°Р№РЅ РєР°Рє РЅР° РґРµСЃРєС‚РѕРїРµ */
     .first-meeting-v4 {
         padding: 20px 15px 50px;
     }
@@ -10206,7 +10226,7 @@ button[class*="btn-"]:hover,
         font-size: 13px;
     }
 
-    /* Tariffs - стопка карточек на мобильном */
+    /* Tariffs - СЃС‚РѕРїРєР° РєР°СЂС‚РѕС‡РµРє РЅР° РјРѕР±РёР»СЊРЅРѕРј */
     .tariffs-grid {
         position: relative;
         display: block;
@@ -10233,7 +10253,7 @@ button[class*="btn-"]:hover,
         border: 2px solid rgba(139, 166, 139, 0.25);
     }
 
-    /* Вариант 2: Веер - карточки повёрнуты как колода + бордеры */
+    /* Р’Р°СЂРёР°РЅС‚ 2: Р’РµРµСЂ - РєР°СЂС‚РѕС‡РєРё РїРѕРІС‘СЂРЅСѓС‚С‹ РєР°Рє РєРѕР»РѕРґР° + Р±РѕСЂРґРµСЂС‹ */
     .tariff-card-collapsible.stack-back-2 {
         transform: translateX(calc(-50% + 18px)) rotate(4deg);
         opacity: 0.5;
@@ -10248,7 +10268,7 @@ button[class*="btn-"]:hover,
         border-color: rgba(139, 166, 139, 0.25);
     }
 
-    /* Активная карточка - воздушный бордер */
+    /* РђРєС‚РёРІРЅР°СЏ РєР°СЂС‚РѕС‡РєР° - РІРѕР·РґСѓС€РЅС‹Р№ Р±РѕСЂРґРµСЂ */
     .tariff-card-collapsible.active {
         transform: translateX(-50%) rotate(0);
         opacity: 1;
@@ -10258,7 +10278,7 @@ button[class*="btn-"]:hover,
         box-shadow: 0 8px 30px rgba(139, 166, 139, 0.15);
     }
 
-    /* Раскрытая карточка - переходит на static позицию */
+    /* Р Р°СЃРєСЂС‹С‚Р°СЏ РєР°СЂС‚РѕС‡РєР° - РїРµСЂРµС…РѕРґРёС‚ РЅР° static РїРѕР·РёС†РёСЋ */
     .tariff-card-collapsible.active.is-open {
         position: relative;
         left: auto;
@@ -10269,17 +10289,17 @@ button[class*="btn-"]:hover,
         margin: 0 auto;
     }
 
-    /* Когда карточка раскрыта - скрываем остальные */
+    /* РљРѕРіРґР° РєР°СЂС‚РѕС‡РєР° СЂР°СЃРєСЂС‹С‚Р° - СЃРєСЂС‹РІР°РµРј РѕСЃС‚Р°Р»СЊРЅС‹Рµ */
     .tariffs-grid.has-open-card .tariff-card-collapsible:not(.is-open) {
         display: none;
     }
 
-    /* Когда карточка раскрыта - высота контейнера авто */
+    /* РљРѕРіРґР° РєР°СЂС‚РѕС‡РєР° СЂР°СЃРєСЂС‹С‚Р° - РІС‹СЃРѕС‚Р° РєРѕРЅС‚РµР№РЅРµСЂР° Р°РІС‚Рѕ */
     .tariffs-grid.has-open-card {
         min-height: auto;
     }
 
-    /* Точки-индикаторы */
+    /* РўРѕС‡РєРё-РёРЅРґРёРєР°С‚РѕСЂС‹ */
     .tariffs-dots {
         display: flex;
         justify-content: center;
@@ -10301,7 +10321,7 @@ button[class*="btn-"]:hover,
         transform: scale(1.3);
     }
 
-    /* Отключаем hover эффекты на мобильном */
+    /* РћС‚РєР»СЋС‡Р°РµРј hover СЌС„С„РµРєС‚С‹ РЅР° РјРѕР±РёР»СЊРЅРѕРј */
     .tariff-card-collapsible:hover,
     .tariff-card-collapsible.popular:hover,
     .tariff-card-collapsible.active:hover {
@@ -10324,7 +10344,7 @@ button[class*="btn-"]:hover,
         right: 20px;
     }
 
-    /* Tariffs carousel wrapper с стрелками */
+    /* Tariffs carousel wrapper СЃ СЃС‚СЂРµР»РєР°РјРё */
     .tariffs-carousel-wrapper {
         position: relative;
         display: block;
@@ -10375,7 +10395,7 @@ button[class*="btn-"]:hover,
         height: 22px;
     }
 
-    /* Показываем стрелки когда секция тарифов видна */
+    /* РџРѕРєР°Р·С‹РІР°РµРј СЃС‚СЂРµР»РєРё РєРѕРіРґР° СЃРµРєС†РёСЏ С‚Р°СЂРёС„РѕРІ РІРёРґРЅР° */
     .tariffs.arrows-visible .tariffs-arrow {
         display: flex;
     }
@@ -10543,7 +10563,7 @@ button[class*="btn-"]:hover,
         box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
     }
 
-    /* YouTube карточки на About - компактные */
+    /* YouTube РєР°СЂС‚РѕС‡РєРё РЅР° About - РєРѕРјРїР°РєС‚РЅС‹Рµ */
     .youtube-features-cards,
     .youtube-features {
         display: flex;
@@ -10835,7 +10855,7 @@ button[class*="btn-"]:hover,
     }
 }
 
-/* Hero Card — horizontal banner */
+/* Hero Card вЂ” horizontal banner */
 .blog-hero-card {
     max-width: 900px;
     margin: 0 auto;
@@ -10974,7 +10994,7 @@ button[class*="btn-"]:hover,
     display: none;
 }
 
-/* Article Card — horizontal layout */
+/* Article Card вЂ” horizontal layout */
 .blog-article-card {
     position: relative;
     background: var(--white);
@@ -11005,7 +11025,7 @@ button[class*="btn-"]:hover,
     margin-bottom: 6px;
 }
 
-/* "Новый пост" badge — diagonal ribbon on top-left corner */
+/* "РќРѕРІС‹Р№ РїРѕСЃС‚" badge вЂ” diagonal ribbon on top-left corner */
 .blog-badge-new {
     position: absolute;
     top: 22px;
@@ -11023,7 +11043,7 @@ button[class*="btn-"]:hover,
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
-/* Card without image — same size as others */
+/* Card without image вЂ” same size as others */
 .blog-article-card.no-image .blog-card-body {
     text-align: center;
 }
@@ -11041,7 +11061,7 @@ button[class*="btn-"]:hover,
     align-self: center;
 }
 
-/* Card Image — natural proportions, fixed width column */
+/* Card Image вЂ” natural proportions, fixed width column */
 .blog-card-image {
     position: relative;
     overflow: hidden;
@@ -11987,7 +12007,7 @@ button[class*="btn-"]:hover,
     }
 }
 
-/* Performance: отключаем анимации при запросе пользователя */
+/* Performance: РѕС‚РєР»СЋС‡Р°РµРј Р°РЅРёРјР°С†РёРё РїСЂРё Р·Р°РїСЂРѕСЃРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -11998,7 +12018,7 @@ button[class*="btn-"]:hover,
     }
 }
 
-/* Performance: упрощаем анимации на мобильных для экономии батареи */
+/* Performance: СѓРїСЂРѕС‰Р°РµРј Р°РЅРёРјР°С†РёРё РЅР° РјРѕР±РёР»СЊРЅС‹С… РґР»СЏ СЌРєРѕРЅРѕРјРёРё Р±Р°С‚Р°СЂРµРё */
 @media (max-width: 768px) {
     .services-grid .grid-item,
     .hero-title,
@@ -12062,3 +12082,4 @@ button[class*="btn-"]:hover,
     opacity: 1 !important;
     transform: none !important;
 }
+

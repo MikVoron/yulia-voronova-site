@@ -1,8 +1,10 @@
 const fs = require('fs');
 const path = require('path');
+const sharp = require('sharp');
 
 const CHANNEL = 'voronova_nutrition';
 const BLOG_FILE = path.join(__dirname, '..', 'blog.html');
+const SITEMAP_FILE = path.join(__dirname, '..', 'sitemap.xml');
 const BLOG_IMAGES_DIR = path.join(__dirname, '..', 'images', 'blog');
 const MAX_POSTS = 6;
 const PREVIEW_LENGTH = 200;
@@ -15,8 +17,7 @@ const RANDOM_PICS = [
 ];
 
 async function downloadImage(url, postNumber) {
-    const ext = path.extname(new URL(url).pathname).split('?')[0] || '.jpg';
-    const filename = `post-${postNumber}${ext}`;
+    const filename = `post-${postNumber}.webp`;
     const filepath = path.join(BLOG_IMAGES_DIR, filename);
 
     // Skip if already downloaded
@@ -28,8 +29,8 @@ async function downloadImage(url, postNumber) {
         const res = await fetch(url);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const buffer = Buffer.from(await res.arrayBuffer());
-        fs.writeFileSync(filepath, buffer);
-        console.log(`  Downloaded: ${filename}`);
+        await sharp(buffer).webp({ quality: 82 }).toFile(filepath);
+        console.log(`  Downloaded and converted to WebP: ${filename}`);
         return `images/blog/${filename}`;
     } catch (e) {
         console.error(`  Failed to download image for post ${postNumber}: ${e.message}`);
@@ -276,6 +277,18 @@ function updateBlogHtml(posts) {
     fs.writeFileSync(BLOG_FILE, html, 'utf8');
 }
 
+function updateSitemap() {
+    if (!fs.existsSync(SITEMAP_FILE)) return;
+    const today = new Date().toISOString().slice(0, 10);
+    let xml = fs.readFileSync(SITEMAP_FILE, 'utf8');
+    xml = xml.replace(
+        /(<loc>https:\/\/voronova\.online\/blog\.html<\/loc>\s*<lastmod>)[^<]+(<\/lastmod>)/,
+        `$1${today}$2`
+    );
+    fs.writeFileSync(SITEMAP_FILE, xml, 'utf8');
+    console.log(`  sitemap.xml updated: blog.html lastmod → ${today}`);
+}
+
 async function main() {
     console.log('Fetching posts from Telegram channel...');
     const posts = await fetchPostsData();
@@ -300,6 +313,7 @@ async function main() {
 
     console.log('Updating blog.html...');
     updateBlogHtml(posts);
+    updateSitemap();
     console.log('Done! blog.html updated with article cards.');
 
     // Clean up images of posts no longer displayed

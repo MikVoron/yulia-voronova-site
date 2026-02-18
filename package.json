@@ -12,6 +12,9 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "dependencies": {
+    "sharp": "^0.33.5"
+  },
   "devDependencies": {
     "cssnano": "^7.1.2",
     "postcss": "^8.5.6",

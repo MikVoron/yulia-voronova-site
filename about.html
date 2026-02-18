@@ -361,7 +361,7 @@
 					<a href="about.html" class="active">Обо мне</a>
 					<a href="/#tariffs">Тарифы</a>
 					<div class="nav-dropdown">
-						<a href="#" class="nav-dropdown-toggle"><span class="nav-dropdown-text">Узнай/Проверь</span> <svg class="nav-dropdown-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+						<button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-haspopup="true"><span class="nav-dropdown-text">Узнай/Проверь</span> <svg class="nav-dropdown-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
 						<div class="nav-dropdown-menu">
 							<a href="guides.html">Гайды</a>
 							<a href="tests.html">Тесты</a>
@@ -749,29 +749,9 @@
 
 	<script src="main.min.js" defer></script>
 
-	<!-- Deferred Analytics -->
-	<script>
-		window.addEventListener('load', function () {
-			var ga = document.createElement('script');
-			ga.src = 'https://www.googletagmanager.com/gtag/js?id=G-4KF0TQR0VD';
-			ga.async = true;
-			document.head.appendChild(ga);
-			ga.onload = function () {
-				window.dataLayer = window.dataLayer || [];
-				function gtag() { dataLayer.push(arguments); }
-				gtag('js', new Date());
-				gtag('config', 'G-4KF0TQR0VD');
-			};
-			(function (m, e, t, r, i, k, a) {
-				m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
-				m[i].l = 1 * new Date();
-				k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
-			})(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=106549400', 'ym');
-			ym(106549400, 'init', { clickmap: true, trackLinks: true, accurateTrackBounce: true });
-		});
-	</script>
+		<script src="analytics.js" defer></script>
 	<noscript>
-		<div><img src="https://mc.yandex.ru/watch/106549400" style="position:absolute; left:-9999px;" alt="" /></div>
+		<div><img src="https://mc.yandex.ru/watch/106615581" style="position:absolute; left:-9999px;" alt="" /></div>
 	</noscript>
 	<a href="https://t.me/YuliaVoronova78" class="floating-tg" target="_blank" aria-label="Написать в Telegram">
 		<svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>

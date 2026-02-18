@@ -35,9 +35,34 @@ document.addEventListener('DOMContentLoaded', () => {
         // Close menu on overlay click
         overlay.addEventListener('click', closeMenu);
 
-        // Close menu on nav link click
+        // Close menu on nav link click (only <a> elements, not the dropdown button)
         nav.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', closeMenu);
+        });
+    }
+
+    // Dropdown toggle — click/touch support
+    const dropdownToggle = document.querySelector('.nav-dropdown-toggle');
+    const navDropdown = document.querySelector('.nav-dropdown');
+    if (dropdownToggle && navDropdown) {
+        dropdownToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = navDropdown.classList.toggle('open');
+            dropdownToggle.setAttribute('aria-expanded', isOpen);
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            navDropdown.classList.remove('open');
+            dropdownToggle.setAttribute('aria-expanded', 'false');
+        });
+
+        // Close dropdown when a menu link is clicked
+        navDropdown.querySelectorAll('.nav-dropdown-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                navDropdown.classList.remove('open');
+                dropdownToggle.setAttribute('aria-expanded', 'false');
+            });
         });
     }
 });

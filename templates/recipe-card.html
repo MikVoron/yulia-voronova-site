@@ -1,0 +1,446 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Рецепт: Сырники из тофу</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Prata&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f1e8;
+      --card: #fffdf8;
+      --ink: #1e1c19;
+      --muted: #6f685f;
+      --accent: #cb6e3f;
+      --accent-soft: #f3e3d7;
+      --line: #d7cdbf;
+      --good: #3d7d52;
+      --radius: 22px;
+      --shadow: 0 18px 40px rgba(40, 28, 18, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Manrope, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0% 0%, #efe7d7 0%, transparent 46%),
+        radial-gradient(circle at 100% 10%, #e5dccb 0%, transparent 42%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1160px;
+      margin: 40px auto;
+      padding: 0 18px 40px;
+    }
+
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) + 6px);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.12fr 1fr;
+      min-height: 540px;
+    }
+
+    .hero-media {
+      position: relative;
+      isolation: isolate;
+      background: #d6b08f;
+    }
+
+    .hero-media::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(0,0,0,0.06), rgba(0,0,0,0.22));
+      z-index: 1;
+    }
+
+    .hero-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .kcal-chip {
+      position: absolute;
+      z-index: 2;
+      left: 20px;
+      bottom: 20px;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(5px);
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .hero-content {
+      padding: 34px 34px 28px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .meta span {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #fbf8f2;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Prata, Georgia, serif;
+      font-size: clamp(30px, 4vw, 52px);
+      line-height: 1.04;
+      letter-spacing: 0.01em;
+    }
+
+    .subtitle {
+      margin: 14px 0 20px;
+      font-size: 17px;
+      line-height: 1.55;
+      color: #3b342f;
+      max-width: 48ch;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      background: #faf6ef;
+      border-radius: 14px;
+      padding: 11px 12px;
+    }
+
+    .stat b {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .stat span {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .actions {
+      margin-top: auto;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      font: inherit;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 13px 18px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(100deg, #cb6e3f, #e18a54);
+    }
+
+    .btn-ghost {
+      background: #f5ece4;
+      color: #5a3d2f;
+      border: 1px solid #e8d2c1;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-family: Prata, Georgia, serif;
+      font-size: 30px;
+      line-height: 1.1;
+    }
+
+    .ingredients ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 11px;
+    }
+
+    .ingredients li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      align-items: start;
+      color: #2d2824;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .ingredients li::before {
+      content: "";
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      margin-top: 6px;
+      background: radial-gradient(circle at 35% 35%, #ffc08f 0, #cb6e3f 64%);
+      box-shadow: 0 0 0 2px #f3dac7;
+    }
+
+    .steps ol {
+      margin: 0;
+      padding-left: 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .steps li {
+      font-size: 17px;
+      line-height: 1.58;
+      padding-right: 8px;
+    }
+
+    .note {
+      margin-top: 18px;
+      border-left: 4px solid #d29e67;
+      background: #fbf4ec;
+      border-radius: 12px;
+      padding: 12px 13px;
+      color: #4e423a;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .floating-cook {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 14px;
+      width: min(520px, calc(100vw - 24px));
+      background: rgba(25, 24, 21, 0.95);
+      border-radius: 16px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 14px;
+      z-index: 8;
+    }
+
+    .floating-cook .small {
+      font-size: 12px;
+      color: #d6d0ca;
+    }
+
+    .floating-cook .big {
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .floating-cook button {
+      min-height: 44px;
+      border-radius: 12px;
+      padding: 0 14px;
+      border: 0;
+      background: #eb9964;
+      color: #1f1a15;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .hero-media {
+        aspect-ratio: 4 / 3;
+      }
+
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .panel h2 {
+        font-size: 28px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        margin: 14px auto;
+        padding: 0 12px 84px;
+      }
+
+      .hero-content {
+        padding: 20px 16px 16px;
+      }
+
+      .meta { margin-bottom: 12px; }
+
+      .subtitle {
+        font-size: 15px;
+        margin: 11px 0 14px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        gap: 8px;
+      }
+
+      .btn {
+        min-height: 44px;
+        width: 100%;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      .panel h2 {
+        font-size: 24px;
+      }
+
+      .ingredients li,
+      .steps li {
+        font-size: 16px;
+      }
+
+      .floating-cook {
+        width: calc(100vw - 14px);
+        bottom: 7px;
+        border-radius: 14px;
+      }
+
+      .floating-cook button {
+        min-width: 152px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero" aria-label="Карточка рецепта">
+      <div class="hero-grid">
+        <div class="hero-media">
+          <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1400&q=80" alt="Готовые сырники на тарелке">
+          <div class="kcal-chip">~ 287 ккал на порцию</div>
+        </div>
+        <div class="hero-content">
+          <div class="meta">
+            <span>Завтрак</span>
+            <span>Веган</span>
+            <span>Без глютена</span>
+          </div>
+          <h1>Сырники из тофу</h1>
+          <p class="subtitle">Мягкие внутри, с карамельной корочкой снаружи. Рецепт под формат «быстро утром и без стресса».</p>
+
+          <div class="stats">
+            <div class="stat">
+              <b>20 минут</b>
+              <span>Общее время</span>
+            </div>
+            <div class="stat">
+              <b>2 из 5</b>
+              <span>Сложность</span>
+            </div>
+            <div class="stat">
+              <b>2 порции</b>
+              <span>Выход</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary">Начать готовить</button>
+            <button class="btn btn-ghost">Сохранить рецепт</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content">
+      <article class="panel ingredients">
+        <h2>Ингредиенты</h2>
+        <ul>
+          <li>300 г тофу без добавок</li>
+          <li>2 ст. л. цельнозерновой муки</li>
+          <li>2 ч. л. сиропа топинамбура</li>
+          <li>Цедра 1/2 лимона</li>
+          <li>Сок 1/2 лимона</li>
+          <li>1 ст. л. оливкового масла</li>
+        </ul>
+      </article>
+
+      <article class="panel steps">
+        <h2>Приготовление</h2>
+        <ol>
+          <li>Пробей тофу, сироп, сок и цедру лимона до однородной массы. Добавь муку и перемешай.</li>
+          <li>Сформируй небольшие шайбы одинаковой толщины. Если масса липнет, смочи руки холодной водой.</li>
+          <li>Разогрей сковороду на среднем огне, добавь оливковое масло и обжарь сырники до румяной корочки с двух сторон.</li>
+          <li>Подавай с ягодами, натуральным йогуртом или ложкой ореховой пасты.</li>
+        </ol>
+        <p class="note">Совет: тесто можно сделать вечером, а утром останется только быстро обжарить сырники.</p>
+      </article>
+    </section>
+  </main>
+
+  <div class="floating-cook" aria-hidden="true">
+    <div>
+      <div class="small">Режим готовки</div>
+      <div class="big">Шаг 1 из 4 · Таймер 03:00</div>
+    </div>
+    <button>Следующий шаг</button>
+  </div>
+</body>
+</html>
