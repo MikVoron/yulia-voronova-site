@@ -4,6 +4,10 @@ Tawk_LoadStart = new Date();
 Tawk_API.onLoad = function () {
 	Tawk_API.hideWidget();
 };
+// После закрытия/сворачивания чата — снова скрываем стандартный виджет
+Tawk_API.onChatMinimized = function () {
+	Tawk_API.hideWidget();
+};
 
 window.addEventListener('load', function () {
 	// Google Analytics
