@@ -623,6 +623,12 @@ body {
         white-space: nowrap;
         padding: 6px 8px;
     }
+
+    .nav-dropdown-toggle {
+        font-size: 11px;
+        letter-spacing: 0.6px;
+        padding: 0 0 6px;
+    }
 }
 
 @media (min-width: 769px) and (max-width: 900px) {
@@ -638,6 +644,12 @@ body {
         font-size: 10px;
         letter-spacing: 0.4px;
         padding: 5px 7px;
+    }
+
+    .nav-dropdown-toggle {
+        font-size: 10px;
+        letter-spacing: 0.4px;
+        padding: 0 0 5px;
     }
 }
 
@@ -662,6 +674,7 @@ body {
 .nav {
     display: flex;
     gap: 20px;
+    align-items: baseline;
 }
 
 .nav a {
@@ -728,7 +741,7 @@ body {
 /* Nav Dropdown */
 .nav-dropdown {
     position: relative;
-    display: inline-block;
+    display: inline-flex;
 }
 
 .nav-dropdown-toggle {
@@ -737,6 +750,7 @@ body {
     background: none;
     border: none;
     padding: 0 0 6px;
+    line-height: inherit;
     color: var(--white);
     text-decoration: none;
     font-size: 15px;
@@ -9978,6 +9992,75 @@ button[class*="btn-"]:hover,
     .nav.active a:nth-child(5) { transition-delay: 0.25s; }
     .nav.active a:nth-child(6) { transition-delay: 0.3s; }
     .nav.active a:nth-child(7) { transition-delay: 0.35s; }
+
+    /* Dropdown в мобильном меню — тоггл + раскрытие по клику */
+    .nav-dropdown {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 0;
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+        transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .nav.active .nav-dropdown {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        transition-delay: 0.2s;
+    }
+
+    .nav-dropdown-toggle {
+        font-size: 22px;
+        padding: 12px 30px;
+        letter-spacing: 1px;
+        width: 100%;
+        justify-content: center;
+        color: var(--white);
+    }
+
+    .nav-dropdown-menu {
+        position: static;
+        left: auto;
+        transform: none !important;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        width: 100%;
+        padding: 0;
+        min-width: 0;
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        visibility: hidden;
+        transition: max-height 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .nav-dropdown.open .nav-dropdown-menu {
+        max-height: 200px;
+        opacity: 1;
+        visibility: visible;
+        transform: none !important;
+    }
+
+    .nav-dropdown-menu a {
+        font-size: 18px;
+        padding: 8px 30px;
+        letter-spacing: 1px;
+        color: rgba(255, 255, 255, 0.75) !important;
+        text-align: center;
+        width: 100%;
+        display: block;
+        opacity: 1;
+        transform: none;
+        transition: color 0.2s ease;
+    }
+
+    .nav-dropdown-menu a:hover {
+        background: transparent;
+        color: var(--white) !important;
+        transform: none;
+    }
 
     .nav a:hover {
         transform: scale(1.1);
