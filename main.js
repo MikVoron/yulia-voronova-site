@@ -41,6 +41,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Chat Launcher Widget
+    const chatLauncher = document.getElementById('chatLauncher');
+    const chatLauncherBtn = document.getElementById('chatLauncherBtn');
+    const tawkOpenBtn = document.getElementById('tawkOpenBtn');
+
+    if (chatLauncher && chatLauncherBtn) {
+        // Открыть/закрыть меню
+        chatLauncherBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = chatLauncher.classList.toggle('open');
+            chatLauncherBtn.setAttribute('aria-expanded', isOpen);
+            document.getElementById('chatOptions').setAttribute('aria-hidden', !isOpen);
+        });
+
+        // Закрыть при клике вне виджета
+        document.addEventListener('click', (e) => {
+            if (!chatLauncher.contains(e.target)) {
+                chatLauncher.classList.remove('open');
+                chatLauncherBtn.setAttribute('aria-expanded', 'false');
+                document.getElementById('chatOptions').setAttribute('aria-hidden', 'true');
+            }
+        });
+
+        // Открыть чат tawk.to через API
+        if (tawkOpenBtn) {
+            tawkOpenBtn.addEventListener('click', () => {
+                chatLauncher.classList.remove('open');
+                chatLauncherBtn.setAttribute('aria-expanded', 'false');
+                if (typeof Tawk_API !== 'undefined' && typeof Tawk_API.toggle === 'function') {
+                    Tawk_API.showWidget();
+                    Tawk_API.toggle();
+                }
+            });
+        }
+    }
+
     // Dropdown toggle — click/touch support
     const dropdownToggle = document.querySelector('.nav-dropdown-toggle');
     const navDropdown = document.querySelector('.nav-dropdown');

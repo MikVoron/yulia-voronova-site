@@ -1,3 +1,10 @@
+// tawk.to — скрываем стандартную кнопку, открываем через свой виджет
+var Tawk_API = Tawk_API || {};
+Tawk_LoadStart = new Date();
+Tawk_API.onLoad = function () {
+	Tawk_API.hideWidget();
+};
+
 window.addEventListener('load', function () {
 	// Google Analytics
 	var ga = document.createElement('script');
@@ -18,4 +25,12 @@ window.addEventListener('load', function () {
 		k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
 	})(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=106615581', 'ym');
 	ym(106615581, 'init', { clickmap: true, trackLinks: true, accurateTrackBounce: true });
+
+	// tawk.to
+	var tawk = document.createElement('script');
+	tawk.src = 'https://embed.tawk.to/699610c27418241c38dd96b3/1jhp32uj0';
+	tawk.charset = 'UTF-8';
+	tawk.setAttribute('crossorigin', '*');
+	tawk.async = true;
+	document.head.appendChild(tawk);
 });

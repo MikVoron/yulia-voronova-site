@@ -12047,46 +12047,168 @@ button[class*="btn-"]:hover,
     }
 }
 
-/* Floating Telegram Button */
-.floating-tg {
+/* ===== Chat Launcher Widget ===== */
+.chat-launcher {
     position: fixed;
     bottom: 25px;
     right: 25px;
     z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+/* Главная пульсирующая кнопка */
+.chat-launcher-btn {
     width: 56px;
     height: 56px;
     border-radius: 50%;
     background: linear-gradient(135deg, #2AABEE, #229ED9);
+    border: none;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 15px rgba(42, 171, 238, 0.4);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    position: relative;
+    animation: chat-pulse 2.5s ease-in-out infinite;
+    flex-shrink: 0;
 }
 
-.floating-tg:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(42, 171, 238, 0.5);
+.chat-launcher-btn:hover {
+    transform: scale(1.08);
+    animation: none;
+    box-shadow: 0 6px 20px rgba(42, 171, 238, 0.55);
 }
 
-.floating-tg svg {
+@keyframes chat-pulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(42, 171, 238, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 15px rgba(42, 171, 238, 0.4), 0 0 0 10px rgba(42, 171, 238, 0.14), 0 0 0 20px rgba(42, 171, 238, 0.05);
+    }
+}
+
+/* Иконки внутри кнопки */
+.chat-launcher-btn svg {
+    width: 26px;
+    height: 26px;
     fill: #fff;
-    width: 28px;
-    height: 28px;
+    position: absolute;
+    transition: opacity 0.2s ease, transform 0.3s ease;
+}
+
+.chat-icon-msg {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+.chat-icon-close {
+    opacity: 0;
+    transform: scale(0.4) rotate(-90deg);
+}
+
+/* Состояние «открыто» */
+.chat-launcher.open .chat-launcher-btn {
+    animation: none;
+    background: linear-gradient(135deg, #8FAF8C, #6b9168);
+    box-shadow: 0 4px 15px rgba(143, 175, 140, 0.5);
+}
+
+.chat-launcher.open .chat-icon-msg {
+    opacity: 0;
+    transform: scale(0.4) rotate(90deg);
+}
+
+.chat-launcher.open .chat-icon-close {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+/* Блок с двумя кнопками */
+.chat-options {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+    pointer-events: none;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.chat-launcher.open .chat-options {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Отдельная кнопка-опция */
+.chat-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px 10px 12px;
+    border-radius: 28px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-montserrat);
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chat-option-tg {
+    background: linear-gradient(135deg, #2AABEE, #229ED9);
+}
+
+.chat-option-tawk {
+    background: linear-gradient(135deg, #8FAF8C, #6b9168);
+}
+
+.chat-option svg {
+    width: 20px;
+    height: 20px;
+    fill: #fff;
+    flex-shrink: 0;
+}
+
+.chat-option:hover {
+    transform: translateX(-4px);
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.22);
 }
 
 @media (max-width: 768px) {
-    .floating-tg {
+    .chat-launcher {
         bottom: 18px;
         right: 18px;
+    }
+
+    .chat-launcher-btn {
         width: 50px;
         height: 50px;
     }
 
-    .floating-tg svg {
-        width: 24px;
-        height: 24px;
+    .chat-launcher-btn svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .chat-option {
+        font-size: 12px;
+        padding: 9px 14px 9px 10px;
+    }
+
+    .chat-option svg {
+        width: 18px;
+        height: 18px;
     }
 }
 
