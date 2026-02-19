@@ -1,13 +1,32 @@
 // tawk.to — скрываем стандартную кнопку, открываем через свой виджет
 var Tawk_API = Tawk_API || {};
 Tawk_LoadStart = new Date();
-Tawk_API.onLoad = function () {
+
+// Уровень 1: CSS — скрываем контейнер кнопки tawk.to ДО его отрисовки
+(function () {
+	var s = document.createElement('style');
+	s.id = 'tawk-flash-prevent';
+	s.textContent = '.tawk-min-container, [id^="tawk-bubble"], .tawk-bubble { opacity: 0 !important; pointer-events: none !important; transition: none !important; }';
+	document.head.appendChild(s);
+})();
+
+// Уровень 2: onBeforeLoad — hideWidget() до первого рендера
+Tawk_API.onBeforeLoad = function () {
 	Tawk_API.hideWidget();
 };
+
+// Уровень 3: onLoad — финальный hideWidget() + убираем временный CSS
+Tawk_API.onLoad = function () {
+	Tawk_API.hideWidget();
+	var s = document.getElementById('tawk-flash-prevent');
+	if (s) s.parentNode.removeChild(s);
+};
+
 // После закрытия/сворачивания чата — снова скрываем стандартный виджет
 Tawk_API.onChatMinimized = function () {
 	Tawk_API.hideWidget();
 };
+
 // Показываем бейдж на нашей кнопке при непрочитанных сообщениях (включая автосообщения)
 Tawk_API.onUnreadCountChanged = function (count) {
 	var badge = document.getElementById('chatBadge');
