@@ -12074,6 +12074,28 @@ button[class*="btn-"]:hover,
     display: block;
 }
 
+/* Бейдж внутри кнопки «Оператор» */
+.chat-option-badge {
+    display: none;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    background: #e63946;
+    color: #fff;
+    font-family: var(--font-montserrat);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+    padding: 0 4px;
+    margin-left: auto;
+    animation: badge-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.chat-option-badge.visible {
+    display: block;
+}
+
 @keyframes badge-pop {
     from { transform: scale(0); }
     to   { transform: scale(1); }
