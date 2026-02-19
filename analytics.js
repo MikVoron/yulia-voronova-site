@@ -27,15 +27,17 @@ Tawk_API.onChatMinimized = function () {
 	Tawk_API.hideWidget();
 };
 
-// Показываем бейдж на нашей кнопке при непрочитанных сообщениях (включая автосообщения)
+// Показываем бейдж на главной кнопке И на кнопке «Оператор»
 Tawk_API.onUnreadCountChanged = function (count) {
+	var label = count > 9 ? '9+' : count;
 	var badge = document.getElementById('chatBadge');
-	if (!badge) return;
+	var tawkBadge = document.getElementById('tawkBadge');
 	if (count > 0) {
-		badge.textContent = count > 9 ? '9+' : count;
-		badge.classList.add('visible');
+		if (badge) { badge.textContent = label; badge.classList.add('visible'); }
+		if (tawkBadge) { tawkBadge.textContent = label; tawkBadge.classList.add('visible'); }
 	} else {
-		badge.classList.remove('visible');
+		if (badge) badge.classList.remove('visible');
+		if (tawkBadge) tawkBadge.classList.remove('visible');
 	}
 };
 
