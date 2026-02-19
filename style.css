@@ -12096,13 +12096,13 @@ button[class*="btn-"]:hover,
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #2AABEE, #229ED9);
+    background: linear-gradient(135deg, #8FAF8C, #6b9168);
     border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 15px rgba(42, 171, 238, 0.4);
+    box-shadow: 0 4px 15px rgba(143, 175, 140, 0.45);
     transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
     position: relative;
     animation: chat-pulse 2.5s ease-in-out infinite;
@@ -12112,15 +12112,15 @@ button[class*="btn-"]:hover,
 .chat-launcher-btn:hover {
     transform: scale(1.08);
     animation: none;
-    box-shadow: 0 6px 20px rgba(42, 171, 238, 0.55);
+    box-shadow: 0 6px 20px rgba(143, 175, 140, 0.6);
 }
 
 @keyframes chat-pulse {
     0%, 100% {
-        box-shadow: 0 4px 15px rgba(42, 171, 238, 0.4);
+        box-shadow: 0 4px 15px rgba(143, 175, 140, 0.45);
     }
     50% {
-        box-shadow: 0 4px 15px rgba(42, 171, 238, 0.4), 0 0 0 10px rgba(42, 171, 238, 0.14), 0 0 0 20px rgba(42, 171, 238, 0.05);
+        box-shadow: 0 4px 15px rgba(143, 175, 140, 0.45), 0 0 0 10px rgba(143, 175, 140, 0.15), 0 0 0 20px rgba(143, 175, 140, 0.06);
     }
 }
 
@@ -12146,8 +12146,8 @@ button[class*="btn-"]:hover,
 /* Состояние «открыто» */
 .chat-launcher.open .chat-launcher-btn {
     animation: none;
-    background: linear-gradient(135deg, #8FAF8C, #6b9168);
-    box-shadow: 0 4px 15px rgba(143, 175, 140, 0.5);
+    background: linear-gradient(135deg, #6b9168, #4d7a4a);
+    box-shadow: 0 4px 15px rgba(77, 122, 74, 0.5);
 }
 
 .chat-launcher.open .chat-icon-msg {
