@@ -7135,7 +7135,7 @@ button[class*="btn-"]:hover,
 
 .about-profession-title::before,
 .about-profession-title::after {
-    content: 'вњ§';
+    content: '\2747';
     position: absolute;
     color: var(--sage-green);
     font-size: 24px;
