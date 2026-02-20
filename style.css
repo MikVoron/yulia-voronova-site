@@ -12206,13 +12206,13 @@ button[class*="btn-"]:hover,
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #8FAF8C, #6b9168);
-    border: none;
+    background: #f5f0e8;
+    border: 2px solid #d4c4a0;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 15px rgba(143, 175, 140, 0.45);
+    box-shadow: 0 4px 15px rgba(180, 155, 100, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
     position: relative;
     animation: chat-pulse 2.5s ease-in-out infinite;
@@ -12222,15 +12222,16 @@ button[class*="btn-"]:hover,
 .chat-launcher-btn:hover {
     transform: scale(1.08);
     animation: none;
-    box-shadow: 0 6px 20px rgba(143, 175, 140, 0.6);
+    background: #ede5d5;
+    box-shadow: 0 6px 20px rgba(180, 155, 100, 0.45);
 }
 
 @keyframes chat-pulse {
     0%, 100% {
-        box-shadow: 0 4px 15px rgba(143, 175, 140, 0.45);
+        box-shadow: 0 4px 15px rgba(180, 155, 100, 0.3);
     }
     50% {
-        box-shadow: 0 4px 15px rgba(143, 175, 140, 0.45), 0 0 0 10px rgba(143, 175, 140, 0.15), 0 0 0 20px rgba(143, 175, 140, 0.06);
+        box-shadow: 0 4px 15px rgba(180, 155, 100, 0.3), 0 0 0 10px rgba(180, 155, 100, 0.12), 0 0 0 20px rgba(180, 155, 100, 0.05);
     }
 }
 
@@ -12238,7 +12239,7 @@ button[class*="btn-"]:hover,
 .chat-launcher-btn svg {
     width: 26px;
     height: 26px;
-    fill: #fff;
+    fill: #5a7d56;
     position: absolute;
     transition: opacity 0.2s ease, transform 0.3s ease;
 }
@@ -12256,8 +12257,9 @@ button[class*="btn-"]:hover,
 /* Состояние «открыто» */
 .chat-launcher.open .chat-launcher-btn {
     animation: none;
-    background: linear-gradient(135deg, #6b9168, #4d7a4a);
-    box-shadow: 0 4px 15px rgba(77, 122, 74, 0.5);
+    background: #ede5d5;
+    border-color: #c4a87a;
+    box-shadow: 0 4px 15px rgba(180, 155, 100, 0.4);
 }
 
 .chat-launcher.open .chat-icon-msg {
@@ -12300,7 +12302,7 @@ button[class*="btn-"]:hover,
     font-family: var(--font-montserrat);
     font-size: 13px;
     font-weight: 500;
-    color: #fff;
+    color: #2c2c2c;
     text-decoration: none;
     white-space: nowrap;
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
@@ -12308,17 +12310,19 @@ button[class*="btn-"]:hover,
 }
 
 .chat-option-tg {
-    background: linear-gradient(135deg, #2AABEE, #229ED9);
+    background: #f5f0e8;
+    border: 1.5px solid #d4c4a0;
 }
 
 .chat-option-tawk {
-    background: linear-gradient(135deg, #8FAF8C, #6b9168);
+    background: #f5f0e8;
+    border: 1.5px solid #d4c4a0;
 }
 
 .chat-option svg {
     width: 20px;
     height: 20px;
-    fill: #fff;
+    fill: #5a7d56;
     flex-shrink: 0;
 }
 
