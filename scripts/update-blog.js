@@ -20,9 +20,14 @@ async function downloadImage(url, postNumber) {
     const filename = `post-${postNumber}.webp`;
     const filepath = path.join(BLOG_IMAGES_DIR, filename);
 
-    // Skip if already downloaded
+    // Skip if already downloaded — still get dimensions
     if (fs.existsSync(filepath)) {
-        return `images/blog/${filename}`;
+        try {
+            const meta = await sharp(filepath).metadata();
+            return { path: `images/blog/${filename}`, width: meta.width, height: meta.height };
+        } catch (e) {
+            return { path: `images/blog/${filename}`, width: null, height: null };
+        }
     }
 
     try {
@@ -30,11 +35,12 @@ async function downloadImage(url, postNumber) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const buffer = Buffer.from(await res.arrayBuffer());
         await sharp(buffer).webp({ quality: 82 }).toFile(filepath);
+        const meta = await sharp(filepath).metadata();
         console.log(`  Downloaded and converted to WebP: ${filename}`);
-        return `images/blog/${filename}`;
+        return { path: `images/blog/${filename}`, width: meta.width, height: meta.height };
     } catch (e) {
         console.error(`  Failed to download image for post ${postNumber}: ${e.message}`);
-        return null;
+        return { path: null, width: null, height: null };
     }
 }
 
@@ -152,8 +158,10 @@ async function fetchPostsData() {
     }
     for (const post of top) {
         if (post.imageUrl) {
-            const localPath = await downloadImage(post.imageUrl, post.postNumber);
-            post.localImage = localPath;
+            const result = await downloadImage(post.imageUrl, post.postNumber);
+            post.localImage = result.path;
+            post.localImageWidth = result.width;
+            post.localImageHeight = result.height;
         }
     }
 
@@ -173,7 +181,10 @@ function articleCardTemplate(post, index) {
 
     const fallbackSrc = RANDOM_PICS[index % RANDOM_PICS.length];
     const imgSrc = post.localImage || fallbackSrc;
-    const imageBlock = `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${imgSrc}" alt="${title}" loading="lazy" decoding="async">\n\t\t\t\t\t</div>`;
+    const wh = post.localImageWidth && post.localImageHeight
+        ? ` width="${post.localImageWidth}" height="${post.localImageHeight}"`
+        : '';
+    const imageBlock = `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${imgSrc}" alt="${title}"${wh} loading="lazy" decoding="async">\n\t\t\t\t\t</div>`;
 
     const dateRow = dateFormatted
         ? `\t\t\t\t\t\t<div class="blog-card-meta">\n\t\t\t\t\t\t\t<time class="blog-card-date" datetime="${post.dateISO}">${dateFormatted}</time>\n\t\t\t\t\t\t</div>`
