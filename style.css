@@ -2085,43 +2085,62 @@ button[class*="btn-"]:hover,
 
 .lead-scenarios {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 16px;
-    max-width: 700px;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 520px;
     margin: 0 auto;
 }
 
 .lead-scenario-btn {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 14px 26px;
-    border-radius: 50px;
-    border: 1.5px solid var(--sage-green);
+    gap: 14px;
+    padding: 16px 20px;
+    border-radius: 14px;
+    border: 1.5px solid #e0d8ce;
     background: var(--white);
     color: var(--text-dark);
     font-family: var(--font-montserrat);
     font-size: 15px;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    text-align: left;
+    width: 100%;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .lead-scenario-btn:hover {
-    background: var(--sage-green);
-    color: var(--white);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(109, 136, 112, 0.3);
+    border-color: var(--sage-green);
+    box-shadow: 0 4px 16px rgba(109, 136, 112, 0.18);
+    transform: translateX(4px);
 }
 
-.lead-scenario-btn:hover .lead-scenario-icon svg {
-    fill: var(--white);
+.lead-scenario-btn:hover .lead-scenario-btn-arrow {
+    color: var(--sage-green);
+    transform: translateX(3px);
+}
+
+.lead-scenario-btn.lead-scenario-selected {
+    border-color: var(--sage-green);
+    background: #f7faf7;
+    cursor: default;
+    transform: none;
+    box-shadow: none;
+    pointer-events: none;
+}
+
+.lead-scenario-btn.lead-scenario-selected .lead-scenario-btn-arrow {
+    color: var(--sage-green);
 }
 
 .lead-scenario-icon {
     display: flex;
     align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f0f4f1;
     flex-shrink: 0;
 }
 
@@ -2129,39 +2148,64 @@ button[class*="btn-"]:hover,
     width: 20px;
     height: 20px;
     fill: var(--sage-green);
-    transition: fill 0.2s ease;
+}
+
+.lead-scenario-radio {
+    display: none;
+}
+
+.lead-scenario-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.lead-scenario-title {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.lead-scenario-desc {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.lead-scenario-btn-arrow {
+    margin-left: auto;
+    font-size: 18px;
+    color: #c0b8ae;
+    flex-shrink: 0;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.lead-scenario-custom {
+    border-style: dashed;
 }
 
 .lead-form-wrap {
-    max-width: 480px;
-    margin: 40px auto 0;
+    max-width: 520px;
+    margin: 16px auto 0;
     text-align: left;
-}
-
-.lead-form-selected {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #f0f4f1;
-    border-radius: 12px;
-    padding: 12px 18px;
-    margin-bottom: 20px;
-    font-family: var(--font-montserrat);
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-dark);
 }
 
 .lead-change-btn {
     background: none;
     border: none;
-    color: var(--sage-green);
+    color: var(--text-muted);
     font-family: var(--font-montserrat);
     font-size: 13px;
     cursor: pointer;
     padding: 0;
-    text-decoration: underline;
-    flex-shrink: 0;
+    margin-bottom: 14px;
+    display: block;
+    transition: color 0.2s ease;
+}
+
+.lead-change-btn:hover {
+    color: var(--sage-green);
 }
 
 .lead-form {
@@ -2187,10 +2231,6 @@ button[class*="btn-"]:hover,
 .lead-textarea {
     resize: vertical;
     min-height: 80px;
-}
-
-.lead-scenario-custom {
-    border-style: dashed;
 }
 
 .lead-input:focus {
@@ -2249,11 +2289,12 @@ button[class*="btn-"]:hover,
 }
 
 @media (max-width: 600px) {
-    .lead-scenario-btn {
-        width: 100%;
-        justify-content: center;
-        font-size: 14px;
-        padding: 13px 20px;
+    .lead-scenarios {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .lead-scenario-custom {
+        grid-column: 1 / -1;
     }
 
     .lead-form-wrap {
