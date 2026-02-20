@@ -1142,27 +1142,26 @@
 				var scenario = btn.dataset.scenario;
 				var isCustom = scenario === 'custom';
 				scenarioInput.value = isCustom ? 'Свой вариант' : scenario;
-				// Скрываем остальные, выбранную выделяем
 				allBtns.forEach(function (b) {
-					if (b !== btn) b.hidden = true;
+					if (b !== btn) b.style.display = 'none';
 				});
 				btn.classList.add('lead-scenario-selected');
-				concernField.hidden = !isCustom;
+				concernField.style.display = isCustom ? 'block' : 'none';
 				concernField.required = isCustom;
-				formWrap.hidden = false;
+				formWrap.removeAttribute('hidden');
 			});
 
 			changeBtn.addEventListener('click', function () {
-				formWrap.hidden = true;
+				formWrap.setAttribute('hidden', '');
 				allBtns.forEach(function (b) {
-					b.hidden = false;
+					b.style.display = '';
 					b.classList.remove('lead-scenario-selected');
 				});
 				form.reset();
-				concernField.hidden = true;
+				concernField.style.display = 'none';
 				concernField.required = false;
-				success.hidden = true;
-				form.hidden = false;
+				success.setAttribute('hidden', '');
+				form.removeAttribute('hidden');
 			});
 
 			form.addEventListener('submit', function (e) {
@@ -1175,8 +1174,8 @@
 					body: new FormData(form)
 				}).then(function (res) {
 					if (res.ok) {
-						form.hidden = true;
-						success.hidden = false;
+						form.style.display = 'none';
+						success.removeAttribute('hidden');
 					} else {
 						submitBtn.disabled = false;
 						submitBtn.textContent = 'Отправить заявку';
