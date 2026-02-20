@@ -12032,6 +12032,88 @@ button[class*="btn-"]:hover,
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
 }
 
+/* ===== Email results form (in tests) ===== */
+.test-email-section {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--beige);
+    text-align: center;
+}
+
+.test-email-title {
+    font-family: var(--font-montserrat);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark-text);
+    margin: 0 0 4px;
+}
+
+.test-email-subtitle {
+    font-family: var(--font-montserrat);
+    font-size: 12px;
+    color: #999;
+    margin: 0 0 14px;
+}
+
+.test-email-row {
+    display: flex;
+    gap: 8px;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.test-email-input {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1.5px solid var(--beige);
+    border-radius: 24px;
+    font-family: var(--font-montserrat);
+    font-size: 14px;
+    color: var(--dark-text);
+    background: var(--cream);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.test-email-input:focus {
+    border-color: var(--sage-green);
+}
+
+.test-email-btn {
+    padding: 10px 22px;
+    background: linear-gradient(135deg, #8FAF8C, #6b9168);
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    font-family: var(--font-montserrat);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.test-email-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.test-email-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+    transform: none;
+}
+
+.test-email-message {
+    margin-top: 10px;
+    font-family: var(--font-montserrat);
+    font-size: 13px;
+    min-height: 18px;
+}
+
+.test-email-message.success { color: #4a8a47; }
+.test-email-message.error   { color: #c0392b; }
+
 @media (max-width: 600px) {
     .test-title {
         font-size: 24px;
@@ -12044,6 +12126,12 @@ button[class*="btn-"]:hover,
     }
     .test-result-score {
         font-size: 36px;
+    }
+    .test-email-row {
+        flex-direction: column;
+    }
+    .test-email-btn {
+        width: 100%;
     }
 }
 

@@ -182,6 +182,15 @@
 						<a href="/#tariffs" class="test-consult-btn" id="consultBtn">Записаться на консультацию</a>
 						<button class="test-send-btn" id="sendResultsBtn" style="display:none;">Отправить результаты Юлии</button>
 					</div>
+					<div class="test-email-section" id="testEmailSection" style="display:none;">
+						<p class="test-email-title">📧 Отправить результаты на почту</p>
+						<p class="test-email-subtitle">Получите результаты в личном письме</p>
+						<div class="test-email-row">
+							<input type="email" id="testEmailInput" class="test-email-input" placeholder="Введите ваш email" autocomplete="email">
+							<button class="test-email-btn" id="testEmailBtn" type="button">Отправить</button>
+						</div>
+						<p class="test-email-message" id="testEmailMessage"></p>
+					</div>
 					<p class="back-link"><a href="tests.html">← Вернуться к тестам</a></p>
 				</div>
 			</div>
@@ -444,6 +453,7 @@
 					// Show results
 					testContainer.style.display = 'none';
 					testResults.style.display = 'block';
+					document.getElementById('testEmailSection').style.display = 'block';
 					calculateResults();
 					window.scrollTo({ top: testResults.offsetTop - 100, behavior: 'smooth' });
 				}
@@ -465,6 +475,77 @@
 
 			showQuestion(0);
 			window.scrollTo({ top: 0, behavior: 'smooth' });
+		});
+	})();
+	</script>
+
+	<!-- EmailJS: отправка результатов на почту -->
+	<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+	<script>
+	(function() {
+		var EMAILJS_PUBLIC_KEY  = '5EGsEanwKp8U0KEb6';
+		var EMAILJS_SERVICE_ID  = 'service_mftul3d';
+		var EMAILJS_TEMPLATE_ID = 'template_qpkyi1f';
+
+		function descDEBQ(score, norm) {
+			var s = parseFloat(score), n = parseFloat(norm);
+			if (s <= n) return 'в норме';
+			if (s <= n + 0.8) return 'немного выше нормы';
+			return 'значительно выше нормы';
+		}
+
+		window.addEventListener('load', function() {
+			var emailBtn = document.getElementById('testEmailBtn');
+			var emailInput = document.getElementById('testEmailInput');
+			var emailMsg = document.getElementById('testEmailMessage');
+			if (!emailBtn) return;
+
+			emailBtn.addEventListener('click', function() {
+				var email = emailInput.value.trim();
+				if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+					emailMsg.textContent = 'Пожалуйста, введите корректный email';
+					emailMsg.className = 'test-email-message error';
+					return;
+				}
+
+				var restrict  = document.getElementById('scoreRestrict').textContent;
+				var emotional = document.getElementById('scoreEmotional').textContent;
+				var external  = document.getElementById('scoreExternal').textContent;
+				var normR = document.getElementById('normRestrict').textContent.replace('Норма: ', '');
+				var normE = document.getElementById('normEmotional').textContent.replace('Норма: ', '');
+				var normX = document.getElementById('normExternal').textContent.replace('Норма: ', '');
+
+				var results =
+					'Ограничительное поведение: ' + restrict + ' (норма ' + normR + ') — ' + descDEBQ(restrict, normR) + '\n' +
+					'Эмоциогенное поведение: '    + emotional + ' (норма ' + normE + ') — ' + descDEBQ(emotional, normE) + '\n' +
+					'Экстернальное поведение: '    + external  + ' (норма ' + normX + ') — ' + descDEBQ(external, normX);
+
+				emailBtn.disabled = true;
+				emailBtn.textContent = 'Отправляем...';
+
+				emailjs.init(EMAILJS_PUBLIC_KEY);
+				emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+					to_email:  email,
+					test_name: 'DEBQ — Опросник пищевого поведения',
+					results:   results
+				}).then(function() {
+					var section = document.getElementById('testEmailSection');
+					section.querySelector('.test-email-title').style.display = 'none';
+					section.querySelector('.test-email-subtitle').style.display = 'none';
+					section.querySelector('.test-email-row').style.display = 'none';
+					emailMsg.innerHTML = '<button class="test-email-btn" style="cursor:default;pointer-events:none;margin-bottom:10px;" disabled>Отправлено ✓</button>';
+					emailMsg.className = 'test-email-message success';
+					var note = document.createElement('p');
+					note.style.cssText = 'margin:0;font-family:Montserrat,Arial,sans-serif;font-size:13px;color:#4a8a47;';
+					note.textContent = 'Проверьте почту — результаты уже там!';
+					emailMsg.appendChild(note);
+				}, function() {
+					emailBtn.disabled = false;
+					emailBtn.textContent = 'Отправить';
+					emailMsg.textContent = 'Ошибка отправки. Попробуйте ещё раз.';
+					emailMsg.className = 'test-email-message error';
+				});
+			});
 		});
 	})();
 	</script>
