@@ -2190,8 +2190,7 @@ button[class*="btn-"]:hover,
 }
 
 .lead-scenario-custom {
-    width: 100%;
-    justify-content: center;
+    border-style: dashed;
 }
 
 .lead-input:focus {
