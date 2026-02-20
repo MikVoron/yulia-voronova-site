@@ -53,6 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const isOpen = chatLauncher.classList.toggle('open');
             chatLauncherBtn.setAttribute('aria-expanded', isOpen);
             document.getElementById('chatOptions').setAttribute('aria-hidden', !isOpen);
+            const badge = document.getElementById('chatBadge');
+            if (badge) badge.classList.toggle('visible', !isOpen && document.getElementById('tawkBadge')?.classList.contains('visible'));
         });
 
         // Закрыть при клике вне виджета

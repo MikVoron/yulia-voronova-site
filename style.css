@@ -2134,7 +2134,7 @@ button[class*="btn-"]:hover,
 
 .lead-form-wrap {
     max-width: 480px;
-    margin: 0 auto;
+    margin: 40px auto 0;
     text-align: left;
 }
 
@@ -2189,7 +2189,7 @@ button[class*="btn-"]:hover,
 }
 
 .lead-submit-btn {
-    padding: 14px;
+    padding: 13px 36px;
     border-radius: 50px;
     border: none;
     background: var(--sage-green);
@@ -2200,6 +2200,7 @@ button[class*="btn-"]:hover,
     cursor: pointer;
     transition: background 0.2s ease, transform 0.2s ease;
     margin-top: 4px;
+    align-self: center;
 }
 
 .lead-submit-btn:hover {
