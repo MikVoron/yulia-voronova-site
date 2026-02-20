@@ -1148,9 +1148,7 @@
 					method: 'POST',
 					body: new FormData(form)
 				}).then(function (res) {
-					return res.json();
-				}).then(function (data) {
-					if (data.success) {
+					if (res.ok) {
 						form.hidden = true;
 						success.hidden = false;
 					} else {
