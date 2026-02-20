@@ -2184,6 +2184,16 @@ button[class*="btn-"]:hover,
     box-sizing: border-box;
 }
 
+.lead-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.lead-scenario-custom {
+    width: 100%;
+    justify-content: center;
+}
+
 .lead-input:focus {
     border-color: var(--sage-green);
 }
