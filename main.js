@@ -616,6 +616,7 @@ let lastScroll = 0;
 const header = document.querySelector('.header');
 
 window.addEventListener('scroll', () => {
+    if (!header) return;
     const currentScroll = window.pageYOffset;
 
     if (currentScroll > lastScroll && currentScroll > 100) {

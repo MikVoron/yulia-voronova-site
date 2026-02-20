@@ -225,6 +225,7 @@
 		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&family=Baskervville&family=Cormorant+Garamond:wght@400;500&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 	</noscript>
 	<link rel="stylesheet" href="style.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 
 <body>
@@ -605,20 +606,6 @@
 		<div><img src="https://mc.yandex.ru/watch/106615581" style="position:absolute; left:-9999px;" alt="" /></div>
 	</noscript>
 
-	<!-- PDF.js - load only when needed -->
-	<script>
-		var pdfLoaded = false;
-		document.querySelectorAll('.guide-btn-read').forEach(function (btn) {
-			btn.addEventListener('click', function () {
-				if (!pdfLoaded) {
-					var s = document.createElement('script');
-					s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-					document.body.appendChild(s);
-					pdfLoaded = true;
-				}
-			}, { once: true });
-		});
-	</script>
 	<!-- Chat Launcher Widget -->
 	<div class="chat-launcher" id="chatLauncher">
 		<div class="chat-options" id="chatOptions" aria-hidden="true">
