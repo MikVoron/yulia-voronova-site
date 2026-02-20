@@ -2066,7 +2066,192 @@ button[class*="btn-"]:hover,
     transition-delay: 0.45s;
 }
 
-/* About Page - Р°РЅРёРјР°С†РёРё РїРѕСЏРІР»РµРЅРёСЏ СЃРµРєС†РёР№ */
+/* Lead Section — персональный запрос */
+
+.lead-section {
+    background: var(--cream-bg);
+    padding: 70px 0;
+    text-align: center;
+}
+
+.lead-subtitle {
+    font-family: var(--font-montserrat);
+    font-size: 16px;
+    color: var(--text-muted);
+    margin: 0 auto 40px;
+    max-width: 520px;
+    line-height: 1.6;
+}
+
+.lead-scenarios {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.lead-scenario-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 26px;
+    border-radius: 50px;
+    border: 1.5px solid var(--sage-green);
+    background: var(--white);
+    color: var(--text-dark);
+    font-family: var(--font-montserrat);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lead-scenario-btn:hover {
+    background: var(--sage-green);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(109, 136, 112, 0.3);
+}
+
+.lead-scenario-btn:hover .lead-scenario-icon svg {
+    fill: var(--white);
+}
+
+.lead-scenario-icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.lead-scenario-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--sage-green);
+    transition: fill 0.2s ease;
+}
+
+.lead-form-wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.lead-form-selected {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f0f4f1;
+    border-radius: 12px;
+    padding: 12px 18px;
+    margin-bottom: 20px;
+    font-family: var(--font-montserrat);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.lead-change-btn {
+    background: none;
+    border: none;
+    color: var(--sage-green);
+    font-family: var(--font-montserrat);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    flex-shrink: 0;
+}
+
+.lead-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lead-input {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 1.5px solid #ddd6cc;
+    background: var(--white);
+    font-family: var(--font-montserrat);
+    font-size: 14px;
+    color: var(--text-dark);
+    outline: none;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.lead-input:focus {
+    border-color: var(--sage-green);
+}
+
+.lead-submit-btn {
+    padding: 14px;
+    border-radius: 50px;
+    border: none;
+    background: var(--sage-green);
+    color: var(--white);
+    font-family: var(--font-montserrat);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+    margin-top: 4px;
+}
+
+.lead-submit-btn:hover {
+    background: #5a7d5e;
+    transform: translateY(-1px);
+}
+
+.lead-submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.lead-privacy {
+    font-family: var(--font-montserrat);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.lead-privacy a {
+    color: var(--sage-green);
+}
+
+.lead-success {
+    text-align: center;
+    padding: 30px 0;
+}
+
+.lead-success-text {
+    font-family: var(--font-montserrat);
+    font-size: 16px;
+    color: var(--sage-green);
+    font-weight: 500;
+}
+
+@media (max-width: 600px) {
+    .lead-scenario-btn {
+        width: 100%;
+        justify-content: center;
+        font-size: 14px;
+        padding: 13px 20px;
+    }
+
+    .lead-form-wrap {
+        padding: 0 4px;
+    }
+}
+
+/* About Page - анимации появления секций */
 
 /* РџРѕРјРѕРіР°СЋ РєР»РёРµРЅС‚Р°Рј - animations disabled for CLS fix */
 .about-help-section .help-section-title,

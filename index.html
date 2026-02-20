@@ -967,28 +967,53 @@
 			</button>
 		</div>
 
-		<!-- Telegram Channel Subscribe -->
-		<section class="telegram-subscribe">
+		<!-- Lead Section -->
+		<section class="lead-section">
 			<div class="container">
-				<div class="telegram-subscribe-content">
-					<div class="telegram-icon-large">
-						<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8C16.49 10.38 15.84 14.22 15.51 15.99C15.37 16.74 15.09 16.99 14.83 17.02C14.25 17.07 13.81 16.64 13.25 16.27C12.37 15.69 11.87 15.33 11.02 14.77C10.03 14.12 10.67 13.76 11.24 13.18C11.39 13.03 13.95 10.7 14 10.49C14.0069 10.4582 14.006 10.4252 13.9973 10.3938C13.9886 10.3624 13.9724 10.3337 13.95 10.31C13.89 10.26 13.81 10.28 13.74 10.29C13.65 10.31 12.25 11.24 9.52 13.08C9.12 13.35 8.76 13.49 8.44 13.48C8.08 13.47 7.4 13.28 6.89 13.11C6.26 12.91 5.77 12.8 5.81 12.45C5.83 12.27 6.08 12.09 6.55 11.9C9.47 10.63 11.41 9.79 12.38 9.39C15.16 8.23 15.73 8.03 16.11 8.03C16.19 8.03 16.38 8.05 16.5 8.15C16.6 8.23 16.63 8.34 16.64 8.42C16.63 8.48 16.65 8.66 16.64 8.8Z" fill="currentColor" />
-						</svg>
+				<h2 class="section-title script-text">С чего начать?</h2>
+				<p class="lead-subtitle">Выберите то, что вас беспокоит — и я подберу подход именно для вас</p>
+
+				<!-- Кнопки-сценарии -->
+				<div class="lead-scenarios" id="leadScenarios">
+					<button class="lead-scenario-btn" data-scenario="Хочу снизить вес">
+						<span class="lead-scenario-icon">
+							<svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V18a1 1 0 0 1-2 0v-1.07A8 8 0 0 1 4 9a1 1 0 0 1 2 0 6 6 0 0 0 6 6 6 6 0 0 0 6-6 1 1 0 0 1 2 0 8 8 0 0 1-7 7.93z" fill="currentColor"/></svg>
+						</span>
+						Хочу снизить вес
+					</button>
+					<button class="lead-scenario-btn" data-scenario="Проблемы со сном и энергией">
+						<span class="lead-scenario-icon">
+							<svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9 9 9 0 0 0-9-9zm0 16a7 7 0 1 1 7-7 7 7 0 0 1-7 7zm1-11h-2v5l4 2.5.75-1.23L13 12.5V8z" fill="currentColor"/></svg>
+						</span>
+						Проблемы со сном и энергией
+					</button>
+					<button class="lead-scenario-btn" data-scenario="Переедание / тяга к сладкому">
+						<span class="lead-scenario-icon">
+							<svg viewBox="0 0 24 24" fill="none"><path d="M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.46L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26 1.44 1.42 2.43 2.89 2.43 5.29v8.05zM1 21.99V21h15.03v.99c0 .55-.45 1-1.01 1H2.01c-.56 0-1.01-.45-1.01-1zm15.03-7c0-4.5-6.72-5.5-7.52-5.5-.73 0-7.51 1-7.51 5.5h15.03z" fill="currentColor"/></svg>
+						</span>
+						Переедание / тяга к сладкому
+					</button>
+				</div>
+
+				<!-- Форма (скрыта по умолчанию) -->
+				<div class="lead-form-wrap" id="leadFormWrap" hidden>
+					<div class="lead-form-selected">
+						<span id="leadScenarioLabel"></span>
+						<button type="button" class="lead-change-btn" id="leadChangeBtn">Изменить</button>
 					</div>
-					<h2 class="telegram-subscribe-title script-text">Мой Telegram-канал</h2>
-					<p class="telegram-subscribe-subtitle">«Здоровье. Еда. Анализы.»</p>
-					<ul class="telegram-subscribe-list">
-						<li>Полезные советы о питании</li>
-						<li>Разборы анализов</li>
-						<li>Простые рецепты для здорового образа жизни</li>
-					</ul>
-					<a href="https://t.me/voronova_nutrition" class="btn-telegram" target="_blank" rel="noopener noreferrer">
-						<svg class="btn-telegram-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8C16.49 10.38 15.84 14.22 15.51 15.99C15.37 16.74 15.09 16.99 14.83 17.02C14.25 17.07 13.81 16.64 13.25 16.27C12.37 15.69 11.87 15.33 11.02 14.77C10.03 14.12 10.67 13.76 11.24 13.18C11.39 13.03 13.95 10.7 14 10.49C14.0069 10.4582 14.006 10.4252 13.9973 10.3938C13.9886 10.3624 13.9724 10.3337 13.95 10.31C13.89 10.26 13.81 10.28 13.74 10.29C13.65 10.31 12.25 11.24 9.52 13.08C9.12 13.35 8.76 13.49 8.44 13.48C8.08 13.47 7.4 13.28 6.89 13.11C6.26 12.91 5.77 12.8 5.81 12.45C5.83 12.27 6.08 12.09 6.55 11.9C9.47 10.63 11.41 9.79 12.38 9.39C15.16 8.23 15.73 8.03 16.11 8.03C16.19 8.03 16.38 8.05 16.5 8.15C16.6 8.23 16.63 8.34 16.64 8.42C16.63 8.48 16.65 8.66 16.64 8.8Z" fill="currentColor" />
-						</svg>
-						Подписаться
-					</a>
+					<form class="lead-form" id="leadForm" action="https://api.web3forms.com/submit" method="POST">
+						<input type="hidden" name="access_key" value="88b78c43-b948-4c57-bddc-5e15238da35c">
+						<input type="hidden" name="subject" value="Новая заявка с сайта — персональный запрос">
+						<input type="hidden" name="scenario" id="leadScenarioInput">
+						<input type="text" name="name" placeholder="Ваше имя *" required class="lead-input" autocomplete="given-name">
+						<input type="number" name="age" placeholder="Возраст (необязательно)" min="1" max="120" class="lead-input" autocomplete="age">
+						<input type="text" name="contact" placeholder="Как с вами связаться? (Telegram, WhatsApp, email...)" required class="lead-input" autocomplete="off">
+						<button type="submit" class="lead-submit-btn">Отправить заявку</button>
+						<p class="lead-privacy">Нажимая кнопку, вы соглашаетесь с <a href="personal-data-processing-policy.html" target="_blank" rel="noopener noreferrer">Политикой обработки персональных данных</a></p>
+					</form>
+					<div class="lead-success" id="leadSuccess" hidden>
+						<p class="lead-success-text">Спасибо! Юлия свяжется с вами в ближайшее время.</p>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -1084,6 +1109,61 @@
 	</div>
 
 	<script src="main.min.js" defer></script>
+	<script>
+		(function () {
+			var scenarios = document.getElementById('leadScenarios');
+			var formWrap = document.getElementById('leadFormWrap');
+			var scenarioInput = document.getElementById('leadScenarioInput');
+			var scenarioLabel = document.getElementById('leadScenarioLabel');
+			var changeBtn = document.getElementById('leadChangeBtn');
+			var form = document.getElementById('leadForm');
+			var success = document.getElementById('leadSuccess');
+
+			if (!scenarios) return;
+
+			scenarios.addEventListener('click', function (e) {
+				var btn = e.target.closest('.lead-scenario-btn');
+				if (!btn) return;
+				var scenario = btn.dataset.scenario;
+				scenarioInput.value = scenario;
+				scenarioLabel.textContent = scenario;
+				scenarios.hidden = true;
+				formWrap.hidden = false;
+			});
+
+			changeBtn.addEventListener('click', function () {
+				formWrap.hidden = true;
+				scenarios.hidden = false;
+				form.reset();
+				success.hidden = true;
+				form.hidden = false;
+			});
+
+			form.addEventListener('submit', function (e) {
+				e.preventDefault();
+				var submitBtn = form.querySelector('.lead-submit-btn');
+				submitBtn.disabled = true;
+				submitBtn.textContent = 'Отправляем...';
+				fetch('https://api.web3forms.com/submit', {
+					method: 'POST',
+					body: new FormData(form)
+				}).then(function (res) {
+					return res.json();
+				}).then(function (data) {
+					if (data.success) {
+						form.hidden = true;
+						success.hidden = false;
+					} else {
+						submitBtn.disabled = false;
+						submitBtn.textContent = 'Отправить заявку';
+					}
+				}).catch(function () {
+					submitBtn.disabled = false;
+					submitBtn.textContent = 'Отправить заявку';
+				});
+			});
+		})();
+	</script>
 
 	<script src="analytics.js" defer></script>
 	<noscript>
