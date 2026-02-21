@@ -3518,12 +3518,12 @@ button[class*="btn-"]:hover,
 
 /* Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ СЃС‚РёР»Рё РґР»СЏ РІР°СЂРёР°РЅС‚Р° 1 - Collapsible Cards */
 .tariff-card-collapsible {
-    background: var(--white);
+    background: var(--cream);
     border-radius: 16px;
     position: relative;
     transition: all 0.4s ease;
     border: 2px solid transparent;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
