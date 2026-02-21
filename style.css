@@ -3352,7 +3352,7 @@ button[class*="btn-"]:hover,
    TARIFFS SECTION
    ======================================== */
 .tariffs {
-    background: var(--white);
+    background: linear-gradient(135deg, var(--cream) 0%, var(--beige) 100%);
     padding: 30px 0;
 }
 
@@ -4900,7 +4900,7 @@ button[class*="btn-"]:hover,
    SOCIAL TESTIMONIALS SECTION
    ======================================== */
 .testimonials-social {
-    background: var(--cream);
+    background: var(--white);
     padding: 20px 0;
 }
 
@@ -5032,13 +5032,13 @@ button[class*="btn-"]:hover,
 /* РљР°СЂС‚РѕС‡РєР° РѕС‚Р·С‹РІР° - РІ СЃС‚РёР»Рµ С‚Р°СЂРёС„РЅС‹С… РєР°СЂС‚РѕС‡РµРє */
 .social-testimonial-card {
     position: relative;
-    background: var(--white);
+    background: var(--cream);
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
     cursor: pointer;
     aspect-ratio: 2 / 3;
-    border: 2px solid rgba(139, 166, 139, 0.4);
+    border: none;
     transition: all 0.4s ease;
 }
 
