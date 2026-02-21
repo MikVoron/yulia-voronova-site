@@ -276,25 +276,47 @@
 			animation: none !important
 		}
 
-		/* About text — Вариант 3: Минималистичный с меткой и кремовым бейджем */
+		/* About text — Вариант Г: Bento-карточки */
 		.about-text-clean {
-			max-width: 680px;
+			max-width: 760px;
 			margin: 0 auto 10px;
 			padding: 20px 40px;
 			background: #fff;
 		}
 
-		.about-bio-label {
-			display: inline-block;
+		.bento-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 12px;
+			margin-bottom: 28px;
+		}
+
+		.bento-card {
+			background: var(--cream);
+			border-radius: 16px;
+			padding: 20px 16px;
+			text-align: center;
+		}
+
+		.bento-card-number {
+			display: block;
+			font-family: var(--font-cormorant);
+			font-size: 42px;
+			font-weight: 300;
+			color: var(--sage-green);
+			line-height: 1;
+			margin-bottom: 6px;
+		}
+
+		.bento-card-label {
+			display: block;
 			font-family: var(--font-montserrat);
 			font-size: 10px;
-			font-weight: 600;
-			letter-spacing: 3px;
+			font-weight: 500;
+			letter-spacing: 1.5px;
 			text-transform: uppercase;
-			color: var(--sage-green);
-			border-bottom: 1px solid var(--sage-green);
-			padding-bottom: 4px;
-			margin-bottom: 20px;
+			color: var(--dark-text);
+			opacity: 0.6;
 		}
 
 		.text-variant-1 .accent-phrase {
@@ -308,17 +330,10 @@
 			text-align: left;
 		}
 
-		.text-variant-1 .accent-phrase .lead {
-			font-size: 25px;
-			font-weight: 500;
-			display: block;
-			margin-bottom: 12px;
-		}
-
 		.about-profession-title {
-			max-width: 680px;
+			max-width: 760px;
 			margin: 0 auto 30px;
-			padding: 24px 36px;
+			padding: 28px 40px;
 			text-align: center;
 			font-family: 'Great Vibes', cursive;
 			font-size: 30px;
@@ -326,18 +341,25 @@
 			color: var(--dark-sage);
 			line-height: 1.45;
 			background: var(--cream);
-			border-radius: 16px;
+			border-radius: 20px;
 		}
 
 		@media(max-width:768px) {
 			.about-text-clean {
 				padding: 20px;
 			}
+			.bento-grid {
+				grid-template-columns: repeat(3, 1fr);
+				gap: 8px;
+			}
+			.bento-card-number {
+				font-size: 32px;
+			}
+			.bento-card-label {
+				font-size: 9px;
+			}
 			.text-variant-1 .accent-phrase {
 				font-size: 18px;
-			}
-			.text-variant-1 .accent-phrase .lead {
-				font-size: 21px;
 			}
 			.about-profession-title {
 				padding: 20px;
@@ -429,11 +451,21 @@
 
 			<!-- Текстовая секция -->
 			<div class="about-text-clean text-variant-1">
-				<span class="about-bio-label">Юлия · 47 лет · 7 лет в нутрициологии</span>
-				<p class="accent-phrase">
-					<span class="lead">Мой путь начался более 7 лет назад — сначала я искала ответы для себя и своей семьи.</span>
-					Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.
-				</p>
+				<div class="bento-grid">
+					<div class="bento-card">
+						<span class="bento-card-number">47</span>
+						<span class="bento-card-label">лет</span>
+					</div>
+					<div class="bento-card">
+						<span class="bento-card-number">7+</span>
+						<span class="bento-card-label">лет практики</span>
+					</div>
+					<div class="bento-card">
+						<span class="bento-card-number" style="font-size:18px; padding-top:8px; display:block;">Лайфстайл<br>медицина</span>
+						<span class="bento-card-label">специализация</span>
+					</div>
+				</div>
+				<p class="accent-phrase">Мой путь в нутрициологию начался более 7 лет назад. Сначала я искала ответы для себя и своей семьи, стремясь найти работающие решения. Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.</p>
 			</div>
 
 			<h2 class="about-profession-title">Сейчас я дипломированный нутрициолог и специалист медицины образа жизни (лайфстайл медицины)</h2>
