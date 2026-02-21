@@ -1661,7 +1661,7 @@ button[class*="btn-"]:hover,
     color: var(--dark-sage);
 }
 
-/* Вариант 1 — sage-green линия по обеим сторонам заголовка */
+/* Вариант 2 — бежевая линия с растворением у краёв */
 .section-title.script-text {
     display: flex;
     align-items: center;
@@ -1669,12 +1669,18 @@ button[class*="btn-"]:hover,
     white-space: nowrap;
 }
 
-.section-title.script-text::before,
+.section-title.script-text::before {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--beige));
+}
+
 .section-title.script-text::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: var(--sage-green);
+    background: linear-gradient(to left, transparent, var(--beige));
 }
 
 .services-grid .section-title {
