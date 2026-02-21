@@ -538,7 +538,7 @@ body {
 
 /* Header */
 .header {
-    background: linear-gradient(to right, var(--sage-green) 0%, #c5dfe8 100%);
+    background: linear-gradient(to right, #8a9a8d 0%, #c5dfe8 100%);
     padding: 20px 0;
     position: sticky;
     top: 0;
@@ -914,7 +914,7 @@ body {
 /* Hero Section */
 .hero {
     background:
-        linear-gradient(to right, var(--sage-green) 0%, #c5dfe8 100%) 0 0 / 100% 66.67% no-repeat,
+        linear-gradient(to right, #8a9a8d 0%, #c5dfe8 100%) 0 0 / 100% 66.67% no-repeat,
         linear-gradient(to bottom, var(--white) 0%, var(--white) 100%) 0 66.67% / 100% 33.33% no-repeat;
     padding: 80px 0;
     position: relative;
@@ -7494,22 +7494,22 @@ button[class*="btn-"]:hover,
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
+    background-color: var(--sage-green);
     color: white;
-    padding: 16px 35px;
-    border-radius: 30px;
+    padding: 14px 35px;
+    border-radius: 50px;
     text-decoration: none;
     font-family: var(--font-montserrat);
     font-size: 16px;
     font-weight: 500;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 20px rgba(139, 166, 139, 0.3);
+    border: none;
 }
 
 .youtube-subscribe-btn:hover {
-    background: linear-gradient(135deg, var(--dark-sage) 0%, var(--sage-green) 100%);
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(139, 166, 139, 0.4);
+    background-color: var(--dark-sage);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .youtube-subscribe-btn svg {
