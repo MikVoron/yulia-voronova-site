@@ -3516,14 +3516,13 @@ button[class*="btn-"]:hover,
     border-color: var(--sage-green);
 }
 
-/* Дополнительные стили для варианта Д - нижняя линия */
+/* Дополнительные стили для варианта Е - полупрозрачный контур */
 .tariff-card-collapsible {
     background: var(--white);
-    border-radius: 16px;
+    border-radius: 24px;
     position: relative;
     transition: all 0.4s ease;
-    border: none;
-    border-bottom: 1px solid var(--beige);
+    border: 1px solid rgba(138, 154, 141, 0.2);
     box-shadow: none;
     display: flex;
     flex-direction: column;
