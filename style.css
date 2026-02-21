@@ -5032,10 +5032,10 @@ button[class*="btn-"]:hover,
 /* РљР°СЂС‚РѕС‡РєР° РѕС‚Р·С‹РІР° - РІ СЃС‚РёР»Рµ С‚Р°СЂРёС„РЅС‹С… РєР°СЂС‚РѕС‡РµРє */
 .social-testimonial-card {
     position: relative;
-    background: var(--cream);
+    background: var(--white);
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     cursor: pointer;
     aspect-ratio: 2 / 3;
     border: none;
