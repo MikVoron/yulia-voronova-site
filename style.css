@@ -3422,11 +3422,11 @@ button[class*="btn-"]:hover,
 .tariff-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-    border-color: var(--sage-green);
+    border-color: var(--sage-bg);
 }
 
 .tariff-card.popular {
-    border-color: var(--sage-green);
+    border-color: var(--sage-bg);
     box-shadow: 0 10px 35px rgba(138, 154, 141, 0.2);
     transform: scale(1.05);
 }
@@ -3440,7 +3440,7 @@ button[class*="btn-"]:hover,
     position: absolute;
     top: -15px;
     right: 30px;
-    background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
+    background: linear-gradient(135deg, var(--sage-bg) 0%, var(--dark-sage) 100%);
     color: var(--white);
     padding: 8px 20px;
     border-radius: 20px;
@@ -3468,7 +3468,7 @@ button[class*="btn-"]:hover,
 
 .tariff-duration {
     font-size: 14px;
-    color: var(--sage-green);
+    color: var(--sage-bg);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 500;
@@ -3483,13 +3483,13 @@ button[class*="btn-"]:hover,
     font-family: var(--font-playfair);
     font-size: 48px;
     font-weight: 600;
-    color: var(--sage-green);
+    color: var(--sage-bg);
     line-height: 1;
 }
 
 .price-currency {
     font-size: 28px;
-    color: var(--sage-green);
+    color: var(--sage-bg);
     font-weight: 500;
     margin-left: 5px;
 }
@@ -3524,7 +3524,7 @@ button[class*="btn-"]:hover,
     border-radius: 50px;
     transition: all 0.3s ease;
     font-weight: 500;
-    border: 2px solid var(--sage-green);
+    border: 2px solid var(--sage-bg);
 }
 
 .btn-tariff:hover {
@@ -3541,7 +3541,7 @@ button[class*="btn-"]:hover,
 
 .tariff-card.popular .btn-tariff:hover {
     background: var(--sage-bg);
-    border-color: var(--sage-green);
+    border-color: var(--sage-bg);
 }
 
 /* Дополнительные стили для варианта Е - полупрозрачный контур */
@@ -3561,11 +3561,11 @@ button[class*="btn-"]:hover,
 .tariff-card-collapsible:hover {
     transform: translateY(-10px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-    border-color: var(--sage-green);
+    border-color: var(--sage-bg);
 }
 
 .tariff-card-collapsible.popular {
-    border-color: var(--sage-green);
+    border-color: var(--sage-bg);
     box-shadow: 0 10px 35px rgba(138, 154, 141, 0.2);
     transform: scale(1.08); /* РЈРІРµР»РёС‡РёРІР°РµРј Р±РѕР»СЊС€Рµ */
     z-index: 10; /* Р’С‹РґРІРёРіР°РµРј РЅР° РїРµСЂРµРґРЅРёР№ РїР»Р°РЅ */
@@ -3602,7 +3602,7 @@ button[class*="btn-"]:hover,
 
 .tariff-subtitle-compact {
     font-size: 17px;
-    color: var(--sage-green);
+    color: var(--sage-bg);
     margin-bottom: 8px;
     font-style: italic;
 }
@@ -3627,13 +3627,13 @@ button[class*="btn-"]:hover,
     font-family: var(--font-playfair);
     font-size: 48px;
     font-weight: 600;
-    color: var(--sage-green);
+    color: var(--sage-bg);
     line-height: 1;
 }
 
 .price-currency-compact {
     font-size: 28px;
-    color: var(--sage-green);
+    color: var(--sage-bg);
     font-weight: 500;
     margin-left: 5px;
 }
@@ -3644,8 +3644,8 @@ button[class*="btn-"]:hover,
     justify-content: center;
     gap: 8px;
     background: var(--cream);
-    color: var(--sage-green);
-    border: 2px solid var(--sage-green);
+    color: var(--sage-bg);
+    border: 2px solid var(--sage-bg);
     padding: 12px 24px;
     border-radius: 25px;
     font-size: 14px;
@@ -3687,7 +3687,7 @@ button[class*="btn-"]:hover,
     padding: 8px 0;
     background: transparent;
     border: none;
-    color: var(--sage-green);
+    color: var(--sage-bg);
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.5px;
@@ -3735,7 +3735,7 @@ button[class*="btn-"]:hover,
     background: linear-gradient(135deg, var(--cream) 0%, #f5f0e8 100%);
     border: none;
     border-radius: 30px;
-    color: var(--sage-green);
+    color: var(--sage-bg);
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 1px;
@@ -3761,7 +3761,7 @@ button[class*="btn-"]:hover,
 }
 
 .expand-indicator-arrow:hover {
-    background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
+    background: linear-gradient(135deg, var(--sage-bg) 0%, var(--dark-sage) 100%);
     color: var(--white);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(138, 154, 141, 0.25);
@@ -3788,7 +3788,7 @@ button[class*="btn-"]:hover,
 }
 
 .expand-indicator-line .line-text {
-    color: var(--sage-green);
+    color: var(--sage-bg);
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 1.5px;
@@ -3800,7 +3800,7 @@ button[class*="btn-"]:hover,
     content: '';
     width: 40px;
     height: 2px;
-    background: linear-gradient(90deg, transparent, var(--sage-green), transparent);
+    background: linear-gradient(90deg, transparent, var(--sage-bg), transparent);
     animation: expandLine 2s ease-in-out infinite;
 }
 
@@ -3882,7 +3882,7 @@ button[class*="btn-"]:hover,
 .tariff-details .features-title {
     font-family: var(--font-playfair);
     font-size: 17px;
-    color: var(--sage-green);
+    color: var(--sage-bg);
     margin-bottom: 12px;
     margin-top: 20px;
     font-weight: 500;
@@ -3907,7 +3907,7 @@ button[class*="btn-"]:hover,
 
 .tariff-details .tariff-features li::before {
     content: '•';
-    color: var(--sage-green);
+    color: var(--sage-bg);
     font-weight: bold;
     margin-right: 10px;
 }
@@ -3950,7 +3950,7 @@ button[class*="btn-"]:hover,
 /* РЎС‚Р°СЂС‹Рµ СЃС‚РёР»Рё РґР»СЏ РІР°СЂРёР°РЅС‚Р° 1 */
 .tariff-subtitle-card {
     font-size: 14px;
-    color: var(--sage-green);
+    color: var(--sage-bg);
     margin-bottom: 10px;
     font-style: italic;
 }
@@ -3977,7 +3977,7 @@ button[class*="btn-"]:hover,
 .features-title {
     font-family: var(--font-playfair);
     font-size: 18px;
-    color: var(--sage-green);
+    color: var(--sage-bg);
     margin-bottom: 15px;
     margin-top: 20px;
     font-weight: 500;
@@ -3995,7 +3995,7 @@ button[class*="btn-"]:hover,
 
 .tariff-features li::before {
     content: '•';
-    color: var(--sage-green);
+    color: var(--sage-bg);
     font-weight: bold;
     margin-right: 10px;
 }
