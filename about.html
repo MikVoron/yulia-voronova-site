@@ -276,47 +276,12 @@
 			animation: none !important
 		}
 
-		/* About text — Вариант Г: Bento-карточки */
+		/* About text — Вариант Д: Drop Cap + горизонтальный банер */
 		.about-text-clean {
-			max-width: 760px;
+			max-width: 680px;
 			margin: 0 auto 10px;
 			padding: 20px 40px;
 			background: #fff;
-		}
-
-		.bento-grid {
-			display: grid;
-			grid-template-columns: repeat(3, 1fr);
-			gap: 12px;
-			margin-bottom: 28px;
-		}
-
-		.bento-card {
-			background: var(--cream);
-			border-radius: 16px;
-			padding: 20px 16px;
-			text-align: center;
-		}
-
-		.bento-card-number {
-			display: block;
-			font-family: var(--font-cormorant);
-			font-size: 42px;
-			font-weight: 300;
-			color: var(--sage-green);
-			line-height: 1;
-			margin-bottom: 6px;
-		}
-
-		.bento-card-label {
-			display: block;
-			font-family: var(--font-montserrat);
-			font-size: 10px;
-			font-weight: 500;
-			letter-spacing: 1.5px;
-			text-transform: uppercase;
-			color: var(--dark-text);
-			opacity: 0.6;
 		}
 
 		.text-variant-1 .accent-phrase {
@@ -328,35 +293,54 @@
 			line-height: 1.8;
 			margin-bottom: 0;
 			text-align: left;
+			overflow: hidden;
+		}
+
+		.text-variant-1 .accent-phrase .drop-cap {
+			float: left;
+			font-family: 'Great Vibes', cursive;
+			font-size: 110px;
+			line-height: 0.75;
+			color: var(--sage-green);
+			margin-right: 12px;
+			margin-top: 8px;
+		}
+
+		.about-bio-meta {
+			display: block;
+			font-family: var(--font-montserrat);
+			font-size: 10px;
+			font-weight: 600;
+			letter-spacing: 2.5px;
+			text-transform: uppercase;
+			color: var(--dark-text);
+			opacity: 0.45;
+			margin-bottom: 18px;
+			clear: both;
 		}
 
 		.about-profession-title {
-			max-width: 760px;
-			margin: 0 auto 30px;
-			padding: 28px 40px;
+			max-width: 100%;
+			margin: 0 0 30px;
+			padding: 22px 40px;
 			text-align: center;
 			font-family: 'Great Vibes', cursive;
 			font-size: 30px;
 			font-weight: 400;
 			color: var(--dark-sage);
 			line-height: 1.45;
-			background: var(--cream);
-			border-radius: 20px;
+			background: transparent;
+			border-top: 1px solid var(--beige);
+			border-bottom: 1px solid var(--beige);
+			border-radius: 0;
 		}
 
 		@media(max-width:768px) {
 			.about-text-clean {
 				padding: 20px;
 			}
-			.bento-grid {
-				grid-template-columns: repeat(3, 1fr);
-				gap: 8px;
-			}
-			.bento-card-number {
-				font-size: 32px;
-			}
-			.bento-card-label {
-				font-size: 9px;
+			.text-variant-1 .accent-phrase .drop-cap {
+				font-size: 80px;
 			}
 			.text-variant-1 .accent-phrase {
 				font-size: 18px;
@@ -451,21 +435,8 @@
 
 			<!-- Текстовая секция -->
 			<div class="about-text-clean text-variant-1">
-				<div class="bento-grid">
-					<div class="bento-card">
-						<span class="bento-card-number">47</span>
-						<span class="bento-card-label">лет</span>
-					</div>
-					<div class="bento-card">
-						<span class="bento-card-number">7+</span>
-						<span class="bento-card-label">лет практики</span>
-					</div>
-					<div class="bento-card">
-						<span class="bento-card-number" style="font-size:18px; padding-top:8px; display:block;">Лайфстайл<br>медицина</span>
-						<span class="bento-card-label">специализация</span>
-					</div>
-				</div>
-				<p class="accent-phrase">Мой путь в нутрициологию начался более 7 лет назад. Сначала я искала ответы для себя и своей семьи, стремясь найти работающие решения. Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.</p>
+				<span class="about-bio-meta">Юлия Воронова · 47 лет · нутрициолог</span>
+				<p class="accent-phrase"><span class="drop-cap">М</span>ой путь в нутрициологию начался более 7 лет назад. Сначала я искала ответы для себя и своей семьи, стремясь найти работающие решения. Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.</p>
 			</div>
 
 			<h2 class="about-profession-title">Сейчас я дипломированный нутрициолог и специалист медицины образа жизни (лайфстайл медицины)</h2>
