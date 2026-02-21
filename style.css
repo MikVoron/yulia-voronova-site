@@ -3516,14 +3516,14 @@ button[class*="btn-"]:hover,
     border-color: var(--sage-green);
 }
 
-/* Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ СЃС‚РёР»Рё РґР»СЏ РІР°СЂРёР°РЅС‚Р° 1 - Collapsible Cards */
+/* Дополнительные стили для варианта 2 - Collapsible Cards */
 .tariff-card-collapsible {
-    background: var(--cream);
+    background: var(--white);
     border-radius: 16px;
     position: relative;
     transition: all 0.4s ease;
-    border: 2px solid transparent;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+    border: 2px solid #e0d5c5;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
