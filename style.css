@@ -1661,8 +1661,8 @@ button[class*="btn-"]:hover,
     color: var(--dark-sage);
 }
 
-/* Линия уходящая за края экрана — sage-green */
-.section-title.script-text {
+/* Линия уходящая за края экрана — только главная страница */
+.page-home .section-title.script-text {
     display: flex;
     align-items: center;
     gap: 24px;
@@ -1675,14 +1675,14 @@ button[class*="btn-"]:hover,
     box-sizing: border-box;
 }
 
-.section-title.script-text::before {
+.page-home .section-title.script-text::before {
     content: '';
     flex: 1;
     height: 1px;
     background: linear-gradient(to right, transparent, var(--sage-green));
 }
 
-.section-title.script-text::after {
+.page-home .section-title.script-text::after {
     content: '';
     flex: 1;
     height: 1px;
