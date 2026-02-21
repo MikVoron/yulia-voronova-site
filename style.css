@@ -9784,6 +9784,24 @@ button[class*="btn-"]:hover,
     }
 }
 
+/* ========================= */
+/* Секция «Остались вопросы?» */
+/* ========================= */
+
+.contact-section {
+    padding: 80px 0;
+    background: var(--cream);
+    text-align: center;
+}
+
+.contact-subtitle {
+    font-family: var(--font-montserrat);
+    font-size: 14px;
+    color: var(--sage-green);
+    margin-bottom: 25px;
+    text-align: center;
+}
+
 /* ==================== */
 /* Contact Form in FAQ */
 /* ==================== */
