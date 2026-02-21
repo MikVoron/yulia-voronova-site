@@ -1661,12 +1661,18 @@ button[class*="btn-"]:hover,
     color: var(--dark-sage);
 }
 
-/* Линия с растворением у краёв — sage-green */
+/* Линия уходящая за края экрана — sage-green */
 .section-title.script-text {
     display: flex;
     align-items: center;
     gap: 24px;
     white-space: nowrap;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0 40px;
+    box-sizing: border-box;
 }
 
 .section-title.script-text::before {
