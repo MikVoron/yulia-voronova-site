@@ -3522,7 +3522,7 @@ button[class*="btn-"]:hover,
     border-radius: 24px;
     position: relative;
     transition: all 0.4s ease;
-    border: 1px solid rgba(138, 154, 141, 0.2);
+    border: 2px solid rgba(138, 154, 141, 0.25);
     box-shadow: none;
     display: flex;
     flex-direction: column;
