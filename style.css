@@ -3878,7 +3878,7 @@ button[class*="btn-"]:hover,
 }
 
 .tariff-details .tariff-features li::before {
-    content: 'вЂў';
+    content: '•';
     color: var(--sage-green);
     font-weight: bold;
     margin-right: 10px;
@@ -3966,7 +3966,7 @@ button[class*="btn-"]:hover,
 }
 
 .tariff-features li::before {
-    content: 'вЂў';
+    content: '•';
     color: var(--sage-green);
     font-weight: bold;
     margin-right: 10px;
