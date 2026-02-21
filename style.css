@@ -493,8 +493,7 @@
 }
 
 :root {
-    --sage-green: #8a9a8d;
-    --sage-bg: #9ab89e;
+    --sage-green: #9ab89e;
     --dark-sage: #5f6f62;
     --beige: #e8dcc8;
     --cream: #f5f0e8;
@@ -1595,7 +1594,7 @@ button[class*="btn-"]:hover,
 .service-icon-habits {
     width: 200px;
     height: 130px;
-    background-color: var(--sage-bg);
+    background-color: var(--sage-green);
     -webkit-mask-size: contain;
     mask-size: contain;
     -webkit-mask-repeat: no-repeat;
@@ -1799,7 +1798,7 @@ button[class*="btn-"]:hover,
 }
 
 .nav-btn:hover {
-    background-color: var(--sage-bg);
+    background-color: var(--sage-green);
     border-color: var(--sage-green);
     color: var(--white);
 }
@@ -1871,13 +1870,13 @@ button[class*="btn-"]:hover,
 }
 
 .time-slot:hover {
-    background-color: var(--sage-bg);
+    background-color: var(--sage-green);
     border-color: var(--sage-green);
     color: var(--white);
 }
 
 .time-slot.selected {
-    background-color: var(--sage-bg);
+    background-color: var(--sage-green);
     border-color: var(--sage-green);
     color: var(--white);
 }
@@ -2269,7 +2268,7 @@ button[class*="btn-"]:hover,
     padding: 13px 36px;
     border-radius: 50px;
     border: none;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     font-family: var(--font-montserrat);
     font-size: 15px;
@@ -2512,7 +2511,7 @@ button[class*="btn-"]:hover,
 }
 
 .first-meeting-v1 .btn-outline:hover {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(138, 154, 141, 0.3);
@@ -2610,7 +2609,7 @@ button[class*="btn-"]:hover,
 
 .first-meeting-v2 .btn-primary-large {
     display: inline-block;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     padding: 18px 55px;
     text-decoration: none;
@@ -2644,7 +2643,7 @@ button[class*="btn-"]:hover,
 }
 
 .first-meeting-v3 .meeting-visual {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     padding: 50px 40px;
     border-radius: 20px;
     color: var(--white);
@@ -2722,7 +2721,7 @@ button[class*="btn-"]:hover,
 
 .first-meeting-v3 .btn-accent {
     display: inline-block;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     padding: 16px 45px;
     text-decoration: none;
@@ -2812,7 +2811,7 @@ button[class*="btn-"]:hover,
     min-width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     border: 4px solid var(--white);
     box-shadow: 0 0 0 2px var(--sage-green);
     position: relative;
@@ -3123,7 +3122,7 @@ button[class*="btn-"]:hover,
 
 .first-meeting-v6 .btn-quote {
     display: inline-block;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     padding: 18px 55px;
     text-decoration: none;
@@ -3233,7 +3232,7 @@ button[class*="btn-"]:hover,
 
 .first-meeting-v7 .btn-horizontal {
     display: inline-block;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     padding: 16px 50px;
     text-decoration: none;
@@ -3275,7 +3274,7 @@ button[class*="btn-"]:hover,
 
 .first-meeting-v8 .badge-free {
     display: inline-block;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     padding: 8px 24px;
     border-radius: 30px;
@@ -3305,7 +3304,7 @@ button[class*="btn-"]:hover,
 
 .first-meeting-v8 .btn-split {
     display: inline-block;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     padding: 16px 45px;
     text-decoration: none;
@@ -3347,7 +3346,7 @@ button[class*="btn-"]:hover,
 .first-meeting-v8 .info-icon {
     min-width: 24px;
     height: 24px;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     border-radius: 50%;
     display: flex;
@@ -3422,11 +3421,11 @@ button[class*="btn-"]:hover,
 .tariff-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-    border-color: var(--sage-bg);
+    border-color: var(--sage-green);
 }
 
 .tariff-card.popular {
-    border-color: var(--sage-bg);
+    border-color: var(--sage-green);
     box-shadow: 0 10px 35px rgba(138, 154, 141, 0.2);
     transform: scale(1.05);
 }
@@ -3440,7 +3439,7 @@ button[class*="btn-"]:hover,
     position: absolute;
     top: -15px;
     right: 30px;
-    background: linear-gradient(135deg, var(--sage-bg) 0%, var(--dark-sage) 100%);
+    background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
     color: var(--white);
     padding: 8px 20px;
     border-radius: 20px;
@@ -3468,7 +3467,7 @@ button[class*="btn-"]:hover,
 
 .tariff-duration {
     font-size: 14px;
-    color: var(--sage-bg);
+    color: var(--sage-green);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 500;
@@ -3483,13 +3482,13 @@ button[class*="btn-"]:hover,
     font-family: var(--font-playfair);
     font-size: 48px;
     font-weight: 600;
-    color: var(--sage-bg);
+    color: var(--sage-green);
     line-height: 1;
 }
 
 .price-currency {
     font-size: 28px;
-    color: var(--sage-bg);
+    color: var(--sage-green);
     font-weight: 500;
     margin-left: 5px;
 }
@@ -3514,7 +3513,7 @@ button[class*="btn-"]:hover,
 
 .btn-tariff {
     display: block;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     text-align: center;
     padding: 16px 30px;
@@ -3524,7 +3523,7 @@ button[class*="btn-"]:hover,
     border-radius: 50px;
     transition: all 0.3s ease;
     font-weight: 500;
-    border: 2px solid var(--sage-bg);
+    border: 2px solid var(--sage-green);
 }
 
 .btn-tariff:hover {
@@ -3540,8 +3539,8 @@ button[class*="btn-"]:hover,
 }
 
 .tariff-card.popular .btn-tariff:hover {
-    background: var(--sage-bg);
-    border-color: var(--sage-bg);
+    background: var(--sage-green);
+    border-color: var(--sage-green);
 }
 
 /* Дополнительные стили для варианта Е - полупрозрачный контур */
@@ -3561,11 +3560,11 @@ button[class*="btn-"]:hover,
 .tariff-card-collapsible:hover {
     transform: translateY(-10px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-    border-color: var(--sage-bg);
+    border-color: var(--sage-green);
 }
 
 .tariff-card-collapsible.popular {
-    border-color: var(--sage-bg);
+    border-color: var(--sage-green);
     box-shadow: 0 10px 35px rgba(138, 154, 141, 0.2);
     transform: scale(1.08); /* РЈРІРµР»РёС‡РёРІР°РµРј Р±РѕР»СЊС€Рµ */
     z-index: 10; /* Р’С‹РґРІРёРіР°РµРј РЅР° РїРµСЂРµРґРЅРёР№ РїР»Р°РЅ */
@@ -3602,7 +3601,7 @@ button[class*="btn-"]:hover,
 
 .tariff-subtitle-compact {
     font-size: 17px;
-    color: var(--sage-bg);
+    color: var(--sage-green);
     margin-bottom: 8px;
     font-style: italic;
 }
@@ -3627,13 +3626,13 @@ button[class*="btn-"]:hover,
     font-family: var(--font-playfair);
     font-size: 48px;
     font-weight: 600;
-    color: var(--sage-bg);
+    color: var(--sage-green);
     line-height: 1;
 }
 
 .price-currency-compact {
     font-size: 28px;
-    color: var(--sage-bg);
+    color: var(--sage-green);
     font-weight: 500;
     margin-left: 5px;
 }
@@ -3644,8 +3643,8 @@ button[class*="btn-"]:hover,
     justify-content: center;
     gap: 8px;
     background: var(--cream);
-    color: var(--sage-bg);
-    border: 2px solid var(--sage-bg);
+    color: var(--sage-green);
+    border: 2px solid var(--sage-green);
     padding: 12px 24px;
     border-radius: 25px;
     font-size: 14px;
@@ -3657,7 +3656,7 @@ button[class*="btn-"]:hover,
 }
 
 .expand-btn:hover {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(138, 154, 141, 0.2);
@@ -3687,7 +3686,7 @@ button[class*="btn-"]:hover,
     padding: 8px 0;
     background: transparent;
     border: none;
-    color: var(--sage-bg);
+    color: var(--sage-green);
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.5px;
@@ -3697,7 +3696,7 @@ button[class*="btn-"]:hover,
     content: '';
     width: 12px;
     height: 12px;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     border-radius: 50%;
     animation: pulseCircle 1.5s ease-in-out infinite;
     box-shadow: 0 0 0 0 rgba(138, 154, 141, 0.7);
@@ -3735,7 +3734,7 @@ button[class*="btn-"]:hover,
     background: linear-gradient(135deg, var(--cream) 0%, #f5f0e8 100%);
     border: none;
     border-radius: 30px;
-    color: var(--sage-bg);
+    color: var(--sage-green);
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 1px;
@@ -3761,7 +3760,7 @@ button[class*="btn-"]:hover,
 }
 
 .expand-indicator-arrow:hover {
-    background: linear-gradient(135deg, var(--sage-bg) 0%, var(--dark-sage) 100%);
+    background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
     color: var(--white);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(138, 154, 141, 0.25);
@@ -3788,7 +3787,7 @@ button[class*="btn-"]:hover,
 }
 
 .expand-indicator-line .line-text {
-    color: var(--sage-bg);
+    color: var(--sage-green);
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 1.5px;
@@ -3800,7 +3799,7 @@ button[class*="btn-"]:hover,
     content: '';
     width: 40px;
     height: 2px;
-    background: linear-gradient(90deg, transparent, var(--sage-bg), transparent);
+    background: linear-gradient(90deg, transparent, var(--sage-green), transparent);
     animation: expandLine 2s ease-in-out infinite;
 }
 
@@ -3882,7 +3881,7 @@ button[class*="btn-"]:hover,
 .tariff-details .features-title {
     font-family: var(--font-playfair);
     font-size: 17px;
-    color: var(--sage-bg);
+    color: var(--sage-green);
     margin-bottom: 12px;
     margin-top: 20px;
     font-weight: 500;
@@ -3907,7 +3906,7 @@ button[class*="btn-"]:hover,
 
 .tariff-details .tariff-features li::before {
     content: '•';
-    color: var(--sage-bg);
+    color: var(--sage-green);
     font-weight: bold;
     margin-right: 10px;
 }
@@ -3950,7 +3949,7 @@ button[class*="btn-"]:hover,
 /* РЎС‚Р°СЂС‹Рµ СЃС‚РёР»Рё РґР»СЏ РІР°СЂРёР°РЅС‚Р° 1 */
 .tariff-subtitle-card {
     font-size: 14px;
-    color: var(--sage-bg);
+    color: var(--sage-green);
     margin-bottom: 10px;
     font-style: italic;
 }
@@ -3977,7 +3976,7 @@ button[class*="btn-"]:hover,
 .features-title {
     font-family: var(--font-playfair);
     font-size: 18px;
-    color: var(--sage-bg);
+    color: var(--sage-green);
     margin-bottom: 15px;
     margin-top: 20px;
     font-weight: 500;
@@ -3995,7 +3994,7 @@ button[class*="btn-"]:hover,
 
 .tariff-features li::before {
     content: '•';
-    color: var(--sage-bg);
+    color: var(--sage-green);
     font-weight: bold;
     margin-right: 10px;
 }
@@ -4070,7 +4069,7 @@ button[class*="btn-"]:hover,
 }
 
 .tab-btn.active {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     border-color: var(--sage-green);
     color: var(--white);
 }
@@ -4196,7 +4195,7 @@ button[class*="btn-"]:hover,
 
 .btn-tab {
     display: inline-block;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     padding: 14px 28px;
     text-decoration: none;
@@ -4223,7 +4222,7 @@ button[class*="btn-"]:hover,
 }
 
 .btn-tab-popular:hover {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     border-color: var(--sage-green);
 }
 
@@ -4404,7 +4403,7 @@ button[class*="btn-"]:hover,
 
 .faq-question:hover .faq-icon {
     transform: scale(1.1) rotate(15deg);
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     box-shadow: 0 4px 12px rgba(138, 154, 141, 0.3);
 }
@@ -4429,7 +4428,7 @@ button[class*="btn-"]:hover,
 
 .faq-item.active .faq-icon {
     transform: rotate(45deg);
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
 }
 
@@ -4523,7 +4522,7 @@ button[class*="btn-"]:hover,
     justify-content: center;
     width: 50px;
     height: 50px;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     border: none;
     cursor: pointer;
@@ -4793,7 +4792,7 @@ button[class*="btn-"]:hover,
 
 .diploma-modal-prev:hover,
 .diploma-modal-next:hover {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     transform: scale(1.1);
 }
 
@@ -4855,7 +4854,7 @@ button[class*="btn-"]:hover,
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: var(--sage-bg);
+        background: var(--sage-green);
         color: white;
         border: none;
         cursor: pointer;
@@ -4981,7 +4980,7 @@ button[class*="btn-"]:hover,
 }
 
 .carousel-btn:hover {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     border-color: var(--sage-green);
 }
 
@@ -5053,7 +5052,7 @@ button[class*="btn-"]:hover,
 }
 
 .carousel-dot.active {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     transform: scale(1.2);
 }
 
@@ -5269,7 +5268,7 @@ button[class*="btn-"]:hover,
 }
 
 .testimonial-modal-nav:hover {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     transform: translateY(-50%) scale(1.1);
 }
 
@@ -5404,7 +5403,7 @@ button[class*="btn-"]:hover,
 .footer-logo-icon {
     width: 50px;
     height: 50px;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     border-radius: 50%;
     display: flex;
@@ -5479,7 +5478,7 @@ button[class*="btn-"]:hover,
     left: 0;
     width: 0;
     height: 2px;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     transition: width 0.3s ease;
 }
 
@@ -5536,7 +5535,7 @@ button[class*="btn-"]:hover,
 }
 
 .social-link:hover {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(138, 154, 141, 0.3);
@@ -5749,7 +5748,7 @@ button[class*="btn-"]:hover,
 
 .btn-contact-small {
     display: inline-block;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     padding: 12px 28px;
     font-family: var(--font-montserrat);
@@ -6357,7 +6356,7 @@ button[class*="btn-"]:hover,
     display: block;
     width: 60px;
     height: 3px;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     position: absolute;
     top: 0;
     left: 50%;
@@ -6417,7 +6416,7 @@ button[class*="btn-"]:hover,
 
 .quote-frame-inner {
     position: relative;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     border-radius: 10px;
     padding: 50px 60px;
     z-index: 1;
@@ -6518,7 +6517,7 @@ button[class*="btn-"]:hover,
 
 .minimal-btn {
     display: inline-block;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     padding: 18px 50px;
     text-decoration: none;
@@ -7453,7 +7452,7 @@ button[class*="btn-"]:hover,
 }
 
 .youtube-handle a:hover {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: white;
 }
 
@@ -8487,7 +8486,7 @@ button[class*="btn-"]:hover,
 
 .questionnaire-btn {
     display: inline-block;
-    background-color: var(--sage-bg);
+    background-color: var(--sage-green);
     color: var(--white);
     padding: 20px 30px;
     text-decoration: none;
@@ -8687,7 +8686,7 @@ button[class*="btn-"]:hover,
 }
 
 .guide-btn-view {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     border: none;
 }
@@ -8707,7 +8706,7 @@ button[class*="btn-"]:hover,
 }
 
 .guide-btn-download:hover {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
 }
 
@@ -8924,7 +8923,7 @@ button[class*="btn-"]:hover,
 }
 
 .guide-btn-read {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
     border: none;
 }
@@ -8940,7 +8939,7 @@ button[class*="btn-"]:hover,
 }
 
 .guide-btn-save:hover {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: var(--white);
 }
 
@@ -9367,7 +9366,7 @@ button[class*="btn-"]:hover,
 }
 
 .custom-radio input[type="radio"]:checked + .radiomark {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     border-color: var(--sage-green);
 }
 
@@ -9705,7 +9704,7 @@ button[class*="btn-"]:hover,
 }
 
 .custom-checkbox input[type="checkbox"]:checked + .checkmark {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     border-color: var(--sage-green);
 }
 
@@ -9766,7 +9765,7 @@ button[class*="btn-"]:hover,
     -webkit-appearance: none;
     width: 24px;
     height: 24px;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     border-radius: 50%;
     cursor: pointer;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -9965,7 +9964,7 @@ button[class*="btn-"]:hover,
 }
 
 .privacy-checkbox input[type="checkbox"]:checked + .privacy-checkmark {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     border-color: var(--sage-green);
 }
 
@@ -10000,7 +9999,7 @@ button[class*="btn-"]:hover,
     min-width: 200px;
     max-width: 300px;
     margin: 0 auto;
-    background-color: var(--sage-bg);
+    background-color: var(--sage-green);
     color: var(--white);
     padding: 14px 20px;
     border: none;
@@ -10585,7 +10584,7 @@ button[class*="btn-"]:hover,
         height: 22px;
         flex-shrink: 0;
         border-radius: 50%;
-        background: var(--sage-bg);
+        background: var(--sage-green);
         border: 3px solid var(--white);
         box-shadow: 0 0 0 2px var(--sage-green);
         position: relative;
@@ -10698,7 +10697,7 @@ button[class*="btn-"]:hover,
     }
 
     .tariff-dot.active {
-        background: var(--sage-bg);
+        background: var(--sage-green);
         transform: scale(1.3);
     }
 
@@ -11412,7 +11411,7 @@ button[class*="btn-"]:hover,
     top: 22px;
     left: -30px;
     z-index: 10;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: #fff;
     font-family: var(--font-montserrat);
     font-size: 9px;
@@ -11802,7 +11801,7 @@ button[class*="btn-"]:hover,
 }
 
 .test-catalog-btn:hover {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: #fff;
 }
 
@@ -12022,7 +12021,7 @@ button[class*="btn-"]:hover,
 .test-disclaimer-btn {
     display: inline-block;
     padding: 12px 36px;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: #fff;
     border: none;
     border-radius: 25px;
@@ -12079,7 +12078,7 @@ button[class*="btn-"]:hover,
 }
 
 .test-gender-btn.selected {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: #fff;
     border-color: var(--sage-green);
 }
@@ -12106,7 +12105,7 @@ button[class*="btn-"]:hover,
 
 .test-progress-fill {
     height: 100%;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     border-radius: 3px;
     transition: width 0.3s ease;
 }
@@ -12171,7 +12170,7 @@ button[class*="btn-"]:hover,
 }
 
 .test-answer-btn.selected {
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: #fff;
     border-color: var(--sage-green);
 }
@@ -12294,7 +12293,7 @@ button[class*="btn-"]:hover,
 .test-consult-btn {
     display: inline-block;
     padding: 12px 28px;
-    background: var(--sage-bg);
+    background: var(--sage-green);
     color: #fff;
     border-radius: 25px;
     font-family: var(--font-montserrat);
