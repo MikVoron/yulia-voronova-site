@@ -494,6 +494,7 @@
 
 :root {
     --sage-green: #8a9a8d;
+    --sage-bg: #b07060;
     --dark-sage: #5f6f62;
     --beige: #e8dcc8;
     --cream: #f5f0e8;
@@ -1594,7 +1595,7 @@ button[class*="btn-"]:hover,
 .service-icon-habits {
     width: 200px;
     height: 130px;
-    background-color: var(--sage-green);
+    background-color: var(--sage-bg);
     -webkit-mask-size: contain;
     mask-size: contain;
     -webkit-mask-repeat: no-repeat;
@@ -1799,7 +1800,7 @@ button[class*="btn-"]:hover,
 }
 
 .nav-btn:hover {
-    background-color: var(--sage-green);
+    background-color: var(--sage-bg);
     border-color: var(--sage-green);
     color: var(--white);
 }
@@ -1871,13 +1872,13 @@ button[class*="btn-"]:hover,
 }
 
 .time-slot:hover {
-    background-color: var(--sage-green);
+    background-color: var(--sage-bg);
     border-color: var(--sage-green);
     color: var(--white);
 }
 
 .time-slot.selected {
-    background-color: var(--sage-green);
+    background-color: var(--sage-bg);
     border-color: var(--sage-green);
     color: var(--white);
 }
@@ -2269,7 +2270,7 @@ button[class*="btn-"]:hover,
     padding: 13px 36px;
     border-radius: 50px;
     border: none;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     font-family: var(--font-montserrat);
     font-size: 15px;
@@ -2512,7 +2513,7 @@ button[class*="btn-"]:hover,
 }
 
 .first-meeting-v1 .btn-outline:hover {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(138, 154, 141, 0.3);
@@ -2610,7 +2611,7 @@ button[class*="btn-"]:hover,
 
 .first-meeting-v2 .btn-primary-large {
     display: inline-block;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     padding: 18px 55px;
     text-decoration: none;
@@ -2644,7 +2645,7 @@ button[class*="btn-"]:hover,
 }
 
 .first-meeting-v3 .meeting-visual {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     padding: 50px 40px;
     border-radius: 20px;
     color: var(--white);
@@ -2722,7 +2723,7 @@ button[class*="btn-"]:hover,
 
 .first-meeting-v3 .btn-accent {
     display: inline-block;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     padding: 16px 45px;
     text-decoration: none;
@@ -2812,7 +2813,7 @@ button[class*="btn-"]:hover,
     min-width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     border: 4px solid var(--white);
     box-shadow: 0 0 0 2px var(--sage-green);
     position: relative;
@@ -3123,7 +3124,7 @@ button[class*="btn-"]:hover,
 
 .first-meeting-v6 .btn-quote {
     display: inline-block;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     padding: 18px 55px;
     text-decoration: none;
@@ -3233,7 +3234,7 @@ button[class*="btn-"]:hover,
 
 .first-meeting-v7 .btn-horizontal {
     display: inline-block;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     padding: 16px 50px;
     text-decoration: none;
@@ -3275,7 +3276,7 @@ button[class*="btn-"]:hover,
 
 .first-meeting-v8 .badge-free {
     display: inline-block;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     padding: 8px 24px;
     border-radius: 30px;
@@ -3305,7 +3306,7 @@ button[class*="btn-"]:hover,
 
 .first-meeting-v8 .btn-split {
     display: inline-block;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     padding: 16px 45px;
     text-decoration: none;
@@ -3347,7 +3348,7 @@ button[class*="btn-"]:hover,
 .first-meeting-v8 .info-icon {
     min-width: 24px;
     height: 24px;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     border-radius: 50%;
     display: flex;
@@ -3514,7 +3515,7 @@ button[class*="btn-"]:hover,
 
 .btn-tariff {
     display: block;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     text-align: center;
     padding: 16px 30px;
@@ -3540,7 +3541,7 @@ button[class*="btn-"]:hover,
 }
 
 .tariff-card.popular .btn-tariff:hover {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     border-color: var(--sage-green);
 }
 
@@ -3657,7 +3658,7 @@ button[class*="btn-"]:hover,
 }
 
 .expand-btn:hover {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(138, 154, 141, 0.2);
@@ -3697,7 +3698,7 @@ button[class*="btn-"]:hover,
     content: '';
     width: 12px;
     height: 12px;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     border-radius: 50%;
     animation: pulseCircle 1.5s ease-in-out infinite;
     box-shadow: 0 0 0 0 rgba(138, 154, 141, 0.7);
@@ -4070,7 +4071,7 @@ button[class*="btn-"]:hover,
 }
 
 .tab-btn.active {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     border-color: var(--sage-green);
     color: var(--white);
 }
@@ -4196,7 +4197,7 @@ button[class*="btn-"]:hover,
 
 .btn-tab {
     display: inline-block;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     padding: 14px 28px;
     text-decoration: none;
@@ -4223,7 +4224,7 @@ button[class*="btn-"]:hover,
 }
 
 .btn-tab-popular:hover {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     border-color: var(--sage-green);
 }
 
@@ -4404,7 +4405,7 @@ button[class*="btn-"]:hover,
 
 .faq-question:hover .faq-icon {
     transform: scale(1.1) rotate(15deg);
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     box-shadow: 0 4px 12px rgba(138, 154, 141, 0.3);
 }
@@ -4429,7 +4430,7 @@ button[class*="btn-"]:hover,
 
 .faq-item.active .faq-icon {
     transform: rotate(45deg);
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
 }
 
@@ -4523,7 +4524,7 @@ button[class*="btn-"]:hover,
     justify-content: center;
     width: 50px;
     height: 50px;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     border: none;
     cursor: pointer;
@@ -4793,7 +4794,7 @@ button[class*="btn-"]:hover,
 
 .diploma-modal-prev:hover,
 .diploma-modal-next:hover {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     transform: scale(1.1);
 }
 
@@ -4855,7 +4856,7 @@ button[class*="btn-"]:hover,
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: var(--sage-green);
+        background: var(--sage-bg);
         color: white;
         border: none;
         cursor: pointer;
@@ -4981,7 +4982,7 @@ button[class*="btn-"]:hover,
 }
 
 .carousel-btn:hover {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     border-color: var(--sage-green);
 }
 
@@ -5053,7 +5054,7 @@ button[class*="btn-"]:hover,
 }
 
 .carousel-dot.active {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     transform: scale(1.2);
 }
 
@@ -5269,7 +5270,7 @@ button[class*="btn-"]:hover,
 }
 
 .testimonial-modal-nav:hover {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     transform: translateY(-50%) scale(1.1);
 }
 
@@ -5404,7 +5405,7 @@ button[class*="btn-"]:hover,
 .footer-logo-icon {
     width: 50px;
     height: 50px;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     border-radius: 50%;
     display: flex;
@@ -5479,7 +5480,7 @@ button[class*="btn-"]:hover,
     left: 0;
     width: 0;
     height: 2px;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     transition: width 0.3s ease;
 }
 
@@ -5536,7 +5537,7 @@ button[class*="btn-"]:hover,
 }
 
 .social-link:hover {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(138, 154, 141, 0.3);
@@ -5749,7 +5750,7 @@ button[class*="btn-"]:hover,
 
 .btn-contact-small {
     display: inline-block;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     padding: 12px 28px;
     font-family: var(--font-montserrat);
@@ -6357,7 +6358,7 @@ button[class*="btn-"]:hover,
     display: block;
     width: 60px;
     height: 3px;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     position: absolute;
     top: 0;
     left: 50%;
@@ -6417,7 +6418,7 @@ button[class*="btn-"]:hover,
 
 .quote-frame-inner {
     position: relative;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     border-radius: 10px;
     padding: 50px 60px;
     z-index: 1;
@@ -6518,7 +6519,7 @@ button[class*="btn-"]:hover,
 
 .minimal-btn {
     display: inline-block;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     padding: 18px 50px;
     text-decoration: none;
@@ -7453,7 +7454,7 @@ button[class*="btn-"]:hover,
 }
 
 .youtube-handle a:hover {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: white;
 }
 
@@ -8487,7 +8488,7 @@ button[class*="btn-"]:hover,
 
 .questionnaire-btn {
     display: inline-block;
-    background-color: var(--sage-green);
+    background-color: var(--sage-bg);
     color: var(--white);
     padding: 20px 30px;
     text-decoration: none;
@@ -8687,7 +8688,7 @@ button[class*="btn-"]:hover,
 }
 
 .guide-btn-view {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     border: none;
 }
@@ -8707,7 +8708,7 @@ button[class*="btn-"]:hover,
 }
 
 .guide-btn-download:hover {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
 }
 
@@ -8924,7 +8925,7 @@ button[class*="btn-"]:hover,
 }
 
 .guide-btn-read {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
     border: none;
 }
@@ -8940,7 +8941,7 @@ button[class*="btn-"]:hover,
 }
 
 .guide-btn-save:hover {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: var(--white);
 }
 
@@ -9367,7 +9368,7 @@ button[class*="btn-"]:hover,
 }
 
 .custom-radio input[type="radio"]:checked + .radiomark {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     border-color: var(--sage-green);
 }
 
@@ -9705,7 +9706,7 @@ button[class*="btn-"]:hover,
 }
 
 .custom-checkbox input[type="checkbox"]:checked + .checkmark {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     border-color: var(--sage-green);
 }
 
@@ -9766,7 +9767,7 @@ button[class*="btn-"]:hover,
     -webkit-appearance: none;
     width: 24px;
     height: 24px;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     border-radius: 50%;
     cursor: pointer;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -9965,7 +9966,7 @@ button[class*="btn-"]:hover,
 }
 
 .privacy-checkbox input[type="checkbox"]:checked + .privacy-checkmark {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     border-color: var(--sage-green);
 }
 
@@ -10000,7 +10001,7 @@ button[class*="btn-"]:hover,
     min-width: 200px;
     max-width: 300px;
     margin: 0 auto;
-    background-color: var(--sage-green);
+    background-color: var(--sage-bg);
     color: var(--white);
     padding: 14px 20px;
     border: none;
@@ -10585,7 +10586,7 @@ button[class*="btn-"]:hover,
         height: 22px;
         flex-shrink: 0;
         border-radius: 50%;
-        background: var(--sage-green);
+        background: var(--sage-bg);
         border: 3px solid var(--white);
         box-shadow: 0 0 0 2px var(--sage-green);
         position: relative;
@@ -10698,7 +10699,7 @@ button[class*="btn-"]:hover,
     }
 
     .tariff-dot.active {
-        background: var(--sage-green);
+        background: var(--sage-bg);
         transform: scale(1.3);
     }
 
@@ -11412,7 +11413,7 @@ button[class*="btn-"]:hover,
     top: 22px;
     left: -30px;
     z-index: 10;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: #fff;
     font-family: var(--font-montserrat);
     font-size: 9px;
@@ -11802,7 +11803,7 @@ button[class*="btn-"]:hover,
 }
 
 .test-catalog-btn:hover {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: #fff;
 }
 
@@ -12022,7 +12023,7 @@ button[class*="btn-"]:hover,
 .test-disclaimer-btn {
     display: inline-block;
     padding: 12px 36px;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: #fff;
     border: none;
     border-radius: 25px;
@@ -12079,7 +12080,7 @@ button[class*="btn-"]:hover,
 }
 
 .test-gender-btn.selected {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: #fff;
     border-color: var(--sage-green);
 }
@@ -12106,7 +12107,7 @@ button[class*="btn-"]:hover,
 
 .test-progress-fill {
     height: 100%;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     border-radius: 3px;
     transition: width 0.3s ease;
 }
@@ -12171,7 +12172,7 @@ button[class*="btn-"]:hover,
 }
 
 .test-answer-btn.selected {
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: #fff;
     border-color: var(--sage-green);
 }
@@ -12294,7 +12295,7 @@ button[class*="btn-"]:hover,
 .test-consult-btn {
     display: inline-block;
     padding: 12px 28px;
-    background: var(--sage-green);
+    background: var(--sage-bg);
     color: #fff;
     border-radius: 25px;
     font-family: var(--font-montserrat);
