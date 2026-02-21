@@ -8504,11 +8504,20 @@ button[class*="btn-"]:hover,
 }
 
 .guides-page-title {
-
     font-size: 44px;
     color: var(--dark-sage);
     text-align: center;
     margin-bottom: 15px;
+}
+
+.tablet-break {
+    display: inline;
+}
+
+@media (max-width: 768px) {
+    .tablet-break {
+        display: block;
+    }
 }
 
 @media (max-width: 1200px) {
