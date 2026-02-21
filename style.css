@@ -3352,7 +3352,7 @@ button[class*="btn-"]:hover,
    TARIFFS SECTION
    ======================================== */
 .tariffs {
-    background: linear-gradient(135deg, var(--cream) 0%, var(--beige) 100%);
+    background: var(--white);
     padding: 30px 0;
 }
 
@@ -4900,7 +4900,7 @@ button[class*="btn-"]:hover,
    SOCIAL TESTIMONIALS SECTION
    ======================================== */
 .testimonials-social {
-    background: var(--white);
+    background: var(--cream);
     padding: 20px 0;
 }
 
@@ -4917,9 +4917,7 @@ button[class*="btn-"]:hover,
     gap: 20px;
     max-width: 1100px;
     margin: 0 auto;
-    background: var(--cream);
-    border-radius: 24px;
-    padding: 30px 16px;
+    padding: 10px 0;
 }
 
 .testimonials-carousel {
