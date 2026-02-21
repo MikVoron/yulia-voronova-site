@@ -3382,13 +3382,13 @@ button[class*="btn-"]:hover,
 }
 
 .tariff-card {
-    background: var(--white);
+    background: var(--cream);
     border-radius: 16px;
     padding: 40px 35px;
     position: relative;
     transition: all 0.4s ease;
     border: 2px solid transparent;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
 }
 
 .tariff-card:hover {
