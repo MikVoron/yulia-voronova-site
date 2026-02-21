@@ -3516,14 +3516,15 @@ button[class*="btn-"]:hover,
     border-color: var(--sage-green);
 }
 
-/* Дополнительные стили для варианта Г - невесомая тень */
+/* Дополнительные стили для варианта Д - нижняя линия */
 .tariff-card-collapsible {
     background: var(--white);
     border-radius: 16px;
     position: relative;
     transition: all 0.4s ease;
     border: none;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid var(--beige);
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
