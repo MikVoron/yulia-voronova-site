@@ -1668,12 +1668,11 @@ button[class*="btn-"]:hover,
     align-items: center;
     gap: 24px;
     white-space: nowrap;
-    width: 100vw;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0 40px;
-    box-sizing: border-box;
+    margin-left: -9999px;
+    margin-right: -9999px;
+    padding-left: 9999px;
+    padding-right: 9999px;
+    overflow: hidden;
 }
 
 .page-home .section-title.script-text::before {
