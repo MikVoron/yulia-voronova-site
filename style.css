@@ -1661,6 +1661,22 @@ button[class*="btn-"]:hover,
     color: var(--dark-sage);
 }
 
+/* Вариант 1 — sage-green линия по обеим сторонам заголовка */
+.section-title.script-text {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    white-space: nowrap;
+}
+
+.section-title.script-text::before,
+.section-title.script-text::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--sage-green);
+}
+
 .services-grid .section-title {
     text-align: center;
 }
