@@ -314,42 +314,33 @@
 		.about-hero-minimal .about-profession-title {
 			max-width: 760px;
 			margin: 0 auto 30px;
-			padding: 20px 40px 20px 60px;
+			padding: 10px 40px 10px 60px;
 			display: flex;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 12px;
+			gap: 6px;
 			background: transparent;
 			border: none;
 			border-radius: 0;
 		}
 
-		.prof-eyebrow {
-			font-family: var(--font-montserrat);
-			font-size: 10px;
-			font-weight: 600;
-			letter-spacing: 2px;
-			text-transform: uppercase;
-			color: var(--text-dark);
-			opacity: 0.35;
-		}
-
-		.prof-tags {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 10px;
-		}
-
-		.prof-tag {
-			font-family: var(--font-montserrat);
-			font-size: 12px;
-			font-weight: 500;
+		.prof-script {
+			font-family: 'Great Vibes', cursive;
+			font-size: 72px;
+			font-weight: 400;
 			color: var(--sage-green);
-			border: 1.5px solid var(--sage-green);
-			border-radius: 50px;
-			padding: 7px 20px;
-			letter-spacing: 0.3px;
-			line-height: 1;
+			line-height: 1.1;
+		}
+
+		.prof-caption {
+			font-family: var(--font-montserrat);
+			font-size: 11px;
+			font-weight: 500;
+			color: var(--text-dark);
+			opacity: 0.4;
+			letter-spacing: 1px;
+			text-transform: uppercase;
+			line-height: 1.6;
 		}
 
 		@media(max-width:768px) {
@@ -360,7 +351,10 @@
 				font-size: 18px;
 			}
 			.about-hero-minimal .about-profession-title {
-				padding: 16px 20px 16px 30px;
+				padding: 10px 20px 10px 30px;
+			}
+			.prof-script {
+				font-size: 52px;
 			}
 		}
 	</style>
@@ -453,12 +447,8 @@
 			</div>
 
 			<h2 class="about-profession-title">
-				<span class="prof-eyebrow">Сейчас я дипломированный</span>
-				<div class="prof-tags">
-					<span class="prof-tag">нутрициолог</span>
-					<span class="prof-tag">специалист медицины образа жизни</span>
-					<span class="prof-tag">лайфстайл медицина</span>
-				</div>
+				<span class="prof-script">нутрициолог</span>
+				<span class="prof-caption">дипломированный специалист медицины образа жизни (лайфстайл медицины)</span>
 			</h2>
 		</div>
 	</section>
