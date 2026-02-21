@@ -4501,7 +4501,7 @@ button[class*="btn-"]:hover,
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
-    margin: 4px;
+    margin: 4px 8px 4px 4px;
     border-radius: 50%;
     position: relative;
     animation: pulse-telegram 2s ease-in-out infinite;
@@ -4525,6 +4525,12 @@ button[class*="btn-"]:hover,
 .telegram-send-btn svg {
     width: 22px;
     height: 22px;
+}
+
+@media (max-width: 480px) {
+    .tg-prefix {
+        display: none;
+    }
 }
 
 /* ========================================
