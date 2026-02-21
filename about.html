@@ -276,98 +276,86 @@
 			animation: none !important
 		}
 
-		/* About text — Вариант А: Editorial Pull Quote */
+		/* About text — Вариант 1: Editorial с кавычкой */
 		.about-hero-minimal .about-text-clean {
-			max-width: 640px;
+			max-width: 760px;
 			margin: 0 auto 10px;
-			padding: 44px 52px;
+			padding: 40px 40px 40px 60px;
 			background: #fff;
 			position: relative;
-			border-top: 1px solid var(--sage-green);
-			border-bottom: 1px solid var(--sage-green);
 			border-radius: 0;
+			border-top: none;
+			border-bottom: none;
 			text-align: left;
 		}
 
 		.about-hero-minimal .about-text-clean::before {
 			content: '\201C';
 			font-family: 'Great Vibes', cursive;
-			font-size: 120px;
+			font-size: 180px;
 			color: var(--sage-green);
-			opacity: 0.25;
-			line-height: 1;
+			opacity: 0.12;
 			position: absolute;
-			top: 10px;
-			left: 28px;
+			top: -20px;
+			left: 20px;
+			line-height: 1;
+			pointer-events: none;
 		}
 
-		.pullquote-text {
-			font-family: var(--font-cormorant);
-			font-size: 22px;
-			font-weight: 400;
-			font-style: italic;
-			line-height: 1.85;
-			color: #333;
-			margin: 0 0 24px;
-			text-align: center;
-			position: relative;
-		}
-
-		.pullquote-attribution {
-			display: flex;
-			align-items: center;
-			gap: 14px;
-			margin-bottom: 20px;
-		}
-
-		.pullquote-attribution::after {
-			content: '';
-			flex: 1;
-			height: 1px;
-			background: #e8dcc8;
-		}
-
-		.pullquote-author {
+		.about-bio-label {
+			display: block;
 			font-family: var(--font-montserrat);
-			font-size: 10px;
+			font-size: 11px;
 			font-weight: 600;
 			letter-spacing: 2.5px;
 			text-transform: uppercase;
-			color: var(--dark-sage);
-			white-space: nowrap;
+			color: var(--sage-green);
+			margin-bottom: 16px;
+		}
+
+		.text-variant-1 .accent-phrase {
+			font-family: var(--font-cormorant);
+			font-size: 22px;
+			font-weight: 400;
+			font-style: normal;
+			color: var(--text-dark);
+			line-height: 1.75;
+			margin-bottom: 0;
+			text-align: left;
 		}
 
 		.about-hero-minimal .about-profession-title {
-			max-width: 640px;
+			max-width: 760px;
 			margin: 0 auto 30px;
-			padding: 22px 40px;
-			text-align: center;
+			padding: 24px 40px 24px 60px;
+			text-align: left;
 			font-family: 'Great Vibes', cursive;
-			font-size: 30px;
+			font-size: 32px;
 			font-weight: 400;
-			color: var(--dark-sage);
-			line-height: 1.45;
-			background: transparent;
+			color: var(--sage-green);
+			line-height: 1.4;
+			border-left: 3px solid var(--sage-green);
 			border-top: none;
-			border-bottom: 1px solid #e8dcc8;
+			border-bottom: none;
 			border-radius: 0;
+			background: transparent;
 		}
 
 		@media(max-width:768px) {
 			.about-hero-minimal .about-text-clean {
-				padding: 32px 24px;
+				padding: 30px 20px 30px 30px;
 			}
 			.about-hero-minimal .about-text-clean::before {
-				font-size: 80px;
-				top: 6px;
-				left: 16px;
+				font-size: 120px;
+				top: -10px;
+				left: 10px;
 			}
-			.pullquote-text {
-				font-size: 19px;
+			.text-variant-1 .accent-phrase {
+				font-size: 18px;
 			}
 			.about-hero-minimal .about-profession-title {
-				padding: 20px;
-				font-size: 24px;
+				padding: 20px 20px 20px 24px;
+				font-size: 26px;
 			}
 		}
 	</style>
@@ -454,11 +442,9 @@
 			</div>
 
 			<!-- Текстовая секция -->
-			<div class="about-text-clean">
-				<div class="pullquote-attribution">
-					<span class="pullquote-author">Юлия Воронова · нутрициолог</span>
-				</div>
-				<p class="pullquote-text">Мой путь в нутрициологию начался более 7 лет назад. Сначала я искала ответы для себя и своей семьи, стремясь найти работающие решения. Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.</p>
+			<div class="about-text-clean text-variant-1">
+				<span class="about-bio-label">Юлия Воронова · 47 лет</span>
+				<p class="accent-phrase">Мой путь в нутрициологию начался более 7 лет назад. Сначала я искала ответы для себя и своей семьи, стремясь найти работающие решения. Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.</p>
 			</div>
 
 			<h2 class="about-profession-title">Сейчас я дипломированный нутрициолог и специалист медицины образа жизни (лайфстайл медицины)</h2>
