@@ -3352,7 +3352,7 @@ button[class*="btn-"]:hover,
    TARIFFS SECTION
    ======================================== */
 .tariffs {
-    background: var(--beige);
+    background: var(--white);
     padding: 30px 0;
 }
 
@@ -3516,14 +3516,15 @@ button[class*="btn-"]:hover,
     border-color: var(--sage-green);
 }
 
-/* Дополнительные стили для варианта 4 - Collapsible Cards */
+/* Дополнительные стили для варианта А - левая зелёная полоска */
 .tariff-card-collapsible {
     background: var(--white);
     border-radius: 16px;
     position: relative;
     transition: all 0.4s ease;
     border: 2px solid transparent;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.11);
+    border-left: 4px solid var(--sage-green);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
