@@ -276,88 +276,67 @@
 			animation: none !important
 		}
 
-		/* About text — Вариант Е: Asymmetric Split */
+		/* About text — Вариант А: Editorial Pull Quote */
 		.about-text-clean {
-			max-width: 800px;
+			max-width: 640px;
 			margin: 0 auto 10px;
-			padding: 0;
-			background: transparent;
-			display: grid;
-			grid-template-columns: 190px 1fr;
-		}
-
-		.split-sidebar {
-			background: var(--sage-green);
-			padding: 36px 24px;
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			gap: 0;
-		}
-
-		.split-name {
-			font-family: 'Great Vibes', cursive;
-			font-size: 30px;
-			color: #fff;
-			margin-bottom: 22px;
-			line-height: 1.2;
-		}
-
-		.split-stat {
-			display: flex;
-			flex-direction: column;
-			margin-bottom: 16px;
-		}
-
-		.split-stat:last-child {
-			margin-bottom: 0;
-		}
-
-		.split-stat-number {
-			font-family: var(--font-cormorant);
-			font-size: 40px;
-			font-weight: 300;
-			color: #fff;
-			line-height: 1;
-		}
-
-		.split-stat-label {
-			font-family: var(--font-montserrat);
-			font-size: 9px;
-			font-weight: 600;
-			letter-spacing: 2px;
-			text-transform: uppercase;
-			color: rgba(255, 255, 255, 0.7);
-			margin-top: 3px;
-		}
-
-		.split-divider {
-			width: 24px;
-			height: 1px;
-			background: rgba(255, 255, 255, 0.3);
-			margin: 14px 0;
-		}
-
-		.split-body {
-			padding: 36px 40px;
-			display: flex;
-			align-items: center;
-			border: 1px solid rgba(0, 0, 0, 0.07);
-			border-left: none;
+			padding: 44px 52px;
 			background: #fff;
+			position: relative;
+			border-top: 1px solid var(--sage-green);
+			border-bottom: 1px solid var(--sage-green);
 		}
 
-		.split-body p {
+		.about-text-clean::before {
+			content: '\201C';
+			font-family: 'Great Vibes', cursive;
+			font-size: 120px;
+			color: var(--sage-green);
+			opacity: 0.25;
+			line-height: 1;
+			position: absolute;
+			top: 10px;
+			left: 28px;
+		}
+
+		.pullquote-text {
 			font-family: var(--font-cormorant);
-			font-size: 21px;
+			font-size: 22px;
 			font-weight: 400;
+			font-style: italic;
 			line-height: 1.85;
 			color: #333;
-			margin: 0;
+			margin: 0 0 24px;
+			text-align: center;
+			position: relative;
+		}
+
+		.pullquote-attribution {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			gap: 14px;
+		}
+
+		.pullquote-attribution::before {
+			content: '';
+			flex: 1;
+			height: 1px;
+			background: var(--beige);
+		}
+
+		.pullquote-author {
+			font-family: var(--font-montserrat);
+			font-size: 10px;
+			font-weight: 600;
+			letter-spacing: 2.5px;
+			text-transform: uppercase;
+			color: var(--dark-sage);
+			white-space: nowrap;
 		}
 
 		.about-profession-title {
-			max-width: 800px;
+			max-width: 640px;
 			margin: 0 auto 30px;
 			padding: 22px 40px;
 			text-align: center;
@@ -367,39 +346,22 @@
 			color: var(--dark-sage);
 			line-height: 1.45;
 			background: transparent;
-			border-top: 1px solid var(--beige);
+			border-top: none;
 			border-bottom: 1px solid var(--beige);
 			border-radius: 0;
 		}
 
 		@media(max-width:768px) {
 			.about-text-clean {
-				grid-template-columns: 1fr;
+				padding: 32px 24px;
 			}
-			.split-sidebar {
-				padding: 24px 20px;
-				flex-direction: row;
-				flex-wrap: wrap;
-				gap: 12px 24px;
-				align-items: center;
+			.about-text-clean::before {
+				font-size: 80px;
+				top: 6px;
+				left: 16px;
 			}
-			.split-name {
-				width: 100%;
-				margin-bottom: 8px;
-				font-size: 26px;
-			}
-			.split-stat {
-				margin-bottom: 0;
-			}
-			.split-divider {
-				display: none;
-			}
-			.split-body {
-				border-left: 1px solid rgba(0, 0, 0, 0.07);
-				padding: 24px 20px;
-			}
-			.split-body p {
-				font-size: 18px;
+			.pullquote-text {
+				font-size: 19px;
 			}
 			.about-profession-title {
 				padding: 20px;
@@ -491,25 +453,9 @@
 
 			<!-- Текстовая секция -->
 			<div class="about-text-clean">
-				<div class="split-sidebar">
-					<div class="split-name">Юлия</div>
-					<div class="split-stat">
-						<span class="split-stat-number">47</span>
-						<span class="split-stat-label">лет</span>
-					</div>
-					<div class="split-divider"></div>
-					<div class="split-stat">
-						<span class="split-stat-number">7+</span>
-						<span class="split-stat-label">лет практики</span>
-					</div>
-					<div class="split-divider"></div>
-					<div class="split-stat">
-						<span class="split-stat-number" style="font-size:16px; line-height:1.3;">Лайфстайл<br>медицина</span>
-						<span class="split-stat-label">специализация</span>
-					</div>
-				</div>
-				<div class="split-body">
-					<p>Мой путь в нутрициологию начался более 7 лет назад. Сначала я искала ответы для себя и своей семьи, стремясь найти работающие решения. Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.</p>
+				<p class="pullquote-text">Мой путь в нутрициологию начался более 7 лет назад. Сначала я искала ответы для себя и своей семьи, стремясь найти работающие решения. Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.</p>
+				<div class="pullquote-attribution">
+					<span class="pullquote-author">Юлия Воронова · нутрициолог</span>
 				</div>
 			</div>
 
