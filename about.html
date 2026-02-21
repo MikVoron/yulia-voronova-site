@@ -277,7 +277,7 @@
 		}
 
 		/* About text — Вариант А: Editorial Pull Quote */
-		.about-text-clean {
+		.about-hero-minimal .about-text-clean {
 			max-width: 640px;
 			margin: 0 auto 10px;
 			padding: 44px 52px;
@@ -285,9 +285,11 @@
 			position: relative;
 			border-top: 1px solid var(--sage-green);
 			border-bottom: 1px solid var(--sage-green);
+			border-radius: 0;
+			text-align: left;
 		}
 
-		.about-text-clean::before {
+		.about-hero-minimal .about-text-clean::before {
 			content: '\201C';
 			font-family: 'Great Vibes', cursive;
 			font-size: 120px;
@@ -322,7 +324,7 @@
 			content: '';
 			flex: 1;
 			height: 1px;
-			background: var(--beige);
+			background: #e8dcc8;
 		}
 
 		.pullquote-author {
@@ -335,7 +337,7 @@
 			white-space: nowrap;
 		}
 
-		.about-profession-title {
+		.about-hero-minimal .about-profession-title {
 			max-width: 640px;
 			margin: 0 auto 30px;
 			padding: 22px 40px;
@@ -347,15 +349,15 @@
 			line-height: 1.45;
 			background: transparent;
 			border-top: none;
-			border-bottom: 1px solid var(--beige);
+			border-bottom: 1px solid #e8dcc8;
 			border-radius: 0;
 		}
 
 		@media(max-width:768px) {
-			.about-text-clean {
+			.about-hero-minimal .about-text-clean {
 				padding: 32px 24px;
 			}
-			.about-text-clean::before {
+			.about-hero-minimal .about-text-clean::before {
 				font-size: 80px;
 				top: 6px;
 				left: 16px;
@@ -363,7 +365,7 @@
 			.pullquote-text {
 				font-size: 19px;
 			}
-			.about-profession-title {
+			.about-hero-minimal .about-profession-title {
 				padding: 20px;
 				font-size: 24px;
 			}
