@@ -1661,7 +1661,7 @@ button[class*="btn-"]:hover,
     color: var(--dark-sage);
 }
 
-/* Вариант 2 — бежевая линия с растворением у краёв */
+/* Вариант 3 — двойная линия sage-green + beige */
 .section-title.script-text {
     display: flex;
     align-items: center;
@@ -1672,15 +1672,19 @@ button[class*="btn-"]:hover,
 .section-title.script-text::before {
     content: '';
     flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--beige));
+    height: 4px;
+    background:
+        linear-gradient(to right, transparent, var(--sage-green)) top / 100% 1px no-repeat,
+        linear-gradient(to right, transparent, var(--beige)) bottom / 100% 1px no-repeat;
 }
 
 .section-title.script-text::after {
     content: '';
     flex: 1;
-    height: 1px;
-    background: linear-gradient(to left, transparent, var(--beige));
+    height: 4px;
+    background:
+        linear-gradient(to left, transparent, var(--sage-green)) top / 100% 1px no-repeat,
+        linear-gradient(to left, transparent, var(--beige)) bottom / 100% 1px no-repeat;
 }
 
 .services-grid .section-title {
