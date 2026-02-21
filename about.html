@@ -276,44 +276,25 @@
 			animation: none !important
 		}
 
-		/* About text — Вариант 2: Две колонки с декоративной цифрой */
+		/* About text — Вариант 3: Минималистичный с меткой и кремовым бейджем */
 		.about-text-clean {
-			max-width: 760px;
+			max-width: 680px;
 			margin: 0 auto 10px;
 			padding: 20px 40px;
 			background: #fff;
-			display: grid;
-			grid-template-columns: 100px 1fr;
-			gap: 0 32px;
-			align-items: start;
-		}
-
-		.about-deco-number {
-			font-family: var(--font-cormorant);
-			font-size: 120px;
-			font-weight: 300;
-			font-style: italic;
-			color: var(--sage-green);
-			opacity: 0.25;
-			line-height: 1;
-			text-align: right;
-			padding-top: 8px;
-		}
-
-		.about-bio-content {
-			display: flex;
-			flex-direction: column;
 		}
 
 		.about-bio-label {
-			display: block;
+			display: inline-block;
 			font-family: var(--font-montserrat);
-			font-size: 11px;
+			font-size: 10px;
 			font-weight: 600;
-			letter-spacing: 2.5px;
+			letter-spacing: 3px;
 			text-transform: uppercase;
 			color: var(--sage-green);
-			margin-bottom: 14px;
+			border-bottom: 1px solid var(--sage-green);
+			padding-bottom: 4px;
+			margin-bottom: 20px;
 		}
 
 		.text-variant-1 .accent-phrase {
@@ -322,40 +303,45 @@
 			font-weight: 400;
 			font-style: normal;
 			color: var(--text-dark);
-			line-height: 1.75;
+			line-height: 1.8;
 			margin-bottom: 0;
 			text-align: left;
 		}
 
+		.text-variant-1 .accent-phrase .lead {
+			font-size: 25px;
+			font-weight: 500;
+			display: block;
+			margin-bottom: 12px;
+		}
+
 		.about-profession-title {
-			max-width: 760px;
+			max-width: 680px;
 			margin: 0 auto 30px;
-			padding: 28px 40px;
+			padding: 24px 36px;
 			text-align: center;
 			font-family: 'Great Vibes', cursive;
-			font-size: 32px;
+			font-size: 30px;
 			font-weight: 400;
-			color: var(--sage-green);
-			line-height: 1.4;
-			border-top: 1px solid var(--beige);
-			border-bottom: 1px solid var(--beige);
-			background: transparent;
+			color: var(--dark-sage);
+			line-height: 1.45;
+			background: var(--cream);
+			border-radius: 16px;
 		}
 
 		@media(max-width:768px) {
 			.about-text-clean {
-				grid-template-columns: 1fr;
 				padding: 20px;
-			}
-			.about-deco-number {
-				display: none;
 			}
 			.text-variant-1 .accent-phrase {
 				font-size: 18px;
 			}
+			.text-variant-1 .accent-phrase .lead {
+				font-size: 21px;
+			}
 			.about-profession-title {
 				padding: 20px;
-				font-size: 26px;
+				font-size: 24px;
 			}
 		}
 	</style>
@@ -443,11 +429,11 @@
 
 			<!-- Текстовая секция -->
 			<div class="about-text-clean text-variant-1">
-				<span class="about-deco-number">7</span>
-				<div class="about-bio-content">
-					<span class="about-bio-label">Юлия Воронова · 47 лет</span>
-					<p class="accent-phrase">Мой путь в нутрициологию начался более 7 лет назад. Сначала я искала ответы для себя и своей семьи, стремясь найти работающие решения. Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.</p>
-				</div>
+				<span class="about-bio-label">Юлия · 47 лет · 7 лет в нутрициологии</span>
+				<p class="accent-phrase">
+					<span class="lead">Мой путь начался более 7 лет назад — сначала я искала ответы для себя и своей семьи.</span>
+					Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.
+				</p>
 			</div>
 
 			<h2 class="about-profession-title">Сейчас я дипломированный нутрициолог и специалист медицины образа жизни (лайфстайл медицины)</h2>
