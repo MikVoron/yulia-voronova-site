@@ -276,52 +276,89 @@
 			animation: none !important
 		}
 
-		/* About text — Вариант Д: Drop Cap + горизонтальный банер */
+		/* About text — Вариант Е: Asymmetric Split */
 		.about-text-clean {
-			max-width: 680px;
+			max-width: 800px;
 			margin: 0 auto 10px;
-			padding: 20px 40px;
+			padding: 0;
+			background: transparent;
+			display: grid;
+			grid-template-columns: 190px 1fr;
+		}
+
+		.split-sidebar {
+			background: var(--sage-green);
+			padding: 36px 24px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			gap: 0;
+		}
+
+		.split-name {
+			font-family: 'Great Vibes', cursive;
+			font-size: 30px;
+			color: #fff;
+			margin-bottom: 22px;
+			line-height: 1.2;
+		}
+
+		.split-stat {
+			display: flex;
+			flex-direction: column;
+			margin-bottom: 16px;
+		}
+
+		.split-stat:last-child {
+			margin-bottom: 0;
+		}
+
+		.split-stat-number {
+			font-family: var(--font-cormorant);
+			font-size: 40px;
+			font-weight: 300;
+			color: #fff;
+			line-height: 1;
+		}
+
+		.split-stat-label {
+			font-family: var(--font-montserrat);
+			font-size: 9px;
+			font-weight: 600;
+			letter-spacing: 2px;
+			text-transform: uppercase;
+			color: rgba(255, 255, 255, 0.7);
+			margin-top: 3px;
+		}
+
+		.split-divider {
+			width: 24px;
+			height: 1px;
+			background: rgba(255, 255, 255, 0.3);
+			margin: 14px 0;
+		}
+
+		.split-body {
+			padding: 36px 40px;
+			display: flex;
+			align-items: center;
+			border: 1px solid rgba(0, 0, 0, 0.07);
+			border-left: none;
 			background: #fff;
 		}
 
-		.text-variant-1 .accent-phrase {
+		.split-body p {
 			font-family: var(--font-cormorant);
 			font-size: 21px;
 			font-weight: 400;
-			font-style: normal;
-			color: var(--text-dark);
-			line-height: 1.8;
-			margin-bottom: 0;
-			text-align: left;
-			overflow: hidden;
-		}
-
-		.text-variant-1 .accent-phrase .drop-cap {
-			float: left;
-			font-family: 'Great Vibes', cursive;
-			font-size: 110px;
-			line-height: 0.75;
-			color: var(--sage-green);
-			margin-right: 12px;
-			margin-top: 8px;
-		}
-
-		.about-bio-meta {
-			display: block;
-			font-family: var(--font-montserrat);
-			font-size: 10px;
-			font-weight: 600;
-			letter-spacing: 2.5px;
-			text-transform: uppercase;
-			color: var(--dark-text);
-			opacity: 0.45;
-			margin-bottom: 18px;
-			clear: both;
+			line-height: 1.85;
+			color: #333;
+			margin: 0;
 		}
 
 		.about-profession-title {
-			max-width: 100%;
-			margin: 0 0 30px;
+			max-width: 800px;
+			margin: 0 auto 30px;
 			padding: 22px 40px;
 			text-align: center;
 			font-family: 'Great Vibes', cursive;
@@ -337,12 +374,31 @@
 
 		@media(max-width:768px) {
 			.about-text-clean {
-				padding: 20px;
+				grid-template-columns: 1fr;
 			}
-			.text-variant-1 .accent-phrase .drop-cap {
-				font-size: 80px;
+			.split-sidebar {
+				padding: 24px 20px;
+				flex-direction: row;
+				flex-wrap: wrap;
+				gap: 12px 24px;
+				align-items: center;
 			}
-			.text-variant-1 .accent-phrase {
+			.split-name {
+				width: 100%;
+				margin-bottom: 8px;
+				font-size: 26px;
+			}
+			.split-stat {
+				margin-bottom: 0;
+			}
+			.split-divider {
+				display: none;
+			}
+			.split-body {
+				border-left: 1px solid rgba(0, 0, 0, 0.07);
+				padding: 24px 20px;
+			}
+			.split-body p {
 				font-size: 18px;
 			}
 			.about-profession-title {
@@ -434,9 +490,27 @@
 			</div>
 
 			<!-- Текстовая секция -->
-			<div class="about-text-clean text-variant-1">
-				<span class="about-bio-meta">Юлия Воронова · 47 лет · нутрициолог</span>
-				<p class="accent-phrase"><span class="drop-cap">М</span>ой путь в нутрициологию начался более 7 лет назад. Сначала я искала ответы для себя и своей семьи, стремясь найти работающие решения. Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.</p>
+			<div class="about-text-clean">
+				<div class="split-sidebar">
+					<div class="split-name">Юлия</div>
+					<div class="split-stat">
+						<span class="split-stat-number">47</span>
+						<span class="split-stat-label">лет</span>
+					</div>
+					<div class="split-divider"></div>
+					<div class="split-stat">
+						<span class="split-stat-number">7+</span>
+						<span class="split-stat-label">лет практики</span>
+					</div>
+					<div class="split-divider"></div>
+					<div class="split-stat">
+						<span class="split-stat-number" style="font-size:16px; line-height:1.3;">Лайфстайл<br>медицина</span>
+						<span class="split-stat-label">специализация</span>
+					</div>
+				</div>
+				<div class="split-body">
+					<p>Мой путь в нутрициологию начался более 7 лет назад. Сначала я искала ответы для себя и своей семьи, стремясь найти работающие решения. Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.</p>
+				</div>
 			</div>
 
 			<h2 class="about-profession-title">Сейчас я дипломированный нутрициолог и специалист медицины образа жизни (лайфстайл медицины)</h2>
