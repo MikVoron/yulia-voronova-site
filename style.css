@@ -3717,7 +3717,7 @@ button[class*="btn-"]:hover,
 }
 
 .expand-indicator-arrow::after {
-    content: 'в†“';
+    content: '↓';
     font-size: 16px;
     animation: bounceArrow 1.2s ease-in-out infinite;
     display: inline-block;
@@ -3740,7 +3740,7 @@ button[class*="btn-"]:hover,
 }
 
 .expand-indicator-arrow.expanded::after {
-    content: 'в†‘';
+    content: '↑';
     animation: none;
 }
 
@@ -3797,7 +3797,7 @@ button[class*="btn-"]:hover,
 }
 
 .expand-indicator-line.expanded .line-text::after {
-    content: ' в†‘';
+    content: ' ↑';
 }
 
 .expand-indicator-line.expanded::after {
