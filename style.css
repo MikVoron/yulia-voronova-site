@@ -4900,7 +4900,7 @@ button[class*="btn-"]:hover,
    SOCIAL TESTIMONIALS SECTION
    ======================================== */
 .testimonials-social {
-    background: #eef3ef;
+    background: var(--white);
     padding: 20px 0;
 }
 
