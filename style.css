@@ -7289,31 +7289,26 @@ button[class*="btn-"]:hover,
 }
 
 .help-numbered-grid {
-    display: flex;
-    flex-direction: column;
-    max-width: 760px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 800px;
     margin: 0 auto;
 }
 
 .help-numbered-card {
     position: relative;
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
-    gap: 32px;
-    padding: 28px 0;
-    border-top: 1px solid rgba(139, 166, 139, 0.25);
-    background: transparent;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    border-bottom: none;
+    gap: 12px;
+    padding: 28px 28px 24px;
+    background: var(--white);
+    border: 1.5px solid rgba(154, 184, 158, 0.3);
+    border-radius: 16px;
     text-align: left;
-    transition: gap 0.3s ease;
+    transition: background 0.3s ease, border-color 0.3s ease;
     overflow: visible;
-}
-
-.help-numbered-grid .help-numbered-card:last-child {
-    border-bottom: 1px solid rgba(139, 166, 139, 0.25);
 }
 
 .help-numbered-card::before {
@@ -7323,19 +7318,17 @@ button[class*="btn-"]:hover,
 .help-numbered-card:hover {
     transform: none;
     box-shadow: none;
-    gap: 38px;
+    background: #f5f9f5;
+    border-color: var(--sage-green);
 }
 
 .help-number {
     position: static;
-    font-family: var(--font-cormorant);
-    font-size: 52px;
-    font-weight: 300;
-    color: rgba(107, 125, 107, 0.2);
+    font-family: 'Great Vibes', cursive;
+    font-size: 48px;
+    font-weight: 400;
+    color: rgba(154, 184, 158, 0.5);
     line-height: 1;
-    flex-shrink: 0;
-    width: 56px;
-    text-align: right;
     transition: color 0.3s ease;
 }
 
@@ -7350,8 +7343,7 @@ button[class*="btn-"]:hover,
 .help-card-content {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding-top: 4px;
+    gap: 8px;
 }
 
 .help-numbered-card h4 {
@@ -7364,22 +7356,16 @@ button[class*="btn-"]:hover,
 
 .help-numbered-card p {
     font-family: var(--font-montserrat);
-    font-size: 13px;
-    line-height: 1.6;
+    font-size: 12px;
+    line-height: 1.65;
     color: var(--dark-text);
-    opacity: 0.6;
+    opacity: 0.55;
 }
 
 @media (max-width: 768px) {
     .help-numbered-grid {
+        grid-template-columns: 1fr;
         max-width: 100%;
-    }
-    .help-number {
-        font-size: 38px;
-        width: 40px;
-    }
-    .help-numbered-card {
-        gap: 20px;
     }
 }
 
