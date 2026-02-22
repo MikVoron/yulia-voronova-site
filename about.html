@@ -289,7 +289,7 @@
 			text-align: left;
 		}
 
-.about-bio-label {
+		.about-bio-label {
 			display: block;
 			font-family: var(--font-montserrat);
 			font-size: 11px;
@@ -341,9 +341,11 @@
 			.about-hero-minimal .about-text-clean {
 				padding: 30px 20px 30px 30px;
 			}
+
 			.text-variant-1 .accent-phrase {
 				font-size: 18px;
 			}
+
 			.about-hero-minimal .about-profession-title {
 				padding: 22px 20px;
 				font-size: 20px;
@@ -394,7 +396,9 @@
 					<a href="about.html" class="active">Обо мне</a>
 					<a href="/#tariffs">Тарифы</a>
 					<div class="nav-dropdown">
-						<button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-haspopup="true"><span class="nav-dropdown-text">Узнай/Проверь</span> <svg class="nav-dropdown-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+						<button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-haspopup="true"><span class="nav-dropdown-text">Узнай/Проверь</span> <svg class="nav-dropdown-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none">
+								<path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+							</svg></button>
 						<div class="nav-dropdown-menu">
 							<a href="guides.html">Гайды</a>
 							<a href="tests.html">Тесты</a>
@@ -480,11 +484,8 @@
 	</section>
 
 	<!-- YouTube Section -->
-	<section class="about-youtube-section yt-showcase">
-		<div class="container">
-			<div class="yt-showcase-screen">
-				<img src="images/background-youtube.webp" alt="YouTube канал нутрициолога Юлии Вороновой" loading="lazy" decoding="async" fetchpriority="low" width="600" height="400">
-			</div>
+	<section class="about-youtube-section yt-over">
+		<div class="yt-over-text">
 			<div class="youtube-title-row">
 				<svg class="youtube-title-icon" viewBox="0 0 24 24" fill="currentColor">
 					<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
@@ -492,19 +493,23 @@
 				<h2 class="youtube-section-title">Веду YouTube канал</h2>
 			</div>
 			<p class="youtube-channel-name">Yulia Voronova | Plant-Based Recipes</p>
-			<p class="youtube-handle"><a href="https://youtube.com/@voronova_nutrition" target="_blank" rel="noopener noreferrer">@voronova_nutrition</a></p>
 			<p class="youtube-subscribers-badge">более 6 300 подписчиков</p>
 			<div class="yt-topic-pills">
-				<span>Вкусные рецепты</span>
-				<span>Растительное питание</span>
-				<span>Сбалансированное меню</span>
+				<span>Рецепты для здоровья</span>
+				<span>Меню без дефицитов</span>
+				<span>Доказательная нутрициология</span>
 			</div>
 			<a href="https://youtube.com/@voronova_nutrition" target="_blank" rel="noopener noreferrer" class="youtube-subscribe-btn">
 				<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
 					<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
 				</svg>
-				Хочу посмотреть рецепты
+				Смотреть
 			</a>
+		</div>
+		<div class="yt-over-image">
+			<img src="images/background-youtube.webp" alt="YouTube канал нутрициолога Юлии Вороновой" loading="lazy" decoding="async" fetchpriority="low" width="600" height="400">
+		</div>
+		<div class="yt-over-footer">
 			<p class="youtube-cta-note"><span class="youtube-cta-note-title">Дублирую свои выпуски тут:</span></p>
 			<div class="youtube-cta-social footer-social">
 				<a href="https://vk.com/voronova_nutrition" class="social-link" aria-label="VK">
@@ -524,7 +529,6 @@
 					</svg>
 				</a>
 			</div>
-		</div>
 		</div>
 	</section>
 
@@ -744,7 +748,7 @@
 
 	<script src="main.min.js" defer></script>
 
-		<script src="analytics.js" defer></script>
+	<script src="analytics.js" defer></script>
 	<noscript>
 		<div><img src="https://mc.yandex.ru/watch/106615581" style="position:absolute; left:-9999px;" alt="" /></div>
 	</noscript>
@@ -752,18 +756,26 @@
 	<div class="chat-launcher" id="chatLauncher">
 		<div class="chat-options" id="chatOptions" aria-hidden="true">
 			<a href="https://t.me/YuliaVoronova78" class="chat-option chat-option-tg" target="_blank" rel="noopener noreferrer" aria-label="Написать в Telegram">
-				<svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
+				<svg viewBox="0 0 24 24">
+					<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z" />
+				</svg>
 				<span>Юлия</span>
 			</a>
 			<button class="chat-option chat-option-tawk" id="tawkOpenBtn" type="button" aria-label="Чат с оператором">
-				<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+				<svg viewBox="0 0 24 24">
+					<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+				</svg>
 				<span>Оператор</span><span class="chat-option-badge" id="tawkBadge" aria-hidden="true"></span>
 			</button>
 		</div>
 		<button class="chat-launcher-btn" id="chatLauncherBtn" type="button" aria-label="Открыть чат" aria-expanded="false">
-			<svg class="chat-icon-msg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-			<svg class="chat-icon-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-		<span class="chat-badge" id="chatBadge" aria-hidden="true"></span>
+			<svg class="chat-icon-msg" viewBox="0 0 24 24">
+				<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+			</svg>
+			<svg class="chat-icon-close" viewBox="0 0 24 24">
+				<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+			</svg>
+			<span class="chat-badge" id="chatBadge" aria-hidden="true"></span>
 		</button>
 	</div>
 </body>
