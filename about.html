@@ -314,24 +314,33 @@
 		.about-hero-minimal .about-profession-title {
 			max-width: 760px;
 			margin: 0 auto 30px;
-			padding: 10px 40px 10px 60px;
+			padding: 12px 40px 12px 56px;
 			background: transparent;
 			border: none;
+			border-left: 4px solid var(--sage-green);
 			border-radius: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+
+		.prof-eyebrow {
+			font-family: var(--font-montserrat);
+			font-size: 10px;
+			font-weight: 600;
+			letter-spacing: 2.5px;
+			text-transform: uppercase;
+			color: var(--sage-green);
+			opacity: 0.7;
+		}
+
+		.prof-main-text {
 			font-family: var(--font-cormorant);
 			font-size: 28px;
 			font-weight: 400;
-			font-style: normal;
-			line-height: 1.6;
-			color: var(--text-dark);
-		}
-
-		.prof-accent {
 			font-style: italic;
-			background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
-			-webkit-background-clip: text;
-			-webkit-text-fill-color: transparent;
-			background-clip: text;
+			line-height: 1.55;
+			color: var(--text-dark);
 		}
 
 		@media(max-width:768px) {
@@ -342,7 +351,9 @@
 				font-size: 18px;
 			}
 			.about-hero-minimal .about-profession-title {
-				padding: 10px 20px 10px 30px;
+				padding: 12px 20px 12px 24px;
+			}
+			.prof-main-text {
 				font-size: 22px;
 			}
 		}
@@ -435,7 +446,10 @@
 				<p class="accent-phrase">Мой путь в нутрициологию начался более 7 лет назад. Сначала я искала ответы для себя и своей семьи, стремясь найти работающие решения. Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.</p>
 			</div>
 
-			<h2 class="about-profession-title">Сейчас я дипломированный <span class="prof-accent">нутрициолог</span> и специалист по здоровому образу жизни (<span class="prof-accent">лайфстайл&#8209;медицине</span>)</h2>
+			<h2 class="about-profession-title">
+				<span class="prof-eyebrow">Сейчас я</span>
+				<span class="prof-main-text">дипломированный нутрициолог и специалист по здоровому образу жизни (лайфстайл&#8209;медицине)</span>
+			</h2>
 		</div>
 	</section>
 
