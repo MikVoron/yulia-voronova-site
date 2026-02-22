@@ -314,58 +314,24 @@
 		.about-hero-minimal .about-profession-title {
 			max-width: 760px;
 			margin: 0 auto 30px;
-			padding: 0 40px 0 60px;
+			padding: 10px 40px 10px 60px;
 			background: transparent;
 			border: none;
 			border-radius: 0;
-		}
-
-		.prof-cols {
-			display: grid;
-			grid-template-columns: repeat(3, 1fr);
-			gap: 0;
-			border-top: 1px solid #e0e8e1;
-		}
-
-		.prof-col {
-			padding: 20px 24px;
-			border-right: 1px solid #e0e8e1;
-			border-bottom: 1px solid #e0e8e1;
-		}
-
-		.prof-col:last-child {
-			border-right: none;
-		}
-
-		.prof-col-check {
 			font-family: var(--font-cormorant);
-			font-size: 22px;
+			font-size: 28px;
 			font-weight: 400;
-			color: var(--sage-green);
-			display: block;
-			margin-bottom: 6px;
-			line-height: 1;
+			font-style: normal;
+			line-height: 1.6;
+			color: var(--text-dark);
 		}
 
-		.prof-col-title {
-			font-family: var(--font-montserrat);
-			font-size: 11px;
-			font-weight: 600;
-			color: var(--text-dark);
-			letter-spacing: 0.5px;
-			display: block;
-			margin-bottom: 4px;
-		}
-
-		.prof-col-sub {
-			font-family: var(--font-montserrat);
-			font-size: 10px;
-			font-weight: 400;
-			color: var(--text-dark);
-			opacity: 0.45;
-			letter-spacing: 0.3px;
-			line-height: 1.5;
-			display: block;
+		.prof-accent {
+			font-style: italic;
+			background: linear-gradient(135deg, var(--sage-green) 0%, var(--dark-sage) 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
 		}
 
 		@media(max-width:768px) {
@@ -376,13 +342,8 @@
 				font-size: 18px;
 			}
 			.about-hero-minimal .about-profession-title {
-				padding: 0 20px 0 20px;
-			}
-			.prof-cols {
-				grid-template-columns: 1fr;
-			}
-			.prof-col {
-				border-right: none;
+				padding: 10px 20px 10px 30px;
+				font-size: 22px;
 			}
 		}
 	</style>
@@ -474,22 +435,7 @@
 				<p class="accent-phrase">Мой путь в нутрициологию начался более 7 лет назад. Сначала я искала ответы для себя и своей семьи, стремясь найти работающие решения. Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.</p>
 			</div>
 
-			<h2 class="about-profession-title">
-				<div class="prof-cols">
-					<div class="prof-col">
-						<span class="prof-col-check">✓</span>
-						<span class="prof-col-title">Дипломированный нутрициолог</span>
-					</div>
-					<div class="prof-col">
-						<span class="prof-col-check">✓</span>
-						<span class="prof-col-title">Современная нутрициология</span>
-					</div>
-					<div class="prof-col">
-						<span class="prof-col-check">✓</span>
-						<span class="prof-col-title">Лайфстайл-медицина</span>
-					</div>
-				</div>
-			</h2>
+			<h2 class="about-profession-title">Сейчас я дипломированный <span class="prof-accent">нутрициолог</span> и специалист по здоровому образу жизни (<span class="prof-accent">лайфстайл&#8209;медицине</span>)</h2>
 		</div>
 	</section>
 
