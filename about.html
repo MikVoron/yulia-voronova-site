@@ -323,39 +323,18 @@
 			background: transparent;
 			border: none;
 			border-radius: 0;
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 4px;
-		}
-
-		.prof-label {
-			font-family: var(--font-montserrat);
-			font-size: 10px;
-			font-weight: 600;
-			letter-spacing: 2.5px;
-			text-transform: uppercase;
-			color: var(--text-dark);
-			opacity: 0.35;
-			margin-bottom: 4px;
-		}
-
-		.prof-line-big {
 			font-family: var(--font-cormorant);
-			font-size: 36px;
+			font-size: 26px;
 			font-weight: 400;
 			font-style: italic;
+			line-height: 1.7;
 			color: var(--text-dark);
-			line-height: 1.2;
 		}
 
-		.prof-line-small {
-			font-family: var(--font-cormorant);
-			font-size: 20px;
-			font-weight: 400;
+		.prof-highlight {
+			background: linear-gradient(to bottom, transparent 55%, rgba(154, 184, 158, 0.35) 55%);
 			font-style: italic;
-			color: var(--sage-green);
-			line-height: 1.4;
+			padding: 0 2px;
 		}
 
 		@media(max-width:768px) {
@@ -367,12 +346,7 @@
 			}
 			.about-hero-minimal .about-profession-title {
 				padding: 10px 20px 10px 30px;
-			}
-			.prof-line-big {
-				font-size: 28px;
-			}
-			.prof-line-small {
-				font-size: 17px;
+				font-size: 21px;
 			}
 		}
 	</style>
@@ -464,11 +438,7 @@
 				<p class="accent-phrase">Мой путь в нутрициологию начался более 7 лет назад. Сначала я искала ответы для себя и своей семьи, стремясь найти работающие решения. Увидев, как изменения в питании преображают жизнь моих близких, я поняла, что хочу помогать другим людям приходить к таким же результатам. Это и стало моей профессией.</p>
 			</div>
 
-			<h2 class="about-profession-title">
-				<span class="prof-label">Сейчас я</span>
-				<span class="prof-line-big">дипломированный нутрициолог</span>
-				<span class="prof-line-small">специалист по здоровому образу жизни (лайфстайл&#8209;медицине)</span>
-			</h2>
+			<h2 class="about-profession-title">Сейчас я дипломированный <span class="prof-highlight">нутрициолог</span> и специалист по здоровому образу жизни (<span class="prof-highlight">лайфстайл&#8209;медицине</span>)</h2>
 		</div>
 	</section>
 
