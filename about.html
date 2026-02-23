@@ -538,23 +538,29 @@
 
 			<!-- Левая панель: инфо -->
 			<div class="tg-split-left">
-				<p class="tg-split-handle">@voronova_nutrition</p>
-				<h2 class="tg-split-title">Развиваю<br>Telegram<br>канал</h2>
+				<div class="tg-title-row">
+					<svg class="tg-title-icon" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z" />
+					</svg>
+					<h2 class="tg-split-title">Развиваю Telegram канал</h2>
+				</div>
 			</div>
 
 			<!-- Правая панель: чат-окно -->
 			<div class="tg-split-right">
 				<!-- Шапка как в Telegram -->
 				<div class="tg-split-bar">
+					<button class="tg-bar-back" aria-label="Назад">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+							<polyline points="15 18 9 12 15 6" />
+						</svg>
+					</button>
 					<div class="tg-split-bar-info">
 						<span class="tg-split-bar-name">Юлия Воронова<span class="tg-split-bar-sep"> | </span>Здоровье. Еда. Анализы.</span>
+						<span class="tg-split-bar-handle">@voronova_nutrition</span>
 					</div>
-					<div class="tg-split-bar-actions">
-						<svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17">
-							<circle cx="12" cy="5" r="1.5" />
-							<circle cx="12" cy="12" r="1.5" />
-							<circle cx="12" cy="19" r="1.5" />
-						</svg>
+					<div class="tg-bar-avatar">
+						<img src="images/YV-blog.webp" alt="Доказательный нутрициолог Юлия Воронова. Телеграм канал Здоровье. Еда. Анализы." />
 					</div>
 				</div>
 				<!-- Сообщения -->
@@ -564,12 +570,7 @@
 							<span class="tg-bubble-name" style="color: #9a8577;">Мария</span>
 							О чём пишете на канале?
 						</div>
-						<div class="tg-bubble-avatar" style="background: #c4b5a5;">
-							<svg viewBox="0 0 36 36" fill="white">
-								<circle cx="18" cy="13" r="6" />
-								<ellipse cx="18" cy="30" rx="11" ry="8" />
-							</svg>
-						</div>
+						<div class="tg-bubble-avatar tg-bubble-initial" style="background: #c4b5a5;">М</div>
 					</div>
 					<div class="tg-msg incoming">
 						<div class="tg-bubble">
@@ -582,12 +583,7 @@
 							<span class="tg-bubble-name" style="color: #6e8f6e;">Елена</span>
 							А что-то научное есть?
 						</div>
-						<div class="tg-bubble-avatar" style="background: #8ba68b;">
-							<svg viewBox="0 0 36 36" fill="white">
-								<circle cx="18" cy="13" r="6" />
-								<ellipse cx="18" cy="30" rx="11" ry="8" />
-							</svg>
-						</div>
+						<div class="tg-bubble-avatar tg-bubble-initial" style="background: #8ba68b;">Е</div>
 					</div>
 					<div class="tg-msg incoming">
 						<div class="tg-bubble">
@@ -600,12 +596,7 @@
 							<span class="tg-bubble-name" style="color: #8a7f6b;">Анна</span>
 							Как насчет рецептиков 🙂?
 						</div>
-						<div class="tg-bubble-avatar" style="background: #a89b82;">
-							<svg viewBox="0 0 36 36" fill="white">
-								<circle cx="18" cy="13" r="6" />
-								<ellipse cx="18" cy="30" rx="11" ry="8" />
-							</svg>
-						</div>
+						<div class="tg-bubble-avatar tg-bubble-initial" style="background: #a89b82;">А</div>
 					</div>
 					<div class="tg-msg incoming">
 						<div class="tg-bubble">
@@ -620,14 +611,24 @@
 						</div>
 					</div>
 				</div>
-				<!-- Кнопка под сообщениями -->
+				<!-- Поле ввода -->
 				<div class="tg-split-footer">
-					<a href="https://t.me/voronova_nutrition" target="_blank" rel="noopener noreferrer" class="tg-chat-btn tg-split-btn">
-						<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-							<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z" />
-						</svg>
-						Подписаться на канал
-					</a>
+					<div class="tg-input-row">
+						<span class="tg-input-placeholder">Написать сообщение...</span>
+						<div class="tg-input-actions">
+							<svg class="tg-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+								<rect x="9" y="2" width="6" height="12" rx="3" />
+								<path d="M5 10a7 7 0 0 0 14 0" />
+								<line x1="12" y1="19" x2="12" y2="22" />
+								<line x1="9" y1="22" x2="15" y2="22" />
+							</svg>
+							<a href="https://t.me/voronova_nutrition" target="_blank" rel="noopener noreferrer" class="tg-send-btn" aria-label="Написать в Telegram">
+								<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+									<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z" />
+								</svg>
+							</a>
+						</div>
+					</div>
 				</div>
 			</div>
 
