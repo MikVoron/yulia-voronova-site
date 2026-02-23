@@ -11932,42 +11932,6 @@ button[class*="btn-"]:hover,
     z-index: 1001;
 }
 
-/* burger-label скрыт (используется в варианте А) */
-.burger-label {
-    display: none;
-}
-
-/* Вариант В — пульс + расходящееся кольцо, 3 раза через 2с */
-@keyframes burgerPulse {
-    0%   { transform: scale(1); }
-    35%  { transform: scale(1.25); }
-    65%  { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-@keyframes burgerRing {
-    0%   { transform: scale(0.5); opacity: 1; }
-    100% { transform: scale(2.2); opacity: 0; }
-}
-
-@media (max-width: 768px) {
-    .burger-menu {
-        position: relative;
-        animation: burgerPulse 0.75s cubic-bezier(0.36, 0.07, 0.19, 0.97) 2s 3 both;
-    }
-
-    .burger-menu::before {
-        content: '';
-        position: absolute;
-        inset: -8px;
-        border: 2px solid rgba(255, 255, 255, 0.65);
-        border-radius: 6px;
-        animation: burgerRing 0.75s ease-out 2s 3 both;
-        opacity: 0;
-        pointer-events: none;
-    }
-}
-
 .burger-menu span {
     display: block;
     width: 100%;
