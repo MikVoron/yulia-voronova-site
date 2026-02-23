@@ -11934,16 +11934,24 @@ button[class*="btn-"]:hover,
     z-index: 1001;
 }
 
-/* Вариант А — текстовая метка под бургером */
+/* Метка — скрыта в варианте Б */
 .burger-label {
-    font-family: var(--font-montserrat);
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 1.2px;
-    color: var(--white);
-    text-transform: uppercase;
-    line-height: 1;
-    margin-top: 1px;
+    display: none;
+}
+
+/* Вариант Б — рамка вокруг кнопки */
+@media (max-width: 768px) {
+    .burger-menu {
+        border: 1.5px solid rgba(255, 255, 255, 0.75) !important;
+        border-radius: 7px;
+        padding: 7px 9px;
+        width: auto;
+        transition: background 0.2s ease;
+    }
+
+    .burger-menu:active {
+        background: rgba(255, 255, 255, 0.15);
+    }
 }
 
 .burger-menu span {
