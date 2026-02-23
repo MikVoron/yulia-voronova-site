@@ -41,7 +41,7 @@ async function main() {
         const data = await fetchJson(searchUrl);
 
         if (!data.items || data.items.length === 0) {
-            console.error('Канал не найден. Проверь CHANNEL_HANDLE.');
+            console.error('Канал не найден. Ответ API:', JSON.stringify(data));
             process.exit(1);
         }
 
