@@ -11919,12 +11919,6 @@ button[class*="btn-"]:hover,
 }
 
 /* Burger Menu */
-/* Вариант А — пульс-масштаб × 3, старт через 2.5с */
-@keyframes burgerPulseA {
-    0%, 100% { transform: scale(1); }
-    50%       { transform: scale(1.35); }
-}
-
 .burger-menu {
     display: none;
     flex-direction: column;
@@ -11936,12 +11930,6 @@ button[class*="btn-"]:hover,
     cursor: pointer;
     padding: 0;
     z-index: 1001;
-}
-
-@media (max-width: 768px) {
-    .burger-menu {
-        animation: burgerPulseA 0.6s ease-in-out 2.5s 3 both;
-    }
 }
 
 .burger-menu span {
