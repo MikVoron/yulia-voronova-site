@@ -493,7 +493,7 @@
 				<h2 class="youtube-section-title">Веду YouTube канал</h2>
 			</div>
 			<p class="youtube-channel-name">Yulia Voronova | Plant-Based Recipes</p>
-			<p class="youtube-subscribers-badge">более 6 300 подписчиков</p>
+			<p class="youtube-subscribers-badge"><span class="subs-count" id="yt-subs-count">6 300</span><span class="subs-label">подписчиков</span></p>
 			<div class="yt-topic-pills">
 				<span>Рецепты для здоровья</span>
 				<span>Меню без дефицитов</span>
@@ -793,6 +793,18 @@
 			<span class="chat-badge" id="chatBadge" aria-hidden="true"></span>
 		</button>
 	</div>
+	<script>
+		// Загружает актуальное число подписчиков из data/youtube.json (обновляется ежедневно через GitHub Actions)
+		fetch('data/youtube.json')
+			.then(r => r.json())
+			.then(d => {
+				const el = document.getElementById('yt-subs-count');
+				if (el && d.subscriberCountFormatted) {
+					el.textContent = d.subscriberCountFormatted;
+				}
+			})
+			.catch(() => { /* оставляем статичное значение если запрос не удался */ });
+	</script>
 </body>
 
 </html>
