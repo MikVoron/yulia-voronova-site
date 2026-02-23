@@ -12449,9 +12449,11 @@ button[class*="btn-"]:hover,
         max-width: 100%;
         margin: 0 auto;
         overflow: visible;
+        touch-action: pan-y;
     }
 
     .tariff-card-collapsible {
+        touch-action: pan-y;
         position: absolute;
         left: 50%;
         top: 0;
