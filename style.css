@@ -11934,23 +11934,39 @@ button[class*="btn-"]:hover,
     z-index: 1001;
 }
 
-/* Метка — скрыта в варианте Б */
+/* Метка — скрыта в варианте В */
 .burger-label {
     display: none;
 }
 
-/* Вариант Б — рамка вокруг кнопки */
+/* Вариант В — пульс-анимация (3 раза, старт через 2с) */
+@keyframes burgerPulse {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.25); }
+    65%  { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes burgerRing {
+    0%   { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+}
+
 @media (max-width: 768px) {
     .burger-menu {
-        border: 1.5px solid rgba(255, 255, 255, 0.75) !important;
-        border-radius: 7px;
-        padding: 7px 9px;
-        width: auto;
-        transition: background 0.2s ease;
+        position: relative;
+        animation: burgerPulse 0.75s cubic-bezier(0.36, 0.07, 0.19, 0.97) 2s 3 both;
     }
 
-    .burger-menu:active {
-        background: rgba(255, 255, 255, 0.15);
+    .burger-menu::before {
+        content: '';
+        position: absolute;
+        inset: -7px;
+        border: 2px solid rgba(255, 255, 255, 0.65);
+        border-radius: 9px;
+        animation: burgerRing 0.75s ease-out 2s 3 both;
+        opacity: 0;
+        pointer-events: none;
     }
 }
 
