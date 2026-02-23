@@ -602,6 +602,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 2000);
         });
     }
+
+    // YouTube topic pills — same stagger animation as TG messages
+    const ytPills = document.querySelector('.yt-topic-pills');
+    if (ytPills) {
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const pills = ytPills.querySelectorAll('span');
+                pills.forEach(p => p.classList.add('pill-ready'));
+
+                const pillObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const pill = entry.target;
+                            const idx = Array.from(pills).indexOf(pill);
+                            setTimeout(() => pill.classList.add('pill-visible'), idx * 200);
+                            pillObserver.unobserve(pill);
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                pills.forEach(p => pillObserver.observe(p));
+            }, 1500);
+        });
+    }
 });
 
 // Time slot selection

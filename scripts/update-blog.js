@@ -179,19 +179,20 @@ function articleCardTemplate(post, index) {
         ? `<span class="blog-badge-new">Новый пост</span>`
         : '';
 
-    const fallbackSrc = RANDOM_PICS[index % RANDOM_PICS.length];
-    const imgSrc = post.localImage || fallbackSrc;
+    const hasImage = !!post.imageUrl;
     const wh = post.localImageWidth && post.localImageHeight
         ? ` width="${post.localImageWidth}" height="${post.localImageHeight}"`
         : '';
-    const imageBlock = `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${imgSrc}" alt="${title}"${wh} loading="lazy" decoding="async">\n\t\t\t\t\t</div>`;
+    const imageBlock = hasImage && post.localImage
+        ? `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${post.localImage}" alt="${title}"${wh} loading="lazy" decoding="async">\n\t\t\t\t\t</div>`
+        : '';
 
     const dateRow = dateFormatted
         ? `\t\t\t\t\t\t<div class="blog-card-meta">\n\t\t\t\t\t\t\t<time class="blog-card-date" datetime="${post.dateISO}">${dateFormatted}</time>\n\t\t\t\t\t\t</div>`
         : '';
 
     return `\t\t\t<!-- Пост ${index + 1} -->
-\t\t\t\t<article class="blog-article-card${index === 0 ? ' latest' : ''}" data-post="${post.postNumber}">${badgeHtml ? `\n\t\t\t\t\t${badgeHtml}` : ''}${imageBlock}
+\t\t\t\t<article class="blog-article-card${index === 0 ? ' latest' : ''}${!hasImage ? ' no-image' : ''}" data-post="${post.postNumber}">${badgeHtml ? `\n\t\t\t\t\t${badgeHtml}` : ''}${imageBlock}
 \t\t\t\t\t<div class="blog-card-body">
 ${dateRow}
 \t\t\t\t\t\t<h3 class="blog-card-title">${title}</h3>
