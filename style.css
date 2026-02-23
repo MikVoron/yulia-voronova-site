@@ -4024,7 +4024,19 @@ button[class*="btn-"]:hover,
 
 @media (max-width: 768px) {
     .tariffs .section-title {
-        font-size: 36px;
+        font-size: 32px;
+    }
+
+    /* На мобильном убираем flex-линии — текст не обрезается */
+    .page-home .section-title.script-text {
+        display: block;
+        text-align: center;
+        overflow: visible;
+    }
+
+    .page-home .section-title.script-text::before,
+    .page-home .section-title.script-text::after {
+        display: none;
     }
 
     .tariff-name-compact {
