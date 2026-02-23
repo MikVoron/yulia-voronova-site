@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 const API_KEY = process.env.YOUTUBE_API_KEY;
-const CHANNEL_HANDLE = 'voronova_nutrition';
+const CHANNEL_HANDLE = '@voronova_nutrition';
 const OUTPUT_FILE = path.join(__dirname, '..', 'data', 'youtube.json');
 
 if (!API_KEY) {
