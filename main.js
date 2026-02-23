@@ -654,20 +654,23 @@ timeSlots.forEach(slot => {
     });
 });
 
-// Header scroll effect
+// Header scroll effect — hide on scroll down (desktop only)
 let lastScroll = 0;
 const header = document.querySelector('.header');
 
 window.addEventListener('scroll', () => {
     if (!header) return;
+    // На мобильном хедер всегда виден
+    if (window.innerWidth <= 768) {
+        header.style.transform = 'translateY(0)';
+        return;
+    }
     const currentScroll = window.pageYOffset;
-
     if (currentScroll > lastScroll && currentScroll > 100) {
         header.style.transform = 'translateY(-100%)';
     } else {
         header.style.transform = 'translateY(0)';
     }
-
     lastScroll = currentScroll;
 });
 
