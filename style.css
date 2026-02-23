@@ -4024,7 +4024,11 @@ button[class*="btn-"]:hover,
 
 @media (max-width: 768px) {
     .tariffs .section-title {
-        font-size: 32px;
+        font-size: 28px;
+    }
+
+    .services-range .section-title {
+        font-size: 26px;
     }
 
     /* На мобильном убираем flex-линии — текст не обрезается */
@@ -5651,12 +5655,16 @@ button[class*="btn-"]:hover,
     }
 
     .faq .section-title {
-        font-size: 36px;
+        font-size: 28px;
         margin-bottom: 10px;
     }
 
     .faq-question h3 {
         font-size: 17px;
+    }
+
+    .faq-question {
+        padding-right: 8px;
     }
 
     .faq-icon {
@@ -5665,8 +5673,12 @@ button[class*="btn-"]:hover,
         font-size: 20px;
     }
 
+    .faq-answer {
+        padding-left: 25px;
+    }
+
     .faq-item.active .faq-answer {
-        padding: 0 0 20px 45px;
+        padding: 0 8px 20px 25px;
     }
 
     .faq-cta-title {
