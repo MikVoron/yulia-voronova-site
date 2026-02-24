@@ -921,6 +921,7 @@
 					<button type="button" class="lead-change-btn" id="leadChangeBtn">← Изменить выбор</button>
 					<form class="lead-form" id="leadForm" action="https://api.web3forms.com/submit" method="POST">
 						<input type="hidden" name="access_key" value="88b78c43-b948-4c57-bddc-5e15238da35c">
+						<input type="checkbox" name="botcheck" style="display:none">
 						<input type="hidden" name="subject" value="Новая заявка с сайта — персональный запрос">
 						<input type="hidden" name="Запрос" id="leadScenarioInput">
 						<textarea name="Уточнение" id="leadConcern" placeholder="Коротко опишите, что вас беспокоит *" class="lead-input lead-textarea" rows="3" hidden></textarea>
@@ -963,6 +964,7 @@
 					<!-- Email форма -->
 					<form action="https://api.web3forms.com/submit" method="POST" class="contact-email-form" id="contact-form">
 						<input type="hidden" name="access_key" value="88b78c43-b948-4c57-bddc-5e15238da35c">
+						<input type="checkbox" name="botcheck" style="display:none">
 						<input type="hidden" name="subject" value="Вопрос с сайта">
 
 						<div class="form-row">
