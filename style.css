@@ -12356,6 +12356,11 @@ button[class*="btn-"]:hover,
         position: relative;
     }
 
+    .header .logo span {
+        display: inline;
+        font-size: 17px;
+    }
+
     /* Navigation - Р°РЅРёРјР°С†РёСЏ РІС‹РµР·РґР° СЃРЅРёР·Сѓ СЃ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёРµРј */
     .nav {
         display: flex;
