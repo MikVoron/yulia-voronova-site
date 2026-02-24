@@ -4028,7 +4028,7 @@ button[class*="btn-"]:hover,
     }
 
     .services-range .section-title {
-        font-size: 26px;
+        font-size: 28px;
     }
 
     /* На мобильном убираем flex-линии — текст не обрезается */
@@ -13169,7 +13169,7 @@ button[class*="btn-"]:hover,
     }
 
     .section-title {
-        font-size: 36px;
+        font-size: 26px;
     }
 
     .mission-text {
