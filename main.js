@@ -609,16 +609,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Автоматически назначаем reveal нужным элементам (кроме hero)
     const revealSelectors = [
-        '.section-title:not(.hero *)',
+        '.section-title:not(.hero *):not(.script-text)',
         '.mission-text',
         '.about-text-block',
         '.services-range .step-item',
         '.tariff-card',
-        '.testimonial-card',
         '.faq-item',
         '.blog-article-card',
         '.guide-card',
-        '.booking-info',
         '.youtube-title-row',
         '.tg-split-left > *',
     ];

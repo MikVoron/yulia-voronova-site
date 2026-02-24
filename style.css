@@ -4036,6 +4036,11 @@ button[class*="btn-"]:hover,
         display: block;
         text-align: center;
         overflow: visible;
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 0;
+        padding-right: 0;
+        white-space: normal;
     }
 
     .page-home .section-title.script-text::before,
@@ -12315,7 +12320,7 @@ button[class*="btn-"]:hover,
     will-change: opacity, transform;
 }
 
-.reveal-visible {
+.reveal.reveal-visible {
     opacity: 1;
     transform: translateY(0);
 }
