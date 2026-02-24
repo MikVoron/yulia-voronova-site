@@ -796,15 +796,48 @@
 	</div>
 	<script>
 		// Загружает актуальное число подписчиков из data/youtube.json (обновляется ежедневно через GitHub Actions)
+		let ytTargetCount = 6360;
+
 		fetch('data/youtube.json?v=' + Date.now())
 			.then(r => r.json())
 			.then(d => {
-				const el = document.getElementById('yt-subs-count');
-				if (el && d.subscriberCountFormatted) {
-					el.textContent = d.subscriberCountFormatted;
-				}
+				if (d.subscriberCount) ytTargetCount = parseInt(d.subscriberCount, 10);
 			})
-			.catch(() => { /* оставляем статичное значение если запрос не удался */ });
+			.catch(() => {});
+
+		// Анимация счётчика: считает от 0 до числа когда секция попадает в экран
+		function formatNum(n) {
+			return n >= 1000
+				? Math.floor(n / 1000) + '\u00a0' + String(Math.floor(n % 1000)).padStart(3, '0')
+				: String(n);
+		}
+
+		const el = document.getElementById('yt-subs-count');
+		if (el) {
+			el.style.minWidth = el.offsetWidth + 'px';
+
+			const observer = new IntersectionObserver((entries) => {
+				entries.forEach(entry => {
+					if (!entry.isIntersecting) return;
+					observer.disconnect();
+
+					const duration = 1600;
+					const start = performance.now();
+
+					function tick(now) {
+						const progress = Math.min((now - start) / duration, 1);
+						const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+						el.textContent = formatNum(Math.round(eased * ytTargetCount));
+						if (progress < 1) requestAnimationFrame(tick);
+					}
+
+					el.textContent = '0';
+					requestAnimationFrame(tick);
+				});
+			}, { threshold: 0.5 });
+
+			observer.observe(el);
+		}
 	</script>
 </body>
 
