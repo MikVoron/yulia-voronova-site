@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // === Инициализация слайдеров ===
-  initSlider('Уровень стресса', 'valueDisplay', {
+  initSlider('stress-level', 'valueDisplay', {
     1: { text: "Минимальный уровень стресса", color: "#74c69d" },
     2: { text: "Низкий стресс", color: "#a5c974" },
     3: { text: "Умеренный стресс", color: "#f5c542" },
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     5: { text: "Постоянный ежедневный стресс", color: "#e76f51" }
   });
 
-  initSlider('Уровень энергии', 'energyDisplay', {
+  initSlider('energy-level', 'energyDisplay', {
     1: { text: 'Низкий — вообще нет энергии', color: '#e76f51' },
     2: { text: 'Пониженный — энергии хватает на пару часов', color: '#f28482' },
     3: { text: 'Средний — энергии хватает на половину дня', color: '#f5c542' },
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     5: { text: 'Высокий — энергии хватает на весь день', color: '#74c69d' }
   });
 
-  initSlider('Уровень активности', 'activityDisplay', {
+  initSlider('activity-level', 'activityDisplay', {
     1: { text: 'Малоподвижный — преимущественно сидячий образ жизни', color: '#e76f51' },
     2: { text: 'Умеренная активность — немного движения', color: '#f28482' },
     3: { text: 'Средняя активность — сбалансированный ритм', color: '#f5c542' },
@@ -51,12 +51,3 @@ document.addEventListener('DOMContentLoaded', () => {
     5: { text: 'Высокоактивный — интенсивные нагрузки и движение', color: '#74c69d' }
   });
 });
-
-// Автоматический редирект только для страницы "Спасибо"
-if (window.location.pathname.includes('thanks.html')) {
-    setTimeout(function() {
-        // Используем относительный путь, чтобы он работал и на компьютере, и на хостинге
-        window.location.href = "questionnaires.html";
-    }, 5000);
-}
-

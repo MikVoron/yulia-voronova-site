@@ -147,7 +147,7 @@
 					<label for="energy_level">Уровень энергии</label>
 					<div class="slider-hint">Двигайте ползунок и выберите Ваш уровень</div>
 
-					<input type="range" name="Уровень энергии" id="Уровень энергии" min="1" max="5" value="3" />
+					<input type="range" name="Уровень энергии" id="energy-level" min="1" max="5" value="3" />
 
 					<div class="slider-value">
 						<span id="energyDisplay">3</span>
@@ -155,12 +155,12 @@
 				</div>
 
 				<div class="slider-wrapper">
-					<label for="Уровень активности"><svg class="inline-icon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+					<label for="activity-level"><svg class="inline-icon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
 							<path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-5.2 2.2v4.7h2v-3.4l1.8-.7-1.6 8.1-4.9-1-.4 2 7 1.4z" />
 						</svg> Насколько активный у Вас образ жизни?</label>
 					<div class="slider-hint">Двигайте ползунок и выберите Ваш вариант</div>
 
-					<input type="range" name="Уровень активности" id="Уровень активности" min="1" max="5" value="3" />
+					<input type="range" name="Уровень активности" id="activity-level" min="1" max="5" value="3" />
 
 					<div class="slider-value">
 						<span id="activityDisplay">3</span>
@@ -259,10 +259,10 @@
 					</svg> 4. Ваш уровень стресса</h3>
 
 				<div class="slider-wrapper">
-					<label for="Уровень стресса"></label>
+					<label for="stress-level"></label>
 					<div class="slider-hint">Двигайте ползунок и выберете уровень <strong>ежедневного</strong> стресса<br> в Вашей жизни на данный момент</div>
 
-					<input type="range" name="Уровень стресса" id="Уровень стресса" min="1" max="5" value="3" />
+					<input type="range" name="Уровень стресса" id="stress-level" min="1" max="5" value="3" />
 
 					<div class="slider-value">
 						<span class="slider-label">у меня</span>
@@ -617,8 +617,8 @@
 	</div>
 
 	<script src="main.min.js" defer></script>
-	
-		<script src="analytics.js" defer></script>
+
+	<script src="analytics.js" defer></script>
 	<noscript>
 		<div><img src="https://mc.yandex.ru/watch/106615581" style="position:absolute; left:-9999px;" alt="" /></div>
 	</noscript>
@@ -626,18 +626,26 @@
 	<div class="chat-launcher" id="chatLauncher">
 		<div class="chat-options" id="chatOptions" aria-hidden="true">
 			<a href="https://t.me/YuliaVoronova78" class="chat-option chat-option-tg" target="_blank" rel="noopener" aria-label="Написать в Telegram">
-				<svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
+				<svg viewBox="0 0 24 24">
+					<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z" />
+				</svg>
 				<span>Юлия</span>
 			</a>
 			<button class="chat-option chat-option-tawk" id="tawkOpenBtn" type="button" aria-label="Чат с оператором">
-				<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+				<svg viewBox="0 0 24 24">
+					<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+				</svg>
 				<span>Оператор</span><span class="chat-option-badge" id="tawkBadge" aria-hidden="true"></span>
 			</button>
 		</div>
 		<button class="chat-launcher-btn" id="chatLauncherBtn" type="button" aria-label="Открыть чат" aria-expanded="false">
-			<svg class="chat-icon-msg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-			<svg class="chat-icon-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-		<span class="chat-badge" id="chatBadge" aria-hidden="true"></span>
+			<svg class="chat-icon-msg" viewBox="0 0 24 24">
+				<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+			</svg>
+			<svg class="chat-icon-close" viewBox="0 0 24 24">
+				<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+			</svg>
+			<span class="chat-badge" id="chatBadge" aria-hidden="true"></span>
 		</button>
 	</div>
 </body>
