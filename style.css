@@ -2011,16 +2011,10 @@ button[class*="btn-"]:hover,
    ======================================== */
 
 /* Services Range - Р°РЅРёРјР°С†РёСЏ РїРѕСЏРІР»РµРЅРёСЏ */
-.services-range .section-title,
 .services-range .service-column {
     opacity: 0;
     transform: translateY(30px);
     transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.services-range.animate-visible .section-title {
-    opacity: 1;
-    transform: translateY(0);
 }
 
 .services-range.animate-visible .service-column {
@@ -2033,16 +2027,10 @@ button[class*="btn-"]:hover,
 .services-range .service-column:nth-child(3) { transition-delay: 0.4s; }
 
 /* FAQ - Р°РЅРёРјР°С†РёСЏ РїРѕСЏРІР»РµРЅРёСЏ */
-.faq .section-title,
 .faq-item {
     opacity: 0;
     transform: translateY(25px);
     transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.faq.animate-visible .section-title {
-    opacity: 1;
-    transform: translateY(0);
 }
 
 .faq.animate-visible .faq-item {
