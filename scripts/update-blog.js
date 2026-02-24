@@ -174,12 +174,13 @@ function articleCardTemplate(post, index) {
         ? `<span class="blog-badge-new">Новый пост</span>`
         : '';
 
-    const hasImage = !!post.imageUrl;
+    // Use downloaded Telegram image or fall back to a random stock photo
+    const imageSrc = post.localImage || RANDOM_PICS[post.postNumber % RANDOM_PICS.length];
     const wh = post.localImageWidth && post.localImageHeight
         ? ` width="${post.localImageWidth}" height="${post.localImageHeight}"`
         : '';
-    const imageBlock = hasImage && post.localImage
-        ? `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${post.localImage}" alt="${title}"${wh} loading="lazy" decoding="async">\n\t\t\t\t\t</div>`
+    const imageBlock = imageSrc
+        ? `\n\t\t\t\t\t<div class="blog-card-image">\n\t\t\t\t\t\t<img src="${imageSrc}" alt="${title}"${wh} loading="lazy" decoding="async">\n\t\t\t\t\t</div>`
         : '';
 
     const dateRow = dateFormatted
@@ -187,7 +188,7 @@ function articleCardTemplate(post, index) {
         : '';
 
     return `\t\t\t<!-- Пост ${index + 1} -->
-\t\t\t\t<article class="blog-article-card${index === 0 ? ' latest' : ''}${!hasImage ? ' no-image' : ''}" data-post="${post.postNumber}">${badgeHtml ? `\n\t\t\t\t\t${badgeHtml}` : ''}${imageBlock}
+\t\t\t\t<article class="blog-article-card${index === 0 ? ' latest' : ''}${!imageSrc ? ' no-image' : ''}" data-post="${post.postNumber}">${badgeHtml ? `\n\t\t\t\t\t${badgeHtml}` : ''}${imageBlock}
 \t\t\t\t\t<div class="blog-card-body">
 ${dateRow}
 \t\t\t\t\t\t<h3 class="blog-card-title">${title}</h3>
