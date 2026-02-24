@@ -969,7 +969,7 @@
 						<input type="hidden" name="subject" value="Вопрос с сайта">
 
 						<div class="form-row">
-							<input type="email" name="Email" placeholder="Ваш email" required class="contact-input">
+							<input type="email" name="Email" placeholder="Ваш email" required class="contact-input" autocomplete="email" pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}" title="Введите корректный email, например: name@example.com">
 						</div>
 						<div class="form-row">
 							<textarea name="Сообщение" placeholder="Ваш вопрос..." rows="3" required class="contact-textarea"></textarea>
