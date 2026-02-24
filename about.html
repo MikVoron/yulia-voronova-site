@@ -805,21 +805,29 @@
 			})
 			.catch(() => {});
 
-		// Анимация: число появляется с fade + лёгким scale-up
+		// Перекидной счётчик: каждая цифра падает сверху с задержкой
 		const el = document.getElementById('yt-subs-count');
 		if (el) {
-			el.style.opacity = '0';
-			el.style.transform = 'scale(0.85)';
-			el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+			el.style.visibility = 'hidden';
 
 			const observer = new IntersectionObserver((entries) => {
 				entries.forEach(entry => {
 					if (!entry.isIntersecting) return;
 					observer.disconnect();
-					requestAnimationFrame(() => {
-						el.style.opacity = '1';
-						el.style.transform = 'scale(1)';
-					});
+
+					const formatted = ytTargetCount >= 1000
+						? Math.floor(ytTargetCount / 1000) + '\u00a0' + String(ytTargetCount % 1000).padStart(3, '0')
+						: String(ytTargetCount);
+
+					let delay = 0;
+					el.innerHTML = formatted.split('').map(ch => {
+						if (ch === '\u00a0') return '<span style="display:inline-block;width:0.25em"></span>';
+						const span = `<span class="flip-digit" style="animation-delay:${delay}ms">${ch}</span>`;
+						delay += 90;
+						return span;
+					}).join('');
+
+					el.style.visibility = 'visible';
 				});
 			}, { threshold: 0.5 });
 

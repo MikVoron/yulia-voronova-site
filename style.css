@@ -8319,6 +8319,21 @@ button[class*="btn-"]:hover,
     margin: 0;
 }
 
+/* Перекидной счётчик */
+@keyframes flipDigitIn {
+    0%   { transform: rotateX(-90deg) scaleY(0.6); opacity: 0; }
+    55%  { transform: rotateX(8deg)   scaleY(1.02); opacity: 1; }
+    75%  { transform: rotateX(-4deg)  scaleY(0.99); }
+    100% { transform: rotateX(0deg)   scaleY(1);    opacity: 1; }
+}
+
+.flip-digit {
+    display: inline-block;
+    animation: flipDigitIn 0.45s cubic-bezier(0.23, 1, 0.32, 1) both;
+    transform-origin: top center;
+    perspective: 400px;
+}
+
 /* В1 + пульсирующая точка */
 @keyframes subsDotPulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(122, 158, 110, 0.5); }
