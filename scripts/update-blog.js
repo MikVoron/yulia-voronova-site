@@ -20,14 +20,9 @@ async function downloadImage(url, postNumber) {
     const filename = `post-${postNumber}.webp`;
     const filepath = path.join(BLOG_IMAGES_DIR, filename);
 
-    // Skip if already downloaded — still get dimensions
+    // Always re-download to pick up edits to the post image
     if (fs.existsSync(filepath)) {
-        try {
-            const meta = await sharp(filepath).metadata();
-            return { path: `images/blog/${filename}`, width: meta.width, height: meta.height };
-        } catch (e) {
-            return { path: `images/blog/${filename}`, width: null, height: null };
-        }
+        fs.unlinkSync(filepath);
     }
 
     try {
@@ -317,11 +312,6 @@ async function main() {
 
     const currentPosts = getCurrentPosts();
     console.log(`Current posts in blog: ${currentPosts.join(', ')}`);
-
-    if (JSON.stringify(posts.map(p => p.postNumber)) === JSON.stringify(currentPosts)) {
-        console.log('No changes needed.');
-        return;
-    }
 
     console.log('Updating blog.html...');
     updateBlogHtml(posts);
