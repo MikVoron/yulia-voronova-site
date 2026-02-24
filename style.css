@@ -12306,6 +12306,30 @@ button[class*="btn-"]:hover,
 }
 
 /* ========================================
+   SMOOTH REVEAL — появление при скролле
+   ======================================== */
+.reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+    will-change: opacity, transform;
+}
+
+.reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Уважаем prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+
+/* ========================================
    MOBILE (< 768px)
    ======================================== */
 @keyframes burgerPulse {

@@ -594,6 +594,50 @@ document.addEventListener('DOMContentLoaded', () => {
         animateOnScroll.observe(el);
     });
 
+    // Универсальный smooth reveal для секций и элементов
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            const el = entry.target;
+            const delay = el.dataset.revealDelay || 0;
+            setTimeout(() => {
+                el.classList.add('reveal-visible');
+            }, delay);
+            revealObserver.unobserve(el);
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    // Автоматически назначаем reveal нужным элементам (кроме hero)
+    const revealSelectors = [
+        '.section-title:not(.hero *)',
+        '.mission-text',
+        '.about-text-block',
+        '.services-range .step-item',
+        '.tariff-card',
+        '.testimonial-card',
+        '.faq-item',
+        '.blog-article-card',
+        '.guide-card',
+        '.booking-info',
+        '.youtube-title-row',
+        '.tg-split-left > *',
+    ];
+
+    revealSelectors.forEach(selector => {
+        document.querySelectorAll(selector).forEach((el, i) => {
+            // Пропускаем если элемент уже выше линии сгиба
+            if (el.getBoundingClientRect().top < window.innerHeight) return;
+            el.classList.add('reveal');
+            // Каскадная задержка для групп (карточки, шаги)
+            if (el.closest('.tariff-card, .step-item, .faq-item, .blog-article-card, .guide-card')) {
+                el.dataset.revealDelay = (i % 4) * 100;
+            }
+            revealObserver.observe(el);
+        });
+    });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
     // Telegram chat animation - delayed after load to avoid PageSpeed impact
     const tgChatSection = document.querySelector('.tg-chat-section');
     if (tgChatSection) {
