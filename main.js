@@ -1228,6 +1228,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         var title = section.querySelector('.section-title');
         if (title) title.insertAdjacentElement('afterend', storiesRow);
+
+        // Animate stories on scroll into view
+        var stories = storiesRow.querySelectorAll('.testimonial-story');
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function(entries) {
+                if (!entries[0].isIntersecting) return;
+                stories.forEach(function(story, i) {
+                    setTimeout(function() { story.classList.add('animate-in'); }, i * 120);
+                });
+                io.disconnect();
+            }, { threshold: 0.3 });
+            io.observe(storiesRow);
+        } else {
+            stories.forEach(function(s) { s.classList.add('animate-in'); });
+        }
     }
 
     buildStories();

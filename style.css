@@ -15244,4 +15244,27 @@ button[class*="btn-"]:hover,
     .testimonial-story:active .story-avatar-ring {
         transform: scale(0.93);
     }
+
+    /* Variant 1: pop-in */
+    @keyframes storyPopIn {
+        0%   { opacity: 0; transform: scale(0); }
+        70%  { opacity: 1; transform: scale(1.12); }
+        100% { transform: scale(1); }
+    }
+
+    .testimonial-story {
+        opacity: 0;
+    }
+
+    .testimonial-story.animate-in {
+        opacity: 1;
+        animation: storyPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .testimonial-story.animate-in {
+            animation: none;
+            opacity: 1;
+        }
+    }
 }
