@@ -15245,11 +15245,10 @@ button[class*="btn-"]:hover,
         transform: scale(0.93);
     }
 
-    /* Variant 1: pop-in */
-    @keyframes storyPopIn {
-        0%   { opacity: 0; transform: scale(0); }
-        70%  { opacity: 1; transform: scale(1.12); }
-        100% { transform: scale(1); }
+    /* Variant 2: fade + rise from below */
+    @keyframes storyRiseIn {
+        0%   { opacity: 0; transform: translateY(18px); }
+        100% { opacity: 1; transform: translateY(0); }
     }
 
     .testimonial-story {
@@ -15258,7 +15257,7 @@ button[class*="btn-"]:hover,
 
     .testimonial-story.animate-in {
         opacity: 1;
-        animation: storyPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        animation: storyRiseIn 0.45s ease-out forwards;
     }
 
     @media (prefers-reduced-motion: reduce) {
