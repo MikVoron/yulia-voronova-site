@@ -740,12 +740,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 lineText.textContent = 'Подробнее';
             }
         });
-        
+
         // Убираем класс с grid
         if (tariffsGrid) {
             tariffsGrid.classList.remove('has-open-card');
         }
-        
+
         currentlyOpenCardId = null;
     }
 
@@ -790,12 +790,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 clickedLineText.textContent = 'Свернуть';
             }
             currentlyOpenCardId = clickedCardId;
-            
+
             // Добавляем класс на grid
             if (tariffsGrid) {
                 tariffsGrid.classList.add('has-open-card');
             }
-            
+
             // Прокручиваем к карточке на мобильном
             if (window.innerWidth <= 768) {
                 setTimeout(() => {
@@ -1289,3 +1289,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Haptic feedback (Android Chrome only; silently ignored on iOS/desktop)
+(function () {
+    if (!navigator.vibrate) return;
+    document.addEventListener('touchstart', function (e) {
+        const el = e.target.closest(
+            'button, a, .tariff-card-collapsible, .grid-item, .social-testimonial-card, .guide-card, .guide-card-full, .guide-card-minimal, .blog-article-card, .faq-item, .bottom-nav-item, .bottom-nav-popup-item, .tab-btn, .filter-btn, .test-answer-btn, .testimonial-modal-close, .success-modal-close, .diploma-card, .lead-scenario-btn, .test-catalog-card, #testimonial-modal-image'
+        );
+        if (el) navigator.vibrate(15);
+    }, { passive: true });
+}());
+
+// Bottom nav "Узнай/Тесты" popup
+(function () {
+    const btn = document.getElementById('bottomNavMore');
+    const popup = document.getElementById('bottomNavPopup');
+    if (!btn || !popup) return;
+
+    btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = popup.classList.toggle('open');
+        btn.setAttribute('aria-expanded', isOpen);
+    });
+
+    document.addEventListener('click', function () {
+        popup.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+    });
+
+    popup.addEventListener('click', function (e) {
+        e.stopPropagation();
+    });
+}());
+
+// Bottom navigation active state
+(function () {
+    const filename = window.location.pathname.split('/').pop() || 'index.html';
+    const navMap = {
+        'index.html': 'home',
+        '': 'home',
+        'about.html': 'about',
+        'blog.html': 'blog',
+        'guides.html': 'guides',
+        'tests.html': 'guides',
+        'questionnaires.html': 'guides',
+    };
+    const activeKey = navMap[filename];
+    if (activeKey) {
+        const el = document.querySelector(`.bottom-nav-item[data-nav="${activeKey}"]`);
+        if (el) el.classList.add('active');
+    }
+}());
