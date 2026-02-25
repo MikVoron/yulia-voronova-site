@@ -15205,24 +15205,13 @@ button[class*="btn-"]:hover,
         height: 72px;
         border-radius: 50%;
         padding: 3px;
-        background: rgba(154, 184, 158, 0.2);
-        transition: background 0.55s ease;
+        background: linear-gradient(135deg, #8a9a8d 0%, #c5dfe8 100%);
+        transition: background 0.3s ease;
         flex-shrink: 0;
     }
 
-    .story-avatar-ring.animate-in {
-        background: linear-gradient(135deg, #8a9a8d 0%, #c5dfe8 100%);
-    }
-
     .story-avatar-ring.viewed {
-        background: rgba(154, 184, 158, 0.2) !important;
-        transition: background 0.3s ease;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .story-avatar-ring {
-            transition: none;
-        }
+        background: rgba(154, 184, 158, 0.25);
     }
 
     .story-avatar {
