@@ -1228,6 +1228,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
         var title = section.querySelector('.section-title');
         if (title) title.insertAdjacentElement('afterend', storiesRow);
+
+        // Animate rings in sequence when section enters viewport
+        if ('IntersectionObserver' in window) {
+            var rings = storiesRow.querySelectorAll('.story-avatar-ring');
+            var observer = new IntersectionObserver(function(entries) {
+                if (!entries[0].isIntersecting) return;
+                rings.forEach(function(ring, i) {
+                    setTimeout(function() {
+                        ring.classList.add('animate-in');
+                    }, i * 130);
+                });
+                observer.disconnect();
+            }, { threshold: 0.4 });
+            observer.observe(storiesRow);
+        } else {
+            // Fallback: show rings immediately
+            storiesRow.querySelectorAll('.story-avatar-ring').forEach(function(ring) {
+                ring.classList.add('animate-in');
+            });
+        }
     }
 
     buildStories();
