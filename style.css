@@ -15103,3 +15103,58 @@ button[class*="btn-"]:hover,
         bottom: calc(70px + env(safe-area-inset-bottom, 0px) + 10px);
     }
 }
+
+/* Bottom nav variant 3 (2026): floating premium dock */
+@media (max-width: 768px) {
+    .bottom-nav {
+        left: 10px;
+        right: 10px;
+        bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+        height: 64px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(138, 154, 141, 0.28);
+        box-shadow: 0 12px 30px rgba(44, 44, 44, 0.16);
+        padding: 6px;
+        gap: 4px;
+    }
+
+    .bottom-nav-item {
+        border-radius: 14px;
+        color: #6f796b;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.15px;
+        transition: color 0.22s ease, background-color 0.22s ease, transform 0.22s ease;
+    }
+
+    .bottom-nav-item svg {
+        opacity: 0.9;
+        transform: scale(1.04);
+        transition: transform 0.22s ease, opacity 0.22s ease;
+    }
+
+    .bottom-nav-item.active {
+        color: #2f4835;
+        background: linear-gradient(180deg, rgba(154, 184, 158, 0.32) 0%, rgba(154, 184, 158, 0.2) 100%);
+        box-shadow: inset 0 0 0 1px rgba(95, 111, 98, 0.22);
+    }
+
+    .bottom-nav-item.active svg {
+        opacity: 1;
+        transform: scale(1.18);
+    }
+
+    .bottom-nav-item:active {
+        transform: translateY(1px);
+    }
+
+    body {
+        padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .bottom-nav-popup {
+        right: 10px;
+        bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+    }
+}
