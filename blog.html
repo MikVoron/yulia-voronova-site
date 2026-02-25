@@ -303,12 +303,16 @@
 			.blog-divider {
 				display: block;
 				border: 0;
-				width: 56px;
-				height: 8px;
-				margin: 12px auto 18px;
-				border-radius: 999px;
-				background: linear-gradient(90deg, #e8dcc8 0%, #9ab89e 50%, #e8dcc8 100%);
-				opacity: 0.8;
+				height: 1px;
+				width: calc(100% - 24px);
+				margin: 10px auto 16px;
+				background: linear-gradient(
+					to right,
+					transparent 0%,
+					rgba(154, 184, 158, 0.45) 20%,
+					rgba(154, 184, 158, 0.45) 80%,
+					transparent 100%
+				);
 			}
 		}
 	</style>
@@ -661,6 +665,7 @@
 </body>
 
 </html>
+
 
 
 
