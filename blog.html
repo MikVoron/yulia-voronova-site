@@ -303,16 +303,34 @@
 			.blog-divider {
 				display: block;
 				border: 0;
+				width: calc(100% - 28px);
+				margin: 12px auto 18px;
+				height: 16px;
+				background: none;
+				position: relative;
+			}
+
+			.blog-divider::before {
+				content: "";
+				position: absolute;
+				left: 0;
+				right: 0;
+				top: 7px;
 				height: 1px;
-				width: calc(100% - 24px);
-				margin: 10px auto 16px;
-				background: linear-gradient(
-					to right,
-					transparent 0%,
-					rgba(154, 184, 158, 0.45) 20%,
-					rgba(154, 184, 158, 0.45) 80%,
-					transparent 100%
-				);
+				background: rgba(154, 184, 158, 0.35);
+			}
+
+			.blog-divider::after {
+				content: "";
+				position: absolute;
+				left: 50%;
+				top: 4px;
+				width: 7px;
+				height: 7px;
+				transform: translateX(-50%);
+				border-radius: 50%;
+				background: #9ab89e;
+				box-shadow: 0 0 0 3px #f5f0e8;
 			}
 		}
 	</style>
@@ -665,6 +683,7 @@
 </body>
 
 </html>
+
 
 
 
