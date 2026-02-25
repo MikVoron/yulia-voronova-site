@@ -14764,7 +14764,7 @@ button[class*="btn-"]:hover,
 
 @media (max-width: 768px) {
     .chat-launcher {
-        bottom: 18px;
+        bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 16px);
         right: 18px;
     }
 
@@ -14863,5 +14863,141 @@ button[class*="btn-"]:hover,
 .blog-article-card {
     opacity: 1 !important;
     transform: none !important;
+}
+
+/* ========================================
+   BOTTOM NAVIGATION BAR (mobile only)
+   ======================================== */
+.bottom-nav {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.82);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border-top: 1px solid rgba(182, 196, 138, 0.25);
+        box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+        z-index: 500;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .bottom-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        flex: 1;
+        height: 100%;
+        text-decoration: none;
+        color: #9aa08a;
+        font-family: var(--font-montserrat);
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+        transition: color 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+    }
+
+    .bottom-nav-item svg {
+        transition: transform 0.2s ease;
+    }
+
+    .bottom-nav-item.active {
+        color: var(--sage-green);
+    }
+
+    .bottom-nav-item.active svg {
+        transform: scale(1.12);
+    }
+
+    .bottom-nav-item:active {
+        color: var(--sage-green);
+        opacity: 0.8;
+    }
+
+    /* Push body content above bottom nav */
+    body {
+        padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Burger menu hidden — bottom nav covers main navigation */
+    .burger-menu {
+        display: none !important;
+    }
+
+    /* "Узнай/Тесты" button — reset browser button styles */
+    #bottomNavMore {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+}
+
+/* Popup menu above "Узнай/Тесты" */
+.bottom-nav-popup {
+    display: none;
+    position: fixed;
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 8px);
+    right: 12px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(182, 196, 138, 0.3);
+    border-radius: 14px;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    z-index: 501;
+    min-width: 170px;
+    animation: bottomNavPopupIn 0.18s ease;
+}
+
+.bottom-nav-popup.open {
+    display: block;
+}
+
+@keyframes bottomNavPopupIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.bottom-nav-popup-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: var(--text-dark);
+    font-family: var(--font-montserrat);
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(182, 196, 138, 0.2);
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav-popup-item:last-child {
+    border-bottom: none;
+}
+
+.bottom-nav-popup-item:active {
+    background: rgba(182, 196, 138, 0.12);
+}
+
+.bottom-nav-popup-item svg {
+    flex-shrink: 0;
+    color: var(--sage-green);
 }
 
