@@ -15245,10 +15245,16 @@ button[class*="btn-"]:hover,
         transform: scale(0.93);
     }
 
-    /* Variant 2: fade + rise from below */
-    @keyframes storyRiseIn {
-        0%   { opacity: 0; transform: translateY(18px); }
-        100% { opacity: 1; transform: translateY(0); }
+    /* Variant 3: ring draws clockwise */
+    @property --ring-angle {
+        syntax: "<angle>";
+        inherits: false;
+        initial-value: 0deg;
+    }
+
+    @keyframes storyRingDraw {
+        0%   { --ring-angle: 0deg; opacity: 0.4; }
+        100% { --ring-angle: 360deg; opacity: 1; }
     }
 
     .testimonial-story {
@@ -15257,13 +15263,28 @@ button[class*="btn-"]:hover,
 
     .testimonial-story.animate-in {
         opacity: 1;
-        animation: storyRiseIn 0.45s ease-out forwards;
+    }
+
+    .testimonial-story.animate-in .story-avatar-ring {
+        animation: storyRingDraw 0.6s ease-out forwards;
+        background: conic-gradient(
+            from -90deg,
+            #8a9a8d 0deg,
+            #c5dfe8 var(--ring-angle),
+            rgba(154, 184, 158, 0.2) var(--ring-angle)
+        );
+    }
+
+    @supports not (background: conic-gradient(from 0deg, red 0deg, red 0deg)) {
+        .testimonial-story.animate-in .story-avatar-ring {
+            background: linear-gradient(135deg, #8a9a8d 0%, #c5dfe8 100%);
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .testimonial-story.animate-in {
+        .testimonial-story.animate-in .story-avatar-ring {
             animation: none;
-            opacity: 1;
+            background: linear-gradient(135deg, #8a9a8d 0%, #c5dfe8 100%);
         }
     }
 }
