@@ -1317,20 +1317,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 }());
 
-// Bottom nav press animation — Telegram-style
-// Background fills immediately on touchstart; button jumps up; animation completes ~500ms
-// Navigation is delayed 200ms so the jump is visible when finger lifts
+// Bottom nav animation — Telegram-style
+// - Background flash via CSS class (proven reliable on iOS + Android)
+// - Spring jump via element.animate() / WAAPI (more reliable than CSS @keyframes on iOS)
+// - Navigation delayed 200ms so jump is at peak when page transitions
 (function () {
     document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
         item.addEventListener('touchstart', function () {
+            // 1. Flash background colour (CSS class)
             item.classList.remove('nav-pressed');
-            void item.offsetWidth; // reflow restarts animation
+            void item.offsetWidth;
             item.classList.add('nav-pressed');
-            setTimeout(function () { item.classList.remove('nav-pressed'); }, 520);
+            setTimeout(function () { item.classList.remove('nav-pressed'); }, 600);
+
+            // 2. Spring jump via Web Animations API
+            //    translateY(-16px) + scale(1.18) → button pops clearly out of dock
+            item.animate([
+                { transform: 'scale(1)    translateY(0px)' },
+                { transform: 'scale(0.80) translateY(3px)',   offset: 0.18 },
+                { transform: 'scale(1.18) translateY(-16px)', offset: 0.50 },
+                { transform: 'scale(0.96) translateY(2px)',   offset: 0.76 },
+                { transform: 'scale(1)    translateY(0px)' }
+            ], { duration: 500, easing: 'ease-out', fill: 'none' });
         }, { passive: true });
     });
 
-    // Delay actual navigation so the jump animation is mid-play when page changes
+    // Delay navigation so animation is mid-spring when page changes (Telegram feel)
     document.querySelectorAll('a.bottom-nav-item').forEach(function (link) {
         link.addEventListener('click', function (e) {
             if (e.ctrlKey || e.metaKey || e.shiftKey) return;

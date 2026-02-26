@@ -1,4 +1,4 @@
-const CACHE = 'yulia-v1';
+const CACHE = 'yulia-v2';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE = [
