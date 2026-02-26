@@ -1317,17 +1317,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 }());
 
-// Bottom nav press animation (touchstart/touchend — works on iOS + Android)
+// Bottom nav press animation — keyframe fires on touchstart, auto-clears after animation
 (function () {
     document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
         item.addEventListener('touchstart', function () {
+            item.classList.remove('nav-pressed');
+            void item.offsetWidth; // reflow to restart animation
             item.classList.add('nav-pressed');
-        }, { passive: true });
-        item.addEventListener('touchend', function () {
-            item.classList.remove('nav-pressed');
-        }, { passive: true });
-        item.addEventListener('touchcancel', function () {
-            item.classList.remove('nav-pressed');
+            setTimeout(function () { item.classList.remove('nav-pressed'); }, 450);
         }, { passive: true });
     });
 }());
