@@ -1330,14 +1330,13 @@ document.addEventListener('DOMContentLoaded', () => {
             item.classList.add('nav-pressed');
             setTimeout(function () { item.classList.remove('nav-pressed'); }, 600);
 
-            // 2. Spring jump via Web Animations API
-            //    translateY(-16px) + scale(1.18) → button pops clearly out of dock
+            // V1 — Squish & Stretch (эластик): сплющивается + вытягивается как пружина
             item.animate([
-                { transform: 'scale(1)    translateY(0px)' },
-                { transform: 'scale(0.80) translateY(3px)',   offset: 0.18 },
-                { transform: 'scale(1.18) translateY(-16px)', offset: 0.50 },
-                { transform: 'scale(0.96) translateY(2px)',   offset: 0.76 },
-                { transform: 'scale(1)    translateY(0px)' }
+                { transform: 'scaleX(1)    scaleY(1)    translateY(0px)' },
+                { transform: 'scaleX(0.65) scaleY(1.42) translateY(3px)',   offset: 0.20 },
+                { transform: 'scaleX(1.22) scaleY(0.84) translateY(-14px)', offset: 0.52 },
+                { transform: 'scaleX(0.96) scaleY(1.03) translateY(2px)',   offset: 0.76 },
+                { transform: 'scaleX(1)    scaleY(1)    translateY(0px)' }
             ], { duration: 500, easing: 'ease-out', fill: 'none' });
         }, { passive: true });
     });
