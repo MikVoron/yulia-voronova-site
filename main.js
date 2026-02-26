@@ -1366,7 +1366,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { transform: 'rotate(-22deg)', offset: 0.35 },
             { transform: 'rotate(3deg)',   offset: 0.72 },
             { transform: 'rotate(0deg)' }
-        ], { duration: 430, easing: 'ease-out', fill: 'none' });
+        ], { duration: 650, easing: 'ease-out', fill: 'none' });
     }
 
     // Человек: рисуется круг вокруг иконки и исчезает
@@ -1389,7 +1389,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { transform: 'scale(0.3)', opacity: 0   },
             { transform: 'scale(1)',   opacity: 0.85, offset: 0.45 },
             { transform: 'scale(1.5)', opacity: 0   }
-        ], { duration: 520, easing: 'ease-out', fill: 'forwards' });
+        ], { duration: 750, easing: 'ease-out', fill: 'forwards' });
         a.onfinish = function () { ring.remove(); };
     }
 
@@ -1402,7 +1402,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { transform: 'scaleX(0)', offset: 0.35 },
             { transform: 'scaleX(1)', offset: 0.70 },
             { transform: 'scaleX(1)' }
-        ], { duration: 460, easing: 'ease-in-out', fill: 'none' });
+        ], { duration: 680, easing: 'ease-in-out', fill: 'none' });
     }
 
     // Блог: строчки появляются на листе и исчезают
@@ -1427,7 +1427,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { transform: 'scaleX(1)', opacity: 1,   offset: 0.45 },
                 { transform: 'scaleX(1)', opacity: 0,   offset: 0.85 },
                 { transform: 'scaleX(0)', opacity: 0   }
-            ], { duration: 480, delay: i * 80, easing: 'ease-out', fill: 'forwards' });
+            ], { duration: 700, delay: i * 110, easing: 'ease-out', fill: 'forwards' });
             a.onfinish = function () { line.remove(); };
         });
     }
@@ -1455,7 +1455,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { transform: 'rotate(' + angle + 'deg) scale(0)', opacity: 0   },
                 { transform: 'rotate(' + angle + 'deg) scale(1)', opacity: 0.8, offset: 0.4 },
                 { transform: 'rotate(' + angle + 'deg) scale(0)', opacity: 0   }
-            ], { duration: 540, delay: i * 22, easing: 'ease-out', fill: 'forwards' });
+            ], { duration: 780, delay: i * 35, easing: 'ease-out', fill: 'forwards' });
             a.onfinish = function () { ray.remove(); };
         });
     }
