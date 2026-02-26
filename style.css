@@ -15347,26 +15347,28 @@ button[class*="btn-"]:hover,
 
 
 /* ========================================
-   BOTTOM NAV ICON ANIMATION — touchstart/touchend (iOS + Android)
+   BOTTOM NAV ANIMATION — Telegram-style (iOS + Android)
+   Tap → background fills immediately (visible at edges around finger)
+        → button jumps up (visible when finger lifts)
+        → navigation happens while animation is still playing
    ======================================== */
 @media (max-width: 768px) {
-    .bottom-nav-item {
-        transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    background-color 0.35s ease !important;
+    @keyframes navItemJump {
+        0%   { transform: translateY(0);    }
+        22%  { transform: translateY(2px);  }
+        52%  { transform: translateY(-6px); }
+        76%  { transform: translateY(1px);  }
+        100% { transform: translateY(0);    }
     }
 
     .bottom-nav-item.nav-pressed {
-        transform: scale(0.78) !important;
-        background-color: rgba(138, 154, 141, 0.35) !important;
-        transition: transform 0.08s ease,
-                    background-color 0.05s ease !important;
+        background-color: rgba(138, 154, 141, 0.22) !important;
+        animation: navItemJump 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+        transition: none !important;
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .bottom-nav-item,
-        .bottom-nav-item.nav-pressed {
-            transition: none !important;
-        }
+        .bottom-nav-item.nav-pressed { animation: none !important; }
     }
 }
 

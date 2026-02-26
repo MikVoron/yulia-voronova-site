@@ -1317,15 +1317,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 }());
 
-// Bottom nav press animation — keyframe fires on touchstart, auto-clears after animation
+// Bottom nav press animation — Telegram-style
+// Background fills immediately on touchstart; button jumps up; animation completes ~500ms
+// Navigation is delayed 200ms so the jump is visible when finger lifts
 (function () {
     document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
         item.addEventListener('touchstart', function () {
             item.classList.remove('nav-pressed');
-            void item.offsetWidth; // reflow to restart animation
+            void item.offsetWidth; // reflow restarts animation
             item.classList.add('nav-pressed');
-            setTimeout(function () { item.classList.remove('nav-pressed'); }, 450);
+            setTimeout(function () { item.classList.remove('nav-pressed'); }, 520);
         }, { passive: true });
+    });
+
+    // Delay actual navigation so the jump animation is mid-play when page changes
+    document.querySelectorAll('a.bottom-nav-item').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+            e.preventDefault();
+            var href = link.getAttribute('href');
+            setTimeout(function () { window.location.href = href; }, 200);
+        });
     });
 }());
 
