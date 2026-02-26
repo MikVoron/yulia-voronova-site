@@ -1342,19 +1342,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Bottom navigation active state
 (function () {
-    const filename = window.location.pathname.split('/').pop() || 'index.html';
-    const navMap = {
-        'index.html': 'home',
-        '': 'home',
-        'about.html': 'about',
-        'blog.html': 'blog',
-        'guides.html': 'guides',
-        'tests.html': 'guides',
-        'questionnaires.html': 'guides',
-    };
-    const activeKey = navMap[filename];
-    if (activeKey) {
-        const el = document.querySelector(`.bottom-nav-item[data-nav="${activeKey}"]`);
-        if (el) el.classList.add('active');
+    function setBottomNavActive() {
+        document.querySelectorAll('.bottom-nav-item').forEach(el => el.classList.remove('active'));
+        const filename = window.location.pathname.split('/').pop() || 'index.html';
+        const hash = window.location.hash;
+        const navMap = {
+            'index.html': 'home',
+            '': 'home',
+            'about.html': 'about',
+            'blog.html': 'blog',
+            'guides.html': 'guides',
+            'tests.html': 'guides',
+            'questionnaires.html': 'guides',
+        };
+        let activeKey = navMap[filename];
+        if ((filename === 'index.html' || filename === '') && hash === '#tariffs') {
+            activeKey = 'tariffs';
+        }
+        if (activeKey) {
+            const el = document.querySelector(`.bottom-nav-item[data-nav="${activeKey}"]`);
+            if (el) el.classList.add('active');
+        }
     }
+    setBottomNavActive();
+    window.addEventListener('hashchange', setBottomNavActive);
 }());
