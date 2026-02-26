@@ -14908,6 +14908,8 @@ button[class*="btn-"]:hover,
         transition: color 0.2s ease;
         -webkit-tap-highlight-color: transparent;
         user-select: none;
+        position: relative;
+        overflow: hidden;
     }
 
     .bottom-nav-item svg {
@@ -15286,5 +15288,59 @@ button[class*="btn-"]:hover,
             animation: none;
             background: linear-gradient(135deg, #8a9a8d 0%, #c5dfe8 100%);
         }
+    }
+}
+
+
+/* ========================================
+   BOTTOM NAV RIPPLE
+   ======================================== */
+@media (max-width: 768px) {
+    .bottom-nav-ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(154, 184, 158, 0.4);
+        transform: scale(0);
+        animation: navRipple 0.45s ease-out forwards;
+        pointer-events: none;
+    }
+
+    @keyframes navRipple {
+        to {
+            transform: scale(2.8);
+            opacity: 0;
+        }
+    }
+}
+
+/* ========================================
+   VIEW TRANSITIONS (cross-page fade)
+   ======================================== */
+@view-transition {
+    navigation: auto;
+}
+
+::view-transition-old(root) {
+    animation: 200ms ease-out both vt-out;
+}
+
+::view-transition-new(root) {
+    animation: 220ms ease-in both vt-in;
+}
+
+@keyframes vt-out {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+@keyframes vt-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation: none;
     }
 }

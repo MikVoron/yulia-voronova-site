@@ -1184,68 +1184,6 @@ document.addEventListener('DOMContentLoaded', function() {
             showNextTestimonial();
         }
     });
-
-    // Mobile stories row
-    var storyColors = ['#9ab89e', '#c8b4a8', '#7a8c6e', '#b4a096', '#8fa882'];
-
-    function buildStories() {
-        var section = document.querySelector('.testimonials-social .container');
-        if (!section) return;
-
-        var storiesRow = document.createElement('div');
-        storiesRow.className = 'testimonial-stories';
-
-        testimonialData.forEach(function(data, index) {
-            var story = document.createElement('div');
-            story.className = 'testimonial-story';
-
-            var ring = document.createElement('div');
-            ring.className = 'story-avatar-ring';
-
-            var avatar = document.createElement('div');
-            avatar.className = 'story-avatar';
-            avatar.style.background = storyColors[index % storyColors.length];
-            avatar.textContent = data.name.charAt(0);
-
-            var name = document.createElement('span');
-            name.className = 'story-name';
-            name.textContent = data.name;
-
-            ring.appendChild(avatar);
-            story.appendChild(ring);
-            story.appendChild(name);
-
-            story.addEventListener('click', function() {
-                ring.classList.add('viewed');
-                currentTestimonialIndex = index;
-                updateModalContent();
-                testimonialModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            });
-
-            storiesRow.appendChild(story);
-        });
-
-        var title = section.querySelector('.section-title');
-        if (title) title.insertAdjacentElement('afterend', storiesRow);
-
-        // Animate stories on scroll into view
-        var stories = storiesRow.querySelectorAll('.testimonial-story');
-        if ('IntersectionObserver' in window) {
-            var io = new IntersectionObserver(function(entries) {
-                if (!entries[0].isIntersecting) return;
-                stories.forEach(function(story, i) {
-                    setTimeout(function() { story.classList.add('animate-in'); }, i * 120);
-                });
-                io.disconnect();
-            }, { threshold: 0.3 });
-            io.observe(storiesRow);
-        } else {
-            stories.forEach(function(s) { s.classList.add('animate-in'); });
-        }
-    }
-
-    buildStories();
 });
 
 // Privacy checkbox validation with tooltip
@@ -1359,8 +1297,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const el = e.target.closest(
             'button, a, .tariff-card-collapsible, .grid-item, .social-testimonial-card, .guide-card, .guide-card-full, .guide-card-minimal, .blog-article-card, .faq-item, .bottom-nav-item, .bottom-nav-popup-item, .tab-btn, .filter-btn, .test-answer-btn, .testimonial-modal-close, .success-modal-close, .diploma-card, .lead-scenario-btn, .test-catalog-card, #testimonial-modal-image'
         );
-        if (el) navigator.vibrate(50);
+        if (el) navigator.vibrate(15);
     }, { passive: true });
+}());
+
+// Bottom nav ripple on tap
+(function () {
+    document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
+        item.addEventListener('click', function (e) {
+            var ripple = document.createElement('span');
+            ripple.className = 'bottom-nav-ripple';
+            var rect = item.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            ripple.style.cssText = 'width:' + size + 'px;height:' + size + 'px;' +
+                'left:' + (e.clientX - rect.left - size / 2) + 'px;' +
+                'top:' + (e.clientY - rect.top - size / 2) + 'px;';
+            item.appendChild(ripple);
+            setTimeout(function () { ripple.remove(); }, 500);
+        });
+    });
 }());
 
 // Bottom nav "Узнай/Тесты" popup
@@ -1387,28 +1342,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Bottom navigation active state
 (function () {
-    function setBottomNavActive() {
-        document.querySelectorAll('.bottom-nav-item').forEach(el => el.classList.remove('active'));
-        const filename = window.location.pathname.split('/').pop() || 'index.html';
-        const hash = window.location.hash;
-        const navMap = {
-            'index.html': 'home',
-            '': 'home',
-            'about.html': 'about',
-            'blog.html': 'blog',
-            'guides.html': 'guides',
-            'tests.html': 'guides',
-            'questionnaires.html': 'guides',
-        };
-        let activeKey = navMap[filename];
-        if ((filename === 'index.html' || filename === '') && hash === '#tariffs') {
-            activeKey = 'tariffs';
-        }
-        if (activeKey) {
-            const el = document.querySelector(`.bottom-nav-item[data-nav="${activeKey}"]`);
-            if (el) el.classList.add('active');
-        }
+    const filename = window.location.pathname.split('/').pop() || 'index.html';
+    const navMap = {
+        'index.html': 'home',
+        '': 'home',
+        'about.html': 'about',
+        'blog.html': 'blog',
+        'guides.html': 'guides',
+        'tests.html': 'guides',
+        'questionnaires.html': 'guides',
+    };
+    const activeKey = navMap[filename];
+    if (activeKey) {
+        const el = document.querySelector(`.bottom-nav-item[data-nav="${activeKey}"]`);
+        if (el) el.classList.add('active');
     }
-    setBottomNavActive();
-    window.addEventListener('hashchange', setBottomNavActive);
 }());
