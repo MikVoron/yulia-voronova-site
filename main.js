@@ -1330,14 +1330,14 @@ document.addEventListener('DOMContentLoaded', () => {
             item.classList.add('nav-pressed');
             setTimeout(function () { item.classList.remove('nav-pressed'); }, 600);
 
-            // V1 — Squish & Stretch (эластик): сплющивается + вытягивается как пружина
+            // Мягкое нажатие: слегка продавливается, плавно возвращается, без прыжков
             item.animate([
-                { transform: 'scaleX(1)    scaleY(1)    translateY(0px)' },
-                { transform: 'scaleX(0.65) scaleY(1.42) translateY(3px)',   offset: 0.20 },
-                { transform: 'scaleX(1.22) scaleY(0.84) translateY(-14px)', offset: 0.52 },
-                { transform: 'scaleX(0.96) scaleY(1.03) translateY(2px)',   offset: 0.76 },
-                { transform: 'scaleX(1)    scaleY(1)    translateY(0px)' }
-            ], { duration: 500, easing: 'ease-out', fill: 'none' });
+                { transform: 'scale(1)' },
+                { transform: 'scale(0.88)', offset: 0.18 },
+                { transform: 'scale(1.04)', offset: 0.55 },
+                { transform: 'scale(0.99)', offset: 0.80 },
+                { transform: 'scale(1)' }
+            ], { duration: 380, easing: 'ease-out', fill: 'none' });
         }, { passive: true });
     });
 

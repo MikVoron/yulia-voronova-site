@@ -15354,8 +15354,8 @@ button[class*="btn-"]:hover,
    ======================================== */
 @media (max-width: 768px) {
     .bottom-nav-item.nav-pressed {
-        background-color: rgba(138, 154, 141, 0.42) !important;
-        transition: background-color 0.45s ease !important;
+        background-color: rgba(138, 154, 141, 0.28) !important;
+        transition: background-color 0.38s ease !important;
     }
 }
 
