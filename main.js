@@ -1352,6 +1352,130 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 }());
 
+// Per-icon animations for bottom nav (WAAPI — reliable on iOS + Android)
+// Each nav button has its own unique visual animation on tap
+(function () {
+    if (!document.querySelector('.bottom-nav-item')) return;
+
+    // Домик: наклоняется влево и мягко возвращается
+    function animHome(item) {
+        var svg = item.querySelector('svg');
+        if (!svg || !svg.animate) return;
+        svg.animate([
+            { transform: 'rotate(0deg)' },
+            { transform: 'rotate(-22deg)', offset: 0.35 },
+            { transform: 'rotate(3deg)',   offset: 0.72 },
+            { transform: 'rotate(0deg)' }
+        ], { duration: 430, easing: 'ease-out', fill: 'none' });
+    }
+
+    // Человек: рисуется круг вокруг иконки и исчезает
+    function animAbout(item) {
+        var svg = item.querySelector('svg');
+        if (!svg) return;
+        var sr = svg.getBoundingClientRect();
+        var ir = item.getBoundingClientRect();
+        if (!sr.width) return;
+        var cx = sr.left - ir.left + sr.width  / 2;
+        var cy = sr.top  - ir.top  + sr.height / 2;
+        var d  = sr.width + 10;
+        var ring = document.createElement('span');
+        ring.style.cssText = 'position:absolute;border-radius:50%;border:2px solid currentColor;' +
+            'width:' + d + 'px;height:' + d + 'px;' +
+            'left:' + (cx - d / 2) + 'px;top:' + (cy - d / 2) + 'px;' +
+            'pointer-events:none;z-index:10;box-sizing:border-box';
+        item.appendChild(ring);
+        var a = ring.animate([
+            { transform: 'scale(0.3)', opacity: 0   },
+            { transform: 'scale(1)',   opacity: 0.85, offset: 0.45 },
+            { transform: 'scale(1.5)', opacity: 0   }
+        ], { duration: 520, easing: 'ease-out', fill: 'forwards' });
+        a.onfinish = function () { ring.remove(); };
+    }
+
+    // Рубль: переворачивается как монета (scaleX 1→0→1)
+    function animTariffs(item) {
+        var svg = item.querySelector('svg');
+        if (!svg || !svg.animate) return;
+        svg.animate([
+            { transform: 'scaleX(1)' },
+            { transform: 'scaleX(0)', offset: 0.35 },
+            { transform: 'scaleX(1)', offset: 0.70 },
+            { transform: 'scaleX(1)' }
+        ], { duration: 460, easing: 'ease-in-out', fill: 'none' });
+    }
+
+    // Блог: строчки появляются на листе и исчезают
+    function animBlog(item) {
+        var svg = item.querySelector('svg');
+        if (!svg) return;
+        var sr = svg.getBoundingClientRect();
+        var ir = item.getBoundingClientRect();
+        if (!sr.width) return;
+        var cx = sr.left - ir.left + sr.width  / 2;
+        var cy = sr.top  - ir.top  + sr.height / 2;
+        var w  = sr.width * 0.58;
+        [0, 1, 2].forEach(function (i) {
+            var line = document.createElement('span');
+            line.style.cssText = 'position:absolute;height:1.5px;background:currentColor;border-radius:1px;' +
+                'top:' + (cy - 4 + i * 5) + 'px;left:' + (cx - w / 2) + 'px;' +
+                'width:' + w + 'px;transform-origin:left center;transform:scaleX(0);' +
+                'pointer-events:none;z-index:10';
+            item.appendChild(line);
+            var a = line.animate([
+                { transform: 'scaleX(0)', opacity: 1   },
+                { transform: 'scaleX(1)', opacity: 1,   offset: 0.45 },
+                { transform: 'scaleX(1)', opacity: 0,   offset: 0.85 },
+                { transform: 'scaleX(0)', opacity: 0   }
+            ], { duration: 480, delay: i * 80, easing: 'ease-out', fill: 'forwards' });
+            a.onfinish = function () { line.remove(); };
+        });
+    }
+
+    // Лампочка: лучи появляются вокруг иконки и исчезают
+    function animGuides(item) {
+        var svg = item.querySelector('svg');
+        if (!svg) return;
+        var sr = svg.getBoundingClientRect();
+        var ir = item.getBoundingClientRect();
+        if (!sr.width) return;
+        var cx = sr.left - ir.left + sr.width  / 2;
+        var cy = sr.top  - ir.top  + sr.height / 2;
+        var r  = sr.width / 2 + 4;
+        [0, 45, 90, 135, 180, 225, 270, 315].forEach(function (angle, i) {
+            var rad = (angle - 90) * Math.PI / 180;
+            var x   = cx + r * Math.cos(rad);
+            var y   = cy + r * Math.sin(rad);
+            var ray = document.createElement('span');
+            ray.style.cssText = 'position:absolute;width:2px;height:5px;background:currentColor;' +
+                'border-radius:1px;left:' + (x - 1) + 'px;top:' + (y - 2.5) + 'px;' +
+                'pointer-events:none;z-index:10;opacity:0';
+            item.appendChild(ray);
+            var a = ray.animate([
+                { transform: 'rotate(' + angle + 'deg) scale(0)', opacity: 0   },
+                { transform: 'rotate(' + angle + 'deg) scale(1)', opacity: 0.8, offset: 0.4 },
+                { transform: 'rotate(' + angle + 'deg) scale(0)', opacity: 0   }
+            ], { duration: 540, delay: i * 22, easing: 'ease-out', fill: 'forwards' });
+            a.onfinish = function () { ray.remove(); };
+        });
+    }
+
+    var iconAnims = {
+        home:    animHome,
+        about:   animAbout,
+        tariffs: animTariffs,
+        blog:    animBlog,
+        guides:  animGuides
+    };
+
+    document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
+        item.addEventListener('touchstart', function () {
+            var fn = iconAnims[item.getAttribute('data-nav')];
+            if (fn) fn(item);
+        }, { passive: true });
+    });
+}());
+
 // Bottom nav ripple on tap
 (function () {
     document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
