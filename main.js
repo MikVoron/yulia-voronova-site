@@ -480,8 +480,17 @@ function updateActiveLink() {
     });
 }
 
-// Update active link on scroll
-window.addEventListener('scroll', updateActiveLink);
+// Update active link on scroll (rAF throttle)
+let _scrollTicking = false;
+window.addEventListener('scroll', function () {
+    if (!_scrollTicking) {
+        requestAnimationFrame(function () {
+            updateActiveLink();
+            _scrollTicking = false;
+        });
+        _scrollTicking = true;
+    }
+}, { passive: true });
 
 // Update active link on page load
 document.addEventListener('DOMContentLoaded', updateActiveLink);
