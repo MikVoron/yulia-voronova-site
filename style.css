@@ -15344,3 +15344,25 @@ button[class*="btn-"]:hover,
         animation: none;
     }
 }
+
+
+/* ========================================
+   BOTTOM NAV ICON ANIMATION — Variant 1: Spring Bounce
+   ======================================== */
+@media (max-width: 768px) {
+    @keyframes navIconBounce {
+        0%   { transform: scale(1)    translateY(0);   }
+        20%  { transform: scale(0.72) translateY(3px); }
+        55%  { transform: scale(1.32) translateY(-6px);}
+        75%  { transform: scale(0.92) translateY(1px); }
+        100% { transform: scale(1)    translateY(0);   }
+    }
+
+    .nav-icon-pop {
+        animation: navIconBounce 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .nav-icon-pop { animation: none; }
+    }
+}

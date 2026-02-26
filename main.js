@@ -1317,6 +1317,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 }());
 
+// Bottom nav icon animation on tap
+(function () {
+    document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
+        item.addEventListener('click', function () {
+            var svg = item.querySelector('svg');
+            if (!svg) return;
+            svg.classList.remove('nav-icon-pop');
+            void svg.offsetWidth;
+            svg.classList.add('nav-icon-pop');
+            svg.addEventListener('animationend', function () {
+                svg.classList.remove('nav-icon-pop');
+            }, { once: true });
+        });
+    });
+}());
+
 // Bottom nav ripple on tap
 (function () {
     document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
