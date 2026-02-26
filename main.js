@@ -1542,3 +1542,66 @@ document.addEventListener('DOMContentLoaded', () => {
     setBottomNavActive();
     window.addEventListener('hashchange', setBottomNavActive);
 }());
+
+// Blog image lightbox — tap to view fullscreen, swipe down or tap outside to close
+(function () {
+    var imgs = document.querySelectorAll('.blog-card-image img');
+    if (!imgs.length) return;
+
+    // Build overlay (created once, reused)
+    var overlay = document.createElement('div');
+    overlay.className = 'img-lightbox-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+
+    var lightImg = document.createElement('img');
+    lightImg.setAttribute('alt', '');
+
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'img-lightbox-close';
+    closeBtn.setAttribute('aria-label', 'Закрыть');
+    closeBtn.innerHTML = '&times;';
+
+    overlay.appendChild(lightImg);
+    overlay.appendChild(closeBtn);
+
+    function openLightbox(src, alt) {
+        lightImg.src = src;
+        lightImg.alt = alt || '';
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+        // Double rAF ensures transition fires after paint
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () { overlay.classList.add('active'); });
+        });
+    }
+
+    function closeLightbox() {
+        overlay.classList.remove('active');
+        setTimeout(function () {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            document.body.style.overflow = '';
+        }, 260);
+    }
+
+    // Close on backdrop tap (not on image itself)
+    overlay.addEventListener('click', function (e) {
+        if (e.target !== lightImg) closeLightbox();
+    });
+    closeBtn.addEventListener('click', closeLightbox);
+
+    // Swipe down to close
+    var _ly0 = 0;
+    overlay.addEventListener('touchstart', function (e) { _ly0 = e.touches[0].clientY; }, { passive: true });
+    overlay.addEventListener('touchend',   function (e) {
+        if (e.changedTouches[0].clientY - _ly0 > 55) closeLightbox();
+    }, { passive: true });
+
+    // Escape key
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLightbox(); });
+
+    // Attach tap handler to each blog image
+    imgs.forEach(function (el) {
+        el.addEventListener('click', function () { openLightbox(el.src, el.alt); });
+    });
+}());
