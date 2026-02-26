@@ -1317,6 +1317,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 }());
 
+// Bottom nav press animation (touchstart/touchend — works on iOS + Android)
+(function () {
+    document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
+        item.addEventListener('touchstart', function () {
+            item.classList.add('nav-pressed');
+        }, { passive: true });
+        item.addEventListener('touchend', function () {
+            item.classList.remove('nav-pressed');
+        }, { passive: true });
+        item.addEventListener('touchcancel', function () {
+            item.classList.remove('nav-pressed');
+        }, { passive: true });
+    });
+}());
+
 // Bottom nav ripple on tap
 (function () {
     document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
