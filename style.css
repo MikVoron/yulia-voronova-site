@@ -15366,3 +15366,17 @@ button[class*="btn-"]:hover,
         }
     }
 }
+
+
+/* ========================================
+   BOTTOM NAV — persistent during View Transitions
+   ======================================== */
+.bottom-nav,
+.bottom-nav-popup {
+    view-transition-name: bottom-nav;
+}
+
+::view-transition-old(bottom-nav),
+::view-transition-new(bottom-nav) {
+    animation: none;
+}
