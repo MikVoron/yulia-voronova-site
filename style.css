@@ -14754,7 +14754,12 @@ button[class*="btn-"]:hover,
 }
 
 .chat-option-tawk svg {
-    fill: #9a7878;
+    fill: #7ab5c8;
+}
+
+/* Dots inside the main chat launcher message icon */
+.chat-icon-msg .chat-dots {
+    fill: rgba(90, 150, 185, 0.5);
 }
 
 .chat-option:hover {
