@@ -110,33 +110,145 @@
       box-shadow: 0 8px 40px rgba(30,36,32,.09);
     }
 
-    /* ── Header: image only ── */
+    /* ── Header: split (text left + image right) ── */
     .guide-header {
-      padding: 0;
-      line-height: 0;
-      font-size: 0;
-      background: var(--sage-light);
-      min-height: 60px;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      min-height: 320px;
     }
-    .guide-header-img {
-      width: 100%;
-      height: auto;
-      display: block;
-      object-fit: cover;
-    }
-    /* Placeholder when no image yet */
-    .guide-header-placeholder {
-      width: 100%;
-      height: 260px;
-      background: linear-gradient(135deg, #1e3d2a 0%, #2e7d52 60%, #4aab6e 100%);
+    /* Left panel — colored text area */
+    .guide-header-left {
+      background: linear-gradient(145deg, #3a5c48 0%, #5a8a6e 55%, #7aac90 100%);
+      padding: 48px 44px;
       display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .guide-header-left::before {
+      content: '';
+      position: absolute;
+      right: -80px; top: -80px;
+      width: 240px; height: 240px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,.1);
+      pointer-events: none;
+    }
+    .guide-header-left::after {
+      content: '';
+      position: absolute;
+      right: -40px; bottom: -60px;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.07);
+      pointer-events: none;
+    }
+    .gh-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 50px;
+      padding: 5px 14px;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.9);
+      width: fit-content;
+      margin-bottom: 20px;
+    }
+    .gh-badge span {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #a8e8c0;
+      display: inline-block;
+    }
+    .gh-title {
+      font-family: var(--ff-head);
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
+      font-weight: 500;
+      color: white;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin-bottom: 20px;
+    }
+    .gh-title em {
+      font-style: italic;
+      font-weight: 300;
+      color: rgba(255,255,255,.82);
+      display: block;
+    }
+    .gh-divider {
+      width: 40px;
+      height: 1.5px;
+      background: rgba(255,255,255,.35);
+      margin-bottom: 18px;
+    }
+    .gh-author {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 3px;
+    }
+    .gh-role {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,.68);
+      margin-bottom: 10px;
+    }
+    .gh-links {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .gh-links a {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,.72);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color .2s;
+    }
+    .gh-links a:hover { color: white; }
+
+    /* Right panel — image */
+    .guide-header-right {
+      position: relative;
+      overflow: hidden;
+      background: #c8d8cc;
+    }
+    .guide-header-right img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+    /* Placeholder text when no image */
+    .gh-img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-family: var(--ff-body);
-      font-size: 0.78rem;
-      color: rgba(255,255,255,.45);
+      gap: 10px;
+      color: rgba(255,255,255,.55);
+      font-size: 0.72rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      text-align: center;
+      padding: 20px;
+    }
+    .gh-img-placeholder svg { opacity: .4; }
+
+    /* Header responsive */
+    @media (max-width: 640px) {
+      .guide-header { grid-template-columns: 1fr; }
+      .guide-header-left { padding: 36px 28px; }
+      .guide-header-right { height: 220px; }
     }
 
     /* ── Content area ── */
@@ -491,7 +603,10 @@
       .page-shell { padding: 0; max-width: 100%; }
       .top-nav { display: none !important; }
       .guide-doc { box-shadow: none; border-radius: 0; }
-      .guide-header-placeholder { height: 180px; }
+      .guide-header { min-height: 200px; }
+      .guide-header-left { padding: 32px 32px; }
+      .gh-title { font-size: 24pt; }
+      .guide-header-right { min-width: 200px; }
       .guide-body { padding: 24px 32px 32px; }
       .choice-grid { gap: 10px; }
       .choice-head { padding: 10px 14px; }
@@ -559,11 +674,35 @@
     <!-- Guide document -->
     <article class="guide-doc">
 
-      <!-- Header: image (1200×420px) -->
+      <!-- Header: split layout -->
       <header class="guide-header">
-        <!-- Замените src на путь к вашей картинке 1200×420px -->
-        <!-- <img src="../images/covers/guide-fish-header.jpg" alt="Как выбрать рыбу — гайд нутрициолога Юлии Вороновой" class="guide-header-img" width="1200" height="420"> -->
-        <div class="guide-header-placeholder">Шапка-картинка · 1200 × 420 px</div>
+
+        <!-- Left: text panel -->
+        <div class="guide-header-left">
+          <div class="gh-badge"><span></span> Мини-гайд · Нутрициология</div>
+          <h1 class="gh-title">
+            Как выбрать
+            <em>рыбу</em>
+          </h1>
+          <div class="gh-divider"></div>
+          <div class="gh-author">Юлия Воронова</div>
+          <div class="gh-role">Доказательный нутрициолог</div>
+          <div class="gh-links">
+            <a href="https://voronova.online" target="_blank" rel="noopener">www.voronova.online</a>
+            <a href="https://t.me/voronova_nutrition" target="_blank" rel="noopener">@voronova_nutrition</a>
+          </div>
+        </div>
+
+        <!-- Right: your photo/image (square or portrait, min 600×600px) -->
+        <!-- Замените заглушку на вашу картинку: -->
+        <!-- <img src="../images/covers/guide-fish-photo.jpg" alt="Рыба" class="..."> -->
+        <div class="guide-header-right">
+          <div class="gh-img-placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="white"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+            Ваша картинка<br>600 × 600 px<br>(квадрат или портрет)
+          </div>
+        </div>
+
       </header>
 
       <!-- Body -->
