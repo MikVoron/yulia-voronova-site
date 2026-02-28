@@ -110,145 +110,188 @@
       box-shadow: 0 8px 40px rgba(30,36,32,.09);
     }
 
-    /* ── Header: split (text left + image right) ── */
+    /* ── Header: image 2/3 left + text 1/3 right ── */
     .guide-header {
       display: grid;
-      grid-template-columns: 1fr 300px;
-      min-height: 320px;
+      grid-template-columns: 2fr 1fr;
+      min-height: 300px;
     }
-    /* Left panel — colored text area */
-    .guide-header-left {
-      background: linear-gradient(145deg, #3a5c48 0%, #5a8a6e 55%, #7aac90 100%);
-      padding: 48px 44px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 0;
-      position: relative;
-      overflow: hidden;
-    }
-    .guide-header-left::before {
-      content: '';
-      position: absolute;
-      right: -80px; top: -80px;
-      width: 240px; height: 240px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(255,255,255,.1);
-      pointer-events: none;
-    }
-    .guide-header-left::after {
-      content: '';
-      position: absolute;
-      right: -40px; bottom: -60px;
-      width: 160px; height: 160px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,.07);
-      pointer-events: none;
-    }
-    .gh-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255,255,255,.15);
-      border: 1px solid rgba(255,255,255,.25);
-      border-radius: 50px;
-      padding: 5px 14px;
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.13em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.9);
-      width: fit-content;
-      margin-bottom: 20px;
-    }
-    .gh-badge span {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: #a8e8c0;
-      display: inline-block;
-    }
-    .gh-title {
-      font-family: var(--ff-head);
-      font-size: clamp(2rem, 3.5vw, 2.8rem);
-      font-weight: 500;
-      color: white;
-      line-height: 1.1;
-      letter-spacing: -0.01em;
-      margin-bottom: 20px;
-    }
-    .gh-title em {
-      font-style: italic;
-      font-weight: 300;
-      color: rgba(255,255,255,.82);
-      display: block;
-    }
-    .gh-divider {
-      width: 40px;
-      height: 1.5px;
-      background: rgba(255,255,255,.35);
-      margin-bottom: 18px;
-    }
-    .gh-author {
-      font-size: 0.84rem;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 3px;
-    }
-    .gh-role {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,.68);
-      margin-bottom: 10px;
-    }
-    .gh-links {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .gh-links a {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,.72);
-      text-decoration: none;
-      font-weight: 500;
-      transition: color .2s;
-    }
-    .gh-links a:hover { color: white; }
 
-    /* Right panel — image */
-    .guide-header-right {
+    /* Left panel — image */
+    .guide-header-left {
       position: relative;
       overflow: hidden;
       background: #c8d8cc;
     }
-    .guide-header-right img {
+    .guide-header-left img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center top;
+      object-position: center;
       display: block;
     }
-    /* Placeholder text when no image */
     .gh-img-placeholder {
       width: 100%;
       height: 100%;
+      min-height: 300px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      color: rgba(255,255,255,.55);
+      color: rgba(255,255,255,.6);
       font-size: 0.72rem;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       text-align: center;
       padding: 20px;
     }
     .gh-img-placeholder svg { opacity: .4; }
 
+    /* Right panel — white, text + logo */
+    .guide-header-right {
+      background: #fff;
+      border-left: 1px solid var(--border);
+      padding: 36px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0;
+    }
+    .gh-logo-wrap {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: var(--sage-light);
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      margin-bottom: 18px;
+      flex-shrink: 0;
+    }
+    .gh-logo-wrap img { width: 42px; height: 42px; object-fit: contain; }
+    .gh-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 4px 12px;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--muted);
+      width: fit-content;
+      margin-bottom: 12px;
+    }
+    .gh-title {
+      font-family: var(--ff-head);
+      font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+      font-weight: 500;
+      color: var(--dark);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin-bottom: 16px;
+    }
+    .gh-title em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--green);
+    }
+    .gh-author {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 3px;
+    }
+    .gh-links {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .gh-links a {
+      font-size: 0.7rem;
+      color: var(--sage);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color .2s;
+    }
+    .gh-links a:hover { color: var(--green); }
+
     /* Header responsive */
-    @media (max-width: 640px) {
+    @media (max-width: 700px) {
       .guide-header { grid-template-columns: 1fr; }
-      .guide-header-left { padding: 36px 28px; }
-      .guide-header-right { height: 220px; }
+      .guide-header-left { min-height: 200px; }
+      .gh-img-placeholder { min-height: 200px; }
+      .guide-header-right { padding: 28px 24px; border-left: none; border-top: 1px solid var(--border); }
+    }
+
+    /* ── Guide content image slots ── */
+    .guide-img-slot {
+      border-radius: 14px;
+      overflow: hidden;
+      background: #e8eee9;
+      position: relative;
+    }
+    .guide-img-slot img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .img-slot-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #9aaa9c;
+      font-size: 0.7rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 20px;
+    }
+    .img-slot-placeholder svg { opacity: .5; }
+    .img-slot-caption {
+      font-size: 0.68rem;
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    /* Slot 1 — wide banner after intro */
+    .img-slot-1 {
+      height: 240px;
+      margin-bottom: 36px;
+    }
+
+    /* Slot 2 — side image next to warning */
+    .warning-with-img {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 16px;
+      align-items: stretch;
+      margin-bottom: 28px;
+    }
+    .img-slot-2 { height: auto; min-height: 180px; }
+
+    /* Slot 3 — image in portion section */
+    .portion-section-grid {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+    .img-slot-3 { min-height: 200px; }
+
+    @media (max-width: 768px) {
+      .warning-with-img { grid-template-columns: 1fr; }
+      .img-slot-2 { min-height: 160px; }
+      .portion-section-grid { grid-template-columns: 1fr; }
+      .img-slot-3 { min-height: 140px; }
+      .img-slot-1 { height: 180px; }
     }
 
     /* ── Content area ── */
@@ -674,32 +717,30 @@
     <!-- Guide document -->
     <article class="guide-doc">
 
-      <!-- Header: split layout -->
+      <!-- Header: image 2/3 + text 1/3 -->
       <header class="guide-header">
 
-        <!-- Left: text panel -->
+        <!-- Left 2/3: image -->
+        <!-- Когда дадите картинку, замените заглушку на: -->
+        <!-- <img src="../images/covers/guide-fish-header.jpg" alt="Как выбрать рыбу"> -->
         <div class="guide-header-left">
-          <div class="gh-badge"><span></span> Мини-гайд · Нутрициология</div>
-          <h1 class="gh-title">
-            Как выбрать
-            <em>рыбу</em>
-          </h1>
-          <div class="gh-divider"></div>
-          <div class="gh-author">Юлия Воронова</div>
-          <div class="gh-role">Доказательный нутрициолог</div>
-          <div class="gh-links">
-            <a href="https://voronova.online" target="_blank" rel="noopener">www.voronova.online</a>
-            <a href="https://t.me/voronova_nutrition" target="_blank" rel="noopener">@voronova_nutrition</a>
+          <div class="gh-img-placeholder">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="#9aaa9c"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+            Ваша картинка · любой квадрат / портрет
           </div>
         </div>
 
-        <!-- Right: your photo/image (square or portrait, min 600×600px) -->
-        <!-- Замените заглушку на вашу картинку: -->
-        <!-- <img src="../images/covers/guide-fish-photo.jpg" alt="Рыба" class="..."> -->
+        <!-- Right 1/3: white text panel -->
         <div class="guide-header-right">
-          <div class="gh-img-placeholder">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="white"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
-            Ваша картинка<br>600 × 600 px<br>(квадрат или портрет)
+          <div class="gh-logo-wrap">
+            <img src="../images/icons/logo-small.png" alt="Логотип Юлии Вороновой" width="42" height="42">
+          </div>
+          <div class="gh-badge">Мини-гайд</div>
+          <h1 class="gh-title">Как выбрать <em>рыбу</em></h1>
+          <div class="gh-author">Юлия Воронова, доказательный нутрициолог</div>
+          <div class="gh-links">
+            <a href="https://voronova.online" target="_blank" rel="noopener">www.voronova.online</a>
+            <a href="https://t.me/voronova_nutrition" target="_blank" rel="noopener">@voronova_nutrition</a>
           </div>
         </div>
 
@@ -707,22 +748,6 @@
 
       <!-- Body -->
       <div class="guide-body">
-
-        <!-- Title block -->
-        <div class="guide-title-block">
-          <div class="guide-title-logo">
-            <img src="../images/icons/logo-small.png" alt="Логотип Юлии Вороновой" width="38" height="38">
-          </div>
-          <div class="guide-title-text">
-            <span class="guide-title-label">Мини-гайд</span>
-            <h1 class="guide-title-h1">Как выбрать <em>рыбу</em></h1>
-            <div class="guide-author-line">Юлия Воронова, доказательный нутрициолог</div>
-            <div class="guide-contacts">
-              <a href="https://voronova.online" target="_blank" rel="noopener">www.voronova.online</a>
-              <a href="https://t.me/voronova_nutrition" target="_blank" rel="noopener">@voronova_nutrition</a>
-            </div>
-          </div>
-        </div>
 
         <!-- Intro: large feature block -->
         <div class="intro-feature">
@@ -733,8 +758,18 @@
           </p>
         </div>
 
+        <!-- IMAGE SLOT 1: широкая горизонтальная картинка (рыба на рынке / красивый натюрморт) -->
+        <!-- Замените заглушку: <img src="../images/guides/fish-1.jpg" alt="..."> -->
+        <div class="guide-img-slot img-slot-1">
+          <div class="img-slot-placeholder">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="#9aaa9c"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+            Картинка 1 · широкая горизонтальная
+          </div>
+        </div>
+        <p class="img-slot-caption">Свежая рыба — богатый источник омега-3 и белка</p>
+
         <!-- Choice grid -->
-        <div class="section-eyebrow">Таблица выбора рыбы</div>
+        <div class="section-eyebrow" style="margin-top:28px;">Таблица выбора рыбы</div>
 
         <div class="choice-grid">
 
@@ -839,35 +874,54 @@
 
         <div class="divider"></div>
 
-        <!-- Warning -->
-        <div class="warning-block">
-          <div class="warning-left">
-            <div class="warning-icon">☝️</div>
-            <div class="warning-label">Важно<br>знать</div>
+        <!-- IMAGE SLOT 2 + Warning — рядом -->
+        <div class="warning-with-img">
+          <div class="warning-block" style="margin-bottom:0;">
+            <div class="warning-left">
+              <div class="warning-icon">☝️</div>
+              <div class="warning-label">Важно<br>знать</div>
+            </div>
+            <div class="warning-right">
+              <p>Выбирайте морепродукты с меньшим содержанием ртути. Это особенно важно для <strong>детей младшего возраста, беременных и кормящих</strong> женщин.</p>
+            </div>
           </div>
-          <div class="warning-right">
-            <p>Выбирайте морепродукты с меньшим содержанием ртути. Это особенно важно для <strong>детей младшего возраста, беременных и кормящих</strong> женщин.</p>
+          <!-- Замените заглушку: <img src="../images/guides/fish-2.jpg" alt="..."> -->
+          <div class="guide-img-slot img-slot-2">
+            <div class="img-slot-placeholder">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="#9aaa9c"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+              Картинка 2
+            </div>
           </div>
         </div>
 
         <!-- Portion section -->
         <div class="section-eyebrow">Что такое порция?</div>
 
-        <div class="portion-grid">
-          <div class="portion-card">
-            <div class="portion-icon-wrap">🖐️</div>
-            <div class="portion-info">
-              <div class="portion-label">Взрослая порция</div>
-              <div class="portion-title">Размер ладони</div>
-              <p class="portion-text">Одна порция рыбы для взрослого — кусок размером с вашу ладонь (без пальцев), толщиной около 2 см.</p>
+        <!-- IMAGE SLOT 3 + portion cards -->
+        <div class="portion-section-grid">
+          <!-- Замените заглушку: <img src="../images/guides/fish-3.jpg" alt="..."> -->
+          <div class="guide-img-slot img-slot-3">
+            <div class="img-slot-placeholder">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="#9aaa9c"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+              Картинка 3
             </div>
           </div>
-          <div class="portion-card">
-            <div class="portion-icon-wrap">🤚</div>
-            <div class="portion-info">
-              <div class="portion-label">Детская порция</div>
-              <div class="portion-title">Размер детской ладошки</div>
-              <p class="portion-text">Рыба вводится постепенно, с небольших количеств. Порция — размером с детскую ладошку. Начинать с лучшего выбора.</p>
+          <div class="portion-grid">
+            <div class="portion-card">
+              <div class="portion-icon-wrap">🖐️</div>
+              <div class="portion-info">
+                <div class="portion-label">Взрослая порция</div>
+                <div class="portion-title">Размер ладони</div>
+                <p class="portion-text">Одна порция рыбы для взрослого — кусок размером с вашу ладонь (без пальцев), толщиной около 2 см.</p>
+              </div>
+            </div>
+            <div class="portion-card">
+              <div class="portion-icon-wrap">🤚</div>
+              <div class="portion-info">
+                <div class="portion-label">Детская порция</div>
+                <div class="portion-title">Размер детской ладошки</div>
+                <p class="portion-text">Рыба вводится постепенно, с небольших количеств. Порция — размером с детскую ладошку. Начинать с лучшего выбора.</p>
+              </div>
             </div>
           </div>
         </div>
