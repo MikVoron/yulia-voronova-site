@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Как выбрать рыбу — Гайд нутрициолога Юлии Вороновой</title>
+  <meta name="description" content="Гайд нутрициолога Юлии Вороновой: как выбрать рыбу с учётом содержания ртути. Лучший, хороший и не лучший выбор.">
+  <link rel="canonical" href="https://voronova.online/guides/guide-fish.html">
+  <link rel="icon" href="../images/favicons/favicon-96x96.png" sizes="96x96">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:     #2e7d52;
+      --green-bg:  #eaf4ed;
+      --green-mid: #4a9e6a;
+      --amber:     #c17d2a;
+      --amber-bg:  #fdf3e3;
+      --amber-mid: #e09840;
+      --red:       #b53030;
+      --red-bg:    #fbeaea;
+      --red-mid:   #d44444;
+      --sage:      #8a9a8d;
+      --sage-light:#f4f7f4;
+      --dark:      #1e2420;
+      --text:      #3a3a3a;
+      --muted:     #7a7a7a;
+      --border:    #e0e8e2;
+      --white:     #ffffff;
+      --ff-head:   'Cormorant Garamond', Georgia, serif;
+      --ff-body:   'Montserrat', system-ui, sans-serif;
+      --radius:    12px;
+    }
+
+    html { font-size: 15px; -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: var(--ff-body);
+      color: var(--text);
+      background: #f8faf8;
+      min-height: 100vh;
+    }
+
+    /* ── Screen wrapper ── */
+    .page-shell {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    /* ── Top nav ── */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 36px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .top-nav a.back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--sage);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color .2s;
+    }
+    .top-nav a.back-link:hover { color: var(--green); }
+    .top-nav a.back-link svg { flex-shrink: 0; }
+
+    .top-nav-actions { display: flex; gap: 10px; }
+
+    .btn-print, .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border-radius: 50px;
+      font-family: var(--ff-body);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all .22s ease;
+      white-space: nowrap;
+    }
+    .btn-print {
+      background: var(--white);
+      color: var(--sage);
+      border: 1.5px solid var(--border);
+    }
+    .btn-print:hover { background: var(--sage-light); color: var(--green); border-color: var(--green); }
+
+    .btn-download {
+      background: var(--green);
+      color: var(--white);
+      box-shadow: 0 4px 14px rgba(46,125,82,.22);
+    }
+    .btn-download:hover { background: var(--green-mid); box-shadow: 0 6px 18px rgba(46,125,82,.3); }
+
+    /* ── Guide card (the document itself) ── */
+    .guide-doc {
+      background: var(--white);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(30,36,32,.09);
+    }
+
+    /* ── Header block ── */
+    .guide-header {
+      background: linear-gradient(135deg, #1e3d2a 0%, #2e7d52 60%, #4aab6e 100%);
+      padding: 52px 52px 44px;
+      position: relative;
+      overflow: hidden;
+    }
+    .guide-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 380px 260px at 85% -20%, rgba(255,255,255,.07) 0%, transparent 70%),
+        radial-gradient(ellipse 200px 200px at 10% 110%, rgba(255,255,255,.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    /* Decorative circles */
+    .guide-header::after {
+      content: '';
+      position: absolute;
+      right: -60px; top: -60px;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,.1);
+      pointer-events: none;
+    }
+
+    .header-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.15);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 50px;
+      padding: 5px 14px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.9);
+      margin-bottom: 20px;
+    }
+    .header-label span.dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #6ddfa0;
+      display: inline-block;
+    }
+
+    .guide-title {
+      font-family: var(--ff-head);
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 500;
+      color: var(--white);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin-bottom: 14px;
+    }
+    .guide-title em {
+      font-style: italic;
+      font-weight: 300;
+      color: rgba(255,255,255,.8);
+    }
+
+    .guide-subtitle {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,.72);
+      font-weight: 400;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    .header-meta {
+      margin-top: 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .author-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      border: 2px solid rgba(255,255,255,.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--ff-head);
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: white;
+      flex-shrink: 0;
+    }
+    .author-info { line-height: 1.4; }
+    .author-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+    .author-role {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,.6);
+      font-weight: 400;
+    }
+
+    /* fish decoration top-right */
+    .header-fish-icon {
+      position: absolute;
+      right: 52px;
+      bottom: 36px;
+      opacity: .13;
+      width: 120px;
+      height: 120px;
+    }
+
+    /* ── Content area ── */
+    .guide-body { padding: 44px 52px 52px; }
+
+    /* ── Intro note ── */
+    .intro-note {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      background: var(--sage-light);
+      border-left: 3px solid var(--sage);
+      border-radius: 0 10px 10px 0;
+      padding: 16px 20px;
+      margin-bottom: 36px;
+    }
+    .intro-note-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .intro-note p {
+      font-size: 0.82rem;
+      color: var(--text);
+      line-height: 1.65;
+    }
+    .intro-note strong { color: var(--dark); }
+
+    /* ── Section label ── */
+    .section-eyebrow {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-eyebrow::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Choice table ── */
+    .choice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+
+    .choice-col {
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .choice-head {
+      padding: 16px 18px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .choice-head-icon { font-size: 1.4rem; margin-bottom: 4px; }
+    .choice-badge {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 50px;
+      padding: 3px 10px;
+      display: inline-block;
+      width: fit-content;
+      margin-bottom: 6px;
+    }
+    .choice-head-title {
+      font-family: var(--ff-head);
+      font-size: 1.3rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .choice-freq {
+      font-size: 0.72rem;
+      font-weight: 500;
+      opacity: .75;
+      margin-top: 2px;
+    }
+
+    .choice-body { padding: 14px 18px 18px; flex: 1; }
+
+    .fish-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .fish-list li {
+      font-size: 0.78rem;
+      line-height: 1.4;
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+    }
+    .fish-list li::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    /* Green col */
+    .col-best .choice-head  { background: var(--green); color: white; }
+    .col-best .choice-badge { background: rgba(255,255,255,.2); color: white; }
+    .col-best .choice-body  { background: var(--green-bg); }
+    .col-best .fish-list li::before { background: var(--green); }
+
+    /* Amber col */
+    .col-good .choice-head  { background: var(--amber); color: white; }
+    .col-good .choice-badge { background: rgba(255,255,255,.2); color: white; }
+    .col-good .choice-body  { background: var(--amber-bg); }
+    .col-good .fish-list li::before { background: var(--amber); }
+
+    /* Red col */
+    .col-bad .choice-head  { background: var(--red); color: white; }
+    .col-bad .choice-badge { background: rgba(255,255,255,.2); color: white; }
+    .col-bad .choice-body  { background: var(--red-bg); }
+    .col-bad .fish-list li::before { background: var(--red); }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 36px 0;
+    }
+
+    /* ── Warning block ── */
+    .warning-block {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: linear-gradient(135deg, #fff8ec, #fff4e5);
+      border: 1.5px solid #f5d9a0;
+      border-radius: var(--radius);
+      padding: 22px 26px;
+      margin-bottom: 28px;
+    }
+    .warning-icon { font-size: 2.2rem; flex-shrink: 0; }
+    .warning-text { line-height: 1.6; }
+    .warning-text strong {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .warning-text p { font-size: 0.82rem; color: var(--text); }
+
+    /* ── Portion section ── */
+    .portion-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .portion-card {
+      background: var(--sage-light);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .portion-icon-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+    .portion-info { flex: 1; }
+    .portion-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--sage);
+      margin-bottom: 5px;
+    }
+    .portion-title {
+      font-family: var(--ff-head);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
+    .portion-text {
+      font-size: 0.78rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── Footer / attribution ── */
+    .guide-footer {
+      margin-top: 44px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .guide-footer-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .footer-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green-bg), #d0ead8);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--ff-head);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--green);
+    }
+    .footer-cred { line-height: 1.4; }
+    .footer-cred-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+    .footer-cred-role {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .footer-site {
+      font-size: 0.72rem;
+      color: var(--sage);
+      text-decoration: none;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+    .footer-site:hover { color: var(--green); }
+    .footer-year {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    /* ── Print / PDF styles ── */
+    @media print {
+      @page { size: A4; margin: 16mm 14mm; }
+
+      body { background: white; font-size: 10pt; }
+      .page-shell { padding: 0; max-width: 100%; }
+      .top-nav { display: none !important; }
+      .guide-doc { box-shadow: none; border-radius: 0; }
+      .guide-header { padding: 32px 36px 28px; border-radius: 0; }
+      .guide-body { padding: 28px 36px 36px; }
+      .guide-title { font-size: 32pt; }
+      .choice-grid { gap: 10px; }
+      .choice-head { padding: 12px 14px; }
+      .choice-body { padding: 10px 14px 14px; }
+      .fish-list li { font-size: 7.5pt; }
+      .warning-block { padding: 14px 18px; }
+      .portion-grid { gap: 10px; }
+      .portion-card { padding: 14px 16px; }
+      .guide-footer { margin-top: 28px; }
+      .btn-print, .btn-download { display: none; }
+      a[href]::after { content: ''; }
+
+      /* avoid page break inside cards */
+      .choice-col, .portion-card, .warning-block { break-inside: avoid; }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .guide-header { padding: 36px 28px 32px; }
+      .guide-body { padding: 28px 24px 36px; }
+      .choice-grid { grid-template-columns: 1fr; gap: 12px; }
+      .portion-grid { grid-template-columns: 1fr; }
+      .guide-footer { flex-direction: column; align-items: flex-start; }
+      .header-fish-icon { display: none; }
+    }
+    @media (max-width: 480px) {
+      .guide-header { padding: 28px 20px 24px; }
+      .guide-body { padding: 22px 18px 28px; }
+      .top-nav-actions { gap: 7px; }
+      .btn-print span, .btn-download span { display: none; }
+      .btn-print, .btn-download { padding: 9px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+
+    <!-- Top nav -->
+    <div class="top-nav">
+      <a href="../guides.html" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+        Все гайды
+      </a>
+      <div class="top-nav-actions">
+        <button class="btn-print" onclick="window.print()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+          <span>Печать / PDF</span>
+        </button>
+        <a href="guide-fish.html" download="voronova-guide-fish.html" class="btn-download">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          <span>Скачать</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Guide document -->
+    <article class="guide-doc">
+
+      <!-- Header -->
+      <header class="guide-header">
+        <div class="header-label">
+          <span class="dot"></span>
+          Мини-гайд · Нутрициология
+        </div>
+        <h1 class="guide-title">Как выбрать<br><em>рыбу</em></h1>
+        <p class="guide-subtitle">Практический гайд по выбору морепродуктов с учётом содержания ртути — для всей семьи</p>
+        <div class="header-meta">
+          <div class="author-avatar">Ю</div>
+          <div class="author-info">
+            <div class="author-name">Юлия Воронова</div>
+            <div class="author-role">Доказательный нутрициолог · voronova.online</div>
+          </div>
+        </div>
+
+        <!-- Decorative fish SVG -->
+        <svg class="header-fish-icon" viewBox="0 0 120 120" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="52" cy="60" rx="38" ry="22"/>
+          <polygon points="90,60 110,42 110,78"/>
+          <circle cx="38" cy="55" r="4" fill="#1e3d2a"/>
+          <path d="M34 70 Q52 80 70 70" stroke="#1e3d2a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+      </header>
+
+      <!-- Body -->
+      <div class="guide-body">
+
+        <!-- Intro -->
+        <div class="intro-note">
+          <span class="intro-note-icon">🐟</span>
+          <p>Рыба — отличный источник омега-3, белка и микроэлементов. Но некоторые виды накапливают <strong>метилртуть</strong> — нейротоксин, опасный при регулярном употреблении. Используйте этот гайд, чтобы сделать правильный выбор.</p>
+        </div>
+
+        <!-- Choice grid label -->
+        <div class="section-eyebrow">Таблица выбора рыбы</div>
+
+        <!-- Three-column choice grid -->
+        <div class="choice-grid">
+
+          <!-- BEST -->
+          <div class="choice-col col-best">
+            <div class="choice-head">
+              <div class="choice-head-icon">✅</div>
+              <span class="choice-badge">Лучший выбор</span>
+              <div class="choice-head-title">Лучший<br>выбор</div>
+              <div class="choice-freq">2–3 порции в неделю</div>
+            </div>
+            <div class="choice-body">
+              <ul class="fish-list">
+                <li>Анчоус</li>
+                <li>Атлантический горбыль</li>
+                <li>Атлантическая макрель</li>
+                <li>Чёрный сибас (морской окунь)</li>
+                <li>Масляная рыба</li>
+                <li>Зубатка</li>
+                <li>Моллюски</li>
+                <li>Треска</li>
+                <li>Краб</li>
+                <li>Лангуст</li>
+                <li>Камбала</li>
+                <li>Пикша</li>
+                <li>Сельдь</li>
+                <li>Лобстер (колючий и американский)</li>
+                <li>Кефаль</li>
+                <li>Устрицы</li>
+                <li>Японская скумбрия</li>
+                <li>Окунь (пресноводный и океанский)</li>
+                <li>Щука</li>
+                <li>Ёрш</li>
+                <li>Минтай</li>
+                <li>Лосось</li>
+                <li>Сардина</li>
+                <li>Гребешок</li>
+                <li>Креветки</li>
+                <li>Скат</li>
+                <li>Корюшка</li>
+                <li>Морской язык</li>
+                <li>Кальмар</li>
+                <li>Тилапия</li>
+                <li>Форель пресноводная</li>
+                <li>Тунец консерв. светлый (и полосатый)</li>
+                <li>Сиг</li>
+                <li>Хек (мерлуза)</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- GOOD -->
+          <div class="choice-col col-good">
+            <div class="choice-head">
+              <div class="choice-head-icon">⚠️</div>
+              <span class="choice-badge">Хороший выбор</span>
+              <div class="choice-head-title">Хороший<br>выбор</div>
+              <div class="choice-freq">1 порция в неделю</div>
+            </div>
+            <div class="choice-body">
+              <ul class="fish-list">
+                <li>Луфарь</li>
+                <li>Буффало</li>
+                <li>Карп</li>
+                <li>Чилийский сибас / Патагонский клыкач</li>
+                <li>Групер</li>
+                <li>Палтус</li>
+                <li>Махи-махи / Дорадо</li>
+                <li>Морской чёрт</li>
+                <li>Морской окунь</li>
+                <li>Угольная рыба</li>
+                <li>Морской карась</li>
+                <li>Снеппер</li>
+                <li>Испанская макрель</li>
+                <li>Полосатый окунь (океанский)</li>
+                <li>Тайлфиш (Атлантический океан)</li>
+                <li>Тунец длинноперый</li>
+                <li>Белый тунец консерв. и свежий</li>
+                <li>Замороженный тунец желтоперый</li>
+                <li>Горбыль</li>
+                <li>Белый горбыль / Тихоокеанский горбыль</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- BAD -->
+          <div class="choice-col col-bad">
+            <div class="choice-head">
+              <div class="choice-head-icon">🚫</div>
+              <span class="choice-badge">Не лучший выбор</span>
+              <div class="choice-head-title">Избегайте<br>или редко</div>
+              <div class="choice-freq">Высокая концентрация ртути</div>
+            </div>
+            <div class="choice-body">
+              <ul class="fish-list">
+                <li>Королевская макрель</li>
+                <li>Марлин</li>
+                <li>Большеголов</li>
+                <li>Акула</li>
+                <li>Рыба-меч</li>
+                <li>Тайлфиш (Мексиканский залив)</li>
+                <li>Большеглазый тунец</li>
+              </ul>
+            </div>
+          </div>
+
+        </div><!-- /choice-grid -->
+
+        <div class="divider"></div>
+
+        <!-- Warning -->
+        <div class="warning-block">
+          <div class="warning-icon">☝️</div>
+          <div class="warning-text">
+            <strong>Важно знать</strong>
+            <p>Выбирайте морепродукты с меньшим содержанием ртути. Это особенно важно для <strong>детей младшего возраста, беременных и кормящих</strong> женщин.</p>
+          </div>
+        </div>
+
+        <!-- Portion section -->
+        <div class="section-eyebrow">Что такое порция?</div>
+
+        <div class="portion-grid">
+          <div class="portion-card">
+            <div class="portion-icon-wrap">🖐️</div>
+            <div class="portion-info">
+              <div class="portion-label">Взрослая порция</div>
+              <div class="portion-title">Размер ладони</div>
+              <p class="portion-text">Одна порция рыбы для взрослого — кусок размером с вашу ладонь (без пальцев), толщиной около 2 см.</p>
+            </div>
+          </div>
+          <div class="portion-card">
+            <div class="portion-icon-wrap">🤚</div>
+            <div class="portion-info">
+              <div class="portion-label">Детская порция</div>
+              <div class="portion-title">Размер детской ладошки</div>
+              <p class="portion-text">Рыба вводится постепенно, с небольших количеств. Порция — размером с детскую ладошку. Начинать с лучшего выбора.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer / attribution -->
+        <div class="guide-footer">
+          <div class="guide-footer-left">
+            <div class="footer-avatar">Ю</div>
+            <div class="footer-cred">
+              <div class="footer-cred-name">Воронова Юлия</div>
+              <div class="footer-cred-role">Доказательный нутрициолог</div>
+            </div>
+          </div>
+          <a href="https://voronova.online" class="footer-site" target="_blank" rel="noopener">voronova.online</a>
+          <span class="footer-year">© 2026 · Все права защищены</span>
+        </div>
+
+      </div><!-- /guide-body -->
+    </article>
+
+  </div><!-- /page-shell -->
+</body>
+</html>

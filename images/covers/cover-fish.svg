@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 280" width="200" height="280">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3d2a"/>
+      <stop offset="100%" style="stop-color:#2e7d52"/>
+    </linearGradient>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#eaf4ed"/>
+      <stop offset="100%" style="stop-color:#d0ead8"/>
+    </linearGradient>
+    <linearGradient id="stripe-g" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2e7d52"/>
+      <stop offset="100%" style="stop-color:#4aab6e"/>
+    </linearGradient>
+    <linearGradient id="stripe-a" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#c17d2a"/>
+      <stop offset="100%" style="stop-color:#e09840"/>
+    </linearGradient>
+    <linearGradient id="stripe-r" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#b53030"/>
+      <stop offset="100%" style="stop-color:#d44444"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="200" height="280" fill="url(#bg2)" rx="4"/>
+
+  <!-- Top green strip -->
+  <rect width="200" height="72" fill="url(#bg)" rx="4"/>
+  <rect y="68" width="200" height="8" fill="url(#bg)"/>
+
+  <!-- Decorative circle top-right -->
+  <circle cx="178" cy="18" r="36" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+  <circle cx="178" cy="18" r="22" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+  <!-- Title text -->
+  <text x="16" y="30" font-family="Georgia, serif" font-size="10" font-weight="400" fill="rgba(255,255,255,0.7)" letter-spacing="2">МИ НИ-ГАЙД</text>
+  <text x="16" y="50" font-family="Georgia, serif" font-size="18" font-style="italic" font-weight="400" fill="white">Как выбрать</text>
+  <text x="16" y="66" font-family="Georgia, serif" font-size="18" font-weight="600" fill="white">рыбу</text>
+
+  <!-- Fish icon decorative -->
+  <g transform="translate(148, 28) scale(0.9)" opacity="0.25" fill="white">
+    <ellipse cx="22" cy="20" rx="18" ry="11"/>
+    <polygon points="40,20 52,11 52,29"/>
+    <circle cx="14" cy="17" r="2.5" fill="#1e3d2a"/>
+  </g>
+
+  <!-- Three category bands -->
+  <!-- Green band -->
+  <rect x="12" y="90" width="176" height="50" fill="url(#stripe-g)" rx="8" opacity="0.12"/>
+  <rect x="12" y="90" width="4" height="50" fill="#2e7d52" rx="2"/>
+  <text x="24" y="108" font-family="'Helvetica Neue', Arial, sans-serif" font-size="7" font-weight="700" fill="#2e7d52" letter-spacing="1">ЛУЧШИЙ ВЫБОР</text>
+  <text x="24" y="120" font-family="Georgia, serif" font-size="8" fill="#2e4a32">Лосось · Сардина · Треска</text>
+  <text x="24" y="131" font-family="Georgia, serif" font-size="8" fill="#2e4a32">Сельдь · Минтай · Краб...</text>
+  <text x="155" y="108" font-family="'Helvetica Neue', Arial, sans-serif" font-size="6.5" fill="#2e7d52" text-anchor="end">2–3 / нед</text>
+
+  <!-- Amber band -->
+  <rect x="12" y="148" width="176" height="44" fill="url(#stripe-a)" rx="8" opacity="0.1"/>
+  <rect x="12" y="148" width="4" height="44" fill="#c17d2a" rx="2"/>
+  <text x="24" y="164" font-family="'Helvetica Neue', Arial, sans-serif" font-size="7" font-weight="700" fill="#c17d2a" letter-spacing="1">ХОРОШИЙ ВЫБОР</text>
+  <text x="24" y="176" font-family="Georgia, serif" font-size="8" fill="#5a3a10">Палтус · Карп · Снеппер...</text>
+  <text x="155" y="164" font-family="'Helvetica Neue', Arial, sans-serif" font-size="6.5" fill="#c17d2a" text-anchor="end">1 / нед</text>
+
+  <!-- Red band -->
+  <rect x="12" y="200" width="176" height="40" fill="url(#stripe-r)" rx="8" opacity="0.09"/>
+  <rect x="12" y="200" width="4" height="40" fill="#b53030" rx="2"/>
+  <text x="24" y="215" font-family="'Helvetica Neue', Arial, sans-serif" font-size="7" font-weight="700" fill="#b53030" letter-spacing="1">ИЗБЕГАТЬ</text>
+  <text x="24" y="227" font-family="Georgia, serif" font-size="8" fill="#5a1010">Акула · Рыба-меч · Марлин</text>
+  <text x="155" y="215" font-family="'Helvetica Neue', Arial, sans-serif" font-size="6.5" fill="#b53030" text-anchor="end">Высокая Hg</text>
+
+  <!-- Bottom author -->
+  <line x1="12" y1="252" x2="188" y2="252" stroke="#d0e0d6" stroke-width="0.8"/>
+  <text x="16" y="265" font-family="Georgia, serif" font-size="8" font-style="italic" fill="#8a9a8d">Воронова Юлия</text>
+  <text x="184" y="265" font-family="'Helvetica Neue', Arial, sans-serif" font-size="7" fill="#b0bdb2" text-anchor="end">нутрициолог</text>
+
+  <!-- Bottom green accent bar -->
+  <rect x="0" y="274" width="200" height="6" fill="url(#bg)" rx="0 0 4 4"/>
+</svg>
