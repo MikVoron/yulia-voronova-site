@@ -1200,6 +1200,55 @@ document.addEventListener('DOMContentLoaded', function() {
             showNextTestimonial();
         }
     });
+
+    // Stories (mobile)
+    var storyColors = ['#9ab89e', '#c8b4a8', '#7a8c6e', '#b4a096', '#8fa882'];
+    function buildStories() {
+        var section = document.querySelector('.testimonials-social .container');
+        if (!section || document.querySelector('.testimonial-stories')) return;
+        var storiesRow = document.createElement('div');
+        storiesRow.className = 'testimonial-stories';
+        testimonialData.forEach(function (data, index) {
+            var story = document.createElement('div');
+            story.className = 'testimonial-story';
+            var ring = document.createElement('div');
+            ring.className = 'story-avatar-ring';
+            var avatar = document.createElement('div');
+            avatar.className = 'story-avatar';
+            avatar.style.background = storyColors[index % storyColors.length];
+            avatar.textContent = data.name.charAt(0);
+            var name = document.createElement('span');
+            name.className = 'story-name';
+            name.textContent = data.name;
+            ring.appendChild(avatar);
+            story.appendChild(ring);
+            story.appendChild(name);
+            story.addEventListener('click', function () {
+                ring.classList.add('viewed');
+                currentTestimonialIndex = index;
+                updateModalContent();
+                testimonialModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            storiesRow.appendChild(story);
+        });
+        var stories = storiesRow.querySelectorAll('.testimonial-story');
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                if (!entries[0].isIntersecting) return;
+                stories.forEach(function (s, i) {
+                    setTimeout(function () { s.classList.add('animate-in'); }, i * 120);
+                });
+                io.disconnect();
+            }, { threshold: 0.3 });
+            io.observe(storiesRow);
+        } else {
+            stories.forEach(function (s) { s.classList.add('animate-in'); });
+        }
+        var title = section.querySelector('.section-title');
+        if (title) title.insertAdjacentElement('afterend', storiesRow);
+    }
+    buildStories();
 });
 
 // Privacy checkbox validation with tooltip
