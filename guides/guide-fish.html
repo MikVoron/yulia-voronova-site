@@ -11,7 +11,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* ── Reset & base ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -20,10 +19,8 @@
       --green-mid: #4a9e6a;
       --amber:     #c17d2a;
       --amber-bg:  #fdf3e3;
-      --amber-mid: #e09840;
       --red:       #b53030;
       --red-bg:    #fbeaea;
-      --red-mid:   #d44444;
       --sage:      #8a9a8d;
       --sage-light:#f4f7f4;
       --dark:      #1e2420;
@@ -73,8 +70,6 @@
       transition: color .2s;
     }
     .top-nav a.back-link:hover { color: var(--green); }
-    .top-nav a.back-link svg { flex-shrink: 0; }
-
     .top-nav-actions { display: flex; gap: 10px; }
 
     .btn-print, .btn-download {
@@ -100,7 +95,6 @@
       border: 1.5px solid var(--border);
     }
     .btn-print:hover { background: var(--sage-light); color: var(--green); border-color: var(--green); }
-
     .btn-download {
       background: var(--green);
       color: var(--white);
@@ -108,7 +102,7 @@
     }
     .btn-download:hover { background: var(--green-mid); box-shadow: 0 6px 18px rgba(46,125,82,.3); }
 
-    /* ── Guide card (the document itself) ── */
+    /* ── Guide document ── */
     .guide-doc {
       background: var(--white);
       border-radius: 20px;
@@ -116,146 +110,138 @@
       box-shadow: 0 8px 40px rgba(30,36,32,.09);
     }
 
-    /* ── Header block ── */
+    /* ── Header: image only ── */
     .guide-header {
+      padding: 0;
+      line-height: 0;
+      font-size: 0;
+      background: var(--sage-light);
+      min-height: 60px;
+    }
+    .guide-header-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
+    /* Placeholder when no image yet */
+    .guide-header-placeholder {
+      width: 100%;
+      height: 260px;
       background: linear-gradient(135deg, #1e3d2a 0%, #2e7d52 60%, #4aab6e 100%);
-      padding: 52px 52px 44px;
-      position: relative;
-      overflow: hidden;
-    }
-    .guide-header::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 380px 260px at 85% -20%, rgba(255,255,255,.07) 0%, transparent 70%),
-        radial-gradient(ellipse 200px 200px at 10% 110%, rgba(255,255,255,.05) 0%, transparent 60%);
-      pointer-events: none;
-    }
-    /* Decorative circles */
-    .guide-header::after {
-      content: '';
-      position: absolute;
-      right: -60px; top: -60px;
-      width: 260px; height: 260px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(255,255,255,.1);
-      pointer-events: none;
-    }
-
-    .header-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255,255,255,.15);
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(255,255,255,.2);
-      border-radius: 50px;
-      padding: 5px 14px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.9);
-      margin-bottom: 20px;
-    }
-    .header-label span.dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: #6ddfa0;
-      display: inline-block;
-    }
-
-    .guide-title {
-      font-family: var(--ff-head);
-      font-size: clamp(2.2rem, 5vw, 3.6rem);
-      font-weight: 500;
-      color: var(--white);
-      line-height: 1.1;
-      letter-spacing: -0.01em;
-      margin-bottom: 14px;
-    }
-    .guide-title em {
-      font-style: italic;
-      font-weight: 300;
-      color: rgba(255,255,255,.8);
-    }
-
-    .guide-subtitle {
-      font-size: 0.88rem;
-      color: rgba(255,255,255,.72);
-      font-weight: 400;
-      max-width: 480px;
-      line-height: 1.6;
-    }
-
-    .header-meta {
-      margin-top: 32px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .author-avatar {
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      background: rgba(255,255,255,.2);
-      border: 2px solid rgba(255,255,255,.35);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: var(--ff-head);
-      font-size: 1.3rem;
-      font-weight: 500;
-      color: white;
-      flex-shrink: 0;
-    }
-    .author-info { line-height: 1.4; }
-    .author-name {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--white);
-    }
-    .author-role {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,.6);
-      font-weight: 400;
-    }
-
-    /* fish decoration top-right */
-    .header-fish-icon {
-      position: absolute;
-      right: 52px;
-      bottom: 36px;
-      opacity: .13;
-      width: 120px;
-      height: 120px;
+      font-family: var(--ff-body);
+      font-size: 0.78rem;
+      color: rgba(255,255,255,.45);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
     /* ── Content area ── */
     .guide-body { padding: 44px 52px 52px; }
 
-    /* ── Intro note ── */
-    .intro-note {
+    /* ── Page title block (replaces header text) ── */
+    .guide-title-block {
       display: flex;
-      gap: 14px;
       align-items: flex-start;
-      background: var(--sage-light);
-      border-left: 3px solid var(--sage);
-      border-radius: 0 10px 10px 0;
-      padding: 16px 20px;
+      gap: 22px;
       margin-bottom: 36px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
     }
-    .intro-note-icon {
-      font-size: 1.4rem;
+    .guide-title-logo {
+      width: 56px;
+      height: 56px;
       flex-shrink: 0;
-      margin-top: 2px;
+      border-radius: 50%;
+      background: var(--sage-light);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
-    .intro-note p {
+    .guide-title-logo img {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+    }
+    .guide-title-text { flex: 1; }
+    .guide-title-label {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--sage);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 3px 12px;
+      margin-bottom: 10px;
+    }
+    .guide-title-h1 {
+      font-family: var(--ff-head);
+      font-size: clamp(2rem, 4.5vw, 3rem);
+      font-weight: 500;
+      color: var(--dark);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+    .guide-title-h1 em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--green);
+    }
+    .guide-author-line {
       font-size: 0.82rem;
-      color: var(--text);
-      line-height: 1.65;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 4px;
     }
-    .intro-note strong { color: var(--dark); }
+    .guide-contacts {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .guide-contacts a {
+      font-size: 0.75rem;
+      color: var(--sage);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color .2s;
+    }
+    .guide-contacts a:hover { color: var(--green); }
+
+    /* ── Intro — large feature block ── */
+    .intro-feature {
+      background: linear-gradient(135deg, #eaf4ed 0%, #f0f7f2 100%);
+      border-radius: 14px;
+      padding: 28px 32px;
+      margin-bottom: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .intro-feature::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 5px;
+      background: linear-gradient(180deg, var(--green) 0%, var(--green-mid) 100%);
+      border-radius: 5px 0 0 5px;
+    }
+    .intro-feature-text {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--text);
+      font-weight: 400;
+    }
+    .intro-feature-text strong {
+      color: var(--dark);
+      font-weight: 700;
+    }
 
     /* ── Section label ── */
     .section-eyebrow {
@@ -283,45 +269,37 @@
       gap: 16px;
       margin-bottom: 36px;
     }
-
     .choice-col {
       border-radius: var(--radius);
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
-
     .choice-head {
-      padding: 16px 18px 14px;
+      padding: 14px 18px 12px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
     }
-    .choice-head-icon { font-size: 1.4rem; margin-bottom: 4px; }
     .choice-badge {
-      font-size: 0.62rem;
+      font-size: 0.65rem;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       border-radius: 50px;
-      padding: 3px 10px;
+      padding: 4px 12px;
       display: inline-block;
       width: fit-content;
-      margin-bottom: 6px;
-    }
-    .choice-head-title {
-      font-family: var(--ff-head);
-      font-size: 1.3rem;
-      font-weight: 600;
-      line-height: 1.2;
+      border: 1.5px solid rgba(255,255,255,.4);
+      background: rgba(255,255,255,.18);
+      color: white;
     }
     .choice-freq {
       font-size: 0.72rem;
       font-weight: 500;
-      opacity: .75;
+      color: rgba(255,255,255,.78);
       margin-top: 2px;
     }
-
     .choice-body { padding: 14px 18px 18px; flex: 1; }
 
     .fish-list {
@@ -347,29 +325,22 @@
     }
 
     /* Green col */
-    .col-best .choice-head  { background: var(--green); color: white; }
-    .col-best .choice-badge { background: rgba(255,255,255,.2); color: white; }
+    .col-best .choice-head  { background: var(--green); }
     .col-best .choice-body  { background: var(--green-bg); }
     .col-best .fish-list li::before { background: var(--green); }
 
     /* Amber col */
-    .col-good .choice-head  { background: var(--amber); color: white; }
-    .col-good .choice-badge { background: rgba(255,255,255,.2); color: white; }
+    .col-good .choice-head  { background: var(--amber); }
     .col-good .choice-body  { background: var(--amber-bg); }
     .col-good .fish-list li::before { background: var(--amber); }
 
     /* Red col */
-    .col-bad .choice-head  { background: var(--red); color: white; }
-    .col-bad .choice-badge { background: rgba(255,255,255,.2); color: white; }
+    .col-bad .choice-head  { background: var(--red); }
     .col-bad .choice-body  { background: var(--red-bg); }
     .col-bad .fish-list li::before { background: var(--red); }
 
     /* ── Divider ── */
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 36px 0;
-    }
+    .divider { height: 1px; background: var(--border); margin: 36px 0; }
 
     /* ── Warning block ── */
     .warning-block {
@@ -410,8 +381,7 @@
       align-items: flex-start;
     }
     .portion-icon-wrap {
-      width: 52px;
-      height: 52px;
+      width: 52px; height: 52px;
       border-radius: 50%;
       background: white;
       border: 2px solid var(--border);
@@ -437,103 +407,122 @@
       color: var(--dark);
       margin-bottom: 6px;
     }
-    .portion-text {
-      font-size: 0.78rem;
-      color: var(--text);
-      line-height: 1.6;
-    }
+    .portion-text { font-size: 0.78rem; color: var(--text); line-height: 1.6; }
 
-    /* ── Footer / attribution ── */
+    /* ── Footer ── */
     .guide-footer {
       margin-top: 44px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border);
+      padding: 28px 32px;
+      background: var(--sage-light);
+      border-radius: 14px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .guide-footer-logo {
+      width: 52px; height: 52px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .guide-footer-logo img {
+      width: 36px; height: 36px;
+      object-fit: contain;
+    }
+    .guide-footer-info { flex: 1; min-width: 180px; }
+    .guide-footer-title {
+      font-family: var(--ff-head);
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--dark);
+      line-height: 1.2;
+      margin-bottom: 2px;
+    }
+    .guide-footer-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--sage);
+      margin-bottom: 6px;
+    }
+    .guide-footer-author {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 3px;
+    }
+    .guide-footer-role {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .guide-footer-links {
+      display: flex;
       gap: 16px;
       flex-wrap: wrap;
     }
-    .guide-footer-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .footer-avatar {
-      width: 38px; height: 38px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--green-bg), #d0ead8);
-      border: 2px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--ff-head);
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--green);
-    }
-    .footer-cred { line-height: 1.4; }
-    .footer-cred-name {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--dark);
-    }
-    .footer-cred-role {
-      font-size: 0.72rem;
-      color: var(--muted);
-    }
-    .footer-site {
-      font-size: 0.72rem;
+    .guide-footer-links a {
+      font-size: 0.73rem;
       color: var(--sage);
       text-decoration: none;
       font-weight: 500;
-      letter-spacing: 0.03em;
+      transition: color .2s;
     }
-    .footer-site:hover { color: var(--green); }
-    .footer-year {
-      font-size: 0.7rem;
+    .guide-footer-links a:hover { color: var(--green); }
+    .guide-footer-copy {
+      font-size: 0.68rem;
       color: var(--muted);
+      align-self: flex-end;
+      white-space: nowrap;
     }
 
-    /* ── Print / PDF styles ── */
+    /* ── Print ── */
     @media print {
-      @page { size: A4; margin: 16mm 14mm; }
-
+      @page { size: A4; margin: 14mm 12mm; }
       body { background: white; font-size: 10pt; }
       .page-shell { padding: 0; max-width: 100%; }
       .top-nav { display: none !important; }
       .guide-doc { box-shadow: none; border-radius: 0; }
-      .guide-header { padding: 32px 36px 28px; border-radius: 0; }
-      .guide-body { padding: 28px 36px 36px; }
-      .guide-title { font-size: 32pt; }
+      .guide-header-placeholder { height: 180px; }
+      .guide-body { padding: 24px 32px 32px; }
       .choice-grid { gap: 10px; }
-      .choice-head { padding: 12px 14px; }
+      .choice-head { padding: 10px 14px; }
       .choice-body { padding: 10px 14px 14px; }
-      .fish-list li { font-size: 7.5pt; }
+      .fish-list li { font-size: 7.5pt; gap: 5px; }
+      .intro-feature { padding: 18px 22px; }
+      .intro-feature-text { font-size: 9.5pt; }
       .warning-block { padding: 14px 18px; }
       .portion-grid { gap: 10px; }
       .portion-card { padding: 14px 16px; }
-      .guide-footer { margin-top: 28px; }
+      .guide-footer { padding: 18px 22px; }
       .btn-print, .btn-download { display: none; }
       a[href]::after { content: ''; }
-
-      /* avoid page break inside cards */
-      .choice-col, .portion-card, .warning-block { break-inside: avoid; }
+      .choice-col, .portion-card, .warning-block, .guide-title-block { break-inside: avoid; }
     }
 
     /* ── Responsive ── */
     @media (max-width: 768px) {
-      .guide-header { padding: 36px 28px 32px; }
       .guide-body { padding: 28px 24px 36px; }
       .choice-grid { grid-template-columns: 1fr; gap: 12px; }
       .portion-grid { grid-template-columns: 1fr; }
-      .guide-footer { flex-direction: column; align-items: flex-start; }
-      .header-fish-icon { display: none; }
+      .guide-title-block { flex-direction: column; gap: 14px; }
+      .guide-footer { flex-direction: column; gap: 16px; }
+      .guide-footer-copy { align-self: flex-start; }
     }
     @media (max-width: 480px) {
-      .guide-header { padding: 28px 20px 24px; }
-      .guide-body { padding: 22px 18px 28px; }
+      .guide-body { padding: 20px 16px 28px; }
       .top-nav-actions { gap: 7px; }
       .btn-print span, .btn-download span { display: none; }
       .btn-print, .btn-download { padding: 9px 14px; }
+      .intro-feature { padding: 20px 20px; }
+      .intro-feature-text { font-size: 0.95rem; }
     }
   </style>
 </head>
@@ -563,52 +552,50 @@
     <!-- Guide document -->
     <article class="guide-doc">
 
-      <!-- Header -->
+      <!-- Header: image (1200×420px) -->
       <header class="guide-header">
-        <div class="header-label">
-          <span class="dot"></span>
-          Мини-гайд · Нутрициология
-        </div>
-        <h1 class="guide-title">Как выбрать<br><em>рыбу</em></h1>
-        <p class="guide-subtitle">Практический гайд по выбору морепродуктов с учётом содержания ртути — для всей семьи</p>
-        <div class="header-meta">
-          <div class="author-avatar">Ю</div>
-          <div class="author-info">
-            <div class="author-name">Юлия Воронова</div>
-            <div class="author-role">Доказательный нутрициолог · voronova.online</div>
-          </div>
-        </div>
-
-        <!-- Decorative fish SVG -->
-        <svg class="header-fish-icon" viewBox="0 0 120 120" fill="white" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="52" cy="60" rx="38" ry="22"/>
-          <polygon points="90,60 110,42 110,78"/>
-          <circle cx="38" cy="55" r="4" fill="#1e3d2a"/>
-          <path d="M34 70 Q52 80 70 70" stroke="#1e3d2a" stroke-width="2" fill="none" stroke-linecap="round"/>
-        </svg>
+        <!-- Замените src на путь к вашей картинке 1200×420px -->
+        <!-- <img src="../images/covers/guide-fish-header.jpg" alt="Как выбрать рыбу — гайд нутрициолога Юлии Вороновой" class="guide-header-img" width="1200" height="420"> -->
+        <div class="guide-header-placeholder">Шапка-картинка · 1200 × 420 px</div>
       </header>
 
       <!-- Body -->
       <div class="guide-body">
 
-        <!-- Intro -->
-        <div class="intro-note">
-          <span class="intro-note-icon">🐟</span>
-          <p>Рыба — отличный источник омега-3, белка и микроэлементов. Но некоторые виды накапливают <strong>метилртуть</strong> — нейротоксин, опасный при регулярном употреблении. Используйте этот гайд, чтобы сделать правильный выбор.</p>
+        <!-- Title block -->
+        <div class="guide-title-block">
+          <div class="guide-title-logo">
+            <img src="../images/icons/logo-small.png" alt="Логотип Юлии Вороновой" width="38" height="38">
+          </div>
+          <div class="guide-title-text">
+            <span class="guide-title-label">Мини-гайд</span>
+            <h1 class="guide-title-h1">Как выбрать <em>рыбу</em></h1>
+            <div class="guide-author-line">Юлия Воронова, доказательный нутрициолог</div>
+            <div class="guide-contacts">
+              <a href="https://voronova.online" target="_blank" rel="noopener">www.voronova.online</a>
+              <a href="https://t.me/voronova_nutrition" target="_blank" rel="noopener">@voronova_nutrition</a>
+            </div>
+          </div>
         </div>
 
-        <!-- Choice grid label -->
+        <!-- Intro: large feature block -->
+        <div class="intro-feature">
+          <p class="intro-feature-text">
+            Рыба — отличный источник омега-3, белка и микроэлементов. Но некоторые виды накапливают
+            <strong>метилртуть</strong> — нейротоксин, опасный при регулярном употреблении.
+            Используйте этот гайд, чтобы сделать правильный выбор.
+          </p>
+        </div>
+
+        <!-- Choice grid -->
         <div class="section-eyebrow">Таблица выбора рыбы</div>
 
-        <!-- Three-column choice grid -->
         <div class="choice-grid">
 
           <!-- BEST -->
           <div class="choice-col col-best">
             <div class="choice-head">
-              <div class="choice-head-icon">✅</div>
               <span class="choice-badge">Лучший выбор</span>
-              <div class="choice-head-title">Лучший<br>выбор</div>
               <div class="choice-freq">2–3 порции в неделю</div>
             </div>
             <div class="choice-body">
@@ -654,9 +641,7 @@
           <!-- GOOD -->
           <div class="choice-col col-good">
             <div class="choice-head">
-              <div class="choice-head-icon">⚠️</div>
               <span class="choice-badge">Хороший выбор</span>
-              <div class="choice-head-title">Хороший<br>выбор</div>
               <div class="choice-freq">1 порция в неделю</div>
             </div>
             <div class="choice-body">
@@ -685,12 +670,10 @@
             </div>
           </div>
 
-          <!-- BAD -->
+          <!-- AVOID -->
           <div class="choice-col col-bad">
             <div class="choice-head">
-              <div class="choice-head-icon">🚫</div>
-              <span class="choice-badge">Не лучший выбор</span>
-              <div class="choice-head-title">Избегайте<br>или редко</div>
+              <span class="choice-badge">Избегайте или редко</span>
               <div class="choice-freq">Высокая концентрация ртути</div>
             </div>
             <div class="choice-body">
@@ -741,17 +724,22 @@
           </div>
         </div>
 
-        <!-- Footer / attribution -->
+        <!-- Footer -->
         <div class="guide-footer">
-          <div class="guide-footer-left">
-            <div class="footer-avatar">Ю</div>
-            <div class="footer-cred">
-              <div class="footer-cred-name">Воронова Юлия</div>
-              <div class="footer-cred-role">Доказательный нутрициолог</div>
+          <div class="guide-footer-logo">
+            <img src="../images/icons/logo-small.png" alt="Логотип Юлии Вороновой" width="36" height="36">
+          </div>
+          <div class="guide-footer-info">
+            <div class="guide-footer-label">Мини-гайд</div>
+            <div class="guide-footer-title">Как выбрать рыбу</div>
+            <div class="guide-footer-author">Юлия Воронова</div>
+            <div class="guide-footer-role">Доказательный нутрициолог</div>
+            <div class="guide-footer-links">
+              <a href="https://voronova.online" target="_blank" rel="noopener">www.voronova.online</a>
+              <a href="https://t.me/voronova_nutrition" target="_blank" rel="noopener">@voronova_nutrition</a>
             </div>
           </div>
-          <a href="https://voronova.online" class="footer-site" target="_blank" rel="noopener">voronova.online</a>
-          <span class="footer-year">© 2026 · Все права защищены</span>
+          <div class="guide-footer-copy">© 2026 · Все права защищены</div>
         </div>
 
       </div><!-- /guide-body -->
