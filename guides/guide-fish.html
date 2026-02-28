@@ -14,13 +14,13 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --green:     #2e7d52;
-      --green-bg:  #eaf4ed;
+      --green:     #7aac90;
+      --green-bg:  #f0f8f3;
       --green-mid: #4a9e6a;
-      --amber:     #c17d2a;
-      --amber-bg:  #fdf3e3;
-      --red:       #b53030;
-      --red-bg:    #fbeaea;
+      --amber:     #c4a070;
+      --amber-bg:  #fdf7ef;
+      --red:       #c08888;
+      --red-bg:    #fdf2f2;
       --sage:      #8a9a8d;
       --sage-light:#f4f7f4;
       --dark:      #1e2420;
@@ -145,15 +145,15 @@
     /* ── Page title block (replaces header text) ── */
     .guide-title-block {
       display: flex;
-      align-items: flex-start;
-      gap: 22px;
+      align-items: center;
+      gap: 28px;
       margin-bottom: 36px;
       padding-bottom: 32px;
       border-bottom: 1px solid var(--border);
     }
     .guide-title-logo {
-      width: 56px;
-      height: 56px;
+      width: 90px;
+      height: 90px;
       flex-shrink: 0;
       border-radius: 50%;
       background: var(--sage-light);
@@ -164,8 +164,8 @@
       overflow: hidden;
     }
     .guide-title-logo img {
-      width: 38px;
-      height: 38px;
+      width: 62px;
+      height: 62px;
       object-fit: contain;
     }
     .guide-title-text { flex: 1; }
@@ -276,28 +276,28 @@
       flex-direction: column;
     }
     .choice-head {
-      padding: 14px 18px 12px;
+      padding: 22px 22px 18px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 8px;
     }
     .choice-badge {
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       border-radius: 50px;
-      padding: 4px 12px;
+      padding: 5px 14px;
       display: inline-block;
       width: fit-content;
-      border: 1.5px solid rgba(255,255,255,.4);
-      background: rgba(255,255,255,.18);
+      border: 1.5px solid rgba(255,255,255,.55);
+      background: rgba(255,255,255,.22);
       color: white;
     }
     .choice-freq {
-      font-size: 0.72rem;
+      font-size: 0.74rem;
       font-weight: 500;
-      color: rgba(255,255,255,.78);
+      color: rgba(255,255,255,.85);
       margin-top: 2px;
     }
     .choice-body { padding: 14px 18px 18px; flex: 1; }
@@ -344,27 +344,44 @@
 
     /* ── Warning block ── */
     .warning-block {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 28px;
+      border: 1.5px solid #e8d9c0;
+    }
+    .warning-left {
+      background: linear-gradient(160deg, #f5ead6, #ede0c8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 24px 16px;
+    }
+    .warning-icon { font-size: 2.6rem; line-height: 1; }
+    .warning-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8a6a40;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .warning-right {
+      background: #fffbf5;
+      padding: 24px 26px;
       display: flex;
       align-items: center;
-      gap: 20px;
-      background: linear-gradient(135deg, #fff8ec, #fff4e5);
-      border: 1.5px solid #f5d9a0;
-      border-radius: var(--radius);
-      padding: 22px 26px;
-      margin-bottom: 28px;
     }
-    .warning-icon { font-size: 2.2rem; flex-shrink: 0; }
-    .warning-text { line-height: 1.6; }
-    .warning-text strong {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--dark);
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+    .warning-right p {
+      font-size: 0.86rem;
+      color: var(--text);
+      line-height: 1.7;
     }
-    .warning-text p { font-size: 0.82rem; color: var(--text); }
+    .warning-right p strong { color: var(--dark); font-weight: 700; }
 
     /* ── Portion section ── */
     .portion-grid {
@@ -421,7 +438,7 @@
       flex-wrap: wrap;
     }
     .guide-footer-logo {
-      width: 52px; height: 52px;
+      width: 72px; height: 72px;
       flex-shrink: 0;
       border-radius: 50%;
       background: white;
@@ -432,26 +449,10 @@
       overflow: hidden;
     }
     .guide-footer-logo img {
-      width: 36px; height: 36px;
+      width: 52px; height: 52px;
       object-fit: contain;
     }
     .guide-footer-info { flex: 1; min-width: 180px; }
-    .guide-footer-title {
-      font-family: var(--ff-head);
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: var(--dark);
-      line-height: 1.2;
-      margin-bottom: 2px;
-    }
-    .guide-footer-label {
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--sage);
-      margin-bottom: 6px;
-    }
     .guide-footer-author {
       font-size: 0.82rem;
       font-weight: 600;
@@ -512,9 +513,15 @@
       .guide-body { padding: 28px 24px 36px; }
       .choice-grid { grid-template-columns: 1fr; gap: 12px; }
       .portion-grid { grid-template-columns: 1fr; }
-      .guide-title-block { flex-direction: column; gap: 14px; }
+      .guide-title-block { flex-direction: column; gap: 14px; align-items: flex-start; }
       .guide-footer { flex-direction: column; gap: 16px; }
       .guide-footer-copy { align-self: flex-start; }
+      .warning-block { grid-template-columns: 110px 1fr; }
+    }
+    @media (max-width: 520px) {
+      .warning-block { grid-template-columns: 1fr; }
+      .warning-left { flex-direction: row; padding: 16px 20px; justify-content: flex-start; gap: 14px; }
+      .warning-label { text-align: left; }
     }
     @media (max-width: 480px) {
       .guide-body { padding: 20px 16px 28px; }
@@ -695,9 +702,11 @@
 
         <!-- Warning -->
         <div class="warning-block">
-          <div class="warning-icon">☝️</div>
-          <div class="warning-text">
-            <strong>Важно знать</strong>
+          <div class="warning-left">
+            <div class="warning-icon">☝️</div>
+            <div class="warning-label">Важно<br>знать</div>
+          </div>
+          <div class="warning-right">
             <p>Выбирайте морепродукты с меньшим содержанием ртути. Это особенно важно для <strong>детей младшего возраста, беременных и кормящих</strong> женщин.</p>
           </div>
         </div>
@@ -727,11 +736,9 @@
         <!-- Footer -->
         <div class="guide-footer">
           <div class="guide-footer-logo">
-            <img src="../images/icons/logo-small.png" alt="Логотип Юлии Вороновой" width="36" height="36">
+            <img src="../images/icons/logo-small.png" alt="Логотип Юлии Вороновой" width="52" height="52">
           </div>
           <div class="guide-footer-info">
-            <div class="guide-footer-label">Мини-гайд</div>
-            <div class="guide-footer-title">Как выбрать рыбу</div>
             <div class="guide-footer-author">Юлия Воронова</div>
             <div class="guide-footer-role">Доказательный нутрициолог</div>
             <div class="guide-footer-links">
