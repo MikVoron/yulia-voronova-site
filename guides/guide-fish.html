@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Как выбрать рыбу — Гайд нутрициолога Юлии Вороновой</title>
+	<title>Как выбрать рыбу – Гайд нутрициолога Юлии Вороновой</title>
 	<meta name="description" content="Гайд нутрициолога Юлии Вороновой: как выбрать рыбу с учётом содержания ртути. Лучший, хороший и не лучший выбор.">
 	<link rel="canonical" href="https://voronova.online/guides/guide-fish.html">
 	<link rel="icon" href="../images/favicons/favicon-96x96.png" sizes="96x96">
@@ -45,7 +45,7 @@
 			-webkit-font-smoothing: antialiased;
 		}
 
-		/* Скрывать img без src — заглушка остаётся видна */
+		/* Скрывать img без src – заглушка остаётся видна */
 		img[src=""] {
 			display: none !important;
 		}
@@ -169,7 +169,7 @@
 			margin: 20px 20px 0;
 		}
 
-		/* Left panel — white text */
+		/* Left panel – white text */
 		.guide-header-left {
 			background: #fff;
 			border-right: 1px solid var(--border);
@@ -182,7 +182,7 @@
 			gap: 0;
 		}
 
-		/* Right panel — image */
+		/* Right panel – image */
 		.guide-header-right-img {
 			position: relative;
 			overflow: hidden;
@@ -238,7 +238,7 @@
 			flex-shrink: 0;
 		}
 
-		/* SVG logo — crisp at any size */
+		/* SVG logo – crisp at any size */
 		.gh-logo-wrap img {
 			width: 44px;
 			height: 44px;
@@ -379,13 +379,13 @@
 			padding: 20px 32px;
 		}
 
-		/* Slot 1 — wide banner after intro */
+		/* Slot 1 – wide banner after intro */
 		.img-slot-1 {
 			height: 240px;
 			margin-bottom: 36px;
 		}
 
-		/* Slot 2 — side image next to warning */
+		/* Slot 2 – side image next to warning */
 		.warning-with-img {
 			display: grid;
 			grid-template-columns: 1fr 220px;
@@ -562,7 +562,7 @@
 			color: var(--green);
 		}
 
-		/* ── Intro — large feature block ── */
+		/* ── Intro – large feature block ── */
 		.intro-feature {
 			background: linear-gradient(135deg, #e4f2fa 0%, #eef6fd 100%);
 			border-radius: 14px;
@@ -619,6 +619,7 @@
 		.choice-grid {
 			display: grid;
 			grid-template-columns: 1fr 1fr 1fr;
+			grid-template-rows: auto 1fr;
 			gap: 16px;
 			margin-bottom: 36px;
 		}
@@ -626,8 +627,9 @@
 		.choice-col {
 			border-radius: var(--radius);
 			overflow: hidden;
-			display: flex;
-			flex-direction: column;
+			grid-row: span 2;
+			display: grid;
+			grid-template-rows: subgrid;
 		}
 
 		.choice-head {
@@ -635,6 +637,7 @@
 			display: flex;
 			flex-direction: column;
 			align-items: center;
+			justify-content: center;
 			text-align: center;
 			gap: 8px;
 		}
@@ -661,6 +664,10 @@
 			color: rgba(255, 255, 255, .95);
 			margin-top: 4px;
 			line-height: 1.2;
+			background: rgba(255, 255, 255, .15);
+			border-radius: 6px;
+			padding: 5px 14px;
+			display: inline-block;
 		}
 
 		.choice-body {
@@ -731,7 +738,6 @@
 			background: var(--red);
 		}
 
-	
 		/* ── Cooking section ── */
 		.cook-grid {
 			display: grid;
@@ -753,10 +759,18 @@
 			gap: 6px;
 		}
 
-		.cook-card-head-freeze { background: linear-gradient(135deg, #dceef9, #eaf4fd); }
-		.cook-card-head-heat   { background: linear-gradient(135deg, #fdeee0, #fdf5ec); }
+		.cook-card-head-freeze {
+			background: linear-gradient(135deg, #dceef9, #eaf4fd);
+		}
 
-		.cook-icon { font-size: 1.8rem; line-height: 1; }
+		.cook-card-head-heat {
+			background: linear-gradient(135deg, #fdeee0, #fdf5ec);
+		}
+
+		.cook-icon {
+			font-size: 1.8rem;
+			line-height: 1;
+		}
 
 		.cook-rule {
 			font-size: 0.62rem;
@@ -774,7 +788,9 @@
 			line-height: 1.15;
 		}
 
-		.cook-card-body { padding: 16px 20px 20px; }
+		.cook-card-body {
+			padding: 16px 20px 20px;
+		}
 
 		.cook-intro {
 			font-size: 0.92rem;
@@ -784,8 +800,13 @@
 			margin-bottom: 14px;
 		}
 
-		.cook-type { margin-bottom: 12px; }
-		.cook-type:last-child { margin-bottom: 0; }
+		.cook-type {
+			margin-bottom: 12px;
+		}
+
+		.cook-type:last-child {
+			margin-bottom: 0;
+		}
 
 		.cook-type-label {
 			font-size: 0.82rem;
@@ -812,7 +833,9 @@
 		}
 
 		@media (max-width: 600px) {
-			.cook-grid { grid-template-columns: 1fr; }
+			.cook-grid {
+				grid-template-columns: 1fr;
+			}
 		}
 
 		/* ── Divider ── */
@@ -1165,6 +1188,77 @@
 				font-size: 0.95rem;
 			}
 		}
+
+		/* ── Canned fish section ── */
+		.canned-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px;
+			margin-top: 18px;
+			margin-bottom: 10px;
+		}
+
+		.canned-card {
+			border-radius: var(--radius);
+			overflow: hidden;
+			border: 1px solid var(--border);
+		}
+
+		.canned-card-head {
+			padding: 14px 18px 12px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.canned-card-head-safe {
+			background: linear-gradient(135deg, #dceef9, #eaf4fd);
+		}
+
+		.canned-card-head-avoid {
+			background: linear-gradient(135deg, #fde8e0, #fdf0ec);
+		}
+
+		.canned-card-icon {
+			font-size: 1.5rem;
+			line-height: 1;
+		}
+
+		.canned-card-title {
+			font-family: var(--ff-head);
+			font-size: 1.55rem;
+			font-weight: 600;
+			color: var(--dark);
+		}
+
+		.canned-card-body {
+			padding: 12px 18px 16px;
+		}
+
+		.canned-fish-list {
+			list-style: none;
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+
+		.canned-fish-list li {
+			font-size: 0.93rem;
+			color: var(--text);
+			line-height: 1.65;
+		}
+
+		.canned-note {
+			margin-top: 14px;
+			font-size: 0.9rem;
+			color: var(--muted);
+			line-height: 1.65;
+			font-style: italic;
+			padding: 10px 16px;
+			background: var(--sage-light);
+			border-radius: 8px;
+			border-left: 3px solid var(--sage);
+		}
 	</style>
 </head>
 
@@ -1218,7 +1312,7 @@
 				<div class="guide-header-left">
 					<div class="gh-logo-wrap">
 						<!-- SVG для чёткости на любом экране -->
-						<img src="../images/icons/logo-small.svg" alt="Логотип Юлии Вороновой" width="44" height="44">
+						<img src="../images/icons/logo-small.svg" alt="Логотип Юлии Вороновй" width="44" height="44">
 					</div>
 					<div class="gh-badge">Мини-гайд</div>
 					<h1 class="gh-title">Как выбрать <em>рыбу?</em></h1>
@@ -1255,7 +1349,7 @@
 				<!-- IMAGE SLOT 1: широкая горизонтальная · рекомендуемый размер 1200 × 480 px -->
 				<div class="guide-img-slot img-slot-1">
 					<!-- Укажите путь к картинке ↓ -->
-					<img src="../images/img-guides/choose-fish-pier.webp" alt="Свежая рыба — богатый источник омега-3 и белка">
+					<img src="../images/img-guides/choose-fish-pier.webp" alt="Свежая рыба – богатый источник омега-3 и белка">
 					<div class="img-slot-placeholder">
 						Картинка 1 · широкая горизонтальная
 					</div>
@@ -1378,7 +1472,7 @@
 						<div class="portion-card">
 							<!-- Укажите путь к картинке ладони взрослого ↓ · ~600 × 260 px -->
 							<div class="portion-card-img">
-								<img src="../images/img-guides/big-hand.webp" alt="Ладонь взрослого — размер порции рыбы">
+								<img src="../images/img-guides/big-hand.webp" alt="Ладонь взрослого – размер порции рыбы">
 								<div class="portion-card-img-placeholder">
 									Картинка ладони
 								</div>
@@ -1396,7 +1490,7 @@
 						<div class="portion-card">
 							<!-- Укажите путь к картинке детской ладошки ↓ · ~600 × 260 px -->
 							<div class="portion-card-img">
-								<img src="../images/img-guides/small-hand.webp" alt="Ладошка ребёнка — размер детской порции рыбы">
+								<img src="../images/img-guides/small-hand.webp" alt="Ладошка ребёнка – размер детской порции рыбы">
 								<div class="portion-card-img-placeholder">
 									Картинка ладошки
 								</div>
@@ -1416,7 +1510,7 @@
 				<!-- Cooking section -->
 				<div class="section-eyebrow" style="margin-top: 44px;">Как приготовить?</div>
 
-				<p class="img-slot-caption">Риски, связанные с паразитами, можно полностью исключить за счёт правильной заморозки или нагревания.</p>
+				<p class="img-slot-caption">Риски, связанные с паразитами, можно снизить за счёт правильной заморозки или нагревания.</p>
 
 				<div class="cook-grid">
 
@@ -1428,14 +1522,14 @@
 							<div class="cook-title">Заморозка</div>
 						</div>
 						<div class="cook-card-body">
-							<p class="cook-intro">Холод — отличный способ защиты, но домашнему морозильнику нужно время.</p>
+							<p class="cook-intro">Холод – отличный способ защиты, но домашнему морозильнику нужно время.</p>
 							<div class="cook-type">
 								<div class="cook-type-label">🌊 Морская рыба</div>
-								<div class="cook-type-detail">Если купили свежей — держим в морозилке <strong>не менее 7 дней</strong>. Домашний мороз (−18°C) справится с морскими угрозами.</div>
+								<div class="cook-type-detail">Если купили свежей – держим в морозилке <strong>не менее 7 дней</strong>. Домашний мороз (−18°C) справится с морскими угрозами.</div>
 							</div>
 							<div class="cook-type">
 								<div class="cook-type-label">🛶 Речная рыба</div>
-								<div class="cook-type-detail">Домашняя морозилка против речных паразитов <strong>часто бессильна</strong> — нужно около месяца. Для речного улова лучшая защита — термообработка.</div>
+								<div class="cook-type-detail">Домашняя морозилка против речных паразитов <strong>часто бессильна</strong> – нужно около месяца. Для речного улова лучшая защита – термообработка.</div>
 							</div>
 						</div>
 					</div>
@@ -1448,21 +1542,52 @@
 							<div class="cook-title">Термообработка</div>
 						</div>
 						<div class="cook-card-body">
-							<p class="cook-intro">Главный секрет — в прогреве самого толстого участка рыбы.</p>
+							<p class="cook-intro">Главный секрет – в прогреве самого толстого участка рыбы.</p>
 							<div class="cook-type">
 								<div class="cook-type-label">🌊 Морская рыба</div>
 								<div class="cook-type-detail">Прогреть до <strong>70°C</strong> внутри куска.</div>
-								<p class="cook-type-practice">Запекаем или тушим при 180–200°C около 15–20 минут для филе. Мясо стало матовым и легко распадается на хлопья — готово.</p>
+								<p class="cook-type-practice">Запекаем или тушим при 180–200°C около 15–20 минут для филе. Мясо стало матовым и легко распадается на хлопья – готово.</p>
 							</div>
 							<div class="cook-type">
 								<div class="cook-type-label">🛶 Речная рыба</div>
 								<div class="cook-type-detail">Прогреть <strong>глубоко и основательно</strong>.</div>
-								<p class="cook-type-practice">Тушение или запекание 30–40 минут. Идеально тушение или суп — рыба не пересушится, пока добиваемся полной безопасности.</p>
+								<p class="cook-type-practice">Тушение или запекание 30–40 минут. Идеально тушение или суп – рыба не пересушится, пока добиваемся полной безопасности.</p>
 							</div>
 						</div>
 					</div>
 
 				</div><!-- /cook-grid -->
+
+				<!-- Canned fish section -->
+				<div class="section-eyebrow" style="margin-top: 44px;">А что с консервами?</div>
+				<p class="img-slot-caption">Рыбные консервы в целом можно употреблять 1-2 банки в неделю как безопасный и разумный уровень для большинства взрослых.</p>
+				<div class="canned-grid">
+					<div class="canned-card">
+						<div class="canned-card-head canned-card-head-safe">
+							<div class="canned-card-icon">✅</div>
+							<div class="canned-card-title">Хороший выбор</div>
+						</div>
+						<div class="canned-card-body">
+							<ul class="canned-fish-list">
+								<li>🐟 <strong>Скипджек</strong> (skipjack tuna, тунец светлый) (yellowfin tuna) – самый распространённый, меньше всего ртути</li>
+								<li>🐠 <strong>Желтопёрый тунец/полосатый</strong> – умеренное содержание ртути, подходит для регулярного употребления</li>
+							</ul>
+						</div>
+					</div>
+					<div class="canned-card">
+						<div class="canned-card-head canned-card-head-avoid">
+							<div class="canned-card-icon">⚠️</div>
+							<div class="canned-card-title">Не стоит покупать</div>
+						</div>
+						<div class="canned-card-body">
+							<ul class="canned-fish-list">
+								<li>🚫 <strong>Крупный белый / алbacore‑тунец</strong> (white / albacore tuna) или иной крупный, неизвестного происхождения – в них ртуть обычно выше, и их лучше заменять более безопасными сортами.</li>
+								<li>📌 Беременным и детям – не более 1 раза в неделю</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<p class="canned-note">💡 Любые <strong>консервы лучше выбирать без масла, в собственном соку или в воде</strong> - это менее калорийный и более полезный вариант. Избегайте вариантов в жирном масле и с высоким содержанием соли.</p>
 
 				<!-- Footer -->
 				<div class="guide-footer">
