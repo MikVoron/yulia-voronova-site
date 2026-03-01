@@ -92,7 +92,8 @@
 
 		.top-nav-actions {
 			display: flex;
-			gap: 10px;
+			gap: 8px;
+			flex-wrap: wrap;
 		}
 
 		.btn-share,
@@ -969,10 +970,9 @@
 
 		.gf-cta-row {
 			display: flex;
+			flex-direction: column;
 			align-items: center;
-			gap: 10px;
-			justify-content: center;
-			flex-wrap: wrap;
+			gap: 6px;
 		}
 
 		.gf-cta-label {
@@ -1199,9 +1199,21 @@
 				grid-template-columns: 1fr;
 			}
 
-			/* Portion card: keep row layout but smaller img */
+			/* Portion card: stack vertically on mobile */
+			.portion-card {
+				flex-direction: column;
+			}
+
 			.portion-card-img {
-				width: 90px;
+				width: 100%;
+				height: 200px;
+				border-right: none;
+				border-bottom: 1px solid var(--border);
+			}
+
+			.portion-card-img img {
+				object-fit: contain;
+				object-position: center;
 			}
 
 			/* Cook grid: already 1 col at 600px (from existing rule), keep */
