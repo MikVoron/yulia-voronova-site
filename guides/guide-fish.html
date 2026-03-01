@@ -225,7 +225,7 @@
 		}
 
 		.gh-logo-wrap {
-			margin-bottom: 18px;
+			margin-bottom: 5px;
 			flex-shrink: 0;
 		}
 
@@ -1156,6 +1156,88 @@
 		.soc-vk  { background: #0077FF; }
 		.soc-rt  { background: #FE4545; }
 
+	
+		/* ============================
+		   Mobile overrides (<=600px)
+		   ============================ */
+		@media (max-width: 600px) {
+
+			/* Body padding */
+			.guide-body {
+				padding: 24px 16px 32px;
+			}
+
+			/* Section eyebrow spacing */
+			.section-eyebrow {
+				margin-top: 32px;
+			}
+
+			/* Choice grid: 3 cols -> 1 col */
+			.choice-grid {
+				grid-template-columns: 1fr;
+				grid-template-rows: none;
+			}
+
+			.choice-col {
+				grid-row: auto;
+				display: flex;
+				flex-direction: column;
+			}
+
+			.choice-head {
+				padding: 16px 18px 14px;
+				justify-content: flex-start;
+			}
+
+			/* Canned grid: 2 cols -> 1 col */
+			.canned-grid {
+				grid-template-columns: 1fr;
+			}
+
+			/* Portion grid: 2 cols -> 1 col */
+			.portion-grid {
+				grid-template-columns: 1fr;
+			}
+
+			/* Portion card: keep row layout but smaller img */
+			.portion-card-img {
+				width: 90px;
+			}
+
+			/* Cook grid: already 1 col at 600px (from existing rule), keep */
+
+			/* Share buttons: wrap */
+			.btn-row {
+				gap: 8px;
+				flex-wrap: wrap;
+			}
+
+			.btn-share,
+			.btn-download {
+				font-size: 0.78rem;
+				padding: 8px 14px;
+			}
+
+			/* Footer: stack vertically */
+			.gf-top {
+				flex-direction: column;
+				gap: 18px;
+				padding: 22px 20px 18px;
+				text-align: center;
+			}
+
+			.gf-center {
+				width: 100%;
+			}
+
+			.gf-social {
+				justify-content: center;
+			}
+
+			.gf-bottom {
+				padding: 12px 20px;
+			}
+		}
 	</style>
 </head>
 
