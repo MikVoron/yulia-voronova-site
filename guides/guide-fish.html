@@ -652,10 +652,13 @@
 		}
 
 		.choice-freq {
-			font-size: 0.74rem;
-			font-weight: 500;
-			color: rgba(255, 255, 255, .85);
-			margin-top: 2px;
+			font-family: var(--ff-head);
+			font-size: 1.15rem;
+			font-style: italic;
+			font-weight: 400;
+			color: rgba(255, 255, 255, .95);
+			margin-top: 4px;
+			line-height: 1.2;
 		}
 
 		.choice-body {
@@ -726,18 +729,10 @@
 			background: var(--red);
 		}
 
-		/* ── Best choice freq accent ── */
-		.col-best .choice-freq {
-			font-size: 0.82rem;
-			font-weight: 700;
-			color: #fff;
-			background: rgba(255, 255, 255, .2);
-			border: 1.5px solid rgba(255, 255, 255, .55);
-			border-radius: 50px;
-			padding: 4px 14px;
-			display: inline-block;
-			letter-spacing: 0.04em;
-		}
+		/* ── Choice freq per column ── */
+		.col-best  .choice-freq { font-size: 1.25rem; }
+		.col-good  .choice-freq { font-size: 1.15rem; color: rgba(255,255,255,.8); }
+		.col-bad   .choice-freq { font-size: 1.05rem; color: rgba(255,255,255,.75); }
 
 		/* ── Cooking section ── */
 		.cook-grid {
@@ -766,7 +761,7 @@
 		.cook-icon { font-size: 1.8rem; line-height: 1; }
 
 		.cook-rule {
-			font-size: 0.58rem;
+			font-size: 0.62rem;
 			font-weight: 700;
 			letter-spacing: 0.14em;
 			text-transform: uppercase;
@@ -775,19 +770,19 @@
 
 		.cook-title {
 			font-family: var(--ff-head);
-			font-size: 1.1rem;
+			font-size: 1.55rem;
 			font-weight: 600;
 			color: var(--dark);
-			line-height: 1.2;
+			line-height: 1.15;
 		}
 
 		.cook-card-body { padding: 16px 20px 20px; }
 
 		.cook-intro {
-			font-size: 0.82rem;
+			font-size: 0.92rem;
 			color: var(--muted);
 			font-style: italic;
-			line-height: 1.6;
+			line-height: 1.65;
 			margin-bottom: 14px;
 		}
 
