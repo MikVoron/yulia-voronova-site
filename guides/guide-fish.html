@@ -726,6 +726,102 @@
 			background: var(--red);
 		}
 
+		/* ── Best choice freq accent ── */
+		.col-best .choice-freq {
+			font-size: 0.82rem;
+			font-weight: 700;
+			color: #fff;
+			background: rgba(255, 255, 255, .2);
+			border: 1.5px solid rgba(255, 255, 255, .55);
+			border-radius: 50px;
+			padding: 4px 14px;
+			display: inline-block;
+			letter-spacing: 0.04em;
+		}
+
+		/* ── Cooking section ── */
+		.cook-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px;
+			margin-bottom: 36px;
+		}
+
+		.cook-card {
+			border-radius: var(--radius);
+			overflow: hidden;
+			border: 1px solid var(--border);
+		}
+
+		.cook-card-head {
+			padding: 18px 20px 16px;
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+
+		.cook-card-head-freeze { background: linear-gradient(135deg, #dceef9, #eaf4fd); }
+		.cook-card-head-heat   { background: linear-gradient(135deg, #fdeee0, #fdf5ec); }
+
+		.cook-icon { font-size: 1.8rem; line-height: 1; }
+
+		.cook-rule {
+			font-size: 0.58rem;
+			font-weight: 700;
+			letter-spacing: 0.14em;
+			text-transform: uppercase;
+			color: var(--sage);
+		}
+
+		.cook-title {
+			font-family: var(--ff-head);
+			font-size: 1.1rem;
+			font-weight: 600;
+			color: var(--dark);
+			line-height: 1.2;
+		}
+
+		.cook-card-body { padding: 16px 20px 20px; }
+
+		.cook-intro {
+			font-size: 0.82rem;
+			color: var(--muted);
+			font-style: italic;
+			line-height: 1.6;
+			margin-bottom: 14px;
+		}
+
+		.cook-type { margin-bottom: 12px; }
+		.cook-type:last-child { margin-bottom: 0; }
+
+		.cook-type-label {
+			font-size: 0.72rem;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--dark);
+			margin-bottom: 5px;
+		}
+
+		.cook-type-detail {
+			font-size: 0.81rem;
+			color: var(--text);
+			line-height: 1.65;
+		}
+
+		.cook-type-practice {
+			font-size: 0.78rem;
+			color: var(--muted);
+			line-height: 1.6;
+			margin-top: 4px;
+			padding-left: 10px;
+			border-left: 2px solid var(--border);
+		}
+
+		@media (max-width: 600px) {
+			.cook-grid { grid-template-columns: 1fr; }
+		}
+
 		/* ── Divider ── */
 		.divider {
 			height: 1px;
@@ -986,7 +1082,8 @@
 			.choice-col,
 			.portion-card,
 			.warning-block,
-			.guide-title-block {
+			.guide-title-block,
+			.cook-card {
 				break-inside: avoid;
 			}
 
@@ -1142,7 +1239,7 @@
 				<!-- Right 1/2: image · рекомендуемый размер 800 × 500 px -->
 				<div class="guide-header-right-img">
 					<!-- Укажите путь к картинке шапки ↓ -->
-					<img src="../images/covers/how-choose-fish.png" alt="Свежая рыба — фото для шапки гайда">
+					<img src="../images/img-guides/how-choose-fish.webp" alt="Картинка рыбного рынка гайда нутрициолога Юлии Вороновой">
 					<div class="gh-img-placeholder">
 						Картинка шапки · 800 x 500 px
 					</div>
@@ -1165,12 +1262,12 @@
 				<!-- IMAGE SLOT 1: широкая горизонтальная · рекомендуемый размер 1200 × 480 px -->
 				<div class="guide-img-slot img-slot-1">
 					<!-- Укажите путь к картинке ↓ -->
-					<img src="../images/covers/choose-fish-pier.png" alt="Свежая рыба — богатый источник омега-3 и белка">
+					<img src="../images/img-guides/choose-fish-pier.webp" alt="Свежая рыба — богатый источник омега-3 и белка">
 					<div class="img-slot-placeholder">
 						Картинка 1 · широкая горизонтальная
 					</div>
 				</div>
-				<p class="img-slot-caption">Свежая рыба — богатый источник омега-3 и белка</p>
+				<p class="img-slot-caption">Свежая рыба - богатый источник омега-3 и белка</p>
 
 				<!-- Choice grid -->
 				<div class="choice-grid">
@@ -1280,48 +1377,101 @@
 
 				<!-- Portion section -->
 				<div class="portion-section">
-				<div class="section-eyebrow">Что такое порция?</div>
+					<div class="section-eyebrow">Что такое порция?</div>
 
-				<div class="portion-grid">
+					<div class="portion-grid">
 
-					<!-- Карточка 1: взрослая ладонь -->
-					<div class="portion-card">
-						<!-- Укажите путь к картинке ладони взрослого ↓ · ~600 × 260 px -->
-						<div class="portion-card-img">
-							<img src="../images/covers/big-hand.png" alt="Ладонь взрослого — размер порции рыбы">
-							<div class="portion-card-img-placeholder">
-								Картинка ладони
+						<!-- Карточка 1: взрослая ладонь -->
+						<div class="portion-card">
+							<!-- Укажите путь к картинке ладони взрослого ↓ · ~600 × 260 px -->
+							<div class="portion-card-img">
+								<img src="../images/img-guides/big-hand.webp" alt="Ладонь взрослого — размер порции рыбы">
+								<div class="portion-card-img-placeholder">
+									Картинка ладони
+								</div>
+							</div>
+							<div class="portion-card-body">
+								<div class="portion-info">
+									<div class="portion-label">Взрослая порция</div>
+									<div class="portion-title">Размер ладони</div>
+									<p class="portion-text">Одна порция рыбы для взрослого - кусок размером с вашу ладонь (без пальцев), толщиной около 2 см.</p>
+								</div>
 							</div>
 						</div>
-						<div class="portion-card-body">
-							<div class="portion-info">
-								<div class="portion-label">Взрослая порция</div>
-								<div class="portion-title">Размер ладони</div>
-								<p class="portion-text">Одна порция рыбы для взрослого - кусок размером с вашу ладонь (без пальцев), толщиной около 2 см.</p>
+
+						<!-- Карточка 2: детская ладошка -->
+						<div class="portion-card">
+							<!-- Укажите путь к картинке детской ладошки ↓ · ~600 × 260 px -->
+							<div class="portion-card-img">
+								<img src="../images/img-guides/small-hand.webp" alt="Ладошка ребёнка — размер детской порции рыбы">
+								<div class="portion-card-img-placeholder">
+									Картинка ладошки
+								</div>
+							</div>
+							<div class="portion-card-body">
+								<div class="portion-info">
+									<div class="portion-label">Детская порция</div>
+									<div class="portion-title">Размер детской ладошки</div>
+									<p class="portion-text">Рыба вводится постепенно, с небольших количеств. Порция - размером с детскую ладошку. Начинать с лучшего выбора.</p>
+								</div>
 							</div>
 						</div>
+
 					</div>
-
-					<!-- Карточка 2: детская ладошка -->
-					<div class="portion-card">
-						<!-- Укажите путь к картинке детской ладошки ↓ · ~600 × 260 px -->
-						<div class="portion-card-img">
-							<img src="../images/covers/small-hand.png" alt="Ладошка ребёнка — размер детской порции рыбы">
-							<div class="portion-card-img-placeholder">
-								Картинка ладошки
-							</div>
-						</div>
-						<div class="portion-card-body">
-							<div class="portion-info">
-								<div class="portion-label">Детская порция</div>
-								<div class="portion-title">Размер детской ладошки</div>
-								<p class="portion-text">Рыба вводится постепенно, с небольших количеств. Порция - размером с детскую ладошку. Начинать с лучшего выбора.</p>
-							</div>
-						</div>
-					</div>
-
-				</div>
 				</div><!-- /portion-section -->
+
+				<div class="divider"></div>
+
+				<!-- Cooking section -->
+				<div class="section-eyebrow">Как приготовить?</div>
+
+				<p class="img-slot-caption">Риски, связанные с паразитами, можно полностью исключить за счёт правильной заморозки или нагревания.</p>
+
+				<div class="cook-grid">
+
+					<!-- Rule 1: Заморозка -->
+					<div class="cook-card">
+						<div class="cook-card-head cook-card-head-freeze">
+							<div class="cook-icon">❄️</div>
+							<div class="cook-rule">Правило №1</div>
+							<div class="cook-title">Заморозка</div>
+						</div>
+						<div class="cook-card-body">
+							<p class="cook-intro">Холод — отличный способ защиты, но домашнему морозильнику нужно время.</p>
+							<div class="cook-type">
+								<div class="cook-type-label">🌊 Морская рыба</div>
+								<div class="cook-type-detail">Если купили свежей — держим в морозилке <strong>не менее 7 дней</strong>. Домашний мороз (−18°C) справится с морскими угрозами.</div>
+							</div>
+							<div class="cook-type">
+								<div class="cook-type-label">🛶 Речная рыба</div>
+								<div class="cook-type-detail">Домашняя морозилка против речных паразитов <strong>часто бессильна</strong> — нужно около месяца. Для речного улова лучшая защита — термообработка.</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Rule 2: Термообработка -->
+					<div class="cook-card">
+						<div class="cook-card-head cook-card-head-heat">
+							<div class="cook-icon">🔥</div>
+							<div class="cook-rule">Правило №2</div>
+							<div class="cook-title">Термообработка</div>
+						</div>
+						<div class="cook-card-body">
+							<p class="cook-intro">Главный секрет — в прогреве самого толстого участка рыбы.</p>
+							<div class="cook-type">
+								<div class="cook-type-label">🌊 Морская рыба</div>
+								<div class="cook-type-detail">Прогреть до <strong>70°C</strong> внутри куска.</div>
+								<p class="cook-type-practice">Запекаем или тушим при 180–200°C около 15–20 минут для филе. Мясо стало матовым и легко распадается на хлопья — готово.</p>
+							</div>
+							<div class="cook-type">
+								<div class="cook-type-label">🛶 Речная рыба</div>
+								<div class="cook-type-detail">Прогреть <strong>глубоко и основательно</strong>.</div>
+								<p class="cook-type-practice">Тушение или запекание 30–40 минут. Идеально тушение или суп — рыба не пересушится, пока добиваемся полной безопасности.</p>
+							</div>
+						</div>
+					</div>
+
+				</div><!-- /cook-grid -->
 
 				<!-- Footer -->
 				<div class="guide-footer">
@@ -1353,7 +1503,7 @@
 			});
 		}
 
-		</script>
+	</script>
 </body>
 
 </html>
