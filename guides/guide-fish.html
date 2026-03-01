@@ -634,6 +634,8 @@
 			padding: 22px 22px 18px;
 			display: flex;
 			flex-direction: column;
+			align-items: center;
+			text-align: center;
 			gap: 8px;
 		}
 
@@ -653,7 +655,7 @@
 
 		.choice-freq {
 			font-family: var(--ff-head);
-			font-size: 1.15rem;
+			font-size: 1.2rem;
 			font-style: italic;
 			font-weight: 400;
 			color: rgba(255, 255, 255, .95);
@@ -729,11 +731,7 @@
 			background: var(--red);
 		}
 
-		/* ── Choice freq per column ── */
-		.col-best  .choice-freq { font-size: 1.25rem; }
-		.col-good  .choice-freq { font-size: 1.15rem; color: rgba(255,255,255,.8); }
-		.col-bad   .choice-freq { font-size: 1.05rem; color: rgba(255,255,255,.75); }
-
+	
 		/* ── Cooking section ── */
 		.cook-grid {
 			display: grid;
@@ -790,25 +788,25 @@
 		.cook-type:last-child { margin-bottom: 0; }
 
 		.cook-type-label {
-			font-size: 0.72rem;
+			font-size: 0.82rem;
 			font-weight: 700;
 			letter-spacing: 0.08em;
 			text-transform: uppercase;
 			color: var(--dark);
-			margin-bottom: 5px;
+			margin-bottom: 6px;
 		}
 
 		.cook-type-detail {
-			font-size: 0.81rem;
+			font-size: 0.93rem;
 			color: var(--text);
 			line-height: 1.65;
 		}
 
 		.cook-type-practice {
-			font-size: 0.78rem;
+			font-size: 0.88rem;
 			color: var(--muted);
 			line-height: 1.6;
-			margin-top: 4px;
+			margin-top: 5px;
 			padding-left: 10px;
 			border-left: 2px solid var(--border);
 		}
