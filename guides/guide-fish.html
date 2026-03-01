@@ -232,8 +232,8 @@
 
 		/* SVG logo – crisp at any size */
 		.gh-logo-wrap img {
-			width: 72px;
-			height: 72px;
+			width: 92px;
+			height: 92px;
 			object-fit: contain;
 			image-rendering: auto;
 		}
@@ -992,9 +992,18 @@
 			white-space: nowrap;
 			transition: opacity .2s;
 		}
-		.gf-btn:hover { opacity: .85; }
-		.gf-btn-tg { background: #2AABEE; }
-		.gf-btn-free { background: var(--green-mid); }
+
+		.gf-btn:hover {
+			opacity: .85;
+		}
+
+		.gf-btn-tg {
+			background: #2AABEE;
+		}
+
+		.gf-btn-free {
+			background: var(--green-mid);
+		}
 
 		/* Right: social icons */
 		.gf-social {
@@ -1016,7 +1025,11 @@
 			text-decoration: none;
 			transition: background .2s, color .2s;
 		}
-		.gf-soc:hover { background: var(--sage); color: white; }
+
+		.gf-soc:hover {
+			background: var(--sage);
+			color: white;
+		}
 
 		/* Bottom: copyright */
 		.gf-bottom {
@@ -1097,7 +1110,7 @@
 			border-radius: 8px;
 			border-left: 3px solid var(--sage);
 		}
-	
+
 		.guide-footer-logo-col {
 			grid-row: 1 / 4;
 			display: flex;
@@ -1128,8 +1141,14 @@
 			white-space: nowrap;
 			transition: opacity .2s;
 		}
-		.footer-btn:hover { opacity: .85; }
-		.footer-btn-tg { background: #2AABEE; }
+
+		.footer-btn:hover {
+			opacity: .85;
+		}
+
+		.footer-btn-tg {
+			background: #2AABEE;
+		}
 
 		.guide-footer-socials {
 			display: flex;
@@ -1150,13 +1169,28 @@
 			flex-shrink: 0;
 			transition: transform .15s, opacity .15s;
 		}
-		.soc:hover { transform: scale(1.1); opacity: .88; }
-		.soc-yt  { background: #FF0000; }
-		.soc-zen { background: #1a1a1a; }
-		.soc-vk  { background: #0077FF; }
-		.soc-rt  { background: #FE4545; }
 
-	
+		.soc:hover {
+			transform: scale(1.1);
+			opacity: .88;
+		}
+
+		.soc-yt {
+			background: #FF0000;
+		}
+
+		.soc-zen {
+			background: #1a1a1a;
+		}
+
+		.soc-vk {
+			background: #0077FF;
+		}
+
+		.soc-rt {
+			background: #FE4545;
+		}
+
 		/* ============================
 		   Mobile overrides (<=600px)
 		   ============================ */
@@ -1217,7 +1251,6 @@
 			}
 
 			/* Cook grid: already 1 col at 600px (from existing rule), keep */
-
 			/* Share buttons: wrap */
 			.btn-row {
 				gap: 8px;
@@ -1250,9 +1283,11 @@
 				padding: 12px 20px;
 			}
 		}
-	
+
 		/* Share dropdown */
-		.share-dropdown { position: relative; }
+		.share-dropdown {
+			position: relative;
+		}
 
 		.share-menu {
 			display: none;
@@ -1262,13 +1297,16 @@
 			background: #fff;
 			border: 1px solid var(--border);
 			border-radius: 12px;
-			box-shadow: 0 6px 24px rgba(0,0,0,.12);
+			box-shadow: 0 6px 24px rgba(0, 0, 0, .12);
 			min-width: 190px;
 			z-index: 200;
 			padding: 6px 0;
 			overflow: hidden;
 		}
-		.share-menu.open { display: block; }
+
+		.share-menu.open {
+			display: block;
+		}
 
 		.share-menu-item {
 			display: flex;
@@ -1286,8 +1324,16 @@
 			transition: background .15s;
 			text-align: left;
 		}
-		.share-menu-item:hover { background: var(--sage-light); }
-		.share-menu-sep { height: 1px; background: var(--border); margin: 4px 0; }
+
+		.share-menu-item:hover {
+			background: var(--sage-light);
+		}
+
+		.share-menu-sep {
+			height: 1px;
+			background: var(--border);
+			margin: 4px 0;
+		}
 	</style>
 </head>
 
@@ -1305,18 +1351,29 @@
 			<div class="top-nav-actions">
 				<div class="share-dropdown">
 					<button class="btn-share" onclick="toggleShareMenu(this)">
-						<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+						<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z" />
+						</svg>
 						<span>Поделиться</span>
 					</button>
 					<div class="share-menu">
-						<a href="https://t.me/share/url?url=https%3A%2F%2Fvoronova.online%2Fguides%2Fguide-fish.html&text=%D0%93%D0%B0%D0%B9%D0%B4%20%D0%BD%D1%83%D1%82%D1%80%D0%B8%D1%86%D0%B8%D0%BE%D0%BB%D0%BE%D0%B3%D0%B0" class="share-menu-item" target="_blank" rel="noopener"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 14.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z"/></svg> <span>Telegram</span></a>
-						<a href="https://vk.com/share.php?url=https%3A%2F%2Fvoronova.online%2Fguides%2Fguide-fish.html" class="share-menu-item" target="_blank" rel="noopener"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.862-.523-2.049-1.712-1.033-1.033-1.49-.804-1.49.588v1.124c0 .386-.122.588-1.124.588-1.628 0-3.43-.982-4.7-2.822C6.27 12.38 5.48 9.785 5.48 8.707c0-.528.122-.985.73-1.033h1.744c.528 0 .73.243.932.861.997 2.896 2.666 5.438 3.355 5.438.254 0 .371-.122.371-.8V10.84c-.076-1.39-.81-1.506-.81-2.004 0-.243.203-.488.528-.488h2.74c.446 0 .608.243.608.771v3.965c0 .447.203.608.325.608.254 0 .467-.161.932-.629 1.45-1.619 2.484-4.108 2.484-4.108.142-.284.385-.549.913-.549h1.744c.528 0 .643.274.528.65-.224 1.033-2.38 4.068-2.38 4.068-.2.325-.284.467 0 .83.203.264.872.81 1.318 1.298.82.892 1.44 1.638 1.612 2.156.162.507-.102.77-.629.77z"/></svg> <span>ВКонтакте</span></a>
+						<a href="https://t.me/share/url?url=https%3A%2F%2Fvoronova.online%2Fguides%2Fguide-fish.html&text=%D0%93%D0%B0%D0%B9%D0%B4%20%D0%BD%D1%83%D1%82%D1%80%D0%B8%D1%86%D0%B8%D0%BE%D0%BB%D0%BE%D0%B3%D0%B0" class="share-menu-item" target="_blank" rel="noopener"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+								<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 14.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" />
+							</svg> <span>Telegram</span></a>
+						<a href="https://vk.com/share.php?url=https%3A%2F%2Fvoronova.online%2Fguides%2Fguide-fish.html" class="share-menu-item" target="_blank" rel="noopener"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+								<path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.862-.523-2.049-1.712-1.033-1.033-1.49-.804-1.49.588v1.124c0 .386-.122.588-1.124.588-1.628 0-3.43-.982-4.7-2.822C6.27 12.38 5.48 9.785 5.48 8.707c0-.528.122-.985.73-1.033h1.744c.528 0 .73.243.932.861.997 2.896 2.666 5.438 3.355 5.438.254 0 .371-.122.371-.8V10.84c-.076-1.39-.81-1.506-.81-2.004 0-.243.203-.488.528-.488h2.74c.446 0 .608.243.608.771v3.965c0 .447.203.608.325.608.254 0 .467-.161.932-.629 1.45-1.619 2.484-4.108 2.484-4.108.142-.284.385-.549.913-.549h1.744c.528 0 .643.274.528.65-.224 1.033-2.38 4.068-2.38 4.068-.2.325-.284.467 0 .83.203.264.872.81 1.318 1.298.82.892 1.44 1.638 1.612 2.156.162.507-.102.77-.629.77z" />
+							</svg> <span>ВКонтакте</span></a>
 						<div class="share-menu-sep"></div>
-						<button class="share-menu-item" onclick="copyLink(this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> <span>Скопировать ссылку</span></button>
+						<button class="share-menu-item" onclick="copyLink(this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+								<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+							</svg> <span>Скопировать ссылку</span></button>
 					</div>
 				</div>
 				<button class="btn-download" onclick="window.print()">
-					<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+					</svg>
 					<span>Скачать PDF</span>
 				</button>
 			</div>
@@ -1332,7 +1389,7 @@
 				<div class="guide-header-left">
 					<div class="gh-logo-wrap">
 						<!-- SVG для чёткости на любом экране -->
-						<img src="../images/icons/logo-small.svg" alt="Логотип Юлии Вороновй" width="72" height="72">
+						<img src="../images/icons/logo-small.svg" alt="Логотип Юлии Вороновй" width="92" height="92">
 					</div>
 					<div class="gh-badge">Мини-гайд</div>
 					<h1 class="gh-title">Как выбрать <em>рыбу?</em></h1>
@@ -1602,7 +1659,6 @@
 						<div class="canned-card-body">
 							<ul class="canned-fish-list">
 								<li>🚫 <strong>Крупный белый / алbacore‑тунец</strong> (white / albacore tuna) или иной крупный, неизвестного происхождения – в них ртуть обычно выше, и их лучше заменять более безопасными сортами.</li>
-								<li>📌 Беременным и детям – не более 1 раза в неделю</li>
 							</ul>
 						</div>
 					</div>
@@ -1610,7 +1666,7 @@
 				<p class="canned-note">💡 Любые <strong>консервы лучше выбирать без масла, в собственном соку или в воде</strong> - это менее калорийный и более полезный вариант. Избегайте вариантов в жирном масле и с высоким содержанием соли.</p>
 
 				<!-- Footer -->
-								<div class="guide-footer">
+				<div class="guide-footer">
 
 					<!-- Top row: logo | cta | social -->
 					<div class="gf-top">
@@ -1639,11 +1695,22 @@
 
 						<!-- Правая: соцсети -->
 						<div class="gf-social">
-							<a href="https://t.me/YuliaVoronova78" class="gf-soc" target="_blank" title="Telegram"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
-							<a href="https://youtube.com/@voronova_nutrition" class="gf-soc" target="_blank" title="YouTube"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.872.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
-							<a href="https://vk.com/voronova_nutrition" class="gf-soc" target="_blank" title="ВК"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.066 13.394c.49.483 1.007.952 1.404 1.526.176.253.344.513.456.808.158.42.015.882-.366.906l-2.398-.001c-.618.051-1.113-.196-1.541-.609-.338-.326-.65-.673-.972-1.01-.135-.141-.276-.269-.44-.372-.31-.195-.58-.126-.753.207-.177.338-.217.71-.239 1.084-.03.534-.232.674-.766.697-1.143.05-2.227-.12-3.23-.673-.883-.486-1.556-1.188-2.137-1.98-.954-1.3-1.696-2.735-2.363-4.207-.194-.428-.05-.66.417-.668.776-.013 1.553-.011 2.329-.002.31.004.518.19.642.473.394.904.862 1.762 1.416 2.563.148.214.299.428.513.582.244.176.43.118.546-.158.075-.18.107-.372.123-.565.052-.633.059-1.266-.01-1.897-.042-.39-.241-.643-.631-.709-.2-.033-.17-.099-.073-.199.145-.149.282-.242.554-.242h2.043c.322.064.393.209.437.532l.002 2.27c-.004.148.074.587.341.685.215.075.357-.109.486-.244.577-.606.989-1.316 1.342-2.126.132-.299.25-.608.363-.918.084-.23.215-.343.471-.337l2.597.003c.077 0 .155 0 .23.013.375.065.478.231.361.593-.185.571-.537 1.045-.888 1.516-.37.497-.762.976-1.13 1.474-.331.448-.305.672.09 1.052z"/></svg></a>
-							<a href="https://dzen.ru/voronova_nutrition" class="gf-soc" target="_blank" title="Дзен"><svg width="18" height="18" viewBox="0 0 129 129" fill="currentColor"><path d="M128.389 62.7804C128.389 62.1406 127.869 61.6108 127.229 61.5808C104.266 60.7111 90.2906 57.782 80.5136 48.0051C70.7167 38.2081 67.7976 24.2225 66.9279 1.20969C66.9079 0.569886 66.3781 0.0500488 65.7283 0.0500488H63.0491C62.4093 0.0500488 61.8795 0.569886 61.8495 1.20969C60.9797 24.2125 58.0607 38.2081 48.2637 48.0051C38.4768 57.792 24.5111 60.7111 1.54831 61.5808C0.908509 61.6008 0.388672 62.1306 0.388672 62.7804V65.4596C0.388672 66.0994 0.908509 66.6292 1.54831 66.6592C24.5111 67.529 38.4868 70.458 48.2637 80.235C58.0407 90.0119 60.9597 103.958 61.8395 126.88C61.8595 127.52 62.3893 128.04 63.0391 128.04H65.7283C66.3681 128.04 66.8979 127.52 66.9279 126.88C67.8076 103.958 70.7267 90.0119 80.5036 80.235C90.2906 70.448 104.256 67.529 127.219 66.6592C127.859 66.6392 128.379 66.1094 128.379 65.4596V62.7804H128.389Z"/></svg></a>
-							<a href="https://rutube.ru/channel/47038007/" class="gf-soc" target="_blank" title="Rutube"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z"/></svg></a>
+							<a href="https://t.me/YuliaVoronova78" class="gf-soc" target="_blank" title="Telegram"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+									<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z" />
+								</svg></a>
+							<a href="https://youtube.com/@voronova_nutrition" class="gf-soc" target="_blank" title="YouTube"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+									<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.872.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+								</svg></a>
+							<a href="https://vk.com/voronova_nutrition" class="gf-soc" target="_blank" title="ВК"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+									<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.066 13.394c.49.483 1.007.952 1.404 1.526.176.253.344.513.456.808.158.42.015.882-.366.906l-2.398-.001c-.618.051-1.113-.196-1.541-.609-.338-.326-.65-.673-.972-1.01-.135-.141-.276-.269-.44-.372-.31-.195-.58-.126-.753.207-.177.338-.217.71-.239 1.084-.03.534-.232.674-.766.697-1.143.05-2.227-.12-3.23-.673-.883-.486-1.556-1.188-2.137-1.98-.954-1.3-1.696-2.735-2.363-4.207-.194-.428-.05-.66.417-.668.776-.013 1.553-.011 2.329-.002.31.004.518.19.642.473.394.904.862 1.762 1.416 2.563.148.214.299.428.513.582.244.176.43.118.546-.158.075-.18.107-.372.123-.565.052-.633.059-1.266-.01-1.897-.042-.39-.241-.643-.631-.709-.2-.033-.17-.099-.073-.199.145-.149.282-.242.554-.242h2.043c.322.064.393.209.437.532l.002 2.27c-.004.148.074.587.341.685.215.075.357-.109.486-.244.577-.606.989-1.316 1.342-2.126.132-.299.25-.608.363-.918.084-.23.215-.343.471-.337l2.597.003c.077 0 .155 0 .23.013.375.065.478.231.361.593-.185.571-.537 1.045-.888 1.516-.37.497-.762.976-1.13 1.474-.331.448-.305.672.09 1.052z" />
+								</svg></a>
+							<a href="https://dzen.ru/voronova_nutrition" class="gf-soc" target="_blank" title="Дзен"><svg width="18" height="18" viewBox="0 0 129 129" fill="currentColor">
+									<path d="M128.389 62.7804C128.389 62.1406 127.869 61.6108 127.229 61.5808C104.266 60.7111 90.2906 57.782 80.5136 48.0051C70.7167 38.2081 67.7976 24.2225 66.9279 1.20969C66.9079 0.569886 66.3781 0.0500488 65.7283 0.0500488H63.0491C62.4093 0.0500488 61.8795 0.569886 61.8495 1.20969C60.9797 24.2125 58.0607 38.2081 48.2637 48.0051C38.4768 57.792 24.5111 60.7111 1.54831 61.5808C0.908509 61.6008 0.388672 62.1306 0.388672 62.7804V65.4596C0.388672 66.0994 0.908509 66.6292 1.54831 66.6592C24.5111 67.529 38.4868 70.458 48.2637 80.235C58.0407 90.0119 60.9597 103.958 61.8395 126.88C61.8595 127.52 62.3893 128.04 63.0391 128.04H65.7283C66.3681 128.04 66.8979 127.52 66.9279 126.88C67.8076 103.958 70.7267 90.0119 80.5036 80.235C90.2906 70.448 104.256 67.529 127.219 66.6592C127.859 66.6392 128.379 66.1094 128.379 65.4596V62.7804H128.389Z" />
+								</svg></a>
+							<a href="https://rutube.ru/channel/47038007/" class="gf-soc" target="_blank" title="Rutube"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+									<circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.5" />
+									<path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" />
+								</svg></a>
 						</div>
 
 					</div><!-- /gf-top -->
@@ -1653,26 +1720,26 @@
 
 				</div><!-- /page-shell -->
 
-	<script>
-		function toggleShareMenu(btn) {
-			var menu = btn.nextElementSibling;
-			menu.classList.toggle('open');
-		}
-		document.addEventListener('click', function(e) {
-			if (!e.target.closest('.share-dropdown')) {
-				document.querySelectorAll('.share-menu').forEach(function(m) { m.classList.remove('open'); });
-			}
-		});
+				<script>
+					function toggleShareMenu(btn) {
+						var menu = btn.nextElementSibling;
+						menu.classList.toggle('open');
+					}
+					document.addEventListener('click', function (e) {
+						if (!e.target.closest('.share-dropdown')) {
+							document.querySelectorAll('.share-menu').forEach(function (m) { m.classList.remove('open'); });
+						}
+					});
 
-		function copyLink(btn) {
-			navigator.clipboard.writeText('https://voronova.online/guides/guide-fish.html').then(function () {
-				var span = btn.querySelector('span');
-				span.textContent = 'Скопировано!';
-				setTimeout(function () { span.textContent = 'Ссылка'; }, 2000);
-			});
-		}
+					function copyLink(btn) {
+						navigator.clipboard.writeText('https://voronova.online/guides/guide-fish.html').then(function () {
+							var span = btn.querySelector('span');
+							span.textContent = 'Скопировано!';
+							setTimeout(function () { span.textContent = 'Ссылка'; }, 2000);
+						});
+					}
 
-	</script>
+				</script>
 </body>
 
 </html>
