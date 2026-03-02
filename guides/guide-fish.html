@@ -11,6 +11,22 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Baskervville&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<!-- Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-4KF0TQR0VD"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('config', 'G-4KF0TQR0VD');
+	</script>
+	<!-- Яндекс.Метрика -->
+	<script>
+		(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+		m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,
+		k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script',
+		'https://mc.yandex.ru/metrika/tag.js','ym');
+		ym(106615581,'init',{clickmap:true,trackLinks:true,accurateTrackBounce:true});
+	</script>
 	<style>
 		*,
 		*::before,
@@ -1370,7 +1386,7 @@
 							</svg> <span>Скопировать ссылку</span></button>
 					</div>
 				</div>
-				<button class="btn-download" onclick="window.print()">
+				<button class="btn-download" onclick="gtag('event','guide_download',{'guide_name':'fish'});ym(106615581,'reachGoal','guide_download',{'guide':'fish'});window.print()">
 					<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
 						<path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
 					</svg>
