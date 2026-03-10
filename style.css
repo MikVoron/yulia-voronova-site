@@ -14952,6 +14952,8 @@ button[class*="btn-"]:hover,
         border: none;
         cursor: pointer;
         padding: 0;
+        font: inherit;
+        color: inherit;
     }
 }
 
