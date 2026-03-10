@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход — Конструктор Гарвардской тарелки</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="platform.css">
+    <style>
+        .plate-icon {
+            width: 72px; height: 72px;
+            background: linear-gradient(135deg, var(--sage-light), #d0e8d4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 36px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-page">
+    <div class="login-logo-wrap animate-in">
+        <div class="plate-icon">🥗</div>
+        <div class="login-logo-name">Юлия Воронова</div>
+        <div class="login-logo-tag">Конструктор Гарвардской тарелки</div>
+    </div>
+
+    <div class="login-card animate-in" style="animation-delay:.1s">
+        <div class="login-tabs" role="tablist">
+            <button class="login-tab active" role="tab" id="tab-login" onclick="switchTab('login')">Войти</button>
+            <button class="login-tab" role="tab" id="tab-register" onclick="switchTab('register')">Регистрация</button>
+        </div>
+
+        <!-- Login Form -->
+        <div class="login-form active" id="form-login">
+            <div class="hp-form-group">
+                <label class="hp-label" for="login-email">Email</label>
+                <input class="hp-input" type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
+            </div>
+            <div class="hp-form-group">
+                <label class="hp-label" for="login-password">Пароль</label>
+                <input class="hp-input" type="password" id="login-password" placeholder="••••••" autocomplete="current-password">
+            </div>
+            <div id="login-error" style="color:#c04040;font-size:13px;margin-bottom:12px;display:none"></div>
+            <button class="btn btn-primary btn-full btn-lg" onclick="doLogin()">Войти</button>
+
+            <div class="login-divider">или</div>
+            <button class="btn btn-ghost btn-full" onclick="demoLogin()">⚡ Войти как демо-пользователь</button>
+        </div>
+
+        <!-- Register Form -->
+        <div class="login-form" id="form-register">
+            <div class="hp-form-group">
+                <label class="hp-label" for="reg-name">Ваше имя</label>
+                <input class="hp-input" type="text" id="reg-name" placeholder="Мария" autocomplete="given-name">
+            </div>
+            <div class="hp-form-group">
+                <label class="hp-label" for="reg-email">Email</label>
+                <input class="hp-input" type="email" id="reg-email" placeholder="your@email.com" autocomplete="email">
+            </div>
+            <div class="hp-form-group">
+                <label class="hp-label" for="reg-password">Придумайте пароль</label>
+                <input class="hp-input" type="password" id="reg-password" placeholder="минимум 6 символов" autocomplete="new-password">
+            </div>
+            <div id="reg-error" style="color:#c04040;font-size:13px;margin-bottom:12px;display:none"></div>
+            <button class="btn btn-primary btn-full btn-lg" onclick="doRegister()">Создать аккаунт</button>
+        </div>
+
+        <p class="login-demo">
+            Это прототип. Данные хранятся локально.<br>
+            Уже есть аккаунт? <a onclick="switchTab('login')">Войти</a>
+        </p>
+    </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+    // Redirect if already logged in
+    if (Auth.isLoggedIn()) window.location.href = 'cabinet.html';
+
+    function switchTab(tab) {
+        document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('form-' + tab).classList.add('active');
+    }
+
+    function showError(id, msg) {
+        var el = document.getElementById(id);
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+    function clearError(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+
+    function doLogin() {
+        clearError('login-error');
+        var email = document.getElementById('login-email').value.trim();
+        var pass  = document.getElementById('login-password').value;
+        if (!email || !email.includes('@')) { showError('login-error', 'Введите корректный email'); return; }
+        if (pass.length < 1) { showError('login-error', 'Введите пароль'); return; }
+        Auth.login(email, email.split('@')[0]);
+        window.location.href = 'cabinet.html';
+    }
+
+    function doRegister() {
+        clearError('reg-error');
+        var name  = document.getElementById('reg-name').value.trim();
+        var email = document.getElementById('reg-email').value.trim();
+        var pass  = document.getElementById('reg-password').value;
+        if (!name) { showError('reg-error', 'Введите ваше имя'); return; }
+        if (!email || !email.includes('@')) { showError('reg-error', 'Введите корректный email'); return; }
+        if (pass.length < 6) { showError('reg-error', 'Пароль должен быть не менее 6 символов'); return; }
+        Auth.login(email, name);
+        window.location.href = 'cabinet.html';
+    }
+
+    function demoLogin() {
+        Auth.login('demo@voronova.online', 'Мария');
+        window.location.href = 'cabinet.html';
+    }
+
+    // Enter key support
+    document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter') return;
+        if (document.getElementById('form-login').classList.contains('active')) doLogin();
+        else doRegister();
+    });
+</script>
+</body>
+</html>
