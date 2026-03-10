@@ -366,8 +366,17 @@
 			margin-bottom: 16px;
 		}
 
-		.pm-slides {
+		.pm-slides-area {
+			display: flex;
+			align-items: center;
+			gap: 8px;
 			margin-bottom: 6px;
+		}
+
+		.pm-slides {
+			flex: 1;
+			min-width: 0;
+			margin-bottom: 0;
 		}
 
 		.pm-slide {
@@ -481,7 +490,6 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			gap: 12px;
 			margin-bottom: 18px;
 		}
 
@@ -675,8 +683,10 @@
 					<div class="guide-card-decor guide-decor-tl">✧</div>
 					<div class="guide-card-decor guide-decor-tr">✧</div>
 					<span class="guide-card-label">ГАЙД</span>
-					<div class="guide-card-image-wrap">
-						<img src="images/img-guides/plant-based/food.webp" alt="Гайд: Растительное питание в рационе" class="guide-cover-image" width="200" height="280" loading="eager" decoding="async">
+					<div class="guide-card-image-area">
+						<div class="guide-card-image-wrap">
+							<img src="images/img-guides/plant-based/food.webp" alt="Гайд: Растительное питание в рационе" class="guide-cover-image" width="200" height="280" loading="eager" decoding="async">
+						</div>
 						<span class="guide-badge guide-badge-price">490 ₽</span>
 					</div>
 					<h2 class="guide-card-title-minimal">Растительное питание<br>в рационе</h2>
@@ -691,8 +701,10 @@
 					<div class="guide-card-decor guide-decor-tl">✧</div>
 					<div class="guide-card-decor guide-decor-tr">✧</div>
 					<span class="guide-card-label">МИНИ-ГАЙД</span>
-					<div class="guide-card-image-wrap">
-						<img src="images/img-guides/covers/cover-fibers.svg" alt="Гайд: Клетчатка не в сезон — нутрициолог Юлия Воронова" class="guide-cover-image" width="200" height="280" loading="eager" fetchpriority="high" decoding="async">
+					<div class="guide-card-image-area">
+						<div class="guide-card-image-wrap">
+							<img src="images/img-guides/covers/cover-fibers.svg" alt="Гайд: Клетчатка не в сезон — нутрициолог Юлия Воронова" class="guide-cover-image" width="200" height="280" loading="eager" fetchpriority="high" decoding="async">
+						</div>
 						<span class="guide-badge guide-badge-free">Бесплатно</span>
 					</div>
 					<h2 class="guide-card-title-minimal">Клетчатка<br>не в сезон</h2>
@@ -707,8 +719,10 @@
 					<div class="guide-card-decor guide-decor-tl">✧</div>
 					<div class="guide-card-decor guide-decor-tr">✧</div>
 					<span class="guide-card-label">МИНИ-ГАЙД</span>
-					<div class="guide-card-image-wrap">
-						<img src="images/img-guides/covers/cover-fish.webp" alt="Гайд: Как выбрать рыбу — нутрициолог Юлия Воронова" class="guide-cover-image" width="200" height="280" loading="lazy" decoding="async">
+					<div class="guide-card-image-area">
+						<div class="guide-card-image-wrap">
+							<img src="images/img-guides/covers/cover-fish.webp" alt="Гайд: Как выбрать рыбу — нутрициолог Юлия Воронова" class="guide-cover-image" width="200" height="280" loading="lazy" decoding="async">
+						</div>
 						<span class="guide-badge guide-badge-free">Бесплатно</span>
 					</div>
 					<h2 class="guide-card-title-minimal">Как выбрать<br>рыбу?</h2>
@@ -1108,30 +1122,33 @@
 	<div id="preview-modal">
 		<div class="pm-inner">
 			<button class="pm-close" id="preview-close">&times;</button>
-			<div class="pm-slides">
-				<div class="pm-slide active">
-					<p class="pm-caption">Здоровье и стабильный вес начинаются не с ограничений, а с разнообразия.</p>
-					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-1.webp" alt="Скриншот 1" loading="lazy">
+			<div class="pm-slides-area">
+				<button class="pm-nav-btn" id="pm-prev">&#8249;</button>
+				<div class="pm-slides">
+					<div class="pm-slide active">
+						<p class="pm-caption">Здоровье и стабильный вес начинаются не с ограничений, а с разнообразия.</p>
+						<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-1.webp" alt="Скриншот 1" loading="lazy">
+					</div>
+					<div class="pm-slide">
+						<p class="pm-caption">Этот гайд — не призыв к отказу от привычной еды.</p>
+						<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-1.webp" alt="Скриншот 2" loading="lazy">
+					</div>
+					<div class="pm-slide">
+						<p class="pm-caption">Это о том, как легко и вкусно добавить растительные продукты наравне с животными, создавая рацион, который работает на ваше самочувствие и удержание здорового веса.</p>
+						<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-2.webp" alt="Скриншот 3" loading="lazy">
+					</div>
+					<div class="pm-slide">
+						<p class="pm-caption">36 классных и полезных рецептов. Для вашего удобства в гайде есть навигация и поиск.</p>
+						<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-1.webp" alt="Скриншот 4" loading="lazy">
+					</div>
+					<div class="pm-slide">
+						<p class="pm-caption">Карточки рецептов интерактивны. Добавили ингредиент — зачеркните его. Не нужно ничего запоминать.</p>
+						<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-2.webp" alt="Скриншот 5" loading="lazy">
+					</div>
 				</div>
-				<div class="pm-slide">
-					<p class="pm-caption">Этот гайд — не призыв к отказу от привычной еды.</p>
-					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-1.webp" alt="Скриншот 2" loading="lazy">
-				</div>
-				<div class="pm-slide">
-					<p class="pm-caption">Это о том, как легко и вкусно добавить растительные продукты наравне с животными, создавая рацион, который работает на ваше самочувствие и удержание здорового веса.</p>
-					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-2.webp" alt="Скриншот 3" loading="lazy">
-				</div>
-				<div class="pm-slide">
-					<p class="pm-caption">36 классных и полезных рецептов. Для вашего удобства в гайде есть навигация и поиск.</p>
-					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-1.webp" alt="Скриншот 4" loading="lazy">
-				</div>
-				<div class="pm-slide">
-					<p class="pm-caption">Карточки рецептов интерактивны. Добавили ингредиент — зачеркните его. Не нужно ничего запоминать.</p>
-					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-2.webp" alt="Скриншот 5" loading="lazy">
-				</div>
+				<button class="pm-nav-btn" id="pm-next">&#8250;</button>
 			</div>
 			<div class="pm-controls">
-				<button class="pm-nav-btn" id="pm-prev">&#8249;</button>
 				<div class="pm-dots">
 					<button class="pm-dot active"></button>
 					<button class="pm-dot"></button>
@@ -1139,7 +1156,6 @@
 					<button class="pm-dot"></button>
 					<button class="pm-dot"></button>
 				</div>
-				<button class="pm-nav-btn" id="pm-next">&#8250;</button>
 			</div>
 			<button class="pm-cta" id="pm-buy-btn">Купить - 490 ₽</button>
 		</div>
@@ -1208,7 +1224,7 @@
 			}
 			document.getElementById("lb-close").addEventListener("click", closeLb);
 			lbOverlay.addEventListener("click", function (e) { if (e.target === lbOverlay || e.target === lbImg) closeLb(); });
-			document.querySelector(".pm-slides").addEventListener("click", function (e) {
+			document.querySelector(".pm-slides-area").addEventListener("click", function (e) {
 				var img = e.target.closest("img.pm-screenshot-img");
 				if (img) openLb(img.src, img.alt);
 			});
