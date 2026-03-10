@@ -1542,27 +1542,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 }());
 
-// Bottom nav "Узнай/Тесты" popup
-(function () {
-    const btn = document.getElementById('bottomNavMore');
-    const popup = document.getElementById('bottomNavPopup');
-    if (!btn || !popup) return;
-
-    btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        const isOpen = popup.classList.toggle('open');
-        btn.setAttribute('aria-expanded', isOpen);
-    });
-
-    document.addEventListener('click', function () {
-        popup.classList.remove('open');
-        btn.setAttribute('aria-expanded', 'false');
-    });
-
-    popup.addEventListener('click', function (e) {
-        e.stopPropagation();
-    });
-}());
 
 // Bottom navigation active state
 (function () {
@@ -1576,7 +1555,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'about.html': 'about',
             'blog.html': 'blog',
             'guides.html': 'guides',
-            'tests.html': 'guides',
+            'tests.html': 'tests',
             'questionnaires.html': 'guides',
         };
         let activeKey = navMap[filename];

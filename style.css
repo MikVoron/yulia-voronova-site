@@ -14946,14 +14946,10 @@ button[class*="btn-"]:hover,
         display: none !important;
     }
 
-    /* "Узнай/Тесты" button — reset browser button styles */
-    #bottomNavMore {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        font: inherit;
-        color: inherit;
+    /* Text-only nav items (Гайды, Тесты) — no icon, larger text */
+    .bottom-nav-item-text {
+        font-size: 12px;
+        font-weight: 600;
     }
 }
 
