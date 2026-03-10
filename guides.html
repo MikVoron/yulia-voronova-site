@@ -188,44 +188,8 @@
 			}
 		}
 
-		/* Ensure guide cards are visible before full CSS loads */
-		.guide-card-minimal {
-			opacity: 1 !important;
-			transform: none !important;
-			position: relative;
-			display: flex !important;
-			flex-direction: column !important;
-			max-width: none !important;
-			width: 100% !important;
-			margin: 0 !important;
-			box-sizing: border-box !important
-		}
-
 		.guide-card-minimal .guide-card-actions-minimal {
 			margin-top: auto
-		}
-
-		/* Image-wrap: padding-bottom trick — universal aspect-ratio 200:280 */
-		.guides-cards-grid .guide-card-image-wrap {
-			position: relative !important;
-			width: 100% !important;
-			height: 0 !important;
-			padding-bottom: 140% !important;
-			max-width: none !important;
-			min-height: unset !important;
-			margin: 0 0 18px !important;
-			overflow: hidden !important;
-			box-shadow: none !important
-		}
-
-		/* Image inside wrap: fill entire padded area */
-		.guides-cards-grid .guide-card-image-wrap .guide-cover-image {
-			position: absolute !important;
-			top: 0 !important;
-			left: 0 !important;
-			width: 100% !important;
-			height: 100% !important;
-			object-fit: cover !important
 		}
 
 		/* Стикеры на карточках */
@@ -246,33 +210,13 @@
 		.guide-badge-free {
 			background: #e6f4ea;
 			color: #2e7d32;
-			border: 1px solid rgba(46,125,50,.25)
+			border: 1px solid rgba(46, 125, 50, .25)
 		}
 
 		.guide-badge-price {
 			background: #fff8e1;
 			color: #b45000;
-			border: 1px solid rgba(180,80,0,.25)
-		}
-
-		.guides-cards-grid {
-			display: grid !important;
-			grid-template-columns: repeat(4, 1fr) !important;
-			gap: 24px !important;
-			padding: 40px 0 !important;
-			align-items: stretch !important
-		}
-
-		@media(max-width: 900px) {
-			.guides-cards-grid {
-				grid-template-columns: repeat(2, 1fr) !important
-			}
-		}
-
-		@media(max-width: 480px) {
-			.guides-cards-grid {
-				grid-template-columns: 1fr !important
-			}
+			border: 1px solid rgba(180, 80, 0, .25)
 		}
 
 		.guides-cards-grid .guide-placeholder {
@@ -291,6 +235,354 @@
 			width: 48px;
 			height: 48px;
 			opacity: 0.45
+		}
+
+		/* ── Кнопки + Модалки по гайду растительного питания ── */
+		.pb-actions {
+			display: flex;
+			gap: 8px;
+		}
+
+		#buy-modal,
+		#preview-modal {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, .52);
+			z-index: 1000;
+			align-items: center;
+			justify-content: center;
+			padding: 16px;
+		}
+
+		#buy-modal.active,
+		#preview-modal.active {
+			display: flex;
+		}
+
+		.bm-inner {
+			background: #fff;
+			border-radius: 18px;
+			max-width: 400px;
+			width: 100%;
+			position: relative;
+			padding: 30px 24px 26px;
+		}
+
+		.pm-inner {
+			background: #fff;
+			border-radius: 18px;
+			max-width: 430px;
+			width: 100%;
+			max-height: 92vh;
+			overflow-y: auto;
+			position: relative;
+			padding: 52px 22px 22px;
+		}
+
+		.bm-close,
+		.pm-close {
+			position: absolute;
+			top: 12px;
+			right: 12px;
+			width: 34px;
+			height: 34px;
+			border-radius: 50%;
+			background: #f0ede8;
+			border: none;
+			cursor: pointer;
+			color: #5f6f62;
+			font-size: 20px;
+			line-height: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: background .2s;
+		}
+
+		.bm-close:hover,
+		.pm-close:hover {
+			background: #e8dcc8;
+		}
+
+		.bm-inner h3 {
+			font-size: 20px;
+			font-weight: 700;
+			color: #5f6f62;
+			margin-bottom: 14px;
+			padding-right: 26px;
+		}
+
+		.bm-text {
+			font-size: 14px;
+			line-height: 1.7;
+			color: #444;
+			margin-bottom: 20px;
+		}
+
+		.bm-text strong {
+			color: #5f6f62;
+		}
+
+		.bm-tg-btn {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 10px;
+			background: #2aabee;
+			color: #fff;
+			padding: 13px 20px;
+			border-radius: 10px;
+			text-decoration: none;
+			font-size: 14px;
+			font-weight: 600;
+			margin-bottom: 14px;
+			transition: background .2s;
+		}
+
+		.bm-tg-btn:hover {
+			background: #1a9bde;
+		}
+
+		.bm-safety {
+			text-align: center;
+			font-size: 12px;
+			color: #888;
+			line-height: 1.6;
+		}
+
+		.pm-inner h3 {
+			font-size: 20px;
+			font-weight: 700;
+			color: #5f6f62;
+			margin-bottom: 8px;
+			padding-right: 26px;
+		}
+
+		.pm-desc {
+			font-size: 13px;
+			line-height: 1.65;
+			color: #555;
+			margin-bottom: 16px;
+		}
+
+		.pm-slides {
+			margin-bottom: 6px;
+		}
+
+		.pm-slide {
+			display: none;
+		}
+
+		.pm-slide.active {
+			display: block;
+			animation: pmSlideIn .35s ease;
+		}
+
+		@keyframes pmSlideIn {
+			from {
+				opacity: 0;
+				transform: translateX(18px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateX(0);
+			}
+		}
+
+		.pm-slide.prev-dir.active {
+			animation: pmSlideInRev .35s ease;
+		}
+
+		@keyframes pmSlideInRev {
+			from {
+				opacity: 0;
+				transform: translateX(-18px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateX(0);
+			}
+		}
+
+		.pm-caption {
+			font-size: 18px;
+			line-height: 1.5;
+			color: #3a3530;
+			font-style: italic;
+			font-family: 'Cormorant Garamond', Georgia, serif;
+			font-weight: 600;
+			margin: 10px 0 0;
+			text-align: center;
+			padding: 14px 16px;
+			border: 1px solid #d8cfc4;
+			border-radius: 10px;
+		}
+
+		.pm-caption::before {
+			content: '\201C';
+		}
+
+		.pm-caption::after {
+			content: '\201D';
+		}
+
+		.pm-slide-num {
+			width: 64px;
+			height: 64px;
+			border-radius: 50%;
+			background: transparent;
+			border: 2px solid #9ab89e;
+			color: #9ab89e;
+			font-size: 24px;
+			font-weight: 600;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+			margin: 0 auto;
+		}
+
+		.pm-slide-text {
+			font-size: 15px;
+			line-height: 1.7;
+			color: #3a3a3a;
+			font-style: italic;
+			margin: 0;
+		}
+
+		.pm-screenshot-placeholder {
+			background: #f5f0e8;
+			border-radius: 10px;
+			min-height: 180px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			color: #b0a898;
+			font-size: 13px;
+			border: 1.5px dashed #d8cfc4;
+		}
+
+		.pm-controls {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 12px;
+			margin-bottom: 18px;
+		}
+
+		.pm-nav-btn {
+			background: #f5f0e8;
+			border: none;
+			border-radius: 50%;
+			width: 34px;
+			height: 34px;
+			cursor: pointer;
+			font-size: 20px;
+			color: #5f6f62;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: background .2s;
+			flex-shrink: 0;
+		}
+
+		.pm-nav-btn:hover {
+			background: #e8dcc8;
+		}
+
+		.pm-dots {
+			display: flex;
+			gap: 7px;
+		}
+
+		.pm-screenshot-img {
+			width: 100%;
+			border-radius: 10px;
+			display: block;
+			cursor: zoom-in;
+			transition: opacity .15s;
+		}
+
+		.pm-screenshot-img:active {
+			opacity: .85;
+		}
+
+		/* Лайтбокс */
+		.lb-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, .92);
+			z-index: 9999;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity .2s;
+		}
+
+		.lb-overlay.active {
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		.lb-overlay img {
+			max-width: 96vw;
+			max-height: 92vh;
+			border-radius: 8px;
+			object-fit: contain;
+		}
+
+		.lb-close {
+			position: absolute;
+			top: 16px;
+			right: 20px;
+			font-size: 32px;
+			color: #fff;
+			background: none;
+			border: none;
+			cursor: pointer;
+			line-height: 1;
+		}
+
+		.pm-dot {
+			width: 7px;
+			height: 7px;
+			border-radius: 50%;
+			background: #d8cfc4;
+			border: none;
+			cursor: pointer;
+			padding: 0;
+			transition: background .2s;
+		}
+
+		.pm-dot.active {
+			background: #9ab89e;
+		}
+
+		.pm-cta {
+			display: block;
+			text-align: center;
+			background: #9ab89e;
+			color: #fff;
+			padding: 13px 28px;
+			border-radius: 10px;
+			font-size: 14px;
+			font-weight: 600;
+			border: none;
+			cursor: pointer;
+			font-family: inherit;
+			transition: background .2s;
+			margin: 0 auto;
+		}
+
+		.pm-cta:hover {
+			background: #7a9882;
 		}
 	</style>
 
@@ -374,16 +666,13 @@
 					<div class="guide-card-decor guide-decor-tr">✧</div>
 					<span class="guide-card-label">ГАЙД</span>
 					<div class="guide-card-image-wrap">
-						<div class="guide-placeholder">
-							<svg viewBox="0 0 24 24" fill="currentColor">
-								<path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20c10 0 15-10 11-18zM8 18c-.31 0-.61-.04-.9-.1L11 12l-3.9 3.9c-.65-1.04-1.1-2.3-1.1-3.9 0-4.42 4.42-8 9-8C17.42 9.42 9.53 18 8 18z"/>
-							</svg>
-						</div>
-						<span class="guide-badge guide-badge-price">500 ₽</span>
+						<img src="images/img-guides/plant-based/food.webp" alt="Гайд: Растительное питание в рационе" class="guide-cover-image" width="200" height="280" loading="eager" decoding="async">
+						<span class="guide-badge guide-badge-price">490 ₽</span>
 					</div>
 					<h2 class="guide-card-title-minimal">Растительное питание<br>в рационе</h2>
-					<div class="guide-card-actions-minimal">
-						<span class="guide-coming-soon">Скоро</span>
+					<div class="guide-card-actions-minimal pb-actions">
+						<button class="guide-btn-read" id="buy-open">Купить</button>
+						<button class="guide-btn-save" id="preview-open">Подробнее</button>
 					</div>
 				</div>
 
@@ -785,6 +1074,137 @@
 			Тесты
 		</a>
 	</div>
+	<!-- Модалка Купить -->
+	<div id="buy-modal">
+		<div class="bm-inner">
+			<button class="bm-close" id="buy-close">&times;</button>
+			<h3>Как приобрести гайд?</h3>
+			<p class="bm-text">
+				Напишите оператору в <strong>чат</strong>
+				(пульсирующая голубая кнопка внизу страницы) —<br>
+				или напишите мне напрямую в Telegram:
+			</p>
+			<a href="https://t.me/YuliaVoronova78" class="bm-tg-btn" target="_blank" rel="noopener">
+				<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+					<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z" />
+				</svg>
+				@YuliaVoronova78
+			</a>
+			<p class="bm-safety">Ваши данные в безопасности,<br>а доступ к материалам останется у вас навсегда! 🤍</p>
+		</div>
+	</div>
+
+	<!-- Модалка Подробнее -->
+	<div id="preview-modal">
+		<div class="pm-inner">
+			<button class="pm-close" id="preview-close">&times;</button>
+			<div class="pm-slides">
+				<div class="pm-slide active">
+					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-1.webp" alt="Скриншот 1" loading="lazy">
+					<p class="pm-caption">Здоровье и стабильный вес начинаются не с ограничений, а с разнообразия.</p>
+				</div>
+				<div class="pm-slide">
+					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-1.webp" alt="Скриншот 2" loading="lazy">
+					<p class="pm-caption">Этот гайд - не призыв к отказу от привычной еды.</p>
+				</div>
+				<div class="pm-slide">
+					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-2.webp" alt="Скриншот 3" loading="lazy">
+					<p class="pm-caption">Это о том, как легко и вкусно добавить растительные продукты наравне с животными, создавая рацион, который работает на ваше самочувствие и удержание здорового веса.</p>
+				</div>
+				<div class="pm-slide">
+					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-1.webp" alt="Скриншот 4" loading="lazy">
+					<p class="pm-caption">36 классных и полезных рецептов. Для вашего удобства в гайде есть навигация и поиск.</p>
+				</div>
+				<div class="pm-slide">
+					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-2.webp" alt="Скриншот 5" loading="lazy">
+					<p class="pm-caption">Карточки рецептов интерактивны. Добавили ингредиент — зачеркните его. Не нужно ничего запоминать.</p>
+				</div>
+			</div>
+			<div class="pm-controls">
+				<button class="pm-nav-btn" id="pm-prev">&#8249;</button>
+				<div class="pm-dots">
+					<button class="pm-dot active"></button>
+					<button class="pm-dot"></button>
+					<button class="pm-dot"></button>
+					<button class="pm-dot"></button>
+					<button class="pm-dot"></button>
+				</div>
+				<button class="pm-nav-btn" id="pm-next">&#8250;</button>
+			</div>
+			<button class="pm-cta" id="pm-buy-btn">Купить - 490 ₽</button>
+		</div>
+	</div>
+
+	<div class="lb-overlay" id="lb-overlay">
+		<button class="lb-close" id="lb-close">&#215;</button>
+		<img id="lb-img" src="" alt="">
+	</div>
+
+	<script>
+		(function () {
+			var buyM = document.getElementById("buy-modal");
+			var prevM = document.getElementById("preview-modal");
+			function openM(m) { m.classList.add("active"); document.body.style.overflow = "hidden"; }
+			function closeM(m) { m.classList.remove("active"); document.body.style.overflow = ""; }
+			document.getElementById("buy-open").addEventListener("click", function () { openM(buyM); });
+			document.getElementById("buy-close").addEventListener("click", function () { closeM(buyM); });
+			buyM.addEventListener("click", function (e) { if (e.target === buyM) closeM(buyM); });
+			document.getElementById("preview-open").addEventListener("click", function () { openM(prevM); });
+			document.getElementById("preview-close").addEventListener("click", function () { closeM(prevM); });
+			prevM.addEventListener("click", function (e) { if (e.target === prevM) closeM(prevM); });
+			document.getElementById("pm-buy-btn").addEventListener("click", function () { closeM(prevM); openM(buyM); });
+			var slides = Array.from(document.querySelectorAll(".pm-slide"));
+			var dots = Array.from(document.querySelectorAll(".pm-dot"));
+			var cur = 0;
+			function goTo(i, dir) {
+				slides[cur].classList.remove("active");
+				dots[cur].classList.remove("active");
+				var next = (i + slides.length) % slides.length;
+				var goingBack = dir === -1 || (dir === undefined && next < cur);
+				slides[next].classList.toggle("prev-dir", goingBack);
+				cur = next;
+				slides[cur].classList.add("active");
+				dots[cur].classList.add("active");
+				// убрать класс анимации после завершения
+				slides[cur].addEventListener("animationend", function () {
+					slides[cur].classList.remove("prev-dir");
+				}, { once: true });
+			}
+			document.getElementById("pm-prev").addEventListener("click", function () { goTo(cur - 1, -1); });
+			document.getElementById("pm-next").addEventListener("click", function () { goTo(cur + 1, 1); });
+			dots.forEach(function (d, i) { d.addEventListener("click", function () { goTo(i); }); });
+			document.addEventListener("keydown", function (e) {
+				if (e.key === "Escape") { closeM(buyM); closeM(prevM); closeLb(); }
+				if (e.key === "ArrowRight" && prevM.classList.contains("active")) goTo(cur + 1, 1);
+				if (e.key === "ArrowLeft" && prevM.classList.contains("active")) goTo(cur - 1, -1);
+			});
+			// Лайтбокс для скриншотов (цитата скрывается при открытии)
+			var lbOverlay = document.getElementById("lb-overlay");
+			var lbImg = document.getElementById("lb-img");
+			function openLb(src, alt) {
+				lbImg.src = src; lbImg.alt = alt || "";
+				lbOverlay.classList.add("active");
+				slides.forEach(function (s) {
+					var cap = s.querySelector(".pm-caption");
+					if (cap) cap.style.visibility = "hidden";
+				});
+			}
+			function closeLb() {
+				lbOverlay.classList.remove("active"); lbImg.src = "";
+				slides.forEach(function (s) {
+					var cap = s.querySelector(".pm-caption");
+					if (cap) cap.style.visibility = "";
+				});
+			}
+			document.getElementById("lb-close").addEventListener("click", closeLb);
+			lbOverlay.addEventListener("click", function (e) { if (e.target === lbOverlay || e.target === lbImg) closeLb(); });
+			document.querySelector(".pm-slides").addEventListener("click", function (e) {
+				var img = e.target.closest("img.pm-screenshot-img");
+				if (img) openLb(img.src, img.alt);
+			});
+		})();
+	</script>
+
 </body>
 
 </html>

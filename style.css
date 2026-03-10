@@ -10648,10 +10648,11 @@ button[class*="btn-"]:hover,
 
 .guides-cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 30px;
-    max-width: 1000px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    max-width: 1200px;
     margin: 0 auto;
+    align-items: stretch;
 }
 
 .guide-card-full {
@@ -10876,8 +10877,10 @@ button[class*="btn-"]:hover,
     text-align: center;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     transition: all 0.4s ease;
-    max-width: 260px;
-    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
     opacity: 1;
     transform: none;
     border: 1px solid rgba(139, 166, 139, 0.2);
@@ -10930,13 +10933,14 @@ button[class*="btn-"]:hover,
 
 /* Image wrapper */
 .guide-card-image-wrap {
-    width: 140px;
-    height: 180px;
-    margin: 0 auto 18px;
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 140%;
+    margin: 0 0 18px;
     border-radius: 10px;
     overflow: hidden;
     background: var(--white);
-    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -10948,6 +10952,9 @@ button[class*="btn-"]:hover,
 
 .guide-card-minimal .guide-pdf-preview,
 .guide-card-minimal .guide-cover-image {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -11043,14 +11050,7 @@ button[class*="btn-"]:hover,
     border: 1px solid rgba(139, 166, 139, 0.25);
 }
 
-/* Grid update for smaller cards */
-.guides-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
-    max-width: 900px;
-    margin: 0 auto;
-}
+/* Responsive grid */
 
 /* PDF Modal */
 .pdf-modal {
@@ -11201,11 +11201,11 @@ button[class*="btn-"]:hover,
     .guides-cards-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
-        max-width: 600px;
+        max-width: 800px;
     }
 
     .guide-card-minimal {
-        max-width: 240px;
+        width: 100%;
     }
 
     .guides-page-subtitle {
@@ -11234,7 +11234,7 @@ button[class*="btn-"]:hover,
 
     .guides-cards-grid {
         grid-template-columns: 1fr;
-        max-width: 280px;
+        max-width: 360px;
     }
 
     .guide-card-minimal {
@@ -11276,11 +11276,7 @@ button[class*="btn-"]:hover,
     .guide-card-actions-minimal {
         flex-direction: column;
         gap: 8px;
-    }
-
-    .guide-btn-read,
-    .guide-btn-save {
-        width: 100%;
+        align-items: flex-start;
     }
 }
 
