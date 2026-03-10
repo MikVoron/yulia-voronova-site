@@ -1633,3 +1633,28 @@ document.addEventListener('DOMContentLoaded', () => {
         el.addEventListener('click', function () { openLightbox(el.src, el.alt); });
     });
 }());
+
+// Bottom nav tap animations
+(function () {
+    function triggerAnim(el, cls, duration) {
+        if (!el) return;
+        el.classList.remove(cls);
+        void el.offsetWidth;
+        el.classList.add(cls);
+        setTimeout(function () { el.classList.remove(cls); }, duration);
+    }
+
+    var guidesBtn = document.querySelector('[data-nav="guides"]');
+    var testsBtn  = document.querySelector('[data-nav="tests"]');
+
+    if (guidesBtn) {
+        guidesBtn.addEventListener('touchstart', function () {
+            triggerAnim(guidesBtn, 'sparkling', 900);
+        }, { passive: true });
+    }
+    if (testsBtn) {
+        testsBtn.addEventListener('touchstart', function () {
+            triggerAnim(testsBtn, 'shaking', 700);
+        }, { passive: true });
+    }
+}());

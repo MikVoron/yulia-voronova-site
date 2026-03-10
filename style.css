@@ -15442,3 +15442,52 @@ button[class*="btn-"]:hover,
 .blog-card-image img {
     cursor: zoom-in;
 }
+
+/* ========================================
+   BOTTOM NAV TAP ANIMATIONS
+   ======================================== */
+
+/* Гайды — звёздочки вспыхивают по очереди */
+@keyframes starSparkle {
+    0%   { transform: scale(1);   opacity: 1; }
+    35%  { transform: scale(0.5); opacity: 0.15; }
+    70%  { transform: scale(1.5); opacity: 1; }
+    100% { transform: scale(1);   opacity: 1; }
+}
+
+.star-1, .star-2, .star-3 {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+[data-nav="guides"].sparkling .star-1 {
+    animation: starSparkle 0.5s ease-out both;
+    animation-delay: 0s;
+}
+[data-nav="guides"].sparkling .star-2 {
+    animation: starSparkle 0.5s ease-out both;
+    animation-delay: 0.12s;
+}
+[data-nav="guides"].sparkling .star-3 {
+    animation: starSparkle 0.5s ease-out both;
+    animation-delay: 0.24s;
+}
+
+/* Тесты — иконка трясётся как будильник */
+@keyframes alarmShake {
+    0%   { transform: rotate(0deg); }
+    12%  { transform: rotate(-20deg); }
+    25%  { transform: rotate(20deg); }
+    37%  { transform: rotate(-15deg); }
+    50%  { transform: rotate(15deg); }
+    62%  { transform: rotate(-8deg); }
+    75%  { transform: rotate(8deg); }
+    87%  { transform: rotate(-3deg); }
+    100% { transform: rotate(0deg); }
+}
+
+[data-nav="tests"].shaking svg {
+    animation: alarmShake 0.6s ease-in-out;
+    transform-origin: center 90%;
+    transform-box: fill-box;
+}
