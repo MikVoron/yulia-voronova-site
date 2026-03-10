@@ -14946,11 +14946,6 @@ button[class*="btn-"]:hover,
         display: none !important;
     }
 
-    /* Text-only nav items (Гайды, Тесты) — no icon, larger text */
-    .bottom-nav-item-text {
-        font-size: 12px;
-        font-weight: 600;
-    }
 }
 
 /* Popup menu above "Узнай/Тесты" */
