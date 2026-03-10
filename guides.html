@@ -429,15 +429,29 @@
 			border: 1px solid #d8cfc4;
 			border-radius: 10px;
 		}
+		.pm-images {
+			margin-bottom: 16px;
+		}
+
+		.pm-img {
+			display: none;
+		}
+
+		.pm-img.active {
+			display: block;
+			animation: pmSlideIn .35s ease;
+		}
+
+		.pm-img.prev-dir.active {
+			animation: pmSlideInRev .35s ease;
+		}
+
 		.pm-screenshot-img {
 			display: block;
 			width: 100%;
 			max-height: 44vh;
 			object-fit: contain;
 			border-radius: 8px;
-			margin-top: 10px;
-			padding-top: 10px;
-			border-top: 1px solid #ede9e2;
 		}
 
 		.pm-caption::before {
@@ -519,9 +533,6 @@
 		}
 
 		.pm-screenshot-img {
-			width: 100%;
-			border-radius: 10px;
-			display: block;
 			cursor: zoom-in;
 			transition: opacity .15s;
 		}
@@ -1127,23 +1138,18 @@
 				<div class="pm-slides">
 					<div class="pm-slide active">
 						<p class="pm-caption">Здоровье и стабильный вес начинаются не с ограничений, а с разнообразия.</p>
-						<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-1.webp" alt="Скриншот 1" loading="lazy">
 					</div>
 					<div class="pm-slide">
 						<p class="pm-caption">Этот гайд — не призыв к отказу от привычной еды.</p>
-						<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-1.webp" alt="Скриншот 2" loading="lazy">
 					</div>
 					<div class="pm-slide">
 						<p class="pm-caption">Это о том, как легко и вкусно добавить растительные продукты наравне с животными, создавая рацион, который работает на ваше самочувствие и удержание здорового веса.</p>
-						<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-2.webp" alt="Скриншот 3" loading="lazy">
 					</div>
 					<div class="pm-slide">
 						<p class="pm-caption">36 классных и полезных рецептов. Для вашего удобства в гайде есть навигация и поиск.</p>
-						<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-1.webp" alt="Скриншот 4" loading="lazy">
 					</div>
 					<div class="pm-slide">
 						<p class="pm-caption">Карточки рецептов интерактивны. Добавили ингредиент — зачеркните его. Не нужно ничего запоминать.</p>
-						<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-2.webp" alt="Скриншот 5" loading="lazy">
 					</div>
 				</div>
 				<button class="pm-nav-btn" id="pm-next">&#8250;</button>
@@ -1156,6 +1162,13 @@
 					<button class="pm-dot"></button>
 					<button class="pm-dot"></button>
 				</div>
+			</div>
+			<div class="pm-images">
+				<img class="pm-img active pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-1.webp" alt="Скриншот 1" loading="lazy">
+				<img class="pm-img pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-1.webp" alt="Скриншот 2" loading="lazy">
+				<img class="pm-img pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-2.webp" alt="Скриншот 3" loading="lazy">
+				<img class="pm-img pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-1.webp" alt="Скриншот 4" loading="lazy">
+				<img class="pm-img pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-2.webp" alt="Скриншот 5" loading="lazy">
 			</div>
 			<button class="pm-cta" id="pm-buy-btn">Купить - 490 ₽</button>
 		</div>
@@ -1180,20 +1193,26 @@
 			prevM.addEventListener("click", function (e) { if (e.target === prevM) closeM(prevM); });
 			document.getElementById("pm-buy-btn").addEventListener("click", function () { closeM(prevM); openM(buyM); });
 			var slides = Array.from(document.querySelectorAll(".pm-slide"));
+			var imgs = Array.from(document.querySelectorAll(".pm-img"));
 			var dots = Array.from(document.querySelectorAll(".pm-dot"));
 			var cur = 0;
 			function goTo(i, dir) {
 				slides[cur].classList.remove("active");
+				imgs[cur].classList.remove("active");
 				dots[cur].classList.remove("active");
 				var next = (i + slides.length) % slides.length;
 				var goingBack = dir === -1 || (dir === undefined && next < cur);
 				slides[next].classList.toggle("prev-dir", goingBack);
+				imgs[next].classList.toggle("prev-dir", goingBack);
 				cur = next;
 				slides[cur].classList.add("active");
+				imgs[cur].classList.add("active");
 				dots[cur].classList.add("active");
-				// убрать класс анимации после завершения
 				slides[cur].addEventListener("animationend", function () {
 					slides[cur].classList.remove("prev-dir");
+				}, { once: true });
+				imgs[cur].addEventListener("animationend", function () {
+					imgs[cur].classList.remove("prev-dir");
 				}, { once: true });
 			}
 			document.getElementById("pm-prev").addEventListener("click", function () { goTo(cur - 1, -1); });
@@ -1204,27 +1223,19 @@
 				if (e.key === "ArrowRight" && prevM.classList.contains("active")) goTo(cur + 1, 1);
 				if (e.key === "ArrowLeft" && prevM.classList.contains("active")) goTo(cur - 1, -1);
 			});
-			// Лайтбокс для скриншотов (цитата скрывается при открытии)
+			// Лайтбокс для скриншотов
 			var lbOverlay = document.getElementById("lb-overlay");
 			var lbImg = document.getElementById("lb-img");
 			function openLb(src, alt) {
 				lbImg.src = src; lbImg.alt = alt || "";
 				lbOverlay.classList.add("active");
-				slides.forEach(function (s) {
-					var cap = s.querySelector(".pm-caption");
-					if (cap) cap.style.visibility = "hidden";
-				});
 			}
 			function closeLb() {
 				lbOverlay.classList.remove("active"); lbImg.src = "";
-				slides.forEach(function (s) {
-					var cap = s.querySelector(".pm-caption");
-					if (cap) cap.style.visibility = "";
-				});
 			}
 			document.getElementById("lb-close").addEventListener("click", closeLb);
 			lbOverlay.addEventListener("click", function (e) { if (e.target === lbOverlay || e.target === lbImg) closeLb(); });
-			document.querySelector(".pm-slides-area").addEventListener("click", function (e) {
+			document.querySelector(".pm-images").addEventListener("click", function (e) {
 				var img = e.target.closest("img.pm-screenshot-img");
 				if (img) openLb(img.src, img.alt);
 			});
