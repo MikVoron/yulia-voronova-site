@@ -324,13 +324,13 @@
 			color: #5f6f62;
 		}
 
-		.bm-tg-btn {
+		#buy-modal .bm-tg-btn {
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			gap: 10px;
-			background: #2aabee;
-			color: #fff;
+			background: #2aabee !important;
+			color: #fff !important;
 			padding: 13px 20px;
 			border-radius: 10px;
 			text-decoration: none;
@@ -340,8 +340,8 @@
 			transition: background .2s;
 		}
 
-		.bm-tg-btn:hover {
-			background: #1a9bde;
+		#buy-modal .bm-tg-btn:hover {
+			background: #1a9bde !important;
 		}
 
 		.bm-safety {
@@ -408,17 +408,27 @@
 		}
 
 		.pm-caption {
-			font-size: 18px;
-			line-height: 1.5;
+			font-size: 17px;
+			line-height: 1.45;
 			color: #3a3530;
 			font-style: italic;
 			font-family: 'Cormorant Garamond', Georgia, serif;
 			font-weight: 600;
-			margin: 10px 0 0;
+			margin: 0 0 10px;
 			text-align: center;
-			padding: 14px 16px;
+			padding: 12px 14px;
 			border: 1px solid #d8cfc4;
 			border-radius: 10px;
+		}
+		.pm-screenshot-img {
+			display: block;
+			width: 100%;
+			max-height: 44vh;
+			object-fit: contain;
+			border-radius: 8px;
+			margin-top: 10px;
+			padding-top: 10px;
+			border-top: 1px solid #ede9e2;
 		}
 
 		.pm-caption::before {
@@ -1100,24 +1110,24 @@
 			<button class="pm-close" id="preview-close">&times;</button>
 			<div class="pm-slides">
 				<div class="pm-slide active">
-					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-1.webp" alt="Скриншот 1" loading="lazy">
 					<p class="pm-caption">Здоровье и стабильный вес начинаются не с ограничений, а с разнообразия.</p>
+					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-1.webp" alt="Скриншот 1" loading="lazy">
 				</div>
 				<div class="pm-slide">
+					<p class="pm-caption">Этот гайд — не призыв к отказу от привычной еды.</p>
 					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-1.webp" alt="Скриншот 2" loading="lazy">
-					<p class="pm-caption">Этот гайд - не призыв к отказу от привычной еды.</p>
 				</div>
 				<div class="pm-slide">
-					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-2.webp" alt="Скриншот 3" loading="lazy">
 					<p class="pm-caption">Это о том, как легко и вкусно добавить растительные продукты наравне с животными, создавая рацион, который работает на ваше самочувствие и удержание здорового веса.</p>
+					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-2.webp" alt="Скриншот 3" loading="lazy">
 				</div>
 				<div class="pm-slide">
-					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-1.webp" alt="Скриншот 4" loading="lazy">
 					<p class="pm-caption">36 классных и полезных рецептов. Для вашего удобства в гайде есть навигация и поиск.</p>
+					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-1.webp" alt="Скриншот 4" loading="lazy">
 				</div>
 				<div class="pm-slide">
-					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-2.webp" alt="Скриншот 5" loading="lazy">
 					<p class="pm-caption">Карточки рецептов интерактивны. Добавили ингредиент — зачеркните его. Не нужно ничего запоминать.</p>
+					<img class="pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-2.webp" alt="Скриншот 5" loading="lazy">
 				</div>
 			</div>
 			<div class="pm-controls">
