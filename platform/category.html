@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Категория — Конструктор питания</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style-v1.css">
+    <style>
+        .cat-hero { padding: 20px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .cat-hero-row { display: flex; align-items: center; gap: 14px; }
+        .cat-hero-icon { font-size: 44px; }
+        .cat-hero-name { font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--text); line-height: 1.1; }
+        .cat-hero-desc { font-size: 13px; color: var(--text-2); margin-top: 3px; }
+    </style>
+</head>
+<body class="v-page">
+
+<!-- HEADER -->
+<header class="v-header" id="hdr">
+    <div class="v-wrap">
+        <div class="v-header-inner">
+            <button class="v-back" onclick="history.back()">
+                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                Назад
+            </button>
+            <div style="font-size:14px;font-weight:800;color:var(--text)" id="hdr-title"></div>
+            <button class="v-plate-btn" onclick="openPlate()">
+                <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
+                <div class="plate-count" style="display:none">0</div>
+            </button>
+        </div>
+    </div>
+</header>
+
+<main style="flex:1; padding-bottom: 40px;">
+    <div class="v-wrap">
+
+        <!-- Category hero -->
+        <div class="cat-hero anim" id="cat-hero"></div>
+
+        <!-- Filters -->
+        <div class="filter-row anim anim-d1" style="margin-bottom:20px" id="filter-row">
+            <button class="filter-chip" data-f="time" data-v="15" onclick="toggleFilter(this)">⚡ До 15 мин</button>
+            <button class="filter-chip" data-f="time" data-v="30" onclick="toggleFilter(this)">🕐 До 30 мин</button>
+            <button class="filter-chip" data-f="time" data-v="60" onclick="toggleFilter(this)">🕑 Менее часа</button>
+            <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="toggleFilter(this)">🟢 Простой</button>
+            <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="toggleFilter(this)">🟡 Средний</button>
+            <button class="filter-chip on" id="chip-clear" onclick="clearFilters()">✕ Сбросить</button>
+        </div>
+
+        <!-- Dish list -->
+        <div class="v-sec-head">
+            <div class="v-sec-title anim anim-d1" id="count-label"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px" id="dish-list"></div>
+    </div>
+</main>
+
+<!-- MY PLATE MODAL -->
+<div class="modal-overlay" id="plate-overlay" onclick="closePlateIfOutside(event)">
+    <div class="modal-box" id="plate-modal">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <div class="modal-title">🍽️ Моя тарелка</div>
+            <button class="modal-close" onclick="closePlate()">✕</button>
+        </div>
+        <div class="modal-body" id="plate-body"></div>
+    </div>
+</div>
+
+<!-- CHAT FAB -->
+<button class="chat-fab" onclick="alert('💬 Чат с отделом заботы\n\n@voronova_support в Telegram')">
+    💬
+    <div class="chat-fab-tip">Чат с отделом заботы</div>
+</button>
+
+<script src="data-v2.js"></script>
+<script>
+    Auth.requireAuth();
+    updatePlateIcon();
+
+    const params = new URLSearchParams(location.search);
+    const catId = params.get('cat') || 'breakfasts';
+    const cat = getCategory(catId);
+    const activeFilters = {};
+
+    window.addEventListener('scroll', () =>
+        document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
+
+    if (cat) {
+        document.title = cat.name + ' — Конструктор питания';
+        document.getElementById('hdr-title').textContent = cat.name;
+        document.getElementById('cat-hero').innerHTML = `
+            <div class="cat-hero-row">
+                <div class="cat-hero-icon">${cat.emoji}</div>
+                <div>
+                    <div class="cat-hero-name">${cat.name}</div>
+                    <div class="cat-hero-desc">${cat.desc}</div>
+                </div>
+            </div>`;
+    }
+
+    function renderDishes() {
+        const dishes = getCategoryDishes(catId, activeFilters);
+        document.getElementById('count-label').textContent = `${dishes.length} рецептов`;
+        if (!dishes.length) {
+            document.getElementById('dish-list').innerHTML =
+                '<div style="text-align:center;padding:50px 20px;color:var(--text-3)">Ничего не найдено. Измените фильтры.</div>';
+            return;
+        }
+        document.getElementById('dish-list').innerHTML = dishes.map(d => {
+            const diff = DIFF_LABELS[d.diff] || d.diff;
+            const isSublist = d.isSublist;
+            return `<button class="dish-card anim" onclick="goToRecipe('${d.id}')">
+                <div class="dish-emoji-box" style="background:${cat.color}22">${d.emoji}</div>
+                <div class="dish-info">
+                    <div class="dish-name">${d.name}
+                        ${isSublist ? '<span class="dish-sublist-badge">Список →</span>' : ''}
+                    </div>
+                    <div class="dish-meta">
+                        <span class="pill">⏱ ${d.time} мин</span>
+                        <span class="pill">${diff}</span>
+                    </div>
+                </div>
+                <div class="dish-kcal">${d.kcal}<span>ккал</span></div>
+                <div class="dish-arrow">›</div>
+            </button>`;
+        }).join('');
+    }
+    renderDishes();
+
+    function goToRecipe(id) {
+        location.href = `recipe.html?id=${id}&from=${catId}`;
+    }
+
+    function toggleFilter(el) {
+        const f = el.dataset.f, v = el.dataset.v;
+        document.querySelectorAll(`[data-f="${f}"]`).forEach(b => b.classList.remove('on'));
+        if (activeFilters[f] == v) { delete activeFilters[f]; }
+        else { el.classList.add('on'); activeFilters[f] = f === 'time' ? +v : v; }
+        renderDishes();
+    }
+    function clearFilters() {
+        Object.keys(activeFilters).forEach(k => delete activeFilters[k]);
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+        renderDishes();
+    }
+
+    // My plate modal (minimal)
+    function openPlate() {
+        const items = Plate.get();
+        const body = document.getElementById('plate-body');
+        if (!items.length) {
+            body.innerHTML = '<div class="plate-empty"><div class="plate-empty-icon">🍽️</div><div class="plate-empty-text">Тарелка пока пуста</div></div>';
+        } else {
+            const t = Plate.totals();
+            body.innerHTML = '<div class="plate-items">' +
+                items.map((item, i) => `<div class="plate-item">
+                    <div class="plate-item-emoji">${item.emoji || '🍴'}</div>
+                    <div class="plate-item-info">
+                        <div class="plate-item-name">${item.name}</div>
+                        <div class="plate-item-kcal">${item.kcal} ккал</div>
+                    </div>
+                    <button class="plate-item-del" onclick="removeItemCat(${i})">✕</button>
+                </div>`).join('') + '</div>' +
+                `<div class="plate-total-block" style="margin-top:12px">
+                    <div class="plate-total-title">Итого</div>
+                    <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г</div>
+                </div>
+                <button class="btn btn-orange btn-full" style="margin-top:10px" onclick="location.href='index.html'">← На главную</button>`;
+        }
+        document.getElementById('plate-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closePlate() {
+        document.getElementById('plate-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
+    function removeItemCat(i) { Plate.remove(i); openPlate(); }
+</script>
+</body>
+</html>

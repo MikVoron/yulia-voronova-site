@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="platform.css">
+    <link rel="stylesheet" href="style-v1.css">
     <style>
         .plate-icon {
             width: 72px; height: 72px;
@@ -78,10 +78,10 @@
     </div>
 </div>
 
-<script src="data.js"></script>
+<script src="data-v2.js"></script>
 <script>
     // Redirect if already logged in
-    if (Auth.isLoggedIn()) window.location.href = 'cabinet.html';
+    if (Auth.isLoggedIn()) window.location.href = 'index.html';
 
     function switchTab(tab) {
         document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
@@ -106,7 +106,7 @@
         if (!email || !email.includes('@')) { showError('login-error', 'Введите корректный email'); return; }
         if (pass.length < 1) { showError('login-error', 'Введите пароль'); return; }
         Auth.login(email, email.split('@')[0]);
-        window.location.href = 'cabinet.html';
+        window.location.href = 'index.html';
     }
 
     function doRegister() {
@@ -118,12 +118,12 @@
         if (!email || !email.includes('@')) { showError('reg-error', 'Введите корректный email'); return; }
         if (pass.length < 6) { showError('reg-error', 'Пароль должен быть не менее 6 символов'); return; }
         Auth.login(email, name);
-        window.location.href = 'cabinet.html';
+        window.location.href = 'index.html';
     }
 
     function demoLogin() {
         Auth.login('demo@voronova.online', 'Мария');
-        window.location.href = 'cabinet.html';
+        window.location.href = 'index.html';
     }
 
     // Enter key support

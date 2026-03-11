@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конструктор питания — Юлия Воронова</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style-v1.css">
+    <style>
+        .greeting { padding: 20px 0 0; }
+        .greeting-hi { font-family: var(--serif); font-size: clamp(22px,4vw,34px);
+                       font-weight: 600; color: var(--text); margin-bottom: 2px; }
+        .greeting-sub { font-size: 14px; color: var(--text-2); }
+    </style>
+</head>
+<body class="v-page">
+
+<!-- HEADER -->
+<header class="v-header" id="hdr">
+    <div class="v-wrap">
+        <div class="v-header-inner">
+            <a href="../index.html" class="v-logo">Юлия <span>Воронова</span></a>
+            <div class="v-header-right">
+                <div class="v-user-badge" id="user-badge" onclick="location.href='cabinet.html'">
+                    <div class="v-user-avatar" id="u-ava">?</div>
+                    <div class="v-user-name" id="u-name">Войти</div>
+                </div>
+                <button class="v-plate-btn" id="plate-btn" onclick="openPlate()">
+                    <svg viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
+                    Тарелка
+                    <div class="plate-count" style="display:none">0</div>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- MAIN -->
+<main style="flex:1; padding-bottom: 80px;">
+    <div class="v-wrap">
+
+        <!-- Greeting -->
+        <div class="greeting anim">
+            <div class="greeting-hi" id="greeting-hi">Привет!</div>
+            <div class="greeting-sub">Что будем готовить сегодня?</div>
+        </div>
+
+        <!-- Julia strip -->
+        <div class="julia-strip anim anim-d1" style="margin: 16px 0;">
+            <div class="julia-ava">👩‍🍳</div>
+            <div class="julia-info">
+                <div class="julia-name">Юлия Воронова · Нутрициолог</div>
+                <div class="julia-text">Эта платформа поможет сделать каждый приём пищи полноценным и сбалансированным. Выберите категорию, откройте рецепт — и система подскажет, что добавить для идеального баланса белков, жиров и углеводов.</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="v-sec-head anim anim-d1">
+            <div class="v-sec-title">Фильтры</div>
+            <button class="btn btn-ghost btn-sm" onclick="clearFilters()">Сбросить</button>
+        </div>
+        <div class="filter-row anim anim-d1" style="margin-bottom: 20px;" id="filter-row">
+            <button class="filter-chip" data-f="time" data-v="15" onclick="toggleFilter(this)">⚡ До 15 мин</button>
+            <button class="filter-chip" data-f="time" data-v="30" onclick="toggleFilter(this)">🕐 До 30 мин</button>
+            <button class="filter-chip" data-f="time" data-v="60" onclick="toggleFilter(this)">🕑 Менее часа</button>
+            <button class="filter-chip" data-f="time" data-v="120" onclick="toggleFilter(this)">⏰ Более часа</button>
+            <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="toggleFilter(this)">🟢 Простой</button>
+            <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="toggleFilter(this)">🟡 Средний</button>
+        </div>
+
+        <!-- Categories -->
+        <div class="v-sec-head anim anim-d2">
+            <div class="v-sec-title">Категории</div>
+        </div>
+        <div class="cat-grid anim anim-d2" id="cat-grid"></div>
+
+    </div>
+</main>
+
+<!-- MY PLATE MODAL -->
+<div class="modal-overlay" id="plate-overlay" onclick="closePlateIfOutside(event)">
+    <div class="modal-box" id="plate-modal">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <div class="modal-title">🍽️ Моя тарелка</div>
+            <button class="modal-close" onclick="closePlate()">✕</button>
+        </div>
+        <div class="modal-body" id="plate-body"></div>
+        <div class="modal-footer" id="plate-footer" style="display:none">
+            <button class="btn btn-green btn-full" onclick="savePlate()">💾 Сохранить в историю</button>
+        </div>
+    </div>
+</div>
+
+<!-- CHAT FAB -->
+<button class="chat-fab" onclick="showChatInfo()">
+    💬
+    <div class="chat-fab-tip">Чат с отделом заботы</div>
+</button>
+
+<script src="data-v2.js"></script>
+<script>
+    Auth.requireAuth();
+    const user = Auth.getUser();
+
+    // Init header
+    if (user) {
+        document.getElementById('u-ava').textContent  = user.name.charAt(0).toUpperCase();
+        document.getElementById('u-name').textContent = user.name;
+        document.getElementById('greeting-hi').textContent =
+            (new Date().getHours() < 12 ? 'Доброе утро' :
+             new Date().getHours() < 17 ? 'Добрый день' : 'Добрый вечер') + ', ' + user.name + '!';
+    }
+    updatePlateIcon();
+
+    // Scroll effect
+    window.addEventListener('scroll', () =>
+        document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
+
+    // ── CATEGORIES ───────────────────────────────────────────────────────
+    const activeFilters = {};
+
+    function renderCats() {
+        const grid = document.getElementById('cat-grid');
+        grid.innerHTML = Object.values(CATEGORIES).map(cat => {
+            const count = getCategoryDishes(cat.id, activeFilters).length;
+            return `<button class="cat-card" onclick="location.href='category.html?cat=${cat.id}'">
+                <div class="cat-icon-wrap">${cat.emoji}</div>
+                <div class="cat-name">${cat.name}</div>
+                <div class="cat-desc">${cat.desc}</div>
+                <div class="cat-count">${count} рецептов →</div>
+            </button>`;
+        }).join('');
+    }
+    renderCats();
+
+    // ── FILTERS ──────────────────────────────────────────────────────────
+    function toggleFilter(el) {
+        const f = el.dataset.f, v = el.dataset.v;
+        // Radio within group
+        document.querySelectorAll(`[data-f="${f}"]`).forEach(b => b.classList.remove('on'));
+        if (activeFilters[f] == v) { delete activeFilters[f]; }
+        else { el.classList.add('on'); activeFilters[f] = f === 'time' ? +v : v; }
+        renderCats();
+    }
+    function clearFilters() {
+        Object.keys(activeFilters).forEach(k => delete activeFilters[k]);
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+        renderCats();
+    }
+
+    // ── MY PLATE MODAL ───────────────────────────────────────────────────
+    function openPlate() {
+        renderPlateModal();
+        document.getElementById('plate-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closePlate() {
+        document.getElementById('plate-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
+
+    function renderPlateModal() {
+        const items = Plate.get();
+        const body = document.getElementById('plate-body');
+        const footer = document.getElementById('plate-footer');
+
+        if (!items.length) {
+            body.innerHTML = `<div class="plate-empty">
+                <div class="plate-empty-icon">🍽️</div>
+                <div class="plate-empty-text">Тарелка пока пуста</div>
+                <div class="plate-empty-sub">Выберите категорию и добавьте блюда</div>
+            </div>`;
+            footer.style.display = 'none';
+            return;
+        }
+
+        const t = Plate.totals();
+        const list = items.map((item, i) => `
+            <div class="plate-item" id="pi-${i}">
+                <div class="plate-item-emoji">${item.emoji || '🍴'}</div>
+                <div class="plate-item-info">
+                    <div class="plate-item-name">${item.name}</div>
+                    <div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div>
+                </div>
+                <button class="plate-item-del" onclick="removeItem(${i})">✕</button>
+            </div>`).join('');
+
+        body.innerHTML = `
+            <div class="plate-items">${list}</div>
+            <div class="plate-total-block">
+                <div class="plate-total-title">Итого</div>
+                <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г</div>
+            </div>
+            <div class="water-row" style="margin-top:12px">
+                <div class="water-label">💧 Ваш вес:</div>
+                <input class="water-inp" type="number" id="w-inp" value="60" min="30" max="200" oninput="updateWater()">
+                <div class="water-label">кг</div>
+                <div class="water-result" id="w-res">→ 1800 мл</div>
+            </div>
+            <div class="shop-ask" id="shop-block" style="margin-top:14px">
+                <div class="shop-ask-text">🛒 Сформировать список покупок?</div>
+                <div class="shop-ask-btns">
+                    <button class="btn btn-orange btn-sm" onclick="doShare()">Да — поделиться</button>
+                    <button class="btn btn-ghost btn-sm" onclick="doCopy()">Скопировать</button>
+                </div>
+            </div>`;
+        footer.style.display = 'block';
+    }
+
+    function removeItem(i) { Plate.remove(i); renderPlateModal(); updatePlateIcon(); }
+    function updateWater() {
+        const w = parseInt(document.getElementById('w-inp').value) || 60;
+        document.getElementById('w-res').textContent = '→ ' + (w * 30) + ' мл';
+    }
+    function doShare() { shareShoppingList(); }
+    function doCopy() {
+        navigator.clipboard.writeText(buildShoppingList())
+            .then(() => showToast('📋 Список скопирован!'))
+            .catch(() => showToast('Не удалось скопировать'));
+    }
+    function savePlate() { Plate.saveHistory(); renderPlateModal(); showToast('Тарелка сохранена в историю 🎉'); }
+
+    // Swipe to close
+    let sy = 0;
+    document.getElementById('plate-modal').addEventListener('touchstart', e => { sy = e.touches[0].clientY; }, { passive: true });
+    document.getElementById('plate-modal').addEventListener('touchend', e => { if (e.changedTouches[0].clientY - sy > 80) closePlate(); }, { passive: true });
+
+    function showChatInfo() {
+        alert('💬 Чат с отделом заботы\n\nЕсть вопросы по приготовлению или ингредиентам? Напишите нам — обычно отвечаем в течение 5 минут!\n\n@voronova_support в Telegram');
+    }
+</script>
+</body>
+</html>
