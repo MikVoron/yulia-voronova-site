@@ -1214,6 +1214,7 @@
 		   ============================ */
 		@media (max-width: 600px) {
 
+
 			/* Body padding */
 			.guide-body {
 				padding: 24px 16px 32px;
@@ -1312,6 +1313,7 @@
 			position: absolute;
 			top: calc(100% + 8px);
 			right: 0;
+			left: auto;
 			background: #fff;
 			border: 1px solid var(--border);
 			border-radius: 12px;
@@ -1352,6 +1354,97 @@
 			background: var(--border);
 			margin: 4px 0;
 		}
+
+		@media print {
+			@page {
+				margin: 10mm 12mm;
+			}
+
+			.top-nav {
+				display: none !important;
+			}
+
+			body {
+				min-height: 0;
+			}
+
+			.page-shell {
+				padding-bottom: 0;
+			}
+
+			.guide-footer {
+				margin-top: 12px;
+				break-before: avoid;
+				page-break-before: avoid;
+			}
+
+			.gf-top {
+				flex-wrap: nowrap;
+				padding: 12px 16px 10px;
+				gap: 12px;
+				align-items: center;
+			}
+
+			.gf-logo img {
+				width: 28px;
+				height: 28px;
+			}
+
+			.gf-logo-name {
+				font-size: 12px;
+			}
+
+			.gf-center {
+				min-width: 0;
+			}
+
+			.gf-cta-label {
+				font-size: 0.72rem;
+			}
+
+			.gf-btn {
+				font-size: 0.68rem;
+				padding: 4px 12px;
+			}
+
+			.gf-bottom {
+				padding: 8px 16px;
+				font-size: 0.65rem;
+			}
+
+			.gf-soc {
+				width: 28px;
+				height: 28px;
+			}
+
+			.gf-soc svg {
+				width: 14px;
+				height: 14px;
+			}
+
+			/* Запрет разрывов внутри карточек */
+			.choice-col,
+			.portion-card,
+			.canned-card,
+			.warning-with-img,
+			.guide-header {
+				break-inside: avoid;
+				page-break-inside: avoid;
+			}
+
+			/* Копирайт остаётся с футером */
+			.gf-bottom {
+				break-before: avoid;
+				page-break-before: avoid;
+			}
+
+			/* cook-card может разбиться между Морской и Речной рыбой,
+			   но каждый блок внутри остаётся целым */
+			.cook-type {
+				break-inside: avoid;
+				page-break-inside: avoid;
+			}
+		}
 	</style>
 </head>
 
@@ -1388,12 +1481,12 @@
 							</svg> <span>Скопировать ссылку</span></button>
 					</div>
 				</div>
-				<button class="btn-download" onclick="gtag('event','guide_download',{'guide_name':'fish'});ym(106615581,'reachGoal','guide_download',{'guide':'fish'});window.print()">
+				<a class="btn-download" href="pdf-version-guides/how-choose-fish.pdf" download onclick="gtag('event','guide_download',{'guide_name':'fish'});ym(106615581,'reachGoal','guide_download',{'guide':'fish'})">
 					<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
 						<path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
 					</svg>
 					<span>Скачать PDF</span>
-				</button>
+				</a>
 			</div>
 		</div>
 
@@ -1742,6 +1835,18 @@
 					function toggleShareMenu(btn) {
 						var menu = btn.nextElementSibling;
 						menu.classList.toggle('open');
+						if (menu.classList.contains('open')) {
+							menu.style.left = '';
+							menu.style.right = '';
+							var rect = menu.getBoundingClientRect();
+							if (rect.left < 8) {
+								menu.style.right = 'auto';
+								menu.style.left = '0';
+							} else if (rect.right > window.innerWidth - 8) {
+								menu.style.left = 'auto';
+								menu.style.right = '0';
+							}
+						}
 					}
 					document.addEventListener('click', function (e) {
 						if (!e.target.closest('.share-dropdown')) {

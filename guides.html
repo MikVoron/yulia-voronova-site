@@ -188,6 +188,15 @@
 			}
 		}
 
+		@media(max-width:1024px) {
+			.guide-card-minimal {
+				min-width: 0
+			}
+			.guide-card-title-minimal {
+				font-size: 21px
+			}
+		}
+
 		.guide-card-minimal .guide-card-actions-minimal {
 			margin-top: auto
 		}
@@ -433,14 +442,24 @@
 
 		.pm-images {
 			margin-bottom: 16px;
+			min-height: 180px;
+			position: relative;
 		}
 
 		.pm-img {
-			display: none;
+			opacity: 0;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			pointer-events: none;
+			transition: opacity .3s ease;
 		}
 
 		.pm-img.active {
-			display: block;
+			opacity: 1;
+			position: relative;
+			pointer-events: auto;
 			animation: pmSlideIn .35s ease;
 		}
 
@@ -722,7 +741,7 @@
 					<h2 class="guide-card-title-minimal">Клетчатка<br>не в сезон</h2>
 					<div class="guide-card-actions-minimal">
 						<button class="guide-btn-read">Читать</button>
-						<a href="guides/МиниГайд Клетчатка не в сезон.pdf" class="guide-btn-save" download>Скачать</a>
+						<a href="guides/pdf-version-guides/fibers-not-season.pdf" class="guide-btn-save" download>Скачать</a>
 					</div>
 				</div>
 
@@ -740,7 +759,7 @@
 					<h2 class="guide-card-title-minimal">Как выбрать<br>рыбу?</h2>
 					<div class="guide-card-actions-minimal">
 						<a href="guides/guide-fish.html" class="guide-btn-read">Читать</a>
-						<a href="guides/guide-fish.html" class="guide-btn-save" target="_blank" rel="noopener" title="Откройте и нажмите Печать → Сохранить как PDF">Скачать</a>
+						<a href="guides/pdf-version-guides/how-choose-fish.pdf" class="guide-btn-save" download>Скачать</a>
 					</div>
 				</div>
 
@@ -1162,11 +1181,11 @@
 				</div>
 			</div>
 			<div class="pm-images">
-				<img class="pm-img active pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-1.webp" alt="Скриншот 1" loading="lazy">
-				<img class="pm-img pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-1.webp" alt="Скриншот 2" loading="lazy">
-				<img class="pm-img pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-2.webp" alt="Скриншот 3" loading="lazy">
-				<img class="pm-img pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-1.webp" alt="Скриншот 4" loading="lazy">
-				<img class="pm-img pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-2.webp" alt="Скриншот 5" loading="lazy">
+				<img class="pm-img active pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-1.webp" alt="Скриншот 1" loading="eager">
+				<img class="pm-img pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-1.webp" alt="Скриншот 2" loading="eager">
+				<img class="pm-img pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-2-2.webp" alt="Скриншот 3" loading="eager">
+				<img class="pm-img pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-1.webp" alt="Скриншот 4" loading="eager">
+				<img class="pm-img pm-screenshot-img" src="images/img-guides/plant-based/promo-screen-plantbased-3-2.webp" alt="Скриншот 5" loading="eager">
 			</div>
 			<button class="pm-cta" id="pm-buy-btn">Купить - 490 ₽</button>
 		</div>
