@@ -32,8 +32,9 @@ const Plate = {
             kcal:    t.kcal    + (i.kcal    || 0),
             protein: t.protein + (i.protein || 0),
             fat:     t.fat     + (i.fat     || 0),
-            carbs:   t.carbs   + (i.carbs   || 0)
-        }), { kcal: 0, protein: 0, fat: 0, carbs: 0 });
+            carbs:   t.carbs   + (i.carbs   || 0),
+            fiber:   t.fiber   + (i.fiber   || 0)
+        }), { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 });
     },
     saveHistory() {
         const items = this.get();
@@ -58,19 +59,19 @@ function updatePlateIcon() {
 const RECIPES = {};
 
 // Гарниры — для блока «Добавь углеводов»
-RECIPES['rice']     = { id: 'rice',     name: 'Рис отварной',     emoji: '🍚', time: 20, diff: 'easy', servings: 2, kcal: 220, protein: 5, fat: 1, carbs: 48, cat: '_sides', ingredients: ['150 г риса', '300 мл воды', '½ ч. л. соли'], steps: ['Промойте рис несколько раз.', 'Залейте холодной водой 1:2.', 'Варите 18 минут под крышкой на слабом огне.', 'Оставьте на 5 минут, не открывая крышку.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
-RECIPES['bulgur']   = { id: 'bulgur',   name: 'Булгур',           emoji: '🌾', time: 20, diff: 'easy', servings: 2, kcal: 210, protein: 7, fat: 1, carbs: 44, cat: '_sides', ingredients: ['150 г булгура', '280 мл воды', '½ ч. л. соли'], steps: ['Залейте булгур кипятком в соотношении 1:1,8.', 'Варите 12 минут, помешивая.', 'Снимите с огня и накройте крышкой на 5 минут.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
-RECIPES['buckwheat']= { id: 'buckwheat',name: 'Гречка отварная',  emoji: '🥣', time: 20, diff: 'easy', servings: 2, kcal: 200, protein: 7, fat: 2, carbs: 40, cat: '_sides', ingredients: ['150 г гречневой крупы', '300 мл воды', 'Соль'], steps: ['Промойте гречку.', 'Залейте водой 1:2.', 'Варите 15 минут на слабом огне.', 'Укутайте на 10 минут.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
-RECIPES['quinoa']   = { id: 'quinoa',   name: 'Киноа',            emoji: '🌱', time: 15, diff: 'easy', servings: 2, kcal: 185, protein: 7, fat: 3, carbs: 34, cat: '_sides', ingredients: ['150 г киноа', '280 мл воды', 'Соль'], steps: ['Промойте киноа — убирает горечь.', 'Залейте водой 1:1,8.', 'Варите 12–15 минут до раскрытия зёрен.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
-RECIPES['millet']   = { id: 'millet',   name: 'Пшено',            emoji: '🌾', time: 25, diff: 'easy', servings: 2, kcal: 195, protein: 5, fat: 2, carbs: 40, cat: '_sides', ingredients: ['150 г пшена', '350 мл воды', 'Соль'], steps: ['Промойте пшено до чистой воды.', 'Залейте кипятком 1:2.', 'Варите 20 минут.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
-RECIPES['pasta']    = { id: 'pasta',    name: 'Цельнозерновые макароны', emoji: '🍝', time: 12, diff: 'easy', servings: 2, kcal: 240, protein: 9, fat: 2, carbs: 48, cat: '_sides', ingredients: ['200 г цельнозерновых макарон', 'Вода', 'Соль', 'Оливковое масло'], steps: ['Доведите подсоленную воду до кипения.', 'Варите макароны по инструкции (обычно 8–10 мин).', 'Откиньте на дуршлаг, сбрызните маслом.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
-RECIPES['seed-mix'] = { id: 'seed-mix', name: 'Микс семян',       emoji: '🌿', time: 5,  diff: 'easy', servings: 4, kcal: 120, protein: 5, fat: 9, carbs: 5, cat: '_sides', ingredients: ['1 ст. л. семян конопли', '1 ст. л. семян льна', '1 ст. л. семян тыквы'], steps: ['Смешайте все семена.', 'Храните в закрытой банке до 2 недель.', 'Добавляйте 1–2 ст. л. к любому блюду.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
+RECIPES['rice']     = { id: 'rice',     name: 'Рис отварной',     emoji: '🍚', time: 20, diff: 'easy', servings: 2, kcal: 220, protein: 5, fat: 1, carbs: 48, fiber: 1, cat: '_sides', ingredients: ['150 г риса', '300 мл воды', '½ ч. л. соли'], steps: ['Промойте рис несколько раз.', 'Залейте холодной водой 1:2.', 'Варите 18 минут под крышкой на слабом огне.', 'Оставьте на 5 минут, не открывая крышку.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
+RECIPES['bulgur']   = { id: 'bulgur',   name: 'Булгур',           emoji: '🌾', time: 20, diff: 'easy', servings: 2, kcal: 210, protein: 7, fat: 1, carbs: 44, fiber: 5, cat: '_sides', ingredients: ['150 г булгура', '280 мл воды', '½ ч. л. соли'], steps: ['Залейте булгур кипятком в соотношении 1:1,8.', 'Варите 12 минут, помешивая.', 'Снимите с огня и накройте крышкой на 5 минут.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
+RECIPES['buckwheat']= { id: 'buckwheat',name: 'Гречка отварная',  emoji: '🥣', time: 20, diff: 'easy', servings: 2, kcal: 200, protein: 7, fat: 2, carbs: 40, fiber: 4, cat: '_sides', ingredients: ['150 г гречневой крупы', '300 мл воды', 'Соль'], steps: ['Промойте гречку.', 'Залейте водой 1:2.', 'Варите 15 минут на слабом огне.', 'Укутайте на 10 минут.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
+RECIPES['quinoa']   = { id: 'quinoa',   name: 'Киноа',            emoji: '🌱', time: 15, diff: 'easy', servings: 2, kcal: 185, protein: 7, fat: 3, carbs: 34, fiber: 3, cat: '_sides', ingredients: ['150 г киноа', '280 мл воды', 'Соль'], steps: ['Промойте киноа — убирает горечь.', 'Залейте водой 1:1,8.', 'Варите 12–15 минут до раскрытия зёрен.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
+RECIPES['millet']   = { id: 'millet',   name: 'Пшено',            emoji: '🌾', time: 25, diff: 'easy', servings: 2, kcal: 195, protein: 5, fat: 2, carbs: 40, fiber: 2, cat: '_sides', ingredients: ['150 г пшена', '350 мл воды', 'Соль'], steps: ['Промойте пшено до чистой воды.', 'Залейте кипятком 1:2.', 'Варите 20 минут.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
+RECIPES['pasta']    = { id: 'pasta',    name: 'Цельнозерновые макароны', emoji: '🍝', time: 12, diff: 'easy', servings: 2, kcal: 240, protein: 9, fat: 2, carbs: 48, fiber: 6, cat: '_sides', ingredients: ['200 г цельнозерновых макарон', 'Вода', 'Соль', 'Оливковое масло'], steps: ['Доведите подсоленную воду до кипения.', 'Варите макароны по инструкции (обычно 8–10 мин).', 'Откиньте на дуршлаг, сбрызните маслом.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
+RECIPES['seed-mix'] = { id: 'seed-mix', name: 'Микс семян',       emoji: '🌿', time: 5,  diff: 'easy', servings: 4, kcal: 120, protein: 5, fat: 9, carbs: 5, fiber: 3, cat: '_sides', ingredients: ['1 ст. л. семян конопли', '1 ст. л. семян льна', '1 ст. л. семян тыквы'], steps: ['Смешайте все семена.', 'Храните в закрытой банке до 2 недель.', 'Добавляйте 1–2 ст. л. к любому блюду.'], addProtein: [], addFat: [], addCarbs: [], addFiber: [] };
 
 // ─── ЗАВТРАКИ ────────────────────────────────────────────────────────────────
 RECIPES['oatmeal'] = {
     id: 'oatmeal', cat: 'breakfasts',
     name: 'Каша овсяная', emoji: '🥣', time: 10, diff: 'easy', servings: 2,
-    kcal: 260, protein: 7, fat: 5, carbs: 48,
+    kcal: 260, protein: 7, fat: 5, carbs: 48, fiber: 5,
     tags: ['до 15 мин', 'простой'],
     ingredients: [
         { name: '80 г овсяных хлопьев (цельнозерновых)', swap: 'Можно взять хлопья гречи или ячменя' },
@@ -82,9 +83,9 @@ RECIPES['oatmeal'] = {
     ],
     steps: [
         'Хлопья залейте молоком в небольшой кастрюле.',
-        'Варите на среднем огне 5–7 минут, помешивая.',
+        { text: 'Варите на среднем огне 5–7 минут, помешивая.', photo: true },
         'Добавьте корицу и снимите с огня.',
-        'Выложите в миску, сверху — ягоды и семена чиа.',
+        { text: 'Выложите в миску, сверху — ягоды и семена чиа.', photo: true },
         'Сбрызните кленовым сиропом.'
     ],
     vkVideo: null,
@@ -109,7 +110,7 @@ RECIPES['oatmeal'] = {
 RECIPES['millet-porridge'] = {
     id: 'millet-porridge', cat: 'breakfasts',
     name: 'Каша пшенная', emoji: '🌾', time: 25, diff: 'easy', servings: 2,
-    kcal: 240, protein: 6, fat: 4, carbs: 46,
+    kcal: 240, protein: 6, fat: 4, carbs: 46, fiber: 3,
     tags: ['простой'],
     ingredients: [
         { name: '100 г пшена', swap: null },
@@ -144,7 +145,7 @@ RECIPES['millet-porridge'] = {
 RECIPES['tofu-scramble'] = {
     id: 'tofu-scramble', cat: 'breakfasts',
     name: 'Тофу скрэмбл', emoji: '🍳', time: 15, diff: 'easy', servings: 2,
-    kcal: 185, protein: 14, fat: 11, carbs: 6,
+    kcal: 185, protein: 14, fat: 11, carbs: 6, fiber: 2,
     tags: ['до 15 мин', 'простой', 'без глютена'],
     ingredients: [
         { name: '200 г твёрдого тофу', swap: 'Нут варёный (200 г) — другая текстура, но тоже вкусно' },
@@ -181,7 +182,7 @@ RECIPES['tofu-scramble'] = {
 RECIPES['tofu-syrniki'] = {
     id: 'tofu-syrniki', cat: 'breakfasts',
     name: 'Сырники из тофу', emoji: '🥞', time: 30, diff: 'medium', servings: 2,
-    kcal: 220, protein: 14, fat: 8, carbs: 24,
+    kcal: 220, protein: 14, fat: 8, carbs: 24, fiber: 1,
     tags: ['до 30 мин', 'средний'],
     ingredients: [
         { name: '200 г мягкого тофу', swap: null },
@@ -214,7 +215,7 @@ RECIPES['tofu-syrniki'] = {
 RECIPES['nut-omelet'] = {
     id: 'nut-omelet', cat: 'breakfasts',
     name: 'Нутовый омлет', emoji: '🍳', time: 20, diff: 'easy', servings: 2,
-    kcal: 195, protein: 11, fat: 7, carbs: 24,
+    kcal: 195, protein: 11, fat: 7, carbs: 24, fiber: 5,
     tags: ['до 30 мин', 'простой', 'без глютена'],
     ingredients: [
         { name: '100 г нутовой муки', swap: 'Гороховая мука' },
@@ -250,7 +251,7 @@ RECIPES['nut-omelet'] = {
 RECIPES['sandwiches'] = {
     id: 'sandwiches', cat: 'breakfasts',
     name: 'Здоровые бутерброды', emoji: '🥪', time: 10, diff: 'easy', servings: 2,
-    kcal: 180, protein: 6, fat: 8, carbs: 22,
+    kcal: 180, protein: 6, fat: 8, carbs: 22, fiber: 4,
     tags: ['до 15 мин', 'простой'],
     isSublist: true,
     subItems: ['hummus', 'guacamole', 'tuna-greens', 'bean-paste', 'lentil-paste'],
@@ -276,7 +277,7 @@ RECIPES['sandwiches'] = {
 RECIPES['borscht'] = {
     id: 'borscht', cat: 'mains',
     name: 'Борщ', emoji: '🍲', time: 60, diff: 'medium', servings: 4,
-    kcal: 180, protein: 6, fat: 5, carbs: 28,
+    kcal: 180, protein: 6, fat: 5, carbs: 28, fiber: 6,
     tags: ['до 1 часа', 'средний'],
     ingredients: [
         { name: '2 средних свёклы', swap: null },
@@ -316,7 +317,7 @@ RECIPES['borscht'] = {
 RECIPES['lentil-cutlets'] = {
     id: 'lentil-cutlets', cat: 'mains',
     name: 'Котлеты из чечевицы', emoji: '🍱', time: 40, diff: 'medium', servings: 4,
-    kcal: 245, protein: 14, fat: 7, carbs: 34,
+    kcal: 245, protein: 14, fat: 7, carbs: 34, fiber: 9,
     tags: ['до 1 часа', 'средний', 'без глютена'],
     ingredients: [
         { name: '200 г красной чечевицы', swap: 'Зелёная или коричневая чечевица' },
@@ -356,7 +357,7 @@ RECIPES['lentil-cutlets'] = {
 RECIPES['pilaf'] = {
     id: 'pilaf', cat: 'mains',
     name: 'Плов', emoji: '🍚', time: 60, diff: 'medium', servings: 4,
-    kcal: 310, protein: 8, fat: 9, carbs: 52,
+    kcal: 310, protein: 8, fat: 9, carbs: 52, fiber: 6,
     tags: ['до 1 часа', 'средний'],
     ingredients: [
         { name: '200 г длиннозёрного риса', swap: 'Бурый рис — дольше готовится, но полезнее' },
@@ -390,7 +391,7 @@ RECIPES['pilaf'] = {
 RECIPES['buckwheat-tofu'] = {
     id: 'buckwheat-tofu', cat: 'mains',
     name: 'Гречка с овощами и тофу', emoji: '🥘', time: 35, diff: 'easy', servings: 2,
-    kcal: 290, protein: 18, fat: 10, carbs: 36,
+    kcal: 290, protein: 18, fat: 10, carbs: 36, fiber: 7,
     tags: ['до 30 мин', 'простой', 'без глютена'],
     ingredients: [
         { name: '150 г гречки', swap: null },
@@ -424,7 +425,7 @@ RECIPES['buckwheat-tofu'] = {
 RECIPES['ww-pancakes'] = {
     id: 'ww-pancakes', cat: 'pancakes',
     name: 'Блины с цельнозерновой мукой', emoji: '🥞', time: 30, diff: 'medium', servings: 4,
-    kcal: 195, protein: 6, fat: 5, carbs: 32,
+    kcal: 195, protein: 6, fat: 5, carbs: 32, fiber: 4,
     tags: ['до 30 мин', 'средний'],
     ingredients: [
         { name: '150 г цельнозерновой муки', swap: 'Мука из спельты' },
@@ -459,7 +460,7 @@ RECIPES['ww-pancakes'] = {
 RECIPES['green-buckwheat-pancakes'] = {
     id: 'green-buckwheat-pancakes', cat: 'pancakes',
     name: 'Блины из зелёной гречки', emoji: '💚', time: 25, diff: 'easy', servings: 4,
-    kcal: 180, protein: 7, fat: 4, carbs: 30,
+    kcal: 180, protein: 7, fat: 4, carbs: 30, fiber: 4,
     tags: ['до 30 мин', 'простой', 'без глютена'],
     ingredients: [
         { name: '150 г зелёной гречки', swap: null },
@@ -491,7 +492,7 @@ RECIPES['green-buckwheat-pancakes'] = {
 RECIPES['lentil-fritters'] = {
     id: 'lentil-fritters', cat: 'pancakes',
     name: 'Оладьи из чечевицы', emoji: '🟤', time: 30, diff: 'easy', servings: 4,
-    kcal: 200, protein: 12, fat: 5, carbs: 28,
+    kcal: 200, protein: 12, fat: 5, carbs: 28, fiber: 8,
     tags: ['до 30 мин', 'простой', 'без глютена'],
     ingredients: [
         { name: '200 г красной чечевицы', swap: null },
@@ -523,7 +524,7 @@ RECIPES['lentil-fritters'] = {
 RECIPES['oat-fritters'] = {
     id: 'oat-fritters', cat: 'pancakes',
     name: 'Оладьи из овсянки', emoji: '🥞', time: 20, diff: 'easy', servings: 2,
-    kcal: 210, protein: 7, fat: 5, carbs: 35,
+    kcal: 210, protein: 7, fat: 5, carbs: 35, fiber: 4,
     tags: ['до 30 мин', 'простой'],
     ingredients: [
         { name: '100 г овсяных хлопьев', swap: null },
@@ -555,7 +556,7 @@ RECIPES['oat-fritters'] = {
 RECIPES['hummus'] = {
     id: 'hummus', cat: 'spreads',
     name: 'Хумус домашний', emoji: '🫘', time: 10, diff: 'easy', servings: 6,
-    kcal: 170, protein: 8, fat: 9, carbs: 16,
+    kcal: 170, protein: 8, fat: 9, carbs: 16, fiber: 6,
     tags: ['до 15 мин', 'простой', 'без глютена'],
     ingredients: [
         { name: '400 г нута варёного (или консервированного)', swap: null },
@@ -581,7 +582,7 @@ RECIPES['hummus'] = {
 RECIPES['guacamole'] = {
     id: 'guacamole', cat: 'spreads',
     name: 'Гуакамоле', emoji: '🥑', time: 10, diff: 'easy', servings: 4,
-    kcal: 140, protein: 2, fat: 12, carbs: 8,
+    kcal: 140, protein: 2, fat: 12, carbs: 8, fiber: 5,
     tags: ['до 15 мин', 'простой', 'без глютена'],
     ingredients: [
         { name: '2 спелых авокадо', swap: null },
@@ -604,7 +605,7 @@ RECIPES['guacamole'] = {
 RECIPES['tuna-greens'] = {
     id: 'tuna-greens', cat: 'spreads',
     name: 'Тунец с зеленью', emoji: '🐟', time: 5, diff: 'easy', servings: 4,
-    kcal: 140, protein: 20, fat: 5, carbs: 2,
+    kcal: 140, protein: 20, fat: 5, carbs: 2, fiber: 0,
     tags: ['до 15 мин', 'простой', 'без глютена'],
     ingredients: [
         { name: '1 банка тунца в собственном соку (180 г)', swap: 'Лосось консервированный' },
@@ -626,7 +627,7 @@ RECIPES['tuna-greens'] = {
 RECIPES['bean-paste'] = {
     id: 'bean-paste', cat: 'spreads',
     name: 'Паштет из фасоли', emoji: '🫘', time: 10, diff: 'easy', servings: 6,
-    kcal: 120, protein: 7, fat: 3, carbs: 18,
+    kcal: 120, protein: 7, fat: 3, carbs: 18, fiber: 7,
     tags: ['до 15 мин', 'простой', 'без глютена'],
     ingredients: [
         { name: '400 г белой фасоли варёной', swap: 'Нут или чёрная фасоль' },
@@ -648,7 +649,7 @@ RECIPES['bean-paste'] = {
 RECIPES['lentil-paste'] = {
     id: 'lentil-paste', cat: 'spreads',
     name: 'Паштет из чечевицы', emoji: '🟤', time: 30, diff: 'easy', servings: 6,
-    kcal: 130, protein: 8, fat: 3, carbs: 18,
+    kcal: 130, protein: 8, fat: 3, carbs: 18, fiber: 8,
     tags: ['до 30 мин', 'простой', 'без глютена'],
     ingredients: [
         { name: '200 г зелёной чечевицы', swap: 'Красная чечевица' },
@@ -672,7 +673,7 @@ RECIPES['lentil-paste'] = {
 RECIPES['greek-salad'] = {
     id: 'greek-salad', cat: 'salads',
     name: 'Греческий салат', emoji: '🥗', time: 10, diff: 'easy', servings: 2,
-    kcal: 160, protein: 5, fat: 11, carbs: 12,
+    kcal: 160, protein: 5, fat: 11, carbs: 12, fiber: 3,
     tags: ['до 15 мин', 'простой'],
     ingredients: [
         { name: '200 г томатов черри', swap: null },
@@ -692,7 +693,7 @@ RECIPES['greek-salad'] = {
 RECIPES['avocado-salad'] = {
     id: 'avocado-salad', cat: 'salads',
     name: 'Салат с авокадо', emoji: '🥑', time: 10, diff: 'easy', servings: 2,
-    kcal: 210, protein: 3, fat: 17, carbs: 13,
+    kcal: 210, protein: 3, fat: 17, carbs: 13, fiber: 5,
     tags: ['до 15 мин', 'простой', 'без глютена'],
     ingredients: [
         { name: '1 авокадо', swap: null },
@@ -711,7 +712,7 @@ RECIPES['avocado-salad'] = {
 RECIPES['tabbouleh'] = {
     id: 'tabbouleh', cat: 'salads',
     name: 'Табуле', emoji: '🌿', time: 20, diff: 'easy', servings: 4,
-    kcal: 130, protein: 3, fat: 5, carbs: 20,
+    kcal: 130, protein: 3, fat: 5, carbs: 20, fiber: 4,
     tags: ['до 30 мин', 'простой'],
     ingredients: [
         { name: '100 г булгура', swap: 'Кус-кус или киноа' },
@@ -731,7 +732,7 @@ RECIPES['tabbouleh'] = {
 RECIPES['green-smoothie'] = {
     id: 'green-smoothie', cat: 'drinks',
     name: 'Зелёный смузи', emoji: '🥤', time: 5, diff: 'easy', servings: 1,
-    kcal: 160, protein: 4, fat: 7, carbs: 22,
+    kcal: 160, protein: 4, fat: 7, carbs: 22, fiber: 5,
     tags: ['до 15 мин', 'простой', 'без глютена'],
     ingredients: [
         { name: '1 огурец', swap: null },
@@ -750,7 +751,7 @@ RECIPES['green-smoothie'] = {
 RECIPES['oat-milk'] = {
     id: 'oat-milk', cat: 'drinks',
     name: 'Овсяное молоко', emoji: '🥛', time: 10, diff: 'easy', servings: 4,
-    kcal: 60, protein: 2, fat: 1, carbs: 12,
+    kcal: 60, protein: 2, fat: 1, carbs: 12, fiber: 1,
     tags: ['до 15 мин', 'простой'],
     ingredients: [
         { name: '100 г овсяных хлопьев', swap: null },

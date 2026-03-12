@@ -23,11 +23,16 @@
                 <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
                 <span id="back-label">Назад</span>
             </button>
-            <div style="font-size:13px;font-weight:800;color:var(--text);text-align:center;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="hdr-title"></div>
+            <div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.9);text-align:center;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="hdr-title"></div>
+            <div style="display:flex;align-items:center;gap:8px">
+            <button class="v-back" onclick="location.href='index.html'" title="Главная" style="padding:6px 8px">
+                <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            </button>
             <button class="v-plate-btn" onclick="openPlate()">
                 <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
                 <div class="plate-count" style="display:none">0</div>
             </button>
+            </div>
         </div>
     </div>
 </header>
@@ -65,7 +70,7 @@
     <div class="chat-fab-tip">Чат с отделом заботы</div>
 </button>
 
-<script src="data-v2.js"></script>
+<script src="data-v2.js?v=1773410000"></script>
 <script>
     Auth.requireAuth();
     updatePlateIcon();
@@ -76,13 +81,22 @@
     const params = new URLSearchParams(location.search);
     const recipeId = params.get('id');
     const fromCat  = params.get('from') || '';
+    const simpleMode = params.get('simple') === '1';
     const r = RECIPES[recipeId];
-    const cat = fromCat ? CATEGORIES[fromCat] : null;
+    const cat = (fromCat && fromCat !== 'plate') ? CATEGORIES[fromCat] : null;
 
     // Back button
     const backBtn = document.getElementById('back-btn');
-    backBtn.onclick = () => fromCat ? location.href = 'category.html?cat=' + fromCat : location.href = 'index.html';
-    if (cat) document.getElementById('back-label').textContent = cat.name;
+    if (fromCat === 'plate') {
+        backBtn.onclick = () => location.href = 'index.html';
+        document.getElementById('back-label').textContent = 'Тарелка';
+    } else {
+        backBtn.onclick = () => fromCat ? location.href = 'category.html?cat=' + fromCat : location.href = 'index.html';
+        if (cat) document.getElementById('back-label').textContent = cat.name;
+    }
+
+    // Must be declared before renderRecipe is called (used inside buildGroup)
+    const subItemRegistry = {};
 
     if (!r) {
         document.getElementById('page-content').innerHTML =
@@ -124,8 +138,12 @@
                         </button>`).join('')}
                 </div>
                 ${r.tip ? `<div class="julia-tip anim" style="margin-top:20px">
-                    <div class="julia-tip-head">🌿 Совет Юлии</div>
-                    <div class="julia-tip-text">${r.tip}</div>
+                    <div class="julia-tip-inner" style="display:flex;align-items:flex-start;gap:10px">
+                        <img src="images/icons/logo-small.png" alt="Юлия"
+                             style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;"
+                             onerror="this.style.display='none'">
+                        <div class="julia-tip-text">«${r.tip}»</div>
+                    </div>
                 </div>` : ''}
             </div>`;
         document.getElementById('page-content').innerHTML = html;
@@ -133,6 +151,10 @@
 
     // ── RECIPE PAGE ───────────────────────────────────────────────────────
     let checkedItems = {};
+
+    function isInPlate() {
+        return Plate.get().some(item => item.recipeId === r.id);
+    }
 
     function renderRecipe(r) {
         document.title = r.name + ' — Конструктор питания';
@@ -143,10 +165,11 @@
         const catObj = r.cat ? CATEGORIES[r.cat] : null;
         const catColor = catObj ? catObj.color : '#9ab89e';
 
-        const hasAdditions = (r.addProtein && r.addProtein.length) ||
-                              (r.addFat     && r.addFat.length    ) ||
-                              (r.addCarbs   && r.addCarbs.length  ) ||
-                              (r.addFiber   && r.addFiber.length  );
+        const hasAdditions = !simpleMode && (
+            (r.addProtein && r.addProtein.length) ||
+            (r.addFat     && r.addFat.length    ) ||
+            (r.addCarbs   && r.addCarbs.length  ) ||
+            (r.addFiber   && r.addFiber.length  ));
 
         const ingHtml = (r.ingredients || []).map((ing, i) => {
             const name = typeof ing === 'string' ? ing : ing.name;
@@ -161,9 +184,16 @@
             </div>`;
         }).join('');
 
-        const stepsHtml = (r.steps || []).map((s, i) =>
-            `<div class="step-item"><div class="step-num">${i+1}</div><div>${s}</div></div>`
-        ).join('');
+        const stepsHtml = (r.steps || []).map((s, i) => {
+            const text  = typeof s === 'string' ? s : s.text;
+            const photo = typeof s === 'object' && s.photo ? s.photo : null;
+            const photoHtml = photo
+                ? (photo === true
+                    ? `<div class="step-photo-placeholder"><span>📷</span><span>Фото шага ${i+1}</span></div>`
+                    : `<img class="step-photo-img" src="${photo}" alt="Шаг ${i+1}" loading="lazy" onerror="this.style.display='none'">`)
+                : '';
+            return `<div class="step-item"><div class="step-num">${i+1}</div><div style="flex:1">${text}${photoHtml}</div></div>`;
+        }).join('');
 
         const sidebarHtml = hasAdditions ? `
             <div class="add-sidebar anim anim-d2">
@@ -178,11 +208,25 @@
                 <div class="add-total" id="add-total-bar">
                     <div>
                         <div class="add-total-label">Итого (блюдо + добавки):</div>
-                        <div class="add-total-macro" id="add-macro">Б${r.protein}г · Ж${r.fat}г · У${r.carbs}г</div>
+                        <div class="add-total-macro" id="add-macro">Б${r.protein}г · Ж${r.fat}г · У${r.carbs}г · Кл${r.fiber||0}г</div>
                     </div>
                     <div class="add-total-val" id="add-total-kcal">${r.kcal} ккал</div>
                 </div>
             </div>` : '';
+
+        const alreadyInPlate = isInPlate();
+        const fiberCell = (r.fiber !== undefined)
+            ? `<div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fiber">${r.fiber}г</div><div class="kbzhu-lbl">Клетчатка</div></div>`
+            : '';
+
+        const tipHtml = r.tip ? `<div class="julia-tip">
+            <div class="julia-tip-inner" style="display:flex;align-items:flex-start;gap:10px">
+                <img src="images/icons/logo-small.png" alt="Юлия"
+                     style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;"
+                     onerror="this.style.display='none'">
+                <div class="julia-tip-text">«${r.tip}»</div>
+            </div>
+        </div>` : '';
 
         document.getElementById('page-content').innerHTML = `
             <div class="recipe-layout">
@@ -195,14 +239,14 @@
                         <span class="recipe-badge">⏱ ${r.time} мин</span>
                         <span class="recipe-badge">⚡ ${diff}</span>
                         <span class="recipe-badge">🍽 ${r.servings || 2} порции</span>
-                        <span class="recipe-badge green">🌱 Веганский</span>
                     </div>
                     <h1 class="recipe-title">${r.name}</h1>
-                    <div class="kbzhu">
-                        <div class="kbzhu-cell main"><div class="kbzhu-val">${r.kcal}</div><div class="kbzhu-lbl">Ккал</div></div>
-                        <div class="kbzhu-cell"><div class="kbzhu-val">${r.protein}г</div><div class="kbzhu-lbl">Белки</div></div>
-                        <div class="kbzhu-cell"><div class="kbzhu-val">${r.fat}г</div><div class="kbzhu-lbl">Жиры</div></div>
-                        <div class="kbzhu-cell"><div class="kbzhu-val">${r.carbs}г</div><div class="kbzhu-lbl">Углеводы</div></div>
+                    <div class="kbzhu" id="kbzhu-block">
+                        <div class="kbzhu-cell main"><div class="kbzhu-val" id="kbzhu-kcal">${r.kcal}</div><div class="kbzhu-lbl">Ккал</div></div>
+                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-protein">${r.protein}г</div><div class="kbzhu-lbl">Белки</div></div>
+                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fat">${r.fat}г</div><div class="kbzhu-lbl">Жиры</div></div>
+                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-carbs">${r.carbs}г</div><div class="kbzhu-lbl">Углеводы</div></div>
+                        ${fiberCell}
                     </div>
 
                     <div class="v-section-title" style="margin-top:20px">Ингредиенты</div>
@@ -211,7 +255,7 @@
                     <div class="v-section-title" style="margin-top:20px">Приготовление</div>
                     <div class="steps-list">${stepsHtml}</div>
 
-                    ${r.vkVideo ? `
+                    ${!simpleMode ? (r.vkVideo ? `
                         <div class="v-section-title" style="margin-top:20px">Видеорецепт</div>
                         <div class="vk-embed">
                             <div class="vk-embed-inner">
@@ -226,12 +270,9 @@
                                 <span>Видеорецепт появится после загрузки</span>
                             </div>
                             <div class="vk-badge-label">VK</div>
-                        </div>`}
+                        </div>`) : ''}
 
-                    ${r.tip ? `<div class="julia-tip">
-                        <div class="julia-tip-head">🌿 Совет Юлии</div>
-                        <div class="julia-tip-text">${r.tip}</div>
-                    </div>` : ''}
+                    ${tipHtml}
 
                     <!-- On mobile: sidebar goes here -->
                     <div id="sidebar-mobile" style="margin-top:20px;display:none">${sidebarHtml}</div>
@@ -249,7 +290,20 @@
             const d = document.getElementById('sidebar-desktop');
             if (m && d && sidebarHtml) { m.style.display = 'block'; d.innerHTML = ''; }
         }
+
+        // Check if already in plate
+        if (alreadyInPlate) {
+            const btn = document.getElementById('add-btn');
+            if (btn) {
+                btn.textContent = '✓ В тарелке';
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+                btn.style.cursor = 'default';
+            }
+        }
     }
+
+    // subItemRegistry declared above (before renderRecipe call)
 
     function buildGroup(label, prefix, items) {
         if (!items || !items.length) return '';
@@ -260,18 +314,68 @@
                     const key = prefix + '-' + i;
                     const hasRecipe = item.recipeId;
                     const hasCat = item.catLink;
-                    return `<button class="add-item" id="ai-${key}" onclick="toggleAddItem('${key}',${item.kcal||0},${item.protein||0},${item.fat||0},${item.carbs||0})" style="position:relative">
-                        <div class="add-item-check" id="chk-${key}"></div>
-                        <div class="add-item-text">
-                            ${item.name}
-                            ${hasRecipe ? `<a class="add-item-recipe-link" onclick="event.stopPropagation();location.href='recipe.html?id=${item.recipeId}&from=${fromCat}'">→ Открыть рецепт</a>` : ''}
-                            ${hasCat ? `<a class="add-item-recipe-link" onclick="event.stopPropagation();location.href='category.html?cat=${item.catLink}'">→ Выбрать из списка</a>` : ''}
-                        </div>
-                        <div class="add-item-kcal">+${item.kcal} ккал</div>
-                    </button>`;
+                    if (hasRecipe) {
+                        // Items with recipe: show "добавить в тарелку" button
+                        subItemRegistry[key] = item;
+                        const subInPlate = Plate.get().some(p => p.recipeId === item.recipeId);
+                        return `<div class="add-item" id="ai-${key}" style="position:relative">
+                            <div class="add-item-check" id="chk-${key}" style="display:none"></div>
+                            <div class="add-item-text">
+                                ${item.name}
+                                <a class="add-item-recipe-link" onclick="event.stopPropagation();location.href='recipe.html?id=${item.recipeId}&from=${fromCat}'">→ Открыть рецепт</a>
+                            </div>
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+                                <div class="add-item-kcal">+${item.kcal} ккал</div>
+                                <button id="sub-add-${key}" class="btn btn-sm ${subInPlate ? 'btn-ghost' : 'btn-green'}"
+                                    style="padding:5px 10px;font-size:10px;${subInPlate ? 'opacity:.6;cursor:default' : ''}"
+                                    onclick="addSubToPlate('${key}',event)"
+                                    ${subInPlate ? 'disabled' : ''}>
+                                    ${subInPlate ? '✓ В тарелке' : '+ В тарелку'}
+                                </button>
+                            </div>
+                        </div>`;
+                    } else {
+                        // Items without recipe: checkbox behavior
+                        return `<button class="add-item" id="ai-${key}" onclick="toggleAddItem('${key}',${item.kcal||0},${item.protein||0},${item.fat||0},${item.carbs||0},${item.fiber||0})" style="position:relative">
+                            <div class="add-item-check" id="chk-${key}"></div>
+                            <div class="add-item-text">
+                                ${item.name}
+                                ${hasCat ? `<a class="add-item-recipe-link" onclick="event.stopPropagation();location.href='category.html?cat=${item.catLink}'">→ Выбрать из списка</a>` : ''}
+                            </div>
+                            <div class="add-item-kcal">+${item.kcal} ккал</div>
+                        </button>`;
+                    }
                 }).join('')}
             </div>
         </div>`;
+    }
+
+    function addSubToPlate(key, event) {
+        event.stopPropagation();
+        const btn = document.getElementById('sub-add-' + key);
+        if (btn && btn.disabled) return;
+        const item = subItemRegistry[key];
+        if (!item) return;
+        Plate.add({
+            name: item.name,
+            emoji: item.emoji || '🍴',
+            kcal: item.kcal || 0,
+            protein: item.protein || 0,
+            fat: item.fat || 0,
+            carbs: item.carbs || 0,
+            fiber: item.fiber || 0,
+            recipeId: item.recipeId,
+            ingredients: []
+        });
+        if (btn) {
+            btn.textContent = '✓ В тарелке';
+            btn.disabled = true;
+            btn.className = 'btn btn-sm btn-ghost';
+            btn.style.opacity = '.6';
+            btn.style.cursor = 'default';
+        }
+        updatePlateIcon();
+        showToast((item.emoji || '') + ' Добавлено в тарелку!');
     }
 
     function toggleSwap(i) {
@@ -279,15 +383,14 @@
         if (el) el.classList.toggle('open');
     }
 
-    function toggleAddItem(key, kcal, protein, fat, carbs) {
+    function toggleAddItem(key, kcal, protein, fat, carbs, fiber) {
         const btn = document.getElementById('ai-' + key);
-        const chk = document.getElementById('chk-' + key);
         if (!btn) return;
         if (checkedItems[key]) {
             delete checkedItems[key];
             btn.classList.remove('checked');
         } else {
-            checkedItems[key] = { kcal, protein, fat, carbs };
+            checkedItems[key] = { kcal, protein, fat, carbs, fiber: fiber || 0 };
             btn.classList.add('checked');
         }
         updateAddTotal();
@@ -295,29 +398,42 @@
 
     function updateAddTotal() {
         if (!r) return;
-        let total = { kcal: r.kcal, protein: r.protein, fat: r.fat, carbs: r.carbs };
+        let total = { kcal: r.kcal, protein: r.protein, fat: r.fat, carbs: r.carbs, fiber: r.fiber || 0 };
         Object.values(checkedItems).forEach(v => {
             total.kcal    += v.kcal    || 0;
             total.protein += v.protein || 0;
             total.fat     += v.fat     || 0;
             total.carbs   += v.carbs   || 0;
+            total.fiber   += v.fiber   || 0;
         });
         const tEl = document.getElementById('add-total-kcal');
         const mEl = document.getElementById('add-macro');
         if (tEl) tEl.textContent = total.kcal + ' ккал';
-        if (mEl) mEl.textContent = `Б${total.protein}г · Ж${total.fat}г · У${total.carbs}г`;
+        if (mEl) mEl.textContent = `Б${total.protein}г · Ж${total.fat}г · У${total.carbs}г · Кл${total.fiber}г`;
+        // Also update KBZHU block
+        const ke = document.getElementById('kbzhu-kcal');
+        const kp = document.getElementById('kbzhu-protein');
+        const kf = document.getElementById('kbzhu-fat');
+        const kc = document.getElementById('kbzhu-carbs');
+        const kfi = document.getElementById('kbzhu-fiber');
+        if (ke) ke.textContent = total.kcal;
+        if (kp) kp.textContent = total.protein + 'г';
+        if (kf) kf.textContent = total.fat + 'г';
+        if (kc) kc.textContent = total.carbs + 'г';
+        if (kfi) kfi.textContent = total.fiber + 'г';
     }
 
     // ── ADD TO PLATE ──────────────────────────────────────────────────────
     function addToPlate() {
         if (!r) return;
-        // Add main dish
-        let total = { kcal: r.kcal, protein: r.protein, fat: r.fat, carbs: r.carbs };
+        if (isInPlate()) return;
+        let total = { kcal: r.kcal, protein: r.protein, fat: r.fat, carbs: r.carbs, fiber: r.fiber || 0 };
         Object.values(checkedItems).forEach(v => {
             total.kcal    += v.kcal    || 0;
             total.protein += v.protein || 0;
             total.fat     += v.fat     || 0;
             total.carbs   += v.carbs   || 0;
+            total.fiber   += v.fiber   || 0;
         });
 
         const extras = Object.keys(checkedItems).length
@@ -330,19 +446,21 @@
             protein: total.protein,
             fat: total.fat,
             carbs: total.carbs,
+            fiber: total.fiber,
             recipeId: r.id,
             ingredients: r.ingredients
         });
 
         showToast(r.emoji + ' Добавлено в тарелку!');
         const btn = document.getElementById('add-btn');
-        btn.textContent = '✓ Добавлено';
-        btn.disabled = true;
-        btn.style.background = 'var(--green)';
+        if (btn) {
+            btn.textContent = '✓ В тарелке';
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            btn.style.cursor = 'default';
+        }
 
-        setTimeout(() => {
-            history.back();
-        }, 1000);
+        setTimeout(() => { history.back(); }, 1000);
     }
 
     // ── MY PLATE MODAL ────────────────────────────────────────────────────
@@ -357,14 +475,16 @@
                 items.map((item, i) => `<div class="plate-item">
                     <div class="plate-item-emoji">${item.emoji || '🍴'}</div>
                     <div class="plate-item-info">
-                        <div class="plate-item-name">${item.name}</div>
+                        ${item.recipeId
+                            ? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
+                            : `<div class="plate-item-name">${item.name}</div>`}
                         <div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div>
                     </div>
                     <button class="plate-item-del" onclick="removeItemR(${i})">✕</button>
                 </div>`).join('') + '</div>' +
                 `<div class="plate-total-block" style="margin-top:12px">
                     <div class="plate-total-title">Итого</div>
-                    <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г</div>
+                    <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г${t.fiber ? ' | Кл: ' + t.fiber + 'г' : ''}</div>
                 </div>
                 <button class="btn btn-orange btn-full" style="margin-top:10px" onclick="location.href='index.html'">← Вернуться к категориям</button>`;
         }
@@ -376,7 +496,7 @@
         document.body.style.overflow = '';
     }
     function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
-    function removeItemR(i) { Plate.remove(i); openPlate(); }
+    function removeItemR(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
 </script>
 </body>
 </html>

@@ -42,17 +42,21 @@
     <div class="v-wrap">
 
         <!-- Greeting -->
-        <div class="greeting anim">
-            <div class="greeting-hi" id="greeting-hi">Привет!</div>
-            <div class="greeting-sub">Что будем готовить сегодня?</div>
-        </div>
+        <div class="intro-block" id="intro-block">
+            <div class="greeting anim">
+                <div class="greeting-hi" id="greeting-hi">Привет!</div>
+                <div class="greeting-sub">Что будем готовить сегодня?</div>
+            </div>
 
-        <!-- Julia strip -->
-        <div class="julia-strip anim anim-d1" style="margin: 16px 0;">
-            <div class="julia-ava">👩‍🍳</div>
-            <div class="julia-info">
-                <div class="julia-name">Юлия Воронова · Нутрициолог</div>
-                <div class="julia-text">Эта платформа поможет сделать каждый приём пищи полноценным и сбалансированным. Выберите категорию, откройте рецепт — и система подскажет, что добавить для идеального баланса белков, жиров и углеводов.</div>
+            <!-- Julia strip -->
+            <div class="julia-strip anim anim-d1" style="margin: 16px 0;">
+                <div class="julia-ava" style="background:none;padding:0;overflow:hidden;">
+                    <img src="../images/icons/logo-small.png" alt="Юлия" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.textContent='👩‍🍳'">
+                </div>
+                <div class="julia-info">
+                    <div class="julia-name">Юлия Воронова · Нутрициолог</div>
+                    <div class="julia-text">«Эта платформа поможет сделать каждый приём пищи полноценным и сбалансированным. Выберите категорию, откройте рецепт — и система подскажет, что добавить для идеального баланса белков, жиров и углеводов.»</div>
+                </div>
             </div>
         </div>
 
@@ -68,6 +72,15 @@
             <button class="filter-chip" data-f="time" data-v="120" onclick="toggleFilter(this)">⏰ Более часа</button>
             <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="toggleFilter(this)">🟢 Простой</button>
             <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="toggleFilter(this)">🟡 Средний</button>
+        </div>
+
+        <!-- Твоя тарелка (inline, shown when plate has items) -->
+        <div id="plate-inline-section" style="display:none; margin-bottom: 24px;">
+            <div class="v-sec-head">
+                <div class="v-sec-title">🍽️ Твоя тарелка</div>
+                <button class="btn btn-ghost btn-sm" onclick="clearPlateInline()">Очистить</button>
+            </div>
+            <div id="plate-inline-body"></div>
         </div>
 
         <!-- Categories -->
@@ -100,7 +113,7 @@
     <div class="chat-fab-tip">Чат с отделом заботы</div>
 </button>
 
-<script src="data-v2.js"></script>
+<script src="data-v2.js?v=1773410000"></script>
 <script>
     Auth.requireAuth();
     const user = Auth.getUser();
@@ -135,6 +148,7 @@
         }).join('');
     }
     renderCats();
+    renderPlateInline();
 
     // ── FILTERS ──────────────────────────────────────────────────────────
     function toggleFilter(el) {
@@ -183,7 +197,9 @@
             <div class="plate-item" id="pi-${i}">
                 <div class="plate-item-emoji">${item.emoji || '🍴'}</div>
                 <div class="plate-item-info">
-                    <div class="plate-item-name">${item.name}</div>
+                    ${item.recipeId
+                        ? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
+                        : `<div class="plate-item-name">${item.name}</div>`}
                     <div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div>
                 </div>
                 <button class="plate-item-del" onclick="removeItem(${i})">✕</button>
@@ -193,7 +209,7 @@
             <div class="plate-items">${list}</div>
             <div class="plate-total-block">
                 <div class="plate-total-title">Итого</div>
-                <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г</div>
+                <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г${t.fiber ? ' | Кл: ' + t.fiber + 'г' : ''}</div>
             </div>
             <div class="water-row" style="margin-top:12px">
                 <div class="water-label">💧 Ваш вес:</div>
@@ -211,7 +227,7 @@
         footer.style.display = 'block';
     }
 
-    function removeItem(i) { Plate.remove(i); renderPlateModal(); updatePlateIcon(); }
+    function removeItem(i) { Plate.remove(i); renderPlateModal(); updatePlateIcon(); renderPlateInline(); }
     function updateWater() {
         const w = parseInt(document.getElementById('w-inp').value) || 60;
         document.getElementById('w-res').textContent = '→ ' + (w * 30) + ' мл';
@@ -222,7 +238,42 @@
             .then(() => showToast('📋 Список скопирован!'))
             .catch(() => showToast('Не удалось скопировать'));
     }
-    function savePlate() { Plate.saveHistory(); renderPlateModal(); showToast('Тарелка сохранена в историю 🎉'); }
+    function savePlate() { Plate.saveHistory(); renderPlateModal(); renderPlateInline(); showToast('Тарелка сохранена в историю 🎉'); }
+
+    // ── INLINE PLATE SECTION ─────────────────────────────────────────────
+    function renderPlateInline() {
+        const items = Plate.get();
+        const section = document.getElementById('plate-inline-section');
+        const introBlock = document.getElementById('intro-block');
+        if (!items.length) {
+            section.style.display = 'none';
+            if (introBlock) introBlock.style.display = '';
+            return;
+        }
+        if (introBlock) introBlock.style.display = 'none';
+        section.style.display = 'block';
+        const t = Plate.totals();
+        const body = document.getElementById('plate-inline-body');
+        const list = items.map((item, i) => `
+            <div class="plate-item">
+                <div class="plate-item-emoji">${item.emoji || '🍴'}</div>
+                <div class="plate-item-info">
+                    ${item.recipeId
+                        ? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
+                        : `<div class="plate-item-name">${item.name}</div>`}
+                    <div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div>
+                </div>
+                <button class="plate-item-del" onclick="removeItemInline(${i})">✕</button>
+            </div>`).join('');
+        body.innerHTML = `
+            <div class="plate-items" style="margin-bottom:12px">${list}</div>
+            <div class="plate-total-block">
+                <div class="plate-total-title">Итого</div>
+                <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г${t.fiber ? ' | Кл: ' + t.fiber + 'г' : ''}</div>
+            </div>`;
+    }
+    function removeItemInline(i) { Plate.remove(i); renderPlateInline(); updatePlateIcon(); }
+    function clearPlateInline() { Plate.clear(); renderPlateInline(); updatePlateIcon(); }
 
     // Swipe to close
     let sy = 0;

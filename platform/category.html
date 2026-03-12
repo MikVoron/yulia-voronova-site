@@ -26,7 +26,7 @@
                 <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
                 Назад
             </button>
-            <div style="font-size:14px;font-weight:800;color:var(--text)" id="hdr-title"></div>
+            <div style="font-size:14px;font-weight:800;color:rgba(255,255,255,.9)" id="hdr-title"></div>
             <button class="v-plate-btn" onclick="openPlate()">
                 <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
                 <div class="plate-count" style="display:none">0</div>
@@ -48,7 +48,7 @@
             <button class="filter-chip" data-f="time" data-v="60" onclick="toggleFilter(this)">🕑 Менее часа</button>
             <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="toggleFilter(this)">🟢 Простой</button>
             <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="toggleFilter(this)">🟡 Средний</button>
-            <button class="filter-chip on" id="chip-clear" onclick="clearFilters()">✕ Сбросить</button>
+            <button class="filter-chip" id="chip-clear" onclick="clearFilters()">✕ Сбросить</button>
         </div>
 
         <!-- Dish list -->
@@ -77,7 +77,7 @@
     <div class="chat-fab-tip">Чат с отделом заботы</div>
 </button>
 
-<script src="data-v2.js"></script>
+<script src="data-v2.js?v=1773410000"></script>
 <script>
     Auth.requireAuth();
     updatePlateIcon();
@@ -161,14 +161,16 @@
                 items.map((item, i) => `<div class="plate-item">
                     <div class="plate-item-emoji">${item.emoji || '🍴'}</div>
                     <div class="plate-item-info">
-                        <div class="plate-item-name">${item.name}</div>
-                        <div class="plate-item-kcal">${item.kcal} ккал</div>
+                        ${item.recipeId
+                            ? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
+                            : `<div class="plate-item-name">${item.name}</div>`}
+                        <div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div>
                     </div>
                     <button class="plate-item-del" onclick="removeItemCat(${i})">✕</button>
                 </div>`).join('') + '</div>' +
                 `<div class="plate-total-block" style="margin-top:12px">
                     <div class="plate-total-title">Итого</div>
-                    <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г</div>
+                    <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г${t.fiber ? ' | Кл: ' + t.fiber + 'г' : ''}</div>
                 </div>
                 <button class="btn btn-orange btn-full" style="margin-top:10px" onclick="location.href='index.html'">← На главную</button>`;
         }
@@ -180,7 +182,7 @@
         document.body.style.overflow = '';
     }
     function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
-    function removeItemCat(i) { Plate.remove(i); openPlate(); }
+    function removeItemCat(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
 </script>
 </body>
 </html>
