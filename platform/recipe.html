@@ -76,13 +76,12 @@
     const params = new URLSearchParams(location.search);
     const recipeId = params.get('id');
     const fromCat  = params.get('from') || '';
-    const recipe   = getRecipeById ? null : null; // use helper below
     const r = RECIPES[recipeId];
     const cat = fromCat ? CATEGORIES[fromCat] : null;
 
     // Back button
     const backBtn = document.getElementById('back-btn');
-    backBtn.onclick = () => history.back();
+    backBtn.onclick = () => fromCat ? location.href = 'category.html?cat=' + fromCat : location.href = 'index.html';
     if (cat) document.getElementById('back-label').textContent = cat.name;
 
     if (!r) {
