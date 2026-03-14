@@ -834,7 +834,7 @@
 			w.document.write('<div>' + listHTML + '</div>');
 			w.document.write('</body></html>');
 			w.document.close();
-			w.onload = function(){ w.focus(); w.print(); w.close(); };
+			setTimeout(function(){ w.focus(); w.print(); }, 600);
 		}
 
 		function saveCheckup() {
@@ -847,35 +847,7 @@
 			URL.revokeObjectURL(a.href);
 		}
 
-		// ── beforeprint: скрываем всё кроме шапки+списка ──
-		var _printWrap = null;
-		window.addEventListener('beforeprint', function () {
-			_printWrap = document.createElement('div');
-			_printWrap.id = 'print-only-wrap';
-			_printWrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:#fff;z-index:99999;padding:15mm;box-sizing:border-box;font-family:inherit';
-			var hdr = document.getElementById('checkupPrintHeader').cloneNode(true);
-			hdr.style.display = 'block';
-			var list = document.getElementById('checkupList').cloneNode(true);
-			list.style.cssText = 'box-shadow:none;border:1px solid #e0dcd4;border-radius:0;overflow:visible';
-			list.querySelectorAll('.checkup-item').forEach(function(el){
-				el.style.breakInside = 'avoid';
-				el.style.pageBreakInside = 'avoid';
-			});
-			list.querySelectorAll('.checkup-group').forEach(function(el){
-				el.style.breakInside = 'avoid';
-				el.style.pageBreakInside = 'avoid';
-			});
-			_printWrap.appendChild(hdr);
-			_printWrap.appendChild(list);
-			document.body.appendChild(_printWrap);
-			document.body.style.visibility = 'hidden';
-			_printWrap.style.visibility = 'visible';
-		});
-		window.addEventListener('afterprint', function () {
-			if (_printWrap) { document.body.removeChild(_printWrap); _printWrap = null; }
-			document.body.style.visibility = '';
-		});
-	</script>
+		</script>
 	<script src="analytics.js" defer></script>
 	<noscript>
 		<div><img src="https://mc.yandex.ru/watch/106615581" style="position:absolute;left:-9999px;" alt="" /></div>
