@@ -11370,7 +11370,7 @@ button[class*="btn-"]:hover,
 }
 
 .label-title,
-
+.textarea-title,
 .radio-title,
 .checkbox-title {
     display: block;
