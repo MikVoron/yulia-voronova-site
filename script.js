@@ -5,20 +5,49 @@ document.addEventListener('DOMContentLoaded', () => {
   function initSlider(id, displayId, states) {
     const range = document.getElementById(id);
     const display = document.getElementById(displayId);
-
     if (!range || !display) return;
 
-    const update = (value) => {
-      const numeric = parseInt(value);
-      const percent = ((numeric - parseInt(range.min)) /
-                      (parseInt(range.max) - parseInt(range.min))) * 100;
+    // Точки-метки
+    const dotsEl = document.createElement('div');
+    dotsEl.className = 'slider-dots';
+    for (let v = parseInt(range.min); v <= parseInt(range.max); v++) {
+      const d = document.createElement('span');
+      d.className = 'slider-dot-mark';
+      d.dataset.v = v;
+      dotsEl.appendChild(d);
+    }
+    range.insertAdjacentElement('afterend', dotsEl);
 
-      const state = states[numeric];
-      if (state) {
-        range.style.background = `linear-gradient(to right, ${state.color} ${percent}%, #ccc ${percent}%)`;
+    let first = true;
+
+    const update = (value) => {
+      const n = parseInt(value);
+      const pct = ((n - parseInt(range.min)) / (parseInt(range.max) - parseInt(range.min))) * 100;
+      const state = states[n];
+      if (!state) return;
+
+      // Трек с цветом
+      range.style.background = `linear-gradient(to right, ${state.color} ${pct}%, #d4e0d5 ${pct}%)`;
+
+      // Точки
+      dotsEl.querySelectorAll('.slider-dot-mark').forEach(d => {
+        const active = parseInt(d.dataset.v) === n;
+        d.classList.toggle('active', active);
+        d.style.background = active ? state.color : '';
+      });
+
+      // Текст: fade при смене, сразу при первом показе
+      if (first) {
         display.textContent = state.text;
         display.style.color = state.color;
-        display.style.backgroundColor = 'transparent';
+        first = false;
+      } else {
+        display.style.opacity = '0';
+        setTimeout(() => {
+          display.textContent = state.text;
+          display.style.color = state.color;
+          display.style.opacity = '1';
+        }, 130);
       }
     };
 

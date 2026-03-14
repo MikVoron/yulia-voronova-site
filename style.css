@@ -11857,9 +11857,16 @@ button[class*="btn-"]:hover,
 
 .slider-value {
     text-align: center;
-    font-family: var(--font-cormorant);
-    font-size: 24px;
+    font-family: var(--font-montserrat);
+    font-size: 13px;
+    font-weight: 500;
     color: var(--dark-sage);
+    min-height: 2.6em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s ease;
+    padding: 4px 8px;
 }
 
 .slider-label {
@@ -11867,6 +11874,28 @@ button[class*="btn-"]:hover,
     font-size: 14px;
     color: var(--dark-text);
     margin-right: 10px;
+}
+
+/* Точки-метки под слайдером */
+.slider-dots {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 11px;
+    margin-top: -4px;
+    margin-bottom: 6px;
+}
+
+.slider-dot-mark {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #d4e0d5;
+    transition: background 0.25s ease, transform 0.25s ease;
+    flex-shrink: 0;
+}
+
+.slider-dot-mark.active {
+    transform: scale(1.5);
 }
 
 .custom-textarea-down {
