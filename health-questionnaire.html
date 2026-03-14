@@ -9,7 +9,7 @@
 	<title>Анкета клиента — Юлия Воронова</title>
 	<meta name="description" content="Анкета клиента для консультации нутрициолога Юлии Вороновой.">
 	<!-- Open Graph -->
-	<meta property="og:title" content="Анкета клиента — Юлия Воронова · Нутрициолог">
+	<meta property="og:title" content="Анкета состояния — Юлия Воронова · Нутрициолог">
 	<meta property="og:description" content="Заполните анкету перед консультацией по питанию и здоровью.">
 	<meta property="og:image" content="https://voronova.online/images/YV-og-image.webp">
 	<meta property="og:url" content="https://voronova.online/health-questionnaire.html">
@@ -18,7 +18,7 @@
 	<meta property="og:site_name" content="Юлия Воронова - Нутрициолог">
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" content="Анкета клиента — Юлия Воронова · Нутрициолог">
+	<meta name="twitter:title" content="Анкета состояния — Юлия Воронова · Нутрициолог">
 	<meta name="twitter:description" content="Заполните анкету перед консультацией по питанию и здоровью.">
 	<meta name="twitter:image" content="https://voronova.online/images/YV-big.webp">
 	<link rel="stylesheet" href="style.min.css">
@@ -665,9 +665,10 @@
 					labelEl.textContent = '';
 				}
 
-				// Update track fill
+				// Update track fill — цвет меняется по шкале из массива меток
+				var fillColor = (lbl && lbl.color) ? lbl.color : '#9ab89e';
 				var pct = ((v - input.min) / (input.max - input.min)) * 100;
-				input.style.background = 'linear-gradient(90deg,#9ab89e ' + pct + '%,#d4e4d4 ' + pct + '%)';
+				input.style.background = 'linear-gradient(90deg,' + fillColor + ' ' + pct + '%,#d4e6d8 ' + pct + '%)';
 			}
 
 			input.addEventListener('input', update);
