@@ -120,6 +120,10 @@ async function fetchPostsData() {
         if (!numMatch) continue;
         const postNumber = parseInt(numMatch[1], 10);
 
+        // Skip service messages (pinned a file, pinned a message, joined, etc.)
+        if (part.includes('tgme_widget_message_service')) continue;
+        if (part.includes('pinned a ') || part.includes('pinned the ')) continue;
+
         // Extract text
         const textMatch = part.match(/tgme_widget_message_text[^>]*>([\s\S]*?)<\/div>/);
         const rawHtml = textMatch ? textMatch[1].trim() : '';
