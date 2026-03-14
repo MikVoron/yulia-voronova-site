@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="robots" content="index, follow">
-	<title>Базовый чекап анализов — Юлия Воронова · Нутрициолог</title>
+	<title>Базовый список анализов — Юлия Воронова · Нутрициолог</title>
 	<meta name="description" content="Список базовых анализов, которые рекомендует сдать доказательный нутрициолог Юлия Воронова. Удобный чекап для отслеживания состояния здоровья.">
 	<link rel="canonical" href="https://voronova.online/checkup.html">
 	<!-- Open Graph -->
@@ -18,7 +18,7 @@
 	<meta property="og:site_name" content="Юлия Воронова - Нутрициолог">
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" content="Базовый чекап анализов — Юлия Воронова · Нутрициолог">
+	<meta name="twitter:title" content="Базовый список анализов — Юлия Воронова · Нутрициолог">
 	<meta name="twitter:description" content="Список базовых анализов для оценки состояния здоровья.">
 	<meta name="twitter:image" content="https://voronova.online/images/img-questionnares/cover-base-checkup.webp">
 	<link rel="icon" type="image/png" href="images/favicons/favicon-96x96.png" sizes="96x96">
@@ -298,6 +298,8 @@
 		}
 
 		/* ── @media print ── */
+		@page { margin: 15mm; }
+
 		@media print {
 
 			.header,
@@ -312,21 +314,25 @@
 
 			.checkup-print-header {
 				display: block !important;
-				padding: 10mm 0 8mm;
+				padding: 6mm 0 6mm;
 			}
 
 			body,
 			.checkup-page {
 				background: #fff !important;
+				min-height: 0 !important;
 			}
 
 			.checkup-wrap {
-				padding: 20px 16px;
+				padding: 0;
+				max-width: 100%;
 			}
 
 			.checkup-card {
 				box-shadow: none;
 				border: 1px solid #e0dcd4;
+				border-radius: 0;
+				overflow: visible;
 			}
 
 			.checkup-dot {
@@ -335,6 +341,7 @@
 			}
 
 			.checkup-group {
+				break-inside: avoid;
 				page-break-inside: avoid;
 			}
 
@@ -410,12 +417,12 @@
 				<p class="checkup-print-name">Юлия Воронова</p>
 				<p class="checkup-print-role">Д О К А З А Т Е Л Ь Н Ы Й &nbsp; Н У Т Р И Ц И О Л О Г</p>
 				<p class="checkup-print-contacts">www.voronova.online<br>@voronova_nutrition</p>
-				<h1 class="checkup-print-title">Базовый чекап анализов</h1>
+				<h1 class="checkup-print-title">Базовый список анализов</h1>
 			</div>
 
 			<!-- Заголовок страницы -->
 			<div class="checkup-hero">
-				<h1>Базовый чекап анализов</h1>
+				<h1>Базовый список анализов</h1>
 				<p class="checkup-hero-sub">для оценки состояния здоровья.</p>
 			</div>
 
@@ -463,7 +470,7 @@
 								<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z" />
 							</svg>
 						</span>
-						Базовый чек-ап
+						Базовый список анализов
 					</div>
 					<div class="checkup-item"><span class="checkup-dot"></span>
 						<div>
