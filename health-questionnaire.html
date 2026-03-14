@@ -655,16 +655,22 @@
 				var valueBox = display.parentElement;
 				valueBox.style.cssText = 'min-height:2.6em;display:flex;align-items:center;justify-content:center;transition:opacity 0.15s ease;padding:4px 8px;text-align:center;';
 
-				// Точки-метки под треком
+				// Обёртка для наложения точек на трек
+				var wrapper = document.createElement('div');
+				wrapper.style.cssText = 'position:relative;';
+				input.parentNode.insertBefore(wrapper, input);
+				wrapper.appendChild(input);
+
+				// Точки прямо на треке
 				var dotsEl = document.createElement('div');
-				dotsEl.style.cssText = 'display:flex;justify-content:space-between;padding:0 11px;margin-top:-4px;margin-bottom:6px;';
+				dotsEl.style.cssText = 'position:absolute;left:12px;right:12px;top:50%;transform:translateY(-50%);display:flex;justify-content:space-between;align-items:center;pointer-events:none;';
 				for (var i = parseInt(input.min); i <= parseInt(input.max); i++) {
 					var d = document.createElement('span');
-					d.style.cssText = 'width:7px;height:7px;border-radius:50%;background:#d4e0d5;transition:background 0.25s,transform 0.25s;flex-shrink:0;display:inline-block;';
+					d.style.cssText = 'width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.7);transition:background 0.25s,transform 0.25s;flex-shrink:0;display:inline-block;';
 					d.dataset.v = i;
 					dotsEl.appendChild(d);
 				}
-				input.insertAdjacentElement('afterend', dotsEl);
+				wrapper.appendChild(dotsEl);
 
 				var first = true;
 
@@ -681,9 +687,11 @@
 					// Точки
 					var dots = dotsEl.querySelectorAll('span');
 					dots.forEach(function(d) {
-						var active = parseInt(d.dataset.v) === v;
-						d.style.background = active ? lbl.color : '#d4e0d5';
-						d.style.transform = active ? 'scale(1.5)' : 'scale(1)';
+						var dv = parseInt(d.dataset.v);
+						var active = dv === v;
+						var filled = dv <= v;
+						d.style.background = active ? '#fff' : (filled ? 'rgba(255,255,255,0.5)' : 'rgba(180,200,180,0.5)');
+						d.style.transform = active ? 'scale(1.6)' : 'scale(1)';
 					});
 
 					// Текст с fade (кроме первого показа)
