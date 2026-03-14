@@ -804,37 +804,52 @@
 		function printCheckup() {
 			var avatar = document.querySelector('.checkup-print-avatar').src;
 			var listHTML = document.getElementById('checkupList').innerHTML;
-			var w = window.open('', '_blank', 'width=800,height=900');
-			w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Базовый список анализов</title><style>');
-			w.document.write('@page{margin:15mm}');
-			w.document.write('body{font-family:Montserrat,Arial,sans-serif;margin:0;padding:0;background:#fff;color:#2c2c2c}');
-			w.document.write('.ph{text-align:center;padding:8mm 0 6mm;border-bottom:1px solid #e8dcc8;margin-bottom:6mm}');
-			w.document.write('.ph img{width:72px;height:72px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 8px}');
-			w.document.write('.ph .name{font-size:20px;font-family:Georgia,serif;color:#5f6f62;margin:0 0 4px}');
-			w.document.write('.ph .role{font-size:10px;letter-spacing:2px;color:#9ab89e;margin:0 0 4px;text-transform:uppercase}');
-			w.document.write('.ph .contacts{font-size:11px;color:#7a8a7d;line-height:1.8;margin:0 0 10px}');
-			w.document.write('.ph .title{font-size:26px;font-family:Georgia,serif;color:#5f6f62;margin:0}');
-			w.document.write('.checkup-group{padding:10px 16px;border-bottom:1px solid #f0ece4}');
-			w.document.write('.checkup-group:last-child{border-bottom:none}');
-			w.document.write('.checkup-group-title{display:flex;align-items:center;gap:8px;font-size:16px;font-family:Georgia,serif;color:#5f6f62;margin-bottom:8px}');
-			w.document.write('.checkup-group-icon{display:none}');
-			w.document.write('.checkup-item{display:flex;align-items:flex-start;gap:10px;padding:5px 0;border-bottom:1px dashed #f0ece4;break-inside:avoid;page-break-inside:avoid}');
-			w.document.write('.checkup-item:last-child{border-bottom:none}');
-			w.document.write('.checkup-dot{width:16px;height:16px;min-width:16px;border-radius:50%;border:1.5px solid #9ab89e;margin-top:2px;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}');
-			w.document.write('.checkup-item-name{font-size:13px;line-height:1.5}');
-			w.document.write('.checkup-item-note{font-size:11px;color:#a0a8a2;margin-top:1px}');
-			w.document.write('</style></head><body>');
-			w.document.write('<div class="ph">');
-			w.document.write('<img src="' + avatar + '">');
-			w.document.write('<p class="name">Юлия Воронова</p>');
-			w.document.write('<p class="role">Д&nbsp;О&nbsp;К&nbsp;А&nbsp;З&nbsp;А&nbsp;Т&nbsp;Е&nbsp;Л&nbsp;Ь&nbsp;Н&nbsp;Ы&nbsp;Й &nbsp; Н&nbsp;У&nbsp;Т&nbsp;Р&nbsp;И&nbsp;Ц&nbsp;И&nbsp;О&nbsp;Л&nbsp;О&nbsp;Г</p>');
-			w.document.write('<p class="contacts">www.voronova.online<br>@voronova_nutrition</p>');
-			w.document.write('<p class="title">Базовый список анализов</p>');
-			w.document.write('</div>');
-			w.document.write('<div>' + listHTML + '</div>');
-			w.document.write('<\/body><\/html>');
-			w.document.close();
-			setTimeout(function(){ w.focus(); w.print(); }, 600);
+			var css = [
+				'@page{margin:12mm}',
+				'*{box-sizing:border-box}',
+				'body{font-family:Montserrat,Arial,sans-serif;margin:0;padding:0;background:#fff;color:#2c2c2c}',
+				'.ph{text-align:center;padding:6mm 0 5mm;border-bottom:1px solid #e8dcc8;margin-bottom:5mm}',
+				'.ph img{width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 6px}',
+				'.ph .name{font-size:18px;font-family:Georgia,serif;color:#5f6f62;margin:0 0 3px}',
+				'.ph .role{font-size:9px;letter-spacing:2px;color:#9ab89e;margin:0 0 3px;text-transform:uppercase}',
+				'.ph .contacts{font-size:11px;color:#7a8a7d;line-height:1.7;margin:0 0 6px}',
+				'.ph .title{font-size:22px;font-family:Georgia,serif;color:#5f6f62;margin:0}',
+				'.checkup-group{padding:6px 12px;border-bottom:1px solid #f0ece4}',
+				'.checkup-group:last-child{border-bottom:none}',
+				'.checkup-group-title{display:flex;align-items:center;gap:6px;font-size:14px;font-family:Georgia,serif;color:#5f6f62;margin-bottom:4px}',
+				'.checkup-group-icon{display:none}',
+				'.checkup-item{display:flex;align-items:flex-start;gap:8px;padding:4px 0;border-bottom:1px dashed #f0ece4;break-inside:avoid;page-break-inside:avoid}',
+				'.checkup-item:last-child{border-bottom:none}',
+				'.checkup-dot{width:14px;height:14px;min-width:14px;border-radius:50%;border:1.5px solid #9ab89e;margin-top:2px;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}',
+				'.checkup-item-name{font-size:12px;line-height:1.4}',
+				'.checkup-item-note{font-size:10px;color:#a0a8a2;margin-top:1px}'
+			].join('');
+			var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' + css + '<\/style><\/head><body>'
+				+ '<div class="ph">'
+				+ '<img src="' + avatar + '">'
+				+ '<p class="name">Юлия Воронова<\/p>'
+				+ '<p class="role">Д О К А З А Т Е Л Ь Н Ы Й &nbsp; Н У Т Р И Ц И О Л О Г<\/p>'
+				+ '<p class="contacts">www.voronova.online &nbsp;·&nbsp; @voronova_nutrition<\/p>'
+				+ '<p class="title">Базовый список анализов<\/p>'
+				+ '<\/div>'
+				+ '<div>' + listHTML + '<\/div>'
+				+ '<\/body><\/html>';
+			var blob = new Blob([html], {type: 'text/html;charset=utf-8'});
+			var url = URL.createObjectURL(blob);
+			var iframe = document.createElement('iframe');
+			iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:210mm;height:297mm;border:0';
+			document.body.appendChild(iframe);
+			iframe.onload = function() {
+				setTimeout(function() {
+					iframe.contentWindow.focus();
+					iframe.contentWindow.print();
+					setTimeout(function() {
+						document.body.removeChild(iframe);
+						URL.revokeObjectURL(url);
+					}, 1000);
+				}, 300);
+			};
+			iframe.src = url;
 		}
 
 		function saveCheckup() {
