@@ -805,6 +805,26 @@
 			a.click();
 			URL.revokeObjectURL(a.href);
 		}
+
+		// ── beforeprint: скрываем всё кроме шапки+списка ──
+		var _printWrap = null;
+		window.addEventListener('beforeprint', function () {
+			_printWrap = document.createElement('div');
+			_printWrap.id = 'print-only-wrap';
+			_printWrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:#fff;z-index:99999;padding:15mm;box-sizing:border-box;font-family:inherit';
+			var hdr = document.getElementById('checkupPrintHeader').cloneNode(true);
+			hdr.style.display = 'block';
+			var list = document.getElementById('checkupList').cloneNode(true);
+			_printWrap.appendChild(hdr);
+			_printWrap.appendChild(list);
+			document.body.appendChild(_printWrap);
+			document.body.style.visibility = 'hidden';
+			_printWrap.style.visibility = 'visible';
+		});
+		window.addEventListener('afterprint', function () {
+			if (_printWrap) { document.body.removeChild(_printWrap); _printWrap = null; }
+			document.body.style.visibility = '';
+		});
 	</script>
 	<script src="analytics.js" defer></script>
 	<noscript>
