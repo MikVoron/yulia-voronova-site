@@ -56,8 +56,8 @@
 			letter-spacing: 2.5px;
 			text-transform: uppercase;
 			color: var(--sage-green);
-			background: rgba(154,184,158,.12);
-			border: 1px solid rgba(154,184,158,.3);
+			background: rgba(154, 184, 158, .12);
+			border: 1px solid rgba(154, 184, 158, .3);
 			border-radius: 20px;
 			padding: 5px 16px;
 			margin-bottom: 20px;
@@ -110,25 +110,39 @@
 			color: var(--dark-sage);
 			border-color: var(--sage-green);
 		}
-		.checkup-btn-copy:hover { background: var(--sage-green); color: #fff; }
+
+		.checkup-btn-copy:hover {
+			background: var(--sage-green);
+			color: #fff;
+		}
 
 		.checkup-btn-print {
 			color: var(--dark-sage);
 			border-color: var(--beige);
 		}
-		.checkup-btn-print:hover { background: var(--beige); }
+
+		.checkup-btn-print:hover {
+			background: var(--beige);
+		}
 
 		.checkup-btn-save {
 			color: var(--dark-sage);
 			border-color: var(--beige);
 		}
-		.checkup-btn-save:hover { background: var(--beige); }
+
+		.checkup-btn-save:hover {
+			background: var(--beige);
+		}
 
 		.checkup-btn-tg {
 			color: #2AABEE;
 			border-color: #2AABEE;
 		}
-		.checkup-btn-tg:hover { background: #2AABEE; color: #fff; }
+
+		.checkup-btn-tg:hover {
+			background: #2AABEE;
+			color: #fff;
+		}
 
 		/* Уведомление о копировании */
 		.checkup-copied {
@@ -140,13 +154,16 @@
 			margin-top: -36px;
 			margin-bottom: 20px;
 		}
-		.checkup-copied.visible { display: block; }
+
+		.checkup-copied.visible {
+			display: block;
+		}
 
 		/* Карточка со списком */
 		.checkup-card {
 			background: #fff;
 			border-radius: 20px;
-			box-shadow: 0 4px 30px rgba(0,0,0,.06);
+			box-shadow: 0 4px 30px rgba(0, 0, 0, .06);
 			overflow: hidden;
 		}
 
@@ -155,7 +172,10 @@
 			padding: 28px 32px;
 			border-bottom: 1px solid #f0ece4;
 		}
-		.checkup-group:last-child { border-bottom: none; }
+
+		.checkup-group:last-child {
+			border-bottom: none;
+		}
 
 		.checkup-group-title {
 			display: flex;
@@ -172,7 +192,7 @@
 			width: 34px;
 			height: 34px;
 			border-radius: 50%;
-			background: rgba(154,184,158,.15);
+			background: rgba(154, 184, 158, .15);
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -188,7 +208,10 @@
 			padding: 9px 0;
 			border-bottom: 1px dashed #f0ece4;
 		}
-		.checkup-item:last-child { border-bottom: none; }
+
+		.checkup-item:last-child {
+			border-bottom: none;
+		}
 
 		.checkup-dot {
 			width: 20px;
@@ -231,6 +254,7 @@
 			text-align: center;
 			margin-bottom: 28px;
 		}
+
 		.checkup-print-avatar {
 			width: 72px;
 			height: 72px;
@@ -241,20 +265,31 @@
 			margin-left: auto;
 			margin-right: auto;
 		}
+
 		.checkup-print-name {
 			font-family: var(--font-cormorant);
 			font-size: 22px;
 			color: var(--dark-sage);
 			margin-bottom: 2px;
 		}
+
 		.checkup-print-role {
 			font-family: var(--font-montserrat);
 			font-size: 11px;
 			letter-spacing: 2px;
 			text-transform: uppercase;
 			color: var(--sage-green);
-			margin-bottom: 16px;
+			margin-bottom: 6px;
 		}
+
+		.checkup-print-contacts {
+			font-family: var(--font-montserrat);
+			font-size: 12px;
+			color: #7a8a7d;
+			line-height: 1.8;
+			margin-bottom: 20px;
+		}
+
 		.checkup-print-title {
 			font-family: var(--font-cormorant);
 			font-size: 30px;
@@ -264,26 +299,71 @@
 
 		/* ── @media print ── */
 		@media print {
-			.header, .footer, .bottom-nav, .checkup-actions,
-			.checkup-copied, .checkup-hero-badge, .checkup-hero-sub,
-			.checkup-hero h1, .chat-launcher { display: none !important; }
 
-			.checkup-print-header { display: block !important; }
+			.header,
+			.footer,
+			.bottom-nav,
+			.checkup-actions,
+			.checkup-copied,
+			.checkup-hero-badge,
+			.checkup-hero-sub,
+			.checkup-hero h1,
+			.chat-launcher {
+				display: none !important;
+			}
 
-			body, .checkup-page { background: #fff !important; }
-			.checkup-wrap { padding: 20px 16px; }
-			.checkup-card { box-shadow: none; border: 1px solid #e0dcd4; }
-			.checkup-dot { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-			.checkup-group { page-break-inside: avoid; }
-			.checkup-footer-note { display: block; }
+			.checkup-print-header {
+				display: block !important;
+				page-break-after: always;
+				break-after: always;
+				padding: 40mm 0 20mm;
+			}
+
+			body,
+			.checkup-page {
+				background: #fff !important;
+			}
+
+			.checkup-wrap {
+				padding: 20px 16px;
+			}
+
+			.checkup-card {
+				box-shadow: none;
+				border: 1px solid #e0dcd4;
+			}
+
+			.checkup-dot {
+				-webkit-print-color-adjust: exact;
+				print-color-adjust: exact;
+			}
+
+			.checkup-group {
+				page-break-inside: avoid;
+			}
+
+			.checkup-footer-note {
+				display: block;
+			}
 		}
 
 		/* ── Мобильная адаптация ── */
 		@media (max-width: 600px) {
-			.checkup-wrap { padding: 32px 16px 60px; }
-			.checkup-group { padding: 20px 18px; }
-			.checkup-group-title { font-size: 19px; }
-			.checkup-item-name { font-size: 13px; }
+			.checkup-wrap {
+				padding: 32px 16px 60px;
+			}
+
+			.checkup-group {
+				padding: 20px 18px;
+			}
+
+			.checkup-group-title {
+				font-size: 19px;
+			}
+
+			.checkup-item-name {
+				font-size: 13px;
+			}
 		}
 	</style>
 </head>
@@ -310,7 +390,7 @@
 						<button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-haspopup="true">
 							<span class="nav-dropdown-text">Узнай/Проверь</span>
 							<svg class="nav-dropdown-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none">
-								<path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+								<path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
 							</svg>
 						</button>
 						<div class="nav-dropdown-menu">
@@ -332,33 +412,46 @@
 			<div class="checkup-print-header" id="checkupPrintHeader">
 				<img src="images/YV-small.webp" alt="Юлия Воронова" class="checkup-print-avatar">
 				<p class="checkup-print-name">Юлия Воронова</p>
-				<p class="checkup-print-role">Доказательный нутрициолог</p>
+				<p class="checkup-print-role">Д О К А З А Т Е Л Ь Н Ы Й &nbsp; Н У Т Р И Ц И О Л О Г</p>
+				<p class="checkup-print-contacts">www.voronova.online<br>@voronova_nutrition</p>
 				<h1 class="checkup-print-title">Базовый чекап анализов</h1>
 			</div>
 
 			<!-- Заголовок страницы -->
 			<div class="checkup-hero">
-				<span class="checkup-hero-badge">Нутрициология · Здоровье</span>
 				<h1>Базовый чекап анализов</h1>
-				<p class="checkup-hero-sub">Список анализов, которые помогут получить полную картину состояния здоровья и выявить возможные дефициты.</p>
+				<p class="checkup-hero-sub">Список базовых анализов для оценки состояния здоровья.</p>
 			</div>
 
 			<!-- Кнопки действий -->
 			<div class="checkup-actions">
 				<button class="checkup-btn checkup-btn-copy" onclick="copyCheckup()">
-					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<rect x="9" y="9" width="13" height="13" rx="2" />
+						<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+					</svg>
 					Скопировать
 				</button>
 				<button class="checkup-btn checkup-btn-print" onclick="window.print()">
-					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<polyline points="6 9 6 2 18 2 18 9" />
+						<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+						<rect x="6" y="14" width="12" height="8" />
+					</svg>
 					Распечатать
 				</button>
 				<button class="checkup-btn checkup-btn-save" onclick="saveCheckup()">
-					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+						<polyline points="7 10 12 15 17 10" />
+						<line x1="12" y1="15" x2="12" y2="3" />
+					</svg>
 					Сохранить
 				</button>
 				<a class="checkup-btn checkup-btn-tg" href="https://t.me/share/url?url=https%3A%2F%2Fvoronova.online%2Fcheckup.html&text=%D0%91%D0%B0%D0%B7%D0%BE%D0%B2%D1%8B%D0%B9+%D1%87%D0%B5%D0%BA%D0%B0%D0%BF+%D0%B0%D0%BD%D0%B0%D0%BB%D0%B8%D0%B7%D0%BE%D0%B2+%E2%80%94+%D0%AE%D0%BB%D0%B8%D1%8F+%D0%92%D0%BE%D1%80%D0%BE%D0%BD%D0%BE%D0%B2%D0%B0" target="_blank" rel="noopener">
-					<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z" />
+					</svg>
 					В Telegram
 				</a>
 			</div>
@@ -370,50 +463,156 @@
 				<div class="checkup-group">
 					<div class="checkup-group-title">
 						<span class="checkup-group-icon">
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+								<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z" />
+							</svg>
 						</span>
 						Базовый чек-ап
 					</div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Общий клинический анализ крови (ОАК)</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Калий</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Натрий</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Креатинин</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Мочевина</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Аланинаминотрансфераза (АлАТ)</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Аспартатаминотрансфераза (АсАТ)</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Билирубин общий</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Билирубин прямой</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Липаза</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">ГГТ</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">ЩФ (щелочная фосфатаза)</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Глюкоза</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Свободное железо</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Ферритин</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Витамин B12 (Cobalamin)</div><div class="checkup-item-note">или голотранскобаламин (активный B12)</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Общий белок</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">ТТГ</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">25(OH)D — витамин D</div></div></div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Общий клинический анализ крови (ОАК)</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Калий</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Натрий</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Креатинин</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Мочевина</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Аланинаминотрансфераза (АлАТ)</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Аспартатаминотрансфераза (АсАТ)</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Билирубин общий</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Билирубин прямой</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Липаза</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">ГГТ</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">ЩФ (щелочная фосфатаза)</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Глюкоза</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Свободное железо</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Ферритин</div>
+						</div>
+
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Фолиевая кислота B9</div>
+						</div>
+
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Витамин B12 (Cobalamin)</div>
+							<div class="checkup-item-note">или голотранскобаламин (активный B12)</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Общий белок</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">ТТГ</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">25(OH)D — витамин D</div>
+						</div>
+					</div>
 				</div>
 
 				<div class="checkup-group">
 					<div class="checkup-group-title">
 						<span class="checkup-group-icon">
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+								<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+							</svg>
 						</span>
 						Липидный профиль
 					</div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Общий холестерин</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Холестерин-ЛПВП</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Холестерин-ЛПНП</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Триглицериды</div></div></div>
-					<div class="checkup-item"><span class="checkup-dot"></span><div><div class="checkup-item-name">Гомоцистеин</div></div></div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Общий холестерин</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Холестерин-ЛПВП</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Холестерин-ЛПНП</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Триглицериды</div>
+						</div>
+					</div>
+					<div class="checkup-item"><span class="checkup-dot"></span>
+						<div>
+							<div class="checkup-item-name">Гомоцистеин</div>
+						</div>
+					</div>
 				</div>
 
 			</div>
 
 			<p class="checkup-footer-note">
-				Список составлен нутрициологом Юлией Вороновой как ориентир.<br>
-				Итоговый набор анализов уточняется индивидуально на консультации.<br>
 				<a href="questionnaires.html" style="color:var(--sage-green);text-decoration:none;">Заполнить анкету перед консультацией →</a>
 			</p>
 
@@ -446,13 +645,19 @@
 				<div class="footer-right">
 					<div class="footer-social">
 						<a href="https://t.me/YuliaVoronova78" class="social-link" aria-label="Telegram" target="_blank" rel="noopener noreferrer">
-							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
+							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+								<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z" />
+							</svg>
 						</a>
 						<a href="https://youtube.com/@voronova_nutrition" class="social-link" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
-							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+								<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+							</svg>
 						</a>
 						<a href="https://vk.com/voronova_nutrition" class="social-link" aria-label="VK" target="_blank" rel="noopener noreferrer">
-							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.066 13.394c.49.483 1.007.952 1.404 1.526.176.253.344.513.456.808.158.42.015.882-.366.906l-2.398-.001c-.618.051-1.113-.196-1.541-.609-.338-.326-.65-.673-.972-1.01-.135-.141-.276-.269-.44-.372-.31-.195-.58-.126-.753.207-.177.338-.217.71-.239 1.084-.03.534-.232.674-.766.697-1.143.05-2.227-.12-3.23-.673-.883-.486-1.556-1.188-2.137-1.98-.954-1.3-1.696-2.735-2.363-4.207-.194-.428-.05-.66.417-.668.776-.013 1.553-.011 2.329-.002.31.004.518.19.642.473.394.904.862 1.762 1.416 2.563.148.214.299.428.513.582.244.176.43.118.546-.158.075-.18.107-.372.123-.565.052-.633.059-1.266-.01-1.897-.042-.39-.241-.643-.631-.709-.2-.033-.17-.099-.073-.199.145-.149.282-.242.554-.242h2.043c.322.064.393.209.437.532l.002 2.27c-.004.148.074.587.341.685.215.075.357-.109.486-.244.577-.606.989-1.316 1.342-2.126.132-.299.25-.608.363-.918.084-.23.215-.343.471-.337l2.597.003c.077 0 .155 0 .23.013.375.065.478.231.361.593-.185.571-.537 1.045-.888 1.516-.37.497-.762.976-1.13 1.474-.331.448-.305.672.09 1.052z"/></svg>
+							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+								<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.066 13.394c.49.483 1.007.952 1.404 1.526.176.253.344.513.456.808.158.42.015.882-.366.906l-2.398-.001c-.618.051-1.113-.196-1.541-.609-.338-.326-.65-.673-.972-1.01-.135-.141-.276-.269-.44-.372-.31-.195-.58-.126-.753.207-.177.338-.217.71-.239 1.084-.03.534-.232.674-.766.697-1.143.05-2.227-.12-3.23-.673-.883-.486-1.556-1.188-2.137-1.98-.954-1.3-1.696-2.735-2.363-4.207-.194-.428-.05-.66.417-.668.776-.013 1.553-.011 2.329-.002.31.004.518.19.642.473.394.904.862 1.762 1.416 2.563.148.214.299.428.513.582.244.176.43.118.546-.158.075-.18.107-.372.123-.565.052-.633.059-1.266-.01-1.897-.042-.39-.241-.643-.631-.709-.2-.033-.17-.099-.073-.199.145-.149.282-.242.554-.242h2.043c.322.064.393.209.437.532l.002 2.27c-.004.148.074.587.341.685.215.075.357-.109.486-.244.577-.606.989-1.316 1.342-2.126.132-.299.25-.608.363-.918.084-.23.215-.343.471-.337l2.597.003c.077 0 .155 0 .23.013.375.065.478.231.361.593-.185.571-.537 1.045-.888 1.516-.37.497-.762.976-1.13 1.474-.331.448-.305.672.09 1.052z" />
+							</svg>
 						</a>
 					</div>
 				</div>
@@ -467,31 +672,41 @@
 	<!-- Bottom Nav -->
 	<nav class="bottom-nav" aria-label="Нижняя навигация">
 		<a href="/" class="bottom-nav-item" data-nav="home">
-			<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+			<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+				<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+			</svg>
 			<span>Главная</span>
 		</a>
 		<a href="about.html" class="bottom-nav-item" data-nav="about">
-			<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+			<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+				<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+			</svg>
 			<span>Обо мне</span>
 		</a>
 		<a href="/#tariffs" class="bottom-nav-item" data-nav="tariffs">
-			<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M13,6A3,3 0 0,1 16,9A3,3 0 0,1 13,12H10V14H16V16H10V18H8V16H6V14H8V12H6V10H8V6M13,10A1,1 0 0,0 14,9A1,1 0 0,0 13,8H10V10H13Z"/></svg>
+			<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+				<path d="M13,6A3,3 0 0,1 16,9A3,3 0 0,1 13,12H10V14H16V16H10V18H8V16H6V14H8V12H6V10H8V6M13,10A1,1 0 0,0 14,9A1,1 0 0,0 13,8H10V10H13Z" />
+			</svg>
 			<span>Тарифы</span>
 		</a>
 		<a href="blog.html" class="bottom-nav-item" data-nav="blog">
-			<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+			<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+				<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+			</svg>
 			<span>Блог</span>
 		</a>
 		<a href="guides.html" class="bottom-nav-item" data-nav="guides">
 			<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-				<path d="M19 1l-1.26 2.75L15 5l2.74 1.26L19 9l1.26-2.74L23 5l-2.74-1.25z"/>
-				<path d="M12 7l-1.26 2.75L8 11l2.74 1.26L12 15l1.26-2.74L16 11l-2.74-1.25z"/>
-				<path d="M5 13l-1.26 2.75L1 17l2.74 1.26L5 21l1.26-2.74L9 17l-2.74-1.25z"/>
+				<path d="M19 1l-1.26 2.75L15 5l2.74 1.26L19 9l1.26-2.74L23 5l-2.74-1.25z" />
+				<path d="M12 7l-1.26 2.75L8 11l2.74 1.26L12 15l1.26-2.74L16 11l-2.74-1.25z" />
+				<path d="M5 13l-1.26 2.75L1 17l2.74 1.26L5 21l1.26-2.74L9 17l-2.74-1.25z" />
 			</svg>
 			<span>Гайды</span>
 		</a>
 		<a href="tests.html" class="bottom-nav-item" data-nav="tests">
-			<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M19 1H5c-1.1 0-2 .9-2 2v18l4-4h12c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm-6 15h-2v-2h2v2zm2.07-7.75-.9.92C13.45 9.9 13 10.5 13 12h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+			<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+				<path d="M19 1H5c-1.1 0-2 .9-2 2v18l4-4h12c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm-6 15h-2v-2h2v2zm2.07-7.75-.9.92C13.45 9.9 13 10.5 13 12h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
+			</svg>
 			<span>Тесты</span>
 		</a>
 	</nav>
@@ -500,75 +715,89 @@
 	<div class="chat-launcher" id="chatLauncher">
 		<div class="chat-options" id="chatOptions" aria-hidden="true">
 			<a href="https://t.me/YuliaVoronova78" class="chat-option chat-option-tg" target="_blank" rel="noopener" aria-label="Написать в Telegram">
-				<svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
+				<svg viewBox="0 0 24 24">
+					<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z" />
+				</svg>
 				<span>Юлия</span>
 			</a>
 			<button class="chat-option chat-option-tawk" id="tawkOpenBtn" type="button" aria-label="Чат с оператором">
-				<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+				<svg viewBox="0 0 24 24">
+					<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+				</svg>
 				<span>Оператор</span><span class="chat-option-badge" id="tawkBadge" aria-hidden="true"></span>
 			</button>
 		</div>
 		<button class="chat-launcher-btn" id="chatLauncherBtn" type="button" aria-label="Открыть чат" aria-expanded="false">
-			<svg class="chat-icon-msg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/><circle class="chat-dots" cx="8" cy="11" r="1.2"/><circle class="chat-dots" cx="12" cy="11" r="1.2"/><circle class="chat-dots" cx="16" cy="11" r="1.2"/></svg>
-			<svg class="chat-icon-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+			<svg class="chat-icon-msg" viewBox="0 0 24 24">
+				<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+				<circle class="chat-dots" cx="8" cy="11" r="1.2" />
+				<circle class="chat-dots" cx="12" cy="11" r="1.2" />
+				<circle class="chat-dots" cx="16" cy="11" r="1.2" />
+			</svg>
+			<svg class="chat-icon-close" viewBox="0 0 24 24">
+				<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+			</svg>
 			<span class="chat-badge" id="chatBadge" aria-hidden="true"></span>
 		</button>
 	</div>
 
 	<script src="main.min.js" defer></script>
 	<script>
-	function getCheckupText() {
-		var lines = ['БАЗОВЫЙ ЧЕКАП АНАЛИЗОВ', 'Юлия Воронова · Доказательный нутрициолог', 'voronova.online/checkup.html', ''];
-		var groups = document.querySelectorAll('.checkup-group');
-		groups.forEach(function(g) {
-			var title = g.querySelector('.checkup-group-title');
-			if (title) lines.push('── ' + title.textContent.trim() + ' ──');
-			var items = g.querySelectorAll('.checkup-item');
-			items.forEach(function(item) {
-				var name = item.querySelector('.checkup-item-name');
-				var note = item.querySelector('.checkup-item-note');
-				var line = '• ' + (name ? name.textContent.trim() : '');
-				if (note) line += ' (' + note.textContent.trim() + ')';
-				lines.push(line);
+		function getCheckupText() {
+			var lines = ['БАЗОВЫЙ ЧЕКАП АНАЛИЗОВ', 'Юлия Воронова · Доказательный нутрициолог', 'voronova.online/checkup.html', ''];
+			var groups = document.querySelectorAll('.checkup-group');
+			groups.forEach(function (g) {
+				var title = g.querySelector('.checkup-group-title');
+				if (title) lines.push('── ' + title.textContent.trim() + ' ──');
+				var items = g.querySelectorAll('.checkup-item');
+				items.forEach(function (item) {
+					var name = item.querySelector('.checkup-item-name');
+					var note = item.querySelector('.checkup-item-note');
+					var line = '• ' + (name ? name.textContent.trim() : '');
+					if (note) line += ' (' + note.textContent.trim() + ')';
+					lines.push(line);
+				});
+				lines.push('');
 			});
-			lines.push('');
-		});
-		return lines.join('\n');
-	}
+			return lines.join('\n');
+		}
 
-	function copyCheckup() {
-		var text = getCheckupText();
-		navigator.clipboard.writeText(text).then(function() {
-			var msg = document.getElementById('copiedMsg');
-			msg.classList.add('visible');
-			setTimeout(function() { msg.classList.remove('visible'); }, 3000);
-		}).catch(function() {
-			// fallback
-			var ta = document.createElement('textarea');
-			ta.value = text;
-			ta.style.position = 'fixed';
-			ta.style.opacity = '0';
-			document.body.appendChild(ta);
-			ta.select();
-			document.execCommand('copy');
-			document.body.removeChild(ta);
-			var msg = document.getElementById('copiedMsg');
-			msg.classList.add('visible');
-			setTimeout(function() { msg.classList.remove('visible'); }, 3000);
-		});
-	}
+		function copyCheckup() {
+			var text = getCheckupText();
+			navigator.clipboard.writeText(text).then(function () {
+				var msg = document.getElementById('copiedMsg');
+				msg.classList.add('visible');
+				setTimeout(function () { msg.classList.remove('visible'); }, 3000);
+			}).catch(function () {
+				// fallback
+				var ta = document.createElement('textarea');
+				ta.value = text;
+				ta.style.position = 'fixed';
+				ta.style.opacity = '0';
+				document.body.appendChild(ta);
+				ta.select();
+				document.execCommand('copy');
+				document.body.removeChild(ta);
+				var msg = document.getElementById('copiedMsg');
+				msg.classList.add('visible');
+				setTimeout(function () { msg.classList.remove('visible'); }, 3000);
+			});
+		}
 
-	function saveCheckup() {
-		var text = getCheckupText();
-		var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-		var a = document.createElement('a');
-		a.href = URL.createObjectURL(blob);
-		a.download = 'checkup-анализы-воронова.txt';
-		a.click();
-		URL.revokeObjectURL(a.href);
-	}
+		function saveCheckup() {
+			var text = getCheckupText();
+			var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+			var a = document.createElement('a');
+			a.href = URL.createObjectURL(blob);
+			a.download = 'checkup-анализы-воронова.txt';
+			a.click();
+			URL.revokeObjectURL(a.href);
+		}
 	</script>
 	<script src="analytics.js" defer></script>
-	<noscript><div><img src="https://mc.yandex.ru/watch/106615581" style="position:absolute;left:-9999px;" alt=""/></div></noscript>
+	<noscript>
+		<div><img src="https://mc.yandex.ru/watch/106615581" style="position:absolute;left:-9999px;" alt="" /></div>
+	</noscript>
 </body>
+
 </html>
