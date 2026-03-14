@@ -34,6 +34,10 @@
 	<link rel="icon" type="image/svg+xml" href="images/favicons/favicon.svg">
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 	<link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon.png">
+<style>
+	.form-container input[type="range"]::-webkit-slider-thumb { background: var(--slider-thumb, var(--sage-green)) !important; }
+	.form-container input[type="range"]::-moz-range-thumb    { background: var(--slider-thumb, var(--sage-green)) !important; }
+</style>
 </head>
 
 <body class="questionnaire-form-page">
@@ -669,9 +673,10 @@
 					var lbl = labels[v];
 					if (!lbl) return;
 
-					// Трек
+					// Трек + цвет ползунка
 					var pct = ((v - parseInt(input.min)) / (parseInt(input.max) - parseInt(input.min))) * 100;
 					input.style.background = 'linear-gradient(90deg,' + lbl.color + ' ' + pct + '%,#d4e6d8 ' + pct + '%)';
+					input.style.setProperty('--slider-thumb', lbl.color);
 
 					// Точки
 					var dots = dotsEl.querySelectorAll('span');
