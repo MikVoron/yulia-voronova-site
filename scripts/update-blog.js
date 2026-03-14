@@ -6,7 +6,7 @@ const CHANNEL = 'voronova_nutrition';
 const BLOG_FILE = path.join(__dirname, '..', 'blog.html');
 const SITEMAP_FILE = path.join(__dirname, '..', 'sitemap.xml');
 const BLOG_IMAGES_DIR = path.join(__dirname, '..', 'images', 'blog');
-const MAX_POSTS = 6;
+const MAX_POSTS = 9;
 const PREVIEW_LENGTH = 200;
 const RANDOM_PICS = [
     'images/blog/random-pic-blog-1.webp',
