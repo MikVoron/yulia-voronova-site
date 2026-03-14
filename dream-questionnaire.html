@@ -195,11 +195,11 @@
 			checkbox.addEventListener('change', updateBtn);
 
 			// Перехват submit — трясти чекбокс если не отмечен
-			form.addEventListener('submit', function(e) {
+			btn.addEventListener('click', function(e) {
 				if (!checkbox.checked) {
 					e.preventDefault();
 					label.classList.remove('shake');
-					void label.offsetWidth; // reflow для перезапуска анимации
+					void label.offsetWidth;
 					label.classList.add('shake');
 					setTimeout(function() { label.classList.remove('shake'); }, 600);
 				}

@@ -748,7 +748,7 @@
 
 			checkbox.addEventListener('change', updateBtn);
 
-			form.addEventListener('submit', function(e) {
+			btn.addEventListener('click', function(e) {
 				if (!checkbox.checked) {
 					e.preventDefault();
 					label.classList.remove('shake');
