@@ -618,6 +618,46 @@
 
 	<script src="main.min.js" defer></script>
 
+	<script>
+	(function() {
+		var ENERGY_LABELS   = ['','😴 Полное истощение','😔 Низкий уровень','😐 Средний уровень','🙂 Хороший уровень','⚡ Отличная энергия!'];
+		var ACTIVITY_LABELS = ['','🛋 Сидячий образ жизни','🚶 Малоподвижный','🚴 Умеренная активность','🏃 Активный','🏋 Очень активный'];
+		var STRESS_LABELS   = ['','😌 Практически нет','🙂 Невысокий','😐 Умеренный','😟 Высокий','😰 Очень высокий'];
+
+		function initSlider(inputId, displayId, labels) {
+			var input   = document.getElementById(inputId);
+			var display = document.getElementById(displayId);
+			if (!input || !display) return;
+
+			function update() {
+				var v = input.value;
+				display.textContent = v;
+				var labelEl = display.parentElement.querySelector('.slider-text-label');
+				if (!labelEl) {
+					labelEl = document.createElement('div');
+					labelEl.className = 'slider-text-label';
+					labelEl.style.cssText = 'font-family:var(--font-montserrat,sans-serif);font-size:13px;color:var(--dark-sage,#5f6f62);margin-top:4px;text-align:center;';
+					display.parentElement.appendChild(labelEl);
+				}
+				labelEl.textContent = labels[v] || '';
+
+				// Update track fill
+				var pct = ((v - input.min) / (input.max - input.min)) * 100;
+				input.style.background = 'linear-gradient(90deg,#9ab89e ' + pct + '%,#d4e4d4 ' + pct + '%)';
+			}
+
+			input.addEventListener('input', update);
+			update();
+		}
+
+		document.addEventListener('DOMContentLoaded', function() {
+			initSlider('energy-level',   'energyDisplay',   ENERGY_LABELS);
+			initSlider('activity-level', 'activityDisplay', ACTIVITY_LABELS);
+			initSlider('stress-level',   'valueDisplay',    STRESS_LABELS);
+		});
+	})();
+	</script>
+
 	<script src="analytics.js" defer></script>
 	<noscript>
 		<div><img src="https://mc.yandex.ru/watch/106615581" style="position:absolute; left:-9999px;" alt="" /></div>
