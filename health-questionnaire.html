@@ -647,28 +647,57 @@
 				var display = document.getElementById(displayId);
 				if (!input || !display) return;
 
-				function update() {
-					var v = input.value;
-					display.textContent = v;
-					var labelEl = display.parentElement.querySelector('.slider-text-label');
-					if (!labelEl) {
-						labelEl = document.createElement('div');
-						labelEl.className = 'slider-text-label';
-						labelEl.style.cssText = 'font-family:var(--font-montserrat,sans-serif);font-size:13px;color:var(--dark-sage,#5f6f62);margin-top:4px;text-align:center;';
-						display.parentElement.appendChild(labelEl);
-					}
-					var lbl = labels[v];
-					if (lbl) {
-						labelEl.textContent = lbl.text || lbl;
-						labelEl.style.color = lbl.color || 'var(--dark-sage,#5f6f62)';
-					} else {
-						labelEl.textContent = '';
-					}
+				// Фиксированная высота блока текста
+				var valueBox = display.parentElement;
+				valueBox.style.cssText = 'min-height:2.6em;display:flex;align-items:center;justify-content:center;transition:opacity 0.15s ease;padding:4px 8px;text-align:center;';
 
-					// Update track fill — цвет меняется по шкале из массива меток
-					var fillColor = (lbl && lbl.color) ? lbl.color : '#9ab89e';
-					var pct = ((v - input.min) / (input.max - input.min)) * 100;
-					input.style.background = 'linear-gradient(90deg,' + fillColor + ' ' + pct + '%,#d4e6d8 ' + pct + '%)';
+				// Точки-метки под треком
+				var dotsEl = document.createElement('div');
+				dotsEl.style.cssText = 'display:flex;justify-content:space-between;padding:0 11px;margin-top:-4px;margin-bottom:6px;';
+				for (var i = parseInt(input.min); i <= parseInt(input.max); i++) {
+					var d = document.createElement('span');
+					d.style.cssText = 'width:7px;height:7px;border-radius:50%;background:#d4e0d5;transition:background 0.25s,transform 0.25s;flex-shrink:0;display:inline-block;';
+					d.dataset.v = i;
+					dotsEl.appendChild(d);
+				}
+				input.insertAdjacentElement('afterend', dotsEl);
+
+				var first = true;
+
+				function update() {
+					var v = parseInt(input.value);
+					var lbl = labels[v];
+					if (!lbl) return;
+
+					// Трек
+					var pct = ((v - parseInt(input.min)) / (parseInt(input.max) - parseInt(input.min))) * 100;
+					input.style.background = 'linear-gradient(90deg,' + lbl.color + ' ' + pct + '%,#d4e6d8 ' + pct + '%)';
+
+					// Точки
+					var dots = dotsEl.querySelectorAll('span');
+					dots.forEach(function(d) {
+						var active = parseInt(d.dataset.v) === v;
+						d.style.background = active ? lbl.color : '#d4e0d5';
+						d.style.transform = active ? 'scale(1.5)' : 'scale(1)';
+					});
+
+					// Текст с fade (кроме первого показа)
+					var text = lbl.text || lbl;
+					if (first) {
+						display.textContent = text;
+						display.style.color = lbl.color;
+						display.style.fontFamily = 'var(--font-montserrat,sans-serif)';
+						display.style.fontSize = '13px';
+						display.style.fontWeight = '500';
+						first = false;
+					} else {
+						valueBox.style.opacity = '0';
+						setTimeout(function() {
+							display.textContent = text;
+							display.style.color = lbl.color;
+							valueBox.style.opacity = '1';
+						}, 130);
+					}
 				}
 
 				input.addEventListener('input', update);
