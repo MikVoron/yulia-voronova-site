@@ -832,7 +832,7 @@
 			w.document.write('<p class="title">Базовый список анализов</p>');
 			w.document.write('</div>');
 			w.document.write('<div>' + listHTML + '</div>');
-			w.document.write('</body></html>');
+			w.document.write('<\/body><\/html>');
 			w.document.close();
 			setTimeout(function(){ w.focus(); w.print(); }, 600);
 		}
