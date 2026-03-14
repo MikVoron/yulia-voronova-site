@@ -10,7 +10,7 @@
 	<meta name="description" content="Анкета клиента для консультации нутрициолога Юлии Вороновой.">
 	<!-- Open Graph -->
 	<meta property="og:title" content="Анкета состояния — Юлия Воронова · Нутрициолог">
-	<meta property="og:description" content="Заполните анкету перед консультацией по питанию и здоровью.">
+	<meta property="og:description" content="Пожалуйста, заполните анкету перед консультацией.">
 	<meta property="og:image" content="https://voronova.online/images/YV-og-image.webp">
 	<meta property="og:url" content="https://voronova.online/health-questionnaire.html">
 	<meta property="og:type" content="website">
@@ -619,68 +619,68 @@
 	<script src="main.min.js" defer></script>
 
 	<script>
-	(function() {
-		var ENERGY_LABELS   = ['',
-			{text:'Низкий — вообще нет энергии', color:'#e76f51'},
-			{text:'Пониженный — энергии хватает на пару часов', color:'#f28482'},
-			{text:'Средний — энергии хватает на половину дня', color:'#f5c542'},
-			{text:'Хороший — энергии хватает почти на весь день', color:'#a5c974'},
-			{text:'Высокий — энергии хватает на весь день', color:'#74c69d'}
-		];
-		var ACTIVITY_LABELS = ['',
-			{text:'Малоподвижный — преимущественно сидячий образ жизни', color:'#e76f51'},
-			{text:'Умеренная активность — немного движения', color:'#f28482'},
-			{text:'Средняя активность — сбалансированный ритм', color:'#f5c542'},
-			{text:'Активный — регулярные тренировки или прогулки', color:'#a5c974'},
-			{text:'Высокоактивный — интенсивные нагрузки и движение', color:'#74c69d'}
-		];
-		var STRESS_LABELS   = ['',
-			{text:'Минимальный уровень стресса', color:'#74c69d'},
-			{text:'Низкий стресс', color:'#a5c974'},
-			{text:'Умеренный стресс', color:'#f5c542'},
-			{text:'Высокий стресс', color:'#f28482'},
-			{text:'Постоянный ежедневный стресс', color:'#e76f51'}
-		];
+		(function () {
+			var ENERGY_LABELS = ['',
+				{ text: 'Низкий — вообще нет энергии', color: '#e76f51' },
+				{ text: 'Пониженный — энергии хватает на пару часов', color: '#f28482' },
+				{ text: 'Средний — энергии хватает на половину дня', color: '#f5c542' },
+				{ text: 'Хороший — энергии хватает почти на весь день', color: '#a5c974' },
+				{ text: 'Высокий — энергии хватает на весь день', color: '#74c69d' }
+			];
+			var ACTIVITY_LABELS = ['',
+				{ text: 'Малоподвижный — преимущественно сидячий образ жизни', color: '#e76f51' },
+				{ text: 'Умеренная активность — немного движения', color: '#f28482' },
+				{ text: 'Средняя активность — сбалансированный ритм', color: '#f5c542' },
+				{ text: 'Активный — регулярные тренировки или прогулки', color: '#a5c974' },
+				{ text: 'Высокоактивный — интенсивные нагрузки и движение', color: '#74c69d' }
+			];
+			var STRESS_LABELS = ['',
+				{ text: 'Минимальный уровень стресса', color: '#74c69d' },
+				{ text: 'Низкий стресс', color: '#a5c974' },
+				{ text: 'Умеренный стресс', color: '#f5c542' },
+				{ text: 'Высокий стресс', color: '#f28482' },
+				{ text: 'Постоянный ежедневный стресс', color: '#e76f51' }
+			];
 
-		function initSlider(inputId, displayId, labels) {
-			var input   = document.getElementById(inputId);
-			var display = document.getElementById(displayId);
-			if (!input || !display) return;
+			function initSlider(inputId, displayId, labels) {
+				var input = document.getElementById(inputId);
+				var display = document.getElementById(displayId);
+				if (!input || !display) return;
 
-			function update() {
-				var v = input.value;
-				display.textContent = v;
-				var labelEl = display.parentElement.querySelector('.slider-text-label');
-				if (!labelEl) {
-					labelEl = document.createElement('div');
-					labelEl.className = 'slider-text-label';
-					labelEl.style.cssText = 'font-family:var(--font-montserrat,sans-serif);font-size:13px;color:var(--dark-sage,#5f6f62);margin-top:4px;text-align:center;';
-					display.parentElement.appendChild(labelEl);
+				function update() {
+					var v = input.value;
+					display.textContent = v;
+					var labelEl = display.parentElement.querySelector('.slider-text-label');
+					if (!labelEl) {
+						labelEl = document.createElement('div');
+						labelEl.className = 'slider-text-label';
+						labelEl.style.cssText = 'font-family:var(--font-montserrat,sans-serif);font-size:13px;color:var(--dark-sage,#5f6f62);margin-top:4px;text-align:center;';
+						display.parentElement.appendChild(labelEl);
+					}
+					var lbl = labels[v];
+					if (lbl) {
+						labelEl.textContent = lbl.text || lbl;
+						labelEl.style.color = lbl.color || 'var(--dark-sage,#5f6f62)';
+					} else {
+						labelEl.textContent = '';
+					}
+
+					// Update track fill — цвет меняется по шкале из массива меток
+					var fillColor = (lbl && lbl.color) ? lbl.color : '#9ab89e';
+					var pct = ((v - input.min) / (input.max - input.min)) * 100;
+					input.style.background = 'linear-gradient(90deg,' + fillColor + ' ' + pct + '%,#d4e6d8 ' + pct + '%)';
 				}
-				var lbl = labels[v];
-				if (lbl) {
-					labelEl.textContent = lbl.text || lbl;
-					labelEl.style.color = lbl.color || 'var(--dark-sage,#5f6f62)';
-				} else {
-					labelEl.textContent = '';
-				}
 
-				// Update track fill — цвет меняется по шкале из массива меток
-				var fillColor = (lbl && lbl.color) ? lbl.color : '#9ab89e';
-				var pct = ((v - input.min) / (input.max - input.min)) * 100;
-				input.style.background = 'linear-gradient(90deg,' + fillColor + ' ' + pct + '%,#d4e6d8 ' + pct + '%)';
+				input.addEventListener('input', update);
+				update();
 			}
 
-			input.addEventListener('input', update);
-			update();
-		}
-
-		document.addEventListener('DOMContentLoaded', function() {
-			initSlider('energy-level',   'energyDisplay',   ENERGY_LABELS);
-			initSlider('activity-level', 'activityDisplay', ACTIVITY_LABELS);
-			initSlider('stress-level',   'valueDisplay',    STRESS_LABELS);
-		});
-	})();
+			document.addEventListener('DOMContentLoaded', function () {
+				initSlider('energy-level', 'energyDisplay', ENERGY_LABELS);
+				initSlider('activity-level', 'activityDisplay', ACTIVITY_LABELS);
+				initSlider('stress-level', 'valueDisplay', STRESS_LABELS);
+			});
+		})();
 	</script>
 
 	<script src="analytics.js" defer></script>
@@ -704,7 +704,12 @@
 			</button>
 		</div>
 		<button class="chat-launcher-btn" id="chatLauncherBtn" type="button" aria-label="Открыть чат" aria-expanded="false">
-			<svg class="chat-icon-msg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" /><circle class="chat-dots" cx="8" cy="11" r="1.2"/><circle class="chat-dots" cx="12" cy="11" r="1.2"/><circle class="chat-dots" cx="16" cy="11" r="1.2"/></svg>
+			<svg class="chat-icon-msg" viewBox="0 0 24 24">
+				<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+				<circle class="chat-dots" cx="8" cy="11" r="1.2" />
+				<circle class="chat-dots" cx="12" cy="11" r="1.2" />
+				<circle class="chat-dots" cx="16" cy="11" r="1.2" />
+			</svg>
 			<svg class="chat-icon-close" viewBox="0 0 24 24">
 				<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
 			</svg>
