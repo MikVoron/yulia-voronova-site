@@ -612,7 +612,15 @@
 
 			</section>
 
-			<button type="submit" class="submit-button">Отправить анкету</button>
+			<div class="form-privacy" style="margin-bottom:16px;">
+				<label class="privacy-checkbox">
+					<input type="checkbox" id="privacyCheck" name="privacy">
+					<span class="privacy-checkmark"></span>
+					<span class="privacy-text">Я согласен с <a href="personal-data-processing-policy.html" target="_blank" rel="noopener noreferrer">Политикой обработки персональных данных</a></span>
+				</label>
+			</div>
+
+			<button type="submit" class="submit-button" id="submitBtn" disabled style="opacity:0.5;cursor:not-allowed;">Отправить анкету</button>
 
 		</form>
 
@@ -723,6 +731,15 @@
 				initSlider('stress-level', 'valueDisplay', STRESS_LABELS);
 			});
 		})();
+	</script>
+
+	<script>
+		document.getElementById('privacyCheck').addEventListener('change', function() {
+			var btn = document.getElementById('submitBtn');
+			btn.disabled = !this.checked;
+			btn.style.opacity = this.checked ? '' : '0.5';
+			btn.style.cursor = this.checked ? '' : 'not-allowed';
+		});
 	</script>
 
 	<script src="analytics.js" defer></script>
