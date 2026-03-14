@@ -620,9 +620,27 @@
 
 	<script>
 	(function() {
-		var ENERGY_LABELS   = ['','😴 Полное истощение','😔 Низкий уровень','😐 Средний уровень','🙂 Хороший уровень','⚡ Отличная энергия!'];
-		var ACTIVITY_LABELS = ['','🛋 Сидячий образ жизни','🚶 Малоподвижный','🚴 Умеренная активность','🏃 Активный','🏋 Очень активный'];
-		var STRESS_LABELS   = ['','😌 Практически нет','🙂 Невысокий','😐 Умеренный','😟 Высокий','😰 Очень высокий'];
+		var ENERGY_LABELS   = ['',
+			{text:'Низкий — вообще нет энергии', color:'#e76f51'},
+			{text:'Пониженный — энергии хватает на пару часов', color:'#f28482'},
+			{text:'Средний — энергии хватает на половину дня', color:'#f5c542'},
+			{text:'Хороший — энергии хватает почти на весь день', color:'#a5c974'},
+			{text:'Высокий — энергии хватает на весь день', color:'#74c69d'}
+		];
+		var ACTIVITY_LABELS = ['',
+			{text:'Малоподвижный — преимущественно сидячий образ жизни', color:'#e76f51'},
+			{text:'Умеренная активность — немного движения', color:'#f28482'},
+			{text:'Средняя активность — сбалансированный ритм', color:'#f5c542'},
+			{text:'Активный — регулярные тренировки или прогулки', color:'#a5c974'},
+			{text:'Высокоактивный — интенсивные нагрузки и движение', color:'#74c69d'}
+		];
+		var STRESS_LABELS   = ['',
+			{text:'Минимальный уровень стресса', color:'#74c69d'},
+			{text:'Низкий стресс', color:'#a5c974'},
+			{text:'Умеренный стресс', color:'#f5c542'},
+			{text:'Высокий стресс', color:'#f28482'},
+			{text:'Постоянный ежедневный стресс', color:'#e76f51'}
+		];
 
 		function initSlider(inputId, displayId, labels) {
 			var input   = document.getElementById(inputId);
@@ -639,7 +657,13 @@
 					labelEl.style.cssText = 'font-family:var(--font-montserrat,sans-serif);font-size:13px;color:var(--dark-sage,#5f6f62);margin-top:4px;text-align:center;';
 					display.parentElement.appendChild(labelEl);
 				}
-				labelEl.textContent = labels[v] || '';
+				var lbl = labels[v];
+				if (lbl) {
+					labelEl.textContent = lbl.text || lbl;
+					labelEl.style.color = lbl.color || 'var(--dark-sage,#5f6f62)';
+				} else {
+					labelEl.textContent = '';
+				}
 
 				// Update track fill
 				var pct = ((v - input.min) / (input.max - input.min)) * 100;
