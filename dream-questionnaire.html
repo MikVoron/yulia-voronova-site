@@ -170,7 +170,7 @@
 				</label>
 			</div>
 
-			<button type="submit" class="submit-button" id="submitBtn" disabled style="opacity:0.5;cursor:not-allowed;">Отправить анкету</button>
+			<button type="submit" class="submit-button" id="submitBtn" style="opacity:0.5;cursor:not-allowed;">Отправить анкету</button>
 		</form>
 
 		<p class="back-link"><a href="questionnaires.html">← Вернуться к анкетам</a></p>
@@ -179,12 +179,32 @@
 	<script src="main.min.js" defer></script>
 
 	<script>
-		document.getElementById('privacyCheck').addEventListener('change', function() {
+		(function() {
+			var checkbox = document.getElementById('privacyCheck');
 			var btn = document.getElementById('submitBtn');
-			btn.disabled = !this.checked;
-			btn.style.opacity = this.checked ? '' : '0.5';
-			btn.style.cursor = this.checked ? '' : 'not-allowed';
-		});
+			var label = checkbox.closest('.privacy-checkbox');
+			var form = btn.closest('form');
+
+			// Обновить вид кнопки
+			function updateBtn() {
+				var ok = checkbox.checked;
+				btn.style.opacity = ok ? '' : '0.5';
+				btn.style.cursor = ok ? '' : 'not-allowed';
+			}
+
+			checkbox.addEventListener('change', updateBtn);
+
+			// Перехват submit — трясти чекбокс если не отмечен
+			form.addEventListener('submit', function(e) {
+				if (!checkbox.checked) {
+					e.preventDefault();
+					label.classList.remove('shake');
+					void label.offsetWidth; // reflow для перезапуска анимации
+					label.classList.add('shake');
+					setTimeout(function() { label.classList.remove('shake'); }, 600);
+				}
+			});
+		})();
 	</script>
 
 	<script src="analytics.js" defer></script>
