@@ -1387,6 +1387,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 { transform: 'scale(0.99)', offset: 0.80 },
                 { transform: 'scale(1)' }
             ], { duration: 380, easing: 'ease-out', fill: 'none' });
+
+            // Панель: лёгкий подпрыгивание при тапе
+            var nav = item.closest('.bottom-nav');
+            if (nav && nav.animate) {
+                nav.animate([
+                    { transform: 'translateY(0)' },
+                    { transform: 'translateY(-6px)', offset: 0.20 },
+                    { transform: 'translateY(2px)',  offset: 0.55 },
+                    { transform: 'translateY(-1px)', offset: 0.78 },
+                    { transform: 'translateY(0)' }
+                ], { duration: 450, easing: 'ease-out', fill: 'none' });
+            }
         }, { passive: true });
     });
 
