@@ -12778,15 +12778,17 @@ button[class*="btn-"]:hover,
     .tariff-card-collapsible {
         touch-action: pan-y;
         position: absolute;
-        left: 50%;
+        left: 0;
+        right: 0;
         top: 0;
         width: calc(100% - 50px);
         max-width: 340px;
+        margin: 0 auto;
         transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
                     opacity 0.4s ease,
                     border-color 0.3s ease,
                     box-shadow 0.3s ease;
-        transform: translateX(-50%);
+        transform: translateX(0);
         opacity: 0;
         pointer-events: none;
         border: 2px solid rgba(139, 166, 139, 0.25);
@@ -12794,14 +12796,14 @@ button[class*="btn-"]:hover,
 
     /* Р’Р°СЂРёР°РЅС‚ 2: Р’РµРµСЂ - РєР°СЂС‚РѕС‡РєРё РїРѕРІС‘СЂРЅСѓС‚С‹ РєР°Рє РєРѕР»РѕРґР° + Р±РѕСЂРґРµСЂС‹ */
     .tariff-card-collapsible.stack-back-2 {
-        transform: translateX(calc(-50% + 18px)) rotate(4deg);
+        transform: translateX(18px) rotate(4deg);
         opacity: 0.5;
         z-index: 1;
         border-color: rgba(139, 166, 139, 0.15);
     }
 
     .tariff-card-collapsible.stack-back-1 {
-        transform: translateX(calc(-50% + 9px)) rotate(2deg);
+        transform: translateX(9px) rotate(2deg);
         opacity: 0.7;
         z-index: 2;
         border-color: rgba(139, 166, 139, 0.25);
@@ -12809,7 +12811,7 @@ button[class*="btn-"]:hover,
 
     /* РђРєС‚РёРІРЅР°СЏ РєР°СЂС‚РѕС‡РєР° - РІРѕР·РґСѓС€РЅС‹Р№ Р±РѕСЂРґРµСЂ */
     .tariff-card-collapsible.active {
-        transform: translateX(-50%) rotate(0);
+        transform: translateX(0) rotate(0);
         opacity: 1;
         z-index: 10;
         pointer-events: auto;
@@ -12821,11 +12823,12 @@ button[class*="btn-"]:hover,
     .tariff-card-collapsible.active.is-open {
         position: relative;
         left: auto;
+        right: auto;
         top: auto;
         transform: none;
         width: 100%;
         max-width: 100%;
-        margin: 0 auto;
+        margin: 0;
     }
 
     /* РљРѕРіРґР° РєР°СЂС‚РѕС‡РєР° СЂР°СЃРєСЂС‹С‚Р° - СЃРєСЂС‹РІР°РµРј РѕСЃС‚Р°Р»СЊРЅС‹Рµ */
