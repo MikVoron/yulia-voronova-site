@@ -15542,3 +15542,18 @@ button[class*="btn-"]:hover,
 .about-icon.leaf-sway {
     animation: leaf-sway 0.85s ease-out;
 }
+
+/* Блог — перелистывание страницы */
+.blog-icon {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+}
+@keyframes page-flip {
+    0%   { transform: perspective(120px) rotateY(0deg); }
+    35%  { transform: perspective(120px) rotateY(-25deg); }
+    65%  { transform: perspective(120px) rotateY(10deg); }
+    100% { transform: perspective(120px) rotateY(0deg); }
+}
+.blog-icon.page-flip {
+    animation: page-flip 0.6s ease-out;
+}

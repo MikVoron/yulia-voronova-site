@@ -1452,28 +1452,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Блог: строчки появляются на листе и исчезают
     function animBlog(item) {
-        var svg = item.querySelector('svg');
-        if (!svg) return;
-        var sr = svg.getBoundingClientRect();
-        var ir = item.getBoundingClientRect();
-        if (!sr.width) return;
-        var cx = sr.left - ir.left + sr.width  / 2;
-        var cy = sr.top  - ir.top  + sr.height / 2;
-        var w  = sr.width * 0.58;
-        [0, 1, 2].forEach(function (i) {
-            var line = document.createElement('span');
-            line.style.cssText = 'position:absolute;height:1.5px;background:currentColor;border-radius:1px;' +
-                'top:' + (cy - 4 + i * 5) + 'px;left:' + (cx - w / 2) + 'px;' +
-                'width:' + w + 'px;transform-origin:left center;transform:scaleX(0);' +
-                'pointer-events:none;z-index:10';
-            item.appendChild(line);
-            var a = line.animate([
-                { transform: 'scaleX(0)', opacity: 1   },
-                { transform: 'scaleX(1)', opacity: 1,   offset: 0.45 },
-                { transform: 'scaleX(1)', opacity: 0,   offset: 0.85 },
-                { transform: 'scaleX(0)', opacity: 0   }
-            ], { duration: 700, delay: i * 110, easing: 'ease-out', fill: 'forwards' });
-            a.onfinish = function () { line.remove(); };
+        var icon = item.querySelector('.blog-icon');
+        if (!icon) return;
+        icon.classList.remove('page-flip');
+        void icon.offsetWidth;
+        icon.classList.add('page-flip');
+        icon.addEventListener('animationend', function handler() {
+            icon.classList.remove('page-flip');
+            icon.removeEventListener('animationend', handler);
         });
     }
 
