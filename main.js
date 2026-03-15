@@ -745,7 +745,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const btn = card.querySelector('.expand-indicator-line');
             const lineText = btn ? btn.querySelector('.line-text') : null;
 
+            // Если карточка была открыта — гасим transition чтобы не улетала вправо
+            if (card.classList.contains('is-open')) {
+                card.style.transition = 'none';
+            }
             card.classList.remove('is-open');
+            void card.offsetWidth; // форсируем reflow — position: absolute + left: 50% применяются до re-enable
+            card.style.transition = '';
             if (details) {
                 details.classList.remove('is-visible');
             }
