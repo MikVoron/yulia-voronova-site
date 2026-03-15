@@ -1418,28 +1418,17 @@ document.addEventListener('DOMContentLoaded', () => {
         ], { duration: 650, easing: 'ease-out', fill: 'none' });
     }
 
-    // Человек: рисуется круг вокруг иконки и исчезает
+    // Девушка: волосы поднимаются от ветра и возвращаются
     function animAbout(item) {
-        var svg = item.querySelector('svg');
-        if (!svg) return;
-        var sr = svg.getBoundingClientRect();
-        var ir = item.getBoundingClientRect();
-        if (!sr.width) return;
-        var cx = sr.left - ir.left + sr.width  / 2;
-        var cy = sr.top  - ir.top  + sr.height / 2;
-        var d  = sr.width + 10;
-        var ring = document.createElement('span');
-        ring.style.cssText = 'position:absolute;border-radius:50%;border:2px solid currentColor;' +
-            'width:' + d + 'px;height:' + d + 'px;' +
-            'left:' + (cx - d / 2) + 'px;top:' + (cy - d / 2) + 'px;' +
-            'pointer-events:none;z-index:10;box-sizing:border-box';
-        item.appendChild(ring);
-        var a = ring.animate([
-            { transform: 'scale(0.3)', opacity: 0   },
-            { transform: 'scale(1)',   opacity: 0.85, offset: 0.45 },
-            { transform: 'scale(1.5)', opacity: 0   }
-        ], { duration: 750, easing: 'ease-out', fill: 'forwards' });
-        a.onfinish = function () { ring.remove(); };
+        var hair = item.querySelector('.girl-hair');
+        if (!hair) return;
+        hair.classList.remove('hair-animate');
+        void hair.offsetWidth;
+        hair.classList.add('hair-animate');
+        hair.addEventListener('animationend', function handler() {
+            hair.classList.remove('hair-animate');
+            hair.removeEventListener('animationend', handler);
+        });
     }
 
     // Рубль: переворачивается как монета (scaleX 1→0→1)

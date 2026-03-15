@@ -15522,3 +15522,19 @@ button[class*="btn-"]:hover,
     transform-origin: center 90%;
     transform-box: fill-box;
 }
+
+/* Девушка — волосы от ветра */
+.girl-hair {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+}
+@keyframes hair-rise {
+    0%   { transform: translateY(0px)   rotate(0deg); }
+    25%  { transform: translateY(-4px)  rotate(-12deg); }
+    55%  { transform: translateY(-3px)  rotate(8deg); }
+    80%  { transform: translateY(-1px)  rotate(-4deg); }
+    100% { transform: translateY(0px)   rotate(0deg); }
+}
+.girl-hair.hair-animate {
+    animation: hair-rise 0.85s ease-out;
+}
