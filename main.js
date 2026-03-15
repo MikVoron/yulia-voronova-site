@@ -1427,14 +1427,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Девушка: волосы поднимаются от ветра и возвращаются
     function animAbout(item) {
-        var hair = item.querySelector('.girl-hair');
-        if (!hair) return;
-        hair.classList.remove('hair-animate');
-        void hair.offsetWidth;
-        hair.classList.add('hair-animate');
-        hair.addEventListener('animationend', function handler() {
-            hair.classList.remove('hair-animate');
-            hair.removeEventListener('animationend', handler);
+        var icon = item.querySelector('.about-icon');
+        if (!icon) return;
+        icon.classList.remove('about-pulse');
+        void icon.offsetWidth;
+        icon.classList.add('about-pulse');
+        icon.addEventListener('animationend', function handler() {
+            icon.classList.remove('about-pulse');
+            icon.removeEventListener('animationend', handler);
         });
     }
 
