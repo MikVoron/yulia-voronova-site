@@ -1429,11 +1429,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function animAbout(item) {
         var icon = item.querySelector('.about-icon');
         if (!icon) return;
-        icon.classList.remove('about-pulse');
+        icon.classList.remove('leaf-sway');
         void icon.offsetWidth;
-        icon.classList.add('about-pulse');
+        icon.classList.add('leaf-sway');
         icon.addEventListener('animationend', function handler() {
-            icon.classList.remove('about-pulse');
+            icon.classList.remove('leaf-sway');
             icon.removeEventListener('animationend', handler);
         });
     }
