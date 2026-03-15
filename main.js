@@ -1394,17 +1394,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 { transform: 'scale(1)' }
             ], { duration: 380, easing: 'ease-out', fill: 'none' });
 
-            // Панель: лёгкий подпрыгивание при тапе
-            var nav = item.closest('.bottom-nav');
-            if (nav && nav.animate) {
-                nav.animate([
-                    { transform: 'translateY(0)' },
-                    { transform: 'translateY(-6px)', offset: 0.20 },
-                    { transform: 'translateY(2px)',  offset: 0.55 },
-                    { transform: 'translateY(-1px)', offset: 0.78 },
-                    { transform: 'translateY(0)' }
-                ], { duration: 450, easing: 'ease-out', fill: 'none' });
-            }
         }, { passive: true });
     });
 
@@ -1664,4 +1653,26 @@ document.addEventListener('DOMContentLoaded', () => {
             triggerAnim(testsBtn, 'shaking', 700);
         }, { passive: true });
     }
+}());
+
+// Bottom nav panel pulse — pointerdown (touch + mouse)
+(function () {
+    var lock = false;
+    document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
+        item.addEventListener('pointerdown', function () {
+            if (lock) return;
+            lock = true;
+            setTimeout(function () { lock = false; }, 500);
+            var nav = item.closest('.bottom-nav');
+            if (nav && nav.animate) {
+                nav.animate([
+                    { transform: 'translateY(0)' },
+                    { transform: 'translateY(-10px)', offset: 0.20 },
+                    { transform: 'translateY(3px)',   offset: 0.58 },
+                    { transform: 'translateY(-2px)',  offset: 0.80 },
+                    { transform: 'translateY(0)' }
+                ], { duration: 500, easing: 'ease-out', fill: 'none' });
+            }
+        });
+    });
 }());
