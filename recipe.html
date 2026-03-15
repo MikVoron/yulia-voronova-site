@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Recipe — Modern Minimalism</title>
+	<link rel="stylesheet" href="shared.css">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Space+Mono&display=swap" rel="stylesheet">
+</head>
+
+<body>
+	<div class="container">
+		<nav class="nav-bar">
+			<a href="dashboard.html" class="brand" style="text-decoration:none; color:#000;">← BACK</a>
+			<div class="brand">RECIPE // 01</div>
+		</nav>
+
+		<div class="recipe-header-grid">
+			<div>
+				<h1 class="recipe-title">КАША<br>ПШЕННАЯ</h1>
+				<div style="font-family: var(--font-mono); font-size: 14px; margin-bottom: 30px;">
+					TIME: 25M // DIFF: EASY // KCAL: 240
+				</div>
+
+				<div style="margin-bottom: 40px;">
+					<h4 style="text-transform: uppercase; font-weight: 800; margin-bottom: 15px;">Ингредиенты</h4>
+					<div style="border-top: var(--border-thin);">
+						<div class="dock-item"><span>Пшено</span><span>100г</span></div>
+						<div class="dock-item"><span>Молоко растительное</span><span>250мл</span></div>
+						<div class="dock-item"><span>Масло</span><span>1 ч.л.</span></div>
+					</div>
+				</div>
+
+				<div class="tv-box">
+					[ VIDEO_PLAYER: VK_SOURCE ]
+				</div>
+			</div>
+
+			<aside>
+				<img src="https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=600&q=80" class="recipe-visual" alt="Dish">
+
+				<div style="margin-top: 30px;">
+					<div class="stat-window window-satiety">
+						<h4>Сытость (Белок)</h4>
+						<label class="custom-check">
+							<input type="checkbox"> <span>150мл Йогурта</span>
+						</label>
+						<label class="custom-check">
+							<input type="checkbox"> <span>1 Вареное яйцо</span>
+						</label>
+					</div>
+
+					<div class="stat-window window-energy">
+						<h4>Энергия (Жиры)</h4>
+						<label class="custom-check">
+							<input type="checkbox"> <span>30г Орехов</span>
+						</label>
+						<label class="custom-check" onclick="alert('Link to Seed Mix')">
+							<input type="checkbox"> <span>Микс семян</span>
+						</label>
+					</div>
+
+					<div class="stat-window window-fresh">
+						<h4>Свежесть (Клетчатка)</h4>
+						<label class="custom-check">
+							<input type="checkbox"> <span>Горсть ягод</span>
+						</label>
+					</div>
+
+					<button class="btn-black" id="addBtn">Add to Plate</button>
+				</div>
+			</aside>
+		</div>
+	</div>
+
+	<script>
+		const addBtn = document.getElementById('addBtn');
+
+		// Check if already in plate
+		const plate = JSON.parse(localStorage.getItem('my_plate') || '[]');
+		if (plate.some(i => i.id === 'millet_minimal')) {
+			addBtn.disabled = true;
+			addBtn.innerText = 'ADDED';
+		}
+
+		addBtn.addEventListener('click', () => {
+			const item = {
+				id: 'millet_minimal',
+				name: 'КАША ПШЕННАЯ',
+				kcal: 240
+			};
+			plate.push(item);
+			localStorage.setItem('my_plate', JSON.stringify(plate));
+			addBtn.disabled = true;
+			addBtn.innerText = 'DONE';
+			setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
+		});
+	</script>
+</body>
+
+</html>
