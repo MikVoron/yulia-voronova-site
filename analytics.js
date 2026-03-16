@@ -60,7 +60,7 @@ window.addEventListener('load', function () {
 		m[i].l = 1 * new Date();
 		k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
 	})(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=106615581', 'ym');
-	ym(106615581, 'init', { clickmap: true, trackLinks: true, accurateTrackBounce: true });
+	ym(106615581, 'init', { clickmap: true, trackLinks: true, accurateTrackBounce: true, webvisor: true });
 
 	// tawk.to
 	var tawk = document.createElement('script');
