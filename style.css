@@ -14964,6 +14964,9 @@ button[class*="btn-"]:hover,
     .bottom-nav-item.active svg {
         transform: scale(1.12);
     }
+    .bottom-nav-item.active svg[stroke] {
+        stroke-width: 2;
+    }
 
     .bottom-nav-item:active {
         color: var(--sage-green);
@@ -15076,6 +15079,9 @@ button[class*="btn-"]:hover,
         opacity: 1;
         transform: scale(1.16);
     }
+    .bottom-nav-item.active svg[stroke] {
+        stroke-width: 2;
+    }
 
     .bottom-nav-item:active {
         transform: translateY(1px);
@@ -15127,6 +15133,9 @@ button[class*="btn-"]:hover,
     .bottom-nav-item.active svg {
         opacity: 1;
         transform: scale(1.17);
+    }
+    .bottom-nav-item.active svg[stroke] {
+        stroke-width: 2;
     }
 
     .bottom-nav-item:active {
@@ -15181,6 +15190,9 @@ button[class*="btn-"]:hover,
     .bottom-nav-item.active svg {
         opacity: 1;
         transform: scale(1.18);
+    }
+    .bottom-nav-item.active svg[stroke] {
+        stroke-width: 2;
     }
 
     .bottom-nav-item:active {

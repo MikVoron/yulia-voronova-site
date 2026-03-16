@@ -1645,6 +1645,19 @@ document.addEventListener('DOMContentLoaded', () => {
 (function () {
     var lock = false;
     document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
+        // Задержка перехода для кнопок, уводящих на другую страницу — чтобы анимация успела отыграть
+        item.addEventListener('click', function (e) {
+            var href = item.getAttribute('href') || '';
+            var isExternal = href.startsWith('http');
+            var isSamePage = href === '' || href === '#' || href.startsWith('#') ||
+                             href === window.location.pathname ||
+                             href === window.location.pathname + window.location.hash;
+            if (!isExternal && !isSamePage) {
+                e.preventDefault();
+                setTimeout(function () { window.location.href = href; }, 220);
+            }
+        });
+
         item.addEventListener('pointerdown', function () {
             if (lock) return;
             lock = true;
@@ -1657,7 +1670,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     { transform: 'translateY(3px)',   offset: 0.58 },
                     { transform: 'translateY(-2px)',  offset: 0.80 },
                     { transform: 'translateY(0)' }
-                ], { duration: 500, easing: 'ease-out', fill: 'none' });
+                ], { duration: 400, easing: 'ease-out', fill: 'none' });
             }
         });
     });
