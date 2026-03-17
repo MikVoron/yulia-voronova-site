@@ -6,11 +6,13 @@
     <title>Рецепт — Конструктор питания</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style-v1.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style-v4.css">
     <style>
-        /* Sublist page styles */
         .sublist-items { display: flex; flex-direction: column; gap: 10px; }
+        #hdr-title { font-size:13px; font-weight:700; color:var(--text-2);
+                     text-align:center; flex:1; overflow:hidden;
+                     text-overflow:ellipsis; white-space:nowrap; }
     </style>
 </head>
 <body class="v-page" style="padding-bottom: 90px;">
@@ -23,7 +25,7 @@
                 <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
                 <span id="back-label">Назад</span>
             </button>
-            <div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.9);text-align:center;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="hdr-title"></div>
+            <div id="hdr-title"></div>
             <div style="display:flex;align-items:center;gap:8px">
             <button class="v-back" onclick="location.href='index.html'" title="Главная" style="padding:6px 8px">
                 <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
