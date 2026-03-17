@@ -119,6 +119,16 @@
     Auth.requireAuth();
     const user = Auth.getUser();
 
+    // Фото-заглушки для карточек категорий
+    const CAT_PHOTOS = {
+        breakfasts: '../images/blog/post-290.webp',
+        mains:      '../images/cook-healthy-food.webp',
+        pancakes:   '../images/blog/random-pic-blog-2.webp',
+        spreads:    '../images/blog/random-pic-blog-3.webp',
+        salads:     '../images/blog/random-pic-blog-4.webp',
+        drinks:     '../images/blog/random-pic-blog-1.webp',
+    };
+
     // Init header
     if (user) {
         document.getElementById('u-ava').textContent  = user.name.charAt(0).toUpperCase();
@@ -140,8 +150,16 @@
         const grid = document.getElementById('cat-grid');
         grid.innerHTML = Object.values(CATEGORIES).map(cat => {
             const count = getCategoryDishes(cat.id, activeFilters).length;
+            const photo = CAT_PHOTOS[cat.id] || '';
+            const iconStyle = photo
+                ? `background-image:url('${photo}');background-size:cover;background-position:center;position:relative;`
+                : '';
+            const overlay = photo
+                ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,.25);border-radius:0"></div>
+                   <span style="position:relative;z-index:1;font-size:36px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))">${cat.emoji}</span>`
+                : cat.emoji;
             return `<button class="cat-card" onclick="location.href='category.html?cat=${cat.id}'">
-                <div class="cat-icon-wrap">${cat.emoji}</div>
+                <div class="cat-icon-wrap" style="${iconStyle}">${overlay}</div>
                 <div class="cat-body">
                     <div class="cat-name">${cat.name}</div>
                     <div class="cat-desc">${cat.desc}</div>

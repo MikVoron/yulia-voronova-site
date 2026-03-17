@@ -160,12 +160,13 @@ img { display: block; max-width: 100%; }
 .cat-card:active { transform: scale(.99); }
 
 .cat-icon-wrap {
-    height: 90px; display: flex; align-items: center; justify-content: center;
+    height: 130px; display: flex; align-items: center; justify-content: center;
     font-size: 42px; background: var(--bg-alt);
     border-bottom: 1px solid var(--border);
-    transition: background var(--tr);
+    transition: opacity var(--tr); overflow: hidden;
+    position: relative;
 }
-.cat-card:hover .cat-icon-wrap { background: var(--accent-l); }
+.cat-card:hover .cat-icon-wrap { opacity: .9; }
 
 .cat-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; }
 .cat-name { font-size: 14px; font-weight: 800; color: var(--text);
@@ -206,9 +207,9 @@ img { display: block; max-width: 100%; }
 .recipe-sidebar { position: sticky; top: 76px; }
 
 .recipe-hero-img {
-    width: 100%; aspect-ratio: 4/3; border-radius: var(--r-l);
+    width: 100%; aspect-ratio: 16/9; border-radius: var(--r-l);
     display: flex; align-items: center; justify-content: center;
-    font-size: 100px; margin-bottom: 20px; position: relative; overflow: hidden;
+    margin-bottom: 20px; position: relative; overflow: hidden;
     background: var(--bg-alt);
 }
 .recipe-hero-img-label {
@@ -483,7 +484,7 @@ img { display: block; max-width: 100%; }
 @media (max-width: 460px) {
     .cat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
     .kbzhu { grid-template-columns: repeat(auto-fit, minmax(60px,1fr)); }
-    .cat-icon-wrap { height: 72px; font-size: 34px; }
+    .cat-icon-wrap { height: 100px; }
 }
 
 /* ── ANIMATIONS ──────────────────────────────────────── */
