@@ -1377,6 +1377,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // - Spring jump via element.animate() / WAAPI (more reliable than CSS @keyframes on iOS)
 // - Navigation delayed 200ms so jump is at peak when page transitions
 (function () {
+    var navJumpLock = false;
     document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
         item.addEventListener('touchstart', function () {
             // 1. Flash background colour (CSS class)
@@ -1385,26 +1386,33 @@ document.addEventListener('DOMContentLoaded', () => {
             item.classList.add('nav-pressed');
             setTimeout(function () { item.classList.remove('nav-pressed'); }, 600);
 
-            // Мягкое нажатие: слегка продавливается, плавно возвращается, без прыжков
-            item.animate([
-                { transform: 'scale(1)' },
-                { transform: 'scale(0.88)', offset: 0.18 },
-                { transform: 'scale(1.04)', offset: 0.55 },
-                { transform: 'scale(0.99)', offset: 0.80 },
-                { transform: 'scale(1)' }
-            ], { duration: 380, easing: 'ease-out', fill: 'none' });
+            // 2. Мягкое нажатие: слегка продавливается, плавно возвращается
+            if (item.animate) {
+                item.animate([
+                    { transform: 'scale(1)' },
+                    { transform: 'scale(0.88)', offset: 0.18 },
+                    { transform: 'scale(1.04)', offset: 0.55 },
+                    { transform: 'scale(0.99)', offset: 0.80 },
+                    { transform: 'scale(1)' }
+                ], { duration: 380, easing: 'ease-out', fill: 'none' });
+            }
 
+            // 3. Подпрыгивание всей панели навигации
+            if (!navJumpLock) {
+                navJumpLock = true;
+                setTimeout(function () { navJumpLock = false; }, 500);
+                var nav = item.closest('.bottom-nav');
+                if (nav && nav.animate) {
+                    nav.animate([
+                        { transform: 'translateY(0)' },
+                        { transform: 'translateY(-10px)', offset: 0.20 },
+                        { transform: 'translateY(3px)',   offset: 0.58 },
+                        { transform: 'translateY(-2px)',  offset: 0.80 },
+                        { transform: 'translateY(0)' }
+                    ], { duration: 400, easing: 'ease-out', fill: 'none' });
+                }
+            }
         }, { passive: true });
-    });
-
-    // Delay navigation so animation is mid-spring when page changes (Telegram feel)
-    document.querySelectorAll('a.bottom-nav-item').forEach(function (link) {
-        link.addEventListener('click', function (e) {
-            if (e.ctrlKey || e.metaKey || e.shiftKey) return;
-            e.preventDefault();
-            var href = link.getAttribute('href');
-            setTimeout(function () { window.location.href = href; }, 200);
-        });
     });
 }());
 
@@ -1463,6 +1471,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Колба: покачивается как жидкость внутри
+    function animTests(item) {
+        var svg = item.querySelector('svg');
+        if (!svg || !svg.animate) return;
+        svg.animate([
+            { transform: 'rotate(0deg)' },
+            { transform: 'rotate(-18deg)', offset: 0.20 },
+            { transform: 'rotate(14deg)',  offset: 0.50 },
+            { transform: 'rotate(-7deg)',  offset: 0.72 },
+            { transform: 'rotate(3deg)',   offset: 0.88 },
+            { transform: 'rotate(0deg)' }
+        ], { duration: 700, easing: 'ease-out', fill: 'none' });
+    }
+
     // Лампочка: лучи появляются вокруг иконки и исчезают
     function animGuides(item) {
         var svg = item.querySelector('svg');
@@ -1496,7 +1518,8 @@ document.addEventListener('DOMContentLoaded', () => {
         about:   animAbout,
         tariffs: animTariffs,
         blog:    animBlog,
-        guides:  animGuides
+        guides:  animGuides,
+        tests:   animTests
     };
 
     document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
@@ -1641,13 +1664,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 }());
 
-// Bottom nav panel pulse — pointerdown (touch + mouse)
+// Bottom nav — задержка навигации для кросс-страничных переходов (анимация успевает отыграть)
 (function () {
-    var lock = false;
-    document.querySelectorAll('.bottom-nav-item').forEach(function (item) {
-        // Задержка перехода для кнопок, уводящих на другую страницу — чтобы анимация успела отыграть
-        item.addEventListener('click', function (e) {
-            var href = item.getAttribute('href') || '';
+    document.querySelectorAll('a.bottom-nav-item').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+            var href = link.getAttribute('href') || '';
             var isExternal = href.startsWith('http');
             var isSamePage = href === '' || href === '#' || href.startsWith('#') ||
                              href === window.location.pathname ||
@@ -1655,22 +1677,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isExternal && !isSamePage) {
                 e.preventDefault();
                 setTimeout(function () { window.location.href = href; }, 220);
-            }
-        });
-
-        item.addEventListener('pointerdown', function () {
-            if (lock) return;
-            lock = true;
-            setTimeout(function () { lock = false; }, 500);
-            var nav = item.closest('.bottom-nav');
-            if (nav && nav.animate) {
-                nav.animate([
-                    { transform: 'translateY(0)' },
-                    { transform: 'translateY(-10px)', offset: 0.20 },
-                    { transform: 'translateY(3px)',   offset: 0.58 },
-                    { transform: 'translateY(-2px)',  offset: 0.80 },
-                    { transform: 'translateY(0)' }
-                ], { duration: 400, easing: 'ease-out', fill: 'none' });
             }
         });
     });
