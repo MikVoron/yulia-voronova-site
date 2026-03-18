@@ -12136,6 +12136,42 @@ button[class*="btn-"]:hover,
 }
 
 /* Burger Menu */
+/* ── USER BUTTON (login / cabinet) ─────────────────── */
+.user-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,.38);
+    background: rgba(255,255,255,.1);
+    color: var(--white);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background .2s, border-color .2s, transform .15s;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: var(--font-montserrat);
+    letter-spacing: 0;
+    padding: 0;
+}
+.user-btn:hover {
+    background: rgba(255,255,255,.22);
+    border-color: rgba(255,255,255,.7);
+    transform: translateY(-1px);
+}
+.user-btn--auth {
+    background: rgba(255,255,255,.18);
+    border-color: rgba(255,255,255,.6);
+}
+.user-btn svg { pointer-events: none; }
+
+/* On desktop: move user-btn after nav using flex order */
+@media (min-width: 769px) {
+    .user-btn { order: 10; }
+}
+
 .burger-menu {
     display: none;
     flex-direction: column;

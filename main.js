@@ -1654,3 +1654,19 @@ document.addEventListener('DOMContentLoaded', () => {
         el.addEventListener('click', function () { openLightbox(el.src, el.alt); });
     });
 }());
+
+// User cabinet button — auth check
+(function () {
+    var btn = document.getElementById('user-btn');
+    if (!btn) return;
+    var user = null;
+    try { user = JSON.parse(localStorage.getItem('hp_user')); } catch (e) {}
+    if (user && user.name) {
+        btn.classList.add('user-btn--auth');
+        btn.title = user.name + ' — Личный кабинет';
+        btn.innerHTML = '<span style="pointer-events:none">' + user.name.charAt(0).toUpperCase() + '</span>';
+        btn.addEventListener('click', function () { window.location.href = 'platform/index.html'; });
+    } else {
+        btn.addEventListener('click', function () { window.location.href = 'platform/login.html'; });
+    }
+}());

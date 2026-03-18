@@ -12,7 +12,7 @@
         .greeting { padding: 24px 0 0; }
         .greeting-hi { font-family: var(--serif); font-size: clamp(22px,4vw,32px);
                        font-weight: 700; color: var(--text); margin-bottom: 4px; }
-        .greeting-sub { font-size: 14px; color: var(--text-2); }
+        .greeting-sub { font-size: clamp(13px,1.8vw,16px); color: var(--accent); font-family: var(--sans); font-weight: 500; letter-spacing: .3px; text-transform: uppercase; margin-top: 4px; }
         main { padding-bottom: 80px; }
     </style>
 </head>
@@ -22,11 +22,27 @@
 <header class="v-header" id="hdr">
     <div class="v-wrap">
         <div class="v-header-inner">
-            <a href="../index.html" class="v-logo">Юлия <span>Воронова</span></a>
+            <a href="../index.html" class="v-logo-block">
+                <img src="../images/icons/logo-small.png" class="v-logo-img" alt="Юлия Воронова" onerror="this.style.display='none'">
+                <div>
+                    <div class="v-logo-title">Умная тарелка</div>
+                    <div class="v-logo-name">Юлия Воронова</div>
+                    <div class="v-logo-prof">Доказательный нутрициолог</div>
+                </div>
+            </a>
             <div class="v-header-right">
-                <div class="v-user-badge" id="user-badge" onclick="location.href='cabinet.html'">
-                    <div class="v-user-avatar" id="u-ava">?</div>
-                    <div class="v-user-name" id="u-name">Войти</div>
+                <div class="v-user-wrap" id="user-wrap">
+                    <div class="v-user-badge" id="user-badge" onclick="toggleUserMenu(event)">
+                        <div class="v-user-avatar" id="u-ava">?</div>
+                        <div class="v-user-name" id="u-name">Войти</div>
+                    </div>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
+                        <label class="user-dd-item" for="ava-upload">🖼️ Сменить аватар</label>
+                        <input type="file" id="ava-upload" accept="image/*" style="display:none" onchange="handleAvatarUpload(this)">
+                        <div class="user-dd-sep"></div>
+                        <button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
+                    </div>
                 </div>
                 <button class="v-plate-btn" id="plate-btn" onclick="openPlate()">
                     <svg viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
@@ -52,27 +68,23 @@
             <!-- Julia strip -->
             <div class="julia-strip anim anim-d1" style="margin: 16px 0;">
                 <div class="julia-ava" style="background:none;padding:0;overflow:hidden;">
-                    <img src="../images/icons/logo-small.png" alt="Юлия" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.textContent='👩‍🍳'">
+                    <img src="../images/YV-small.webp" alt="Юлия" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.textContent='👩‍🍳'">
                 </div>
                 <div class="julia-info">
-                    <div class="julia-name">Юлия Воронова · Нутрициолог</div>
                     <div class="julia-text">«Эта платформа поможет сделать каждый приём пищи полноценным и сбалансированным. Выберите категорию, откройте рецепт — и система подскажет, что добавить для идеального баланса белков, жиров и углеводов.»</div>
                 </div>
             </div>
         </div>
 
         <!-- Filters -->
-        <div class="v-sec-head anim anim-d1">
-            <div class="v-sec-title">Фильтры</div>
-            <button class="btn btn-ghost btn-sm" onclick="clearFilters()">Сбросить</button>
-        </div>
-        <div class="filter-row anim anim-d1" style="margin-bottom: 20px;" id="filter-row">
-            <button class="filter-chip" data-f="time" data-v="15" onclick="toggleFilter(this)">⚡ До 15 мин</button>
-            <button class="filter-chip" data-f="time" data-v="30" onclick="toggleFilter(this)">🕐 До 30 мин</button>
-            <button class="filter-chip" data-f="time" data-v="60" onclick="toggleFilter(this)">🕑 Менее часа</button>
-            <button class="filter-chip" data-f="time" data-v="120" onclick="toggleFilter(this)">⏰ Более часа</button>
-            <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="toggleFilter(this)">🟢 Простой</button>
-            <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="toggleFilter(this)">🟡 Средний</button>
+        <div class="filter-row anim anim-d1" id="filter-row">
+            <button class="filter-chip on" data-f="time" data-v="15" onclick="toggleFilter(this)">До 15 мин</button>
+            <button class="filter-chip" data-f="time" data-v="30" onclick="toggleFilter(this)">До 30 мин</button>
+            <button class="filter-chip" data-f="time" data-v="60" onclick="toggleFilter(this)">Менее часа</button>
+            <button class="filter-chip" data-f="time" data-v="120" onclick="toggleFilter(this)">Более часа</button>
+            <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="toggleFilter(this)">Простой</button>
+            <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="toggleFilter(this)">Средний</button>
+            <button class="filter-chip" onclick="clearFilters()">Сбросить</button>
         </div>
 
         <!-- Твоя тарелка (inline, shown when plate has items) -->
@@ -108,10 +120,41 @@
     </div>
 </div>
 
+<!-- FOOTER -->
+<footer class="v-footer">
+    <div class="v-footer-inner">
+        <div class="v-footer-brand">Умная <span>тарелка</span></div>
+        <div class="v-footer-links">
+            <a href="https://voronova.online" target="_blank" rel="noopener">Сайт</a>
+            <span class="v-footer-sep"></span>
+            <a href="../guides.html">Гайды</a>
+            <span class="v-footer-sep"></span>
+            <a href="../tests.html">Тесты</a>
+        </div>
+        <div class="v-footer-social">
+            <a href="https://t.me/YuliaVoronova78" target="_blank" rel="noopener" aria-label="Telegram">
+                <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
+            </a>
+            <a href="https://youtube.com/@voronova_nutrition" target="_blank" rel="noopener" aria-label="YouTube">
+                <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+            <a href="https://vk.com/voronova_nutrition" target="_blank" rel="noopener" aria-label="VK">
+                <svg viewBox="0 0 24 24"><path d="M12.785 16.241s.288-.032.436-.194c.136-.148.131-.427.131-.427s-.019-1.304.582-1.496c.592-.189 1.352 1.26 2.158 1.817.61.422 1.073.329 1.073.329l2.155-.03s1.128-.07.593-.957c-.044-.073-.312-.659-1.608-1.865-1.357-1.259-1.175-1.056.459-3.234.997-1.328 1.396-2.139 1.271-2.486-.12-.331-.848-.244-.848-.244l-2.425.015s-.18-.025-.313.055c-.131.079-.215.262-.215.262s-.388 1.036-.905 1.916c-1.09 1.85-1.526 1.948-1.703 1.833-.414-.267-.311-1.073-.311-1.646 0-1.789.271-2.534-.528-2.726-.265-.064-.46-.106-1.138-.113-.871-.009-1.608.003-2.025.207-.278.136-.492.439-.361.456.161.022.527.099.721.363.251.341.242 1.107.242 1.107s.144 2.107-.336 2.368c-.329.18-.781-.187-1.752-1.865-.498-.859-.875-1.81-.875-1.81s-.072-.176-.202-.271c-.157-.115-.376-.151-.376-.151l-2.304.015s-.346.01-.473.161C4.021 8.824 4.117 9.1 4.117 9.1s1.801 4.22 3.839 6.348c1.87 1.951 3.994 1.822 3.994 1.822h.961l.026-.029z"/></svg>
+            </a>
+            <a href="https://dzen.ru/voronova_nutrition" target="_blank" rel="noopener" aria-label="Дзен">
+                <svg viewBox="0 0 129 129"><path d="M128.389 62.78C128.389 62.14 127.869 61.61 127.229 61.58C104.266 60.71 90.291 57.78 80.514 48.005C70.717 38.208 67.798 24.223 66.928 1.21C66.908.57 66.378.05 65.728.05H63.049C62.409.05 61.88.57 61.85 1.21C60.98 24.213 58.061 38.208 48.264 48.005C38.477 57.792 24.511 60.711 1.548 61.58C.909 61.601.389 62.131.389 62.78V65.46C.389 66.099.909 66.629 1.548 66.659C24.511 67.529 38.487 70.458 48.264 80.235C58.041 90.012 60.96 103.958 61.84 126.88C61.86 127.52 62.389 128.04 63.039 128.04H65.728C66.368 128.04 66.898 127.52 66.928 126.88C67.808 103.958 70.727 90.012 80.504 80.235C90.291 70.448 104.256 67.529 127.219 66.659C127.859 66.639 128.379 66.109 128.379 65.46V62.78H128.389Z"/></svg>
+            </a>
+            <a href="https://rutube.ru/channel/47038007/" target="_blank" rel="noopener" aria-label="RuTube">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12"/><path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff"/></svg>
+            </a>
+        </div>
+        <div class="v-footer-copy">© Юлия Воронова · Конструктор питания</div>
+    </div>
+</footer>
+
 <!-- CHAT FAB -->
-<button class="chat-fab" onclick="showChatInfo()">
-    💬
-    <div class="chat-fab-tip">Чат с отделом заботы</div>
+<button class="chat-fab" onclick="showChatInfo()" title="Чат с отделом заботы">
+    <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
 <script src="data-v2.js?v=1773410000"></script>
@@ -119,7 +162,7 @@
     Auth.requireAuth();
     const user = Auth.getUser();
 
-    // Фото-заглушки для карточек категорий
+    // Фото для карточек категорий
     const CAT_PHOTOS = {
         breakfasts: '../images/blog/post-290.webp',
         mains:      '../images/cook-healthy-food.webp',
@@ -144,26 +187,31 @@
         document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
 
     // ── CATEGORIES ───────────────────────────────────────────────────────
-    const activeFilters = {};
+    function pluralR(n) {
+        const m10 = n % 10, m100 = n % 100;
+        if (m100 >= 11 && m100 <= 14) return n + ' рецептов';
+        if (m10 === 1) return n + ' рецепт';
+        if (m10 >= 2 && m10 <= 4) return n + ' рецепта';
+        return n + ' рецептов';
+    }
+
+    const activeFilters = { time: 15 };
 
     function renderCats() {
         const grid = document.getElementById('cat-grid');
         grid.innerHTML = Object.values(CATEGORIES).map(cat => {
             const count = getCategoryDishes(cat.id, activeFilters).length;
+            const total = getCategoryDishes(cat.id, {}).length;
             const photo = CAT_PHOTOS[cat.id] || '';
-            const iconStyle = photo
-                ? `background-image:url('${photo}');background-size:cover;background-position:center;position:relative;`
-                : '';
-            const overlay = photo
-                ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,.25);border-radius:0"></div>
-                   <span style="position:relative;z-index:1;font-size:36px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))">${cat.emoji}</span>`
-                : cat.emoji;
+            const photoHtml = photo
+                ? `<img src="${photo}" alt="${cat.name}" loading="lazy">`
+                : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:48px">${cat.emoji}</div>`;
             return `<button class="cat-card" onclick="location.href='category.html?cat=${cat.id}'">
-                <div class="cat-icon-wrap" style="${iconStyle}">${overlay}</div>
+                <div class="cat-icon-wrap">${photoHtml}</div>
                 <div class="cat-body">
                     <div class="cat-name">${cat.name}</div>
                     <div class="cat-desc">${cat.desc}</div>
-                    <div class="cat-count">${count} рецептов</div>
+                    <div class="cat-count">${pluralR(total)}${count < total ? ` <span style="color:var(--accent);font-size:11px">(${pluralR(count)} по фильтру)</span>` : ''}</div>
                 </div>
             </button>`;
         }).join('');
@@ -303,6 +351,61 @@
 
     function showChatInfo() {
         alert('💬 Чат с отделом заботы\n\nЕсть вопросы по приготовлению или ингредиентам? Напишите нам — обычно отвечаем в течение 5 минут!\n\n@voronova_support в Telegram');
+    }
+
+    // ── USER DROPDOWN ────────────────────────────────────────────────────
+    function toggleUserMenu(e) {
+        e.stopPropagation();
+        document.getElementById('user-dropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+        const wrap = document.getElementById('user-wrap');
+        if (wrap && !wrap.contains(e.target)) {
+            document.getElementById('user-dropdown').classList.remove('open');
+        }
+    });
+
+    function handleAvatarUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const dataUrl = e.target.result;
+            // Save to localStorage
+            const u = Auth.getUser();
+            if (u) { u.avatar = dataUrl; localStorage.setItem('hp_user', JSON.stringify(u)); }
+            // Update avatar display
+            const ava = document.getElementById('u-ava');
+            ava.style.backgroundImage = `url(${dataUrl})`;
+            ava.style.backgroundSize = 'cover';
+            ava.textContent = '';
+            document.getElementById('user-dropdown').classList.remove('open');
+            showToast('✅ Аватар обновлён');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Restore avatar from localStorage on load
+    if (user && user.avatar) {
+        const ava = document.getElementById('u-ava');
+        ava.style.backgroundImage = `url(${user.avatar})`;
+        ava.style.backgroundSize = 'cover';
+        ava.textContent = '';
+    }
+
+    function doLogout() {
+        document.getElementById('user-dropdown').classList.remove('open');
+        const overlay = document.createElement('div');
+        overlay.className = 'farewell-overlay';
+        overlay.innerHTML = `<div class="farewell-emoji">👋</div>
+            <div class="farewell-text">До встречи!</div>
+            <div class="farewell-sub">Возвращайтесь — мы ждём вас</div>`;
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add('show'));
+        setTimeout(() => {
+            Auth.logout();
+            location.href = 'login.html';
+        }, 1800);
     }
 </script>
 </body>

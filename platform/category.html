@@ -10,8 +10,16 @@
     <link rel="stylesheet" href="style-v4.css">
     <style>
         .cat-hero { padding: 20px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-        .cat-hero-row { display: flex; align-items: center; gap: 14px; }
-        .cat-hero-icon { font-size: 44px; }
+        .cat-hero-row { display: flex; align-items: center; gap: 16px; }
+        .cat-hero-ava {
+            width: 72px; height: 72px; border-radius: 50%;
+            object-fit: cover; flex-shrink: 0;
+            border: 2px solid var(--border);
+            background: var(--bg-alt);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; overflow: hidden;
+        }
+        .cat-hero-ava img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
         .cat-hero-name { font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--text); line-height: 1.1; }
         .cat-hero-desc { font-size: 13px; color: var(--text-2); margin-top: 3px; }
     </style>
@@ -22,11 +30,16 @@
 <header class="v-header" id="hdr">
     <div class="v-wrap">
         <div class="v-header-inner">
-            <button class="v-back" onclick="location.href='index.html'">
-                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-                Назад
-            </button>
-            <div style="font-size:14px;font-weight:800;color:rgba(255,255,255,.9)" id="hdr-title"></div>
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                <button class="v-back" onclick="location.href='index.html'" style="padding:6px 8px">
+                    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                </button>
+                <a href="index.html" class="v-header-logo-compact">
+                    <img src="../images/icons/logo-small.png" alt="УТ" onerror="this.style.display='none'">
+                    <span class="v-header-logo-compact-text">Умная тарелка</span>
+                </a>
+            </div>
+            <div style="flex:1"></div>
             <button class="v-plate-btn" onclick="openPlate()">
                 <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
                 <div class="plate-count" style="display:none">0</div>
@@ -42,22 +55,34 @@
         <div class="cat-hero anim" id="cat-hero"></div>
 
         <!-- Filters -->
-        <div class="filter-row anim anim-d1" style="margin-bottom:20px" id="filter-row">
-            <button class="filter-chip" data-f="time" data-v="15" onclick="toggleFilter(this)">⚡ До 15 мин</button>
-            <button class="filter-chip" data-f="time" data-v="30" onclick="toggleFilter(this)">🕐 До 30 мин</button>
-            <button class="filter-chip" data-f="time" data-v="60" onclick="toggleFilter(this)">🕑 Менее часа</button>
-            <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="toggleFilter(this)">🟢 Простой</button>
-            <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="toggleFilter(this)">🟡 Средний</button>
-            <button class="filter-chip" id="chip-clear" onclick="clearFilters()">✕ Сбросить</button>
+        <div class="filter-row anim anim-d1" id="filter-row">
+            <button class="filter-chip" data-f="time" data-v="15" onclick="toggleFilter(this)">До 15 мин</button>
+            <button class="filter-chip" data-f="time" data-v="30" onclick="toggleFilter(this)">До 30 мин</button>
+            <button class="filter-chip" data-f="time" data-v="60" onclick="toggleFilter(this)">Менее часа</button>
+            <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="toggleFilter(this)">Простой</button>
+            <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="toggleFilter(this)">Средний</button>
+            <button class="filter-chip" onclick="clearFilters()">Сбросить</button>
         </div>
 
         <!-- Dish list -->
-        <div class="v-sec-head">
-            <div class="v-sec-title anim anim-d1" id="count-label"></div>
+        <div style="border-top:1px solid var(--border);margin:20px 0 0;padding-top:20px;display:flex;align-items:center;justify-content:space-between">
+            <div class="v-sec-title anim anim-d1" id="count-label" style="font-size:13px;color:var(--text-3);font-weight:600"></div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:10px" id="dish-list"></div>
+        <div class="recipe-card-grid anim anim-d1" id="dish-list" style="margin-top:16px"></div>
     </div>
 </main>
+
+<!-- COMMENTS MODAL -->
+<div class="modal-overlay" id="comments-overlay" onclick="closeCommentsIfOutside(event)">
+    <div class="modal-box" id="comments-modal">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <div class="modal-title" id="comments-title">💬 Отзывы</div>
+            <button class="modal-close" onclick="closeComments()">✕</button>
+        </div>
+        <div class="modal-body" id="comments-body"></div>
+    </div>
+</div>
 
 <!-- MY PLATE MODAL -->
 <div class="modal-overlay" id="plate-overlay" onclick="closePlateIfOutside(event)">
@@ -71,10 +96,41 @@
     </div>
 </div>
 
+<!-- FOOTER -->
+<footer class="v-footer">
+    <div class="v-footer-inner">
+        <div class="v-footer-brand">Умная <span>тарелка</span></div>
+        <div class="v-footer-links">
+            <a href="https://voronova.online" target="_blank" rel="noopener">Сайт</a>
+            <span class="v-footer-sep"></span>
+            <a href="../guides.html">Гайды</a>
+            <span class="v-footer-sep"></span>
+            <a href="../tests.html">Тесты</a>
+        </div>
+        <div class="v-footer-social">
+            <a href="https://t.me/YuliaVoronova78" target="_blank" rel="noopener" aria-label="Telegram">
+                <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
+            </a>
+            <a href="https://youtube.com/@voronova_nutrition" target="_blank" rel="noopener" aria-label="YouTube">
+                <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+            <a href="https://vk.com/voronova_nutrition" target="_blank" rel="noopener" aria-label="VK">
+                <svg viewBox="0 0 24 24"><path d="M12.785 16.241s.288-.032.436-.194c.136-.148.131-.427.131-.427s-.019-1.304.582-1.496c.592-.189 1.352 1.26 2.158 1.817.61.422 1.073.329 1.073.329l2.155-.03s1.128-.07.593-.957c-.044-.073-.312-.659-1.608-1.865-1.357-1.259-1.175-1.056.459-3.234.997-1.328 1.396-2.139 1.271-2.486-.12-.331-.848-.244-.848-.244l-2.425.015s-.18-.025-.313.055c-.131.079-.215.262-.215.262s-.388 1.036-.905 1.916c-1.09 1.85-1.526 1.948-1.703 1.833-.414-.267-.311-1.073-.311-1.646 0-1.789.271-2.534-.528-2.726-.265-.064-.46-.106-1.138-.113-.871-.009-1.608.003-2.025.207-.278.136-.492.439-.361.456.161.022.527.099.721.363.251.341.242 1.107.242 1.107s.144 2.107-.336 2.368c-.329.18-.781-.187-1.752-1.865-.498-.859-.875-1.81-.875-1.81s-.072-.176-.202-.271c-.157-.115-.376-.151-.376-.151l-2.304.015s-.346.01-.473.161C4.021 8.824 4.117 9.1 4.117 9.1s1.801 4.22 3.839 6.348c1.87 1.951 3.994 1.822 3.994 1.822h.961l.026-.029z"/></svg>
+            </a>
+            <a href="https://dzen.ru/voronova_nutrition" target="_blank" rel="noopener" aria-label="Дзен">
+                <svg viewBox="0 0 129 129"><path d="M128.389 62.78C128.389 62.14 127.869 61.61 127.229 61.58C104.266 60.71 90.291 57.78 80.514 48.005C70.717 38.208 67.798 24.223 66.928 1.21C66.908.57 66.378.05 65.728.05H63.049C62.409.05 61.88.57 61.85 1.21C60.98 24.213 58.061 38.208 48.264 48.005C38.477 57.792 24.511 60.711 1.548 61.58C.909 61.601.389 62.131.389 62.78V65.46C.389 66.099.909 66.629 1.548 66.659C24.511 67.529 38.487 70.458 48.264 80.235C58.041 90.012 60.96 103.958 61.84 126.88C61.86 127.52 62.389 128.04 63.039 128.04H65.728C66.368 128.04 66.898 127.52 66.928 126.88C67.808 103.958 70.727 90.012 80.504 80.235C90.291 70.448 104.256 67.529 127.219 66.659C127.859 66.639 128.379 66.109 128.379 65.46V62.78H128.389Z"/></svg>
+            </a>
+            <a href="https://rutube.ru/channel/47038007/" target="_blank" rel="noopener" aria-label="RuTube">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12"/><path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff"/></svg>
+            </a>
+        </div>
+        <div class="v-footer-copy">© Юлия Воронова · Конструктор питания</div>
+    </div>
+</footer>
+
 <!-- CHAT FAB -->
-<button class="chat-fab" onclick="alert('💬 Чат с отделом заботы\n\n@voronova_support в Telegram')">
-    💬
-    <div class="chat-fab-tip">Чат с отделом заботы</div>
+<button class="chat-fab" onclick="alert('💬 Чат с отделом заботы\n\n@voronova_support в Telegram')" title="Чат с отделом заботы">
+    <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
 <script src="data-v2.js?v=1773410000"></script>
@@ -87,15 +143,35 @@
     const cat = getCategory(catId);
     const activeFilters = {};
 
+    const CAT_PHOTOS = {
+        breakfasts: '../images/blog/post-290.webp',
+        mains:      '../images/cook-healthy-food.webp',
+        pancakes:   '../images/blog/random-pic-blog-2.webp',
+        spreads:    '../images/blog/random-pic-blog-3.webp',
+        salads:     '../images/blog/random-pic-blog-4.webp',
+        drinks:     '../images/blog/random-pic-blog-1.webp',
+    };
+
     window.addEventListener('scroll', () =>
         document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
 
+    const CAT_AVATARS = {
+        breakfasts: '../images/blog/post-290.webp',
+        mains:      '../images/cook-healthy-food.webp',
+        pancakes:   '../images/blog/random-pic-blog-2.webp',
+        spreads:    '../images/blog/random-pic-blog-3.webp',
+        salads:     '../images/blog/random-pic-blog-4.webp',
+        drinks:     '../images/blog/random-pic-blog-1.webp',
+    };
+
     if (cat) {
         document.title = cat.name + ' — Конструктор питания';
-        document.getElementById('hdr-title').textContent = cat.name;
+        const avaImg = CAT_AVATARS[catId]
+            ? `<div class="cat-hero-ava"><img src="${CAT_AVATARS[catId]}" alt="${cat.name}" onerror="this.parentElement.textContent='${cat.emoji}'"></div>`
+            : `<div class="cat-hero-ava">${cat.emoji}</div>`;
         document.getElementById('cat-hero').innerHTML = `
             <div class="cat-hero-row">
-                <div class="cat-hero-icon">${cat.emoji}</div>
+                ${avaImg}
                 <div>
                     <div class="cat-hero-name">${cat.name}</div>
                     <div class="cat-hero-desc">${cat.desc}</div>
@@ -103,37 +179,243 @@
             </div>`;
     }
 
+    function ratingPillHtml(recipeId) {
+        const r = Ratings.forRecipe(recipeId);
+        const val = r.mine || (r.count > 0 ? (r.sum / r.count).toFixed(1) : 0);
+        const display = val > 0 ? val : '—';
+        return `<div class="photo-rating-pill" id="rpill-${recipeId}" role="button"
+            onclick="event.stopPropagation();openRatingPopup('${recipeId}',this)">
+            <span class="pr-star">★</span>
+            <span class="pr-val">${display}</span>
+        </div>`;
+    }
+
+    function commentBtnHtml(recipeId) {
+        const cnt = Comments.count(recipeId);
+        const badge = cnt > 0 ? `<div class="photo-comment-badge">${cnt}</div>` : '';
+        return `<div class="photo-comment-btn" id="cbtn-${recipeId}" role="button"
+            onclick="event.stopPropagation();openComments('${recipeId}')">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+            Отзыв${badge}</div>`;
+    }
+
+    function pluralR(n) {
+        const m10 = n % 10, m100 = n % 100;
+        if (m100 >= 11 && m100 <= 14) return n + ' рецептов';
+        if (m10 === 1) return n + ' рецепт';
+        if (m10 >= 2 && m10 <= 4) return n + ' рецепта';
+        return n + ' рецептов';
+    }
+
     function renderDishes() {
         const dishes = getCategoryDishes(catId, activeFilters);
-        document.getElementById('count-label').textContent = `${dishes.length} рецептов`;
+        document.getElementById('count-label').textContent = pluralR(dishes.length);
         if (!dishes.length) {
             document.getElementById('dish-list').innerHTML =
-                '<div style="text-align:center;padding:50px 20px;color:var(--text-3)">Ничего не найдено. Измените фильтры.</div>';
+                '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">Ничего не найдено. Измените фильтры.</div>';
             return;
         }
+        const photo = CAT_PHOTOS[catId] || '';
+        const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
         document.getElementById('dish-list').innerHTML = dishes.map(d => {
-            const diff = DIFF_LABELS[d.diff] || d.diff;
+            const diff = diff_labels[d.diff] || d.diff;
             const isSublist = d.isSublist;
-            return `<button class="dish-card anim" onclick="goToRecipe('${d.id}')">
-                <div class="dish-emoji-box" style="background:${cat.color}22">${d.emoji}</div>
-                <div class="dish-info">
-                    <div class="dish-name">${d.name}
-                        ${isSublist ? '<span class="dish-sublist-badge">Список →</span>' : ''}
+            const cardPhoto = d.photo || photo;
+            const photoHtml = cardPhoto
+                ? `<img src="${cardPhoto}" alt="${d.name}" loading="lazy"${d.imgPosition ? ` style="object-position:${d.imgPosition}"` : ''}>`
+                : `<div class="recipe-card-emoji">${d.emoji}</div>`;
+            return `<button class="recipe-card" onclick="goToRecipe('${d.id}')">
+                <div class="recipe-card-photo" style="position:relative">
+                    ${photoHtml}
+                    <div class="photo-overlay">
+                        ${ratingPillHtml(d.id)}
+                        ${commentBtnHtml(d.id)}
                     </div>
-                    <div class="dish-meta">
+                    <div class="rating-popup" id="rpop-${d.id}">
+                        ${[1,2,3,4,5].map(i => `<span class="rp-star" data-n="${i}"
+                            onmouseenter="hoverPopStar('${d.id}',${i})"
+                            onmouseleave="unhoverPopStar('${d.id}')"
+                            onclick="event.stopPropagation();rateFromPop('${d.id}',${i})">★</span>`).join('')}
+                    </div>
+                </div>
+                <div class="recipe-card-body">
+                    <div class="recipe-card-name">${d.name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</div>
+                    <div class="recipe-card-meta">
                         <span class="pill">⏱ ${d.time} мин</span>
                         <span class="pill">${diff}</span>
                     </div>
+                    <div class="recipe-card-kcal" style="margin-top:4px">${d.kcal} ккал</div>
                 </div>
-                <div class="dish-kcal">${d.kcal}<span>ккал</span></div>
-                <div class="dish-arrow">›</div>
             </button>`;
         }).join('');
+        // restore filled stars in popups
+        dishes.forEach(d => updatePopStars(d.id));
     }
     renderDishes();
 
     function goToRecipe(id) {
         location.href = `recipe.html?id=${id}&from=${catId}`;
+    }
+
+    // ── RATING POPUP ─────────────────────────────────────────────────────────
+    let activePopId = null;
+    function openRatingPopup(recipeId, pillEl) {
+        if (activePopId && activePopId !== recipeId) {
+            document.getElementById('rpop-' + activePopId)?.classList.remove('open');
+        }
+        const pop = document.getElementById('rpop-' + recipeId);
+        if (!pop) return;
+        pop.classList.toggle('open');
+        activePopId = pop.classList.contains('open') ? recipeId : null;
+    }
+    document.addEventListener('click', () => {
+        if (activePopId) {
+            document.getElementById('rpop-' + activePopId)?.classList.remove('open');
+            activePopId = null;
+        }
+    });
+
+    function updatePopStars(recipeId) {
+        const r = Ratings.forRecipe(recipeId);
+        const filled = r.mine || 0;
+        document.querySelectorAll(`#rpop-${recipeId} .rp-star`).forEach((s, i) =>
+            s.classList.toggle('filled', i < filled));
+    }
+    function hoverPopStar(recipeId, n) {
+        document.querySelectorAll(`#rpop-${recipeId} .rp-star`).forEach((s, i) =>
+            s.classList.toggle('filled', i < n));
+    }
+    function unhoverPopStar(recipeId) { updatePopStars(recipeId); }
+    function rateFromPop(recipeId, stars) {
+        Ratings.rate(recipeId, stars);
+        updatePopStars(recipeId);
+        // update pill
+        const pill = document.getElementById('rpill-' + recipeId);
+        if (pill) {
+            const r = Ratings.forRecipe(recipeId);
+            const val = r.mine || (r.count > 0 ? (r.sum / r.count).toFixed(1) : '—');
+            pill.querySelector('.pr-val').textContent = val;
+        }
+        document.getElementById('rpop-' + recipeId)?.classList.remove('open');
+        activePopId = null;
+        showToast('Оценка сохранена ★');
+    }
+
+    // ── COMMENTS MODAL ───────────────────────────────────────────────────────
+    let commentsRecipeId = null;
+    function openComments(recipeId) {
+        commentsRecipeId = recipeId;
+        const r = RECIPES[recipeId] || {};
+        document.getElementById('comments-title').textContent = `💬 ${r.name || 'Отзывы'}`;
+        renderCommentsBody();
+        document.getElementById('comments-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeComments() {
+        document.getElementById('comments-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+        commentsRecipeId = null;
+    }
+    function closeCommentsIfOutside(e) {
+        if (e.target === document.getElementById('comments-overlay')) closeComments();
+    }
+
+    let selectedStars = 0;
+
+    function renderCommentsBody() {
+        const items = Comments.forRecipe(commentsRecipeId);
+        const user = Auth.getUser();
+        const authorDefault = user ? user.name : '';
+        const userEmail = user ? user.email : '';
+
+        function starsHtml(n) {
+            return [1,2,3,4,5].map(i =>
+                `<span class="star${i <= n ? ' filled' : ''}" style="font-size:14px;${i <= n ? 'color:#f5a623' : 'color:#ddd'}">★</span>`
+            ).join('');
+        }
+        function fmtDate(ts) {
+            const d = new Date(ts);
+            const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+            return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        }
+
+        const list = items.length
+            ? `<div class="comments-list">${items.map(c => {
+                const isOwn = userEmail && c.email === userEmail;
+                return `<div class="comment-item">
+                    <div class="comment-item-header">
+                        <span class="comment-item-author">${escHtml(c.author)}</span>
+                        ${c.stars ? `<span class="comment-item-stars">${starsHtml(c.stars)}</span>` : ''}
+                    </div>
+                    <div class="comment-item-text">${escHtml(c.text)}</div>
+                    <div class="comment-item-date">${fmtDate(c.ts)}</div>
+                    ${isOwn ? `<button class="comment-item-delete" onclick="deleteComment(${c.ts})">Удалить мой отзыв</button>` : ''}
+                </div>`;
+            }).join('')}</div>`
+            : `<div style="text-align:center;padding:24px 0;color:var(--text-3);font-size:14px">Пока нет отзывов. Будьте первым!</div>`;
+
+        selectedStars = 0;
+        document.getElementById('comments-body').innerHTML = `
+            ${list}
+            <div class="comments-form" style="margin-top:14px">
+                <div class="c-star-row">
+                    <label>Оценка:</label>
+                    ${[1,2,3,4,5].map(i => `<span class="cstar" data-n="${i}" onclick="selectStar(${i})">★</span>`).join('')}
+                </div>
+                <input class="c-input" id="c-author" placeholder="Ваше имя" value="${escHtml(authorDefault)}" style="height:40px;resize:none">
+                <textarea class="c-input" id="c-text" placeholder="Ваш отзыв…" rows="3"></textarea>
+                <button class="btn btn-orange btn-full" onclick="submitComment()">Отправить</button>
+            </div>`;
+    }
+
+    function selectStar(n) {
+        selectedStars = n;
+        document.querySelectorAll('#comments-body .cstar').forEach((s, i) =>
+            s.classList.toggle('on', i < n));
+    }
+
+    function deleteComment(ts) {
+        Comments.remove(commentsRecipeId, ts);
+        updateCommentBadge(commentsRecipeId);
+        renderCommentsBody();
+        showToast('Отзыв удалён');
+    }
+
+    function submitComment() {
+        const author = (document.getElementById('c-author').value || '').trim();
+        const text   = (document.getElementById('c-text').value  || '').trim();
+        if (!author || !text) { showToast('Заполните имя и текст'); return; }
+        const user = Auth.getUser();
+        Comments.add(commentsRecipeId, author, text, selectedStars, user ? user.email : '');
+        if (selectedStars > 0) {
+            Ratings.rate(commentsRecipeId, selectedStars);
+            updatePopStars(commentsRecipeId);
+            const pill = document.getElementById('rpill-' + commentsRecipeId);
+            if (pill) {
+                const rv = Ratings.forRecipe(commentsRecipeId);
+                pill.querySelector('.pr-val').textContent = rv.mine || (rv.count > 0 ? (rv.sum / rv.count).toFixed(1) : '—');
+            }
+        }
+        updateCommentBadge(commentsRecipeId);
+        showToast('Отзыв добавлен!');
+        closeComments();
+    }
+
+    function updateCommentBadge(recipeId) {
+        const cbtn = document.getElementById('cbtn-' + recipeId);
+        if (!cbtn) return;
+        const cnt = Comments.count(recipeId);
+        let badge = cbtn.querySelector('.photo-comment-badge');
+        if (cnt > 0) {
+            if (!badge) { badge = document.createElement('div'); badge.className = 'photo-comment-badge'; cbtn.appendChild(badge); }
+            badge.textContent = cnt;
+        } else if (badge) {
+            badge.remove();
+        }
+    }
+
+    function escHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
     function toggleFilter(el) {
