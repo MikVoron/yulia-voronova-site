@@ -29,17 +29,16 @@
 <!-- HEADER -->
 <header class="v-header" id="hdr">
     <div class="v-wrap">
-        <div class="v-header-inner">
-            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <div class="v-header-inner" style="position:relative">
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
                 <button class="v-back" onclick="location.href='index.html'" style="padding:6px 8px">
                     <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
                 </button>
-                <a href="index.html" class="v-header-logo-compact">
-                    <img src="../images/icons/logo-small.png" alt="УТ" onerror="this.style.display='none'">
-                    <span class="v-header-logo-compact-text">Умная тарелка</span>
-                </a>
             </div>
-            <div style="flex:1"></div>
+            <a href="index.html" class="v-header-logo-compact" style="position:absolute;left:50%;transform:translateX(-50%)">
+                <img src="../images/icons/logo-small.png" alt="УТ" onerror="this.style.display='none'">
+                <span class="v-header-logo-compact-text">Умная тарелка</span>
+            </a>
             <div style="display:flex;align-items:center;gap:6px">
                 <a href="cabinet.html" class="v-icon-btn" id="lk-btn" title="Личный кабинет">
                     <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
@@ -76,7 +75,7 @@
             <button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
             <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
             <button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
-            <button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Познакомиться с бобовыми</button>
+            <button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Бобовые</button>
         </div>
         </div>
         <button class="filter-clear" onclick="clearFilters()">↺ Сбросить</button>
@@ -163,7 +162,7 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1773500000"></script>
+<script src="data-v2.js?v=1773600000"></script>
 <script>
     Auth.requireAuth();
     updatePlateIcon();

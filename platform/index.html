@@ -91,7 +91,7 @@
             <button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
             <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
             <button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
-            <button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Познакомиться с бобовыми</button>
+            <button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Бобовые</button>
         </div>
         </div>
         <button class="filter-clear" onclick="clearFilters()">↺ Сбросить</button>
@@ -187,7 +187,7 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1773500000"></script>
+<script src="data-v2.js?v=1773600000"></script>
 <script>
     Auth.requireAuth();
     const user = Auth.getUser();
@@ -204,17 +204,18 @@
 
     // Init header
     if (user) {
+        const displayName = user.name.replace(/^Пользователь\s+/i, '') || user.name;
         const uAva = document.getElementById('u-ava');
         const savedAva = localStorage.getItem('user_avatar');
         if (savedAva) {
             uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
         } else {
-            uAva.textContent = user.name.charAt(0).toUpperCase();
+            uAva.textContent = displayName.charAt(0).toUpperCase();
         }
-        document.getElementById('u-name').textContent = user.name;
+        document.getElementById('u-name').textContent = displayName;
         document.getElementById('greeting-hi').textContent =
             (new Date().getHours() < 12 ? 'Доброе утро' :
-             new Date().getHours() < 17 ? 'Добрый день' : 'Добрый вечер') + ', ' + user.name + '!';
+             new Date().getHours() < 17 ? 'Добрый день' : 'Добрый вечер') + ', ' + displayName + '!';
     }
     updatePlateIcon();
 

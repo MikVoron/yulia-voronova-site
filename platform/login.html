@@ -301,7 +301,7 @@
         var names = { vk: 'VK', yandex: 'Яндекс ID', google: 'Google', apple: 'Apple' };
         // Mock social login
         var mockEmail = provider + '@social.voronova.online';
-        var mockName = 'Пользователь ' + names[provider];
+        var mockName = names[provider];
         var users = getUsers();
         if (!findUser(mockEmail)) {
             users.push({ email: mockEmail, name: mockName, pass: '' });
