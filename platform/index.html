@@ -75,7 +75,8 @@
         </div>
 
         <!-- Filters -->
-        <div class="filter-scroll-wrap anim anim-d1">
+        <div class="filter-outer anim anim-d1">
+        <div class="filter-scroll-wrap">
         <div class="filter-bar" id="filter-row">
             <button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" onclick="toggleFGroup(this)">
                 <span class="fg-label">Время</span>
@@ -91,8 +92,9 @@
             <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
             <button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
             <button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Познакомиться с бобовыми</button>
-            <button class="filter-chip filter-clear" onclick="clearFilters()">Сбросить</button>
         </div>
+        </div>
+        <button class="filter-clear" onclick="clearFilters()">↺ Сбросить</button>
         </div>
 
         <!-- Твоя тарелка (inline, shown when plate has items) -->

@@ -33,7 +33,7 @@
             </div>
             <div id="hdr-title"></div>
             <div style="display:flex;align-items:center;gap:6px">
-                <a href="cabinet.html" class="v-icon-btn" title="Личный кабинет">
+                <a href="cabinet.html" class="v-icon-btn" id="lk-btn" title="Личный кабинет">
                     <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                 </a>
                 <button class="v-plate-btn" onclick="openPlate()">
@@ -81,6 +81,14 @@
 <script>
     Auth.requireAuth();
     updatePlateIcon();
+    (function() {
+        const ava = localStorage.getItem('user_avatar');
+        const btn = document.getElementById('lk-btn');
+        if (ava && btn) {
+            btn.style.padding = '0';
+            btn.innerHTML = `<img src="${ava}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;display:block">`;
+        }
+    })();
 
     // Фото-заглушки по категориям (временно — из блога и гайда)
     const PHOTO_BY_CAT = {

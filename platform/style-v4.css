@@ -193,12 +193,14 @@ img { display: block; max-width: 100%; }
 
 /* ── FILTERS ─────────────────────────────────────────── */
 /* ── FILTER BAR ──────────────────────────────────────── */
-/* Scroll wrapper — clips only X, lets dropdowns show downward */
+/* Filter outer — always-visible clear button + scrollable chips */
+.filter-outer {
+    display: flex; align-items: center;
+    border-bottom: 1px solid var(--border); margin-bottom: 24px;
+}
 .filter-scroll-wrap {
-    overflow-x: auto; overflow-y: visible;
+    flex: 1; overflow-x: auto; overflow-y: visible;
     scrollbar-width: none; -webkit-overflow-scrolling: touch;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 24px;
 }
 .filter-scroll-wrap::-webkit-scrollbar { display: none; }
 .filter-bar {
@@ -219,7 +221,13 @@ img { display: block; max-width: 100%; }
 }
 .filter-chip:hover { color: var(--text); }
 .filter-chip.on { background: #f5e9a8; color: var(--text); }
-.filter-clear { color: var(--text-3); font-weight: 500; }
+.filter-clear {
+    flex-shrink: 0; border: none; background: none; cursor: pointer;
+    padding: 8px 10px 8px 12px; border-left: 1px solid var(--border);
+    font-size: 12px; font-weight: 700; color: var(--accent);
+    white-space: nowrap; -webkit-tap-highlight-color: transparent;
+    font-family: var(--sans);
+}
 
 /* separator between groups and tags */
 .filter-sep {
@@ -871,6 +879,7 @@ img { display: block; max-width: 100%; }
     #v2-toast { bottom: 80px; }
     .sticky-add { padding-bottom: 28px; }
     .v-logo-prof { display: none; }
+    .filter-outer { align-items: flex-start; }
     .filter-bar { flex-wrap: wrap; min-width: 0; }
     .filter-sep { display: none; }
 }

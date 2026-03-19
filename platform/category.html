@@ -41,7 +41,7 @@
             </div>
             <div style="flex:1"></div>
             <div style="display:flex;align-items:center;gap:6px">
-                <a href="cabinet.html" class="v-icon-btn" title="Личный кабинет">
+                <a href="cabinet.html" class="v-icon-btn" id="lk-btn" title="Личный кабинет">
                     <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                 </a>
                 <button class="v-plate-btn" onclick="openPlate()">
@@ -60,7 +60,8 @@
         <div class="cat-hero anim" id="cat-hero"></div>
 
         <!-- Filters -->
-        <div class="filter-scroll-wrap anim anim-d1">
+        <div class="filter-outer anim anim-d1">
+        <div class="filter-scroll-wrap">
         <div class="filter-bar" id="filter-row">
             <button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" onclick="toggleFGroup(this)">
                 <span class="fg-label">Время</span>
@@ -76,8 +77,9 @@
             <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
             <button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
             <button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Познакомиться с бобовыми</button>
-            <button class="filter-chip filter-clear" onclick="clearFilters()">Сбросить</button>
         </div>
+        </div>
+        <button class="filter-clear" onclick="clearFilters()">↺ Сбросить</button>
         </div>
 
         <!-- Dish list -->
@@ -165,6 +167,14 @@
 <script>
     Auth.requireAuth();
     updatePlateIcon();
+    (function() {
+        const ava = localStorage.getItem('user_avatar');
+        const btn = document.getElementById('lk-btn');
+        if (ava && btn) {
+            btn.style.padding = '0';
+            btn.innerHTML = `<img src="${ava}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;display:block">`;
+        }
+    })();
 
     const params = new URLSearchParams(location.search);
     const catId = params.get('cat') || 'breakfasts';
@@ -288,8 +298,8 @@
                         <span class="pill">⏱ ${d.time} мин</span>
                         <span class="pill">${diff}</span>
                     </div>
-                    <div class="recipe-card-kcal" style="margin-top:4px">${d.kcal} ккал</div>
                     ${d.quote ? `<div class="recipe-card-quote">${d.quote}</div>` : ''}
+                    <div class="recipe-card-kcal" style="margin-top:4px">${d.kcal} ккал</div>
                 </div>
             </button>`;
         }).join('');
