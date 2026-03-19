@@ -787,6 +787,9 @@ img { display: block; max-width: 100%; }
                 font-weight: 600; border-left: 3px solid var(--accent); margin-bottom: 16px; }
 
 /* ── RESPONSIVE ──────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .recipe-card-grid { grid-template-columns: repeat(3,1fr); gap: 16px; }
+}
 @media (max-width: 767px) {
     .recipe-layout { grid-template-columns: 1fr; }
     .recipe-sidebar { position: static; }
