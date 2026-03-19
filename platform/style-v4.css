@@ -879,7 +879,8 @@ img { display: block; max-width: 100%; }
     #v2-toast { bottom: 80px; }
     .sticky-add { padding-bottom: 28px; }
     .v-logo-prof { display: none; }
-    .filter-outer { align-items: flex-start; }
+    .filter-outer { flex-wrap: wrap; align-items: flex-start; }
+    .filter-clear { border-left: none; border-top: 1px solid var(--border); width: 100%; padding: 6px 8px 2px; }
     .filter-bar { flex-wrap: wrap; min-width: 0; }
     .filter-sep { display: none; }
 }
@@ -1000,6 +1001,8 @@ img { display: block; max-width: 100%; }
 }
 .recipe-meta-stars .star { font-size: 14px; }
 .recipe-meta-stars .star.filled { color: #f5a623; }
+.recipe-meta-stars .r-star { font-size: 20px; cursor: pointer; transition: color .1s; color: #ddd; }
+.recipe-meta-stars .r-star.filled { color: #f5a623; }
 .recipe-meta-date { font-size: 12px; color: var(--text-3); }
 
 /* ── COMMENTS BUTTON (see base definition above) ───── */
