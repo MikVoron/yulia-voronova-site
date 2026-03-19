@@ -182,7 +182,7 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1774100000"></script>
+<script src="data-v2.js?v=1774200000"></script>
 <script>
     Auth.requireAuth();
     const user = Auth.getUser();
@@ -199,13 +199,20 @@
             'Хорошее питание не требует сложных расчётов — нужна привычка и осознанность.',
             'Ешьте радугу: чем больше цветов в тарелке, тем больше нутриентов.',
         ];
-        const KEY = 'julia_quote_idx';
-        const shown = JSON.parse(sessionStorage.getItem(KEY) || '[]');
-        const remaining = quotes.map((_, i) => i).filter(i => !shown.includes(i));
-        const pool = remaining.length ? remaining : quotes.map((_, i) => i);
-        const pick = pool[Math.floor(Math.random() * pool.length)];
-        const next = [...shown, pick].slice(-quotes.length);
-        sessionStorage.setItem(KEY, JSON.stringify(next));
+        const KEY = 'julia_quote_day';
+        const today = new Date().toDateString();
+        const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+        let pick;
+        if (saved && saved.date === today) {
+            pick = saved.idx;
+        } else {
+            const shown = saved ? (saved.shown || []) : [];
+            const remaining = quotes.map((_, i) => i).filter(i => !shown.includes(i));
+            const pool = remaining.length ? remaining : quotes.map((_, i) => i);
+            pick = pool[Math.floor(Math.random() * pool.length)];
+            const nextShown = [...shown, pick].slice(-quotes.length);
+            localStorage.setItem(KEY, JSON.stringify({ date: today, idx: pick, shown: nextShown }));
+        }
         const el = document.getElementById('julia-quote');
         if (el) el.textContent = '«' + quotes[pick] + '»';
     })();
@@ -294,14 +301,12 @@
         feed.innerHTML = NEWS_FEED.map(item => {
             if (item.type === 'news') {
                 return `<div class="news-text-card">
+                    <div class="news-text-card-date">${item.date}</div>
                     <div class="news-text-card-top">
                         <div class="news-text-card-ava">
                             <img src="../images/YV-small.webp" alt="Юлия" onerror="this.parentElement.textContent='👩‍🍳'">
                         </div>
-                        <div class="news-text-card-meta">
-                            <div class="news-text-card-author">Юлия Воронова</div>
-                            <div class="news-text-card-date">${item.date}</div>
-                        </div>
+                        <div class="news-text-card-author">Юлия Воронова</div>
                     </div>
                     <div class="news-text-card-body">${item.text}</div>
                 </div>`;
