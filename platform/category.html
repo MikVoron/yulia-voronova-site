@@ -75,6 +75,7 @@
             <button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
             <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
             <button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
+            <button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Познакомиться с бобовыми</button>
             <button class="filter-chip filter-clear" onclick="clearFilters()">Сбросить</button>
         </div>
         </div>
@@ -169,6 +170,17 @@
     const catId = params.get('cat') || 'breakfasts';
     const cat = getCategory(catId);
     const activeFilters = {};
+
+    // Restore filters from index.html navigation
+    (function restoreFilters() {
+        const saved = sessionStorage.getItem('platform_filters');
+        if (!saved) return;
+        sessionStorage.removeItem('platform_filters');
+        try {
+            const f = JSON.parse(saved);
+            Object.assign(activeFilters, f);
+        } catch(e) { return; }
+    })();
 
     const CAT_PHOTOS = {
         breakfasts: '../images/blog/post-290.webp',
@@ -277,6 +289,7 @@
                         <span class="pill">${diff}</span>
                     </div>
                     <div class="recipe-card-kcal" style="margin-top:4px">${d.kcal} ккал</div>
+                    ${d.quote ? `<div class="recipe-card-quote">${d.quote}</div>` : ''}
                 </div>
             </button>`;
         }).join('');
@@ -284,6 +297,31 @@
         dishes.forEach(d => updatePopStars(d.id));
     }
     renderDishes();
+
+    // Restore filter UI (chips + dropdown labels) if filters were loaded from sessionStorage
+    (function syncFilterUI() {
+        const tagFilters = ['gluten','plant','fish','noSoy','legumes'];
+        tagFilters.forEach(function(f) {
+            if (activeFilters[f]) {
+                const chip = document.querySelector(`.filter-chip[data-f="${f}"]`);
+                if (chip) chip.classList.add('on');
+            }
+        });
+        ['time','difficulty'].forEach(function(f) {
+            if (activeFilters[f] !== undefined) {
+                const v = String(activeFilters[f]);
+                const chip = document.querySelector(`.fgroup-drop .filter-chip[data-f="${f}"][data-v="${v}"]`);
+                if (!chip) return;
+                chip.classList.add('on');
+                const btnId = f === 'time' ? 'fg-time-btn' : 'fg-diff-btn';
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.classList.add('has-value');
+                    btn.querySelector('.fg-label').textContent = chip.textContent.trim();
+                }
+            }
+        });
+    })();
 
     function goToRecipe(id) {
         location.href = `recipe.html?id=${id}&from=${catId}`;

@@ -90,6 +90,7 @@
             <button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
             <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
             <button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
+            <button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Познакомиться с бобовыми</button>
             <button class="filter-chip filter-clear" onclick="clearFilters()">Сбросить</button>
         </div>
         </div>
@@ -239,12 +240,12 @@
             const photoHtml = photo
                 ? `<img src="${photo}" alt="${cat.name}" loading="lazy">`
                 : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:48px">${cat.emoji}</div>`;
-            return `<button class="cat-card" onclick="location.href='category.html?cat=${cat.id}'">
+            return `<button class="cat-card" onclick="goToCategory('${cat.id}')">
                 <div class="cat-icon-wrap">${photoHtml}</div>
                 <div class="cat-body">
                     <div class="cat-name">${cat.name}</div>
                     <div class="cat-desc">${cat.desc}</div>
-                    <div class="cat-count">${pluralR(total)}${count < total ? ` <span style="color:var(--accent);font-size:11px">(${pluralR(count)} по фильтру)</span>` : ''}</div>
+                    <div class="cat-count">${pluralR(count)}</div>
                 </div>
             </button>`;
         }).join('');
@@ -279,6 +280,13 @@
 
     renderCats();
     renderPlateInline();
+
+    function goToCategory(catId) {
+        const hasFilters = Object.keys(activeFilters).length > 0;
+        if (hasFilters) sessionStorage.setItem('platform_filters', JSON.stringify(activeFilters));
+        else sessionStorage.removeItem('platform_filters');
+        location.href = 'category.html?cat=' + catId;
+    }
 
     // ── FILTERS ──────────────────────────────────────────────────────────
     let openFGroup = null;

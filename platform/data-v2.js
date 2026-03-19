@@ -123,7 +123,7 @@ RECIPES['tofu-syrniki'] = {
     id: 'tofu-syrniki', cat: 'breakfasts',
     name: 'Сырники из тофу', emoji: '🥞', time: 20, diff: 'easy', servings: 2,
     kcal: 210, protein: 14, fat: 8, carbs: 20, fiber: 2,
-    tags: ['до 30 мин', 'простой', 'без глютена', 'соя'],
+    tags: ['до 30 мин', 'простой', 'без глютена', 'соя', 'бобовые'],
     photo: '../images/img-guides/plant-based/tofu-sirniki.webp',
     quote: 'Их сразу и безоговорочно приняла моя семья, а самое главное — дети! Эти сырники могут жить без холодильника, в отличие от их творожных братьев. Если у вас не всегда получались сырники из творога и они разваливались, то эти «тофники» прекрасно держат форму и у вас всё получится с первого раза, легко и просто!',
     ingredients: [
@@ -146,7 +146,7 @@ RECIPES['lentil-pancakes'] = {
     id: 'lentil-pancakes', cat: 'pancakes',
     name: 'Оладьи из чечевицы', emoji: '🥞', time: 30, diff: 'easy', servings: 3,
     kcal: 280, protein: 16, fat: 4, carbs: 46, fiber: 8,
-    tags: ['простой', 'на спорте'],
+    tags: ['простой', 'на спорте', 'бобовые'],
     photo: '../images/img-guides/plant-based/pancakes-red-lentil.webp',
     quote: 'Эти оладьи хороши не только со сладким. Напеките, накормите, услышьте хвалебные песни и не говорите из чего они! Вкуса чечевицы нет вообще — и пользы сколько!',
     ingredients: [
@@ -171,7 +171,7 @@ RECIPES['nut-omelet'] = {
     id: 'nut-omelet', cat: 'breakfasts',
     name: 'Нутовый омлет', emoji: '🍳', time: 20, diff: 'easy', servings: 2,
     kcal: 195, protein: 11, fat: 6, carbs: 24, fiber: 5,
-    tags: ['до 30 мин', 'простой', 'без глютена'],
+    tags: ['до 30 мин', 'простой', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/chickpea-omelette.webp',
     quote: 'При приготовлении вы можете использовать любые любимые овощи.',
     ingredients: [
@@ -200,7 +200,7 @@ RECIPES['lentil-pancakes-gf'] = {
     id: 'lentil-pancakes-gf', cat: 'pancakes',
     name: 'Оладьи из чечевицы (без глютена)', emoji: '🥞', time: 30, diff: 'easy', servings: 3,
     kcal: 250, protein: 14, fat: 3, carbs: 42, fiber: 7,
-    tags: ['простой', 'без глютена'],
+    tags: ['простой', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/pancakes-lentil-gluten-free.webp',
     quote: 'Этот вариант чечевичных оладьев без глютена. Они идеально подойдут людям с целиакией, непереносимостью глютена или тем, кому показан безглютеновый рацион. Это способ сохранить любимые вкусы без компромиссов — особенно важно, когда за столом собираются гости с разными пищевыми предпочтениями.',
     ingredients: [
@@ -253,7 +253,7 @@ RECIPES['tofu-scramble'] = {
     id: 'tofu-scramble', cat: 'breakfasts',
     name: 'Скрэмбл из тофу', emoji: '🍳', time: 15, diff: 'easy', servings: 2,
     kcal: 175, protein: 13, fat: 9, carbs: 8, fiber: 2,
-    tags: ['до 15 мин', 'простой', 'без глютена', 'соя'],
+    tags: ['до 15 мин', 'простой', 'без глютена', 'соя', 'бобовые'],
     photo: '../images/img-guides/plant-based/tofu-scrambel.webp',
     quote: 'Эту альтернативу яичнице принял даже мой муж, у которого по жизни был девиз: «если есть яйца, значит есть и еда!». Человек жить не мог без яичницы. Но тофу (и я, чего уж тут) сделал своё дело, стал альтернативой — теперь очень часто на завтрак муж просит именно этот скрэмбл из тофу!',
     ingredients: [
@@ -279,7 +279,7 @@ RECIPES['hummus'] = {
     id: 'hummus', cat: 'spreads',
     name: 'Хумус', emoji: '🫙', time: 10, diff: 'easy', servings: 6,
     kcal: 140, protein: 7, fat: 6, carbs: 16, fiber: 4,
-    tags: ['до 15 мин', 'простой', 'без глютена'],
+    tags: ['до 15 мин', 'простой', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/humus.webp',
     quote: 'Невероятно полезный, вкусный и простой в приготовлении — намазка хумус! Возможно, вы его полюбите не сразу, но когда распробуете, то, уверяю вас, будете делать его очень часто! Я готова есть его каждый день!',
     ingredients: [
@@ -307,7 +307,7 @@ RECIPES['bean-paste'] = {
     id: 'bean-paste', cat: 'spreads',
     name: 'Паштет из фасоли', emoji: '🫘', time: 20, diff: 'easy', servings: 6,
     kcal: 120, protein: 7, fat: 4, carbs: 15, fiber: 5,
-    tags: ['до 30 мин', 'простой', 'без глютена'],
+    tags: ['до 30 мин', 'простой', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/pashtet-red-lentil.webp',
     quote: 'С этого паштета началась любовь к бобовым у старшей дочери-подростка, которая до этого ничего, кроме варёной колбаски на хлебе не признавала. А сейчас она с удовольствием ест все мои намазки :) Да, понадобилось время, но ведь главное — результат, мы же играем вдолгую!',
     ingredients: [
@@ -474,7 +474,7 @@ RECIPES['lentil-soup'] = {
     id: 'lentil-soup', cat: 'mains',
     name: 'Чечевичный суп', emoji: '🍲', time: 40, diff: 'easy', servings: 4,
     kcal: 220, protein: 13, fat: 3, carbs: 36, fiber: 10,
-    tags: ['простой', 'без глютена'],
+    tags: ['простой', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/lentil-soup.webp',
     ingredients: [
         { name: '300 гр. красной чечевицы', swap: null },
@@ -543,7 +543,7 @@ RECIPES['chickpea-noodle-soup'] = {
     id: 'chickpea-noodle-soup', cat: 'mains',
     name: 'Суп с нутом и лапшой', emoji: '🍜', time: 35, diff: 'easy', servings: 4,
     kcal: 230, protein: 11, fat: 3, carbs: 40, fiber: 7,
-    tags: ['простой'],
+    tags: ['простой', 'бобовые'],
     photo: '../images/img-guides/plant-based/chickpea-noodle-soup.webp',
     ingredients: [
         { name: '1 небольшой лук', swap: null },
@@ -778,7 +778,7 @@ RECIPES['green-lentil-cutlets'] = {
     id: 'green-lentil-cutlets', cat: 'mains',
     name: 'Котлеты из зелёной чечевицы', emoji: '🫘', time: 45, diff: 'medium', servings: 3,
     kcal: 230, protein: 14, fat: 4, carbs: 32, fiber: 10,
-    tags: ['средний', 'без глютена'],
+    tags: ['средний', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/green-lentil-cutlets.webp',
     quote: 'Из этих ингредиентов получится 6 средних котлет. Они максимально «похожи» на мясные. Ещё котлеты очень вкусны в домашних бургерах. Таких котлет я сразу делаю много, формирую и замораживаю. Потом достаточно просто пожарить их, не размораживая.',
     ingredients: [
@@ -832,7 +832,7 @@ RECIPES['chickpea-eggplant-cutlets'] = {
     id: 'chickpea-eggplant-cutlets', cat: 'mains',
     name: 'Котлеты из нута и баклажана', emoji: '🫘', time: 55, diff: 'medium', servings: 4,
     kcal: 240, protein: 12, fat: 5, carbs: 36, fiber: 10,
-    tags: ['средний', 'без глютена'],
+    tags: ['средний', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/chickpea-eggplant-patties.webp',
     quote: 'Это самые вкусные котлеты по версии моих знакомых-мясоедов. Очень советую за раз приготовить сразу пачку нута. Порционно заморозить его и потом размораживать по мере необходимости. В этом уникальность бобовых: они не теряют своих замечательных свойств после заморозки. Их тоже, как из чечевицы, можно заморозить уже сформированные и жарить не размораживая.',
     ingredients: [
@@ -865,7 +865,7 @@ RECIPES['chickpea-meatballs'] = {
     id: 'chickpea-meatballs', cat: 'mains',
     name: 'Тефтели из нута', emoji: '🫘', time: 60, diff: 'medium', servings: 4,
     kcal: 220, protein: 11, fat: 4, carbs: 34, fiber: 8,
-    tags: ['средний', 'без глютена'],
+    tags: ['средний', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/chickpea-meatballs.webp',
     quote: 'Этот рецепт похож на «Котлеты из нута», но здесь нет баклажана и тефтели мы будем сначала запекать, а потом тушить в томатах. Подавайте с любым гарниром, но я рекомендую с пюре — это что-то с чем-то!',
     ingredients: [
@@ -895,7 +895,7 @@ RECIPES['red-lentil-cutlets'] = {
     id: 'red-lentil-cutlets', cat: 'mains',
     name: 'Котлеты из красной чечевицы', emoji: '🫘', time: 35, diff: 'easy', servings: 3,
     kcal: 210, protein: 12, fat: 3, carbs: 33, fiber: 8,
-    tags: ['простой', 'без глютена'],
+    tags: ['простой', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/red-lentil-cutlets.webp',
     quote: 'Можно использовать красную, жёлтую или оранжевую чечевицу. Очень нежные котлетки, которые понравятся детям!',
     ingredients: [
@@ -924,7 +924,7 @@ RECIPES['lentil-mushroom-pilaf'] = {
     id: 'lentil-mushroom-pilaf', cat: 'mains',
     name: 'Плов с чечевицей и грибами', emoji: '🍚', time: 50, diff: 'medium', servings: 4,
     kcal: 320, protein: 11, fat: 5, carbs: 58, fiber: 7,
-    tags: ['средний', 'без глютена'],
+    tags: ['средний', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/plov-lentil.webp',
     ingredients: [
         { name: '1 средняя луковица', swap: null },
@@ -1092,7 +1092,7 @@ RECIPES['white-bean-sauce'] = {
     id: 'white-bean-sauce', cat: 'spreads',
     name: 'Соус из белой фасоли', emoji: '🫘', time: 5, diff: 'easy', servings: 6,
     kcal: 110, protein: 5, fat: 7, carbs: 8, fiber: 3,
-    tags: ['до 15 мин', 'простой', 'без глютена'],
+    tags: ['до 15 мин', 'простой', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/white-bean-sauce.webp',
     quote: 'Этот соус может заменить вам майонез. Очень вкусный сам по себе — можно есть со свежеиспечённым цельнозерновым хлебом, добавлять в любое блюдо, в том числе в качестве подливы или намазки для бургера и питы.',
     ingredients: [
@@ -1185,7 +1185,8 @@ function getCategoryDishes(catId, filters = {}) {
     if (filters.gluten)      dishes = dishes.filter(d => (d.tags||[]).includes('без глютена'));
     if (filters.plant)  dishes = dishes.filter(d => !(d.tags||[]).includes('рыбное'));
     if (filters.fish)   dishes = dishes.filter(d => (d.tags||[]).includes('рыбное'));
-    if (filters.noSoy)  dishes = dishes.filter(d => !(d.tags||[]).includes('соя'));
+    if (filters.noSoy)   dishes = dishes.filter(d => !(d.tags||[]).includes('соя'));
+    if (filters.legumes) dishes = dishes.filter(d => (d.tags||[]).includes('бобовые'));
     return dishes;
 }
 
