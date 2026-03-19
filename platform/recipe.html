@@ -25,7 +25,7 @@
                 </button>
             </div>
             <a href="index.html" class="v-header-logo-compact" style="position:absolute;left:50%;transform:translateX(-50%)">
-                <img src="../images/icons/Smart Plate YV.jpg" alt="УТ" onerror="this.style.display='none'">
+                <img src="images/icons/Smart Plate YV.jpg" alt="УТ" onerror="this.style.display='none'">
                 <span class="v-header-logo-compact-text">Умная тарелка</span>
             </a>
             <div style="display:flex;align-items:center;gap:6px">
@@ -49,7 +49,7 @@
 <!-- STICKY ADD BUTTON -->
 <div class="sticky-add" id="sticky-add" style="display:none">
     <div class="sticky-add-inner" style="display:flex;gap:10px">
-        <button class="btn btn-orange btn-full btn-lg" id="add-btn" onclick="addToPlate()">
+        <button class="btn btn-orange btn-lg" id="add-btn" onclick="addToPlate()">
             + Добавить в тарелку
         </button>
         <button class="btn btn-ghost" style="flex-shrink:0" onclick="history.back()">←</button>
@@ -73,7 +73,7 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1773900000"></script>
+<script src="data-v2.js?v=1774000000"></script>
 <script>
     Auth.requireAuth();
     updatePlateIcon();
@@ -300,7 +300,7 @@
                         <span class="recipe-badge">⏱ ${r.time} мин</span>
                         <span class="recipe-badge">⚡ ${diff}</span>
                         <span class="recipe-badge">🍽 ${r.servings || 2} порции</span>
-                        ${r.added ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">📅 ${r.added}</span>` : ''}
+                        ${r.added ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">Рецепт добавлен: ${r.added}</span>` : ''}
                     </div>
                     <h1 class="recipe-title">${r.name}</h1>
                     <div class="recipe-meta-row">

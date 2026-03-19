@@ -345,6 +345,7 @@ img { display: block; max-width: 100%; }
 }
 .cab-weight-input:focus { border-bottom-color: var(--accent); }
 .cab-weight-unit { font-size: 13px; color: var(--text-3); font-weight: 500; }
+.cab-weight-label { font-size: 13px; color: var(--text-3); font-weight: 500; }
 
 /* ── CATEGORY GRID ───────────────────────────────────── */
 .cat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }

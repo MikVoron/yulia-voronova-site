@@ -119,7 +119,7 @@
                     <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
                 </button>
                 <a href="index.html" class="v-header-logo-compact">
-                    <img src="../images/icons/Smart Plate YV.jpg" alt="УТ" onerror="this.style.display='none'">
+                    <img src="images/icons/Smart Plate YV.jpg" alt="УТ" onerror="this.style.display='none'">
                     <span class="v-header-logo-compact-text">Умная тарелка</span>
                 </a>
             </div>
@@ -150,6 +150,7 @@
                 <div class="cab-email" id="cab-email"></div>
                 <div class="cab-since" id="cab-since"></div>
                 <div class="cab-weight-row">
+                    <span class="cab-weight-label">Мой вес</span>
                     <input type="number" class="cab-weight-input" id="cab-weight"
                         placeholder="—" min="30" max="300" step="0.5"
                         onchange="saveWeight(this.value)" oninput="saveWeight(this.value)">
@@ -238,7 +239,7 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1773900000"></script>
+<script src="data-v2.js?v=1774000000"></script>
 <script>
     Auth.requireAuth();
     updatePlateIcon();
