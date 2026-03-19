@@ -21,14 +21,11 @@
 <!-- HEADER -->
 <header class="v-header" id="hdr">
     <div class="v-wrap">
-        <div class="v-header-inner">
-            <a href="../index.html" class="v-logo-block">
-                <img src="../images/icons/logo-small.png" class="v-logo-img" alt="Юлия Воронова" onerror="this.style.display='none'">
-                <div>
-                    <div class="v-logo-title">Умная тарелка</div>
-                    <div class="v-logo-name">Юлия Воронова</div>
-                    <div class="v-logo-prof">Доказательный нутрициолог</div>
-                </div>
+        <div class="v-header-inner" style="position:relative">
+            <div style="flex-shrink:0;width:32px"></div>
+            <a href="index.html" class="v-header-logo-compact" style="position:absolute;left:50%;transform:translateX(-50%)">
+                <img src="../images/icons/logo-small.png" alt="УТ" onerror="this.style.display='none'">
+                <span class="v-header-logo-compact-text">Умная тарелка</span>
             </a>
             <div class="v-header-right">
                 <div class="v-user-wrap" id="user-wrap">
@@ -69,7 +66,7 @@
                     <img src="../images/YV-small.webp" alt="Юлия" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.textContent='👩‍🍳'">
                 </div>
                 <div class="julia-info">
-                    <div class="julia-text">«Эта платформа поможет сделать каждый приём пищи полноценным и сбалансированным. Выберите категорию, откройте рецепт — и система подскажет, что добавить для идеального баланса белков, жиров и углеводов.»</div>
+                    <div class="julia-text" id="julia-quote"></div>
                 </div>
             </div>
         </div>
@@ -187,10 +184,33 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1773600000"></script>
+<script src="data-v2.js?v=1773700000"></script>
 <script>
     Auth.requireAuth();
     const user = Auth.getUser();
+
+    // Quote bank — rotates without repeating
+    (function() {
+        const quotes = [
+            'Каждый приём пищи — возможность дать телу то, что ему нужно.',
+            'Сбалансированная тарелка — это не ограничения, а инструмент заботы о себе.',
+            'Не нужно есть идеально. Нужно есть осознанно.',
+            'Растительный белок так же полноценен, если сочетать источники правильно.',
+            'Клетчатка — лучшая еда для вашего микробиома. Чем разнообразнее — тем лучше.',
+            'Голод — сигнал тела, а не слабость характера. Учитесь его слышать.',
+            'Хорошее питание не требует сложных расчётов — нужна привычка и осознанность.',
+            'Ешьте радугу: чем больше цветов в тарелке, тем больше нутриентов.',
+        ];
+        const KEY = 'julia_quote_idx';
+        const shown = JSON.parse(sessionStorage.getItem(KEY) || '[]');
+        const remaining = quotes.map((_, i) => i).filter(i => !shown.includes(i));
+        const pool = remaining.length ? remaining : quotes.map((_, i) => i);
+        const pick = pool[Math.floor(Math.random() * pool.length)];
+        const next = [...shown, pick].slice(-quotes.length);
+        sessionStorage.setItem(KEY, JSON.stringify(next));
+        const el = document.getElementById('julia-quote');
+        if (el) el.textContent = '«' + quotes[pick] + '»';
+    })();
 
     // Фото для карточек категорий
     const CAT_PHOTOS = {
