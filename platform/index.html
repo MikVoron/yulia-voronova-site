@@ -38,8 +38,6 @@
                     </div>
                     <div class="user-dropdown" id="user-dropdown">
                         <a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
-                        <label class="user-dd-item" for="ava-upload">🖼️ Сменить аватар</label>
-                        <input type="file" id="ava-upload" accept="image/*" style="display:none" onchange="handleAvatarUpload(this)">
                         <div class="user-dd-sep"></div>
                         <button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
                     </div>
@@ -89,8 +87,9 @@
             </button>
             <div class="filter-sep"></div>
             <button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
-            <button class="filter-chip" data-f="highProtein" onclick="toggleTagFilter(this)">Высокий белок</button>
-            <button class="filter-chip" data-f="sport" onclick="toggleTagFilter(this)">На спорте</button>
+            <button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
+            <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
+            <button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
             <button class="filter-chip filter-clear" onclick="clearFilters()">Сбросить</button>
         </div>
         </div>
@@ -102,6 +101,14 @@
                 <button class="btn btn-ghost btn-sm" onclick="clearPlateInline()">Очистить</button>
             </div>
             <div id="plate-inline-body"></div>
+        </div>
+
+        <!-- Featured recipe -->
+        <div class="v-sec-head anim anim-d2">
+            <div class="v-sec-title">Новый рецепт</div>
+        </div>
+        <div class="anim anim-d2" style="margin-bottom:36px" id="featured-wrap">
+            <div id="featured-recipe"></div>
         </div>
 
         <!-- Categories -->
@@ -167,9 +174,9 @@
     <button class="filter-chip" data-f="time" data-v="over60" onclick="pickFilter(this,'fg-time-btn')">Более 1 часа</button>
 </div>
 <div class="fgroup-drop" id="fg-diff-drop">
-    <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="pickFilter(this,'fg-diff-btn')">Лёгкий</button>
-    <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="pickFilter(this,'fg-diff-btn')">Средний</button>
-    <button class="filter-chip" data-f="difficulty" data-v="hard" onclick="pickFilter(this,'fg-diff-btn')">Сложный</button>
+    <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="pickFilter(this,'fg-diff-btn')">Легкая</button>
+    <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="pickFilter(this,'fg-diff-btn')">Средняя</button>
+    <button class="filter-chip" data-f="difficulty" data-v="hard" onclick="pickFilter(this,'fg-diff-btn')">Сложная</button>
 </div>
 
 <!-- CHAT FAB -->
@@ -242,6 +249,34 @@
             </button>`;
         }).join('');
     }
+    // ── FEATURED RECIPE ───────────────────────────────────────────────────
+    const FEATURED_ID = 'lentil-mushroom-pilaf';
+    function renderFeatured() {
+        const d = RECIPES[FEATURED_ID];
+        if (!d) return;
+        const diff = (typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {})[d.diff] || d.diff;
+        const photoHtml = d.photo
+            ? `<img src="${d.photo}" alt="${d.name}" loading="lazy">`
+            : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:56px">${d.emoji}</div>`;
+        document.getElementById('featured-recipe').innerHTML = `
+            <button class="featured-card" onclick="location.href='recipe.html?id=${d.id}&from=${d.cat}'">
+                <div class="featured-card-photo">
+                    ${photoHtml}
+                    <div class="card-new-badge">Новый рецепт</div>
+                </div>
+                <div class="featured-card-body">
+                    <div class="featured-card-label">Рецепт недели</div>
+                    <div class="featured-card-name">${d.name}</div>
+                    <div class="featured-card-meta">
+                        <span class="pill">⏱ ${d.time} мин</span>
+                        <span class="pill">${diff}</span>
+                    </div>
+                    <div class="featured-card-kcal">${d.kcal} ккал · ${d.protein}г белка</div>
+                </div>
+            </button>`;
+    }
+    renderFeatured();
+
     renderCats();
     renderPlateInline();
 
@@ -435,26 +470,6 @@
             document.getElementById('user-dropdown').classList.remove('open');
         }
     });
-
-    function handleAvatarUpload(input) {
-        const file = input.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const dataUrl = e.target.result;
-            // Save to localStorage
-            const u = Auth.getUser();
-            if (u) { u.avatar = dataUrl; localStorage.setItem('hp_user', JSON.stringify(u)); }
-            // Update avatar display
-            const ava = document.getElementById('u-ava');
-            ava.style.backgroundImage = `url(${dataUrl})`;
-            ava.style.backgroundSize = 'cover';
-            ava.textContent = '';
-            document.getElementById('user-dropdown').classList.remove('open');
-            showToast('✅ Аватар обновлён');
-        };
-        reader.readAsDataURL(file);
-    }
 
     // Restore avatar from localStorage on load
     if (user && user.avatar) {

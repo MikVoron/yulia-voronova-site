@@ -149,6 +149,12 @@
                 <div class="cab-name" id="cab-name">—</div>
                 <div class="cab-email" id="cab-email"></div>
                 <div class="cab-since" id="cab-since"></div>
+                <div class="cab-weight-row">
+                    <input type="number" class="cab-weight-input" id="cab-weight"
+                        placeholder="—" min="30" max="300" step="0.5"
+                        onchange="saveWeight(this.value)" oninput="saveWeight(this.value)">
+                    <span class="cab-weight-unit">кг</span>
+                </div>
             </div>
         </div>
 
@@ -269,6 +275,14 @@
         };
         reader.readAsDataURL(file);
     }
+
+    function saveWeight(v) {
+        const n = parseFloat(v);
+        if (n >= 30 && n <= 300) localStorage.setItem('user_weight', n);
+    }
+    // Load weight on init
+    const savedWeight = localStorage.getItem('user_weight');
+    if (savedWeight) document.getElementById('cab-weight').value = savedWeight;
 
     // ── TABS ──────────────────────────────────────────────────────────────────
     function switchTab(name, btn) {

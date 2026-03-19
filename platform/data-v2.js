@@ -123,7 +123,7 @@ RECIPES['tofu-syrniki'] = {
     id: 'tofu-syrniki', cat: 'breakfasts',
     name: 'Сырники из тофу', emoji: '🥞', time: 20, diff: 'easy', servings: 2,
     kcal: 210, protein: 14, fat: 8, carbs: 20, fiber: 2,
-    tags: ['до 30 мин', 'простой', 'без глютена'],
+    tags: ['до 30 мин', 'простой', 'без глютена', 'соя'],
     photo: '../images/img-guides/plant-based/tofu-sirniki.webp',
     quote: 'Их сразу и безоговорочно приняла моя семья, а самое главное — дети! Эти сырники могут жить без холодильника, в отличие от их творожных братьев. Если у вас не всегда получались сырники из творога и они разваливались, то эти «тофники» прекрасно держат форму и у вас всё получится с первого раза, легко и просто!',
     ingredients: [
@@ -253,7 +253,7 @@ RECIPES['tofu-scramble'] = {
     id: 'tofu-scramble', cat: 'breakfasts',
     name: 'Скрэмбл из тофу', emoji: '🍳', time: 15, diff: 'easy', servings: 2,
     kcal: 175, protein: 13, fat: 9, carbs: 8, fiber: 2,
-    tags: ['до 15 мин', 'простой', 'без глютена'],
+    tags: ['до 15 мин', 'простой', 'без глютена', 'соя'],
     photo: '../images/img-guides/plant-based/tofu-scrambel.webp',
     quote: 'Эту альтернативу яичнице принял даже мой муж, у которого по жизни был девиз: «если есть яйца, значит есть и еда!». Человек жить не мог без яичницы. Но тофу (и я, чего уж тут) сделал своё дело, стал альтернативой — теперь очень часто на завтрак муж просит именно этот скрэмбл из тофу!',
     ingredients: [
@@ -1183,12 +1183,13 @@ function getCategoryDishes(catId, filters = {}) {
     }
     if (filters.difficulty) dishes = dishes.filter(d => d.diff === filters.difficulty);
     if (filters.gluten)      dishes = dishes.filter(d => (d.tags||[]).includes('без глютена'));
-    if (filters.highProtein) dishes = dishes.filter(d => d.protein >= 14);
-    if (filters.sport)       dishes = dishes.filter(d => (d.tags||[]).includes('на спорте'));
+    if (filters.plant)  dishes = dishes.filter(d => !(d.tags||[]).includes('рыбное'));
+    if (filters.fish)   dishes = dishes.filter(d => (d.tags||[]).includes('рыбное'));
+    if (filters.noSoy)  dishes = dishes.filter(d => !(d.tags||[]).includes('соя'));
     return dishes;
 }
 
-const DIFF_LABELS = { easy: 'Простой', medium: 'Средний', hard: 'Сложный' };
+const DIFF_LABELS = { easy: 'Легкая', medium: 'Средняя', hard: 'Сложная' };
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
 function showToast(msg, ms = 2800) {

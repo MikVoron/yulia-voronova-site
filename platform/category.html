@@ -40,10 +40,15 @@
                 </a>
             </div>
             <div style="flex:1"></div>
-            <button class="v-plate-btn" onclick="openPlate()">
-                <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
-                <div class="plate-count" style="display:none">0</div>
-            </button>
+            <div style="display:flex;align-items:center;gap:6px">
+                <a href="cabinet.html" class="v-icon-btn" title="Личный кабинет">
+                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                </a>
+                <button class="v-plate-btn" onclick="openPlate()">
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
+                    <div class="plate-count" style="display:none">0</div>
+                </button>
+            </div>
         </div>
     </div>
 </header>
@@ -67,8 +72,9 @@
             </button>
             <div class="filter-sep"></div>
             <button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
-            <button class="filter-chip" data-f="highProtein" onclick="toggleTagFilter(this)">Высокий белок</button>
-            <button class="filter-chip" data-f="sport" onclick="toggleTagFilter(this)">На спорте</button>
+            <button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
+            <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
+            <button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
             <button class="filter-chip filter-clear" onclick="clearFilters()">Сбросить</button>
         </div>
         </div>
@@ -144,9 +150,9 @@
     <button class="filter-chip" data-f="time" data-v="over60" onclick="pickFilter(this,'fg-time-btn')">Более 1 часа</button>
 </div>
 <div class="fgroup-drop" id="fg-diff-drop">
-    <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="pickFilter(this,'fg-diff-btn')">Лёгкий</button>
-    <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="pickFilter(this,'fg-diff-btn')">Средний</button>
-    <button class="filter-chip" data-f="difficulty" data-v="hard" onclick="pickFilter(this,'fg-diff-btn')">Сложный</button>
+    <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="pickFilter(this,'fg-diff-btn')">Легкая</button>
+    <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="pickFilter(this,'fg-diff-btn')">Средняя</button>
+    <button class="filter-chip" data-f="difficulty" data-v="hard" onclick="pickFilter(this,'fg-diff-btn')">Сложная</button>
 </div>
 
 <!-- CHAT FAB -->

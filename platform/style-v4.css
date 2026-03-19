@@ -256,7 +256,7 @@ img { display: block; max-width: 100%; }
     padding: 9px 14px; border-radius: 6px; text-align: left;
     width: 100%;
 }
-.fgroup-drop .filter-chip:hover { background: var(--bg); }
+.fgroup-drop .filter-chip:hover { background: #f5e9a8; color: var(--text); }
 .fgroup-drop .filter-chip.on { background: transparent; color: var(--accent); font-weight: 700; }
 
 /* ── FAVORITE BUTTON on recipe cards ─────────────────── */
@@ -274,6 +274,69 @@ img { display: block; max-width: 100%; }
 .card-fav-btn svg { width: 16px; height: 16px; }
 .card-fav-btn.active svg { fill: #e05; stroke: #e05; }
 .card-fav-btn:not(.active) svg { fill: none; stroke: #888; stroke-width: 2; }
+
+/* ── LK ICON BUTTON ──────────────────────────────────── */
+.v-icon-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: 50%;
+    color: var(--text-2); background: transparent; border: none;
+    cursor: pointer; text-decoration: none; transition: var(--tr);
+    -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+}
+.v-icon-btn:hover { background: var(--bg-alt); color: var(--text); }
+.v-icon-btn svg { width: 22px; height: 22px; fill: currentColor; }
+
+/* ── FEATURED RECIPE CARD ────────────────────────────── */
+.featured-card {
+    display: flex; width: 100%; cursor: pointer; text-align: left;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r-m); overflow: hidden;
+    border: none; padding: 0; transition: var(--tr);
+}
+.featured-card:hover .featured-card-photo img { transform: scale(1.04); }
+.featured-card-photo {
+    width: 42%; flex-shrink: 0; position: relative; overflow: hidden;
+    background: var(--bg-alt);
+}
+.featured-card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
+.featured-card-body {
+    flex: 1; padding: clamp(16px,3vw,36px) clamp(16px,3vw,40px);
+    display: flex; flex-direction: column; justify-content: center; gap: 8px;
+}
+.featured-card-label {
+    font-size: 11px; font-weight: 800; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 1px;
+}
+.featured-card-name {
+    font-family: var(--serif); font-size: clamp(18px,2.5vw,28px);
+    font-weight: 700; color: var(--text); line-height: 1.2;
+}
+.featured-card-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+.featured-card-kcal { font-size: 13px; font-weight: 700; color: var(--accent); }
+.card-new-badge {
+    position: absolute; top: 12px; left: 12px;
+    background: #e84a3a; color: #fff;
+    font-size: 10px; font-weight: 800;
+    padding: 4px 10px; border-radius: 20px;
+    letter-spacing: .8px; text-transform: uppercase; z-index: 3;
+}
+@media (max-width: 600px) {
+    .featured-card { flex-direction: column; }
+    .featured-card-photo { width: 100%; height: 220px; }
+}
+
+/* ── WEIGHT INPUT ────────────────────────────────────── */
+.cab-weight-row {
+    display: flex; align-items: center; gap: 8px; margin-top: 8px;
+}
+.cab-weight-input {
+    width: 64px; padding: 5px 8px; font-size: 15px; font-weight: 700;
+    font-family: var(--sans); color: var(--text); text-align: center;
+    background: transparent; border: none; border-bottom: 1.5px solid var(--border);
+    outline: none; transition: border-color .2s;
+}
+.cab-weight-input:focus { border-bottom-color: var(--accent); }
+.cab-weight-unit { font-size: 13px; color: var(--text-3); font-weight: 500; }
 
 /* ── CATEGORY GRID ───────────────────────────────────── */
 .cat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
