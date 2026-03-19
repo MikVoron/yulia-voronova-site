@@ -194,7 +194,13 @@
 
     // Init header
     if (user) {
-        document.getElementById('u-ava').textContent  = user.name.charAt(0).toUpperCase();
+        const uAva = document.getElementById('u-ava');
+        const savedAva = localStorage.getItem('user_avatar');
+        if (savedAva) {
+            uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+        } else {
+            uAva.textContent = user.name.charAt(0).toUpperCase();
+        }
         document.getElementById('u-name').textContent = user.name;
         document.getElementById('greeting-hi').textContent =
             (new Date().getHours() < 12 ? 'Доброе утро' :
