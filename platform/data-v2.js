@@ -593,15 +593,15 @@ RECIPES['buckwheat-soup'] = {
     ingredients: [
         { name: '1 лук', swap: null },
         { name: '1 морковь', swap: null },
-        { name: '2 картофеля', swap: null },
+        { name: '2 картофеля', swap: 'Батат или цветная капуста — менее крахмалистый вариант' },
         { name: '1/2 ч.л. сушёного чеснока или 1 зубчик свежего', swap: null },
         { name: '1 ч.л. паприки', swap: null },
         { name: '1 ч.л. томатной пасты', swap: null },
         { name: '1 ч.л. кориандра', swap: null },
         { name: '1 ч.л. соли', swap: null },
-        { name: '160 г. сухой гречки', swap: null },
+        { name: '160 г. сухой гречки', swap: 'Булгур, рис или перловка — на ваш вкус' },
         { name: '2,5 л. воды', swap: null },
-        { name: '5 ч.л. овощной пасты', swap: 'Или 2,5 л. овощного бульона' },
+        { name: '5 ч.л. овощной пасты', swap: 'Или 2,5 л. готового овощного бульона' },
     ],
     steps: [
         { text: 'Обжариваем в небольшом количестве оливкового масла лук. Добавляем специи и обжариваем ещё 1 мин. Добавляем томатную пасту, перемешиваем. Вводим морковь, тщательно перемешиваем, добавляем пару ложек воды и тушим около 7–9 мин.', photo: 'images/recipes/soup-bucket-quinoa/soup-bucket-quinoa-1.webp' },
@@ -611,7 +611,20 @@ RECIPES['buckwheat-soup'] = {
         { text: 'В этом случае варим суп до готовности картофеля, вводим готовую гречку, доводим до кипения и выключаем. Даём супу настояться 30 мин. и подаём.', photo: 'images/recipes/soup-bucket-quinoa/soup-bucket-quinoa-5.webp' },
     ],
     vkVideo: null,
-    addProtein: [], addFat: [], addCarbs: [], addFiber: [],
+    addProtein: [
+        { name: 'Нут отварной (3 ст.л.)', kcal: 120, protein: 7, fat: 2, carbs: 18, fiber: 4 },
+        { name: 'Тофу (50 г)', kcal: 40, protein: 5, fat: 2, carbs: 1, fiber: 0 },
+        { name: 'Красная чечевица (2 ст.л. сухой)', kcal: 110, protein: 8, fat: 0, carbs: 18, fiber: 3 },
+    ],
+    addFat: [
+        { name: 'Тыквенные семечки (1 ст.л.)', kcal: 55, protein: 3, fat: 4, carbs: 1, fiber: 0 },
+        { name: 'Льняные семечки (1 ч.л.)', kcal: 35, protein: 1, fat: 3, carbs: 2, fiber: 1 },
+    ],
+    addCarbs: [],
+    addFiber: [
+        { name: 'Свежая зелень — укроп, петрушка (горсть)', kcal: 5, protein: 0, fat: 0, carbs: 1, fiber: 1 },
+        { name: 'Листья шпината (горсть)', kcal: 15, protein: 2, fat: 0, carbs: 2, fiber: 2 },
+    ],
 };
 
 RECIPES['broccoli-cream-soup'] = {

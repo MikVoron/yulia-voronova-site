@@ -103,13 +103,11 @@
             <div id="plate-inline-body"></div>
         </div>
 
-        <!-- Featured recipe -->
+        <!-- News feed -->
         <div class="v-sec-head anim anim-d2">
-            <div class="v-sec-title">Новый рецепт</div>
+            <div class="v-sec-title">Что новенького?</div>
         </div>
-        <div class="anim anim-d2" style="margin-bottom:36px" id="featured-wrap">
-            <div id="featured-recipe"></div>
-        </div>
+        <div class="news-feed anim anim-d2" id="news-feed"></div>
 
         <!-- Categories -->
         <div class="v-sec-head anim anim-d2">
@@ -184,7 +182,7 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1774000000"></script>
+<script src="data-v2.js?v=1774100000"></script>
 <script>
     Auth.requireAuth();
     const user = Auth.getUser();
@@ -273,33 +271,71 @@
             </button>`;
         }).join('');
     }
-    // ── FEATURED RECIPE ───────────────────────────────────────────────────
-    const FEATURED_ID = 'lentil-mushroom-pilaf';
-    function renderFeatured() {
-        const d = RECIPES[FEATURED_ID];
-        if (!d) return;
-        const diff = (typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {})[d.diff] || d.diff;
-        const photoHtml = d.photo
-            ? `<img src="${d.photo}" alt="${d.name}" loading="lazy">`
-            : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:56px">${d.emoji}</div>`;
-        document.getElementById('featured-recipe').innerHTML = `
-            <button class="featured-card" onclick="location.href='recipe.html?id=${d.id}&from=${d.cat}'">
-                <div class="featured-card-photo">
-                    ${photoHtml}
-                    <div class="card-new-badge">Новый рецепт</div>
-                </div>
-                <div class="featured-card-body">
-                    <div class="featured-card-label">Рецепт недели</div>
-                    <div class="featured-card-name">${d.name}</div>
-                    <div class="featured-card-meta">
-                        <span class="pill">⏱ ${d.time} мин</span>
-                        <span class="pill">${diff}</span>
+    // ── NEWS FEED ─────────────────────────────────────────────────────────
+    const NEWS_FEED = [
+        {
+            type: 'news',
+            text: 'Сегодня я сделала невероятное! На сайте появились новые фильтры и возможности распечатать всё быстро и в один клик.',
+            date: '19 марта 2026',
+        },
+        {
+            type: 'recipe',
+            id: 'lentil-mushroom-pilaf',
+            badge: 'Новый рецепт',
+            label: 'Рецепт недели',
+            date: '19 марта 2026',
+        },
+    ];
+
+    function renderNewsFeed() {
+        const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
+        const feed = document.getElementById('news-feed');
+        if (!feed) return;
+        feed.innerHTML = NEWS_FEED.map(item => {
+            if (item.type === 'news') {
+                return `<div class="news-text-card">
+                    <div class="news-text-card-top">
+                        <div class="news-text-card-ava">
+                            <img src="../images/YV-small.webp" alt="Юлия" onerror="this.parentElement.textContent='👩‍🍳'">
+                        </div>
+                        <div class="news-text-card-meta">
+                            <div class="news-text-card-author">Юлия Воронова</div>
+                            <div class="news-text-card-date">${item.date}</div>
+                        </div>
                     </div>
-                    <div class="featured-card-kcal">${d.kcal} ккал · ${d.protein}г белка</div>
-                </div>
-            </button>`;
+                    <div class="news-text-card-body">${item.text}</div>
+                </div>`;
+            }
+            if (item.type === 'recipe') {
+                const d = RECIPES[item.id];
+                if (!d) return '';
+                const diff = diff_labels[d.diff] || d.diff;
+                const photoHtml = d.photo
+                    ? `<img src="${d.photo}" alt="${d.name}" loading="lazy">`
+                    : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:56px">${d.emoji}</div>`;
+                return `<button class="featured-card" onclick="location.href='recipe.html?id=${d.id}&from=${d.cat}'">
+                    <div class="featured-card-photo">
+                        ${photoHtml}
+                        ${item.badge ? `<div class="card-new-badge">${item.badge}</div>` : ''}
+                    </div>
+                    <div class="featured-card-body">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                            <div class="featured-card-label">${item.label || ''}</div>
+                            <div style="font-size:11px;color:var(--text-3)">${item.date}</div>
+                        </div>
+                        <div class="featured-card-name">${d.name}</div>
+                        <div class="featured-card-meta">
+                            <span class="pill">⏱ ${d.time} мин</span>
+                            <span class="pill">${diff}</span>
+                        </div>
+                        <div class="featured-card-kcal">${d.kcal} ккал · ${d.protein}г белка</div>
+                    </div>
+                </button>`;
+            }
+            return '';
+        }).join('');
     }
-    renderFeatured();
+    renderNewsFeed();
 
     renderCats();
     renderPlateInline();
