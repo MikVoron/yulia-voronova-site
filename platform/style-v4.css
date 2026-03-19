@@ -192,22 +192,87 @@ img { display: block; max-width: 100%; }
 }
 
 /* ── FILTERS ─────────────────────────────────────────── */
-.filter-row {
-    display: flex; flex-wrap: nowrap; overflow-x: auto;
-    gap: 4px; margin-bottom: 24px;
+/* ── FILTER BAR ──────────────────────────────────────── */
+/* Scroll wrapper — clips only X, lets dropdowns show downward */
+.filter-scroll-wrap {
+    overflow-x: auto; overflow-y: visible;
     scrollbar-width: none; -webkit-overflow-scrolling: touch;
-    border-bottom: 1px solid var(--border); padding-bottom: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
 }
-.filter-row::-webkit-scrollbar { display: none; }
+.filter-scroll-wrap::-webkit-scrollbar { display: none; }
+.filter-bar {
+    display: flex; flex-wrap: nowrap; align-items: center;
+    gap: 4px; min-width: max-content;
+    overflow: visible;
+}
+
+
+/* plain tag chips */
 .filter-chip {
-    padding: 9px 18px; border-radius: var(--r-s);
-    font-size: 13px; font-weight: 700;
+    padding: 9px 14px; border-radius: var(--r-s);
+    font-size: 13px; font-weight: 600;
     background: transparent; color: var(--text-2);
     border: none; cursor: pointer;
     transition: var(--tr); white-space: nowrap; flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
 }
 .filter-chip:hover { color: var(--text); }
 .filter-chip.on { background: #f5e9a8; color: var(--text); }
+.filter-clear { color: var(--text-3); font-weight: 500; }
+
+/* separator between groups and tags */
+.filter-sep {
+    width: 1px; height: 20px; background: var(--border);
+    flex-shrink: 0; margin: 0 4px;
+}
+
+/* dropdown group button — standalone, no wrapper needed */
+.fgroup-btn {
+    display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+    padding: 9px 12px; border-radius: var(--r-s);
+    font-size: 13px; font-weight: 600; color: var(--text-2);
+    background: transparent; border: none; cursor: pointer;
+    white-space: nowrap; transition: var(--tr);
+    -webkit-tap-highlight-color: transparent;
+}
+.fgroup-btn:hover { color: var(--text); }
+.fgroup-btn.has-value { background: #f5e9a8; color: var(--text); }
+.fg-arrow {
+    width: 10px; height: 6px; flex-shrink: 0;
+    transition: transform 0.2s;
+}
+.fgroup-btn.open .fg-arrow { transform: rotate(180deg); }
+
+/* dropdown panel — appended to <body>, position:absolute avoids transform/overflow issues */
+.fgroup-drop {
+    display: none; position: absolute;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r-s); box-shadow: 0 8px 24px rgba(0,0,0,.13);
+    padding: 6px; z-index: 400; min-width: 150px;
+    flex-direction: column; gap: 2px;
+}
+.fgroup-drop .filter-chip {
+    padding: 9px 14px; border-radius: 6px; text-align: left;
+    width: 100%;
+}
+.fgroup-drop .filter-chip:hover { background: var(--bg); }
+
+/* ── FAVORITE BUTTON on recipe cards ─────────────────── */
+.card-fav-btn {
+    position: absolute; top: 8px; right: 8px;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,.88); border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 2; padding: 0;
+    pointer-events: all;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .15s;
+}
+.card-fav-btn:active { transform: scale(.88); }
+.card-fav-btn svg { width: 16px; height: 16px; }
+.card-fav-btn.active svg { fill: #e05; stroke: #e05; }
+.card-fav-btn:not(.active) svg { fill: none; stroke: #888; stroke-width: 2; }
 
 /* ── CATEGORY GRID ───────────────────────────────────── */
 .cat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }

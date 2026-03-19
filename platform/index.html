@@ -77,14 +77,22 @@
         </div>
 
         <!-- Filters -->
-        <div class="filter-row anim anim-d1" id="filter-row">
-            <button class="filter-chip on" data-f="time" data-v="15" onclick="toggleFilter(this)">До 15 мин</button>
-            <button class="filter-chip" data-f="time" data-v="30" onclick="toggleFilter(this)">До 30 мин</button>
-            <button class="filter-chip" data-f="time" data-v="60" onclick="toggleFilter(this)">Менее часа</button>
-            <button class="filter-chip" data-f="time" data-v="120" onclick="toggleFilter(this)">Более часа</button>
-            <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="toggleFilter(this)">Простой</button>
-            <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="toggleFilter(this)">Средний</button>
-            <button class="filter-chip" onclick="clearFilters()">Сбросить</button>
+        <div class="filter-scroll-wrap anim anim-d1">
+        <div class="filter-bar" id="filter-row">
+            <button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" onclick="toggleFGroup(this)">
+                <span class="fg-label">Время</span>
+                <svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg>
+            </button>
+            <button class="fgroup-btn" id="fg-diff-btn" data-label="Сложность" data-drop="fg-diff-drop" onclick="toggleFGroup(this)">
+                <span class="fg-label">Сложность</span>
+                <svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg>
+            </button>
+            <div class="filter-sep"></div>
+            <button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
+            <button class="filter-chip" data-f="highProtein" onclick="toggleTagFilter(this)">Высокий белок</button>
+            <button class="filter-chip" data-f="sport" onclick="toggleTagFilter(this)">На спорте</button>
+            <button class="filter-chip filter-clear" onclick="clearFilters()">Сбросить</button>
+        </div>
         </div>
 
         <!-- Твоя тарелка (inline, shown when plate has items) -->
@@ -152,12 +160,24 @@
     </div>
 </footer>
 
+<!-- FILTER DROPDOWNS -->
+<div class="fgroup-drop" id="fg-time-drop">
+    <button class="filter-chip" data-f="time" data-v="30" onclick="pickFilter(this,'fg-time-btn')">До 30 мин</button>
+    <button class="filter-chip" data-f="time" data-v="60" onclick="pickFilter(this,'fg-time-btn')">До 1 часа</button>
+    <button class="filter-chip" data-f="time" data-v="over60" onclick="pickFilter(this,'fg-time-btn')">Более 1 часа</button>
+</div>
+<div class="fgroup-drop" id="fg-diff-drop">
+    <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="pickFilter(this,'fg-diff-btn')">Лёгкий</button>
+    <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="pickFilter(this,'fg-diff-btn')">Средний</button>
+    <button class="filter-chip" data-f="difficulty" data-v="hard" onclick="pickFilter(this,'fg-diff-btn')">Сложный</button>
+</div>
+
 <!-- CHAT FAB -->
 <button class="chat-fab" onclick="showChatInfo()" title="Чат с отделом заботы">
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1773410000"></script>
+<script src="data-v2.js?v=1773500000"></script>
 <script>
     Auth.requireAuth();
     const user = Auth.getUser();
@@ -195,7 +215,7 @@
         return n + ' рецептов';
     }
 
-    const activeFilters = { time: 15 };
+    const activeFilters = {};
 
     function renderCats() {
         const grid = document.getElementById('cat-grid');
@@ -220,17 +240,62 @@
     renderPlateInline();
 
     // ── FILTERS ──────────────────────────────────────────────────────────
-    function toggleFilter(el) {
+    let openFGroup = null;
+    function toggleFGroup(btn) {
+        const dropId = btn.dataset.drop;
+        const isOpen = openFGroup === dropId;
+        closeFGroups();
+        if (!isOpen) {
+            const drop = document.getElementById(dropId);
+            const rect = btn.getBoundingClientRect();
+            drop.style.top  = (rect.bottom + window.scrollY + 4) + 'px';
+            drop.style.left = Math.max(8, rect.left) + 'px';
+            drop.style.display = 'flex';
+            btn.classList.add('open');
+            openFGroup = dropId;
+        }
+    }
+    function closeFGroups() {
+        document.querySelectorAll('.fgroup-drop').forEach(d => d.style.display = 'none');
+        document.querySelectorAll('.fgroup-btn.open').forEach(b => b.classList.remove('open'));
+        openFGroup = null;
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('[data-drop]') && !e.target.closest('.fgroup-drop')) closeFGroups();
+    });
+    function pickFilter(el, btnId) {
         const f = el.dataset.f, v = el.dataset.v;
-        // Radio within group
-        document.querySelectorAll(`[data-f="${f}"]`).forEach(b => b.classList.remove('on'));
-        if (activeFilters[f] == v) { delete activeFilters[f]; }
-        else { el.classList.add('on'); activeFilters[f] = f === 'time' ? +v : v; }
+        const btn  = document.getElementById(btnId);
+        const drop = document.getElementById(btn.dataset.drop);
+        const alreadyOn = el.classList.contains('on');
+        drop.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+        if (alreadyOn) {
+            delete activeFilters[f];
+            btn.classList.remove('has-value');
+            btn.querySelector('.fg-label').textContent = btn.dataset.label;
+        } else {
+            el.classList.add('on');
+            activeFilters[f] = f === 'time' ? (v === 'over60' ? 'over60' : +v) : v;
+            btn.classList.add('has-value');
+            btn.querySelector('.fg-label').textContent = el.textContent.trim();
+        }
+        closeFGroups();
+        renderCats();
+    }
+    function toggleTagFilter(el) {
+        const f = el.dataset.f;
+        if (el.classList.contains('on')) { el.classList.remove('on'); delete activeFilters[f]; }
+        else { el.classList.add('on'); activeFilters[f] = true; }
         renderCats();
     }
     function clearFilters() {
         Object.keys(activeFilters).forEach(k => delete activeFilters[k]);
-        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+        document.querySelectorAll('.filter-chip.on').forEach(c => c.classList.remove('on'));
+        document.querySelectorAll('.fgroup-btn').forEach(b => {
+            b.classList.remove('has-value');
+            b.querySelector('.fg-label').textContent = b.dataset.label;
+        });
+        closeFGroups();
         renderCats();
     }
 

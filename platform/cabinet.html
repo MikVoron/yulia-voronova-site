@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой кабинет — Умная тарелка</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style-v4.css">
+    <style>
+        /* ── PROFILE ── */
+        .cab-profile {
+            display: flex; align-items: center; gap: 20px;
+            padding: 28px 0 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .cab-ava-wrap { position: relative; flex-shrink: 0; cursor: pointer; }
+        .cab-ava {
+            width: 72px; height: 72px; border-radius: 50%;
+            background: var(--accent); color: #fff;
+            font-family: var(--serif); font-size: 30px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; border: 2px solid var(--border);
+        }
+        .cab-ava img { width: 100%; height: 100%; object-fit: cover; }
+        .cab-ava-badge {
+            position: absolute; bottom: 0; right: 0;
+            width: 22px; height: 22px; border-radius: 50%;
+            background: var(--accent); border: 2px solid var(--card);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cab-ava-badge svg { width: 11px; height: 11px; fill: #fff; }
+        .cab-name { font-family: var(--serif); font-size: 24px; font-weight: 700; color: var(--text); line-height: 1.15; }
+        .cab-email { font-size: 13px; color: var(--text-3); margin-top: 3px; }
+        .cab-since { font-size: 11px; color: var(--text-3); margin-top: 5px; }
+
+        /* ── TABS ── */
+        .cab-tabs {
+            display: flex; gap: 0; margin: 20px 0 0;
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .cab-tabs::-webkit-scrollbar { display: none; }
+        .cab-tab {
+            padding: 10px 18px; font-size: 13px; font-weight: 700;
+            color: var(--text-3); border: none; background: none; cursor: pointer;
+            border-bottom: 2px solid transparent; margin-bottom: -2px;
+            white-space: nowrap; transition: color .2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .cab-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .cab-tab-panel { display: none; padding: 24px 0; }
+        .cab-tab-panel.active { display: block; }
+
+        /* ── ИСТОРИЯ ТАРЕЛОК ── */
+        .hist-empty { text-align: center; padding: 50px 20px; color: var(--text-3); font-size: 14px; }
+        .hist-entry {
+            border: 1px solid var(--border); border-radius: var(--r-s);
+            margin-bottom: 14px; overflow: hidden;
+        }
+        .hist-entry-head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px; background: var(--bg-alt);
+            cursor: pointer; user-select: none;
+        }
+        .hist-date { font-size: 13px; font-weight: 700; color: var(--text); }
+        .hist-macros { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+        .hist-arrow { font-size: 14px; color: var(--text-3); transition: transform .2s; }
+        .hist-entry.open .hist-arrow { transform: rotate(180deg); }
+        .hist-items { display: none; padding: 10px 16px 14px; }
+        .hist-entry.open .hist-items { display: block; }
+        .hist-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 6px 0; border-bottom: 1px solid var(--border);
+        }
+        .hist-item:last-child { border-bottom: none; }
+        .hist-item-emoji { font-size: 18px; flex-shrink: 0; }
+        .hist-item-name { font-size: 13px; color: var(--text); flex: 1; }
+        .hist-item-kcal { font-size: 12px; color: var(--text-3); flex-shrink: 0; }
+
+        /* ── ИЗБРАННЫЕ ── */
+        .fav-empty { text-align: center; padding: 50px 20px; color: var(--text-3); font-size: 14px; }
+
+        /* ── ЗАМЕТКИ ── */
+        .notes-wrap { display: flex; flex-direction: column; gap: 12px; }
+        .notes-textarea {
+            width: 100%; min-height: 200px; padding: 14px;
+            font-family: var(--sans); font-size: 14px; color: var(--text);
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--r-s); resize: vertical; line-height: 1.6;
+            box-sizing: border-box; outline: none; transition: border-color .2s;
+        }
+        .notes-textarea:focus { border-color: var(--accent); }
+        .notes-saved { font-size: 12px; color: var(--text-3); height: 16px; }
+
+        /* ── HEART BUTTON on cards ── */
+        .card-fav-btn {
+            position: absolute; top: 8px; right: 8px;
+            width: 28px; height: 28px; border-radius: 50%;
+            background: rgba(255,255,255,.88); border: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 2; padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .card-fav-btn svg { width: 16px; height: 16px; }
+        .card-fav-btn.active svg { fill: #e05; stroke: #e05; }
+        .card-fav-btn:not(.active) svg { fill: none; stroke: #888; stroke-width: 2; }
+    </style>
+</head>
+<body class="v-page">
+
+<!-- HEADER -->
+<header class="v-header" id="hdr">
+    <div class="v-wrap">
+        <div class="v-header-inner">
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                <button class="v-back" onclick="location.href='index.html'" style="padding:6px 8px">
+                    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                </button>
+                <a href="index.html" class="v-header-logo-compact">
+                    <img src="../images/icons/logo-small.png" alt="УТ" onerror="this.style.display='none'">
+                    <span class="v-header-logo-compact-text">Умная тарелка</span>
+                </a>
+            </div>
+            <div style="flex:1"></div>
+            <button class="v-plate-btn" onclick="openPlate()">
+                <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
+                <div class="plate-count" style="display:none">0</div>
+            </button>
+        </div>
+    </div>
+</header>
+
+<input type="file" id="ava-upload" accept="image/*" style="display:none" onchange="handleAvatarUpload(this)">
+
+<main style="flex:1; padding-bottom: 80px;">
+    <div class="v-wrap">
+
+        <!-- Profile -->
+        <div class="cab-profile anim">
+            <div class="cab-ava-wrap" onclick="document.getElementById('ava-upload').click()">
+                <div class="cab-ava" id="cab-ava">?</div>
+                <div class="cab-ava-badge">
+                    <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83z"/></svg>
+                </div>
+            </div>
+            <div>
+                <div class="cab-name" id="cab-name">—</div>
+                <div class="cab-email" id="cab-email"></div>
+                <div class="cab-since" id="cab-since"></div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="cab-tabs">
+            <button class="cab-tab active" onclick="switchTab('history',this)">История</button>
+            <button class="cab-tab" onclick="switchTab('favorites',this)">Избранные</button>
+            <button class="cab-tab" onclick="switchTab('notes',this)">Заметки</button>
+            <button class="cab-tab" onclick="switchTab('recipes',this)">Все рецепты</button>
+        </div>
+
+        <!-- История тарелок -->
+        <div class="cab-tab-panel active" id="panel-history">
+            <div id="history-body"></div>
+        </div>
+
+        <!-- Избранные -->
+        <div class="cab-tab-panel" id="panel-favorites">
+            <div class="recipe-card-grid" id="fav-grid"></div>
+        </div>
+
+        <!-- Заметки -->
+        <div class="cab-tab-panel" id="panel-notes">
+            <div class="notes-wrap">
+                <div class="v-sec-title" style="margin-bottom:14px">Новая заметка</div>
+                <textarea class="notes-textarea" id="notes-ta"
+                    placeholder="Идеи рецептов, цели, наблюдения о питании…"></textarea>
+                <button class="btn btn-green" style="margin-top:10px;align-self:flex-start" onclick="addNote()">Сохранить</button>
+                <div id="notes-list" style="margin-top:28px"></div>
+            </div>
+        </div>
+
+        <!-- Все рецепты -->
+        <div class="cab-tab-panel" id="panel-recipes">
+            <div class="filter-scroll-wrap">
+            <div class="filter-bar" id="filter-row">
+                <button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" onclick="toggleFGroup(this)">
+                    <span class="fg-label">Время</span>
+                    <svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg>
+                </button>
+                <button class="fgroup-btn" id="fg-diff-btn" data-label="Сложность" data-drop="fg-diff-drop" onclick="toggleFGroup(this)">
+                    <span class="fg-label">Сложность</span>
+                    <svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg>
+                </button>
+                <div class="filter-sep"></div>
+                <button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
+                <button class="filter-chip" data-f="highProtein" onclick="toggleTagFilter(this)">Высокий белок</button>
+                <button class="filter-chip" data-f="sport" onclick="toggleTagFilter(this)">На спорте</button>
+                <button class="filter-chip filter-clear" onclick="clearFilters()">Сбросить</button>
+            </div>
+            </div>
+            <div style="padding-top:16px;margin-bottom:8px;font-size:13px;color:var(--text-3);font-weight:600" id="count-label"></div>
+            <div class="recipe-card-grid" id="dish-list"></div>
+        </div>
+
+    </div>
+</main>
+
+<!-- MY PLATE MODAL -->
+<div class="modal-overlay" id="plate-overlay" onclick="closePlateIfOutside(event)">
+    <div class="modal-box" id="plate-modal">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <div class="modal-title">🍽️ Моя тарелка</div>
+            <button class="modal-close" onclick="closePlate()">✕</button>
+        </div>
+        <div class="modal-body" id="plate-body"></div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="v-footer">
+    <div class="v-footer-inner">
+        <div class="v-footer-brand">Умная <span>тарелка</span></div>
+        <div class="v-footer-links">
+            <a href="https://voronova.online" target="_blank" rel="noopener">Сайт</a>
+            <span class="v-footer-sep"></span>
+            <a href="../guides.html">Гайды</a>
+            <span class="v-footer-sep"></span>
+            <a href="../tests.html">Тесты</a>
+        </div>
+        <div class="v-footer-social">
+            <a href="https://t.me/YuliaVoronova78" target="_blank" rel="noopener" aria-label="Telegram">
+                <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
+            </a>
+            <a href="https://youtube.com/@voronova_nutrition" target="_blank" rel="noopener" aria-label="YouTube">
+                <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+            <a href="https://vk.com/voronova_nutrition" target="_blank" rel="noopener" aria-label="VK">
+                <svg viewBox="0 0 24 24"><path d="M12.785 16.241s.288-.032.436-.194c.136-.148.131-.427.131-.427s-.019-1.304.582-1.496c.592-.189 1.352 1.26 2.158 1.817.61.422 1.073.329 1.073.329l2.155-.03s1.128-.07.593-.957c-.044-.073-.312-.659-1.608-1.865-1.357-1.259-1.175-1.056.459-3.234.997-1.328 1.396-2.139 1.271-2.486-.12-.331-.848-.244-.848-.244l-2.425.015s-.18-.025-.313.055c-.131.079-.215.262-.215.262s-.388 1.036-.905 1.916c-1.09 1.85-1.526 1.948-1.703 1.833-.414-.267-.311-1.073-.311-1.646 0-1.789.271-2.534-.528-2.726-.265-.064-.46-.106-1.138-.113-.871-.009-1.608.003-2.025.207-.278.136-.492.439-.361.456.161.022.527.099.721.363.251.341.242 1.107.242 1.107s.144 2.107-.336 2.368c-.329.18-.781-.187-1.752-1.865-.498-.859-.875-1.81-.875-1.81s-.072-.176-.202-.271c-.157-.115-.376-.151-.376-.151l-2.304.015s-.346.01-.473.161C4.021 8.824 4.117 9.1 4.117 9.1s1.801 4.22 3.839 6.348c1.87 1.951 3.994 1.822 3.994 1.822h.961l.026-.029z"/></svg>
+            </a>
+            <a href="https://dzen.ru/voronova_nutrition" target="_blank" rel="noopener" aria-label="Дзен">
+                <svg viewBox="0 0 129 129"><path d="M128.389 62.78C128.389 62.14 127.869 61.61 127.229 61.58C104.266 60.71 90.291 57.78 80.514 48.005C70.717 38.208 67.798 24.223 66.928 1.21C66.908.57 66.378.05 65.728.05H63.049C62.409.05 61.88.57 61.85 1.21C60.98 24.213 58.061 38.208 48.264 48.005C38.477 57.792 24.511 60.711 1.548 61.58C.909 61.601.389 62.131.389 62.78V65.46C.389 66.099.909 66.629 1.548 66.659C24.511 67.529 38.487 70.458 48.264 80.235C58.041 90.012 60.96 103.958 61.84 126.88C61.86 127.52 62.389 128.04 63.039 128.04H65.728C66.368 128.04 66.898 127.52 66.928 126.88C67.808 103.958 70.727 90.012 80.504 80.235C90.291 70.448 104.256 67.529 127.219 66.659C127.859 66.639 128.379 66.109 128.379 65.46V62.78H128.389Z"/></svg>
+            </a>
+            <a href="https://rutube.ru/channel/47038007/" target="_blank" rel="noopener" aria-label="RuTube">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12"/><path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff"/></svg>
+            </a>
+        </div>
+        <div class="v-footer-copy">© Юлия Воронова · Конструктор питания</div>
+    </div>
+</footer>
+
+<!-- FILTER DROPDOWNS -->
+<div class="fgroup-drop" id="fg-time-drop">
+    <button class="filter-chip" data-f="time" data-v="30" onclick="pickFilter(this,'fg-time-btn')">До 30 мин</button>
+    <button class="filter-chip" data-f="time" data-v="60" onclick="pickFilter(this,'fg-time-btn')">До 1 часа</button>
+    <button class="filter-chip" data-f="time" data-v="over60" onclick="pickFilter(this,'fg-time-btn')">Более 1 часа</button>
+</div>
+<div class="fgroup-drop" id="fg-diff-drop">
+    <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="pickFilter(this,'fg-diff-btn')">Лёгкий</button>
+    <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="pickFilter(this,'fg-diff-btn')">Средний</button>
+    <button class="filter-chip" data-f="difficulty" data-v="hard" onclick="pickFilter(this,'fg-diff-btn')">Сложный</button>
+</div>
+
+<!-- CHAT FAB -->
+<button class="chat-fab" onclick="alert('💬 Чат с отделом заботы\n\n@voronova_support в Telegram')" title="Чат с отделом заботы">
+    <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+</button>
+
+<script src="data-v2.js?v=1773500000"></script>
+<script>
+    Auth.requireAuth();
+    updatePlateIcon();
+
+    // ── SCROLL HEADER ─────────────────────────────────────────────────────────
+    window.addEventListener('scroll', () =>
+        document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
+
+    // ── PROFILE ───────────────────────────────────────────────────────────────
+    const user = Auth.getUser();
+    if (user) {
+        document.getElementById('cab-name').textContent = user.name || user.email;
+        document.getElementById('cab-email').textContent = user.email;
+        const joined = user.joined
+            ? new Date(user.joined).toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' })
+            : '';
+        if (joined) document.getElementById('cab-since').textContent = 'В сервисе с ' + joined;
+        const avaEl = document.getElementById('cab-ava');
+        const savedAva = localStorage.getItem('user_avatar');
+        if (savedAva) {
+            avaEl.innerHTML = `<img src="${savedAva}" alt="avatar">`;
+        } else {
+            avaEl.textContent = (user.name || user.email || '?').charAt(0).toUpperCase();
+        }
+    }
+
+    function handleAvatarUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            localStorage.setItem('user_avatar', e.target.result);
+            document.getElementById('cab-ava').innerHTML = `<img src="${e.target.result}" alt="avatar">`;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // ── TABS ──────────────────────────────────────────────────────────────────
+    function switchTab(name, btn) {
+        document.querySelectorAll('.cab-tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.cab-tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('panel-' + name).classList.add('active');
+        if (name === 'history')   renderHistory();
+        if (name === 'favorites') renderFavorites();
+        if (name === 'notes')     loadNotes();
+        if (name === 'recipes')   renderDishes();
+    }
+
+    // ── ИСТОРИЯ ТАРЕЛОК ───────────────────────────────────────────────────────
+    function renderHistory() {
+        const hist = Plate.getHistory();
+        const el = document.getElementById('history-body');
+        if (!hist.length) {
+            el.innerHTML = '<div class="hist-empty">История пока пуста.<br>Сохраните тарелку из главного меню.</div>';
+            return;
+        }
+        el.innerHTML = hist.map((entry, idx) => {
+            const d = new Date(entry.date);
+            const dateStr = d.toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' });
+            const timeStr = d.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' });
+            const t = entry.totals || {};
+            const items = entry.items || [];
+            return `<div class="hist-entry" id="he-${idx}">
+                <div class="hist-entry-head" onclick="toggleHist(${idx})">
+                    <div>
+                        <div class="hist-date">${dateStr}, ${timeStr}</div>
+                        <div class="hist-macros">${t.kcal||0} ккал · Б${t.protein||0} · Ж${t.fat||0} · У${t.carbs||0}</div>
+                    </div>
+                    <span class="hist-arrow">▾</span>
+                </div>
+                <div class="hist-items">
+                    ${items.map(it => `<div class="hist-item">
+                        <span class="hist-item-emoji">${it.emoji||'🍴'}</span>
+                        <span class="hist-item-name">${it.name}</span>
+                        <span class="hist-item-kcal">${it.kcal||0} ккал</span>
+                    </div>`).join('')}
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function toggleHist(idx) {
+        document.getElementById('he-' + idx).classList.toggle('open');
+    }
+
+    renderHistory();
+
+    // ── ИЗБРАННЫЕ ─────────────────────────────────────────────────────────────
+    function renderFavorites() {
+        const ids = Favorites.get();
+        const grid = document.getElementById('fav-grid');
+        if (!ids.length) {
+            grid.innerHTML = '<div class="fav-empty">Нет избранных рецептов.<br>Нажмите ♡ на карточке рецепта.</div>';
+            return;
+        }
+        const dishes = ids.map(id => RECIPES[id]).filter(Boolean);
+        grid.innerHTML = dishes.map(d => recipeCardHtml(d)).join('');
+    }
+
+    // ── ЗАМЕТКИ ───────────────────────────────────────────────────────────────
+    let editingNoteId = null;
+
+    function loadNotes() {
+        renderNotesList();
+    }
+
+    function addNote() {
+        const ta = document.getElementById('notes-ta');
+        const text = ta.value.trim();
+        if (!text) { ta.focus(); return; }
+        if (editingNoteId) {
+            Notes.update(editingNoteId, text);
+            editingNoteId = null;
+        } else {
+            Notes.add(text);
+        }
+        ta.value = '';
+        document.querySelector('.btn-green[onclick="addNote()"]').textContent = 'Сохранить';
+        renderNotesList();
+    }
+
+    function renderNotesList() {
+        const notes = Notes.get();
+        const el = document.getElementById('notes-list');
+        if (!notes.length) { el.innerHTML = ''; return; }
+        const plural = n => n === 1 ? '1 заметка' : n <= 4 ? n + ' заметки' : n + ' заметок';
+        el.innerHTML = `<div style="font-size:13px;color:var(--text-3);font-weight:600;margin-bottom:14px">${plural(notes.length)}</div>` +
+            notes.map(n => {
+                const d = new Date(n.updated || n.date);
+                const dateStr = d.toLocaleDateString('ru-RU', { day:'numeric', month:'short' });
+                const preview = n.text.length > 80 ? n.text.slice(0, 80) + '…' : n.text;
+                return `<div class="hist-entry" id="note-${n.id}">
+                    <div class="hist-entry-head" onclick="toggleNote(${n.id})">
+                        <div>
+                            <div class="hist-date">${n.title}</div>
+                            <div class="hist-macros">${dateStr} · ${n.text.split('\n').length} строк</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <button style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;padding:4px"
+                                onclick="event.stopPropagation();editNote(${n.id})">Изменить</button>
+                            <button style="font-size:12px;color:var(--text-3);background:none;border:none;cursor:pointer;padding:4px"
+                                onclick="event.stopPropagation();deleteNote(${n.id})">✕</button>
+                            <span class="hist-arrow">▾</span>
+                        </div>
+                    </div>
+                    <div class="hist-items" style="white-space:pre-wrap;font-size:13px;color:var(--text-2);line-height:1.6">${escHtml(n.text)}</div>
+                </div>`;
+            }).join('');
+    }
+
+    function toggleNote(id) {
+        document.getElementById('note-' + id)?.classList.toggle('open');
+    }
+    function editNote(id) {
+        const note = Notes.get().find(n => n.id === id);
+        if (!note) return;
+        editingNoteId = id;
+        document.getElementById('notes-ta').value = note.text;
+        document.querySelector('.btn-green[onclick="addNote()"]').textContent = 'Обновить';
+        document.getElementById('notes-ta').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('notes-ta').focus();
+    }
+    function deleteNote(id) {
+        Notes.remove(id);
+        if (editingNoteId === id) { editingNoteId = null; document.getElementById('notes-ta').value = ''; }
+        renderNotesList();
+    }
+    function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // ── ВСЕ РЕЦЕПТЫ ───────────────────────────────────────────────────────────
+    const activeFilters = {};
+
+    function getAllDishes(filters) {
+        const seen = new Set();
+        let dishes = [];
+        Object.values(CATEGORIES).forEach(cat => {
+            cat.dishes.forEach(id => {
+                if (RECIPES[id] && !seen.has(id)) { seen.add(id); dishes.push(RECIPES[id]); }
+            });
+        });
+        if (filters.time) {
+            if (filters.time === 'over60') dishes = dishes.filter(d => d.time > 60);
+            else dishes = dishes.filter(d => d.time <= filters.time);
+        }
+        if (filters.difficulty) dishes = dishes.filter(d => d.diff === filters.difficulty);
+        if (filters.gluten)      dishes = dishes.filter(d => (d.tags||[]).includes('без глютена'));
+        if (filters.highProtein) dishes = dishes.filter(d => d.protein >= 14);
+        if (filters.sport)       dishes = dishes.filter(d => (d.tags||[]).includes('на спорте'));
+        return dishes;
+    }
+
+    function pluralR(n) {
+        const m10 = n % 10, m100 = n % 100;
+        if (m100 >= 11 && m100 <= 14) return n + ' рецептов';
+        if (m10 === 1) return n + ' рецепт';
+        if (m10 >= 2 && m10 <= 4) return n + ' рецепта';
+        return n + ' рецептов';
+    }
+
+    function recipeCardHtml(d) {
+        const diff = (typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {})[d.diff] || d.diff;
+        const isFav = Favorites.has(d.id);
+        const photoHtml = d.photo
+            ? `<img src="${d.photo}" alt="${d.name}" loading="lazy"${d.imgPosition ? ` style="object-position:${d.imgPosition}"` : ''}>`
+            : `<div class="recipe-card-emoji">${d.emoji}</div>`;
+        return `<button class="recipe-card" onclick="goToRecipe('${d.id}')">
+            <div class="recipe-card-photo" style="position:relative">
+                ${photoHtml}
+                <button class="card-fav-btn${isFav ? ' active' : ''}" id="fav-${d.id}"
+                    onclick="event.stopPropagation();toggleFav('${d.id}')">
+                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </button>
+            </div>
+            <div class="recipe-card-body">
+                <div class="recipe-card-name">${d.name}</div>
+                <div class="recipe-card-meta">
+                    <span class="pill">⏱ ${d.time} мин</span>
+                    <span class="pill">${diff}</span>
+                </div>
+                <div class="recipe-card-kcal" style="margin-top:4px">${d.kcal} ккал</div>
+            </div>
+        </button>`;
+    }
+
+    function toggleFav(id) {
+        const isNowFav = Favorites.toggle(id);
+        const btn = document.getElementById('fav-' + id);
+        if (btn) btn.classList.toggle('active', isNowFav);
+        // If in favorites tab, refresh
+        if (document.getElementById('panel-favorites').classList.contains('active')) {
+            renderFavorites();
+        }
+    }
+
+    function renderDishes() {
+        const dishes = getAllDishes(activeFilters);
+        document.getElementById('count-label').textContent = pluralR(dishes.length);
+        if (!dishes.length) {
+            document.getElementById('dish-list').innerHTML =
+                '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">Ничего не найдено. Измените фильтры.</div>';
+            return;
+        }
+        document.getElementById('dish-list').innerHTML = dishes.map(d => recipeCardHtml(d)).join('');
+    }
+
+    function goToRecipe(id) {
+        const r = RECIPES[id];
+        location.href = `recipe.html?id=${id}&from=${r ? r.cat : 'breakfasts'}`;
+    }
+
+    // ── FILTER GROUPS ─────────────────────────────────────────────────────────
+    let openFGroup = null;
+    function toggleFGroup(btn) {
+        const dropId = btn.dataset.drop;
+        const isOpen = openFGroup === dropId;
+        closeFGroups();
+        if (!isOpen) {
+            const drop = document.getElementById(dropId);
+            const rect = btn.getBoundingClientRect();
+            drop.style.top  = (rect.bottom + window.scrollY + 4) + 'px';
+            drop.style.left = Math.max(8, rect.left) + 'px';
+            drop.style.display = 'flex';
+            btn.classList.add('open');
+            openFGroup = dropId;
+        }
+    }
+    function closeFGroups() {
+        document.querySelectorAll('.fgroup-drop').forEach(d => d.style.display = 'none');
+        document.querySelectorAll('.fgroup-btn.open').forEach(b => b.classList.remove('open'));
+        openFGroup = null;
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('[data-drop]') && !e.target.closest('.fgroup-drop')) closeFGroups();
+    });
+    function pickFilter(el, btnId) {
+        const f = el.dataset.f, v = el.dataset.v;
+        const btn  = document.getElementById(btnId);
+        const drop = document.getElementById(btn.dataset.drop);
+        const alreadyOn = el.classList.contains('on');
+        drop.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+        if (alreadyOn) {
+            delete activeFilters[f];
+            btn.classList.remove('has-value');
+            btn.querySelector('.fg-label').textContent = btn.dataset.label;
+        } else {
+            el.classList.add('on');
+            activeFilters[f] = f === 'time' ? (v === 'over60' ? 'over60' : +v) : v;
+            btn.classList.add('has-value');
+            btn.querySelector('.fg-label').textContent = el.textContent.trim();
+        }
+        closeFGroups();
+        renderDishes();
+    }
+    function toggleTagFilter(el) {
+        const f = el.dataset.f;
+        if (el.classList.contains('on')) { el.classList.remove('on'); delete activeFilters[f]; }
+        else { el.classList.add('on'); activeFilters[f] = true; }
+        renderDishes();
+    }
+    function clearFilters() {
+        Object.keys(activeFilters).forEach(k => delete activeFilters[k]);
+        document.querySelectorAll('.filter-chip.on').forEach(c => c.classList.remove('on'));
+        document.querySelectorAll('.fgroup-btn').forEach(b => {
+            b.classList.remove('has-value');
+            b.querySelector('.fg-label').textContent = b.dataset.label;
+        });
+        closeFGroups();
+        renderDishes();
+    }
+
+    // ── PLATE ─────────────────────────────────────────────────────────────────
+    function openPlate() {
+        const items = Plate.get();
+        const body = document.getElementById('plate-body');
+        if (!items.length) {
+            body.innerHTML = '<div class="plate-empty"><div class="plate-empty-icon">🍽️</div><div class="plate-empty-text">Тарелка пока пуста</div></div>';
+        } else {
+            const t = Plate.totals();
+            body.innerHTML = '<div class="plate-items">' +
+                items.map((item, i) => `<div class="plate-item">
+                    <div class="plate-item-emoji">${item.emoji || '🍴'}</div>
+                    <div class="plate-item-info"><div class="plate-item-name">${item.name}</div>
+                    <div class="plate-item-kcal">${item.kcal} ккал</div></div>
+                    <button class="plate-item-remove" onclick="removePlateItem(${i})">✕</button>
+                </div>`).join('') + '</div>' +
+                `<div class="plate-totals">
+                    <div class="plate-total-row"><span>Калории:</span><span>${t.kcal} ккал</span></div>
+                    <div class="plate-total-row"><span>Белки:</span><span>${t.protein} г</span></div>
+                    <div class="plate-total-row"><span>Жиры:</span><span>${t.fat} г</span></div>
+                    <div class="plate-total-row"><span>Углеводы:</span><span>${t.carbs} г</span></div>
+                </div>`;
+        }
+        document.getElementById('plate-overlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    function closePlate() {
+        document.getElementById('plate-overlay').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    function closePlateIfOutside(e) {
+        if (e.target === document.getElementById('plate-overlay')) closePlate();
+    }
+    function removePlateItem(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
+</script>
+</body>
+</html>

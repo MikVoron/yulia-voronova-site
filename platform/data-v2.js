@@ -18,6 +18,36 @@ const Auth = {
     requireAuth() { if (!this.isLoggedIn()) location.href = 'login.html'; }
 };
 
+// ─── FAVORITES ───────────────────────────────────────────────────────────────
+const Favorites = {
+    KEY: 'fav_recipes',
+    get()         { try { return JSON.parse(localStorage.getItem(this.KEY) || '[]'); } catch { return []; } },
+    set(v)        { localStorage.setItem(this.KEY, JSON.stringify(v)); },
+    has(id)       { return this.get().includes(id); },
+    add(id)       { const f = this.get(); if (!f.includes(id)) { f.unshift(id); this.set(f); } },
+    remove(id)    { this.set(this.get().filter(x => x !== id)); },
+    toggle(id)    { this.has(id) ? this.remove(id) : this.add(id); return this.has(id); }
+};
+
+// ─── NOTES ───────────────────────────────────────────────────────────────────
+const Notes = {
+    KEY: 'user_notes',
+    get()        { try { return JSON.parse(localStorage.getItem(this.KEY) || '[]'); } catch { return []; } },
+    set(v)       { localStorage.setItem(this.KEY, JSON.stringify(v)); },
+    add(text)    {
+        const notes = this.get();
+        const title = text.trim().split('\n')[0].trim().slice(0, 60) || 'Заметка';
+        const note = { id: Date.now(), text, title, date: new Date().toISOString() };
+        notes.unshift(note); this.set(notes); return note;
+    },
+    update(id, text) {
+        const notes = this.get();
+        const n = notes.find(n => n.id === id);
+        if (n) { n.text = text; n.title = text.trim().split('\n')[0].trim().slice(0, 60) || 'Заметка'; n.updated = new Date().toISOString(); this.set(notes); }
+    },
+    remove(id)   { this.set(this.get().filter(n => n.id !== id)); }
+};
+
 // ─── MY PLATE ────────────────────────────────────────────────────────────────
 const Plate = {
     KEY: 'plate_items',
@@ -116,7 +146,7 @@ RECIPES['lentil-pancakes'] = {
     id: 'lentil-pancakes', cat: 'pancakes',
     name: 'Оладьи из чечевицы', emoji: '🥞', time: 30, diff: 'easy', servings: 3,
     kcal: 280, protein: 16, fat: 4, carbs: 46, fiber: 8,
-    tags: ['простой'],
+    tags: ['простой', 'на спорте'],
     photo: '../images/img-guides/plant-based/pancakes-red-lentil.webp',
     quote: 'Эти оладьи хороши не только со сладким. Напеките, накормите, услышьте хвалебные песни и не говорите из чего они! Вкуса чечевицы нет вообще — и пользы сколько!',
     ingredients: [
@@ -959,7 +989,7 @@ RECIPES['pasta-carbonara'] = {
     id: 'pasta-carbonara', cat: 'mains',
     name: 'Сливочная паста «а-ля карбонара»', emoji: '🍝', time: 25, diff: 'easy', servings: 2,
     kcal: 380, protein: 22, fat: 12, carbs: 48, fiber: 3,
-    tags: ['до 30 мин', 'простой'],
+    tags: ['до 30 мин', 'простой', 'на спорте'],
     photo: '../images/img-guides/plant-based/pasta-carbonara.webp',
     ingredients: [
         { name: '150–200 гр. консервированного тунца (в собственном соку)', swap: null },
@@ -1147,9 +1177,14 @@ function getCategoryDishes(catId, filters = {}) {
     const cat = CATEGORIES[catId];
     if (!cat) return [];
     let dishes = cat.dishes.map(id => RECIPES[id]).filter(Boolean);
-    if (filters.time)       dishes = dishes.filter(d => d.time <= filters.time);
+    if (filters.time) {
+        if (filters.time === 'over60') dishes = dishes.filter(d => d.time > 60);
+        else dishes = dishes.filter(d => d.time <= filters.time);
+    }
     if (filters.difficulty) dishes = dishes.filter(d => d.diff === filters.difficulty);
-    if (filters.tag)        dishes = dishes.filter(d => (d.tags||[]).includes(filters.tag));
+    if (filters.gluten)      dishes = dishes.filter(d => (d.tags||[]).includes('без глютена'));
+    if (filters.highProtein) dishes = dishes.filter(d => d.protein >= 14);
+    if (filters.sport)       dishes = dishes.filter(d => (d.tags||[]).includes('на спорте'));
     return dishes;
 }
 
