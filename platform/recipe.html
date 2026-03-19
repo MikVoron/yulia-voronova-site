@@ -73,7 +73,7 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1773800000"></script>
+<script src="data-v2.js?v=1773900000"></script>
 <script>
     Auth.requireAuth();
     updatePlateIcon();
@@ -284,9 +284,9 @@
                                 <span class="pr-star">★</span>
                                 <span class="pr-val" id="recipe-rating-val">${avgDisplay}</span>
                             </div>
-                            <button class="photo-comment-btn" onclick="event.stopPropagation();rateInline(0)">
+                            <button class="photo-comment-btn" onclick="event.stopPropagation();openRecipeComments()">
                                 <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-                                Оценить
+                                Отзывы
                             </button>
                         </div>
                         <div class="rating-popup" id="recipe-rpop">
@@ -576,6 +576,8 @@
         const isNow = Favorites.toggle(r.id);
         document.getElementById('recipe-fav-btn')?.classList.toggle('active', isNow);
     }
+
+    function openRecipeComments() { openRecipeRatingPopup(); }
 
     function openRecipeRatingPopup() {
         const pop = document.getElementById('recipe-rpop');
