@@ -180,7 +180,7 @@
 <script src="data-v2.js?v=1774300000"></script>
 <script>
     Auth.requireAuth();
-    Auth.checkAccess();
+    Auth.checkAccess().then(function() { if (typeof renderDishes === 'function') renderDishes(); });
     updatePlateIcon();
 
     // User pill init
