@@ -1,274 +1,570 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Конструктор питания — Юлия Воронова</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style-v4.css" id="vcss"><script>document.getElementById('vcss').href='style-v4.css?v='+Date.now()</script>
-    <style>
-        .greeting { padding: 44px 0 0; }
-        .greeting-hi { font-family: var(--serif); font-size: clamp(28px,4.5vw,52px);
-                       font-weight: 700; color: var(--text); margin-bottom: 10px; line-height: 1.15; }
-        .greeting-sub { font-size: clamp(13px,1.6vw,17px); color: var(--accent); font-family: var(--sans); font-weight: 600; letter-spacing: .5px; text-transform: uppercase; margin-top: 6px; }
-        main { padding-bottom: 80px; }
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Конструктор питания — Юлия Воронова</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
+	<style>body{visibility:hidden}</style>
+    <link rel="stylesheet" href="style-v4.css" id="vcss">
+	<script>document.getElementById('vcss').href = 'style-v4.css?v=' + Date.now()</script>
+	<style>
+		.greeting {
+			padding: 44px 0 0;
+		}
+
+		.greeting-hi {
+			font-family: 'Playfair Display', var(--serif);
+			font-size: clamp(26px, 4.5vw, 32px);
+			font-weight: 700;
+			color: #1a1a1a;
+			margin-bottom: 10px;
+			line-height: 1.15;
+		}
+
+		.greeting-sub {
+			font-size: clamp(13px, 1.5vw, 14px);
+			color: #666;
+			font-family: 'Montserrat', var(--sans);
+			font-weight: 500;
+			letter-spacing: .03em;
+			text-transform: none;
+			margin-top: 8px;
+		}
+
+		main {
+			padding-bottom: 80px;
+		}
+
+		/* ── HEADER BACKGROUND VARIANTS ─────────────────── */
+
+		/* Header background — вариант 1: персиковый */
+		.v-header {
+			background: linear-gradient(180deg, #fffaf7 0%, #fef0e6 100%);
+			border-bottom: 1px solid #f5c9b3;
+			box-shadow: 0 4px 16px rgba(0,0,0,.08);
+		}
+
+		/* ── NEW HEADER ─────────────────────────────────── */
+		.vh-inner {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			height: 82px;
+		}
+
+		/* Julia avatar */
+		.vh-julia-ava {
+			order: 1;
+			width: 56px;
+			height: 56px;
+			border-radius: 50%;
+			background: var(--accent-l) url('../images/YV-small.webp') center/cover no-repeat;
+			border: 2px solid var(--accent);
+			flex-shrink: 0;
+			box-shadow: 0 4px 14px rgba(232,64,10,.18);
+		}
+
+		/* Brand */
+		.vh-brand {
+			order: 2;
+			display: inline-flex;
+			flex-direction: column;
+			gap: 2px;
+			text-decoration: none;
+			color: inherit;
+			flex: 1;
+		}
+		.vh-brand-meta {
+			display: flex;
+			align-items: baseline;
+			gap: 8px;
+		}
+		.vh-brand-name {
+			font-family: var(--serif);
+			font-size: 13px;
+			font-weight: 600;
+			color: var(--text-2);
+		}
+		.vh-brand-role {
+			font-size: 9px;
+			font-weight: 700;
+			color: var(--text-3);
+			text-transform: uppercase;
+			letter-spacing: .1em;
+		}
+		.vh-brand-title {
+			font-family: var(--serif);
+			font-size: clamp(22px, 2.2vw, 30px);
+			font-weight: 700;
+			line-height: 1;
+			color: var(--text);
+		}
+		.vh-accent { color: var(--accent); }
+
+		/* Slogan (desktop right area, fixed width) */
+		.vh-slogan-wrap {
+			order: 3;
+			flex: 0 0 auto;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			position: relative;
+		}
+		.vh-slogan-wrap::before {
+			content: '';
+			position: absolute;
+			width: 280px;
+			height: 110px;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			border-radius: 999px;
+			background: radial-gradient(circle, rgba(232,64,10,.14) 0%, rgba(232,64,10,.07) 40%, rgba(232,64,10,0) 78%);
+			pointer-events: none;
+			z-index: 0;
+		}
+		.vh-slogan {
+			font-family: 'DM Serif Text', var(--serif);
+			font-size: 14px;
+			line-height: 1.22;
+			color: #9a4f2d;
+			text-align: center;
+			max-width: 22ch;
+			position: relative;
+			z-index: 1;
+		}
+
+		/* Profile pill */
+		.vh-inner > .v-user-wrap {
+			order: 4;
+			flex-shrink: 0;
+			position: relative;
+			margin-left: 24px;
+		}
+		.vh-profile-pill {
+			display: inline-flex;
+			align-items: center;
+			gap: 10px;
+			min-height: 42px;
+			padding: 5px 14px 5px 5px;
+			background: #fff7f3;
+			border: 1.5px solid rgba(232,64,10,.28);
+			border-radius: 999px;
+			color: var(--text-2);
+			cursor: pointer;
+			font: inherit;
+		}
+		.vh-profile-pill:hover { background: #ffe8de; }
+		.vh-profile-name {
+			font-size: 13px;
+			font-weight: 600;
+		}
+
+		/* Plate button */
+		.vh-plate-btn {
+			order: 5;
+			position: relative;
+			width: 42px;
+			height: 42px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			background: var(--accent-l);
+			border: 1px solid rgba(232,64,10,.2);
+			border-radius: 50%;
+			cursor: pointer;
+			flex-shrink: 0;
+			padding: 0;
+		}
+		.vh-plate-btn:hover { background: #fde5da; }
+		.vh-plate-icon {
+			position: relative;
+			width: 25px;
+			height: 25px;
+			border-radius: 50%;
+			overflow: hidden;
+			background: #fff;
+			border: 1px solid #d0d0d0;
+		}
+		.vh-slice { position: absolute; }
+		.vh-slice-g { inset: 0 50% 0 0; background: #6aaa6a; }
+		.vh-slice-y { inset: 0 0 50% 50%; background: #f0b840; }
+		.vh-slice-r { inset: 50% 0 0 50%; background: #e07070; }
+		.vh-plate-btn .plate-count {
+			position: absolute;
+			top: -3px;
+			right: -3px;
+			min-width: 18px;
+			height: 18px;
+			padding: 0 5px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 999px;
+			background: var(--text);
+			color: #fff;
+			box-shadow: 0 0 0 2px #fff;
+			font-size: 10px;
+			font-weight: 700;
+		}
+
+		/* ── MOBILE ──────────────────────────────────────── */
+		@media (max-width: 767px) {
+			.vh-inner { gap: 8px; height: 68px; }
+
+			/* Julia big photo — hide */
+			.vh-julia-ava { display: none; }
+
+			/* Slogan — hide */
+			.vh-slogan-wrap { display: none; }
+
+			/* Profile pill → left (order 1), becomes round icon */
+			.vh-inner > .v-user-wrap { order: 1; position: static; transform: none; left: auto; top: auto; }
+			.vh-profile-pill {
+				width: 42px;
+				min-height: 42px;
+				padding: 0;
+				justify-content: center;
+				border-radius: 50%;
+			}
+			.vh-profile-name { display: none; }
+
+			/* Brand → center (order 2), centered text */
+			.vh-brand {
+				order: 2;
+				flex: 1;
+				align-items: center;
+				text-align: center;
+			}
+			.vh-brand-meta { justify-content: center; }
+			.vh-brand-title { font-size: 21px; }
+
+			/* Plate button → right (order 3) */
+			.vh-plate-btn { order: 3; }
+		}
+
+		.recipes-total-count {
+			display: inline-flex;
+			align-items: baseline;
+			gap: 8px;
+		}
+		.recipes-total-count .rtc-num {
+			font-family: var(--serif);
+			font-size: clamp(36px, 5vw, 58px);
+			font-weight: 700;
+			line-height: 1;
+			color: var(--text);
+			letter-spacing: -1px;
+		}
+		.recipes-total-count .rtc-label {
+			font-family: var(--sans);
+			font-size: clamp(11px, 1.2vw, 13px);
+			font-weight: 700;
+			color: var(--text);
+			letter-spacing: .04em;
+			text-transform: uppercase;
+			background: #f5d90a;
+			padding: 3px 8px;
+			border-radius: 4px;
+			vertical-align: middle;
+		}
+	</style>
 </head>
+
 <body class="v-page">
 
-<!-- HEADER -->
-<header class="v-header" id="hdr">
-    <div class="v-wrap">
-        <div class="v-header-inner" style="position:relative">
-            <div style="flex-shrink:0;width:32px"></div>
-            <a href="index.html" class="v-header-logo-compact" style="position:absolute;left:50%;transform:translateX(-50%)">
-                <img src="images/icons/Smart Plate YV.jpg" alt="УТ" onerror="this.style.display='none'">
-                <span class="v-header-logo-compact-text">Умная тарелка</span>
-            </a>
-            <div class="v-header-right">
-                <div class="v-user-wrap" id="user-wrap">
-                    <div class="v-user-badge" id="user-badge" onclick="toggleUserMenu(event)">
-                        <div class="v-user-avatar" id="u-ava">?</div>
-                        <div class="v-user-name" id="u-name">Войти</div>
-                    </div>
-                    <div class="user-dropdown" id="user-dropdown">
-                        <a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
-                        <div class="user-dd-sep"></div>
-                        <button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
-                    </div>
-                </div>
-                <button class="v-plate-btn" id="plate-btn" onclick="openPlate()">
-                    <svg viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
-                    Тарелка
-                    <div class="plate-count" style="display:none">0</div>
-                </button>
-            </div>
-        </div>
-    </div>
-</header>
+	<!-- HEADER -->
+	<header class="v-header" id="hdr">
+		<div class="v-wrap">
+			<div class="vh-inner">
 
-<!-- MAIN -->
-<main style="flex:1; padding-bottom: 80px;">
-    <div class="v-wrap">
+				<!-- Julia big avatar: desktop only, order 1 -->
+				<span class="vh-julia-ava" aria-hidden="true"></span>
 
-        <!-- Greeting -->
-        <div class="intro-block" id="intro-block">
-            <div class="greeting anim">
-                <div class="greeting-hi" id="greeting-hi">Привет!</div>
-                <div class="greeting-sub">Что будем готовить сегодня?</div>
-            </div>
+				<!-- Brand: order 2 desktop, order 2 mobile (center) -->
+				<a href="index.html" class="vh-brand">
+					<span class="vh-brand-meta">
+						<span class="vh-brand-name">Юлия Воронова</span>
+						<span class="vh-brand-role">нутрициолог</span>
+					</span>
+					<span class="vh-brand-title">Умная <span class="vh-accent">тарелка</span></span>
+				</a>
 
-            <!-- Julia strip -->
-            <div class="julia-strip anim anim-d1" style="margin: 28px 0 36px;">
-                <div class="julia-ava" style="background:none;padding:0;overflow:hidden;">
-                    <img src="../images/YV-small.webp" alt="Юлия" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.textContent='👩‍🍳'">
-                </div>
-                <div class="julia-info">
-                    <div class="julia-text" id="julia-quote"></div>
-                </div>
-            </div>
-        </div>
+				<!-- Slogan: desktop center, hidden on mobile -->
+				<div class="vh-slogan-wrap">
+					<span class="vh-slogan">Персональный помощник в сбалансированном питании</span>
+				</div>
 
-        <!-- Filters -->
-        <div class="filter-outer anim anim-d1">
-        <div class="filter-scroll-wrap">
-        <div class="filter-bar" id="filter-row">
-            <button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" onclick="toggleFGroup(this)">
-                <span class="fg-label">Время</span>
-                <svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg>
-            </button>
-            <button class="fgroup-btn" id="fg-diff-btn" data-label="Сложность" data-drop="fg-diff-drop" onclick="toggleFGroup(this)">
-                <span class="fg-label">Сложность</span>
-                <svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg>
-            </button>
-            <div class="filter-sep"></div>
-            <button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
-            <button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
-            <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
-            <button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
-            <button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Бобовые</button>
-        </div>
-        </div>
-        <button class="filter-clear" onclick="clearFilters()">↺ Сбросить</button>
-        </div>
+				<!-- Profile pill: order 4 desktop, order 1 mobile (left) -->
+				<div class="v-user-wrap" id="user-wrap">
+					<button class="vh-profile-pill" id="user-badge" onclick="toggleUserMenu(event)" type="button">
+						<div class="v-user-avatar" id="u-ava" style="width:34px;height:34px;overflow:hidden;flex-shrink:0;border-radius:50%">?</div>
+						<span class="vh-profile-name" id="u-name">Войти</span>
+					</button>
+					<div class="user-dropdown" id="user-dropdown">
+						<a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
+						<div class="user-dd-sep"></div>
+						<button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
+					</div>
+				</div>
 
-        <!-- Твоя тарелка (inline, shown when plate has items) -->
-        <div id="plate-inline-section" style="display:none; margin-bottom: 24px;">
-            <div class="v-sec-head">
-                <div class="v-sec-title">🍽️ Твоя тарелка</div>
-                <button class="btn btn-ghost btn-sm" onclick="clearPlateInline()">Очистить</button>
-            </div>
-            <div id="plate-inline-body"></div>
-        </div>
+				<!-- Plate button: order 5 desktop, order 3 mobile (right) -->
+				<button class="vh-plate-btn" id="plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
+					<span class="vh-plate-icon" style="position:relative;width:25px;height:25px;display:inline-block;overflow:hidden;border-radius:50%;flex-shrink:0">
+						<span class="vh-slice vh-slice-g"></span>
+						<span class="vh-slice vh-slice-y"></span>
+						<span class="vh-slice vh-slice-r"></span>
+					</span>
+					<span class="plate-count" style="display:none">0</span>
+				</button>
 
-        <!-- News feed -->
-        <div class="v-sec-head anim anim-d2">
-            <div class="v-sec-title">Что новенького?</div>
-        </div>
-        <div class="news-feed anim anim-d2" id="news-feed"></div>
+			</div>
+		</div>
+	</header>
 
-        <!-- Categories -->
-        <div class="v-sec-head anim anim-d2">
-            <div class="v-sec-title">Категории</div>
-        </div>
-        <div class="cat-grid anim anim-d2" id="cat-grid"></div>
+	<!-- MAIN -->
+	<main style="flex:1; padding-bottom: 80px;">
+		<div class="v-wrap">
 
-    </div>
-</main>
+			<!-- Greeting -->
+			<div class="intro-block" id="intro-block">
+				<div class="greeting anim">
+					<div class="greeting-hi" id="greeting-hi">Привет!</div>
+					<div class="greeting-sub">Что будем готовить сегодня?</div>
+				</div>
 
-<!-- MY PLATE MODAL -->
-<div class="modal-overlay" id="plate-overlay" onclick="closePlateIfOutside(event)">
-    <div class="modal-box" id="plate-modal">
-        <div class="modal-handle"></div>
-        <div class="modal-header">
-            <div class="modal-title">🍽️ Моя тарелка</div>
-            <button class="modal-close" onclick="closePlate()">✕</button>
-        </div>
-        <div class="modal-body" id="plate-body"></div>
-        <div class="modal-footer" id="plate-footer" style="display:none">
-            <button class="btn btn-green btn-full" onclick="savePlate()">💾 Сохранить в историю</button>
-        </div>
-    </div>
-</div>
+				<!-- Julia strip -->
+				<div class="julia-strip anim anim-d1" style="margin: 28px 0 36px;">
+					<div class="julia-ava" style="background:none;padding:0;overflow:hidden;">
+						<img src="../images/YV-small.webp" alt="Юлия" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.textContent='👩‍🍳'">
+					</div>
+					<div class="julia-info">
+						<div class="julia-text" id="julia-quote"></div>
+					</div>
+				</div>
+			</div>
 
-<!-- FOOTER -->
-<footer class="v-footer">
-    <div class="v-footer-inner">
-        <div class="v-footer-brand">Умная <span>тарелка</span></div>
-        <div class="v-footer-links">
-            <a href="https://voronova.online" target="_blank" rel="noopener">Сайт</a>
-            <span class="v-footer-sep"></span>
-            <a href="../guides.html">Гайды</a>
-            <span class="v-footer-sep"></span>
-            <a href="../tests.html">Тесты</a>
-        </div>
-        <div class="v-footer-social">
-            <a href="https://t.me/YuliaVoronova78" target="_blank" rel="noopener" aria-label="Telegram">
-                <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
-            </a>
-            <a href="https://youtube.com/@voronova_nutrition" target="_blank" rel="noopener" aria-label="YouTube">
-                <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-            </a>
-            <a href="https://vk.com/voronova_nutrition" target="_blank" rel="noopener" aria-label="VK">
-                <svg viewBox="0 0 24 24"><path d="M12.785 16.241s.288-.032.436-.194c.136-.148.131-.427.131-.427s-.019-1.304.582-1.496c.592-.189 1.352 1.26 2.158 1.817.61.422 1.073.329 1.073.329l2.155-.03s1.128-.07.593-.957c-.044-.073-.312-.659-1.608-1.865-1.357-1.259-1.175-1.056.459-3.234.997-1.328 1.396-2.139 1.271-2.486-.12-.331-.848-.244-.848-.244l-2.425.015s-.18-.025-.313.055c-.131.079-.215.262-.215.262s-.388 1.036-.905 1.916c-1.09 1.85-1.526 1.948-1.703 1.833-.414-.267-.311-1.073-.311-1.646 0-1.789.271-2.534-.528-2.726-.265-.064-.46-.106-1.138-.113-.871-.009-1.608.003-2.025.207-.278.136-.492.439-.361.456.161.022.527.099.721.363.251.341.242 1.107.242 1.107s.144 2.107-.336 2.368c-.329.18-.781-.187-1.752-1.865-.498-.859-.875-1.81-.875-1.81s-.072-.176-.202-.271c-.157-.115-.376-.151-.376-.151l-2.304.015s-.346.01-.473.161C4.021 8.824 4.117 9.1 4.117 9.1s1.801 4.22 3.839 6.348c1.87 1.951 3.994 1.822 3.994 1.822h.961l.026-.029z"/></svg>
-            </a>
-            <a href="https://dzen.ru/voronova_nutrition" target="_blank" rel="noopener" aria-label="Дзен">
-                <svg viewBox="0 0 129 129"><path d="M128.389 62.78C128.389 62.14 127.869 61.61 127.229 61.58C104.266 60.71 90.291 57.78 80.514 48.005C70.717 38.208 67.798 24.223 66.928 1.21C66.908.57 66.378.05 65.728.05H63.049C62.409.05 61.88.57 61.85 1.21C60.98 24.213 58.061 38.208 48.264 48.005C38.477 57.792 24.511 60.711 1.548 61.58C.909 61.601.389 62.131.389 62.78V65.46C.389 66.099.909 66.629 1.548 66.659C24.511 67.529 38.487 70.458 48.264 80.235C58.041 90.012 60.96 103.958 61.84 126.88C61.86 127.52 62.389 128.04 63.039 128.04H65.728C66.368 128.04 66.898 127.52 66.928 126.88C67.808 103.958 70.727 90.012 80.504 80.235C90.291 70.448 104.256 67.529 127.219 66.659C127.859 66.639 128.379 66.109 128.379 65.46V62.78H128.389Z"/></svg>
-            </a>
-            <a href="https://rutube.ru/channel/47038007/" target="_blank" rel="noopener" aria-label="RuTube">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12"/><path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff"/></svg>
-            </a>
-        </div>
-        <div class="v-footer-copy">© Юлия Воронова · Конструктор питания</div>
-    </div>
-</footer>
+			<!-- Твоя тарелка (inline, shown when plate has items) -->
+			<div id="plate-inline-section" style="display:none; margin-bottom: 24px;">
+				<div class="v-sec-head">
+					<div class="v-sec-title">🍽️ Твоя тарелка</div>
+					<button class="btn btn-ghost btn-sm" onclick="clearPlateInline()">Очистить</button>
+				</div>
+				<div id="plate-inline-body"></div>
+			</div>
 
-<!-- FILTER DROPDOWNS -->
-<div class="fgroup-drop" id="fg-time-drop">
-    <button class="filter-chip" data-f="time" data-v="30" onclick="pickFilter(this,'fg-time-btn')">До 30 мин</button>
-    <button class="filter-chip" data-f="time" data-v="60" onclick="pickFilter(this,'fg-time-btn')">До 1 часа</button>
-    <button class="filter-chip" data-f="time" data-v="over60" onclick="pickFilter(this,'fg-time-btn')">Более 1 часа</button>
-</div>
-<div class="fgroup-drop" id="fg-diff-drop">
-    <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="pickFilter(this,'fg-diff-btn')">Легкая</button>
-    <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="pickFilter(this,'fg-diff-btn')">Средняя</button>
-    <button class="filter-chip" data-f="difficulty" data-v="hard" onclick="pickFilter(this,'fg-diff-btn')">Сложная</button>
-</div>
+			<!-- News feed -->
+			<div class="v-sec-head anim anim-d2">
+				<div class="v-sec-title">Новости</div>
+			</div>
+			<div class="news-feed anim anim-d2" id="news-feed"></div>
 
-<!-- CHAT FAB -->
-<button class="chat-fab" onclick="showChatInfo()" title="Чат с отделом заботы">
-    <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
-</button>
+			<!-- Filters -->
+			<div class="filter-outer anim anim-d1">
+				<div class="filter-scroll-wrap">
+					<div class="filter-bar" id="filter-row">
+						<button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" onclick="toggleFGroup(this)">
+							<span class="fg-label">Время</span>
+							<svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M1 1l4 4 4-4" />
+							</svg>
+						</button>
+						<button class="fgroup-btn" id="fg-diff-btn" data-label="Сложность" data-drop="fg-diff-drop" onclick="toggleFGroup(this)">
+							<span class="fg-label">Сложность</span>
+							<svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M1 1l4 4 4-4" />
+							</svg>
+						</button>
+						<div class="filter-sep"></div>
+						<button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
+						<button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
+						<button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
+						<button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
+						<button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Бобовые</button>
+					</div>
+				</div>
+				<button class="filter-clear" onclick="clearFilters()">↺ Сбросить</button>
+			</div>
 
-<script src="data-v2.js?v=1774200000"></script>
-<script>
-    Auth.requireAuth();
-    const user = Auth.getUser();
+			<!-- Categories -->
+			<div class="v-sec-head anim anim-d2" style="align-items:baseline;gap:14px">
+				<div class="v-sec-title">Категории</div>
+				<div class="recipes-total-count" id="recipes-total-count"></div>
+			</div>
+			<div class="cat-grid anim anim-d2" id="cat-grid"></div>
 
-    // Quote bank — rotates without repeating
-    (function() {
-        const quotes = [
-            'Каждый приём пищи — возможность дать телу то, что ему нужно.',
-            'Сбалансированная тарелка — это не ограничения, а инструмент заботы о себе.',
-            'Не нужно есть идеально. Нужно есть осознанно.',
-            'Растительный белок так же полноценен, если сочетать источники правильно.',
-            'Клетчатка — лучшая еда для вашего микробиома. Чем разнообразнее — тем лучше.',
-            'Голод — сигнал тела, а не слабость характера. Учитесь его слышать.',
-            'Хорошее питание не требует сложных расчётов — нужна привычка и осознанность.',
-            'Ешьте радугу: чем больше цветов в тарелке, тем больше нутриентов.',
-        ];
-        const KEY = 'julia_quote_day';
-        const today = new Date().toDateString();
-        const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
-        let pick;
-        if (saved && saved.date === today) {
-            pick = saved.idx;
-        } else {
-            const shown = saved ? (saved.shown || []) : [];
-            const remaining = quotes.map((_, i) => i).filter(i => !shown.includes(i));
-            const pool = remaining.length ? remaining : quotes.map((_, i) => i);
-            pick = pool[Math.floor(Math.random() * pool.length)];
-            const nextShown = [...shown, pick].slice(-quotes.length);
-            localStorage.setItem(KEY, JSON.stringify({ date: today, idx: pick, shown: nextShown }));
-        }
-        const el = document.getElementById('julia-quote');
-        if (el) el.textContent = '«' + quotes[pick] + '»';
-    })();
+		</div>
+	</main>
 
-    // Фото для карточек категорий
-    const CAT_PHOTOS = {
-        breakfasts: '../images/blog/post-290.webp',
-        mains:      '../images/cook-healthy-food.webp',
-        pancakes:   '../images/blog/random-pic-blog-2.webp',
-        spreads:    '../images/blog/random-pic-blog-3.webp',
-        salads:     '../images/blog/random-pic-blog-4.webp',
-        drinks:     '../images/blog/random-pic-blog-1.webp',
-    };
+	<!-- MY PLATE MODAL -->
+	<div class="modal-overlay" id="plate-overlay" onclick="closePlateIfOutside(event)">
+		<div class="modal-box" id="plate-modal">
+			<div class="modal-handle"></div>
+			<div class="modal-header">
+				<div class="modal-title"><span class="modal-plate-icon"><span class="vh-slice vh-slice-g"></span><span class="vh-slice vh-slice-y"></span><span class="vh-slice vh-slice-r"></span></span> Моя тарелка</div>
+				<button class="modal-close" onclick="closePlate()">✕</button>
+			</div>
+			<div class="modal-body" id="plate-body"></div>
+			<div class="modal-footer" id="plate-footer" style="display:none">
+				<button class="btn btn-green btn-full" onclick="savePlate()">Сохранить в историю</button>
+			</div>
+		</div>
+	</div>
 
-    // Init header
-    if (user) {
-        const displayName = user.name.replace(/^Пользователь\s+/i, '') || user.name;
-        const uAva = document.getElementById('u-ava');
-        const savedAva = localStorage.getItem('user_avatar');
-        if (savedAva) {
-            uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-        } else {
-            uAva.textContent = displayName.charAt(0).toUpperCase();
-        }
-        document.getElementById('u-name').textContent = displayName;
-        document.getElementById('greeting-hi').textContent =
-            (new Date().getHours() < 12 ? 'Доброе утро' :
-             new Date().getHours() < 17 ? 'Добрый день' : 'Добрый вечер') + ', ' + displayName + '!';
-    }
-    updatePlateIcon();
+	<!-- FOOTER -->
+	<footer class="v-footer">
+		<div class="v-footer-inner">
+			<div class="v-footer-brand"><span class="v-logo-name" style="color:rgba(255,255,255,.7)">Юлия Воронова</span><span class="v-logo-brand" style="color:#fff">Умная <span>тарелка</span></span><span class="v-logo-role" style="color:rgba(255,255,255,.45)">Нутрициолог</span></div>
+			<div class="v-footer-links">
+				<a href="https://voronova.online" target="_blank" rel="noopener">Сайт</a>
+				<span class="v-footer-sep"></span>
+				<a href="../guides.html">Гайды</a>
+				<span class="v-footer-sep"></span>
+				<a href="../tests.html">Тесты</a>
+			</div>
+			<div class="v-footer-social">
+				<a href="https://t.me/YuliaVoronova78" target="_blank" rel="noopener" aria-label="Telegram">
+					<svg viewBox="0 0 24 24">
+						<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z" />
+					</svg>
+				</a>
+				<a href="https://youtube.com/@voronova_nutrition" target="_blank" rel="noopener" aria-label="YouTube">
+					<svg viewBox="0 0 24 24">
+						<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+					</svg>
+				</a>
+				<a href="https://vk.com/voronova_nutrition" target="_blank" rel="noopener" aria-label="VK">
+					<svg viewBox="0 0 24 24">
+						<path d="M12.785 16.241s.288-.032.436-.194c.136-.148.131-.427.131-.427s-.019-1.304.582-1.496c.592-.189 1.352 1.26 2.158 1.817.61.422 1.073.329 1.073.329l2.155-.03s1.128-.07.593-.957c-.044-.073-.312-.659-1.608-1.865-1.357-1.259-1.175-1.056.459-3.234.997-1.328 1.396-2.139 1.271-2.486-.12-.331-.848-.244-.848-.244l-2.425.015s-.18-.025-.313.055c-.131.079-.215.262-.215.262s-.388 1.036-.905 1.916c-1.09 1.85-1.526 1.948-1.703 1.833-.414-.267-.311-1.073-.311-1.646 0-1.789.271-2.534-.528-2.726-.265-.064-.46-.106-1.138-.113-.871-.009-1.608.003-2.025.207-.278.136-.492.439-.361.456.161.022.527.099.721.363.251.341.242 1.107.242 1.107s.144 2.107-.336 2.368c-.329.18-.781-.187-1.752-1.865-.498-.859-.875-1.81-.875-1.81s-.072-.176-.202-.271c-.157-.115-.376-.151-.376-.151l-2.304.015s-.346.01-.473.161C4.021 8.824 4.117 9.1 4.117 9.1s1.801 4.22 3.839 6.348c1.87 1.951 3.994 1.822 3.994 1.822h.961l.026-.029z" />
+					</svg>
+				</a>
+				<a href="https://dzen.ru/voronova_nutrition" target="_blank" rel="noopener" aria-label="Дзен">
+					<svg viewBox="0 0 129 129">
+						<path d="M128.389 62.78C128.389 62.14 127.869 61.61 127.229 61.58C104.266 60.71 90.291 57.78 80.514 48.005C70.717 38.208 67.798 24.223 66.928 1.21C66.908.57 66.378.05 65.728.05H63.049C62.409.05 61.88.57 61.85 1.21C60.98 24.213 58.061 38.208 48.264 48.005C38.477 57.792 24.511 60.711 1.548 61.58C.909 61.601.389 62.131.389 62.78V65.46C.389 66.099.909 66.629 1.548 66.659C24.511 67.529 38.487 70.458 48.264 80.235C58.041 90.012 60.96 103.958 61.84 126.88C61.86 127.52 62.389 128.04 63.039 128.04H65.728C66.368 128.04 66.898 127.52 66.928 126.88C67.808 103.958 70.727 90.012 80.504 80.235C90.291 70.448 104.256 67.529 127.219 66.659C127.859 66.639 128.379 66.109 128.379 65.46V62.78H128.389Z" />
+					</svg>
+				</a>
+				<a href="https://rutube.ru/channel/47038007/" target="_blank" rel="noopener" aria-label="RuTube">
+					<svg viewBox="0 0 24 24">
+						<circle cx="12" cy="12" r="12" />
+						<path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff" />
+					</svg>
+				</a>
+			</div>
+			<div class="v-footer-copy">© Юлия Воронова · Конструктор питания</div>
+		</div>
+	</footer>
 
-    // Scroll effect
-    window.addEventListener('scroll', () =>
-        document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
+	<!-- FILTER DROPDOWNS -->
+	<div class="fgroup-drop" id="fg-time-drop">
+		<button class="filter-chip" data-f="time" data-v="30" onclick="pickFilter(this,'fg-time-btn')">До 30 мин</button>
+		<button class="filter-chip" data-f="time" data-v="60" onclick="pickFilter(this,'fg-time-btn')">До 1 часа</button>
+		<button class="filter-chip" data-f="time" data-v="over60" onclick="pickFilter(this,'fg-time-btn')">Более 1 часа</button>
+	</div>
+	<div class="fgroup-drop" id="fg-diff-drop">
+		<button class="filter-chip" data-f="difficulty" data-v="easy" onclick="pickFilter(this,'fg-diff-btn')">Легкая</button>
+		<button class="filter-chip" data-f="difficulty" data-v="medium" onclick="pickFilter(this,'fg-diff-btn')">Средняя</button>
+		<button class="filter-chip" data-f="difficulty" data-v="hard" onclick="pickFilter(this,'fg-diff-btn')">Сложная</button>
+	</div>
 
-    // ── CATEGORIES ───────────────────────────────────────────────────────
-    function pluralR(n) {
-        const m10 = n % 10, m100 = n % 100;
-        if (m100 >= 11 && m100 <= 14) return n + ' рецептов';
-        if (m10 === 1) return n + ' рецепт';
-        if (m10 >= 2 && m10 <= 4) return n + ' рецепта';
-        return n + ' рецептов';
-    }
+	<!-- CHAT FAB -->
+	<button class="chat-fab" id="tawk-fab" onclick="openTawk()" title="Чат с отделом заботы">
+		<svg class="chat-fab-icon" viewBox="0 0 24 24">
+			<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+		</svg>
+	</button>
 
-    const activeFilters = {};
+	<script src="data-v2.js?v=1774300000"></script>
+	<script>
+		Auth.requireAuth();
+		const user = Auth.getUser();
 
-    function renderCats() {
-        const grid = document.getElementById('cat-grid');
-        grid.innerHTML = Object.values(CATEGORIES).map(cat => {
-            const count = getCategoryDishes(cat.id, activeFilters).length;
-            const total = getCategoryDishes(cat.id, {}).length;
-            const photo = CAT_PHOTOS[cat.id] || '';
-            const photoHtml = photo
-                ? `<img src="${photo}" alt="${cat.name}" loading="lazy">`
-                : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:48px">${cat.emoji}</div>`;
-            return `<button class="cat-card" onclick="goToCategory('${cat.id}')">
+		// Quote bank — rotates without repeating
+		(function () {
+			const quotes = [
+				'Каждый приём пищи — возможность дать телу то, что ему нужно.',
+				'Сбалансированная тарелка — это не ограничения, а инструмент заботы о себе.',
+				'Не нужно есть идеально. Нужно есть осознанно.',
+				'Растительный белок так же полноценен, если сочетать источники правильно.',
+				'Клетчатка — лучшая еда для вашего микробиома. Чем разнообразнее — тем лучше.',
+				'Голод — сигнал тела, а не слабость характера. Учитесь его слышать.',
+				'Хорошее питание не требует сложных расчётов — нужна привычка и осознанность.',
+				'Ешьте радугу: чем больше цветов в тарелке, тем больше нутриентов.',
+			];
+			const KEY = 'julia_quote_day';
+			const today = new Date().toDateString();
+			const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+			let pick;
+			if (saved && saved.date === today) {
+				pick = saved.idx;
+			} else {
+				const shown = saved ? (saved.shown || []) : [];
+				const remaining = quotes.map((_, i) => i).filter(i => !shown.includes(i));
+				const pool = remaining.length ? remaining : quotes.map((_, i) => i);
+				pick = pool[Math.floor(Math.random() * pool.length)];
+				const nextShown = [...shown, pick].slice(-quotes.length);
+				localStorage.setItem(KEY, JSON.stringify({ date: today, idx: pick, shown: nextShown }));
+			}
+			const el = document.getElementById('julia-quote');
+			if (el) el.textContent = '«' + quotes[pick] + '»';
+		})();
+
+		// Фото для карточек категорий
+		const CAT_PHOTOS = {
+			breakfasts: '../images/blog/post-290.webp',
+			mains: '../images/cook-healthy-food.webp',
+			pancakes: '../images/blog/random-pic-blog-2.webp',
+			spreads: '../images/blog/random-pic-blog-3.webp',
+			salads: '../images/blog/random-pic-blog-4.webp',
+			drinks: '../images/blog/random-pic-blog-1.webp',
+		};
+
+		// Init header
+		if (user) {
+			const displayName = user.name.replace(/^Пользователь\s+/i, '') || user.name;
+			const uAva = document.getElementById('u-ava');
+			const savedAva = localStorage.getItem('user_avatar');
+			if (savedAva) {
+				uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+			} else {
+				uAva.textContent = displayName.charAt(0).toUpperCase();
+			}
+			document.getElementById('u-name').textContent = displayName;
+			const timeGreet = new Date().getHours() < 12 ? 'Доброе утро' :
+					new Date().getHours() < 17 ? 'Добрый день' : 'Добрый вечер';
+			document.getElementById('greeting-hi').innerHTML =
+				timeGreet + ', <span style="color:var(--accent)">' + displayName + '</span>!';
+		}
+		updatePlateIcon();
+
+		// Scroll effect
+		window.addEventListener('scroll', () =>
+			document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
+
+		// ── CATEGORIES ───────────────────────────────────────────────────────
+		function pluralR(n) {
+			const m10 = n % 10, m100 = n % 100;
+			if (m100 >= 11 && m100 <= 14) return n + ' рецептов';
+			if (m10 === 1) return n + ' рецепт';
+			if (m10 >= 2 && m10 <= 4) return n + ' рецепта';
+			return n + ' рецептов';
+		}
+
+		const activeFilters = {};
+
+		function renderCats() {
+			const grid = document.getElementById('cat-grid');
+			grid.innerHTML = Object.values(CATEGORIES).map(cat => {
+				const count = getCategoryDishes(cat.id, activeFilters).length;
+				const total = getCategoryDishes(cat.id, {}).length;
+				const photo = CAT_PHOTOS[cat.id] || '';
+				const photoHtml = photo
+					? `<img src="${photo}" alt="${cat.name}" loading="lazy">`
+					: `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:48px">${cat.emoji}</div>`;
+				return `<button class="cat-card" onclick="goToCategory('${cat.id}')">
                 <div class="cat-icon-wrap">${photoHtml}</div>
                 <div class="cat-body">
                     <div class="cat-name">${cat.name}</div>
@@ -276,31 +572,33 @@
                     <div class="cat-count">${pluralR(count)}</div>
                 </div>
             </button>`;
-        }).join('');
-    }
-    // ── NEWS FEED ─────────────────────────────────────────────────────────
-    const NEWS_FEED = [
-        {
-            type: 'news',
-            text: 'Сегодня я сделала невероятное! На сайте появились новые фильтры и возможности распечатать всё быстро и в один клик.',
-            date: '19 марта 2026',
-        },
-        {
-            type: 'recipe',
-            id: 'lentil-mushroom-pilaf',
-            badge: 'Новый рецепт',
-            label: 'Рецепт недели',
-            date: '19 марта 2026',
-        },
-    ];
+			}).join('');
+		}
+		// ── NEWS FEED ─────────────────────────────────────────────────────────
+		const NEWS_FEED = [
+			{
+				type: 'news',
+				text: 'Сегодня я сделала невероятное! На сайте появились новые фильтры и возможности распечатать всё быстро и в один клик.',
+				date: '19 марта 2026',
+			},
+			{
+				type: 'recipe',
+				id: 'lentil-mushroom-pilaf',
+				badge: 'Новый рецепт',
+				label: 'Рецепт недели',
+				date: '19 марта 2026',
+			},
+		];
 
-    function renderNewsFeed() {
-        const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
-        const feed = document.getElementById('news-feed');
-        if (!feed) return;
-        feed.innerHTML = NEWS_FEED.map(item => {
-            if (item.type === 'news') {
-                return `<div class="news-text-card">
+		function renderNewsFeed() {
+			const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
+			const feed = document.getElementById('news-feed');
+			if (!feed) return;
+			const items = NEWS_FEED.slice(0, 3);
+			feed.innerHTML = items.map(function (item, idx) {
+				let html = '';
+				if (item.type === 'news') {
+					html = `<div class="news-text-card">
                     <div class="news-text-card-date">${item.date}</div>
                     <div class="news-text-card-top">
                         <div class="news-text-card-ava">
@@ -310,24 +608,20 @@
                     </div>
                     <div class="news-text-card-body">${item.text}</div>
                 </div>`;
-            }
-            if (item.type === 'recipe') {
-                const d = RECIPES[item.id];
-                if (!d) return '';
-                const diff = diff_labels[d.diff] || d.diff;
-                const photoHtml = d.photo
-                    ? `<img src="${d.photo}" alt="${d.name}" loading="lazy">`
-                    : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:56px">${d.emoji}</div>`;
-                return `<button class="featured-card" onclick="location.href='recipe.html?id=${d.id}&from=${d.cat}'">
+				} else if (item.type === 'recipe') {
+					const d = RECIPES[item.id];
+					if (!d) return '';
+					const diff = diff_labels[d.diff] || d.diff;
+					const photoHtml = d.photo
+						? `<img src="${d.photo}" alt="${d.name}" loading="lazy">`
+						: `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:56px">${d.emoji}</div>`;
+					html = `<button class="featured-card" onclick="location.href='recipe.html?id=${d.id}&from=${d.cat}'">
                     <div class="featured-card-photo">
                         ${photoHtml}
                         ${item.badge ? `<div class="card-new-badge">${item.badge}</div>` : ''}
                     </div>
                     <div class="featured-card-body">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-                            <div class="featured-card-label">${item.label || ''}</div>
-                            <div style="font-size:11px;color:var(--text-3)">${item.date}</div>
-                        </div>
+                        ${item.date ? `<div class="news-item-date">${item.date}</div>` : ''}
                         <div class="featured-card-name">${d.name}</div>
                         <div class="featured-card-meta">
                             <span class="pill">⏱ ${d.time} мин</span>
@@ -336,123 +630,133 @@
                         <div class="featured-card-kcal">${d.kcal} ккал · ${d.protein}г белка</div>
                     </div>
                 </button>`;
-            }
-            return '';
-        }).join('');
-    }
-    renderNewsFeed();
+				}
+				const divider = (html && idx < items.length - 1) ? '<div class="news-divider"></div>' : '';
+				return html + divider;
+			}).join('');
+		}
+		renderNewsFeed();
 
-    renderCats();
-    renderPlateInline();
+		renderCats();
+		renderPlateInline();
 
-    function goToCategory(catId) {
-        const hasFilters = Object.keys(activeFilters).length > 0;
-        if (hasFilters) sessionStorage.setItem('platform_filters', JSON.stringify(activeFilters));
-        else sessionStorage.removeItem('platform_filters');
-        location.href = 'category.html?cat=' + catId;
-    }
+		// Recipe total count
+		const rcEl = document.getElementById('recipes-total-count');
+		if (rcEl) {
+			const n = Object.keys(RECIPES).length;
+			rcEl.innerHTML = `<span class="rtc-num">${n}</span><span class="rtc-label">рецептов</span>`;
+		}
 
-    // ── FILTERS ──────────────────────────────────────────────────────────
-    let openFGroup = null;
-    function toggleFGroup(btn) {
-        const dropId = btn.dataset.drop;
-        const isOpen = openFGroup === dropId;
-        closeFGroups();
-        if (!isOpen) {
-            const drop = document.getElementById(dropId);
-            const rect = btn.getBoundingClientRect();
-            drop.style.top  = (rect.bottom + window.scrollY + 4) + 'px';
-            drop.style.left = Math.max(8, rect.left) + 'px';
-            drop.style.display = 'flex';
-            btn.classList.add('open');
-            openFGroup = dropId;
-        }
-    }
-    function closeFGroups() {
-        document.querySelectorAll('.fgroup-drop').forEach(d => d.style.display = 'none');
-        document.querySelectorAll('.fgroup-btn.open').forEach(b => b.classList.remove('open'));
-        openFGroup = null;
-    }
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('[data-drop]') && !e.target.closest('.fgroup-drop')) closeFGroups();
-    });
-    function pickFilter(el, btnId) {
-        const f = el.dataset.f, v = el.dataset.v;
-        const btn  = document.getElementById(btnId);
-        const drop = document.getElementById(btn.dataset.drop);
-        const alreadyOn = el.classList.contains('on');
-        drop.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
-        if (alreadyOn) {
-            delete activeFilters[f];
-            btn.classList.remove('has-value');
-            btn.querySelector('.fg-label').textContent = btn.dataset.label;
-        } else {
-            el.classList.add('on');
-            activeFilters[f] = f === 'time' ? (v === 'over60' ? 'over60' : +v) : v;
-            btn.classList.add('has-value');
-            btn.querySelector('.fg-label').textContent = el.textContent.trim();
-        }
-        closeFGroups();
-        renderCats();
-    }
-    function toggleTagFilter(el) {
-        const f = el.dataset.f;
-        if (el.classList.contains('on')) { el.classList.remove('on'); delete activeFilters[f]; }
-        else { el.classList.add('on'); activeFilters[f] = true; }
-        renderCats();
-    }
-    function clearFilters() {
-        Object.keys(activeFilters).forEach(k => delete activeFilters[k]);
-        document.querySelectorAll('.filter-chip.on').forEach(c => c.classList.remove('on'));
-        document.querySelectorAll('.fgroup-btn').forEach(b => {
-            b.classList.remove('has-value');
-            b.querySelector('.fg-label').textContent = b.dataset.label;
-        });
-        closeFGroups();
-        renderCats();
-    }
+		function goToCategory(catId) {
+			const hasFilters = Object.keys(activeFilters).length > 0;
+			if (hasFilters) sessionStorage.setItem('platform_filters', JSON.stringify(activeFilters));
+			else sessionStorage.removeItem('platform_filters');
+			location.href = 'category.html?cat=' + catId;
+		}
 
-    // ── MY PLATE MODAL ───────────────────────────────────────────────────
-    function openPlate() {
-        renderPlateModal();
-        document.getElementById('plate-overlay').classList.add('open');
-        document.body.style.overflow = 'hidden';
-    }
-    function closePlate() {
-        document.getElementById('plate-overlay').classList.remove('open');
-        document.body.style.overflow = '';
-    }
-    function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
+		// ── FILTERS ──────────────────────────────────────────────────────────
+		let openFGroup = null;
+		function toggleFGroup(btn) {
+			const dropId = btn.dataset.drop;
+			const isOpen = openFGroup === dropId;
+			closeFGroups();
+			if (!isOpen) {
+				const drop = document.getElementById(dropId);
+				const rect = btn.getBoundingClientRect();
+				drop.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+				drop.style.left = Math.max(8, rect.left) + 'px';
+				drop.style.display = 'flex';
+				btn.classList.add('open');
+				openFGroup = dropId;
+			}
+		}
+		function closeFGroups() {
+			document.querySelectorAll('.fgroup-drop').forEach(d => d.style.display = 'none');
+			document.querySelectorAll('.fgroup-btn.open').forEach(b => b.classList.remove('open'));
+			openFGroup = null;
+		}
+		document.addEventListener('click', function (e) {
+			if (!e.target.closest('[data-drop]') && !e.target.closest('.fgroup-drop')) closeFGroups();
+		});
+		function pickFilter(el, btnId) {
+			const f = el.dataset.f, v = el.dataset.v;
+			const btn = document.getElementById(btnId);
+			const drop = document.getElementById(btn.dataset.drop);
+			const alreadyOn = el.classList.contains('on');
+			drop.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+			if (alreadyOn) {
+				delete activeFilters[f];
+				btn.classList.remove('has-value');
+				btn.querySelector('.fg-label').textContent = btn.dataset.label;
+			} else {
+				el.classList.add('on');
+				activeFilters[f] = f === 'time' ? (v === 'over60' ? 'over60' : +v) : v;
+				btn.classList.add('has-value');
+				btn.querySelector('.fg-label').textContent = el.textContent.trim();
+			}
+			closeFGroups();
+			renderCats();
+		}
+		function toggleTagFilter(el) {
+			const f = el.dataset.f;
+			if (el.classList.contains('on')) { el.classList.remove('on'); delete activeFilters[f]; }
+			else { el.classList.add('on'); activeFilters[f] = true; }
+			renderCats();
+		}
+		function clearFilters() {
+			Object.keys(activeFilters).forEach(k => delete activeFilters[k]);
+			document.querySelectorAll('.filter-chip.on').forEach(c => c.classList.remove('on'));
+			document.querySelectorAll('.fgroup-btn').forEach(b => {
+				b.classList.remove('has-value');
+				b.querySelector('.fg-label').textContent = b.dataset.label;
+			});
+			closeFGroups();
+			renderCats();
+		}
 
-    function renderPlateModal() {
-        const items = Plate.get();
-        const body = document.getElementById('plate-body');
-        const footer = document.getElementById('plate-footer');
+		// ── MY PLATE MODAL ───────────────────────────────────────────────────
+		function openPlate() {
+			renderPlateModal();
+			document.getElementById('plate-overlay').classList.add('open');
+			document.body.style.overflow = 'hidden';
+		}
+		function closePlate() {
+			document.getElementById('plate-overlay').classList.remove('open');
+			document.body.style.overflow = '';
+		}
+		function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
 
-        if (!items.length) {
-            body.innerHTML = `<div class="plate-empty">
+		function renderPlateModal() {
+			const items = Plate.get();
+			const body = document.getElementById('plate-body');
+			const footer = document.getElementById('plate-footer');
+
+			if (!items.length) {
+				body.innerHTML = `<div class="plate-empty">
                 <div class="plate-empty-icon">🍽️</div>
                 <div class="plate-empty-text">Тарелка пока пуста</div>
                 <div class="plate-empty-sub">Выберите категорию и добавьте блюда</div>
             </div>`;
-            footer.style.display = 'none';
-            return;
-        }
+				footer.style.display = 'none';
+				return;
+			}
 
-        const t = Plate.totals();
-        const list = items.map((item, i) => `
+			const t = Plate.totals();
+			const list = items.map((item, i) => `
             <div class="plate-item" id="pi-${i}">
-                <div class="plate-item-emoji">${item.emoji || '🍴'}</div>
+                ${item.photo
+					? `<img class="plate-item-photo" src="${item.photo}" alt="">`
+					: `<div class="plate-item-emoji">${item.emoji || '🍴'}</div>`}
                 <div class="plate-item-info">
                     ${item.recipeId
-                        ? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
-                        : `<div class="plate-item-name">${item.name}</div>`}
+					? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
+					: `<div class="plate-item-name">${item.name}</div>`}
                     <div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div>
                 </div>
                 <button class="plate-item-del" onclick="removeItem(${i})">✕</button>
             </div>`).join('');
 
-        body.innerHTML = `
+			body.innerHTML = `
             <div class="plate-items">${list}</div>
             <div class="plate-total-block">
                 <div class="plate-total-title">Итого</div>
@@ -465,106 +769,121 @@
                 <div class="water-result" id="w-res">→ 1800 мл</div>
             </div>
             <div class="shop-ask" id="shop-block" style="margin-top:14px">
-                <div class="shop-ask-text">🛒 Сформировать список покупок?</div>
+                <div class="shop-ask-text">🛒 Список покупок</div>
                 <div class="shop-ask-btns">
-                    <button class="btn btn-orange btn-sm" onclick="doShare()">Да — поделиться</button>
+                    <button class="btn btn-orange btn-sm" onclick="doShare()">Поделиться</button>
                     <button class="btn btn-ghost btn-sm" onclick="doCopy()">Скопировать</button>
                 </div>
             </div>`;
-        footer.style.display = 'block';
-    }
+			footer.style.display = 'block';
+		}
 
-    function removeItem(i) { Plate.remove(i); renderPlateModal(); updatePlateIcon(); renderPlateInline(); }
-    function updateWater() {
-        const w = parseInt(document.getElementById('w-inp').value) || 60;
-        document.getElementById('w-res').textContent = '→ ' + (w * 30) + ' мл';
-    }
-    function doShare() { shareShoppingList(); }
-    function doCopy() {
-        navigator.clipboard.writeText(buildShoppingList())
-            .then(() => showToast('📋 Список скопирован!'))
-            .catch(() => showToast('Не удалось скопировать'));
-    }
-    function savePlate() { Plate.saveHistory(); renderPlateModal(); renderPlateInline(); showToast('Тарелка сохранена в историю 🎉'); }
+		function removeItem(i) { Plate.remove(i); renderPlateModal(); updatePlateIcon(); renderPlateInline(); }
+		function updateWater() {
+			const w = parseInt(document.getElementById('w-inp').value) || 60;
+			document.getElementById('w-res').textContent = '→ ' + (w * 30) + ' мл';
+		}
+		function doShare() { shareShoppingList(); }
+		function doCopy() {
+			navigator.clipboard.writeText(buildShoppingList())
+				.then(() => showToast('📋 Список скопирован!'))
+				.catch(() => showToast('Не удалось скопировать'));
+		}
+		function savePlate() { Plate.saveHistory(); renderPlateModal(); renderPlateInline(); showToast('Тарелка сохранена в историю 🎉'); }
 
-    // ── INLINE PLATE SECTION ─────────────────────────────────────────────
-    function renderPlateInline() {
-        const items = Plate.get();
-        const section = document.getElementById('plate-inline-section');
-        const introBlock = document.getElementById('intro-block');
-        if (!items.length) {
-            section.style.display = 'none';
-            if (introBlock) introBlock.style.display = '';
-            return;
-        }
-        if (introBlock) introBlock.style.display = 'none';
-        section.style.display = 'block';
-        const t = Plate.totals();
-        const body = document.getElementById('plate-inline-body');
-        const list = items.map((item, i) => `
+		// ── INLINE PLATE SECTION ─────────────────────────────────────────────
+		function renderPlateInline() {
+			const items = Plate.get();
+			const section = document.getElementById('plate-inline-section');
+			const introBlock = document.getElementById('intro-block');
+			if (!items.length) {
+				section.style.display = 'none';
+				if (introBlock) introBlock.style.display = '';
+				return;
+			}
+			if (introBlock) introBlock.style.display = 'none';
+			section.style.display = 'block';
+			const t = Plate.totals();
+			const body = document.getElementById('plate-inline-body');
+			const list = items.map((item, i) => `
             <div class="plate-item">
-                <div class="plate-item-emoji">${item.emoji || '🍴'}</div>
+                ${item.photo
+					? `<img class="plate-item-photo" src="${item.photo}" alt="">`
+					: `<div class="plate-item-emoji">${item.emoji || '🍴'}</div>`}
                 <div class="plate-item-info">
                     ${item.recipeId
-                        ? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
-                        : `<div class="plate-item-name">${item.name}</div>`}
+					? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
+					: `<div class="plate-item-name">${item.name}</div>`}
                     <div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div>
                 </div>
                 <button class="plate-item-del" onclick="removeItemInline(${i})">✕</button>
             </div>`).join('');
-        body.innerHTML = `
+			body.innerHTML = `
             <div class="plate-items" style="margin-bottom:12px">${list}</div>
             <div class="plate-total-block">
                 <div class="plate-total-title">Итого</div>
                 <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г${t.fiber ? ' | Кл: ' + t.fiber + 'г' : ''}</div>
             </div>`;
-    }
-    function removeItemInline(i) { Plate.remove(i); renderPlateInline(); updatePlateIcon(); }
-    function clearPlateInline() { Plate.clear(); renderPlateInline(); updatePlateIcon(); }
+		}
+		function removeItemInline(i) { Plate.remove(i); renderPlateInline(); updatePlateIcon(); }
+		function clearPlateInline() { Plate.clear(); renderPlateInline(); updatePlateIcon(); }
 
-    // Swipe to close
-    let sy = 0;
-    document.getElementById('plate-modal').addEventListener('touchstart', e => { sy = e.touches[0].clientY; }, { passive: true });
-    document.getElementById('plate-modal').addEventListener('touchend', e => { if (e.changedTouches[0].clientY - sy > 80) closePlate(); }, { passive: true });
+		// Swipe to close
+		let sy = 0;
+		document.getElementById('plate-modal').addEventListener('touchstart', e => { sy = e.touches[0].clientY; }, { passive: true });
+		document.getElementById('plate-modal').addEventListener('touchend', e => { if (e.changedTouches[0].clientY - sy > 80) closePlate(); }, { passive: true });
 
-    function showChatInfo() {
-        alert('💬 Чат с отделом заботы\n\nЕсть вопросы по приготовлению или ингредиентам? Напишите нам — обычно отвечаем в течение 5 минут!\n\n@voronova_support в Telegram');
-    }
+		// ── USER DROPDOWN ────────────────────────────────────────────────────
+		function toggleUserMenu(e) {
+			e.stopPropagation();
+			document.getElementById('user-dropdown').classList.toggle('open');
+		}
+		document.addEventListener('click', function (e) {
+			const wrap = document.getElementById('user-wrap');
+			if (wrap && !wrap.contains(e.target)) {
+				document.getElementById('user-dropdown').classList.remove('open');
+			}
+		});
 
-    // ── USER DROPDOWN ────────────────────────────────────────────────────
-    function toggleUserMenu(e) {
-        e.stopPropagation();
-        document.getElementById('user-dropdown').classList.toggle('open');
-    }
-    document.addEventListener('click', function(e) {
-        const wrap = document.getElementById('user-wrap');
-        if (wrap && !wrap.contains(e.target)) {
-            document.getElementById('user-dropdown').classList.remove('open');
-        }
-    });
+		// Restore avatar from localStorage on load
+		if (user && user.avatar) {
+			const ava = document.getElementById('u-ava');
+			ava.style.backgroundImage = `url(${user.avatar})`;
+			ava.style.backgroundSize = 'cover';
+			ava.textContent = '';
+		}
 
-    // Restore avatar from localStorage on load
-    if (user && user.avatar) {
-        const ava = document.getElementById('u-ava');
-        ava.style.backgroundImage = `url(${user.avatar})`;
-        ava.style.backgroundSize = 'cover';
-        ava.textContent = '';
-    }
-
-    function doLogout() {
-        document.getElementById('user-dropdown').classList.remove('open');
-        const overlay = document.createElement('div');
-        overlay.className = 'farewell-overlay';
-        overlay.innerHTML = `<div class="farewell-emoji">👋</div>
+		function doLogout() {
+			document.getElementById('user-dropdown').classList.remove('open');
+			const overlay = document.createElement('div');
+			overlay.className = 'farewell-overlay';
+			overlay.innerHTML = `<div class="farewell-emoji">👋</div>
             <div class="farewell-text">До встречи!</div>
             <div class="farewell-sub">Возвращайтесь — мы ждём вас</div>`;
-        document.body.appendChild(overlay);
-        requestAnimationFrame(() => overlay.classList.add('show'));
-        setTimeout(() => {
-            Auth.logout();
-            location.href = 'login.html';
-        }, 1800);
-    }
+			document.body.appendChild(overlay);
+			requestAnimationFrame(() => overlay.classList.add('show'));
+			setTimeout(() => {
+				Auth.logout();
+				location.href = 'login.html';
+			}, 1800);
+		}
+	</script>
+
+<!-- Tawk.to -->
+<script>
+var Tawk_API = Tawk_API || {};
+Tawk_API.onBeforeLoad = function(){ Tawk_API.hideWidget(); };
+Tawk_API.onLoad = function(){ Tawk_API.hideWidget(); };
+Tawk_API.onChatMinimized = function(){ Tawk_API.hideWidget(); };
+function openTawk(){
+    if(typeof Tawk_API!=='undefined'&&typeof Tawk_API.maximize==='function'){Tawk_API.maximize();}
+    else{window.open('https://t.me/voronova_support','_blank');}
+}
+(function(){var s=document.createElement('script');s.async=true;
+s.src='https://embed.tawk.to/699610c27418241c38dd96b3/1jhp32uj0';
+s.charset='UTF-8';s.setAttribute('crossorigin','*');
+document.head.appendChild(s);})();
 </script>
 </body>
+
 </html>

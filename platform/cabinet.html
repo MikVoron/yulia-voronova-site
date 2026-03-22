@@ -6,7 +6,8 @@
     <title>Мой кабинет — Умная тарелка</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
+    <style>body{visibility:hidden}</style>
     <link rel="stylesheet" href="style-v4.css" id="vcss"><script>document.getElementById('vcss').href='style-v4.css?v='+Date.now()</script>
     <style>
         /* ── PROFILE ── */
@@ -43,11 +44,15 @@
         }
         .cab-tabs::-webkit-scrollbar { display: none; }
         .cab-tab {
-            padding: 10px 18px; font-size: 13px; font-weight: 700;
+            padding: 10px 14px; font-size: 12px; font-weight: 700;
             color: var(--text-3); border: none; background: none; cursor: pointer;
             border-bottom: 2px solid transparent; margin-bottom: -2px;
             white-space: nowrap; transition: color .2s;
             -webkit-tap-highlight-color: transparent;
+            flex-shrink: 0;
+        }
+        @media (max-width: 420px) {
+            .cab-tab { padding: 10px 10px; font-size: 11px; }
         }
         .cab-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
         .cab-tab-panel { display: none; padding: 24px 0; }
@@ -94,6 +99,35 @@
         .notes-textarea:focus { border-color: var(--accent); }
         .notes-saved { font-size: 12px; color: var(--text-3); height: 16px; }
 
+        /* ── ОБРАТНАЯ СВЯЗЬ ── */
+        .fb-cats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .fb-cat {
+            padding: 8px 16px; border-radius: var(--r-f);
+            border: 1.5px solid var(--border); background: var(--card);
+            font-size: 13px; font-weight: 600; color: var(--text-2);
+            cursor: pointer; transition: all .18s;
+        }
+        .fb-cat.active { border-color: var(--accent); background: var(--accent-l); color: var(--accent); }
+        .fb-textarea {
+            width: 100%; min-height: 120px; padding: 14px;
+            font-family: var(--sans); font-size: 14px; color: var(--text);
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--r-s); resize: vertical; line-height: 1.6;
+            box-sizing: border-box; outline: none; transition: border-color .2s;
+        }
+        .fb-textarea:focus { border-color: var(--accent); }
+        .fb-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+        .fb-hint { font-size: 12px; color: var(--text-3); margin-top: 10px; line-height: 1.5; }
+        .fb-sent { margin-top: 20px; }
+        .fb-sent-item {
+            padding: 12px 14px; border: 1px solid var(--border);
+            border-radius: var(--r-s); margin-bottom: 10px;
+            background: var(--bg-alt);
+        }
+        .fb-sent-cat { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; }
+        .fb-sent-text { font-size: 13px; color: var(--text); margin-top: 4px; line-height: 1.5; }
+        .fb-sent-date { font-size: 11px; color: var(--text-3); margin-top: 6px; }
+
         /* ── BOOKMARK BUTTON on cards ── */
         .card-fav-btn {
             position: absolute; top: 8px; right: 8px;
@@ -113,20 +147,38 @@
 <!-- HEADER -->
 <header class="v-header" id="hdr">
     <div class="v-wrap">
-        <div class="v-header-inner">
-            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-                <button class="v-back" onclick="location.href='index.html'" style="padding:6px 8px">
-                    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-                </button>
-                <a href="index.html" class="v-header-logo-compact">
-                    <img src="images/icons/Smart Plate YV.jpg" alt="УТ" onerror="this.style.display='none'">
-                    <span class="v-header-logo-compact-text">Умная тарелка</span>
-                </a>
+        <div class="vh-inner">
+            <button class="vh-back-btn" onclick="location.href='index.html'" aria-label="На главную">
+                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </button>
+            <a href="index.html" class="vh-brand">
+                <span class="vh-brand-meta">
+                    <span class="vh-brand-name">Юлия Воронова</span>
+                    <span class="vh-brand-role">нутрициолог</span>
+                </span>
+                <span class="vh-brand-title">Умная <span class="vh-accent">тарелка</span></span>
+            </a>
+            <div class="vh-slogan-wrap">
+                <span class="vh-slogan">Персональный помощник в сбалансированном питании</span>
             </div>
-            <div style="flex:1"></div>
-            <button class="v-plate-btn" onclick="openPlate()">
-                <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
-                <div class="plate-count" style="display:none">0</div>
+            <div class="v-user-wrap" id="user-wrap">
+                <button class="vh-profile-pill" id="user-badge" onclick="toggleUserMenu(event)" type="button">
+                    <div class="v-user-avatar" id="u-ava" style="width:34px;height:34px;overflow:hidden;flex-shrink:0;border-radius:50%">?</div>
+                    <span class="vh-profile-name" id="u-name">Войти</span>
+                </button>
+                <div class="user-dropdown" id="user-dropdown">
+                    <a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
+                    <div class="user-dd-sep"></div>
+                    <button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
+                </div>
+            </div>
+            <button class="vh-plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
+                <span class="vh-plate-icon" style="position:relative;width:25px;height:25px;display:inline-block;overflow:hidden;border-radius:50%;flex-shrink:0">
+                    <span class="vh-slice vh-slice-g"></span>
+                    <span class="vh-slice vh-slice-y"></span>
+                    <span class="vh-slice vh-slice-r"></span>
+                </span>
+                <span class="plate-count" style="display:none">0</span>
             </button>
         </div>
     </div>
@@ -156,6 +208,9 @@
                         onchange="saveWeight(this.value)" oninput="saveWeight(this.value)">
                     <span class="cab-weight-unit">кг</span>
                 </div>
+                <div id="water-norm" style="font-size:12px;color:var(--text-3);margin-top:5px;display:none">
+                    💧 Норма воды: <span id="water-val" style="font-weight:700;color:var(--accent)"></span>
+                </div>
             </div>
         </div>
 
@@ -164,6 +219,7 @@
             <button class="cab-tab active" onclick="switchTab('history',this)">История</button>
             <button class="cab-tab" onclick="switchTab('favorites',this)">Избранные</button>
             <button class="cab-tab" onclick="switchTab('notes',this)">Заметки</button>
+            <button class="cab-tab" onclick="switchTab('feedback',this)">Обратная связь</button>
         </div>
 
         <!-- История тарелок -->
@@ -187,6 +243,25 @@
             </div>
         </div>
 
+        <!-- Обратная связь -->
+        <div class="cab-tab-panel" id="panel-feedback">
+            <div style="margin-bottom:18px">
+                <div class="v-section-title" style="margin-bottom:6px">Помогите нам стать лучше</div>
+                <div style="font-size:13px;color:var(--text-2);line-height:1.5">Расскажите, чего вам не хватает, что можно улучшить или какой рецепт добавить. Ваш отзыв отправится напрямую Юлии.</div>
+            </div>
+            <div class="fb-cats" id="fb-cats">
+                <button class="fb-cat active" onclick="pickFbCat(this)" data-cat="wish">💡 Пожелание</button>
+                <button class="fb-cat" onclick="pickFbCat(this)" data-cat="recipe">🍳 Идея рецепта</button>
+                <button class="fb-cat" onclick="pickFbCat(this)" data-cat="problem">⚠️ Проблема</button>
+            </div>
+            <textarea class="fb-textarea" id="fb-text" placeholder="Опишите вашу идею, пожелание или проблему…"></textarea>
+            <div class="fb-actions">
+                <button class="btn btn-orange" onclick="sendFeedback()">Отправить</button>
+            </div>
+            <div class="fb-hint">Откроется почтовый клиент с готовым письмом для Юлии. Копия сохранится здесь.</div>
+            <div class="fb-sent" id="fb-sent-list"></div>
+        </div>
+
     </div>
 </main>
 
@@ -195,7 +270,7 @@
     <div class="modal-box" id="plate-modal">
         <div class="modal-handle"></div>
         <div class="modal-header">
-            <div class="modal-title">🍽️ Моя тарелка</div>
+            <div class="modal-title"><span class="modal-plate-icon"><span class="vh-slice vh-slice-g"></span><span class="vh-slice vh-slice-y"></span><span class="vh-slice vh-slice-r"></span></span> Моя тарелка</div>
             <button class="modal-close" onclick="closePlate()">✕</button>
         </div>
         <div class="modal-body" id="plate-body"></div>
@@ -205,7 +280,7 @@
 <!-- FOOTER -->
 <footer class="v-footer">
     <div class="v-footer-inner">
-        <div class="v-footer-brand">Умная <span>тарелка</span></div>
+        <div class="v-footer-brand"><span class="v-logo-name" style="color:rgba(255,255,255,.7)">Юлия Воронова</span><span class="v-logo-brand" style="color:#fff">Умная <span>тарелка</span></span><span class="v-logo-role" style="color:rgba(255,255,255,.45)">Нутрициолог</span></div>
         <div class="v-footer-links">
             <a href="https://voronova.online" target="_blank" rel="noopener">Сайт</a>
             <span class="v-footer-sep"></span>
@@ -235,14 +310,47 @@
 </footer>
 
 <!-- CHAT FAB -->
-<button class="chat-fab" onclick="alert('💬 Чат с отделом заботы\n\n@voronova_support в Telegram')" title="Чат с отделом заботы">
+<button class="chat-fab" id="tawk-fab" onclick="openTawk()" title="Чат с отделом заботы">
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1774200000"></script>
+<script src="data-v2.js?v=1774300000"></script>
 <script>
     Auth.requireAuth();
     updatePlateIcon();
+
+    // User pill init
+    (function() {
+        const user = Auth.getUser();
+        if (!user) return;
+        const displayName = user.name.replace(/^Пользователь\s+/i, '') || user.name;
+        const uAva = document.getElementById('u-ava');
+        const savedAva = localStorage.getItem('user_avatar');
+        if (savedAva) {
+            uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+        } else {
+            uAva.textContent = displayName.charAt(0).toUpperCase();
+        }
+        document.getElementById('u-name').textContent = displayName;
+    })();
+
+    function toggleUserMenu(e) {
+        e.stopPropagation();
+        document.getElementById('user-dropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+        const wrap = document.getElementById('user-wrap');
+        if (wrap && !wrap.contains(e.target)) document.getElementById('user-dropdown').classList.remove('open');
+    });
+    function doLogout() {
+        document.getElementById('user-dropdown').classList.remove('open');
+        const overlay = document.createElement('div');
+        overlay.className = 'farewell-overlay';
+        overlay.innerHTML = '<div class="farewell-emoji">👋</div><div class="farewell-text">До встречи!</div><div class="farewell-sub">Возвращайтесь — мы ждём вас</div>';
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add('show'));
+        setTimeout(() => { Auth.logout(); location.href = 'login.html'; }, 1800);
+    }
 
     // ── SCROLL HEADER ─────────────────────────────────────────────────────────
     window.addEventListener('scroll', () =>
@@ -279,11 +387,25 @@
 
     function saveWeight(v) {
         const n = parseFloat(v);
-        if (n >= 30 && n <= 300) localStorage.setItem('user_weight', n);
+        if (n >= 30 && n <= 300) {
+            localStorage.setItem('user_weight', n);
+            updateWaterNorm(n);
+        }
+    }
+    function updateWaterNorm(w) {
+        const norm = document.getElementById('water-norm');
+        const val = document.getElementById('water-val');
+        if (!norm || !val) return;
+        const ml = Math.round(w * 30);
+        val.textContent = ml >= 1000 ? (ml / 1000).toFixed(1) + ' л' : ml + ' мл';
+        norm.style.display = 'block';
     }
     // Load weight on init
     const savedWeight = localStorage.getItem('user_weight');
-    if (savedWeight) document.getElementById('cab-weight').value = savedWeight;
+    if (savedWeight) {
+        document.getElementById('cab-weight').value = savedWeight;
+        updateWaterNorm(parseFloat(savedWeight));
+    }
 
     // ── TABS ──────────────────────────────────────────────────────────────────
     function switchTab(name, btn) {
@@ -294,6 +416,7 @@
         if (name === 'history')   renderHistory();
         if (name === 'favorites') renderFavorites();
         if (name === 'notes')     loadNotes();
+        if (name === 'feedback')  renderFeedbackHistory();
     }
 
     // ── ИСТОРИЯ ТАРЕЛОК ───────────────────────────────────────────────────────
@@ -378,12 +501,12 @@
             notes.map(n => {
                 const d = new Date(n.updated || n.date);
                 const dateStr = d.toLocaleDateString('ru-RU', { day:'numeric', month:'short' });
-                const preview = n.text.length > 80 ? n.text.slice(0, 80) + '…' : n.text;
+                const timeStr = d.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' });
                 return `<div class="hist-entry" id="note-${n.id}">
                     <div class="hist-entry-head" onclick="toggleNote(${n.id})">
                         <div>
                             <div class="hist-date">${n.title}</div>
-                            <div class="hist-macros">${dateStr} · ${n.text.split('\n').length} строк</div>
+                            <div class="hist-macros">${dateStr} · ${timeStr}</div>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px">
                             <button style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;padding:4px"
@@ -467,16 +590,20 @@
             const t = Plate.totals();
             body.innerHTML = '<div class="plate-items">' +
                 items.map((item, i) => `<div class="plate-item">
-                    <div class="plate-item-emoji">${item.emoji || '🍴'}</div>
+                    ${item.photo
+                        ? `<img class="plate-item-photo" src="${item.photo}" alt="">`
+                        : `<div class="plate-item-emoji">${item.emoji || '🍴'}</div>`}
                     <div class="plate-item-info"><div class="plate-item-name">${item.name}</div>
-                    <div class="plate-item-kcal">${item.kcal} ккал</div></div>
-                    <button class="plate-item-remove" onclick="removePlateItem(${i})">✕</button>
+                    <div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div></div>
+                    <button class="plate-item-del" onclick="removePlateItem(${i})">✕</button>
                 </div>`).join('') + '</div>' +
-                `<div class="plate-totals">
-                    <div class="plate-total-row"><span>Калории:</span><span>${t.kcal} ккал</span></div>
-                    <div class="plate-total-row"><span>Белки:</span><span>${t.protein} г</span></div>
-                    <div class="plate-total-row"><span>Жиры:</span><span>${t.fat} г</span></div>
-                    <div class="plate-total-row"><span>Углеводы:</span><span>${t.carbs} г</span></div>
+                `<div class="plate-total-block" style="margin-top:12px">
+                    <div class="plate-total-title">Итого</div>
+                    <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г${t.fiber ? ' | Кл: ' + t.fiber + 'г' : ''}</div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:10px">
+                    <button class="btn btn-orange" style="flex:1" onclick="location.href='index.html'">← На главную</button>
+                    <button class="btn btn-ghost" style="flex-shrink:0" onclick="shareShoppingList()">📤 Список продуктов</button>
                 </div>`;
         }
         document.getElementById('plate-overlay').classList.add('active');
@@ -490,6 +617,67 @@
         if (e.target === document.getElementById('plate-overlay')) closePlate();
     }
     function removePlateItem(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
+
+    // ── ОБРАТНАЯ СВЯЗЬ ────────────────────────────────────────────────────────
+    let fbCat = 'wish';
+    const FB_KEY = 'user_feedback';
+    const FB_LABELS = { wish: 'Пожелание', recipe: 'Идея рецепта', problem: 'Проблема' };
+
+    function pickFbCat(btn) {
+        document.querySelectorAll('.fb-cat').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        fbCat = btn.dataset.cat;
+    }
+
+    function sendFeedback() {
+        const text = document.getElementById('fb-text').value.trim();
+        if (!text) { document.getElementById('fb-text').focus(); return; }
+        const user = Auth.getUser();
+        const userName = user ? user.name : 'Аноним';
+        const label = FB_LABELS[fbCat] || fbCat;
+        const subject = encodeURIComponent(`[Умная тарелка] ${label}`);
+        const body = encodeURIComponent(`${text}\n\n— ${userName}`);
+        window.location.href = `mailto:mono.vmv@gmail.com?subject=${subject}&body=${body}`;
+        // Save local copy
+        const all = JSON.parse(localStorage.getItem(FB_KEY) || '[]');
+        all.unshift({ cat: fbCat, text, date: new Date().toISOString() });
+        localStorage.setItem(FB_KEY, JSON.stringify(all.slice(0, 50)));
+        document.getElementById('fb-text').value = '';
+        renderFeedbackHistory();
+    }
+
+    function renderFeedbackHistory() {
+        const all = JSON.parse(localStorage.getItem(FB_KEY) || '[]');
+        const el = document.getElementById('fb-sent-list');
+        if (!all.length) { el.innerHTML = ''; return; }
+        el.innerHTML = '<div style="font-size:13px;color:var(--text-3);font-weight:600;margin-bottom:10px">Ваши обращения</div>' +
+            all.map(f => {
+                const d = new Date(f.date);
+                const ds = d.toLocaleDateString('ru-RU', { day:'numeric', month:'short' });
+                const ts = d.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' });
+                return `<div class="fb-sent-item">
+                    <div class="fb-sent-cat">${FB_LABELS[f.cat] || f.cat}</div>
+                    <div class="fb-sent-text">${escHtml(f.text)}</div>
+                    <div class="fb-sent-date">${ds} · ${ts}</div>
+                </div>`;
+            }).join('');
+    }
+</script>
+
+<!-- Tawk.to -->
+<script>
+var Tawk_API = Tawk_API || {};
+Tawk_API.onBeforeLoad = function(){ Tawk_API.hideWidget(); };
+Tawk_API.onLoad = function(){ Tawk_API.hideWidget(); };
+Tawk_API.onChatMinimized = function(){ Tawk_API.hideWidget(); };
+function openTawk(){
+    if(typeof Tawk_API!=='undefined'&&typeof Tawk_API.maximize==='function'){Tawk_API.maximize();}
+    else{window.open('https://t.me/voronova_support','_blank');}
+}
+(function(){var s=document.createElement('script');s.async=true;
+s.src='https://embed.tawk.to/699610c27418241c38dd96b3/1jhp32uj0';
+s.charset='UTF-8';s.setAttribute('crossorigin','*');
+document.head.appendChild(s);})();
 </script>
 </body>
 </html>

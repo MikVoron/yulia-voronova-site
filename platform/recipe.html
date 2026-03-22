@@ -6,7 +6,8 @@
     <title>Рецепт — Конструктор питания</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
+    <style>body{visibility:hidden}</style>
     <link rel="stylesheet" href="style-v4.css" id="vcss"><script>document.getElementById('vcss').href='style-v4.css?v='+Date.now()</script>
     <style>
         .sublist-items { display: flex; flex-direction: column; gap: 10px; }
@@ -17,26 +18,40 @@
 <!-- HEADER -->
 <header class="v-header" id="hdr">
     <div class="v-wrap">
-        <div class="v-header-inner" style="position:relative">
-            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-                <button class="v-back" id="back-btn" style="padding:6px 8px">
-                    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-                    <span id="back-label" style="font-size:12px"></span>
-                </button>
-            </div>
-            <a href="index.html" class="v-header-logo-compact" style="position:absolute;left:50%;transform:translateX(-50%)">
-                <img src="images/icons/Smart Plate YV.jpg" alt="УТ" onerror="this.style.display='none'">
-                <span class="v-header-logo-compact-text">Умная тарелка</span>
+        <div class="vh-inner">
+            <button class="vh-back-btn" id="back-btn" aria-label="Назад">
+                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                <span id="back-label" style="display:none"></span>
+            </button>
+            <a href="index.html" class="vh-brand">
+                <span class="vh-brand-meta">
+                    <span class="vh-brand-name">Юлия Воронова</span>
+                    <span class="vh-brand-role">нутрициолог</span>
+                </span>
+                <span class="vh-brand-title">Умная <span class="vh-accent">тарелка</span></span>
             </a>
-            <div style="display:flex;align-items:center;gap:6px">
-                <a href="cabinet.html" class="v-icon-btn" id="lk-btn" title="Личный кабинет">
-                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                </a>
-                <button class="v-plate-btn" onclick="openPlate()">
-                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
-                    <div class="plate-count" style="display:none">0</div>
-                </button>
+            <div class="vh-slogan-wrap">
+                <span class="vh-slogan">Персональный помощник в сбалансированном питании</span>
             </div>
+            <div class="v-user-wrap" id="user-wrap">
+                <button class="vh-profile-pill" id="user-badge" onclick="toggleUserMenu(event)" type="button">
+                    <div class="v-user-avatar" id="u-ava" style="width:34px;height:34px;overflow:hidden;flex-shrink:0;border-radius:50%">?</div>
+                    <span class="vh-profile-name" id="u-name">Войти</span>
+                </button>
+                <div class="user-dropdown" id="user-dropdown">
+                    <a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
+                    <div class="user-dd-sep"></div>
+                    <button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
+                </div>
+            </div>
+            <button class="vh-plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
+                <span class="vh-plate-icon" style="position:relative;width:25px;height:25px;display:inline-block;overflow:hidden;border-radius:50%;flex-shrink:0">
+                    <span class="vh-slice vh-slice-g"></span>
+                    <span class="vh-slice vh-slice-y"></span>
+                    <span class="vh-slice vh-slice-r"></span>
+                </span>
+                <span class="plate-count" style="display:none">0</span>
+            </button>
         </div>
     </div>
 </header>
@@ -48,11 +63,10 @@
 
 <!-- STICKY ADD BUTTON -->
 <div class="sticky-add" id="sticky-add" style="display:none">
-    <div class="sticky-add-inner" style="display:flex;gap:10px">
-        <button class="btn btn-orange btn-lg" id="add-btn" onclick="addToPlate()">
+    <div class="sticky-add-inner" style="display:flex;justify-content:center">
+        <button class="btn btn-orange btn-lg" id="add-btn" style="width:100%;max-width:400px" onclick="addToPlate()">
             + Добавить в тарелку
         </button>
-        <button class="btn btn-ghost" style="flex-shrink:0" onclick="history.back()">←</button>
     </div>
 </div>
 
@@ -61,7 +75,7 @@
     <div class="modal-box">
         <div class="modal-handle"></div>
         <div class="modal-header">
-            <div class="modal-title">🍽️ Моя тарелка</div>
+            <div class="modal-title"><span class="modal-plate-icon"><span class="vh-slice vh-slice-g"></span><span class="vh-slice vh-slice-y"></span><span class="vh-slice vh-slice-r"></span></span> Моя тарелка</div>
             <button class="modal-close" onclick="closePlate()">✕</button>
         </div>
         <div class="modal-body" id="plate-body"></div>
@@ -69,22 +83,47 @@
 </div>
 
 <!-- CHAT FAB -->
-<button class="chat-fab" onclick="alert('💬 Чат с отделом заботы\n\n@voronova_support в Telegram')" title="Чат с отделом заботы">
+<button class="chat-fab" id="tawk-fab" onclick="openTawk()" title="Чат с отделом заботы">
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1774200000"></script>
+<script src="data-v2.js?v=1774300000"></script>
 <script>
     Auth.requireAuth();
     updatePlateIcon();
+
+    // User pill init
     (function() {
-        const ava = localStorage.getItem('user_avatar');
-        const btn = document.getElementById('lk-btn');
-        if (ava && btn) {
-            btn.style.padding = '0';
-            btn.innerHTML = `<img src="${ava}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;display:block">`;
+        const user = Auth.getUser();
+        if (!user) return;
+        const displayName = user.name.replace(/^Пользователь\s+/i, '') || user.name;
+        const uAva = document.getElementById('u-ava');
+        const savedAva = localStorage.getItem('user_avatar');
+        if (savedAva) {
+            uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+        } else {
+            uAva.textContent = displayName.charAt(0).toUpperCase();
         }
+        document.getElementById('u-name').textContent = displayName;
     })();
+
+    function toggleUserMenu(e) {
+        e.stopPropagation();
+        document.getElementById('user-dropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+        const wrap = document.getElementById('user-wrap');
+        if (wrap && !wrap.contains(e.target)) document.getElementById('user-dropdown').classList.remove('open');
+    });
+    function doLogout() {
+        document.getElementById('user-dropdown').classList.remove('open');
+        const overlay = document.createElement('div');
+        overlay.className = 'farewell-overlay';
+        overlay.innerHTML = '<div class="farewell-emoji">👋</div><div class="farewell-text">До встречи!</div><div class="farewell-sub">Возвращайтесь — мы ждём вас</div>';
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add('show'));
+        setTimeout(() => { Auth.logout(); location.href = 'login.html'; }, 1800);
+    }
 
     // Фото-заглушки по категориям (временно — из блога и гайда)
     const PHOTO_BY_CAT = {
@@ -160,11 +199,10 @@
                         </button>`).join('')}
                 </div>
                 ${r.tip ? `<div class="julia-tip anim" style="margin-top:20px">
-                    <div class="julia-tip-inner" style="display:flex;align-items:flex-start;gap:10px">
-                        <img src="../images/YV-small.webp" alt="Юлия"
-                             style="width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0;"
-                             onerror="this.style.display='none'">
+                    <img src="../images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
+                    <div class="julia-tip-bubble">
                         <div class="julia-tip-text">«${r.tip}»</div>
+                        <div class="julia-tip-name">— Юлия Воронова</div>
                     </div>
                 </div>` : ''}
             </div>`;
@@ -181,16 +219,40 @@
     function renderRecipe(r) {
         document.title = r.name + ' — Конструктор питания';
         document.getElementById('sticky-add').style.display = 'block';
+        const fab = document.getElementById('tawk-fab');
+        if (fab) fab.classList.add('above-sticky');
 
         const diff = DIFF_LABELS[r.diff] || r.diff;
         const catObj = r.cat ? CATEGORIES[r.cat] : null;
         const catColor = catObj ? catObj.color : '#9ab89e';
 
-        const hasAdditions = !simpleMode && (
-            (r.addProtein && r.addProtein.length) ||
-            (r.addFat     && r.addFat.length    ) ||
-            (r.addCarbs   && r.addCarbs.length  ) ||
-            (r.addFiber   && r.addFiber.length  ));
+        const DEFAULT_ADD = {
+            protein: [
+                { name: 'Нут отварной (3 ст.л.)', kcal: 120, protein: 7, fat: 2, carbs: 18, fiber: 4 },
+                { name: 'Тофу (50 г)', kcal: 40, protein: 5, fat: 2, carbs: 1, fiber: 0 },
+                { name: 'Красная чечевица (2 ст.л. сухой)', kcal: 110, protein: 8, fat: 0, carbs: 18, fiber: 3 },
+            ],
+            fat: [
+                { name: 'Тыквенные семечки (1 ст.л.)', kcal: 55, protein: 3, fat: 4, carbs: 1, fiber: 0 },
+                { name: 'Льняные семечки (1 ч.л.)', kcal: 35, protein: 1, fat: 3, carbs: 2, fiber: 1 },
+                { name: 'Авокадо (¼ шт.)', kcal: 80, protein: 1, fat: 7, carbs: 4, fiber: 3 },
+            ],
+            carbs: [
+                { name: 'Цельнозерновой хлеб (1 кусок)', kcal: 80, protein: 3, fat: 1, carbs: 15, fiber: 2 },
+                { name: 'Бурый рис (3 ст.л. готового)', kcal: 75, protein: 2, fat: 0, carbs: 16, fiber: 1 },
+                { name: 'Гречка отварная (3 ст.л.)', kcal: 80, protein: 3, fat: 1, carbs: 17, fiber: 2 },
+            ],
+            fiber: [
+                { name: 'Свежая зелень — укроп, петрушка (горсть)', kcal: 5, protein: 0, fat: 0, carbs: 1, fiber: 1 },
+                { name: 'Листья шпината (горсть)', kcal: 15, protein: 2, fat: 0, carbs: 2, fiber: 2 },
+                { name: 'Огурец свежий (½ шт.)', kcal: 10, protein: 0, fat: 0, carbs: 2, fiber: 1 },
+            ],
+        };
+        const addProtein = (r.addProtein && r.addProtein.length) ? r.addProtein : DEFAULT_ADD.protein;
+        const addFat     = (r.addFat     && r.addFat.length    ) ? r.addFat     : DEFAULT_ADD.fat;
+        const addCarbs   = (r.addCarbs   && r.addCarbs.length  ) ? r.addCarbs   : DEFAULT_ADD.carbs;
+        const addFiber   = (r.addFiber   && r.addFiber.length  ) ? r.addFiber   : DEFAULT_ADD.fiber;
+        const hasAdditions = !simpleMode;
 
         const ingHtml = (r.ingredients || []).map((ing, i) => {
             const name = typeof ing === 'string' ? ing : ing.name;
@@ -222,10 +284,10 @@
                     <div class="add-sidebar-head-title">🌿 Сбалансируй тарелку</div>
                     <div class="add-sidebar-head-sub">Отметьте что добавите — КБЖУ пересчитается</div>
                 </div>
-                ${buildGroup('💪 Добавь белка для сытости', 'p', r.addProtein)}
-                ${buildGroup('🥑 Добавь жиров для баланса', 'f', r.addFat)}
-                ${buildGroup('🌾 Добавь углеводов для энергии', 'c', r.addCarbs)}
-                ${buildGroup('🥬 Добавь клетчатки', 'fi', r.addFiber)}
+                ${buildGroup('💪 Добавь белка для сытости', 'p', addProtein)}
+                ${buildGroup('🥑 Добавь жиров для баланса', 'f', addFat)}
+                ${buildGroup('🌾 Добавь углеводов для энергии', 'c', addCarbs)}
+                ${buildGroup('🥬 Добавь клетчатки', 'fi', addFiber)}
                 <div class="add-total" id="add-total-bar">
                     <div>
                         <div class="add-total-label">Итого (блюдо + добавки):</div>
@@ -241,11 +303,10 @@
             : '';
 
         const tipHtml = r.tip ? `<div class="julia-tip">
-            <div class="julia-tip-inner" style="display:flex;align-items:flex-start;gap:10px">
-                <img src="../images/YV-small.webp" alt="Юлия"
-                     style="width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0;"
-                     onerror="this.style.display='none'">
+            <img src="../images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
+            <div class="julia-tip-bubble">
                 <div class="julia-tip-text">«${r.tip}»</div>
+                <div class="julia-tip-name">— Юлия Воронова</div>
             </div>
         </div>` : '';
 
@@ -303,20 +364,19 @@
                         ${r.added ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">Рецепт добавлен: ${r.added}</span>` : ''}
                     </div>
                     <h1 class="recipe-title">${r.name}</h1>
-                    <div class="recipe-meta-row">
-                        <span style="display:flex;align-items:center;gap:4px">
-                            <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:var(--text-3)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.5 5v5.25l4.5 2.67-.75 1.23L11 13V7h1.5z"/></svg>
-                            ${r.time} мин
-                        </span>
-                        <span class="recipe-meta-dot"></span>
-                        <span class="recipe-meta-stars">
-                            <span style="font-weight:700;color:var(--text-2)">${avgDisplay}</span>
+                    <div class="recipe-meta-row" id="recipe-stars-row">
+                        <span class="recipe-meta-stars${rv.mine ? ' user-rated' : ''}">
                             ${starsRow}
                             <span style="color:var(--text-3)">(${voterCount})</span>
                         </span>
-                        ${dateStr ? `<span class="recipe-meta-dot"></span><span class="recipe-meta-date">${dateStr}</span>` : ''}
                     </div>
-                    ${r.quote ? `<div style="font-size:13px;color:var(--text-3);font-style:italic;line-height:1.6;margin-bottom:18px;padding-left:12px;border-left:3px solid var(--accent-l)">${r.quote}</div>` : ''}
+                    ${r.quote ? `<div class="julia-tip" style="margin-top:0;margin-bottom:18px">
+                        <img src="../images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
+                        <div class="julia-tip-bubble">
+                            <div class="julia-tip-text">«${r.quote}»</div>
+                            <div class="julia-tip-name">— Юлия Воронова</div>
+                        </div>
+                    </div>` : ''}
                     <div class="kbzhu" id="kbzhu-block">
                         <div class="kbzhu-cell main"><div class="kbzhu-val" id="kbzhu-kcal">${r.kcal}</div><div class="kbzhu-lbl">Ккал</div></div>
                         <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-protein">${r.protein}г</div><div class="kbzhu-lbl">Белки</div></div>
@@ -325,7 +385,13 @@
                         ${fiberCell}
                     </div>
 
-                    <div class="v-section-title" style="margin-top:20px">Ингредиенты</div>
+                    <!-- On mobile: sidebar appears here, right after КБЖУ -->
+                    <div id="sidebar-mobile" style="margin-top:16px;display:none"></div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:8px">
+                        <div class="v-section-title">Ингредиенты</div>
+                        <button class="btn btn-ghost btn-sm" onclick="shareRecipeIngredients()" style="padding:6px 10px;font-size:11px">📤 Поделиться</button>
+                    </div>
                     <div class="ing-list">${ingHtml}</div>
 
                     <div class="v-section-title" style="margin-top:20px">Приготовление</div>
@@ -344,9 +410,6 @@
                         </div>` : ''}
 
                     ${tipHtml}
-
-                    <!-- On mobile: sidebar goes here -->
-                    <div id="sidebar-mobile" style="margin-top:20px;display:none">${sidebarHtml}</div>
                 </div>
 
                 <!-- Desktop sidebar -->
@@ -355,11 +418,26 @@
                 </div>
             </div>`;
 
-        // Mobile: move sidebar inside main column
+        // Mobile: move sidebar DOM nodes (not innerHTML copy) to avoid duplicate IDs
         if (window.innerWidth <= 767) {
             const m = document.getElementById('sidebar-mobile');
             const d = document.getElementById('sidebar-desktop');
-            if (m && d && sidebarHtml) { m.style.display = 'block'; d.innerHTML = ''; }
+            if (m && d && d.firstChild) {
+                m.style.display = 'block';
+                while (d.firstChild) m.appendChild(d.firstChild);
+            }
+        }
+
+        // Stars: animate when entering viewport
+        const starsRowEl = document.getElementById('recipe-stars-row');
+        if (starsRowEl && 'IntersectionObserver' in window) {
+            const io = new IntersectionObserver(function(entries) {
+                if (entries[0].isIntersecting) {
+                    starsRowEl.classList.add('stars-animate');
+                    io.disconnect();
+                }
+            }, { threshold: 0.5 });
+            io.observe(starsRowEl);
         }
 
         // Check if already in plate
@@ -391,7 +469,7 @@
                         subItemRegistry[key] = item;
                         const subInPlate = Plate.get().some(p => p.recipeId === item.recipeId);
                         return `<div class="add-item" id="ai-${key}" style="position:relative">
-                            <div class="add-item-check" id="chk-${key}" style="display:none"></div>
+                            <div class="add-item-check" id="chk-${key}"></div>
                             <div class="add-item-text">
                                 ${item.name}
                                 <a class="add-item-recipe-link" onclick="event.stopPropagation();location.href='recipe.html?id=${item.recipeId}&from=${fromCat}'">→ Открыть рецепт</a>
@@ -514,6 +592,7 @@
         Plate.add({
             name: r.name + extras,
             emoji: r.emoji,
+            photo: r.photo || '',
             kcal: total.kcal,
             protein: total.protein,
             fat: total.fat,
@@ -545,7 +624,9 @@
             const t = Plate.totals();
             body.innerHTML = '<div class="plate-items">' +
                 items.map((item, i) => `<div class="plate-item">
-                    <div class="plate-item-emoji">${item.emoji || '🍴'}</div>
+                    ${item.photo
+                        ? `<img class="plate-item-photo" src="${item.photo}" alt="">`
+                        : `<div class="plate-item-emoji">${item.emoji || '🍴'}</div>`}
                     <div class="plate-item-info">
                         ${item.recipeId
                             ? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
@@ -558,7 +639,10 @@
                     <div class="plate-total-title">Итого</div>
                     <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г${t.fiber ? ' | Кл: ' + t.fiber + 'г' : ''}</div>
                 </div>
-                <button class="btn btn-orange btn-full" style="margin-top:10px" onclick="location.href='index.html'">← Вернуться к категориям</button>`;
+                <div style="display:flex;gap:8px;margin-top:10px">
+                    <button class="btn btn-orange" style="flex:1" onclick="location.href='index.html'">← Вернуться</button>
+                    <button class="btn btn-ghost" style="flex-shrink:0" onclick="shareShoppingList()">📤 Список продуктов</button>
+                </div>`;
         }
         document.getElementById('plate-overlay').classList.add('open');
         document.body.style.overflow = 'hidden';
@@ -637,6 +721,9 @@
             s.classList.toggle('filled', i < Math.round(avg)));
         const valEl = document.getElementById('recipe-rating-val');
         if (valEl) valEl.textContent = rv.mine;
+        // Stop hint animation after rating
+        const starsWrap = document.querySelector('.recipe-meta-stars');
+        if (starsWrap) starsWrap.classList.add('user-rated');
         updateRecipePopStars();
         showToast('Оценка сохранена ★');
     }
@@ -645,6 +732,35 @@
         if (!e.target.closest('#recipe-rpill') && !e.target.closest('#recipe-rpop'))
             document.getElementById('recipe-rpop')?.classList.remove('open');
     });
+
+    function shareRecipeIngredients() {
+        if (!r) return;
+        let txt = `🛒 ${r.name}\n\n`;
+        (r.ingredients || []).forEach(ing => {
+            const name = typeof ing === 'string' ? ing : ing.name;
+            txt += `• ${name}\n`;
+        });
+        txt += `\n⏱ ${r.time} мин · ${r.kcal} ккал`;
+        if (navigator.share) { navigator.share({ title: r.name, text: txt }).catch(() => {}); }
+        else { navigator.clipboard.writeText(txt).then(() => showToast('📋 Скопировано!')).catch(() => showToast('Не удалось скопировать')); }
+    }
+
+</script>
+
+<!-- Tawk.to -->
+<script>
+var Tawk_API = Tawk_API || {};
+Tawk_API.onBeforeLoad = function(){ Tawk_API.hideWidget(); };
+Tawk_API.onLoad = function(){ Tawk_API.hideWidget(); };
+Tawk_API.onChatMinimized = function(){ Tawk_API.hideWidget(); };
+function openTawk(){
+    if(typeof Tawk_API!=='undefined'&&typeof Tawk_API.maximize==='function'){Tawk_API.maximize();}
+    else{window.open('https://t.me/voronova_support','_blank');}
+}
+(function(){var s=document.createElement('script');s.async=true;
+s.src='https://embed.tawk.to/699610c27418241c38dd96b3/1jhp32uj0';
+s.charset='UTF-8';s.setAttribute('crossorigin','*');
+document.head.appendChild(s);})();
 </script>
 </body>
 </html>

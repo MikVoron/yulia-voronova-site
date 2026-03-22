@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>body{visibility:hidden}</style>
     <link rel="stylesheet" href="style-v4.css" id="vcss"><script>document.getElementById('vcss').href='style-v4.css?v='+Date.now()</script>
     <style>
         body { background: #fff; }
@@ -16,7 +17,6 @@
             align-items: center; justify-content: flex-start;
             padding: 48px 20px 40px;
         }
-        /* Logo */
         .lp-logo { text-align: center; margin-bottom: 36px; }
         .lp-logo-img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover;
                        margin: 0 auto 12px; display: block; }
@@ -34,15 +34,12 @@
             font-size: 12px; color: var(--text-3);
             margin-top: 2px; letter-spacing: .3px;
         }
-        /* Card */
         .lp-card { width: 100%; max-width: 380px; }
-        /* Step title */
         .lp-step-title {
             font-family: 'Playfair Display', serif;
             font-size: clamp(18px, 4vw, 22px); font-weight: 700;
             color: var(--text); margin-bottom: 20px; line-height: 1.3;
         }
-        /* Form */
         .lp-field { margin-bottom: 14px; }
         .lp-label { display: block; font-size: 13px; font-weight: 600;
                     color: var(--text-2); margin-bottom: 6px; }
@@ -55,7 +52,10 @@
         }
         .lp-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,64,10,.1); }
         .lp-input[readonly] { background: var(--bg-alt); color: var(--text-2); cursor: default; }
-        /* Buttons */
+        .lp-input.code-input {
+            font-size: 28px; letter-spacing: 12px; text-align: center;
+            font-weight: 700; padding: 16px;
+        }
         .lp-btn {
             width: 100%; padding: 14px; border-radius: var(--r-m);
             font-family: inherit; font-size: 15px; font-weight: 700;
@@ -63,59 +63,35 @@
             transition: opacity .18s, transform .15s;
         }
         .lp-btn:active { transform: scale(.98); }
+        .lp-btn:disabled { opacity: .5; cursor: not-allowed; }
         .lp-btn-primary { background: var(--accent); color: #fff; }
-        .lp-btn-primary:hover { opacity: .9; }
+        .lp-btn-primary:hover:not(:disabled) { opacity: .9; }
         .lp-btn-back {
             background: none; border: 1.5px solid var(--border);
             color: var(--text-2); font-weight: 500; font-size: 14px;
             margin-bottom: 0;
         }
-        /* Error */
         .lp-error { color: #c0392b; font-size: 13px; margin-bottom: 10px; display: none; }
-        /* Divider */
-        .lp-divider {
-            display: flex; align-items: center; gap: 12px;
-            margin: 20px 0; color: var(--text-3); font-size: 13px;
-        }
-        .lp-divider::before, .lp-divider::after {
-            content: ''; flex: 1; height: 1px; background: var(--border);
-        }
-        /* Social */
-        .lp-socials { display: flex; flex-direction: column; gap: 10px; }
-        .lp-soc-btn {
-            width: 100%; padding: 12px 16px;
-            border: 1.5px solid var(--border); border-radius: var(--r-m);
-            font-family: inherit; font-size: 14px; font-weight: 600;
-            background: #fff; color: var(--text); cursor: pointer;
-            display: flex; align-items: center; gap: 10px;
-            transition: border-color .18s, background .18s;
-        }
-        .lp-soc-btn:hover { background: var(--bg-alt); border-color: #bbb; }
-        .lp-soc-icon { width: 20px; height: 20px; flex-shrink: 0; }
-        /* Footer */
+        .lp-hint { color: var(--text-3); font-size: 13px; margin-top: 8px; line-height: 1.5; }
         .lp-footer { margin-top: 32px; text-align: center; }
         .lp-footer-text { font-size: 12px; color: var(--text-3); line-height: 1.6; }
         .lp-footer-text a { color: var(--text-3); text-decoration: underline; }
-        /* Step anim */
         .lp-step { animation: fadeUp .3s ease both; }
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(12px); }
             to   { opacity: 1; transform: translateY(0); }
         }
-        /* Welcome badge */
-        .lp-welcome {
-            display: flex; align-items: center; gap: 10px;
-            background: var(--accent-l); border-radius: var(--r-m);
-            padding: 10px 14px; margin-bottom: 16px; font-size: 14px;
-        }
-        .lp-welcome-emoji { font-size: 20px; }
-        .lp-welcome-text { font-weight: 600; color: var(--accent); }
+        .lp-timer { color: var(--text-3); font-size: 13px; margin-top: 10px; text-align: center; }
+        .lp-timer a { color: var(--accent); cursor: pointer; text-decoration: underline; }
+        .lp-spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #fff;
+                      border-top-color: transparent; border-radius: 50%; animation: spin .6s linear infinite;
+                      vertical-align: middle; margin-right: 6px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 <div class="lp-wrap">
 
-    <!-- Logo -->
     <div class="lp-logo">
         <img src="../images/YV-small.webp" alt="Юлия Воронова" class="lp-logo-img"
              onerror="this.style.display='none'">
@@ -124,7 +100,6 @@
         <div class="lp-logo-prof">Доказательный нутрициолог</div>
     </div>
 
-    <!-- Card -->
     <div class="lp-card">
 
         <!-- Step 1: Email -->
@@ -135,39 +110,8 @@
                        placeholder="your@email.com" autocomplete="email">
             </div>
             <div class="lp-error" id="email-error"></div>
-            <button class="lp-btn lp-btn-primary" onclick="continueWithEmail()">Продолжить</button>
-
-            <div class="lp-divider">или</div>
-
-            <div class="lp-socials">
-                <button class="lp-soc-btn" onclick="socialLogin('vk')">
-                    <svg class="lp-soc-icon" viewBox="0 0 24 24" fill="#0077FF">
-                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 13.394c.49.483 1.007.952 1.404 1.526.176.253.344.513.456.808.158.42.015.882-.366.906l-2.398-.001c-.618.051-1.113-.196-1.541-.609-.338-.326-.65-.673-.972-1.01-.135-.141-.276-.269-.44-.372-.31-.195-.58-.126-.753.207-.177.338-.217.71-.239 1.084-.03.534-.232.674-.766.697-1.143.05-2.227-.12-3.23-.673-.883-.486-1.556-1.188-2.137-1.98-.954-1.3-1.696-2.735-2.363-4.207-.194-.428-.05-.66.417-.668.776-.013 1.553-.011 2.329-.002.31.004.518.19.642.473.394.904.862 1.762 1.416 2.563.148.214.299.428.513.582.244.176.43.118.546-.158.075-.18.107-.372.123-.565.052-.633.059-1.266-.01-1.897-.042-.39-.241-.643-.631-.709-.2-.033-.17-.099-.073-.199.145-.149.282-.242.554-.242h2.043c.322.064.393.209.437.532l.002 2.27c-.004.148.074.587.341.685.215.075.357-.109.486-.244.577-.606.989-1.316 1.342-2.126.132-.299.25-.608.363-.918.084-.23.215-.343.471-.337l2.597.003c.077 0 .155 0 .23.013.375.065.478.231.361.593-.185.571-.537 1.045-.888 1.516-.37.497-.762.976-1.13 1.474-.331.448-.305.672.09 1.052z"/>
-                    </svg>
-                    Войти через VK
-                </button>
-                <button class="lp-soc-btn" onclick="socialLogin('yandex')">
-                    <svg class="lp-soc-icon" viewBox="0 0 24 24" fill="#FC3F1D">
-                        <path d="M2.04 12c0-5.523 4.476-10 9.998-10C17.522 2 22 6.477 22 12s-4.478 10-9.962 10C6.516 22 2.04 17.523 2.04 12zm10.957 3.667h1.386V8.333h-1.835c-2.003 0-3.056 1.009-3.056 2.529 0 1.306.663 2.035 1.836 2.848l-2.024 3.957h1.495l1.858-3.677.34.241zM13.383 9.4v3.247l-.304-.213c-.909-.638-1.327-1.12-1.327-1.975 0-.754.485-1.059 1.327-1.059h.304z"/>
-                    </svg>
-                    Войти через Яндекс ID
-                </button>
-                <button class="lp-soc-btn" onclick="socialLogin('google')">
-                    <svg class="lp-soc-icon" viewBox="0 0 24 24">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                    </svg>
-                    Войти через Google
-                </button>
-                <button class="lp-soc-btn" onclick="socialLogin('apple')" style="background:#000;border-color:#000;color:#fff;">
-                    <svg class="lp-soc-icon" viewBox="0 0 24 24" fill="#fff">
-                        <path d="M16.125 1c.05 1.4-.38 2.79-1.19 3.82-.84 1.07-2.11 1.86-3.37 1.73-.1-1.33.45-2.74 1.21-3.73C13.6 1.75 14.94 1 16.125 1zm4.175 17.57c-.73 1.64-1.08 2.37-2.02 3.81-.31.47-.78 1.05-1.35 1.06-.57.01-1.04-.37-1.93-.38-.9-.01-1.39.38-1.97.38-.58.01-1.06-.6-1.37-1.06-2.5-3.75-2.76-8.1-1.22-10.5.99-1.56 2.55-2.47 4.03-2.47 1.5 0 2.44.37 3.27.37.83 0 2.09-.43 3.48-.43 1.52 0 3.01.83 4.02 2.26-3.53 1.98-2.96 7.1.02 6.96z"/>
-                    </svg>
-                    Войти через Apple
-                </button>
-            </div>
+            <button class="lp-btn lp-btn-primary" id="send-code-btn" onclick="sendCode()">Получить код</button>
+            <p class="lp-hint">Мы отправим 6-значный код на вашу почту</p>
 
             <div class="lp-footer">
                 <p class="lp-footer-text">
@@ -177,30 +121,24 @@
             </div>
         </div>
 
-        <!-- Step 2: Password -->
-        <div id="step-password" class="lp-step" style="display:none">
-            <div id="welcome-badge" class="lp-welcome" style="display:none">
-                <span class="lp-welcome-emoji">👋</span>
-                <span class="lp-welcome-text" id="welcome-name">С возвращением!</span>
-            </div>
-            <div class="lp-step-title" id="step2-title">Создайте пароль</div>
+        <!-- Step 2: Code -->
+        <div id="step-code" class="lp-step" style="display:none">
+            <div class="lp-step-title">Введите код из письма</div>
             <div class="lp-field">
                 <label class="lp-label">Email</label>
                 <input class="lp-input" type="email" id="email-display" readonly>
             </div>
             <div class="lp-field">
-                <label class="lp-label" for="pass-input" id="pass-label">Придумайте пароль</label>
-                <input class="lp-input" type="password" id="pass-input"
-                       placeholder="••••••" autocomplete="current-password">
+                <label class="lp-label" for="code-input">Код из письма</label>
+                <input class="lp-input code-input" type="text" id="code-input"
+                       placeholder="------" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
             </div>
-            <div class="lp-field" id="name-field" style="display:none">
-                <label class="lp-label" for="name-input">Ваше имя</label>
-                <input class="lp-input" type="text" id="name-input"
-                       placeholder="Мария" autocomplete="given-name">
+            <div class="lp-error" id="code-error"></div>
+            <button class="lp-btn lp-btn-primary" id="verify-btn" onclick="verifyCode()">Войти</button>
+            <div class="lp-timer" id="timer-block">
+                Отправить повторно через <span id="timer-sec">60</span> сек
             </div>
-            <div class="lp-error" id="pass-error"></div>
-            <button class="lp-btn lp-btn-primary" id="submit-btn" onclick="submitAuth()">Войти</button>
-            <button class="lp-btn lp-btn-back" onclick="goBack()">← Другой email</button>
+            <button class="lp-btn lp-btn-back" onclick="goBack()">Другой email</button>
         </div>
 
     </div>
@@ -210,18 +148,8 @@
 <script>
     if (Auth.isLoggedIn()) location.href = 'index.html';
 
-    // Registered emails: array of {email, name, pass}
-    var USERS_KEY = 'hp_users';
-    function getUsers() {
-        try { return JSON.parse(localStorage.getItem(USERS_KEY) || '[]'); } catch(e) { return []; }
-    }
-    function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
-    function findUser(email) {
-        return getUsers().find(function(u) { return u.email === email.toLowerCase(); });
-    }
-
     var currentEmail = '';
-    var isReturning = false;
+    var timerInterval = null;
 
     function showError(id, msg) {
         var el = document.getElementById(id);
@@ -229,44 +157,114 @@
     }
     function hideError(id) { document.getElementById(id).style.display = 'none'; }
 
-    function continueWithEmail() {
+    function setLoading(btnId, loading) {
+        var btn = document.getElementById(btnId);
+        if (loading) {
+            btn.disabled = true;
+            btn.dataset.text = btn.textContent;
+            btn.innerHTML = '<span class="lp-spinner"></span>Отправка...';
+        } else {
+            btn.disabled = false;
+            btn.textContent = btn.dataset.text || 'Отправить';
+        }
+    }
+
+    async function sendCode() {
         hideError('email-error');
         var email = document.getElementById('email-input').value.trim().toLowerCase();
         if (!email || !email.includes('@') || !email.includes('.')) {
             showError('email-error', 'Введите корректный email'); return;
         }
         currentEmail = email;
-        var user = findUser(email);
-        isReturning = !!user;
-
-        document.getElementById('email-display').value = email;
-        document.getElementById('step2-title').textContent = isReturning ? 'Введите пароль' : 'Создайте пароль';
-        document.getElementById('pass-label').textContent = isReturning ? 'Пароль' : 'Придумайте пароль';
-        document.getElementById('pass-input').placeholder = isReturning ? '••••••' : 'минимум 6 символов';
-        document.getElementById('submit-btn').textContent = isReturning ? 'Авторизироваться' : 'Создать аккаунт';
-
-        var welcomeBadge = document.getElementById('welcome-badge');
-        if (isReturning) {
-            document.getElementById('welcome-name').textContent = 'С возвращением, ' + user.name + '!';
-            welcomeBadge.style.display = 'flex';
-            document.getElementById('name-field').style.display = 'none';
-        } else {
-            welcomeBadge.style.display = 'none';
-            document.getElementById('name-field').style.display = 'block';
+        setLoading('send-code-btn', true);
+        try {
+            var res = await fetch(API_BASE + '/auth/send-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+            var data = await res.json();
+            if (!res.ok) { showError('email-error', data.error || 'Ошибка'); setLoading('send-code-btn', false); return; }
+            showCodeStep();
+        } catch (e) {
+            showError('email-error', 'Ошибка сети');
         }
+        setLoading('send-code-btn', false);
+    }
 
+    function showCodeStep() {
+        document.getElementById('email-display').value = currentEmail;
         document.getElementById('step-email').style.display = 'none';
-        var step2 = document.getElementById('step-password');
+        var step2 = document.getElementById('step-code');
         step2.style.display = 'block';
         step2.style.animation = 'none';
         requestAnimationFrame(function() {
             step2.style.animation = 'fadeUp .3s ease both';
-            document.getElementById('pass-input').focus();
+            document.getElementById('code-input').focus();
         });
+        startTimer();
+    }
+
+    function startTimer() {
+        var sec = 60;
+        var timerEl = document.getElementById('timer-sec');
+        var block = document.getElementById('timer-block');
+        block.innerHTML = 'Отправить повторно через <span id="timer-sec">60</span> сек';
+        timerEl = document.getElementById('timer-sec');
+        clearInterval(timerInterval);
+        timerInterval = setInterval(function() {
+            sec--;
+            timerEl.textContent = sec;
+            if (sec <= 0) {
+                clearInterval(timerInterval);
+                block.innerHTML = '<a onclick="resendCode()">Отправить код повторно</a>';
+            }
+        }, 1000);
+    }
+
+    async function resendCode() {
+        var block = document.getElementById('timer-block');
+        block.innerHTML = 'Отправка...';
+        try {
+            var res = await fetch(API_BASE + '/auth/send-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: currentEmail })
+            });
+            var data = await res.json();
+            if (!res.ok) { block.innerHTML = '<span style="color:#c0392b">' + (data.error || 'Ошибка') + '</span>'; return; }
+            startTimer();
+        } catch (e) {
+            block.innerHTML = '<span style="color:#c0392b">Ошибка сети</span>';
+        }
+    }
+
+    async function verifyCode() {
+        hideError('code-error');
+        var code = document.getElementById('code-input').value.trim();
+        if (code.length !== 6) { showError('code-error', 'Введите 6-значный код'); return; }
+        setLoading('verify-btn', true);
+        try {
+            var res = await fetch(API_BASE + '/auth/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ email: currentEmail, code: code })
+            });
+            var data = await res.json();
+            if (!res.ok) { showError('code-error', data.error || 'Ошибка'); setLoading('verify-btn', false); return; }
+            Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription);
+            location.href = 'index.html';
+        } catch (e) {
+            showError('code-error', 'Ошибка сети');
+            setLoading('verify-btn', false);
+        }
     }
 
     function goBack() {
-        document.getElementById('step-password').style.display = 'none';
+        clearInterval(timerInterval);
+        document.getElementById('step-code').style.display = 'none';
+        document.getElementById('code-input').value = '';
         var s1 = document.getElementById('step-email');
         s1.style.display = 'block';
         s1.style.animation = 'none';
@@ -274,49 +272,14 @@
         document.getElementById('email-input').focus();
     }
 
-    function submitAuth() {
-        hideError('pass-error');
-        var pass = document.getElementById('pass-input').value;
-        if (pass.length < 1) { showError('pass-error', 'Введите пароль'); return; }
-
-        if (isReturning) {
-            var user = findUser(currentEmail);
-            if (user.pass && user.pass !== pass) {
-                showError('pass-error', 'Неверный пароль'); return;
-            }
-            Auth.login(user.email, user.name);
-        } else {
-            if (pass.length < 6) { showError('pass-error', 'Пароль должен быть не менее 6 символов'); return; }
-            var name = document.getElementById('name-input').value.trim() || currentEmail.split('@')[0];
-            var users = getUsers();
-            users.push({ email: currentEmail, name: name, pass: pass });
-            saveUsers(users);
-            Auth.login(currentEmail, name);
-        }
-        location.href = 'index.html';
-    }
-
-    function socialLogin(provider) {
-        var names = { vk: 'VK', yandex: 'Яндекс ID', google: 'Google', apple: 'Apple' };
-        // Mock social login
-        var mockEmail = provider + '@social.voronova.online';
-        var mockName = names[provider];
-        var users = getUsers();
-        if (!findUser(mockEmail)) {
-            users.push({ email: mockEmail, name: mockName, pass: '' });
-            saveUsers(users);
-        } else {
-            mockName = findUser(mockEmail).name;
-        }
-        Auth.login(mockEmail, mockName);
-        location.href = 'index.html';
-    }
-
-    // Enter key
+    // Enter & auto-submit
     document.addEventListener('keydown', function(e) {
         if (e.key !== 'Enter') return;
-        if (document.getElementById('step-email').style.display !== 'none') continueWithEmail();
-        else submitAuth();
+        if (document.getElementById('step-email').style.display !== 'none') sendCode();
+        else verifyCode();
+    });
+    document.getElementById('code-input').addEventListener('input', function() {
+        if (this.value.length === 6) verifyCode();
     });
 </script>
 </body>

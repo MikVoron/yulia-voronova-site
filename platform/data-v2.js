@@ -5,17 +5,53 @@
  */
 
 // ─── AUTH ───────────────────────────────────────────────────────────────────
+const API_BASE = 'https://api.voronova.online';
 const Auth = {
     KEY: 'hp_user',
-    login(email, name) {
-        const user = { email, name: name || email.split('@')[0], joined: Date.now() };
+    TOKEN_KEY: 'hp_token',
+    _token: null,
+    login(email, name, token, subscription) {
+        const user = { email, name: name || email.split('@')[0], joined: Date.now(), subscription: subscription || null };
         localStorage.setItem(this.KEY, JSON.stringify(user));
+        if (token) { this._token = token; localStorage.setItem(this.TOKEN_KEY, token); }
         return user;
     },
-    logout() { localStorage.removeItem(this.KEY); Plate.clear(); },
-    isLoggedIn() { return !!localStorage.getItem(this.KEY); },
+    logout() {
+        fetch(API_BASE + '/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
+        localStorage.removeItem(this.KEY); localStorage.removeItem(this.TOKEN_KEY);
+        this._token = null; Plate.clear();
+    },
+    isLoggedIn() { return !!localStorage.getItem(this.KEY) && !!this.getToken(); },
     getUser() { try { return JSON.parse(localStorage.getItem(this.KEY)); } catch { return null; } },
-    requireAuth() { if (!this.isLoggedIn()) location.href = 'login.html'; }
+    getToken() { return this._token || localStorage.getItem(this.TOKEN_KEY); },
+    requireAuth() { if (!this.isLoggedIn()) location.href = 'login.html'; },
+    async refreshToken() {
+        try {
+            const res = await fetch(API_BASE + '/auth/refresh', { method: 'POST', credentials: 'include' });
+            if (!res.ok) { this.logout(); return false; }
+            const data = await res.json();
+            this._token = data.accessToken;
+            localStorage.setItem(this.TOKEN_KEY, data.accessToken);
+            const user = this.getUser();
+            if (user && data.user) { user.name = data.user.displayName || user.name; user.email = data.user.email; localStorage.setItem(this.KEY, JSON.stringify(user)); }
+            return true;
+        } catch { return false; }
+    },
+    async api(path, options = {}) {
+        const token = this.getToken();
+        const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+        const res = await fetch(API_BASE + path, Object.assign({}, options, { headers, credentials: 'include' }));
+        if (res.status === 401) {
+            const refreshed = await this.refreshToken();
+            if (refreshed) {
+                headers['Authorization'] = 'Bearer ' + this.getToken();
+                return fetch(API_BASE + path, Object.assign({}, options, { headers, credentials: 'include' }));
+            }
+            this.logout(); location.href = 'login.html';
+        }
+        return res;
+    }
 };
 
 // ─── FAVORITES ───────────────────────────────────────────────────────────────
@@ -230,6 +266,7 @@ RECIPES['apple-pear-pancakes'] = {
     added: '19 марта 2026',
     tags: ['средний'],
     photo: '../images/img-guides/plant-based/pancakes-apple.webp',
+    quote: 'Эти панкейки — настоящий десерт без сахара! Фруктовое пюре на пару даёт нежную сладость, а цельнозерновая мука — сытость. Дети просят ещё и ещё!',
     ingredients: [
         { name: '3 груши', swap: null },
         { name: '3 яблока', swap: null },
@@ -346,6 +383,7 @@ RECIPES['avocado-toast'] = {
     added: '19 марта 2026',
     tags: ['до 15 мин', 'простой'],
     photo: '../images/img-guides/plant-based/avocado-toast.webp',
+    quote: 'Самый быстрый и полезный завтрак! Авокадо — это полезные жиры, которые дают сытость на несколько часов. Добавьте лимон и специи — и у вас идеальное утро за 10 минут.',
     ingredients: [
         { name: '1 авокадо', swap: null },
         { name: '1/2 сладкого красного лука (можно без него)', swap: null },
@@ -405,6 +443,7 @@ RECIPES['veggie-concentrate'] = {
     added: '19 марта 2026',
     tags: ['заготовка'],
     photo: '../images/img-guides/plant-based/concentrat.webp',
+    quote: 'Этот концентрат заменит вам все магазинные бульонные кубики. Натуральный, без химии, хранится в морозилке и делает любой суп невероятно ароматным. Готовлю сразу большую порцию!',
     ingredients: [
         { name: '200 гр. стеблей сельдерея (или 150 гр. корня)', swap: null },
         { name: '250 гр. моркови', swap: null },
@@ -490,6 +529,7 @@ RECIPES['lentil-soup'] = {
     added: '19 марта 2026',
     tags: ['простой', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/lentil-soup.webp',
+    quote: 'Красная чечевица разваривается за 15 минут и даёт кремовую текстуру без блендера. Это один из самых простых и сытных супов, который полюбит вся семья. Обязательно добавьте лимон при подаче!',
     ingredients: [
         { name: '300 гр. красной чечевицы', swap: null },
         { name: '1 средняя луковица', swap: null },
@@ -561,6 +601,7 @@ RECIPES['chickpea-noodle-soup'] = {
     added: '19 марта 2026',
     tags: ['простой', 'бобовые'],
     photo: '../images/img-guides/plant-based/chickpea-noodle-soup.webp',
+    quote: 'Нут — король бобовых! Он даёт этому супу сытность и белок, а лапша делает его по-домашнему уютным. Мои дети называют его «суп как у бабушки, только полезный».',
     ingredients: [
         { name: '1 небольшой лук', swap: null },
         { name: '1 небольшая морковь', swap: null },
@@ -789,6 +830,7 @@ RECIPES['potato-quinoa-cutlets'] = {
     added: '19 марта 2026',
     tags: ['средний', 'без глютена'],
     photo: '../images/img-guides/plant-based/potato-patties.webp',
+    quote: 'Киноа — это суперфуд, который прекрасно сочетается с картофелем. Котлеты получаются с хрустящей корочкой и нежные внутри. Подавайте со свежими овощами и зеленью!',
     ingredients: [
         { name: '4 средних картофелины', swap: null },
         { name: '4 ст.л. (с горкой) киноа', swap: null },
@@ -844,6 +886,7 @@ RECIPES['broccoli-rice-cutlets'] = {
     added: '19 марта 2026',
     tags: ['средний', 'без глютена'],
     photo: '../images/img-guides/plant-based/broccoli-patties.webp',
+    quote: 'Брокколи, рис и грибы — это трио, которое превращается в нежнейшие котлеты. Дети даже не догадаются, что внутри столько овощей! Секрет — хорошо отжать брокколи после варки.',
     ingredients: [
         { name: '100 гр. риса (лучше бурый)', swap: null },
         { name: '400 гр. брокколи', swap: null },
@@ -968,6 +1011,7 @@ RECIPES['lentil-mushroom-pilaf'] = {
     added: '19 марта 2026',
     tags: ['средний', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/plov-lentil.webp',
+    quote: 'Плов без мяса? Да, и он потрясающий! Чечевица даёт белок и сытность, грибы — аромат и «мясистость». Это блюдо, которое оценят даже самые убеждённые мясоеды.',
     ingredients: [
         { name: '1 средняя луковица', swap: null },
         { name: '2 средние моркови', swap: null },
@@ -1002,6 +1046,7 @@ RECIPES['pasta-boloniase'] = {
     added: '19 марта 2026',
     tags: ['средний'],
     photo: '../images/img-guides/plant-based/pasta-boloniase.webp',
+    quote: 'Баклажан, измельчённый в блендере, создаёт текстуру, неотличимую от мясного фарша. Добавьте томаты, чеснок, базилик — и это будет одна из лучших паст, что вы пробовали!',
     ingredients: [
         { name: '1 большой баклажан', swap: null },
         { name: '1–2 зубчика чеснока', swap: null },
@@ -1035,6 +1080,7 @@ RECIPES['pasta-carbonara'] = {
     added: '19 марта 2026',
     tags: ['до 30 мин', 'простой', 'на спорте'],
     photo: '../images/img-guides/plant-based/pasta-carbonara.webp',
+    quote: 'Сливочная паста за 25 минут — это спасение для вечера, когда нет сил готовить долго. Тунец даёт белок, а сливочный соус из кешью — ту самую нежность настоящей карбонары.',
     ingredients: [
         { name: '150–200 гр. консервированного тунца (в собственном соку)', swap: null },
         { name: '1 красный сладкий лук', swap: null },
@@ -1164,6 +1210,7 @@ RECIPES['roasted-veg-sauce'] = {
     added: '19 марта 2026',
     tags: ['простой', 'без глютена'],
     photo: '../images/img-guides/plant-based/Roasted-vegetable-sauce.webp',
+    quote: 'Запечённые овощи — это совершенно другой вкус! Томаты становятся сладкими, морковь карамельной, а перец — дымным. Этот соус универсален: к пасте, к крупам, к хлебу.',
     ingredients: [
         { name: '200 гр. помидоров черри', swap: null },
         { name: '2–3 средние морковки (около 400 гр.)', swap: null },

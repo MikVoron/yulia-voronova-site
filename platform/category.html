@@ -6,7 +6,8 @@
     <title>Категория — Конструктор питания</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
+    <style>body{visibility:hidden}</style>
     <link rel="stylesheet" href="style-v4.css" id="vcss"><script>document.getElementById('vcss').href='style-v4.css?v='+Date.now()</script>
     <style>
         .cat-hero { padding: 20px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
@@ -29,25 +30,39 @@
 <!-- HEADER -->
 <header class="v-header" id="hdr">
     <div class="v-wrap">
-        <div class="v-header-inner" style="position:relative">
-            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-                <button class="v-back" onclick="location.href='index.html'" style="padding:6px 8px">
-                    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-                </button>
-            </div>
-            <a href="index.html" class="v-header-logo-compact" style="position:absolute;left:50%;transform:translateX(-50%)">
-                <img src="images/icons/Smart Plate YV.jpg" alt="УТ" onerror="this.style.display='none'">
-                <span class="v-header-logo-compact-text">Умная тарелка</span>
+        <div class="vh-inner">
+            <button class="vh-back-btn" onclick="location.href='index.html'" aria-label="Назад">
+                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </button>
+            <a href="index.html" class="vh-brand">
+                <span class="vh-brand-meta">
+                    <span class="vh-brand-name">Юлия Воронова</span>
+                    <span class="vh-brand-role">нутрициолог</span>
+                </span>
+                <span class="vh-brand-title">Умная <span class="vh-accent">тарелка</span></span>
             </a>
-            <div style="display:flex;align-items:center;gap:6px">
-                <a href="cabinet.html" class="v-icon-btn" id="lk-btn" title="Личный кабинет">
-                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                </a>
-                <button class="v-plate-btn" onclick="openPlate()">
-                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
-                    <div class="plate-count" style="display:none">0</div>
-                </button>
+            <div class="vh-slogan-wrap">
+                <span class="vh-slogan">Персональный помощник в сбалансированном питании</span>
             </div>
+            <div class="v-user-wrap" id="user-wrap">
+                <button class="vh-profile-pill" id="user-badge" onclick="toggleUserMenu(event)" type="button">
+                    <div class="v-user-avatar" id="u-ava" style="width:34px;height:34px;overflow:hidden;flex-shrink:0;border-radius:50%">?</div>
+                    <span class="vh-profile-name" id="u-name">Войти</span>
+                </button>
+                <div class="user-dropdown" id="user-dropdown">
+                    <a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
+                    <div class="user-dd-sep"></div>
+                    <button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
+                </div>
+            </div>
+            <button class="vh-plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
+                <span class="vh-plate-icon" style="position:relative;width:25px;height:25px;display:inline-block;overflow:hidden;border-radius:50%;flex-shrink:0">
+                    <span class="vh-slice vh-slice-g"></span>
+                    <span class="vh-slice vh-slice-y"></span>
+                    <span class="vh-slice vh-slice-r"></span>
+                </span>
+                <span class="plate-count" style="display:none">0</span>
+            </button>
         </div>
     </div>
 </header>
@@ -106,7 +121,7 @@
     <div class="modal-box" id="plate-modal">
         <div class="modal-handle"></div>
         <div class="modal-header">
-            <div class="modal-title">🍽️ Моя тарелка</div>
+            <div class="modal-title"><span class="modal-plate-icon"><span class="vh-slice vh-slice-g"></span><span class="vh-slice vh-slice-y"></span><span class="vh-slice vh-slice-r"></span></span> Моя тарелка</div>
             <button class="modal-close" onclick="closePlate()">✕</button>
         </div>
         <div class="modal-body" id="plate-body"></div>
@@ -116,7 +131,7 @@
 <!-- FOOTER -->
 <footer class="v-footer">
     <div class="v-footer-inner">
-        <div class="v-footer-brand">Умная <span>тарелка</span></div>
+        <div class="v-footer-brand"><span class="v-logo-name" style="color:rgba(255,255,255,.7)">Юлия Воронова</span><span class="v-logo-brand" style="color:#fff">Умная <span>тарелка</span></span><span class="v-logo-role" style="color:rgba(255,255,255,.45)">Нутрициолог</span></div>
         <div class="v-footer-links">
             <a href="https://voronova.online" target="_blank" rel="noopener">Сайт</a>
             <span class="v-footer-sep"></span>
@@ -158,22 +173,47 @@
 </div>
 
 <!-- CHAT FAB -->
-<button class="chat-fab" onclick="alert('💬 Чат с отделом заботы\n\n@voronova_support в Telegram')" title="Чат с отделом заботы">
+<button class="chat-fab" id="tawk-fab" onclick="openTawk()" title="Чат с отделом заботы">
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1774200000"></script>
+<script src="data-v2.js?v=1774300000"></script>
 <script>
     Auth.requireAuth();
     updatePlateIcon();
+
+    // User pill init
     (function() {
-        const ava = localStorage.getItem('user_avatar');
-        const btn = document.getElementById('lk-btn');
-        if (ava && btn) {
-            btn.style.padding = '0';
-            btn.innerHTML = `<img src="${ava}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;display:block">`;
+        const user = Auth.getUser();
+        if (!user) return;
+        const displayName = user.name.replace(/^Пользователь\s+/i, '') || user.name;
+        const uAva = document.getElementById('u-ava');
+        const savedAva = localStorage.getItem('user_avatar');
+        if (savedAva) {
+            uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+        } else {
+            uAva.textContent = displayName.charAt(0).toUpperCase();
         }
+        document.getElementById('u-name').textContent = displayName;
     })();
+
+    function toggleUserMenu(e) {
+        e.stopPropagation();
+        document.getElementById('user-dropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+        const wrap = document.getElementById('user-wrap');
+        if (wrap && !wrap.contains(e.target)) document.getElementById('user-dropdown').classList.remove('open');
+    });
+    function doLogout() {
+        document.getElementById('user-dropdown').classList.remove('open');
+        const overlay = document.createElement('div');
+        overlay.className = 'farewell-overlay';
+        overlay.innerHTML = '<div class="farewell-emoji">👋</div><div class="farewell-text">До встречи!</div><div class="farewell-sub">Возвращайтесь — мы ждём вас</div>';
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add('show'));
+        setTimeout(() => { Auth.logout(); location.href = 'login.html'; }, 1800);
+    }
 
     const params = new URLSearchParams(location.search);
     const catId = params.get('cat') || 'breakfasts';
@@ -576,7 +616,9 @@
             const t = Plate.totals();
             body.innerHTML = '<div class="plate-items">' +
                 items.map((item, i) => `<div class="plate-item">
-                    <div class="plate-item-emoji">${item.emoji || '🍴'}</div>
+                    ${item.photo
+                        ? `<img class="plate-item-photo" src="${item.photo}" alt="">`
+                        : `<div class="plate-item-emoji">${item.emoji || '🍴'}</div>`}
                     <div class="plate-item-info">
                         ${item.recipeId
                             ? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
@@ -589,7 +631,10 @@
                     <div class="plate-total-title">Итого</div>
                     <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г${t.fiber ? ' | Кл: ' + t.fiber + 'г' : ''}</div>
                 </div>
-                <button class="btn btn-orange btn-full" style="margin-top:10px" onclick="location.href='index.html'">← На главную</button>`;
+                <div style="display:flex;gap:8px;margin-top:10px">
+                    <button class="btn btn-orange" style="flex:1" onclick="location.href='index.html'">← На главную</button>
+                    <button class="btn btn-ghost" style="flex-shrink:0" onclick="shareShoppingList()">📤 Список продуктов</button>
+                </div>`;
         }
         document.getElementById('plate-overlay').classList.add('open');
         document.body.style.overflow = 'hidden';
@@ -600,6 +645,22 @@
     }
     function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
     function removeItemCat(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
+</script>
+
+<!-- Tawk.to -->
+<script>
+var Tawk_API = Tawk_API || {};
+Tawk_API.onBeforeLoad = function(){ Tawk_API.hideWidget(); };
+Tawk_API.onLoad = function(){ Tawk_API.hideWidget(); };
+Tawk_API.onChatMinimized = function(){ Tawk_API.hideWidget(); };
+function openTawk(){
+    if(typeof Tawk_API!=='undefined'&&typeof Tawk_API.maximize==='function'){Tawk_API.maximize();}
+    else{window.open('https://t.me/voronova_support','_blank');}
+}
+(function(){var s=document.createElement('script');s.async=true;
+s.src='https://embed.tawk.to/699610c27418241c38dd96b3/1jhp32uj0';
+s.charset='UTF-8';s.setAttribute('crossorigin','*');
+document.head.appendChild(s);})();
 </script>
 </body>
 </html>
