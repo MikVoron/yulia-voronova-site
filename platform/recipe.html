@@ -90,6 +90,7 @@
 <script src="data-v2.js?v=1774300000"></script>
 <script>
     Auth.requireAuth();
+    Auth.checkAccess();
     updatePlateIcon();
 
     // User pill init
@@ -145,6 +146,9 @@
     const fromCat  = params.get('from') || '';
     const simpleMode = params.get('simple') === '1';
     const r = RECIPES[recipeId];
+    if (r && !Auth.canViewRecipe(r)) {
+        Auth._showPaywall('trial');
+    }
     const cat = (fromCat && fromCat !== 'plate') ? CATEGORIES[fromCat] : null;
 
     // Back button

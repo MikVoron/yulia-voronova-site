@@ -11,6 +11,10 @@ const Auth = {
     TOKEN_KEY: 'hp_token',
     _token: null,
     login(email, name, token, subscription) {
+        const prev = this.getUser();
+        if (prev && prev.email && prev.email !== email) {
+            ['fav_recipes','user_notes','hp_plates','hp_plate_history','user_weight','user_avatar','julia_quote_day'].forEach(k => localStorage.removeItem(k));
+        }
         const user = { email, name: name || email.split('@')[0], joined: Date.now(), subscription: subscription || null };
         localStorage.setItem(this.KEY, JSON.stringify(user));
         if (token) { this._token = token; localStorage.setItem(this.TOKEN_KEY, token); }
@@ -25,6 +29,46 @@ const Auth = {
     getUser() { try { return JSON.parse(localStorage.getItem(this.KEY)); } catch { return null; } },
     getToken() { return this._token || localStorage.getItem(this.TOKEN_KEY); },
     requireAuth() { if (!this.isLoggedIn()) location.href = 'login.html'; },
+    _subStatus: null,
+    async checkAccess() {
+        if (!this.isLoggedIn()) { location.href = 'login.html'; return false; }
+        try {
+            const res = await this.api('/auth/me');
+            if (!res.ok) { location.href = 'login.html'; return false; }
+            const data = await res.json();
+            const sub = data.subscription;
+            if (!sub || !sub.status) { this._subStatus = 'none'; this._showPaywall('no_sub'); return false; }
+            this._subStatus = sub.status;
+            const now = new Date();
+            if (sub.status === 'trial' && new Date(sub.trialEndsAt) > now) return true;
+            if (sub.status === 'active' && new Date(sub.activeUntil) > now) return true;
+            this._showPaywall(sub.status); return false;
+        } catch { return true; }
+    },
+    isTrial() { return this._subStatus === 'trial'; },
+    hasFullAccess() { return this._subStatus === 'active'; },
+    canViewRecipe(recipe) { return recipe.free || this.hasFullAccess(); },
+    _showPaywall(reason) {
+        document.body.style.visibility = 'visible';
+        const main = document.querySelector('main');
+        if (main) { main.style.filter = 'blur(8px)'; main.style.pointerEvents = 'none'; main.style.userSelect = 'none'; }
+        const overlay = document.createElement('div');
+        overlay.id = 'paywall-overlay';
+        const isExpired = reason === 'expired' || reason === 'cancelled';
+        const title = isExpired ? 'Подписка истекла' : 'Нужна подписка';
+        const text = isExpired
+            ? 'Продлите подписку, чтобы продолжить пользоваться рецептами и конструктором тарелки.'
+            : 'Оформите подписку, чтобы получить доступ к рецептам и конструктору тарелки.';
+        overlay.innerHTML = '<div style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.85);padding:20px">'
+            + '<div style="text-align:center;max-width:400px">'
+            + '<div style="font-size:48px;margin-bottom:16px">🔒</div>'
+            + '<h2 style="font-family:Playfair Display,serif;font-size:28px;color:#1a1a1a;margin-bottom:12px">' + title + '</h2>'
+            + '<p style="color:#666;font-size:15px;line-height:1.5;margin-bottom:24px">' + text + '</p>'
+            + '<a href="cabinet.html" style="display:inline-block;background:var(--accent,#e8734a);color:#fff;padding:14px 32px;border-radius:12px;font-weight:600;text-decoration:none;font-size:16px">Оформить подписку</a>'
+            + '<br><a href="cabinet.html" style="display:inline-block;margin-top:12px;color:#888;font-size:13px;text-decoration:underline">Личный кабинет</a>'
+            + '</div></div>';
+        document.body.appendChild(overlay);
+    },
     async refreshToken() {
         try {
             const res = await fetch(API_BASE + '/auth/refresh', { method: 'POST', credentials: 'include' });
@@ -156,7 +200,7 @@ const RECIPES = {};
 // ─── ЗАВТРАКИ ────────────────────────────────────────────────────────────────
 
 RECIPES['tofu-syrniki'] = {
-    id: 'tofu-syrniki', cat: 'breakfasts',
+    id: 'tofu-syrniki', cat: 'breakfasts', free: true,
     name: 'Сырники из тофу', emoji: '🥞', time: 20, diff: 'easy', servings: 2,
     kcal: 210, protein: 14, fat: 8, carbs: 20, fiber: 2,
     added: '19 марта 2026',
@@ -319,7 +363,7 @@ RECIPES['tofu-scramble'] = {
 };
 
 RECIPES['hummus'] = {
-    id: 'hummus', cat: 'spreads',
+    id: 'hummus', cat: 'spreads', free: true,
     name: 'Хумус', emoji: '🫙', time: 10, diff: 'easy', servings: 6,
     kcal: 140, protein: 7, fat: 6, carbs: 16, fiber: 4,
     added: '19 марта 2026',
@@ -523,7 +567,7 @@ RECIPES['dark-broth'] = {
 };
 
 RECIPES['lentil-soup'] = {
-    id: 'lentil-soup', cat: 'mains',
+    id: 'lentil-soup', cat: 'mains', free: true,
     name: 'Чечевичный суп', emoji: '🍲', time: 40, diff: 'easy', servings: 4,
     kcal: 220, protein: 13, fat: 3, carbs: 36, fiber: 10,
     added: '19 марта 2026',

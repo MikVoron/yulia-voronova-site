@@ -180,6 +180,7 @@
 <script src="data-v2.js?v=1774300000"></script>
 <script>
     Auth.requireAuth();
+    Auth.checkAccess();
     updatePlateIcon();
 
     // User pill init
@@ -308,18 +309,21 @@
         document.getElementById('dish-list').innerHTML = dishes.map(d => {
             const diff = diff_labels[d.diff] || d.diff;
             const isSublist = d.isSublist;
+            const locked = Auth.isTrial() && !d.free;
             const cardPhoto = d.photo || photo;
             const photoHtml = cardPhoto
                 ? `<img src="${cardPhoto}" alt="${d.name}" loading="lazy"${d.imgPosition ? ` style="object-position:${d.imgPosition}"` : ''}>`
                 : `<div class="recipe-card-emoji">${d.emoji}</div>`;
             const isFav = Favorites.has(d.id);
-            return `<button class="recipe-card" onclick="goToRecipe('${d.id}')">
+            const lockBadge = locked ? '<div class="locked-badge"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>Pro</div>' : '';
+            return `<button class="recipe-card${locked ? ' locked' : ''}" onclick="${locked ? 'showLockedMsg()' : "goToRecipe('" + d.id + "')"}">
                 <div class="recipe-card-photo" style="position:relative">
                     ${photoHtml}
-                    <div class="card-fav-btn${isFav ? ' active' : ''}" id="fav-${d.id}"
+                    ${lockBadge}
+                    ${locked ? '' : `<div class="card-fav-btn${isFav ? ' active' : ''}" id="fav-${d.id}"
                         onclick="event.stopPropagation();toggleFav('${d.id}')">
                         <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
-                    </div>
+                    </div>`}
                     <div class="photo-overlay">
                         ${ratingPillHtml(d.id)}
                         ${commentBtnHtml(d.id)}
@@ -373,6 +377,17 @@
 
     function goToRecipe(id) {
         location.href = `recipe.html?id=${id}&from=${catId}`;
+    }
+
+    function showLockedMsg() {
+        const existing = document.getElementById('locked-toast');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.id = 'locked-toast';
+        toast.innerHTML = 'Этот рецепт доступен по подписке. <a href="cabinet.html" style="color:#fff;text-decoration:underline">Оформить</a>';
+        Object.assign(toast.style, { position:'fixed', bottom:'80px', left:'50%', transform:'translateX(-50%)', background:'#333', color:'#fff', padding:'12px 20px', borderRadius:'12px', fontSize:'14px', zIndex:'9999', textAlign:'center', maxWidth:'320px' });
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
     }
 
     function toggleFav(id) {

@@ -412,6 +412,20 @@ img { display: block; max-width: 100%; }
 .recipe-card-meta { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
 .recipe-card-meta .pill { font-size: 10px; padding: 2px 7px; }
 
+/* Locked recipe cards (trial) */
+.recipe-card.locked, .featured-card.locked { opacity: .55; }
+.recipe-card.locked .recipe-card-photo img,
+.featured-card.locked .featured-card-photo img { filter: grayscale(.4); }
+.recipe-card.locked:hover, .featured-card.locked:hover { opacity: .7; }
+.locked-badge {
+    position: absolute; top: 8px; right: 8px; z-index: 2;
+    background: rgba(0,0,0,.55); color: #fff; border-radius: 6px;
+    padding: 3px 8px; font-size: 11px; font-weight: 600;
+    display: flex; align-items: center; gap: 4px;
+    backdrop-filter: blur(4px);
+}
+.locked-badge svg { width: 12px; height: 12px; fill: #fff; }
+
 /* Bottom row: kcal + rating */
 .recipe-card-bottom {
     display: flex; align-items: center; justify-content: space-between; gap: 6px;

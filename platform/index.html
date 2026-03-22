@@ -480,6 +480,7 @@
 	<script src="data-v2.js?v=1774300000"></script>
 	<script>
 		Auth.requireAuth();
+		Auth.checkAccess();
 		const user = Auth.getUser();
 
 		// Quote bank — rotates without repeating
@@ -612,16 +613,19 @@
 					const d = RECIPES[item.id];
 					if (!d) return '';
 					const diff = diff_labels[d.diff] || d.diff;
+					const locked = Auth.isTrial() && !d.free;
 					const photoHtml = d.photo
 						? `<img src="${d.photo}" alt="${d.name}" loading="lazy">`
 						: `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:56px">${d.emoji}</div>`;
-					html = `<button class="featured-card" onclick="location.href='recipe.html?id=${d.id}&from=${d.cat}'">
-                    <div class="featured-card-photo">
+					const lockBadge = locked ? '<div class="locked-badge"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>Pro</div>' : '';
+					html = `<button class="featured-card${locked ? ' locked' : ''}" onclick="${locked ? 'showLockedMsg()' : "location.href=\'recipe.html?id=" + d.id + "&from=" + d.cat + "\'"}">
+                    <div class="featured-card-photo" style="position:relative">
                         ${photoHtml}
-                        ${item.badge ? `<div class="card-new-badge">${item.badge}</div>` : ''}
+                        ${lockBadge}
+                        ${item.badge ? '<div class="card-new-badge">' + item.badge + '</div>' : ''}
                     </div>
                     <div class="featured-card-body">
-                        ${item.date ? `<div class="news-item-date">${item.date}</div>` : ''}
+                        ${item.date ? '<div class="news-item-date">' + item.date + '</div>' : ''}
                         <div class="featured-card-name">${d.name}</div>
                         <div class="featured-card-meta">
                             <span class="pill">⏱ ${d.time} мин</span>
@@ -645,6 +649,17 @@
 		if (rcEl) {
 			const n = Object.keys(RECIPES).length;
 			rcEl.innerHTML = `<span class="rtc-num">${n}</span><span class="rtc-label">рецептов</span>`;
+		}
+
+		function showLockedMsg() {
+			const existing = document.getElementById('locked-toast');
+			if (existing) existing.remove();
+			const toast = document.createElement('div');
+			toast.id = 'locked-toast';
+			toast.innerHTML = 'Этот рецепт доступен по подписке. <a href="cabinet.html" style="color:#fff;text-decoration:underline">Оформить</a>';
+			Object.assign(toast.style, { position:'fixed', bottom:'80px', left:'50%', transform:'translateX(-50%)', background:'#333', color:'#fff', padding:'12px 20px', borderRadius:'12px', fontSize:'14px', zIndex:'9999', textAlign:'center', maxWidth:'320px' });
+			document.body.appendChild(toast);
+			setTimeout(() => toast.remove(), 4000);
 		}
 
 		function goToCategory(catId) {
