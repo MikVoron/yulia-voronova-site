@@ -7,129 +7,431 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>body{visibility:hidden}</style>
-    <link rel="stylesheet" href="style-v4.css" id="vcss"><script>document.getElementById('vcss').href='style-v4.css?v='+Date.now()</script>
     <style>
-        body { background: #fff; }
-        .lp-wrap {
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --accent: #e8400a;
+            --accent-d: #c73208;
+            --accent-l: #fff2ed;
+            --accent-glow: rgba(232,64,10,.15);
+            --bg: #ffffff;
+            --bg-alt: #faf8f5;
+            --bg-card: #ffffff;
+            --bg-input: #faf8f5;
+            --border: #e5e5e5;
+            --text: #111111;
+            --text-2: #444444;
+            --text-3: #777777;
+        }
+
+        body {
+            font-family: 'Montserrat', system-ui, sans-serif;
+            color: var(--text);
+            background: var(--bg);
             min-height: 100dvh;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: flex-start;
-            padding: 48px 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
         }
-        .lp-logo { text-align: center; margin-bottom: 36px; }
-        .lp-logo-img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover;
-                       margin: 0 auto 12px; display: block; }
-        .lp-logo-title {
+
+        /* Ambient glow orbs */
+        body::before {
+            content: '';
+            position: fixed;
+            width: 500px; height: 500px;
+            top: -15%; left: -10%;
+            background: radial-gradient(circle, rgba(232,64,10,.06) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            width: 600px; height: 600px;
+            bottom: -20%; right: -15%;
+            background: radial-gradient(circle, rgba(232,64,10,.04) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .lp-container {
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Top branding */
+        .lp-brand {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .lp-brand-ava {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #eee;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 24px rgba(0,0,0,.08), 0 0 30px var(--accent-glow);
+        }
+
+        .lp-brand-title {
             font-family: 'Playfair Display', Georgia, serif;
-            font-size: clamp(26px, 5vw, 36px); font-weight: 700;
-            color: var(--text); line-height: 1.1;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text);
         }
-        .lp-logo-name {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 15px; font-weight: 600; color: var(--text);
-            margin-top: 6px;
+
+        .lp-brand-title span {
+            color: var(--accent);
         }
-        .lp-logo-prof {
-            font-size: 12px; color: var(--text-3);
-            margin-top: 2px; letter-spacing: .3px;
+
+        .lp-brand-sub {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            margin-top: 4px;
         }
-        .lp-card { width: 100%; max-width: 380px; }
+
+        /* Card */
+        .lp-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px 32px 32px;
+            box-shadow: 0 4px 32px rgba(0,0,0,.06), 0 1px 4px rgba(0,0,0,.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle top glow line */
+        .lp-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 20%; right: 20%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: .5;
+        }
+
+        .lp-step-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .lp-step-icon {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            background: var(--accent-l);
+            border: 1px solid #fdd9c8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+            font-size: 24px;
+        }
+
         .lp-step-title {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(18px, 4vw, 22px); font-weight: 700;
-            color: var(--text); margin-bottom: 20px; line-height: 1.3;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
         }
-        .lp-field { margin-bottom: 14px; }
-        .lp-label { display: block; font-size: 13px; font-weight: 600;
-                    color: var(--text-2); margin-bottom: 6px; }
+
+        .lp-step-desc {
+            font-size: 15px;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .lp-step-desc strong { color: var(--text); font-weight: 700; }
+
+        /* Inputs */
+        .lp-field { margin-bottom: 16px; }
+
+        .lp-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
         .lp-input {
-            width: 100%; padding: 13px 14px;
-            border: 1.5px solid var(--border); border-radius: var(--r-m);
-            font-size: 15px; font-family: inherit; color: var(--text);
-            background: #fff; outline: none;
-            transition: border-color .18s, box-shadow .18s;
+            width: 100%;
+            padding: 15px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            font-weight: 500;
+            color: var(--text);
+            background: var(--bg-input);
+            outline: none;
+            transition: all .2s;
         }
-        .lp-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,64,10,.1); }
-        .lp-input[readonly] { background: var(--bg-alt); color: var(--text-2); cursor: default; }
+
+        .lp-input::placeholder { color: #bbb; }
+
+        .lp-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .lp-input[readonly] {
+            color: var(--text-3);
+            opacity: .7;
+        }
+
         .lp-input.code-input {
-            font-size: 28px; letter-spacing: 12px; text-align: center;
-            font-weight: 700; padding: 16px;
+            font-size: 30px;
+            letter-spacing: 14px;
+            text-align: center;
+            font-weight: 700;
+            padding: 18px;
         }
+
+        /* Buttons */
         .lp-btn {
-            width: 100%; padding: 14px; border-radius: var(--r-m);
-            font-family: inherit; font-size: 15px; font-weight: 700;
-            cursor: pointer; border: none; margin-bottom: 10px;
-            transition: opacity .18s, transform .15s;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            margin-bottom: 10px;
+            transition: all .2s;
         }
+
         .lp-btn:active { transform: scale(.98); }
-        .lp-btn:disabled { opacity: .5; cursor: not-allowed; }
-        .lp-btn-primary { background: var(--accent); color: #fff; }
-        .lp-btn-primary:hover:not(:disabled) { opacity: .9; }
-        .lp-btn-back {
-            background: none; border: 1.5px solid var(--border);
-            color: var(--text-2); font-weight: 500; font-size: 14px;
+        .lp-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+        .lp-btn-primary {
+            background: linear-gradient(135deg, #e8400a 0%, #ff6b3d 100%);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(232,64,10,.25);
+        }
+
+        .lp-btn-primary:hover:not(:disabled) {
+            box-shadow: 0 6px 24px rgba(232,64,10,.35);
+            transform: translateY(-1px);
+        }
+
+        .lp-btn-ghost {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            font-weight: 500;
+            font-size: 14px;
             margin-bottom: 0;
         }
-        .lp-error { color: #c0392b; font-size: 13px; margin-bottom: 10px; display: none; }
-        .lp-hint { color: var(--text-3); font-size: 13px; margin-top: 8px; line-height: 1.5; }
-        .lp-footer { margin-top: 32px; text-align: center; }
-        .lp-footer-text { font-size: 12px; color: var(--text-3); line-height: 1.6; }
-        .lp-footer-text a { color: var(--text-3); text-decoration: underline; }
-        .lp-step { animation: fadeUp .3s ease both; }
+
+        .lp-btn-ghost:hover {
+            background: #eee;
+            color: var(--text);
+        }
+
+        .lp-error {
+            color: #c0392b;
+            font-size: 13px;
+            margin-bottom: 12px;
+            display: none;
+            background: #fef2f2;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #fecaca;
+        }
+
+        .lp-hint {
+            color: var(--text-2);
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 14px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .lp-step { animation: fadeUp .35s ease both; }
+
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(12px); }
+            from { opacity: 0; transform: translateY(16px); }
             to   { opacity: 1; transform: translateY(0); }
         }
-        .lp-timer { color: var(--text-3); font-size: 13px; margin-top: 10px; text-align: center; }
-        .lp-timer a { color: var(--accent); cursor: pointer; text-decoration: underline; }
-        .lp-spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #fff;
-                      border-top-color: transparent; border-radius: 50%; animation: spin .6s linear infinite;
-                      vertical-align: middle; margin-right: 6px; }
+
+        .lp-timer {
+            color: var(--text-2);
+            font-size: 14px;
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .lp-timer a {
+            color: var(--accent);
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .lp-timer a:hover { text-decoration: underline; }
+
+        .lp-spinner {
+            display: inline-block;
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .6s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Success */
+        .lp-success {
+            display: none;
+            text-align: center;
+            padding: 24px 0;
+            animation: fadeUp .35s ease both;
+        }
+
+        .lp-success-glow {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e8400a, #ff6b3d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            animation: glowPulse .6s ease both;
+            box-shadow: 0 4px 24px rgba(232,64,10,.25);
+        }
+
+        .lp-success-glow svg {
+            width: 32px; height: 32px;
+            stroke: #fff;
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        @keyframes glowPulse {
+            0% { transform: scale(0); box-shadow: 0 0 0 rgba(232,64,10,0); }
+            50% { transform: scale(1.15); box-shadow: 0 6px 32px rgba(232,64,10,.3); }
+            100% { transform: scale(1); box-shadow: 0 4px 24px rgba(232,64,10,.25); }
+        }
+
+        .lp-success-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .lp-success-sub {
+            font-size: 15px;
+            color: var(--text-2);
+            margin-top: 4px;
+        }
+
+        /* Footer */
+        .lp-footer {
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .lp-footer-text {
+            font-size: 12px;
+            color: var(--text-2);
+            line-height: 1.7;
+        }
+
+        .lp-footer-text a { color: var(--text-2); text-decoration: underline; }
+        .lp-footer-text a:hover { color: var(--text); }
+
+        /* Features below card */
+        .lp-features {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .lp-feat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-2);
+            font-weight: 500;
+        }
+
+        .lp-feat-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 6px rgba(232,64,10,.3);
+        }
+
+        @media (max-width: 480px) {
+            .lp-card { padding: 28px 20px 24px; border-radius: 16px; }
+            .lp-brand-title { font-size: 26px; }
+            .lp-features { gap: 14px; }
+        }
     </style>
 </head>
 <body>
-<div class="lp-wrap">
 
-    <div class="lp-logo">
-        <img src="../images/YV-small.webp" alt="Юлия Воронова" class="lp-logo-img"
+<div class="lp-container">
+    <div class="lp-brand">
+        <img src="../images/YV-small.webp" alt="Юлия Воронова" class="lp-brand-ava"
              onerror="this.style.display='none'">
-        <div class="lp-logo-title">Умная тарелка</div>
-        <div class="lp-logo-name">Юлия Воронова</div>
-        <div class="lp-logo-prof">Доказательный нутрициолог</div>
+        <div class="lp-brand-title">Умная <span>тарелка</span></div>
+        <div class="lp-brand-sub">Юлия Воронова &middot; Нутрициолог</div>
     </div>
 
     <div class="lp-card">
 
         <!-- Step 1: Email -->
         <div id="step-email" class="lp-step">
-            <div class="lp-step-title">Введите ваш email</div>
+            <div class="lp-step-header">
+                <div class="lp-step-icon">&#128274;</div>
+                <div class="lp-step-title">Войти</div>
+            </div>
             <div class="lp-field">
+                <label class="lp-label" for="email-input">Email</label>
                 <input class="lp-input" type="email" id="email-input"
                        placeholder="your@email.com" autocomplete="email">
             </div>
             <div class="lp-error" id="email-error"></div>
             <button class="lp-btn lp-btn-primary" id="send-code-btn" onclick="sendCode()">Получить код</button>
-            <p class="lp-hint">Мы отправим 6-значный код на вашу почту</p>
-
+            <p class="lp-hint">Без пароля. 6-значный код на почту.</p>
             <div class="lp-footer">
                 <p class="lp-footer-text">
-                    Продолжая, вы соглашаетесь с<br>
-                    <a href="../personal-data-processing-policy.html" target="_blank">политикой обработки персональных данных</a>
+                    Продолжая, вы соглашаетесь с
+                    <a href="../personal-data-processing-policy.html" target="_blank">политикой обработки данных</a>
                 </p>
             </div>
         </div>
 
         <!-- Step 2: Code -->
         <div id="step-code" class="lp-step" style="display:none">
-            <div class="lp-step-title">Введите код из письма</div>
-            <div class="lp-field">
-                <label class="lp-label">Email</label>
-                <input class="lp-input" type="email" id="email-display" readonly>
+            <div class="lp-step-header">
+                <div class="lp-step-icon">&#9993;&#65039;</div>
+                <div class="lp-step-title">Введите код</div>
+                <div class="lp-step-desc">Отправили на <strong id="email-show-text"></strong></div>
             </div>
             <div class="lp-field">
-                <label class="lp-label" for="code-input">Код из письма</label>
                 <input class="lp-input code-input" type="text" id="code-input"
                        placeholder="------" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
             </div>
@@ -138,9 +440,25 @@
             <div class="lp-timer" id="timer-block">
                 Отправить повторно через <span id="timer-sec">60</span> сек
             </div>
-            <button class="lp-btn lp-btn-back" onclick="goBack()">Другой email</button>
+            <div style="height:6px"></div>
+            <button class="lp-btn lp-btn-ghost" onclick="goBack()">&#8592; Другой email</button>
         </div>
 
+        <!-- Step 3: Success -->
+        <div id="step-success" class="lp-success">
+            <div class="lp-success-glow">
+                <svg viewBox="0 0 24 24"><polyline points="6 12 10 16 18 8"/></svg>
+            </div>
+            <div class="lp-success-title">Добро пожаловать</div>
+            <div class="lp-success-sub">Загружаем платформу...</div>
+        </div>
+
+    </div>
+
+    <div class="lp-features">
+        <div class="lp-feat"><div class="lp-feat-dot"></div>36+ рецептов</div>
+        <div class="lp-feat"><div class="lp-feat-dot"></div>КБЖУ расчёт</div>
+        <div class="lp-feat"><div class="lp-feat-dot"></div>Конструктор тарелки</div>
     </div>
 </div>
 
@@ -193,13 +511,13 @@
     }
 
     function showCodeStep() {
-        document.getElementById('email-display').value = currentEmail;
+        document.getElementById('email-show-text').textContent = currentEmail;
         document.getElementById('step-email').style.display = 'none';
         var step2 = document.getElementById('step-code');
         step2.style.display = 'block';
         step2.style.animation = 'none';
         requestAnimationFrame(function() {
-            step2.style.animation = 'fadeUp .3s ease both';
+            step2.style.animation = 'fadeUp .35s ease both';
             document.getElementById('code-input').focus();
         });
         startTimer();
@@ -254,7 +572,11 @@
             var data = await res.json();
             if (!res.ok) { showError('code-error', data.error || 'Ошибка'); setLoading('verify-btn', false); return; }
             Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription);
-            location.href = 'index.html';
+            document.getElementById('step-code').style.display = 'none';
+            var success = document.getElementById('step-success');
+            success.style.display = 'block';
+            success.style.animation = 'fadeUp .35s ease both';
+            setTimeout(function() { location.href = 'index.html'; }, 900);
         } catch (e) {
             showError('code-error', 'Ошибка сети');
             setLoading('verify-btn', false);
@@ -268,15 +590,14 @@
         var s1 = document.getElementById('step-email');
         s1.style.display = 'block';
         s1.style.animation = 'none';
-        requestAnimationFrame(function() { s1.style.animation = 'fadeUp .3s ease both'; });
+        requestAnimationFrame(function() { s1.style.animation = 'fadeUp .35s ease both'; });
         document.getElementById('email-input').focus();
     }
 
-    // Enter & auto-submit
     document.addEventListener('keydown', function(e) {
         if (e.key !== 'Enter') return;
         if (document.getElementById('step-email').style.display !== 'none') sendCode();
-        else verifyCode();
+        else if (document.getElementById('step-code').style.display !== 'none') verifyCode();
     });
     document.getElementById('code-input').addEventListener('input', function() {
         if (this.value.length === 6) verifyCode();
