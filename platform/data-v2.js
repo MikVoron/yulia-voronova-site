@@ -29,6 +29,19 @@ const Auth = {
     getUser() { try { return JSON.parse(localStorage.getItem(this.KEY)); } catch { return null; } },
     getToken() { return this._token || localStorage.getItem(this.TOKEN_KEY); },
     requireAuth() { if (!this.isLoggedIn()) location.href = 'login.html'; },
+    getDisplayName() {
+        const u = this.getUser();
+        if (!u) return '';
+        if (u.customName) return u.customName;
+        return '';
+    },
+    hasCustomName() { const u = this.getUser(); return !!(u && u.customName); },
+    setName(name) {
+        const u = this.getUser();
+        if (!u) return;
+        u.customName = name ? name.trim() : '';
+        localStorage.setItem(this.KEY, JSON.stringify(u));
+    },
     _subStatus: null,
     async checkAccess() {
         if (!this.isLoggedIn()) { location.href = 'login.html'; return false; }

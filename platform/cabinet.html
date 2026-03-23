@@ -200,6 +200,15 @@
             <div>
                 <div class="cab-name" id="cab-name">—</div>
                 <div class="cab-email" id="cab-email"></div>
+                <div class="cab-name-row" style="margin-top:8px;display:flex;align-items:center;gap:8px">
+                    <input type="text" id="cab-custom-name" placeholder="Как вас зовут?"
+                        maxlength="30"
+                        style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);width:180px;outline:none;transition:border-color .2s"
+                        onfocus="this.style.borderColor='var(--accent)'"
+                        onblur="this.style.borderColor='var(--border)';saveCustomName()"
+                        onkeydown="if(event.key==='Enter'){this.blur()}">
+                    <span id="name-saved-msg" style="font-size:11px;color:var(--accent);opacity:0;transition:opacity .3s">Сохранено</span>
+                </div>
                 <div class="cab-since" id="cab-since"></div>
                 <div class="cab-weight-row">
                     <span class="cab-weight-label">Мой вес</span>
@@ -323,13 +332,14 @@
     (function() {
         const user = Auth.getUser();
         if (!user) return;
-        const displayName = user.name.replace(/^Пользователь\s+/i, '') || user.name;
+        const customName = Auth.getDisplayName();
+        const displayName = customName || user.email.split('@')[0];
         const uAva = document.getElementById('u-ava');
         const savedAva = localStorage.getItem('user_avatar');
         if (savedAva) {
             uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
         } else {
-            uAva.textContent = displayName.charAt(0).toUpperCase();
+            uAva.textContent = (customName || user.email || '?').charAt(0).toUpperCase();
         }
         document.getElementById('u-name').textContent = displayName;
     })();
@@ -359,8 +369,10 @@
     // ── PROFILE ───────────────────────────────────────────────────────────────
     const user = Auth.getUser();
     if (user) {
-        document.getElementById('cab-name').textContent = user.name || user.email;
+        const customName = Auth.getDisplayName();
+        document.getElementById('cab-name').textContent = customName || user.email.split('@')[0];
         document.getElementById('cab-email').textContent = user.email;
+        if (customName) document.getElementById('cab-custom-name').value = customName;
         const joined = user.joined
             ? new Date(user.joined).toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' })
             : '';
@@ -370,8 +382,21 @@
         if (savedAva) {
             avaEl.innerHTML = `<img src="${savedAva}" alt="avatar">`;
         } else {
-            avaEl.textContent = (user.name || user.email || '?').charAt(0).toUpperCase();
+            avaEl.textContent = (customName || user.email || '?').charAt(0).toUpperCase();
         }
+    }
+
+    function saveCustomName() {
+        const val = document.getElementById('cab-custom-name').value.trim();
+        Auth.setName(val);
+        document.getElementById('cab-name').textContent = val || user.email.split('@')[0];
+        const avaEl = document.getElementById('cab-ava');
+        if (!localStorage.getItem('user_avatar')) {
+            avaEl.textContent = (val || user.email || '?').charAt(0).toUpperCase();
+        }
+        const msg = document.getElementById('name-saved-msg');
+        msg.style.opacity = '1';
+        setTimeout(function() { msg.style.opacity = '0'; }, 1500);
     }
 
     function handleAvatarUpload(input) {

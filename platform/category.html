@@ -187,13 +187,14 @@
     (function() {
         const user = Auth.getUser();
         if (!user) return;
-        const displayName = user.name.replace(/^Пользователь\s+/i, '') || user.name;
+        const customName = Auth.getDisplayName();
+        const displayName = customName || user.email.split('@')[0];
         const uAva = document.getElementById('u-ava');
         const savedAva = localStorage.getItem('user_avatar');
         if (savedAva) {
             uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
         } else {
-            uAva.textContent = displayName.charAt(0).toUpperCase();
+            uAva.textContent = (customName || user.email || '?').charAt(0).toUpperCase();
         }
         document.getElementById('u-name').textContent = displayName;
     })();
