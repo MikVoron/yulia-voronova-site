@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const db = require('../db');
 const { generateAccessToken, generateRefreshToken, hashToken, verifyAccessToken, generateLoginCode } = require('../auth');
-const { sendLoginCode } = require('../email');
+const { sendLoginCode, sendWelcome } = require('../email');
 
 async function authRoutes(fastify) {
 
@@ -45,6 +45,7 @@ async function authRoutes(fastify) {
       userRes = await db.query('INSERT INTO users (email) VALUES ($1) RETURNING *', [lower]);
       await db.query('INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)', [userRes.rows[0].id, 'email', lower]);
       await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at) VALUES ($1, 'trial', now() + interval '7 days')", [userRes.rows[0].id]);
+      sendWelcome(lower).catch(e => fastify.log.error(e, 'Welcome email error'));
     }
     const user = userRes.rows[0];
     if (user.is_blocked) return reply.status(403).send({ error: 'Аккаунт заблокирован' });

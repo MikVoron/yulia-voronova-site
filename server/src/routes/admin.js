@@ -1,5 +1,6 @@
 const db = require('../db');
 const { requireAdmin } = require('../middleware');
+const { sendPaymentConfirmed } = require('../email');
 
 async function adminRoutes(fastify) {
 
@@ -43,6 +44,11 @@ async function adminRoutes(fastify) {
       "INSERT INTO audit_logs (actor_id, action, target_type, target_id, details) VALUES ($1, 'payment_confirmed', 'payment', $2, $3)",
       [req.user.sub, id, JSON.stringify({ months: months || 1, days })]
     );
+    // отправить email подтверждения
+    const userRes = await db.query('SELECT email FROM users WHERE id=$1', [p.user_id]);
+    if (userRes.rows.length) {
+      sendPaymentConfirmed(userRes.rows[0].email, days).catch(e => fastify.log.error(e, 'Payment confirmed email error'));
+    }
     return { ok: true, message: 'Подписка активирована на ' + days + ' дней' };
   });
 
