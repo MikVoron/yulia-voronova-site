@@ -5,6 +5,7 @@ const cookie = require('@fastify/cookie');
 const authRoutes = require('./src/routes/auth');
 const subscriptionRoutes = require('./src/routes/subscriptions');
 const adminRoutes = require('./src/routes/admin');
+const oauthRoutes = require('./src/routes/oauth');
 const { startCron } = require('./src/cron');
 
 fastify.register(cors, {
@@ -15,6 +16,7 @@ fastify.register(cookie);
 fastify.register(authRoutes);
 fastify.register(subscriptionRoutes);
 fastify.register(adminRoutes);
+fastify.register(oauthRoutes);
 
 fastify.get('/health', async () => ({ status: 'ok', time: new Date().toISOString() }));
 
