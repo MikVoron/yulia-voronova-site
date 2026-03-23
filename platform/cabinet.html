@@ -128,6 +128,63 @@
         .fb-sent-text { font-size: 13px; color: var(--text); margin-top: 4px; line-height: 1.5; }
         .fb-sent-date { font-size: 11px; color: var(--text-3); margin-top: 6px; }
 
+        /* ── ПОДПИСКА ── */
+        .sub-status-card {
+            padding: 20px; border-radius: var(--r-s); border: 1px solid var(--border);
+            background: var(--bg-alt); margin-bottom: 20px;
+        }
+        .sub-badge {
+            display: inline-block; padding: 4px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+        }
+        .sub-badge.trial { background: #fff3cd; color: #856404; }
+        .sub-badge.active { background: #d4edda; color: #155724; }
+        .sub-badge.expired { background: #f8d7da; color: #721c24; }
+        .sub-days { font-size: 22px; font-weight: 800; color: var(--text); margin-top: 10px; }
+        .sub-until { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+
+        .pay-section { margin-top: 24px; }
+        .pay-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+        .pay-info-card {
+            padding: 18px; border-radius: var(--r-s); border: 2px dashed var(--accent);
+            background: var(--accent-l); margin-bottom: 20px; line-height: 1.7;
+        }
+        .pay-info-card strong { color: var(--text); }
+        .pay-info-card .pay-card-number {
+            font-size: 18px; font-weight: 800; letter-spacing: 1px; color: var(--text);
+            margin: 8px 0; user-select: all;
+        }
+        .pay-info-card .pay-price { font-size: 15px; font-weight: 700; color: var(--accent); }
+
+        .pay-form { display: flex; flex-direction: column; gap: 12px; }
+        .pay-field label {
+            display: block; font-size: 13px; font-weight: 700;
+            color: var(--text); margin-bottom: 4px;
+        }
+        .pay-field input, .pay-field textarea {
+            width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+            border-radius: 10px; font-family: inherit; font-size: 14px;
+            color: var(--text); background: var(--card); outline: none;
+            transition: border-color .2s; box-sizing: border-box;
+        }
+        .pay-field input:focus, .pay-field textarea:focus { border-color: var(--accent); }
+        .pay-field textarea { min-height: 60px; resize: vertical; }
+
+        .pay-row { display: flex; gap: 12px; }
+        .pay-row .pay-field { flex: 1; }
+        @media (max-width: 480px) { .pay-row { flex-direction: column; } }
+
+        .pay-history { margin-top: 28px; }
+        .pay-hist-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 14px; border: 1px solid var(--border);
+            border-radius: var(--r-s); margin-bottom: 8px; background: var(--card);
+        }
+        .pay-hist-status { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+        .pay-hist-status.pending { background: #fff3cd; color: #856404; }
+        .pay-hist-status.confirmed { background: #d4edda; color: #155724; }
+        .pay-hist-status.rejected { background: #f8d7da; color: #721c24; }
+
         /* ── BOOKMARK BUTTON on cards ── */
         .card-fav-btn {
             position: absolute; top: 8px; right: 8px;
@@ -225,14 +282,64 @@
 
         <!-- Tabs -->
         <div class="cab-tabs">
-            <button class="cab-tab active" onclick="switchTab('history',this)">История</button>
+            <button class="cab-tab active" onclick="switchTab('subscription',this)">Подписка</button>
+            <button class="cab-tab" onclick="switchTab('history',this)">История</button>
             <button class="cab-tab" onclick="switchTab('favorites',this)">Избранные</button>
             <button class="cab-tab" onclick="switchTab('notes',this)">Заметки</button>
             <button class="cab-tab" onclick="switchTab('feedback',this)">Обратная связь</button>
         </div>
 
+        <!-- Подписка -->
+        <div class="cab-tab-panel active" id="panel-subscription">
+            <div id="sub-status-wrap"></div>
+
+            <div class="pay-section">
+                <div class="pay-title">Оформить подписку</div>
+                <div class="pay-info-card">
+                    <div style="font-size:14px;color:var(--text-2)">Переведите оплату на карту:</div>
+                    <div class="pay-card-number" id="pay-card-num">2200 7007 5498 1587</div>
+                    <button style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-weight:600"
+                        onclick="copyCard()">Скопировать номер</button>
+                    <div style="margin-top:10px;font-size:13px;color:var(--text-2)">
+                        Получатель: <strong>Воронова Юлия</strong><br>
+                        <span class="pay-price">490 ₽ / месяц</span> · <span class="pay-price">2 490 ₽ / полгода</span>
+                    </div>
+                </div>
+
+                <div class="pay-form" id="pay-form">
+                    <div class="pay-row">
+                        <div class="pay-field">
+                            <label for="pay-amount">Сумма перевода, ₽</label>
+                            <input type="number" id="pay-amount" placeholder="490" min="1">
+                        </div>
+                        <div class="pay-field">
+                            <label for="pay-date">Дата перевода</label>
+                            <input type="date" id="pay-date">
+                        </div>
+                    </div>
+                    <div class="pay-field">
+                        <label for="pay-card4">Последние 4 цифры вашей карты</label>
+                        <input type="text" id="pay-card4" placeholder="1234" maxlength="4" inputmode="numeric">
+                    </div>
+                    <div class="pay-field">
+                        <label for="pay-comment">Комментарий <span style="font-weight:400;color:var(--text-3)">(необязательно)</span></label>
+                        <textarea id="pay-comment" placeholder="Дополнительная информация..."></textarea>
+                    </div>
+                    <div id="pay-error" style="color:#c0392b;font-size:13px;display:none"></div>
+                    <button class="btn btn-orange" id="pay-submit-btn" onclick="submitPayment()" style="align-self:flex-start;padding:12px 32px">
+                        Я оплатил
+                    </button>
+                    <div id="pay-success" style="color:#155724;font-size:14px;font-weight:600;display:none">
+                        Платёж отправлен на проверку. Обычно подтверждаем в течение 24 часов.
+                    </div>
+                </div>
+            </div>
+
+            <div class="pay-history" id="pay-history"></div>
+        </div>
+
         <!-- История тарелок -->
-        <div class="cab-tab-panel active" id="panel-history">
+        <div class="cab-tab-panel" id="panel-history">
             <div id="history-body"></div>
         </div>
 
@@ -438,11 +545,123 @@
         document.querySelectorAll('.cab-tab-panel').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('panel-' + name).classList.add('active');
+        if (name === 'subscription') loadSubscription();
         if (name === 'history')   renderHistory();
         if (name === 'favorites') renderFavorites();
         if (name === 'notes')     loadNotes();
         if (name === 'feedback')  renderFeedbackHistory();
     }
+
+    // ── ПОДПИСКА ──────────────────────────────────────────────────────────────
+    const SUB_LABELS = { trial: 'Пробный период', active: 'Активна', expired: 'Истекла' };
+
+    async function loadSubscription() {
+        try {
+            const res = await Auth.api('/subscription');
+            if (!res.ok) return;
+            const data = await res.json();
+            const wrap = document.getElementById('sub-status-wrap');
+            const badge = data.status || 'none';
+            const badgeClass = ['trial','active'].includes(badge) ? badge : 'expired';
+            const label = SUB_LABELS[badge] || 'Нет подписки';
+            let untilStr = '';
+            if (badge === 'trial' && data.trialEndsAt) {
+                untilStr = 'Триал до ' + new Date(data.trialEndsAt).toLocaleDateString('ru-RU', { day:'numeric', month:'long' });
+            } else if (badge === 'active' && data.activeUntil) {
+                untilStr = 'Активна до ' + new Date(data.activeUntil).toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' });
+            }
+            wrap.innerHTML = '<div class="sub-status-card">'
+                + '<span class="sub-badge ' + badgeClass + '">' + label + '</span>'
+                + (data.daysLeft !== undefined ? '<div class="sub-days">' + data.daysLeft + ' ' + pluralDays(data.daysLeft) + '</div>' : '')
+                + (untilStr ? '<div class="sub-until">' + untilStr + '</div>' : '')
+                + '</div>';
+        } catch (e) { /* ignore */ }
+
+        loadPaymentHistory();
+    }
+
+    function pluralDays(n) {
+        const abs = Math.abs(n) % 100;
+        const n1 = abs % 10;
+        if (abs > 10 && abs < 20) return 'дней';
+        if (n1 > 1 && n1 < 5) return 'дня';
+        if (n1 === 1) return 'день';
+        return 'дней';
+    }
+
+    function copyCard() {
+        const num = document.getElementById('pay-card-num').textContent.replace(/\s/g, '');
+        navigator.clipboard.writeText(num).then(function() {
+            const btn = event.target;
+            btn.textContent = 'Скопировано!';
+            setTimeout(function() { btn.textContent = 'Скопировать номер'; }, 1500);
+        });
+    }
+
+    // Set default date to today
+    document.getElementById('pay-date').valueAsDate = new Date();
+
+    async function submitPayment() {
+        const amount = parseInt(document.getElementById('pay-amount').value);
+        const paymentDate = document.getElementById('pay-date').value;
+        const cardLast4 = document.getElementById('pay-card4').value.trim();
+        const comment = document.getElementById('pay-comment').value.trim();
+
+        const errEl = document.getElementById('pay-error');
+        errEl.style.display = 'none';
+
+        if (!amount || amount <= 0) { errEl.textContent = 'Укажите сумму'; errEl.style.display = 'block'; return; }
+        if (!paymentDate) { errEl.textContent = 'Укажите дату перевода'; errEl.style.display = 'block'; return; }
+        if (!cardLast4 || cardLast4.length !== 4 || !/^\d{4}$/.test(cardLast4)) {
+            errEl.textContent = 'Введите 4 последние цифры карты'; errEl.style.display = 'block'; return;
+        }
+
+        const btn = document.getElementById('pay-submit-btn');
+        btn.disabled = true; btn.textContent = 'Отправка...';
+
+        try {
+            const res = await Auth.api('/subscription/payment', {
+                method: 'POST',
+                body: JSON.stringify({ amount, cardLast4, paymentDate, comment })
+            });
+            const data = await res.json();
+            if (!res.ok) { errEl.textContent = data.error || 'Ошибка'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Я оплатил'; return; }
+            document.getElementById('pay-form').style.display = 'none';
+            document.getElementById('pay-success').style.display = 'block';
+            loadPaymentHistory();
+        } catch (e) {
+            errEl.textContent = 'Ошибка сети'; errEl.style.display = 'block';
+        }
+        btn.disabled = false; btn.textContent = 'Я оплатил';
+    }
+
+    const PAY_STATUS_LABELS = { pending: 'На проверке', confirmed: 'Подтверждён', rejected: 'Отклонён' };
+
+    async function loadPaymentHistory() {
+        try {
+            const res = await Auth.api('/subscription/payments');
+            if (!res.ok) return;
+            const payments = await res.json();
+            const el = document.getElementById('pay-history');
+            if (!payments.length) { el.innerHTML = ''; return; }
+            el.innerHTML = '<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px">История платежей</div>'
+                + payments.map(function(p) {
+                    const d = new Date(p.created_at).toLocaleDateString('ru-RU', { day:'numeric', month:'short', year:'numeric' });
+                    const statusClass = p.status || 'pending';
+                    return '<div class="pay-hist-item">'
+                        + '<div><div style="font-size:14px;font-weight:600;color:var(--text)">' + p.amount + ' ₽</div>'
+                        + '<div style="font-size:12px;color:var(--text-3);margin-top:2px">' + d
+                        + (p.card_last4 ? ' · •••• ' + p.card_last4 : '') + '</div>'
+                        + (p.admin_comment ? '<div style="font-size:12px;color:var(--text-2);margin-top:4px">' + escHtml(p.admin_comment) + '</div>' : '')
+                        + '</div>'
+                        + '<span class="pay-hist-status ' + statusClass + '">' + (PAY_STATUS_LABELS[p.status] || p.status) + '</span>'
+                        + '</div>';
+                }).join('');
+        } catch (e) { /* ignore */ }
+    }
+
+    // Load subscription tab on init (it's the default active tab now)
+    loadSubscription();
 
     // ── ИСТОРИЯ ТАРЕЛОК ───────────────────────────────────────────────────────
     function renderHistory() {

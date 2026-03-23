@@ -23,11 +23,12 @@ async function subscriptionRoutes(fastify) {
 
   // POST /subscription/payment — пользователь сообщает об оплате
   fastify.post('/subscription/payment', { preHandler: authenticate }, async (req, reply) => {
-    const { amount, cardLast4, paymentDate } = req.body || {};
+    const { amount, cardLast4, paymentDate, comment } = req.body || {};
     if (!amount || !paymentDate) return reply.status(400).send({ error: 'amount и paymentDate обязательны' });
+    if (!cardLast4 || !/^\d{4}$/.test(cardLast4)) return reply.status(400).send({ error: 'Укажите 4 последние цифры карты' });
     await db.query(
-      'INSERT INTO payments (user_id, amount, card_last4, payment_date, status) VALUES ($1,$2,$3,$4,$5)',
-      [req.user.sub, amount, cardLast4 || null, paymentDate, 'pending']
+      'INSERT INTO payments (user_id, amount, card_last4, payment_date, user_comment, status) VALUES ($1,$2,$3,$4,$5,$6)',
+      [req.user.sub, amount, cardLast4, paymentDate, comment || null, 'pending']
     );
     return { ok: true, message: 'Платёж отправлен на проверку' };
   });
