@@ -3,6 +3,15 @@ const { authenticate } = require('../middleware');
 
 async function subscriptionRoutes(fastify) {
 
+  // GET /subscription/early-bird — сколько осталось мест по спеццене
+  fastify.get('/subscription/early-bird', async () => {
+    const result = await db.query("SELECT COUNT(*) FROM subscriptions WHERE status IN ('active','trial')");
+    const total = Number(result.rows[0].count);
+    const limit = 50;
+    const remaining = Math.max(0, limit - total);
+    return { remaining, limit, active: remaining > 0 };
+  });
+
   // GET /subscription — статус подписки текущего пользователя
   fastify.get('/subscription', { preHandler: authenticate }, async (req) => {
     const result = await db.query(

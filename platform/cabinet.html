@@ -255,14 +255,19 @@
                 </div>
             </div>
             <div>
-                <div class="cab-name" id="cab-name">—</div>
+                <div style="display:flex;align-items:center;gap:6px">
+                    <div class="cab-name" id="cab-name">—</div>
+                    <button id="name-edit-btn" onclick="startEditName()" style="background:none;border:none;cursor:pointer;padding:2px;opacity:.5;transition:opacity .2s;display:none" title="Изменить имя">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--text-3)"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83z"/></svg>
+                    </button>
+                </div>
                 <div class="cab-email" id="cab-email"></div>
-                <div class="cab-name-row" style="margin-top:8px;display:flex;align-items:center;gap:8px">
+                <div class="cab-name-row" id="name-edit-row" style="margin-top:8px;display:none;align-items:center;gap:8px">
                     <input type="text" id="cab-custom-name" placeholder="Как вас зовут?"
                         maxlength="30"
                         style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);width:180px;outline:none;transition:border-color .2s"
                         onfocus="this.style.borderColor='var(--accent)'"
-                        onblur="this.style.borderColor='var(--border)';saveCustomName()"
+                        onblur="this.style.borderColor='var(--border)';finishEditName()"
                         onkeydown="if(event.key==='Enter'){this.blur()}">
                     <span id="name-saved-msg" style="font-size:11px;color:var(--accent);opacity:0;transition:opacity .3s">Сохранено</span>
                 </div>
@@ -293,16 +298,32 @@
         <div class="cab-tab-panel active" id="panel-subscription">
             <div id="sub-status-wrap"></div>
 
+            <!-- Early bird -->
+            <div id="early-bird-card" style="display:none;padding:20px;border-radius:var(--r-s);border:2px solid var(--accent);background:linear-gradient(135deg,#fff8f5,#fff2ed);margin-bottom:20px;position:relative;overflow:hidden">
+                <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(232,64,10,.06);border-radius:50%"></div>
+                <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:8px">Специальная цена на старте</div>
+                <div style="font-size:28px;font-weight:800;color:var(--text)">100 ₽ <span style="font-size:15px;font-weight:600;color:var(--text-3)">/ месяц</span></div>
+                <div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px">Навсегда для первых 50 участников</div>
+                <div style="font-size:13px;color:var(--text-2);line-height:1.6;margin-top:10px">Спасибо тем, кто присоединяется в начале пути.<br>Для вас действует особая стоимость доступа.</div>
+                <div style="margin-top:12px;display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(232,64,10,.08);border-radius:8px">
+                    <span style="font-size:13px;font-weight:700;color:var(--accent)" id="early-bird-remaining">—</span>
+                    <span style="font-size:12px;color:var(--text-2)">мест осталось из 50</span>
+                </div>
+            </div>
+
             <div class="pay-section">
-                <div class="pay-title">Оформить подписку</div>
+                <button class="btn btn-orange" id="pay-toggle-btn" onclick="togglePaySection()" style="width:100%;padding:14px;font-size:15px;font-weight:700;border-radius:12px">
+                    Оформить подписку
+                </button>
+                <div id="pay-details" style="display:none;margin-top:20px">
                 <div class="pay-info-card">
                     <div style="font-size:14px;color:var(--text-2)">Переведите оплату на карту:</div>
                     <div class="pay-card-number" id="pay-card-num">2200 7007 5498 1587</div>
                     <button style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-weight:600"
                         onclick="copyCard()">Скопировать номер</button>
                     <div style="margin-top:10px;font-size:13px;color:var(--text-2)">
-                        Получатель: <strong>Воронова Юлия</strong><br>
-                        <span class="pay-price">490 ₽ / месяц</span> · <span class="pay-price">2 490 ₽ / полгода</span>
+                        Получатель: <strong>Воронова Юлия Игоревна</strong><br>
+                        <span class="pay-price">1 000 ₽ / месяц</span> · <span class="pay-price">1 000 ₽ / год</span>
                     </div>
                 </div>
 
@@ -333,6 +354,7 @@
                         Платёж отправлен на проверку. Обычно подтверждаем в течение 24 часов.
                     </div>
                 </div>
+                </div><!-- /pay-details -->
             </div>
 
             <div class="pay-history" id="pay-history"></div>
@@ -479,7 +501,13 @@
         const customName = Auth.getDisplayName();
         document.getElementById('cab-name').textContent = customName || user.email.split('@')[0];
         document.getElementById('cab-email').textContent = user.email;
-        if (customName) document.getElementById('cab-custom-name').value = customName;
+        if (customName) {
+            document.getElementById('cab-custom-name').value = customName;
+            document.getElementById('name-edit-btn').style.display = 'inline-flex';
+        } else {
+            // No name yet — show input
+            document.getElementById('name-edit-row').style.display = 'flex';
+        }
         const joined = user.joined
             ? new Date(user.joined).toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' })
             : '';
@@ -493,7 +521,12 @@
         }
     }
 
-    function saveCustomName() {
+    function startEditName() {
+        document.getElementById('name-edit-row').style.display = 'flex';
+        document.getElementById('cab-custom-name').focus();
+    }
+
+    function finishEditName() {
         const val = document.getElementById('cab-custom-name').value.trim();
         Auth.setName(val);
         document.getElementById('cab-name').textContent = val || user.email.split('@')[0];
@@ -501,9 +534,13 @@
         if (!localStorage.getItem('user_avatar')) {
             avaEl.textContent = (val || user.email || '?').charAt(0).toUpperCase();
         }
-        const msg = document.getElementById('name-saved-msg');
-        msg.style.opacity = '1';
-        setTimeout(function() { msg.style.opacity = '0'; }, 1500);
+        if (val) {
+            document.getElementById('name-edit-row').style.display = 'none';
+            document.getElementById('name-edit-btn').style.display = 'inline-flex';
+            const msg = document.getElementById('name-saved-msg');
+            msg.style.opacity = '1';
+            setTimeout(function() { msg.style.opacity = '0'; }, 1500);
+        }
     }
 
     function handleAvatarUpload(input) {
@@ -660,8 +697,37 @@
         } catch (e) { /* ignore */ }
     }
 
+    function togglePaySection() {
+        const details = document.getElementById('pay-details');
+        const btn = document.getElementById('pay-toggle-btn');
+        if (details.style.display === 'none') {
+            details.style.display = 'block';
+            details.style.animation = 'fadeUp .3s ease both';
+            btn.textContent = 'Скрыть';
+            btn.className = 'btn btn-ghost';
+            btn.style.width = '100%';
+        } else {
+            details.style.display = 'none';
+            btn.textContent = 'Оформить подписку';
+            btn.className = 'btn btn-orange';
+        }
+    }
+
+    async function loadEarlyBird() {
+        try {
+            const res = await fetch(API_BASE + '/subscription/early-bird');
+            if (!res.ok) return;
+            const data = await res.json();
+            if (data.active && data.remaining > 0) {
+                document.getElementById('early-bird-card').style.display = 'block';
+                document.getElementById('early-bird-remaining').textContent = data.remaining;
+            }
+        } catch (e) { /* ignore */ }
+    }
+
     // Load subscription tab on init (it's the default active tab now)
     loadSubscription();
+    loadEarlyBird();
 
     // ── ИСТОРИЯ ТАРЕЛОК ───────────────────────────────────────────────────────
     function renderHistory() {
