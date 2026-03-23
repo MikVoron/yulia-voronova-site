@@ -30,8 +30,8 @@ async function authRoutes(fastify) {
     if (!email || !code) return reply.status(400).send({ error: 'email и code обязательны' });
     const lower = email.toLowerCase().trim();
     // rate limit по IP: макс 20 попыток верификации за 15 минут
-    const ipVerify = await db.query("SELECT COUNT(*) FROM login_codes WHERE ip=$1 AND attempts > 0 AND created_at > now() - interval '15 minutes'", [req.ip]);
-    if (Number(ipVerify.rows[0].count) >= 20) return reply.status(429).send({ error: 'Слишком много попыток. Подождите 15 минут' });
+    const ipVerify = await db.query("SELECT COALESCE(SUM(attempts), 0) AS total FROM login_codes WHERE ip=$1 AND created_at > now() - interval '15 minutes'", [req.ip]);
+    if (Number(ipVerify.rows[0].total) >= 20) return reply.status(429).send({ error: 'Слишком много попыток. Подождите 15 минут' });
     const result = await db.query('SELECT * FROM login_codes WHERE email=$1 AND used=false AND expires_at > now() ORDER BY created_at DESC LIMIT 1', [lower]);
     if (!result.rows.length) return reply.status(400).send({ error: 'Код не найден или истёк' });
     const row = result.rows[0];

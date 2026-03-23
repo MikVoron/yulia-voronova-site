@@ -8,9 +8,9 @@
 const API_BASE = 'https://api.voronova.online';
 const Auth = {
     KEY: 'hp_user',
-    TOKEN_KEY: 'hp_token',
     _token: null,
     login(email, name, token, subscription) {
+        localStorage.removeItem('hp_token'); // cleanup legacy
         const prev = this.getUser();
         if (prev && prev.email && prev.email !== email) {
             ['fav_recipes','user_notes','hp_plates','hp_plate_history','user_weight','user_avatar','julia_quote_day'].forEach(k => localStorage.removeItem(k));
@@ -22,7 +22,7 @@ const Auth = {
     },
     logout() {
         fetch(API_BASE + '/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
-        localStorage.removeItem(this.KEY);
+        localStorage.removeItem(this.KEY); localStorage.removeItem('hp_token');
         this._token = null; Plate.clear();
     },
     isLoggedIn() { return !!localStorage.getItem(this.KEY); },
@@ -57,7 +57,7 @@ const Auth = {
             if (sub.status === 'trial' && new Date(sub.trialEndsAt) > now) return true;
             if (sub.status === 'active' && new Date(sub.activeUntil) > now) return true;
             this._showPaywall(sub.status); return false;
-        } catch { return true; }
+        } catch { return false; }
     },
     isTrial() { return this._subStatus === 'trial'; },
     hasFullAccess() { return this._subStatus === 'active'; },
