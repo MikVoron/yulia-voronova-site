@@ -17,17 +17,17 @@ const Auth = {
         }
         const user = { email, name: name || email.split('@')[0], joined: Date.now(), subscription: subscription || null };
         localStorage.setItem(this.KEY, JSON.stringify(user));
-        if (token) { this._token = token; localStorage.setItem(this.TOKEN_KEY, token); }
+        if (token) { this._token = token; }
         return user;
     },
     logout() {
         fetch(API_BASE + '/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
-        localStorage.removeItem(this.KEY); localStorage.removeItem(this.TOKEN_KEY);
+        localStorage.removeItem(this.KEY);
         this._token = null; Plate.clear();
     },
-    isLoggedIn() { return !!localStorage.getItem(this.KEY) && !!this.getToken(); },
+    isLoggedIn() { return !!localStorage.getItem(this.KEY); },
     getUser() { try { return JSON.parse(localStorage.getItem(this.KEY)); } catch { return null; } },
-    getToken() { return this._token || localStorage.getItem(this.TOKEN_KEY); },
+    getToken() { return this._token; },
     requireAuth() { if (!this.isLoggedIn()) location.href = 'login.html'; },
     getDisplayName() {
         const u = this.getUser();
@@ -45,6 +45,7 @@ const Auth = {
     _subStatus: null,
     async checkAccess() {
         if (!this.isLoggedIn()) { location.href = 'login.html'; return false; }
+        if (!this._token) { const ok = await this.refreshToken(); if (!ok) { location.href = 'login.html'; return false; } }
         try {
             const res = await this.api('/auth/me');
             if (!res.ok) { location.href = 'login.html'; return false; }
@@ -88,7 +89,6 @@ const Auth = {
             if (!res.ok) { this.logout(); return false; }
             const data = await res.json();
             this._token = data.accessToken;
-            localStorage.setItem(this.TOKEN_KEY, data.accessToken);
             const user = this.getUser();
             if (user && data.user) { user.name = data.user.displayName || user.name; user.email = data.user.email; localStorage.setItem(this.KEY, JSON.stringify(user)); }
             return true;

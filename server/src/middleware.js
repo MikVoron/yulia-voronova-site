@@ -14,7 +14,9 @@ async function authenticate(req, reply) {
 async function requireAdmin(req, reply) {
   await authenticate(req, reply);
   if (reply.sent) return;
-  if (req.user.role !== 'admin') return reply.status(403).send({ error: 'Нет доступа' });
+  const u = await db.query('SELECT role, is_blocked FROM users WHERE id=$1', [req.user.sub]);
+  if (!u.rows.length || u.rows[0].is_blocked) return reply.status(403).send({ error: 'Аккаунт заблокирован' });
+  if (u.rows[0].role !== 'admin') return reply.status(403).send({ error: 'Нет доступа' });
 }
 
 async function requireActiveSubscription(req, reply) {
