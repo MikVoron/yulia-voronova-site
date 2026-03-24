@@ -149,9 +149,9 @@ const Auth = {
 
 // ─── FAVORITES ───────────────────────────────────────────────────────────────
 const Favorites = {
-    KEY: 'fav_recipes',
-    get()         { try { return JSON.parse(localStorage.getItem(this.KEY) || '[]'); } catch { return []; } },
-    set(v)        { localStorage.setItem(this.KEY, JSON.stringify(v)); },
+    _key()        { return Auth._userKey('fav_recipes'); },
+    get()         { try { return JSON.parse(localStorage.getItem(this._key()) || '[]'); } catch { return []; } },
+    set(v)        { localStorage.setItem(this._key(), JSON.stringify(v)); },
     has(id)       { return this.get().includes(id); },
     add(id)       { const f = this.get(); if (!f.includes(id)) { f.unshift(id); this.set(f); } },
     remove(id)    { this.set(this.get().filter(x => x !== id)); },
@@ -160,9 +160,9 @@ const Favorites = {
 
 // ─── NOTES ───────────────────────────────────────────────────────────────────
 const Notes = {
-    KEY: 'user_notes',
-    get()        { try { return JSON.parse(localStorage.getItem(this.KEY) || '[]'); } catch { return []; } },
-    set(v)       { localStorage.setItem(this.KEY, JSON.stringify(v)); },
+    _key()       { return Auth._userKey('user_notes'); },
+    get()        { try { return JSON.parse(localStorage.getItem(this._key()) || '[]'); } catch { return []; } },
+    set(v)       { localStorage.setItem(this._key(), JSON.stringify(v)); },
     add(text)    {
         const notes = this.get();
         const title = text.trim().split('\n')[0].trim().slice(0, 60) || 'Заметка';
@@ -179,13 +179,13 @@ const Notes = {
 
 // ─── MY PLATE ────────────────────────────────────────────────────────────────
 const Plate = {
-    KEY: 'plate_items',
-    HIST: 'plate_history',
-    get()  { try { return JSON.parse(localStorage.getItem(this.KEY) || '[]'); } catch { return []; } },
-    set(v) { localStorage.setItem(this.KEY, JSON.stringify(v)); updatePlateIcon(); },
+    _key()  { return Auth._userKey('plate_items'); },
+    _hkey() { return Auth._userKey('plate_history'); },
+    get()  { try { return JSON.parse(localStorage.getItem(this._key()) || '[]'); } catch { return []; } },
+    set(v) { localStorage.setItem(this._key(), JSON.stringify(v)); updatePlateIcon(); },
     add(item) { const p = this.get(); p.push({ ...item, addedAt: Date.now() }); this.set(p); },
     remove(idx) { const p = this.get(); p.splice(idx, 1); this.set(p); },
-    clear() { localStorage.removeItem(this.KEY); updatePlateIcon(); },
+    clear() { localStorage.removeItem(this._key()); updatePlateIcon(); },
     count() { return this.get().length; },
     totals() {
         return this.get().reduce((t, i) => ({
@@ -201,10 +201,10 @@ const Plate = {
         if (!items.length) return;
         const h = this.getHistory();
         h.unshift({ date: new Date().toISOString(), items, totals: this.totals() });
-        localStorage.setItem(this.HIST, JSON.stringify(h.slice(0, 30)));
+        localStorage.setItem(this._hkey(), JSON.stringify(h.slice(0, 30)));
         this.clear();
     },
-    getHistory() { try { return JSON.parse(localStorage.getItem(this.HIST) || '[]'); } catch { return []; } }
+    getHistory() { try { return JSON.parse(localStorage.getItem(this._hkey()) || '[]'); } catch { return []; } }
 };
 
 // ─── RATINGS ──────────────────────────────────────────────────────────────────

@@ -33,16 +33,18 @@ async function subscriptionRoutes(fastify) {
 
   // POST /subscription/payment — пользователь сообщает об оплате
   fastify.post('/subscription/payment', { preHandler: authenticate }, async (req, reply) => {
-    const { amount, paymentDate, comment } = req.body || {};
+    const { amount, paymentDate, comment, screenshot } = req.body || {};
     if (!amount || !paymentDate) return reply.status(400).send({ error: 'amount и paymentDate обязательны' });
+    // Validate screenshot if present (max ~5MB base64)
+    if (screenshot && screenshot.length > 7 * 1024 * 1024) return reply.status(400).send({ error: 'Скриншот слишком большой' });
     // email берём из JWT — надёжнее чем из формы
     const emailRow = await db.query('SELECT email FROM users WHERE id=$1', [req.user.sub]);
     const senderEmail = emailRow.rows[0]?.email || '';
     await db.query(
-      'INSERT INTO payments (user_id, amount, sender_name, payment_date, user_comment, status) VALUES ($1,$2,$3,$4,$5,$6)',
-      [req.user.sub, amount, senderEmail, paymentDate, comment || null, 'pending']
+      'INSERT INTO payments (user_id, amount, sender_name, payment_date, user_comment, screenshot, status) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+      [req.user.sub, amount, senderEmail, paymentDate, comment || null, screenshot || null, 'pending']
     );
-    sendPaymentNotification(senderEmail, amount, paymentDate).catch(err => fastify.log.error(err, 'payment notification email failed'));
+    sendPaymentNotification(senderEmail, amount, paymentDate, !!screenshot).catch(err => fastify.log.error(err, 'payment notification email failed'));
     return { ok: true, message: 'Платёж отправлен на проверку' };
   });
 

@@ -111,7 +111,7 @@ async function sendPaymentConfirmed(to, days) {
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'pay@voronova.online';
 
-async function sendPaymentNotification(userEmail, amount, paymentDate) {
+async function sendPaymentNotification(userEmail, amount, paymentDate, hasScreenshot) {
   const body =
     '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Новый платёж</h2>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
@@ -119,6 +119,7 @@ async function sendPaymentNotification(userEmail, amount, paymentDate) {
     + '<table cellpadding="6" cellspacing="0" border="0" style="font-size:14px;color:#444;margin-bottom:16px">'
     + '<tr><td style="color:#777">Сумма:</td><td style="font-weight:700;color:#111">' + amount + ' ₽</td></tr>'
     + '<tr><td style="color:#777">Дата перевода:</td><td>' + paymentDate + '</td></tr>'
+    + '<tr><td style="color:#777">Скриншот:</td><td>' + (hasScreenshot ? '📎 Приложен (смотрите в админке)' : 'Не приложен') + '</td></tr>'
     + '</table>'
     + btn('Проверить в админке', 'https://voronova.online/platform/admin.html')
     + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'

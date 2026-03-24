@@ -16,10 +16,17 @@ async function adminRoutes(fastify) {
   fastify.get('/admin/payments', { preHandler: requireAdmin }, async (req) => {
     const status = req.query.status || 'pending';
     const result = await db.query(
-      'SELECT p.*, u.email FROM payments p JOIN users u ON u.id=p.user_id WHERE p.status=$1 ORDER BY p.created_at DESC',
+      'SELECT p.id, p.user_id, p.amount, p.sender_name, p.payment_date, p.status, p.admin_comment, p.user_comment, p.created_at, p.updated_at, (p.screenshot IS NOT NULL) as has_screenshot, u.email FROM payments p JOIN users u ON u.id=p.user_id WHERE p.status=$1 ORDER BY p.created_at DESC',
       [status]
     );
     return result.rows;
+  });
+
+  // GET /admin/payments/:id/screenshot — получить скриншот платежа
+  fastify.get('/admin/payments/:id/screenshot', { preHandler: requireAdmin }, async (req, reply) => {
+    const result = await db.query('SELECT screenshot FROM payments WHERE id=$1', [req.params.id]);
+    if (!result.rows.length || !result.rows[0].screenshot) return reply.status(404).send({ error: 'Скриншот не найден' });
+    return { screenshot: result.rows[0].screenshot };
   });
 
   // POST /admin/payments/:id/confirm — подтвердить оплату

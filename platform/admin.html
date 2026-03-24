@@ -503,6 +503,7 @@
                         <th>Сумма</th>
                         <th>Отправитель</th>
                         <th>Дата перевода</th>
+                        <th>Скрин</th>
                         <th>Статус</th>
                         <th>Создан</th>
                         <th>Действия</th>
@@ -556,6 +557,17 @@
         <div class="adm-modal-actions">
             <button class="adm-btn adm-btn-reject" onclick="closeModal()">Отмена</button>
             <button class="adm-btn adm-btn-confirm" id="confirm-submit-btn" onclick="submitConfirm()">Подтвердить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Screenshot modal -->
+<div class="adm-modal-bg" id="screenshot-modal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="adm-modal" style="max-width:600px;text-align:center">
+        <div class="adm-modal-title">Скриншот перевода</div>
+        <img id="screenshot-modal-img" style="max-width:100%;max-height:70vh;border-radius:8px;margin:12px 0">
+        <div class="adm-modal-actions">
+            <button class="adm-btn" onclick="document.getElementById('screenshot-modal').classList.remove('open')">Закрыть</button>
         </div>
     </div>
 </div>
@@ -880,7 +892,7 @@
         api('/admin/payments?status=' + status).then(function(data) {
             var tbody = document.getElementById('payments-tbody');
             if (!data.length) {
-                tbody.innerHTML = '<tr><td colspan="7" class="adm-empty">Нет платежей со статусом "' + status + '"</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="adm-empty">Нет платежей со статусом "' + status + '"</td></tr>';
                 return;
             }
             tbody.innerHTML = data.map(function(p) {
@@ -894,11 +906,16 @@
                     actions = '<span style="font-size:11px;color:var(--text-3)">' + esc(p.admin_comment) + '</span>';
                 }
 
+                var screenCol = p.has_screenshot
+                    ? '<a href="#" onclick="showScreenshot(\'' + p.id + '\');return false" style="color:var(--blue);font-size:12px">📎 Открыть</a>'
+                    : '<span style="color:var(--text-3);font-size:12px">—</span>';
+
                 return '<tr>' +
                     '<td><strong>' + esc(p.email) + '</strong></td>' +
                     '<td>' + (p.amount / 100) + ' &#8381;</td>' +
                     '<td>' + (p.sender_name || '—') + '</td>' +
                     '<td class="adm-date">' + (p.transfer_date ? fmtDate(p.transfer_date) : '—') + '</td>' +
+                    '<td>' + screenCol + '</td>' +
                     '<td>' + statusBadge + '</td>' +
                     '<td class="adm-date">' + fmtDate(p.created_at) + '</td>' +
                     '<td>' + actions + '</td>' +
@@ -939,6 +956,17 @@
         }).finally(function() {
             btn.disabled = false;
             btn.textContent = 'Подтвердить';
+        });
+    };
+
+    window.showScreenshot = function(id) {
+        api('/admin/payments/' + id + '/screenshot').then(function(data) {
+            if (data.screenshot) {
+                document.getElementById('screenshot-modal-img').src = data.screenshot;
+                document.getElementById('screenshot-modal').classList.add('open');
+            } else {
+                showToast('Скриншот не найден');
+            }
         });
     };
 
