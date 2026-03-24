@@ -830,10 +830,12 @@
             return;
         }
         tbody.innerHTML = users.map(function(u) {
-            var status = u.sub_status || 'нет';
-            var statusClass = 'st-' + status;
+            var isAdmin = u.role === 'admin';
+            var status = isAdmin ? 'admin' : (u.sub_status || 'нет');
+            var statusClass = isAdmin ? 'st-active' : ('st-' + status);
             var untilDate = '';
-            if (u.sub_status === 'trial' && u.trial_ends_at) untilDate = fmtDate(u.trial_ends_at);
+            if (isAdmin) untilDate = '∞';
+            else if (u.sub_status === 'trial' && u.trial_ends_at) untilDate = fmtDate(u.trial_ends_at);
             else if (u.sub_status === 'active' && u.active_until) untilDate = fmtDate(u.active_until);
 
             var actions = '';
