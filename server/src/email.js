@@ -11,9 +11,11 @@ const FROM = '"Умная тарелка" <' + (process.env.SMTP_FROM || 'norepl
 
 function wrap(body) {
   return '<div style="font-family:\'Montserrat\',system-ui,sans-serif;max-width:480px;margin:0 auto;padding:0">'
-    + '<div style="background:#e8400a;padding:20px 24px;border-radius:12px 12px 0 0">'
-    + '<h1 style="margin:0;font-size:20px;color:#fff;font-weight:700">Умная тарелка</h1>'
-    + '<p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,.7)">Юлия Воронова · Нутрициолог</p>'
+    + '<div style="background:#fff;padding:20px 24px;border-bottom:2px solid #eee">'
+    + '<table cellpadding="0" cellspacing="0" border="0"><tr>'
+    + '<td style="vertical-align:middle;padding-right:14px"><img src="https://voronova.online/images/YV-small.webp" width="52" height="52" style="border-radius:50%;border:2px solid #e8400a;display:block" alt="Юлия Воронова"></td>'
+    + '<td style="vertical-align:middle"><span style="font-size:13px;color:#111;font-weight:600;display:block">Юлия Воронова</span><span style="font-size:11px;color:#777;display:block;margin-top:1px">нутрициолог</span><span style="font-size:20px;color:#111;font-weight:800;display:block;margin-top:4px;letter-spacing:-.5px">Умная <span style="color:#e8400a">тарелка</span></span></td>'
+    + '</tr></table>'
     + '</div>'
     + '<div style="background:#fff;padding:28px 24px;border:1px solid #eee;border-top:none">'
     + body
@@ -41,7 +43,7 @@ async function sendLoginCode(to, code) {
     '<p style="font-size:15px;color:#111;margin:0 0 16px">Ваш код для входа:</p>'
     + '<div style="font-size:36px;font-weight:bold;letter-spacing:10px;text-align:center;padding:20px;background:#faf8f5;border-radius:10px;color:#111;border:1px solid #eee">'
     + code + '</div>'
-    + '<p style="color:#777;font-size:13px;margin:16px 0 0;line-height:1.5">Код действует 5 минут. Если вы не запрашивали вход — просто проигнорируйте.</p>';
+    + '<p style="color:#111;font-size:14px;margin:16px 0 0;line-height:1.5">Код действует 5 минут. Если вы не запрашивали вход — просто проигнорируйте.</p>';
   await send(to, 'Код для входа — Умная тарелка', wrap(body));
 }
 
@@ -59,8 +61,8 @@ async function sendWelcome(to) {
     + '<li>Списки покупок</li>'
     + '</ul>'
     + btn('Открыть платформу', 'https://voronova.online/platform/')
-    + '<p style="font-size:13px;color:#777;margin:0;line-height:1.5">'
-    + 'Если у вас есть вопросы — просто ответьте на это письмо.</p>';
+    + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
+    + 'Приятного использования!</p>';
   await send(to, 'Добро пожаловать в Умную тарелку!', wrap(body));
 }
 
@@ -73,7 +75,7 @@ async function sendTrialExpired(to) {
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
     + 'Чтобы продолжить пользоваться всеми рецептами и конструктором тарелки — оформите подписку в личном кабинете.</p>'
     + btn('Оформить подписку', 'https://voronova.online/platform/cabinet.html')
-    + '<p style="font-size:13px;color:#777;margin:0;line-height:1.5">'
+    + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
     + 'Спасибо, что попробовали! Мы будем рады видеть вас снова.</p>';
   await send(to, 'Пробный период завершён — Умная тарелка', wrap(body));
 }
@@ -87,7 +89,7 @@ async function sendSubscriptionExpired(to) {
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
     + 'Продлите подписку, чтобы снова получить доступ ко всем рецептам, конструктору тарелки и спискам покупок.</p>'
     + btn('Продлить подписку', 'https://voronova.online/platform/cabinet.html')
-    + '<p style="font-size:13px;color:#777;margin:0;line-height:1.5">'
+    + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
     + 'Если вы уже оплатили — подождите подтверждения администратором.</p>';
   await send(to, 'Подписка истекла — Умная тарелка', wrap(body));
 }
@@ -102,9 +104,36 @@ async function sendPaymentConfirmed(to, days) {
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
     + 'Все рецепты, конструктор тарелки и другие возможности теперь полностью доступны.</p>'
     + btn('Перейти на платформу', 'https://voronova.online/platform/')
-    + '<p style="font-size:13px;color:#777;margin:0;line-height:1.5">'
+    + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
     + 'Спасибо за доверие!</p>';
   await send(to, 'Оплата подтверждена — Умная тарелка', wrap(body));
+}
+
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'pay@voronova.online';
+
+async function sendPaymentNotification(userEmail, amount, paymentDate) {
+  const body =
+    '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Новый платёж</h2>'
+    + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
+    + 'Пользователь <strong>' + userEmail + '</strong> отправил платёж:</p>'
+    + '<table cellpadding="6" cellspacing="0" border="0" style="font-size:14px;color:#444;margin-bottom:16px">'
+    + '<tr><td style="color:#777">Сумма:</td><td style="font-weight:700;color:#111">' + amount + ' ₽</td></tr>'
+    + '<tr><td style="color:#777">Дата перевода:</td><td>' + paymentDate + '</td></tr>'
+    + '</table>'
+    + btn('Проверить в админке', 'https://voronova.online/platform/admin.html')
+    + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
+    + 'Проверьте поступление и подтвердите платёж.</p>';
+  await send(ADMIN_EMAIL, 'Новый платёж от ' + userEmail, wrap(body));
+}
+
+async function sendFeedback(userEmail, category, text) {
+  const labels = { wish: 'Пожелание', recipe: 'Идея рецепта', problem: 'Проблема' };
+  const label = labels[category] || category;
+  const body =
+    '<p style="font-size:14px;color:#111;margin:0 0 8px"><strong>Категория:</strong> ' + label + '</p>'
+    + '<p style="font-size:14px;color:#111;margin:0 0 8px"><strong>От:</strong> ' + userEmail + '</p>'
+    + '<p style="font-size:14px;color:#111;margin:0;white-space:pre-wrap">' + text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>';
+  await send('hello@voronova.online', '[Умная тарелка] ' + label + ' от ' + userEmail, wrap(body));
 }
 
 module.exports = {
@@ -112,5 +141,7 @@ module.exports = {
   sendWelcome,
   sendTrialExpired,
   sendSubscriptionExpired,
-  sendPaymentConfirmed
+  sendPaymentConfirmed,
+  sendPaymentNotification,
+  sendFeedback
 };

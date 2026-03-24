@@ -499,7 +499,7 @@
                     <tr>
                         <th>Email</th>
                         <th>Сумма</th>
-                        <th>Карта</th>
+                        <th>Отправитель</th>
                         <th>Дата перевода</th>
                         <th>Статус</th>
                         <th>Создан</th>
@@ -701,7 +701,7 @@
                 return '<tr>' +
                     '<td><strong>' + esc(p.email) + '</strong></td>' +
                     '<td>' + (p.amount / 100) + ' &#8381;</td>' +
-                    '<td>' + (p.card_last4 || '—') + '</td>' +
+                    '<td>' + (p.sender_name || '—') + '</td>' +
                     '<td class="adm-date">' + (p.transfer_date ? fmtDate(p.transfer_date) : '—') + '</td>' +
                     '<td>' + statusBadge + '</td>' +
                     '<td class="adm-date">' + fmtDate(p.created_at) + '</td>' +

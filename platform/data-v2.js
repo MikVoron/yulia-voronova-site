@@ -9,46 +9,60 @@ const API_BASE = 'https://api.voronova.online';
 const Auth = {
     KEY: 'hp_user',
     _token: null,
+    _ST: 'hp_st',
     login(email, name, token, subscription) {
         localStorage.removeItem('hp_token'); // cleanup legacy
         const prev = this.getUser();
         if (prev && prev.email && prev.email !== email) {
-            ['fav_recipes','user_notes','hp_plates','hp_plate_history','user_weight','user_avatar','julia_quote_day'].forEach(k => localStorage.removeItem(k));
+            ['fav_recipes','user_notes','hp_plates','hp_plate_history','user_weight','user_avatar','julia_quote_day','hp_user_name'].forEach(k => localStorage.removeItem(k));
         }
-        const user = { email, name: name || email.split('@')[0], joined: Date.now(), subscription: subscription || null };
+        // Migrate old customName to separate key
+        if (prev && prev.email === email && prev.customName && !localStorage.getItem('hp_user_name')) {
+            localStorage.setItem('hp_user_name', prev.customName);
+        }
+        const user = { email, name: name || email.split('@')[0], joined: (prev && prev.email === email && prev.joined) || Date.now(), subscription: subscription || null };
         localStorage.setItem(this.KEY, JSON.stringify(user));
-        if (token) { this._token = token; }
+        if (token) { this._token = token; sessionStorage.setItem(this._ST, token); }
         return user;
     },
     logout() {
         fetch(API_BASE + '/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
-        localStorage.removeItem(this.KEY); localStorage.removeItem('hp_token');
+        localStorage.removeItem(this.KEY); localStorage.removeItem('hp_token'); localStorage.removeItem('hp_user_name');
+        sessionStorage.removeItem(this._ST);
         this._token = null; Plate.clear();
     },
     isLoggedIn() { return !!localStorage.getItem(this.KEY); },
     getUser() { try { return JSON.parse(localStorage.getItem(this.KEY)); } catch { return null; } },
-    getToken() { return this._token; },
+    getToken() { return this._token || sessionStorage.getItem(this._ST); },
     requireAuth() { if (!this.isLoggedIn()) location.href = 'login.html'; },
+    _NAME_KEY: 'hp_user_name',
     getDisplayName() {
-        const u = this.getUser();
-        if (!u) return '';
-        if (u.customName) return u.customName;
-        return '';
+        return localStorage.getItem(this._NAME_KEY) || '';
     },
-    hasCustomName() { const u = this.getUser(); return !!(u && u.customName); },
+    hasCustomName() { return !!localStorage.getItem(this._NAME_KEY); },
     setName(name) {
-        const u = this.getUser();
-        if (!u) return;
-        u.customName = name ? name.trim() : '';
-        localStorage.setItem(this.KEY, JSON.stringify(u));
+        const val = name ? name.trim() : '';
+        if (val) localStorage.setItem(this._NAME_KEY, val);
+        else localStorage.removeItem(this._NAME_KEY);
     },
     _subStatus: null,
     async checkAccess() {
         if (!this.isLoggedIn()) { location.href = 'login.html'; return false; }
-        if (!this._token) { const ok = await this.refreshToken(); if (!ok) { location.href = 'login.html'; return false; } }
+        if (!this.getToken()) {
+            const ok = await this.refreshToken();
+            if (!ok) {
+                // Нет токена и refresh не работает — показываем контент в trial-режиме
+                this._subStatus = 'trial';
+                return true;
+            }
+        }
         try {
             const res = await this.api('/auth/me');
-            if (!res.ok) { location.href = 'login.html'; return false; }
+            if (!res.ok) {
+                // API вернул ошибку — показываем контент, не редиректим
+                this._subStatus = 'trial';
+                return true;
+            }
             const data = await res.json();
             const sub = data.subscription;
             if (!sub || !sub.status) { this._subStatus = 'none'; this._showPaywall('no_sub'); return false; }
@@ -57,7 +71,11 @@ const Auth = {
             if (sub.status === 'trial' && new Date(sub.trialEndsAt) > now) return true;
             if (sub.status === 'active' && new Date(sub.activeUntil) > now) return true;
             this._showPaywall(sub.status); return false;
-        } catch { return false; }
+        } catch {
+            // Сеть недоступна — показываем контент в trial-режиме
+            this._subStatus = 'trial';
+            return true;
+        }
     },
     isTrial() { return this._subStatus === 'trial'; },
     hasFullAccess() { return this._subStatus === 'active'; },
@@ -86,9 +104,10 @@ const Auth = {
     async refreshToken() {
         try {
             const res = await fetch(API_BASE + '/auth/refresh', { method: 'POST', credentials: 'include' });
-            if (!res.ok) { this.logout(); return false; }
+            if (!res.ok) return false;
             const data = await res.json();
             this._token = data.accessToken;
+            sessionStorage.setItem(this._ST, data.accessToken);
             const user = this.getUser();
             if (user && data.user) { user.name = data.user.displayName || user.name; user.email = data.user.email; localStorage.setItem(this.KEY, JSON.stringify(user)); }
             return true;
