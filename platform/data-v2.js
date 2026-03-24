@@ -226,10 +226,67 @@ function updatePlateIcon() {
     });
 }
 
-// ─── RECIPE DATA ─────────────────────────────────────────────────────────────
+// ─── RECIPE DATA (loaded from API) ───────────────────────────────────────────
 const RECIPES = {};
+let CATEGORIES = {};
+let _contentLoaded = false;
 
-// ─── ЗАВТРАКИ ────────────────────────────────────────────────────────────────
+// Map API snake_case → frontend camelCase
+function _mapRecipe(r) {
+    return {
+        id: r.id, cat: r.cat, name: r.name, emoji: r.emoji || '🍴',
+        time: r.time_min || 30, diff: r.difficulty || 'easy', servings: r.servings || 2,
+        free: !!r.is_free,
+        kcal: r.kcal || 0, protein: r.protein || 0, fat: r.fat || 0,
+        carbs: r.carbs || 0, fiber: r.fiber || 0,
+        tags: r.tags || [],
+        photo: r.photo || null, imgPosition: r.img_position || null,
+        quote: r.quote || null,
+        ingredients: r.ingredients || [],
+        steps: r.steps || [],
+        note: r.note || null,
+        vkVideo: r.vk_video || null,
+        addProtein: r.add_protein || [],
+        addFat: r.add_fat || [],
+        addCarbs: r.add_carbs || [],
+        addFiber: r.add_fiber || [],
+        sortOrder: r.sort_order || 0,
+        added: r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : null,
+    };
+}
+
+async function loadContent() {
+    if (_contentLoaded) return;
+    try {
+        const [recipesRes, catsRes] = await Promise.all([
+            fetch(API_BASE + '/content/recipes'),
+            fetch(API_BASE + '/content/categories')
+        ]);
+        if (recipesRes.ok) {
+            const data = await recipesRes.json();
+            // Clear and repopulate
+            Object.keys(RECIPES).forEach(k => delete RECIPES[k]);
+            data.forEach(r => { RECIPES[r.id] = _mapRecipe(r); });
+        }
+        if (catsRes.ok) {
+            const cats = await catsRes.json();
+            CATEGORIES = {};
+            cats.forEach(c => {
+                CATEGORIES[c.id] = {
+                    id: c.id, name: c.name, emoji: c.emoji, color: c.color,
+                    desc: c.description || '',
+                    dishes: c.dishes || []
+                };
+            });
+        }
+        _contentLoaded = true;
+    } catch (e) {
+        console.warn('Failed to load content from API, using fallback', e);
+        if (!Object.keys(CATEGORIES).length) CATEGORIES = Object.assign({}, _FALLBACK_CATEGORIES);
+    }
+}
+
+// ─── ЗАВТРАКИ (fallback if API unavailable) ──────────────────────────────────
 
 RECIPES['tofu-syrniki'] = {
     id: 'tofu-syrniki', cat: 'breakfasts', free: true,
@@ -1308,8 +1365,8 @@ RECIPES['roasted-veg-sauce'] = {
     addProtein: [], addFat: [], addCarbs: [], addFiber: [],
 };
 
-// ─── КАТЕГОРИИ ───────────────────────────────────────────────────────────────
-const CATEGORIES = {
+// ─── КАТЕГОРИИ (fallback) ────────────────────────────────────────────────────
+const _FALLBACK_CATEGORIES = {
     breakfasts: {
         id: 'breakfasts', name: 'Завтраки', emoji: '🥣', color: '#a8c47a',
         desc: 'Каши, омлеты, бутерброды и сырники для энергичного утра',
@@ -1341,6 +1398,8 @@ const CATEGORIES = {
         dishes: []
     }
 };
+// Use fallback categories if not loaded from API
+if (!Object.keys(CATEGORIES).length) CATEGORIES = Object.assign({}, _FALLBACK_CATEGORIES);
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 function getRecipe(id)     { return RECIPES[id] || null; }
