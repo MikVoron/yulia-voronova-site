@@ -485,9 +485,10 @@
     </div>
 </div>
 
-<script src="data-v2.js?v=1774300001"></script>
+<script src="data-v2.js?v=1774300002"></script>
 <script>
-    if (Auth.isLoggedIn()) location.href = 'index.html';
+    var _returnUrl = new URLSearchParams(location.search).get('return') || 'index.html';
+    if (Auth.isLoggedIn()) location.href = _returnUrl;
 
     // Show OAuth error if redirected back
     (function() {
@@ -607,7 +608,7 @@
             var success = document.getElementById('step-success');
             success.style.display = 'block';
             success.style.animation = 'fadeUp .35s ease both';
-            setTimeout(function() { location.href = 'index.html'; }, 900);
+            setTimeout(function() { location.href = _returnUrl; }, 900);
         } catch (e) {
             showError('code-error', 'Ошибка сети');
             setLoading('verify-btn', false);
