@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const db = require('../db');
 const { generateAccessToken, generateRefreshToken, hashToken, verifyAccessToken, generateLoginCode } = require('../auth');
 const { sendLoginCode, sendWelcome } = require('../email');
+const { authenticate } = require('../middleware');
 
 async function authRoutes(fastify) {
 
@@ -126,6 +127,14 @@ async function authRoutes(fastify) {
     } catch (e) {
       return reply.status(401).send({ error: 'Токен невалиден' });
     }
+  });
+
+  // PUT /auth/profile — обновить display_name
+  fastify.put('/auth/profile', { preHandler: authenticate }, async (req, reply) => {
+    const { displayName } = req.body || {};
+    const name = displayName ? displayName.trim().slice(0, 100) : null;
+    await db.query('UPDATE users SET display_name=$1 WHERE id=$2', [name, req.user.sub]);
+    return { ok: true, displayName: name };
   });
 }
 

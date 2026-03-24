@@ -87,6 +87,8 @@ const Auth = {
                 return true;
             }
             const data = await res.json();
+            // Админ — бессрочный полный доступ
+            if (data.role === 'admin') { this._subStatus = 'active'; return true; }
             const sub = data.subscription;
             if (!sub || !sub.status) { this._subStatus = 'none'; this._showPaywall('no_sub'); return false; }
             this._subStatus = sub.status;

@@ -87,10 +87,10 @@ async function adminRoutes(fastify) {
 
   // GET /admin/stats — базовая статистика
   fastify.get('/admin/stats', { preHandler: requireAdmin }, async () => {
-    const users = await db.query('SELECT COUNT(*) FROM users');
-    const trials = await db.query("SELECT COUNT(*) FROM subscriptions WHERE status='trial'");
-    const active = await db.query("SELECT COUNT(*) FROM subscriptions WHERE status='active'");
-    const expired = await db.query("SELECT COUNT(*) FROM subscriptions WHERE status='expired'");
+    const users = await db.query("SELECT COUNT(*) FROM users WHERE role != 'admin'");
+    const trials = await db.query("SELECT COUNT(*) FROM subscriptions s JOIN users u ON u.id=s.user_id WHERE s.status='trial' AND u.role != 'admin'");
+    const active = await db.query("SELECT COUNT(*) FROM subscriptions s JOIN users u ON u.id=s.user_id WHERE s.status='active' AND u.role != 'admin'");
+    const expired = await db.query("SELECT COUNT(*) FROM subscriptions s JOIN users u ON u.id=s.user_id WHERE s.status='expired' AND u.role != 'admin'");
     const pendingPayments = await db.query("SELECT COUNT(*) FROM payments WHERE status='pending'");
     return {
       totalUsers: Number(users.rows[0].count),

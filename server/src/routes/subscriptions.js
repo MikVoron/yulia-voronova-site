@@ -6,7 +6,7 @@ async function subscriptionRoutes(fastify) {
 
   // GET /subscription/early-bird — сколько осталось мест по спеццене
   fastify.get('/subscription/early-bird', async () => {
-    const result = await db.query("SELECT COUNT(*) FROM subscriptions WHERE status = 'active'");
+    const result = await db.query("SELECT COUNT(*) FROM subscriptions s JOIN users u ON u.id=s.user_id WHERE s.status = 'active' AND u.role != 'admin'");
     const total = Number(result.rows[0].count);
     const limit = 50;
     const remaining = Math.max(0, limit - total);

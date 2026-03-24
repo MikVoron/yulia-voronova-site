@@ -501,16 +501,14 @@
                     <tr>
                         <th>Email</th>
                         <th>Сумма</th>
-                        <th>Отправитель</th>
-                        <th>Дата перевода</th>
+                        <th>Дата и время перевода</th>
                         <th>Скрин</th>
                         <th>Статус</th>
-                        <th>Создан</th>
                         <th>Действия</th>
                     </tr>
                 </thead>
                 <tbody id="payments-tbody">
-                    <tr><td colspan="7" class="adm-empty">Нет платежей</td></tr>
+                    <tr><td colspan="6" class="adm-empty">Нет платежей</td></tr>
                 </tbody>
             </table>
         </div>
@@ -747,7 +745,7 @@
 <!-- Toast -->
 <div class="adm-toast" id="adm-toast"></div>
 
-<script src="data-v2.js?v=1774300004"></script>
+<script src="data-v2.js?v=1774300005"></script>
 <script>
 (function() {
     // ── Auth check ──
@@ -802,6 +800,8 @@
             if (data.pendingPayments > 0) {
                 badge.textContent = data.pendingPayments;
                 badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
             }
         }).catch(function() {
             document.getElementById('stats-grid').innerHTML = '<div class="adm-empty">Ошибка загрузки. Проверьте, что у вас роль admin.</div>';
@@ -892,7 +892,7 @@
         api('/admin/payments?status=' + status).then(function(data) {
             var tbody = document.getElementById('payments-tbody');
             if (!data.length) {
-                tbody.innerHTML = '<tr><td colspan="8" class="adm-empty">Нет платежей со статусом "' + status + '"</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="adm-empty">Нет платежей со статусом "' + status + '"</td></tr>';
                 return;
             }
             tbody.innerHTML = data.map(function(p) {
@@ -912,12 +912,10 @@
 
                 return '<tr>' +
                     '<td><strong>' + esc(p.email) + '</strong></td>' +
-                    '<td>' + (p.amount / 100) + ' &#8381;</td>' +
-                    '<td>' + (p.sender_name || '—') + '</td>' +
-                    '<td class="adm-date">' + (p.transfer_date ? fmtDate(p.transfer_date) : '—') + '</td>' +
+                    '<td>' + p.amount + ' &#8381;</td>' +
+                    '<td class="adm-date">' + (p.payment_date ? fmtDateTime(p.payment_date, p.created_at) : fmtDateTime(p.created_at)) + '</td>' +
                     '<td>' + screenCol + '</td>' +
                     '<td>' + statusBadge + '</td>' +
-                    '<td class="adm-date">' + fmtDate(p.created_at) + '</td>' +
                     '<td>' + actions + '</td>' +
                     '</tr>';
             }).join('');
@@ -988,6 +986,15 @@
         if (!d) return '—';
         var date = new Date(d);
         return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+    function fmtDateTime(d, timeSource) {
+        if (!d) return '—';
+        var date = new Date(d);
+        var dateStr = date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        // Если payment_date — это просто дата без времени, берём время из created_at
+        var tSrc = timeSource ? new Date(timeSource) : date;
+        var timeStr = tSrc.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        return dateStr + ' ' + timeStr;
     }
 
     function esc(s) {

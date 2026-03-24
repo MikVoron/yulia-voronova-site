@@ -874,8 +874,8 @@
 									<div class="pay-quick-btns" id="pay-quick-btns"></div>
 								</div>
 								<div class="pay-field">
-									<label for="pay-date">Дата перевода</label>
-									<input type="date" id="pay-date">
+									<label for="pay-date">Дата и время перевода</label>
+									<input type="datetime-local" id="pay-date">
 								</div>
 							</div>
 							<div class="pay-field">
@@ -1019,7 +1019,7 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=1774300004"></script>
+	<script src="data-v2.js?v=1774300005"></script>
 	<script>
 		Auth.requireAuth();
 		loadContent();
@@ -1097,6 +1097,8 @@
 		function finishEditName() {
 			const val = document.getElementById('cab-custom-name').value.trim();
 			Auth.setName(val);
+			// Sync to server
+			Auth.api('/auth/profile', { method: 'PUT', body: JSON.stringify({ displayName: val }) }).catch(function() {});
 			document.getElementById('cab-name').textContent = val || user.email.split('@')[0];
 			const avaEl = document.getElementById('cab-ava');
 			if (!localStorage.getItem(Auth._userKey('user_avatar'))) {
@@ -1216,7 +1218,12 @@
 		}
 
 		// Set default date to today
-		document.getElementById('pay-date').valueAsDate = new Date();
+		// Set default datetime to now
+		(function() {
+			var now = new Date();
+			now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+			document.getElementById('pay-date').value = now.toISOString().slice(0, 16);
+		})();
 
 		// Screenshot preview
 		var _screenshotData = null;
