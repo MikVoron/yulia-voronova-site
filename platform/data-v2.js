@@ -42,7 +42,13 @@ const Auth = {
     requireAuth() { if (!this.isLoggedIn()) location.href = 'login.html'; },
     _userKey(key) {
         const u = this.getUser();
-        return u && u.email ? key + '_' + u.email : key;
+        if (!u || !u.email) return key;
+        const uKey = key + '_' + u.email;
+        // Migrate from old shared key on first access
+        if (!localStorage.getItem(uKey) && localStorage.getItem(key)) {
+            localStorage.setItem(uKey, localStorage.getItem(key));
+        }
+        return uKey;
     },
     getDisplayName() {
         // Try user-specific key first, fallback to old key, migrate if found
