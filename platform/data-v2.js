@@ -27,7 +27,12 @@ const Auth = {
     },
     logout() {
         fetch(API_BASE + '/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
-        localStorage.removeItem(this.KEY); localStorage.removeItem('hp_token'); localStorage.removeItem('hp_user_name');
+        const u = this.getUser();
+        const email = u && u.email ? u.email : '';
+        localStorage.removeItem(this.KEY); localStorage.removeItem('hp_token');
+        // Clean user-specific keys
+        if (email) ['hp_user_name','user_avatar','user_weight'].forEach(k => localStorage.removeItem(k + '_' + email));
+        localStorage.removeItem('hp_user_name');
         sessionStorage.removeItem(this._ST);
         this._token = null; Plate.clear();
     },
@@ -35,15 +40,27 @@ const Auth = {
     getUser() { try { return JSON.parse(localStorage.getItem(this.KEY)); } catch { return null; } },
     getToken() { return this._token || sessionStorage.getItem(this._ST); },
     requireAuth() { if (!this.isLoggedIn()) location.href = 'login.html'; },
-    _NAME_KEY: 'hp_user_name',
-    getDisplayName() {
-        return localStorage.getItem(this._NAME_KEY) || '';
+    _userKey(key) {
+        const u = this.getUser();
+        return u && u.email ? key + '_' + u.email : key;
     },
-    hasCustomName() { return !!localStorage.getItem(this._NAME_KEY); },
+    getDisplayName() {
+        // Try user-specific key first, fallback to old key, migrate if found
+        const u = this.getUser();
+        const uKey = u && u.email ? 'hp_user_name_' + u.email : 'hp_user_name';
+        let val = localStorage.getItem(uKey);
+        if (!val && u && u.email) {
+            val = localStorage.getItem('hp_user_name');
+            if (val) { localStorage.setItem(uKey, val); localStorage.removeItem('hp_user_name'); }
+        }
+        return val || '';
+    },
+    hasCustomName() { return !!this.getDisplayName(); },
     setName(name) {
         const val = name ? name.trim() : '';
-        if (val) localStorage.setItem(this._NAME_KEY, val);
-        else localStorage.removeItem(this._NAME_KEY);
+        const uKey = this._userKey('hp_user_name');
+        if (val) localStorage.setItem(uKey, val);
+        else localStorage.removeItem(uKey);
     },
     _subStatus: null,
     async checkAccess() {

@@ -1019,7 +1019,7 @@
 			const customName = Auth.getDisplayName();
 			const displayName = customName || user.email.split('@')[0];
 			const uAva = document.getElementById('u-ava');
-			const savedAva = localStorage.getItem('user_avatar');
+			const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
 			if (savedAva) {
 				uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
 			} else {
@@ -1068,7 +1068,7 @@
 				: '';
 			if (joined) document.getElementById('cab-since').textContent = 'В сервисе с ' + joined;
 			const avaEl = document.getElementById('cab-ava');
-			const savedAva = localStorage.getItem('user_avatar');
+			const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
 			if (savedAva) {
 				avaEl.innerHTML = `<img src="${savedAva}" alt="avatar">`;
 			} else {
@@ -1086,14 +1086,14 @@
 			Auth.setName(val);
 			document.getElementById('cab-name').textContent = val || user.email.split('@')[0];
 			const avaEl = document.getElementById('cab-ava');
-			if (!localStorage.getItem('user_avatar')) {
+			if (!localStorage.getItem(Auth._userKey('user_avatar'))) {
 				avaEl.textContent = (val || user.email || '?').charAt(0).toUpperCase();
 			}
 			// Update header pill
 			var uName = document.getElementById('u-name');
 			if (uName) uName.textContent = val || user.email.split('@')[0];
 			var uAva = document.getElementById('u-ava');
-			if (uAva && !localStorage.getItem('user_avatar')) {
+			if (uAva && !localStorage.getItem(Auth._userKey('user_avatar'))) {
 				uAva.textContent = (val || user.email || '?').charAt(0).toUpperCase();
 			}
 			if (val) {
@@ -1110,7 +1110,7 @@
 			if (!file) return;
 			const reader = new FileReader();
 			reader.onload = e => {
-				localStorage.setItem('user_avatar', e.target.result);
+				localStorage.setItem(Auth._userKey('user_avatar'), e.target.result);
 				document.getElementById('cab-ava').innerHTML = `<img src="${e.target.result}" alt="avatar">`;
 			};
 			reader.readAsDataURL(file);
@@ -1119,7 +1119,7 @@
 		function saveWeight(v) {
 			const n = parseFloat(v);
 			if (n >= 30 && n <= 300) {
-				localStorage.setItem('user_weight', n);
+				localStorage.setItem(Auth._userKey('user_weight'), n);
 				updateWaterNorm(n);
 			}
 		}
@@ -1138,7 +1138,7 @@
 			}
 		}
 		// Load weight on init
-		const savedWeight = localStorage.getItem('user_weight');
+		const savedWeight = localStorage.getItem(Auth._userKey('user_weight'));
 		if (savedWeight) {
 			document.getElementById('cab-weight').value = savedWeight;
 			updateWaterNorm(parseFloat(savedWeight));

@@ -192,7 +192,7 @@
         const customName = Auth.getDisplayName();
         const displayName = customName || user.email.split('@')[0];
         const uAva = document.getElementById('u-ava');
-        const savedAva = localStorage.getItem('user_avatar');
+        const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
         if (savedAva) {
             uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
         } else {
