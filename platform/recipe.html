@@ -148,28 +148,28 @@
     const simpleMode = params.get('simple') === '1';
     let r, cat;
 
-    loadContent().then(function() {
-    r = RECIPES[recipeId];
-    if (r && !Auth.canViewRecipe(r)) {
-        Auth._showPaywall('trial');
-    }
-    cat = (fromCat && fromCat !== 'plate') ? CATEGORIES[fromCat] : null;
-
-    // Back button
-    const backBtn = document.getElementById('back-btn');
-    if (fromCat === 'plate') {
-        backBtn.onclick = () => location.href = 'index.html';
-        document.getElementById('back-label').textContent = 'Тарелка';
-    } else {
-        backBtn.onclick = () => fromCat ? location.href = 'category.html?cat=' + fromCat : location.href = 'index.html';
-        if (cat) document.getElementById('back-label').textContent = cat.name;
-    }
-
     // Must be declared before renderRecipe is called (used inside buildGroup)
     const subItemRegistry = {};
     const GROUP_CLASS = { p: 'group-protein', f: 'group-fat', c: 'group-carbs', fi: 'group-fiber' };
 
-    if (!r) {
+    function initRecipe() {
+        r = RECIPES[recipeId];
+        if (r && !Auth.canViewRecipe(r)) {
+            Auth._showPaywall('trial');
+        }
+        cat = (fromCat && fromCat !== 'plate') ? CATEGORIES[fromCat] : null;
+
+        // Back button
+        const backBtn = document.getElementById('back-btn');
+        if (fromCat === 'plate') {
+            backBtn.onclick = () => location.href = 'index.html';
+            document.getElementById('back-label').textContent = 'Тарелка';
+        } else {
+            backBtn.onclick = () => fromCat ? location.href = 'category.html?cat=' + fromCat : location.href = 'index.html';
+            if (cat) document.getElementById('back-label').textContent = cat.name;
+        }
+
+        if (!r) {
         document.getElementById('page-content').innerHTML =
             '<div style="text-align:center;padding:80px 20px">' +
             '<div style="font-size:48px">😕</div>' +
@@ -181,6 +181,9 @@
     } else {
         renderRecipe(r);
     }
+    } // end initRecipe
+
+    loadContent().then(initRecipe);
 
     // ── SUBLIST (e.g. Здоровые бутерброды → список намазок) ─────────────
     function renderSublist(r) {
@@ -753,7 +756,6 @@
         else { navigator.clipboard.writeText(txt).then(() => showToast('📋 Скопировано!')).catch(() => showToast('Не удалось скопировать')); }
     }
 
-    }); // end loadContent().then()
 
 </script>
 
