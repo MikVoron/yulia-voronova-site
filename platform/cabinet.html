@@ -1194,6 +1194,14 @@
 					+ (data.daysLeft !== undefined ? '<div class="sub-days">Осталось: ' + data.daysLeft + ' ' + pluralDays(data.daysLeft) + '</div>' : '')
 					+ (untilStr ? '<div class="sub-until">' + untilStr + '</div>' : '')
 					+ '</div>';
+
+				// Hide payment section if subscription is active
+				if (badge === 'active') {
+					var ebCard = document.getElementById('early-bird-card');
+					var paySection = document.querySelector('.pay-section');
+					if (ebCard) ebCard.style.display = 'none';
+					if (paySection) paySection.style.display = 'none';
+				}
 			} catch (e) { /* ignore */ }
 
 			loadPaymentHistory();
