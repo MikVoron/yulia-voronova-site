@@ -1,6 +1,7 @@
 const db = require('../db');
 const { generateAccessToken, generateRefreshToken, hashToken } = require('../auth');
 const { sendWelcome } = require('../email');
+const { shouldGrantTrial, recordTrial } = require('../trial-guard');
 
 // ── VK ID ───────────────────────────────────────────────────────────────────
 
@@ -24,7 +25,7 @@ function setCookieAndRedirect(reply, refreshToken, isNew) {
   return reply.redirect(target);
 }
 
-async function findOrCreateUser(provider, providerId, email, displayName, fastify) {
+async function findOrCreateUser(provider, providerId, email, displayName, fastify, ip) {
   let isNew = false;
 
   // 1. Ищем существующий auth_account
@@ -62,10 +63,14 @@ async function findOrCreateUser(provider, providerId, email, displayName, fastif
     'INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)',
     [user.id, provider, providerId]
   );
-  await db.query(
-    "INSERT INTO subscriptions (user_id, status, trial_ends_at) VALUES ($1, 'trial', now() + interval '7 days')",
-    [user.id]
-  );
+  // Проверка: давать ли триал (OAuth — только по IP, fingerprint недоступен)
+  const trial = await shouldGrantTrial(null, ip);
+  if (trial.grant) {
+    await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip) VALUES ($1, 'trial', now() + interval '7 days', $2)", [user.id, ip]);
+    await recordTrial(null, ip, user.id);
+  } else {
+    await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip) VALUES ($1, 'expired', now(), $2)", [user.id, ip]);
+  }
   if (email) {
     sendWelcome(email).catch(e => fastify.log.error(e, 'Welcome email error (OAuth)'));
   }
@@ -143,7 +148,7 @@ async function oauthRoutes(fastify) {
       const email = user.email || tokenData.email || null;
       const displayName = [user.first_name, user.last_name].filter(Boolean).join(' ') || null;
 
-      const { user: dbUser, isNew } = await findOrCreateUser('vk', vkId, email, displayName, fastify);
+      const { user: dbUser, isNew } = await findOrCreateUser('vk', vkId, email, displayName, fastify, req.ip);
       return issueTokens(dbUser, req, reply, isNew, fastify);
     } catch (e) {
       fastify.log.error(e, 'VK OAuth error');
@@ -195,7 +200,7 @@ async function oauthRoutes(fastify) {
       const email = user.default_email || null;
       const displayName = user.display_name || user.real_name || null;
 
-      const { user: dbUser, isNew } = await findOrCreateUser('yandex', yandexId, email, displayName, fastify);
+      const { user: dbUser, isNew } = await findOrCreateUser('yandex', yandexId, email, displayName, fastify, req.ip);
       return issueTokens(dbUser, req, reply, isNew, fastify);
     } catch (e) {
       fastify.log.error(e, 'Yandex OAuth error');

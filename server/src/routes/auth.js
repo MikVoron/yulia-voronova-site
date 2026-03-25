@@ -3,6 +3,7 @@ const db = require('../db');
 const { generateAccessToken, generateRefreshToken, hashToken, verifyAccessToken, generateLoginCode } = require('../auth');
 const { sendLoginCode, sendWelcome } = require('../email');
 const { authenticate } = require('../middleware');
+const { shouldGrantTrial, recordTrial } = require('../trial-guard');
 
 async function authRoutes(fastify) {
 
@@ -51,9 +52,18 @@ async function authRoutes(fastify) {
     let isNew = false;
     if (!userRes.rows.length) {
       isNew = true;
+      const fingerprint = req.body.fingerprint || null;
       userRes = await db.query('INSERT INTO users (email) VALUES ($1) RETURNING *', [lower]);
-      await db.query('INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)', [userRes.rows[0].id, 'email', lower]);
-      await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at) VALUES ($1, 'trial', now() + interval '7 days')", [userRes.rows[0].id]);
+      const userId = userRes.rows[0].id;
+      await db.query('INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)', [userId, 'email', lower]);
+      // Проверка: давать ли триал
+      const trial = await shouldGrantTrial(fingerprint, req.ip);
+      if (trial.grant) {
+        await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip, registration_fingerprint) VALUES ($1, 'trial', now() + interval '7 days', $2, $3)", [userId, req.ip, fingerprint]);
+        await recordTrial(fingerprint, req.ip, userId);
+      } else {
+        await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip, registration_fingerprint) VALUES ($1, 'expired', now(), $2, $3)", [userId, req.ip, fingerprint]);
+      }
       sendWelcome(lower).catch(e => fastify.log.error(e, 'Welcome email error'));
     }
     const user = userRes.rows[0];

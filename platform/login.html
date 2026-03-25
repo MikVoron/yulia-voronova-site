@@ -500,6 +500,28 @@
 
     var currentEmail = '';
     var timerInterval = null;
+    var _fingerprint = null;
+
+    // Генерация browser fingerprint (canvas + screen + timezone + UA)
+    (async function() {
+        try {
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('fp-test', 2, 2);
+            var raw = [
+                canvas.toDataURL(),
+                screen.width, screen.height, screen.colorDepth,
+                Intl.DateTimeFormat().resolvedOptions().timeZone,
+                navigator.userAgent,
+                navigator.language,
+                navigator.hardwareConcurrency || 0
+            ].join('|');
+            var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
+            _fingerprint = Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+        } catch (e) { _fingerprint = null; }
+    })();
 
     function showError(id, msg) {
         var el = document.getElementById(id);
@@ -599,7 +621,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ email: currentEmail, code: code })
+                body: JSON.stringify({ email: currentEmail, code: code, fingerprint: _fingerprint })
             });
             var data = await res.json();
             if (!res.ok) { showError('code-error', data.error || 'Ошибка'); setLoading('verify-btn', false); return; }
