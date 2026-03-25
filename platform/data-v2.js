@@ -1164,37 +1164,44 @@ RECIPES['red-lentil-cutlets'] = {
 
 RECIPES['lentil-mushroom-pilaf'] = {
     id: 'lentil-mushroom-pilaf', cat: 'mains',
-    name: 'Плов с чечевицей и грибами', emoji: '🍚', time: 50, diff: 'medium', servings: 4,
-    kcal: 320, protein: 11, fat: 5, carbs: 58, fiber: 7,
+    name: 'Плов с чечевицей и грибами', emoji: '🍚', time: 45, diff: 'easy', servings: 4, portionGrams: 380,
+    kcal: 350, protein: 14, fat: 5, carbs: 57, fiber: 9,
     added: '19 марта 2026',
-    tags: ['средний', 'без глютена', 'бобовые'],
-    photo: '../images/img-guides/plant-based/plov-lentil.webp',
-    quote: 'Плов без мяса? Да, и он потрясающий! Чечевица даёт белок и сытность, грибы — аромат и «мясистость». Это блюдо, которое оценят даже самые убеждённые мясоеды.',
+    tags: ['простой', 'бобовые'],
+    photo: 'images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-final.webp',
+    quote: 'Не выпаривайте воду полностью. Оставьте немного жидкости, выключите огонь и дайте плову настояться под крышкой около 30–60 минут (если есть время). За это время он впитает остатки влаги и не будет сухим.',
     ingredients: [
-        { name: '1 средняя луковица', swap: null },
-        { name: '2 средние моркови', swap: null },
-        { name: '1 зубчик чеснока', swap: null },
-        { name: '60 гр. грибов', swap: null },
-        { name: '2 ч.л. томатной пасты', swap: null },
-        { name: '1 ч.л. тимьяна', swap: null },
-        { name: '1 ч.л. сумах (можно без неё)', swap: null },
-        { name: '1/2 ч.л. кумина (зира)', swap: null },
-        { name: '1/2 ч.л. куркумы', swap: null },
-        { name: '60 г. чечевицы', swap: null },
-        { name: '300 г. риса басмати', swap: null },
-        { name: '1 ч.л. соли', swap: null },
-        { name: '800 г. воды', swap: null },
-        { name: '1 ч.л. овощного концентрата', swap: null },
+        { name: 'Рис басмати — 250 г', swap: 'Рис жасмин' },
+        { name: 'Красная чечевица — 130 г', swap: null },
+        { name: 'Шампиньоны — 2 небольшие', swap: null },
+        { name: 'Морковь — 2 шт.', swap: null },
+        { name: 'Лук — 1 шт.', swap: null },
+        { name: 'Чеснок — 2 зубчика', swap: null },
+        { name: 'Томатная паста — 2 ч. л.', swap: null },
+        { name: 'Тимьян — 1 ч. л.', swap: null },
+        { name: 'Кумин — ½ ч. л.', swap: null },
+        { name: 'Куркума — ¼ ч. л.', swap: null },
+        { name: 'Вода — 900 мл', swap: 'Овощной бульон (добавить 1 ч. л. овощного концентрата)' },
+        { name: 'Соль — 1 ч. л. (по вкусу)', swap: null },
+        { name: 'Оливковое масло — 1 ст. л.', swap: null },
     ],
     steps: [
-        'Мелко режем лук, чеснок, трём морковь. Грибы нарезаем крупно.',
-        'Обжариваем лук в оливковом масле 3 мин. Добавляем морковь, чеснок, обжариваем ещё 5 мин.',
-        'Вводим специи, обжариваем 1 мин. Добавляем грибы, томатную пасту, перемешиваем.',
-        'Всыпаем чечевицу и соль, хорошо перемешиваем. Добавляем рис, воду и овощной концентрат. Хорошо перемешиваем, чтобы паста растворилась. Уменьшаем огонь и готовим 30 мин.',
-        'Чечевица и рис приготовятся одновременно. Чтобы плов не был сухим, не ждите, пока рис и чечевица впитают всю воду. Выключайте огонь, когда рис и чечевица готовы, а вода в сотейнике ещё немного есть. Плов «дойдёт» под крышкой. Дайте постоять около часа.',
+        { text: 'Лук нарезать и обжарить на оливковом масле около 1 минуты.', photo: 'images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-1.webp' },
+        { text: 'Добавить морковь и жарить ещё 2–3 минуты.', photo: 'images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-2.webp' },
+        { text: 'Добавить чеснок и специи, перемешать.', photo: null },
+        { text: 'Добавить грибы, готовить около 1 минуты.', photo: 'images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-3.webp' },
+        { text: 'Добавить томатную пасту, перемешать.', photo: null },
+        { text: 'Всыпать рис, перемешать.', photo: 'images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-4.webp' },
+        { text: 'Добавить чечевицу и соль.', photo: null },
+        { text: 'Влить воду или овощной бульон, довести до кипения, накрыть крышкой и готовить на слабом огне 20–30 минут.', photo: 'images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-5.webp' },
+        { text: 'В конце попробовать и при необходимости досолить.', photo: null },
+        { text: 'Выключить огонь и дать настояться под крышкой 10–15 минут.', photo: 'images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-final.webp' },
     ],
     vkVideo: null,
-    addProtein: [], addFat: [], addCarbs: [], addFiber: [],
+    addProtein: [], addFat: [], addCarbs: [],
+    addFiber: [
+        { name: 'Салат из запечённой свёклы, белой фасоли и рукколы', kcal: 280, protein: 9, fat: 16, carbs: 27, fiber: 8, recipeId: 'beetroot-bean-arugula' },
+    ],
 };
 
 RECIPES['pasta-boloniase'] = {
@@ -1390,6 +1397,41 @@ RECIPES['roasted-veg-sauce'] = {
     addProtein: [], addFat: [], addCarbs: [], addFiber: [],
 };
 
+RECIPES['beetroot-bean-arugula'] = {
+    id: 'beetroot-bean-arugula', cat: 'salads',
+    name: 'Салат из запечённой свёклы, белой фасоли и рукколы', emoji: '🥗', time: 18, diff: 'easy', servings: 3, portionGrams: 275,
+    kcal: 280, protein: 9, fat: 16, carbs: 27, fiber: 8,
+    added: '25 марта 2026',
+    tags: ['простой', 'без глютена', 'бобовые'],
+    photo: 'images/recipes/salad-beetroot-white beans-arugula/salad-beetroot-white beans-arugula-final.webp',
+    quote: 'Не варите свёклу — запекайте её. Так она становится сладкой, ароматной и нежной, без лишней воды. Запеките несколько штук сразу на неделю: они отлично хранятся в холодильнике и всегда готовы для яркого салата или ароматного борща. Маленькие корнеплоды запекайте без фольги на пергаменте 45–50 минут, пока они не станут мягкими и легко протыкаются вилкой.',
+    ingredients: [
+        { name: 'Запечённая свёкла — 400 г', swap: null },
+        { name: 'Отварная белая фасоль — 200 г', swap: null },
+        { name: 'Руккола — 40 г', swap: null },
+        { name: 'Укроп — 20 г', swap: null },
+        { name: 'Каперсы — 1 ст. л.', swap: null },
+        { name: 'Семечки подсолнечника — 3 ст. л.', swap: null },
+        { name: 'Оливковое масло — 2 ст. л.', swap: null },
+        { name: 'Сок ½ лимона', swap: null },
+        { name: 'Сумах — ½ ч. л.', swap: 'Немного лимонной цедры или чуть больше лимонного сока' },
+        { name: 'Соль — по вкусу', swap: null },
+    ],
+    steps: [
+        { text: 'Свёклу очистить и нарезать кубиками или дольками.', photo: 'images/recipes/salad-beetroot-white beans-arugula/salad-beetroot-white beans-arugula-1.webp' },
+        'Фасоль промыть и дать стечь воде.',
+        'Сырые семечки подсушить на сухой сковороде 2–3 минуты до лёгкого аромата.',
+        'Рукколу крупно нарезать, укроп мелко порубить.',
+        'В миске соединить свёклу, фасоль, рукколу, укроп и каперсы.',
+        'Отдельно смешать оливковое масло, лимонный сок, сумах и соль.',
+        'Заправить салат и аккуратно перемешать.',
+        'Посыпать семечками перед подачей.',
+        { text: 'Дать постоять 10–15 минут, чтобы вкус стал более насыщенным.', photo: 'images/recipes/salad-beetroot-white beans-arugula/salad-beetroot-white beans-arugula-final.webp' },
+    ],
+    vkVideo: null,
+    addProtein: [], addFat: [], addCarbs: [], addFiber: [],
+};
+
 // ─── КАТЕГОРИИ (fallback) ────────────────────────────────────────────────────
 const _FALLBACK_CATEGORIES = {
     breakfasts: {
@@ -1415,7 +1457,7 @@ const _FALLBACK_CATEGORIES = {
     salads: {
         id: 'salads', name: 'Салаты', emoji: '🥗', color: '#7db87d',
         desc: 'Лёгкие салаты — идеальное дополнение для клетчатки',
-        dishes: []
+        dishes: ['beetroot-bean-arugula']
     },
     drinks: {
         id: 'drinks', name: 'Напитки', emoji: '🥤', color: '#a8c4e0',
