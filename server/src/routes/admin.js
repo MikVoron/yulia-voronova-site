@@ -1,6 +1,7 @@
 const db = require('../db');
 const { requireAdmin } = require('../middleware');
 const { sendPaymentConfirmed } = require('../email');
+const audit = require('../audit');
 
 async function adminRoutes(fastify) {
 
@@ -46,15 +47,12 @@ async function adminRoutes(fastify) {
       const newUntil = new Date(baseDate.getTime() + days * 86400000);
       await db.query("UPDATE subscriptions SET status='active', active_until=$2, updated_at=now() WHERE user_id=$1", [p.user_id, newUntil]);
     }
-    // audit log
-    await db.query(
-      "INSERT INTO audit_logs (actor_id, action, target_type, target_id, details) VALUES ($1, 'payment_confirmed', 'payment', $2, $3)",
-      [req.user.sub, id, JSON.stringify({ months: months || 1, days })]
-    );
     // отправить email подтверждения
     const userRes = await db.query('SELECT email FROM users WHERE id=$1', [p.user_id]);
-    if (userRes.rows.length) {
-      sendPaymentConfirmed(userRes.rows[0].email, days).catch(e => fastify.log.error(e, 'Payment confirmed email error'));
+    const payEmail = userRes.rows.length ? userRes.rows[0].email : null;
+    audit.log('payment_confirm', { userId: req.user.sub, email: payEmail, detail: 'payment#' + id + ' +' + days + 'd', ip: req.ip });
+    if (payEmail) {
+      sendPaymentConfirmed(payEmail, days).catch(e => fastify.log.error(e, 'Payment confirmed email error'));
     }
     return { ok: true, message: 'Подписка активирована на ' + days + ' дней' };
   });
@@ -64,6 +62,7 @@ async function adminRoutes(fastify) {
     const { id } = req.params;
     const { comment } = req.body || {};
     await db.query("UPDATE payments SET status='rejected', admin_comment=$2, updated_at=now() WHERE id=$1", [id, comment || 'Отклонено']);
+    audit.log('payment_reject', { userId: req.user.sub, detail: 'payment#' + id, ip: req.ip });
     return { ok: true };
   });
 
@@ -73,7 +72,7 @@ async function adminRoutes(fastify) {
     await db.query('UPDATE users SET is_blocked=true, updated_at=now() WHERE id=$1', [id]);
     await db.query("UPDATE subscriptions SET status='blocked', updated_at=now() WHERE user_id=$1", [id]);
     await db.query('DELETE FROM refresh_sessions WHERE user_id=$1', [id]);
-    await db.query("INSERT INTO audit_logs (actor_id, action, target_type, target_id) VALUES ($1, 'user_blocked', 'user', $2)", [req.user.sub, id]);
+    audit.log('user_block', { userId: req.user.sub, detail: 'blocked user#' + id, ip: req.ip });
     return { ok: true };
   });
 
@@ -81,8 +80,22 @@ async function adminRoutes(fastify) {
   fastify.post('/admin/users/:id/unblock', { preHandler: requireAdmin }, async (req) => {
     const { id } = req.params;
     await db.query('UPDATE users SET is_blocked=false, updated_at=now() WHERE id=$1', [id]);
-    await db.query("INSERT INTO audit_logs (actor_id, action, target_type, target_id) VALUES ($1, 'user_unblocked', 'user', $2)", [req.user.sub, id]);
+    audit.log('user_unblock', { userId: req.user.sub, detail: 'unblocked user#' + id, ip: req.ip });
     return { ok: true };
+  });
+
+  // GET /admin/audit — аудит-лог (последние 200 событий)
+  fastify.get('/admin/audit', { preHandler: requireAdmin }, async (req) => {
+    const event = req.query.event || null;
+    let q = 'SELECT id, user_id, email, event, detail, ip, created_at FROM audit_log';
+    const params = [];
+    if (event) {
+      q += ' WHERE event=$1';
+      params.push(event);
+    }
+    q += ' ORDER BY created_at DESC LIMIT 200';
+    const result = await db.query(q, params);
+    return result.rows;
   });
 
   // GET /admin/stats — базовая статистика

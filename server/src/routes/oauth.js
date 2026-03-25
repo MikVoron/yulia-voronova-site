@@ -2,6 +2,7 @@ const db = require('../db');
 const { generateAccessToken, generateRefreshToken, hashToken } = require('../auth');
 const { sendWelcome } = require('../email');
 const { shouldGrantTrial, recordTrial } = require('../trial-guard');
+const audit = require('../audit');
 
 // ── VK ID ───────────────────────────────────────────────────────────────────
 
@@ -68,9 +69,12 @@ async function findOrCreateUser(provider, providerId, email, displayName, fastif
   if (trial.grant) {
     await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip) VALUES ($1, 'trial', now() + interval '7 days', $2)", [user.id, ip]);
     await recordTrial(null, ip, user.id);
+    audit.log('trial_granted', { userId: user.id, email, detail: provider, ip });
   } else {
     await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip) VALUES ($1, 'expired', now(), $2)", [user.id, ip]);
+    audit.log('trial_denied', { userId: user.id, email, detail: trial.reason + ' (' + provider + ')', ip });
   }
+  audit.log('register', { userId: user.id, email, detail: provider, ip });
   if (email) {
     sendWelcome(email).catch(e => fastify.log.error(e, 'Welcome email error (OAuth)'));
   }
@@ -80,8 +84,10 @@ async function findOrCreateUser(provider, providerId, email, displayName, fastif
 
 async function issueTokens(user, req, reply, isNew, fastify) {
   if (user.is_blocked) {
+    audit.log('login_blocked', { userId: user.id, email: user.email, ip: req.ip });
     return reply.redirect('https://voronova.online/platform/login.html?error=blocked');
   }
+  audit.log('login', { userId: user.id, email: user.email, detail: 'oauth', ip: req.ip, ua: req.headers['user-agent'] });
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken();
   await db.query(

@@ -4,6 +4,7 @@ const { generateAccessToken, generateRefreshToken, hashToken, verifyAccessToken,
 const { sendLoginCode, sendWelcome } = require('../email');
 const { authenticate } = require('../middleware');
 const { shouldGrantTrial, recordTrial } = require('../trial-guard');
+const audit = require('../audit');
 
 async function authRoutes(fastify) {
 
@@ -61,13 +62,20 @@ async function authRoutes(fastify) {
       if (trial.grant) {
         await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip, registration_fingerprint) VALUES ($1, 'trial', now() + interval '7 days', $2, $3)", [userId, req.ip, fingerprint]);
         await recordTrial(fingerprint, req.ip, userId);
+        audit.log('trial_granted', { userId, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
       } else {
         await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip, registration_fingerprint) VALUES ($1, 'expired', now(), $2, $3)", [userId, req.ip, fingerprint]);
+        audit.log('trial_denied', { userId, email: lower, detail: trial.reason, ip: req.ip, ua: req.headers['user-agent'] });
       }
+      audit.log('register', { userId, email: lower, detail: 'email', ip: req.ip, ua: req.headers['user-agent'] });
       sendWelcome(lower).catch(e => fastify.log.error(e, 'Welcome email error'));
     }
     const user = userRes.rows[0];
-    if (user.is_blocked) return reply.status(403).send({ error: 'Аккаунт заблокирован' });
+    if (user.is_blocked) {
+      audit.log('login_blocked', { userId: user.id, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
+      return reply.status(403).send({ error: 'Аккаунт заблокирован' });
+    }
+    audit.log('login', { userId: user.id, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken();
     await db.query(
