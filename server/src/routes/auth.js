@@ -138,9 +138,18 @@ async function authRoutes(fastify) {
       );
       if (!result.rows.length) return reply.status(401).send({ error: 'Пользователь не найден' });
       const u = result.rows[0];
+      // Fallback: если cron не обновил статус — проверяем даты
+      let status = u.sub_status;
+      if (status === 'trial' && u.trial_ends_at && new Date(u.trial_ends_at) < new Date()) {
+        status = 'expired';
+        db.query("UPDATE subscriptions SET status='expired' WHERE user_id=$1 AND status='trial'", [u.id]).catch(() => {});
+      } else if (status === 'active' && u.active_until && new Date(u.active_until) < new Date()) {
+        status = 'expired';
+        db.query("UPDATE subscriptions SET status='expired' WHERE user_id=$1 AND status='active'", [u.id]).catch(() => {});
+      }
       return {
         id: u.id, email: u.email, displayName: u.display_name, role: u.role,
-        subscription: { status: u.sub_status, trialEndsAt: u.trial_ends_at, activeUntil: u.active_until }
+        subscription: { status, trialEndsAt: u.trial_ends_at, activeUntil: u.active_until }
       };
     } catch (e) {
       return reply.status(401).send({ error: 'Токен невалиден' });
