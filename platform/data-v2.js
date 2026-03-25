@@ -260,7 +260,7 @@ let _contentLoaded = false;
 function _mapRecipe(r) {
     return {
         id: r.id, cat: r.cat, name: r.name, emoji: r.emoji || '🍴',
-        time: r.time_min || 30, diff: r.difficulty || 'easy', servings: r.servings || 2,
+        time: r.time_min || 30, diff: r.difficulty || 'easy', servings: r.servings || 4, portionGrams: r.portion_grams || 300,
         free: !!r.is_free,
         kcal: r.kcal || 0, protein: r.protein || 0, fat: r.fat || 0,
         carbs: r.carbs || 0, fiber: r.fiber || 0,
@@ -315,7 +315,7 @@ async function loadContent() {
 
 RECIPES['tofu-syrniki'] = {
     id: 'tofu-syrniki', cat: 'breakfasts', free: true,
-    name: 'Сырники из тофу', emoji: '🥞', time: 20, diff: 'easy', servings: 2,
+    name: 'Сырники из тофу', emoji: '🥞', time: 20, diff: 'easy', servings: 4,
     kcal: 210, protein: 14, fat: 8, carbs: 20, fiber: 2,
     added: '19 марта 2026',
     tags: ['до 30 мин', 'простой', 'без глютена', 'соя', 'бобовые'],
@@ -365,7 +365,7 @@ RECIPES['lentil-pancakes'] = {
 
 RECIPES['nut-omelet'] = {
     id: 'nut-omelet', cat: 'breakfasts',
-    name: 'Нутовый омлет', emoji: '🍳', time: 20, diff: 'easy', servings: 2,
+    name: 'Нутовый омлет', emoji: '🍳', time: 20, diff: 'easy', servings: 4,
     kcal: 195, protein: 11, fat: 6, carbs: 24, fiber: 5,
     added: '19 марта 2026',
     tags: ['до 30 мин', 'простой', 'без глютена', 'бобовые'],
@@ -451,7 +451,7 @@ RECIPES['apple-pear-pancakes'] = {
 
 RECIPES['tofu-scramble'] = {
     id: 'tofu-scramble', cat: 'breakfasts',
-    name: 'Скрэмбл из тофу', emoji: '🍳', time: 15, diff: 'easy', servings: 2,
+    name: 'Скрэмбл из тофу', emoji: '🍳', time: 15, diff: 'easy', servings: 4,
     kcal: 175, protein: 13, fat: 9, carbs: 8, fiber: 2,
     added: '19 марта 2026',
     tags: ['до 15 мин', 'простой', 'без глютена', 'соя', 'бобовые'],
@@ -564,7 +564,7 @@ RECIPES['avocado-toast'] = {
 
 RECIPES['bruschetta-cashew'] = {
     id: 'bruschetta-cashew', cat: 'breakfasts',
-    name: 'Брускетта с томатом и соусом из кешью', emoji: '🍅', time: 20, diff: 'easy', servings: 2,
+    name: 'Брускетта с томатом и соусом из кешью', emoji: '🍅', time: 20, diff: 'easy', servings: 4,
     kcal: 260, protein: 7, fat: 12, carbs: 30, fiber: 4,
     added: '19 марта 2026',
     tags: ['до 30 мин', 'простой'],
@@ -1233,7 +1233,7 @@ RECIPES['pasta-boloniase'] = {
 
 RECIPES['pasta-carbonara'] = {
     id: 'pasta-carbonara', cat: 'mains',
-    name: 'Сливочная паста «а-ля карбонара»', emoji: '🍝', time: 25, diff: 'easy', servings: 2,
+    name: 'Сливочная паста «а-ля карбонара»', emoji: '🍝', time: 25, diff: 'easy', servings: 4,
     kcal: 380, protein: 22, fat: 12, carbs: 48, fiber: 3,
     added: '19 марта 2026',
     tags: ['до 30 мин', 'простой', 'на спорте'],

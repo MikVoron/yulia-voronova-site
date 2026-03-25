@@ -688,7 +688,11 @@
             </div>
             <div class="adm-modal-field">
                 <label class="adm-modal-label">Порции</label>
-                <input type="number" class="adm-modal-input" id="recipe-servings" value="2">
+                <input type="number" class="adm-modal-input" id="recipe-servings" value="4">
+            </div>
+            <div class="adm-modal-field">
+                <label class="adm-modal-label">Граммы на порцию</label>
+                <input type="number" class="adm-modal-input" id="recipe-portion-grams" value="300">
             </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:10px">
@@ -1210,7 +1214,8 @@
         document.getElementById('recipe-emoji').value = r ? (r.emoji || '🍴') : '🍴';
         document.getElementById('recipe-time').value = r ? r.time_min : 30;
         document.getElementById('recipe-diff').value = r ? r.difficulty : 'easy';
-        document.getElementById('recipe-servings').value = r ? r.servings : 2;
+        document.getElementById('recipe-servings').value = r ? r.servings : 4;
+        document.getElementById('recipe-portion-grams').value = r ? (r.portion_grams || 300) : 300;
         document.getElementById('recipe-kcal').value = r ? r.kcal : 0;
         document.getElementById('recipe-protein').value = r ? r.protein : 0;
         document.getElementById('recipe-fat').value = r ? r.fat : 0;
@@ -1299,7 +1304,8 @@
             emoji: document.getElementById('recipe-emoji').value || '🍴',
             time_min: parseInt(document.getElementById('recipe-time').value) || 30,
             difficulty: document.getElementById('recipe-diff').value,
-            servings: parseInt(document.getElementById('recipe-servings').value) || 2,
+            servings: parseInt(document.getElementById('recipe-servings').value) || 4,
+            portion_grams: parseInt(document.getElementById('recipe-portion-grams').value) || 300,
             kcal: parseInt(document.getElementById('recipe-kcal').value) || 0,
             protein: parseFloat(document.getElementById('recipe-protein').value) || 0,
             fat: parseFloat(document.getElementById('recipe-fat').value) || 0,
