@@ -149,7 +149,8 @@ const Auth = {
                 headers['Authorization'] = 'Bearer ' + this.getToken();
                 return fetch(API_BASE + path, Object.assign({}, options, { headers, credentials: 'include' }));
             }
-            this.logout(); location.href = 'login.html';
+            // Не делаем logout — пусть checkAccess решит что показать
+            return res;
         }
         return res;
     }
