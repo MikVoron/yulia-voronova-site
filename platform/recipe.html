@@ -371,7 +371,7 @@
                     <div class="recipe-badges">
                         <span class="recipe-badge">⏱ ${r.time} мин</span>
                         <span class="recipe-badge">⚡ ${diff}</span>
-                        <span class="recipe-badge">🍽 ${r.servings || 2} порции</span>
+                        <span class="recipe-badge">🍽 ${r.servings || 2} порции <span style="font-weight:400;color:var(--text-3)">(1 порция ≈ ${r.portionGrams || 300} г)</span></span>
                         ${r.added ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">Рецепт добавлен: ${r.added}</span>` : ''}
                     </div>
                     <h1 class="recipe-title">${r.name}</h1>
@@ -388,6 +388,7 @@
                             <div class="julia-tip-name">— Юлия Воронова</div>
                         </div>
                     </div>` : ''}
+                    <div class="v-section-title" style="margin-bottom:8px">В одной порции блюда:</div>
                     <div class="kbzhu" id="kbzhu-block">
                         <div class="kbzhu-cell main"><div class="kbzhu-val" id="kbzhu-kcal">${r.kcal}</div><div class="kbzhu-lbl">Ккал</div></div>
                         <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-protein">${r.protein}г</div><div class="kbzhu-lbl">Белки</div></div>
