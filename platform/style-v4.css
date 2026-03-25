@@ -555,7 +555,7 @@ img { display: block; max-width: 100%; }
 
 /* ── RECIPE PAGE ─────────────────────────────────────── */
 .recipe-layout { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
-.recipe-sidebar { position: sticky; top: 76px; }
+.recipe-sidebar { position: sticky; top: 76px; max-height: calc(100dvh - 90px); overflow-y: auto; }
 
 .recipe-hero-img {
     width: 100%; aspect-ratio: 4/3; border-radius: var(--r-l);
@@ -581,8 +581,8 @@ img { display: block; max-width: 100%; }
          gap: 8px; margin: 18px 0; }
 .kbzhu-cell { text-align: center; padding: 14px 6px; background: var(--bg-alt);
                border-radius: var(--r-m); border: 1px solid var(--border); min-width: 0; }
-.kbzhu-val { font-family: var(--serif); font-size: 22px; font-weight: 700;
-             color: var(--text); line-height: 1; }
+.kbzhu-val { font-family: var(--serif); font-size: 20px; font-weight: 700;
+             color: var(--text); line-height: 1; white-space: nowrap; }
 .kbzhu-lbl { font-size: 9px; font-weight: 700; color: var(--text-3);
               text-transform: uppercase; letter-spacing: .3px; margin-top: 4px;
               overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
