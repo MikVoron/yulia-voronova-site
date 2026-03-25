@@ -290,18 +290,22 @@ async function loadContent() {
         ]);
         if (recipesRes.ok) {
             const data = await recipesRes.json();
-            // Clear and repopulate
-            Object.keys(RECIPES).forEach(k => delete RECIPES[k]);
+            // API-рецепты дополняют/обновляют хардкод, не стирают его
             data.forEach(r => { RECIPES[r.id] = _mapRecipe(r); });
         }
         if (catsRes.ok) {
             const cats = await catsRes.json();
-            CATEGORIES = {};
+            // API-категории дополняют/обновляют хардкод, dishes мержатся
             cats.forEach(c => {
+                const existing = CATEGORIES[c.id];
+                const apiDishes = c.dishes || [];
+                const localDishes = existing ? existing.dishes || [] : [];
+                // Объединяем: API + локальные, которых нет в API
+                const merged = [...apiDishes, ...localDishes.filter(d => !apiDishes.includes(d))];
                 CATEGORIES[c.id] = {
                     id: c.id, name: c.name, emoji: c.emoji, color: c.color,
                     desc: c.description || '',
-                    dishes: c.dishes || []
+                    dishes: merged
                 };
             });
         }
