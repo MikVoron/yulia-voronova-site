@@ -87,10 +87,10 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1774512677"></script>
+<script src="data-v2.js?v=1774559463"></script>
 <script>
     Auth.requireAuth();
-    Auth.checkAccess();
+    const _accessReady = Auth.checkAccess();
     updatePlateIcon();
 
     // User pill init
@@ -183,12 +183,16 @@
     }
     } // end initRecipe
 
-    loadContent().then(function() {
+    Promise.all([loadContent(), _accessReady]).then(function() {
         if (isContentError()) {
             showApiError(document.getElementById('page-content'));
             return;
         }
         initRecipe();
+    }).catch(function(err) {
+        console.error('Recipe render error:', err);
+        var pc = document.getElementById('page-content');
+        if (pc) pc.innerHTML = '<div style="text-align:center;padding:40px;color:red">Ошибка: ' + err.message + '</div>';
     });
 
     // ── SUBLIST (e.g. Здоровые бутерброды → список намазок) ─────────────
@@ -233,6 +237,18 @@
         return Plate.get().some(item => item.recipeId === r.id);
     }
 
+    // Экранирование HTML — защита от XSS
+    function escHtml(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    // Сначала escape, потом safe-linkify: [текст](recipeId) → ссылка
+    // recipeId валидируется: только буквы, цифры, дефис
+    function linkify(text) {
+        return escHtml(text).replace(/\[([^\]]+)\]\(([a-zA-Z0-9-]+)\)/g, function(_, label, rid) {
+            return '<a href="recipe.html?id=' + rid + '" style="color:var(--accent);text-decoration:underline;cursor:pointer">' + label + '</a>';
+        });
+    }
+
     function renderRecipe(r) {
         document.title = r.name + ' — Конструктор питания';
         document.getElementById('sticky-add').style.display = 'block';
@@ -273,18 +289,7 @@
         const addCarbs   = r.addCarbs || [];
         const addFiber   = r.addFiber || [];
         const hasAdditions = !simpleMode && _hasAnyAdd;
-
-        // Экранирование HTML — защита от XSS
-        function escHtml(s) {
-            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-        }
-        // Сначала escape, потом safe-linkify: [текст](recipeId) → ссылка
-        // recipeId валидируется: только буквы, цифры, дефис
-        function linkify(text) {
-            return escHtml(text).replace(/\[([^\]]+)\]\(([a-zA-Z0-9-]+)\)/g, function(_, label, rid) {
-                return '<a href="recipe.html?id=' + rid + '" style="color:var(--accent);text-decoration:underline;cursor:pointer">' + label + '</a>';
-            });
-        }
+        console.log('[SIDEBAR DEBUG]', {id: r.id, simpleMode, _hasAnyAdd, hasAdditions, addProtein: r.addProtein, addFat: r.addFat, addCarbs: r.addCarbs, addFiber: r.addFiber});
 
         const ingHtml = (r.ingredients || []).map((ing, i) => {
             const name = typeof ing === 'string' ? ing : ing.name;
@@ -328,6 +333,7 @@
                     <div class="add-total-val" id="add-total-kcal">${Number(r.kcal)} ккал</div>
                 </div>
             </div>` : '';
+        console.log('[SIDEBAR]', {hasAdditions, sidebarLen: sidebarHtml.length, first100: sidebarHtml.slice(0,100)});
 
         const alreadyInPlate = isInPlate();
         const fiberCell = (r.fiber !== undefined)
@@ -486,6 +492,7 @@
     // subItemRegistry declared above (before renderRecipe call)
 
     function buildGroup(label, prefix, items) {
+        console.log('[buildGroup]', prefix, 'items:', items ? items.length : 'null');
         if (!items || !items.length) return '';
         const cls = GROUP_CLASS[prefix] || '';
         return `<div class="add-group ${cls}">

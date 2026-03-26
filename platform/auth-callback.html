@@ -31,7 +31,7 @@
     <div class="cb-error" id="error"></div>
 </div>
 
-<script src="data-v2.js?v=1774512677"></script>
+<script src="data-v2.js?v=1774559463"></script>
 <script>
 (async function() {
     try {
@@ -43,7 +43,7 @@
         if (!res.ok) throw new Error('refresh failed');
         const data = await res.json();
 
-        Auth.login(data.user.email, data.user.displayName, data.accessToken);
+        Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription, data.user.avatar);
 
         document.getElementById('title').textContent = 'Добро пожаловать!';
         document.getElementById('sub').textContent = 'Загружаем платформу...';

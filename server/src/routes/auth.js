@@ -7,6 +7,12 @@ const { tryGrantTrial } = require('../trial-guard');
 const audit = require('../audit');
 
 async function authRoutes(fastify) {
+  let avatarColumnReady = false;
+  async function ensureAvatarColumn() {
+    if (avatarColumnReady) return;
+    await db.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT');
+    avatarColumnReady = true;
+  }
 
   // POST /auth/send-code
   fastify.post('/auth/send-code', async (req, reply) => {
@@ -82,16 +88,17 @@ async function authRoutes(fastify) {
     reply.setCookie('refreshToken', refreshToken, {
       path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 2592000
     });
-    return { accessToken, user: { id: user.id, email: user.email, displayName: user.display_name, role: user.role }, isNew };
+    return { accessToken, user: { id: user.id, email: user.email, displayName: user.display_name, avatar: user.avatar || null, role: user.role }, isNew };
   });
 
   // POST /auth/refresh
   fastify.post('/auth/refresh', async (req, reply) => {
+    await ensureAvatarColumn();
     const token = req.cookies.refreshToken;
     if (!token) return reply.status(401).send({ error: 'Нет refresh токена' });
     const tokenHash = hashToken(token);
     const result = await db.query(
-      'SELECT rs.*, u.email, u.role, u.display_name, u.is_blocked FROM refresh_sessions rs JOIN users u ON u.id=rs.user_id WHERE rs.refresh_token_hash=$1 AND rs.expires_at > now()',
+      'SELECT rs.*, u.email, u.role, u.display_name, u.avatar, u.is_blocked FROM refresh_sessions rs JOIN users u ON u.id=rs.user_id WHERE rs.refresh_token_hash=$1 AND rs.expires_at > now()',
       [tokenHash]
     );
     if (!result.rows.length) {
@@ -110,7 +117,7 @@ async function authRoutes(fastify) {
     reply.setCookie('refreshToken', newRefresh, {
       path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 2592000
     });
-    return { accessToken, user: { id: session.user_id, email: session.email, displayName: session.display_name, role: session.role } };
+    return { accessToken, user: { id: session.user_id, email: session.email, displayName: session.display_name, avatar: session.avatar || null, role: session.role } };
   });
 
   // POST /auth/logout
@@ -125,6 +132,7 @@ async function authRoutes(fastify) {
 
   // GET /auth/me
   fastify.get('/auth/me', async (req, reply) => {
+    await ensureAvatarColumn();
     const auth = req.headers.authorization;
     if (!auth || !auth.startsWith('Bearer ')) return reply.status(401).send({ error: 'Не авторизован' });
     try {
@@ -145,7 +153,7 @@ async function authRoutes(fastify) {
         db.query("UPDATE subscriptions SET status='expired' WHERE user_id=$1 AND status='active'", [u.id]).catch(() => {});
       }
       return {
-        id: u.id, email: u.email, displayName: u.display_name, role: u.role,
+        id: u.id, email: u.email, displayName: u.display_name, avatar: u.avatar || null, role: u.role,
         subscription: { status, trialEndsAt: u.trial_ends_at, activeUntil: u.active_until }
       };
     } catch (e) {
@@ -153,12 +161,21 @@ async function authRoutes(fastify) {
     }
   });
 
-  // PUT /auth/profile — обновить display_name
+  // PUT /auth/profile — обновить display_name и/или avatar
   fastify.put('/auth/profile', { preHandler: authenticate }, async (req, reply) => {
-    const { displayName } = req.body || {};
-    const name = displayName ? displayName.trim().slice(0, 100) : null;
-    await db.query('UPDATE users SET display_name=$1 WHERE id=$2', [name, req.user.sub]);
-    return { ok: true, displayName: name };
+    await ensureAvatarColumn();
+    const { displayName, avatar } = req.body || {};
+    const name = displayName !== undefined ? (displayName ? displayName.trim().slice(0, 100) : null) : undefined;
+    const ava = avatar !== undefined ? (avatar && avatar.length <= 300000 ? avatar : null) : undefined;
+    const sets = [];
+    const vals = [];
+    let idx = 1;
+    if (name !== undefined) { sets.push('display_name=$' + idx++); vals.push(name); }
+    if (ava !== undefined) { sets.push('avatar=$' + idx++); vals.push(ava); }
+    if (!sets.length) return reply.status(400).send({ error: 'Нет данных' });
+    vals.push(req.user.sub);
+    await db.query('UPDATE users SET ' + sets.join(', ') + ' WHERE id=$' + idx, vals);
+    return { ok: true, displayName: name !== undefined ? name : null, avatar: ava !== undefined ? ava : null };
   });
 }
 

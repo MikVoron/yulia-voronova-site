@@ -10,7 +10,7 @@ const Auth = {
     KEY: 'hp_user',
     _token: null,
     _ST: 'hp_st',
-    login(email, name, token, subscription) {
+    login(email, name, token, subscription, avatar) {
         localStorage.removeItem('hp_token'); // cleanup legacy
         const prev = this.getUser();
         if (prev && prev.email && prev.email !== email) {
@@ -20,19 +20,22 @@ const Auth = {
         if (prev && prev.email === email && prev.customName && !localStorage.getItem('hp_user_name')) {
             localStorage.setItem('hp_user_name', prev.customName);
         }
-        const user = { email, name: name || email.split('@')[0], joined: (prev && prev.email === email && prev.joined) || Date.now(), subscription: subscription || null };
+        const user = {
+            email,
+            name: name || (prev && prev.email === email && prev.name) || email.split('@')[0],
+            avatar: avatar || (prev && prev.email === email && prev.avatar) || null,
+            joined: (prev && prev.email === email && prev.joined) || Date.now(),
+            subscription: subscription || null
+        };
         localStorage.setItem(this.KEY, JSON.stringify(user));
+        if (name !== undefined) this.setName(name || '');
+        if (avatar !== undefined) this.setAvatar(avatar || null);
         if (token) { this._token = token; sessionStorage.setItem(this._ST, token); }
         return user;
     },
     logout() {
         fetch(API_BASE + '/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
-        const u = this.getUser();
-        const email = u && u.email ? u.email : '';
         localStorage.removeItem(this.KEY); localStorage.removeItem('hp_token');
-        // Clean user-specific keys
-        if (email) ['hp_user_name','user_avatar','user_weight'].forEach(k => localStorage.removeItem(k + '_' + email));
-        localStorage.removeItem('hp_user_name');
         sessionStorage.removeItem(this._ST);
         this._token = null; Plate.clear();
     },
@@ -74,6 +77,22 @@ const Auth = {
             localStorage.setItem(this.KEY, JSON.stringify(user));
         }
     },
+    getAvatar() { return localStorage.getItem(this._userKey('user_avatar')) || null; },
+    setAvatar(dataUrl) {
+        const key = this._userKey('user_avatar');
+        if (dataUrl) localStorage.setItem(key, dataUrl);
+        else localStorage.removeItem(key);
+        const user = this.getUser();
+        if (user) {
+            user.avatar = dataUrl || null;
+            localStorage.setItem(this.KEY, JSON.stringify(user));
+        }
+    },
+    _syncProfile(data) {
+        if (!data) return;
+        if (data.displayName !== undefined) this.setName(data.displayName || '');
+        if (data.avatar !== undefined) this.setAvatar(data.avatar || null);
+    },
     _subStatus: null,
     async checkAccess() {
         if (!this.isLoggedIn()) { location.href = 'login.html'; return false; }
@@ -93,6 +112,16 @@ const Auth = {
                 return true;
             }
             const data = await res.json();
+            // Sync displayName + avatar from server → localStorage
+            if (data.displayName) {
+                const user = this.getUser();
+                if (user) { user.name = data.displayName; localStorage.setItem(this.KEY, JSON.stringify(user)); }
+                localStorage.setItem(this._userKey('hp_user_name'), data.displayName);
+            }
+            if (data.avatar && !this.getAvatar()) {
+                this.setAvatar(data.avatar);
+            }
+            this._syncProfile(data);
             if (data.role === 'admin') { this._subStatus = 'active'; this.startAutoRefresh(); return true; }
             const sub = data.subscription;
             if (!sub || !sub.status) { this._subStatus = 'none'; this._showPaywall('no_sub'); return false; }
@@ -143,8 +172,10 @@ const Auth = {
                 user.name = data.user.displayName || user.name;
                 user.email = data.user.email;
                 localStorage.setItem(this.KEY, JSON.stringify(user));
+                this._syncProfile(data.user);
                 const nameKey = this._userKey('hp_user_name');
                 if (data.user.displayName) localStorage.setItem(nameKey, data.user.displayName);
+                if (data.user.avatar && !this.getAvatar()) this.setAvatar(data.user.avatar);
             }
             return true;
         } catch { return false; }

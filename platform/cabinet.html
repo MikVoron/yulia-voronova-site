@@ -1019,9 +1019,10 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=1774512677"></script>
+	<script src="data-v2.js?v=1774559463"></script>
 	<script>
 		Auth.requireAuth();
+		const _cabAccess = Auth.checkAccess();
 		loadContent();
 		updatePlateIcon();
 
@@ -1092,6 +1093,25 @@
 			}
 		}
 
+		// After checkAccess, re-sync displayName + avatar from server
+		_cabAccess.then(function() {
+			const freshName = Auth.getDisplayName();
+			if (freshName) {
+				document.getElementById('cab-name').textContent = freshName;
+				document.getElementById('cab-custom-name').value = freshName;
+				document.getElementById('name-edit-row').style.display = 'none';
+				document.getElementById('name-edit-btn').style.display = 'inline-flex';
+				var uName = document.getElementById('u-name');
+				if (uName) uName.textContent = freshName;
+			}
+			const freshAva = Auth.getAvatar();
+			if (freshAva) {
+				document.getElementById('cab-ava').innerHTML = '<img src="' + freshAva + '" alt="avatar">';
+				var uAva = document.getElementById('u-ava');
+				if (uAva) uAva.innerHTML = '<img src="' + freshAva + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+			}
+		});
+
 		function startEditName() {
 			document.getElementById('name-edit-row').style.display = 'flex';
 			document.getElementById('cab-custom-name').focus();
@@ -1101,7 +1121,9 @@
 			const val = document.getElementById('cab-custom-name').value.trim();
 			Auth.setName(val);
 			// Sync to server
-			Auth.api('/auth/profile', { method: 'PUT', body: JSON.stringify({ displayName: val }) }).catch(function() {});
+			Auth.api('/auth/profile', { method: 'PUT', body: JSON.stringify({ displayName: val }) }).then(function(res) {
+				if (!res.ok) console.error('Profile save failed:', res.status);
+			}).catch(function(e) { console.error('Profile save error:', e); });
 			document.getElementById('cab-name').textContent = val || user.email.split('@')[0];
 			const avaEl = document.getElementById('cab-ava');
 			if (!localStorage.getItem(Auth._userKey('user_avatar'))) {
@@ -1126,22 +1148,30 @@
 		function handleAvatarUpload(input) {
 			const file = input.files[0];
 			if (!file) return;
-			const reader = new FileReader();
-			reader.onload = e => {
-				try {
-					localStorage.setItem(Auth._userKey('user_avatar'), e.target.result);
-				} catch (err) {
-					alert('Не удалось сохранить фото. Попробуйте выбрать изображение меньшего размера.');
-					return;
-				}
-				document.getElementById('cab-ava').innerHTML = `<img src="${e.target.result}" alt="avatar">`;
+			const img = new Image();
+			img.onload = function() {
+				// Resize to max 200x200 to keep base64 small
+				const MAX = 200;
+				let w = img.width, h = img.height;
+				if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+				else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+				const canvas = document.createElement('canvas');
+				canvas.width = w; canvas.height = h;
+				canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+				const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+				// Save locally
+				Auth.setAvatar(dataUrl);
+				// Update UI
+				document.getElementById('cab-ava').innerHTML = '<img src="' + dataUrl + '" alt="avatar">';
 				const uAva = document.getElementById('u-ava');
-				if (uAva) {
-					uAva.innerHTML = `<img src="${e.target.result}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-				}
+				if (uAva) uAva.innerHTML = '<img src="' + dataUrl + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+				// Save to server
+				Auth.api('/auth/profile', { method: 'PUT', body: JSON.stringify({ avatar: dataUrl }) }).then(function(res) {
+					if (!res.ok) console.error('Avatar save failed:', res.status);
+				}).catch(function(e) { console.error('Avatar save error:', e); });
 				input.value = '';
 			};
-			reader.readAsDataURL(file);
+			img.src = URL.createObjectURL(file);
 		}
 
 		function saveWeight(v) {
@@ -1397,6 +1427,8 @@
 		}
 
 		async function loadEarlyBird() {
+			// Не показывать early-bird если подписка активна
+			if (Auth._subStatus === 'active') return;
 			try {
 				const res = await fetch(API_BASE + '/subscription/early-bird');
 				if (!res.ok) return;
@@ -1411,9 +1443,10 @@
 			updateMonthsCalc();
 		}
 
-		// Load subscription tab on init (it's the default active tab now)
-		loadSubscription();
-		loadEarlyBird();
+		// Load subscription tab on init — wait for checkAccess to set _subStatus
+		_cabAccess.then(function() {
+			loadSubscription().then(function() { loadEarlyBird(); });
+		});
 
 		// ── ИСТОРИЯ ТАРЕЛОК ───────────────────────────────────────────────────────
 		function renderHistory() {
