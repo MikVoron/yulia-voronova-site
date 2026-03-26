@@ -13,6 +13,10 @@ CREATE TABLE IF NOT EXISTS trial_fingerprints (
 CREATE INDEX IF NOT EXISTS idx_trial_fp ON trial_fingerprints (fingerprint);
 CREATE INDEX IF NOT EXISTS idx_trial_ip ON trial_fingerprints (ip);
 
+-- UNIQUE на fingerprint — защита на уровне БД от дубликатов (кроме 'none' для OAuth)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_trial_fp_unique
+  ON trial_fingerprints (fingerprint) WHERE fingerprint != 'none';
+
 -- Доп. колонки в subscriptions для аудита
 ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS registration_ip INET;
 ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS registration_fingerprint VARCHAR(64);

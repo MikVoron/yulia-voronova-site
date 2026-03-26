@@ -74,31 +74,30 @@ const Auth = {
         if (!this.getToken()) {
             const ok = await this.refreshToken();
             if (!ok) {
-                // Нет токена и refresh не работает — показываем контент в trial-режиме
                 this._subStatus = 'trial';
+                this.startAutoRefresh();
                 return true;
             }
         }
         try {
             const res = await this.api('/auth/me');
             if (!res.ok) {
-                // API вернул ошибку — показываем контент, не редиректим
                 this._subStatus = 'trial';
+                this.startAutoRefresh();
                 return true;
             }
             const data = await res.json();
-            // Админ — бессрочный полный доступ
-            if (data.role === 'admin') { this._subStatus = 'active'; return true; }
+            if (data.role === 'admin') { this._subStatus = 'active'; this.startAutoRefresh(); return true; }
             const sub = data.subscription;
             if (!sub || !sub.status) { this._subStatus = 'none'; this._showPaywall('no_sub'); return false; }
             this._subStatus = sub.status;
             const now = new Date();
-            if (sub.status === 'trial' && new Date(sub.trialEndsAt) > now) return true;
-            if (sub.status === 'active' && new Date(sub.activeUntil) > now) return true;
+            if (sub.status === 'trial' && new Date(sub.trialEndsAt) > now) { this.startAutoRefresh(); return true; }
+            if (sub.status === 'active' && new Date(sub.activeUntil) > now) { this.startAutoRefresh(); return true; }
             this._showPaywall(sub.status); return false;
         } catch {
-            // Сеть недоступна — показываем контент в trial-режиме
             this._subStatus = 'trial';
+            this.startAutoRefresh();
             return true;
         }
     },
@@ -137,6 +136,14 @@ const Auth = {
             if (user && data.user) { user.name = data.user.displayName || user.name; user.email = data.user.email; localStorage.setItem(this.KEY, JSON.stringify(user)); }
             return true;
         } catch { return false; }
+    },
+    // Проактивный refresh — не даём токену протухнуть
+    _refreshTimer: null,
+    startAutoRefresh() {
+        if (this._refreshTimer) return;
+        this._refreshTimer = setInterval(() => {
+            if (this.isLoggedIn()) this.refreshToken();
+        }, 3 * 60 * 1000); // каждые 3 мин
     },
     async api(path, options = {}) {
         const token = this.getToken();
@@ -290,22 +297,18 @@ async function loadContent() {
         ]);
         if (recipesRes.ok) {
             const data = await recipesRes.json();
-            // API-рецепты дополняют/обновляют хардкод, не стирают его
+            // API — источник правды: обновляет/добавляет рецепты поверх хардкода
             data.forEach(r => { RECIPES[r.id] = _mapRecipe(r); });
         }
+        // Если API не ответил — хардкод остаётся нетронутым (fallback)
         if (catsRes.ok) {
             const cats = await catsRes.json();
-            // API-категории дополняют/обновляют хардкод, dishes мержатся
+            // API — источник правды для категорий: полностью заменяет хардкод
             cats.forEach(c => {
-                const existing = CATEGORIES[c.id];
-                const apiDishes = c.dishes || [];
-                const localDishes = existing ? existing.dishes || [] : [];
-                // Объединяем: API + локальные, которых нет в API
-                const merged = [...apiDishes, ...localDishes.filter(d => !apiDishes.includes(d))];
                 CATEGORIES[c.id] = {
                     id: c.id, name: c.name, emoji: c.emoji, color: c.color,
                     desc: c.description || '',
-                    dishes: merged
+                    dishes: c.dishes || []
                 };
             });
         }
@@ -323,7 +326,7 @@ RECIPES['tofu-syrniki'] = {
     name: 'Сырники из тофу', emoji: '🥞', time: 20, diff: 'easy', servings: 4,
     kcal: 210, protein: 14, fat: 8, carbs: 20, fiber: 2,
     added: '19 марта 2026',
-    tags: ['до 30 мин', 'простой', 'без глютена', 'соя', 'бобовые'],
+    tags: ['растительный', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/tofu-sirniki.webp',
     quote: 'Их сразу и безоговорочно приняла моя семья, а самое главное — дети! Эти сырники могут жить без холодильника, в отличие от их творожных братьев. Если у вас не всегда получались сырники из творога и они разваливались, то эти «тофники» прекрасно держат форму и у вас всё получится с первого раза, легко и просто!',
     ingredients: [
@@ -347,7 +350,7 @@ RECIPES['lentil-pancakes'] = {
     name: 'Оладьи из чечевицы', emoji: '🥞', time: 30, diff: 'easy', servings: 3,
     kcal: 280, protein: 16, fat: 4, carbs: 46, fiber: 8,
     added: '19 марта 2026',
-    tags: ['простой', 'на спорте', 'бобовые'],
+    tags: ['растительный', 'без сои', 'бобовые'],
     photo: '../images/img-guides/plant-based/pancakes-red-lentil.webp',
     quote: 'Эти оладьи хороши не только со сладким. Напеките, накормите, услышьте хвалебные песни и не говорите из чего они! Вкуса чечевицы нет вообще — и пользы сколько!',
     ingredients: [
@@ -373,7 +376,7 @@ RECIPES['nut-omelet'] = {
     name: 'Нутовый омлет', emoji: '🍳', time: 20, diff: 'easy', servings: 4,
     kcal: 195, protein: 11, fat: 6, carbs: 24, fiber: 5,
     added: '19 марта 2026',
-    tags: ['до 30 мин', 'простой', 'без глютена', 'бобовые'],
+    tags: ['растительный', 'без сои', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/chickpea-omelette.webp',
     quote: 'При приготовлении вы можете использовать любые любимые овощи.',
     ingredients: [
@@ -403,7 +406,7 @@ RECIPES['lentil-pancakes-gf'] = {
     name: 'Оладьи из чечевицы (без глютена)', emoji: '🥞', time: 30, diff: 'easy', servings: 3,
     kcal: 250, protein: 14, fat: 3, carbs: 42, fiber: 7,
     added: '19 марта 2026',
-    tags: ['простой', 'без глютена', 'бобовые'],
+    tags: ['растительный', 'без сои', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/pancakes-lentil-gluten-free.webp',
     quote: 'Этот вариант чечевичных оладьев без глютена. Они идеально подойдут людям с целиакией, непереносимостью глютена или тем, кому показан безглютеновый рацион. Это способ сохранить любимые вкусы без компромиссов — особенно важно, когда за столом собираются гости с разными пищевыми предпочтениями.',
     ingredients: [
@@ -427,7 +430,7 @@ RECIPES['apple-pear-pancakes'] = {
     name: 'Панкейки с яблочно-грушевым пюре', emoji: '🍎', time: 35, diff: 'medium', servings: 4,
     kcal: 290, protein: 7, fat: 5, carbs: 55, fiber: 6,
     added: '19 марта 2026',
-    tags: ['средний'],
+    tags: ['растительный', 'без сои'],
     photo: '../images/img-guides/plant-based/pancakes-apple.webp',
     quote: 'Эти панкейки — настоящий десерт без сахара! Фруктовое пюре на пару даёт нежную сладость, а цельнозерновая мука — сытость. Дети просят ещё и ещё!',
     ingredients: [
@@ -459,7 +462,7 @@ RECIPES['tofu-scramble'] = {
     name: 'Скрэмбл из тофу', emoji: '🍳', time: 15, diff: 'easy', servings: 4,
     kcal: 175, protein: 13, fat: 9, carbs: 8, fiber: 2,
     added: '19 марта 2026',
-    tags: ['до 15 мин', 'простой', 'без глютена', 'соя', 'бобовые'],
+    tags: ['растительный', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/tofu-scrambel.webp',
     quote: 'Эту альтернативу яичнице принял даже мой муж, у которого по жизни был девиз: «если есть яйца, значит есть и еда!». Человек жить не мог без яичницы. Но тофу (и я, чего уж тут) сделал своё дело, стал альтернативой — теперь очень часто на завтрак муж просит именно этот скрэмбл из тофу!',
     ingredients: [
@@ -486,7 +489,7 @@ RECIPES['hummus'] = {
     name: 'Хумус', emoji: '🫙', time: 10, diff: 'easy', servings: 6,
     kcal: 140, protein: 7, fat: 6, carbs: 16, fiber: 4,
     added: '19 марта 2026',
-    tags: ['до 15 мин', 'простой', 'без глютена', 'бобовые'],
+    tags: ['растительный', 'без сои', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/humus.webp',
     quote: 'Невероятно полезный, вкусный и простой в приготовлении — намазка хумус! Возможно, вы его полюбите не сразу, но когда распробуете, то, уверяю вас, будете делать его очень часто! Я готова есть его каждый день!',
     ingredients: [
@@ -515,7 +518,7 @@ RECIPES['bean-paste'] = {
     name: 'Паштет из фасоли', emoji: '🫘', time: 20, diff: 'easy', servings: 6,
     kcal: 120, protein: 7, fat: 4, carbs: 15, fiber: 5,
     added: '19 марта 2026',
-    tags: ['до 30 мин', 'простой', 'без глютена', 'бобовые'],
+    tags: ['растительный', 'без сои', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/pashtet-red-lentil.webp',
     quote: 'С этого паштета началась любовь к бобовым у старшей дочери-подростка, которая до этого ничего, кроме варёной колбаски на хлебе не признавала. А сейчас она с удовольствием ест все мои намазки :) Да, понадобилось время, но ведь главное — результат, мы же играем вдолгую!',
     ingredients: [
@@ -544,7 +547,7 @@ RECIPES['avocado-toast'] = {
     name: 'Тост с авокадо', emoji: '🥑', time: 10, diff: 'easy', servings: 1,
     kcal: 230, protein: 5, fat: 14, carbs: 22, fiber: 7,
     added: '19 марта 2026',
-    tags: ['до 15 мин', 'простой'],
+    tags: ['растительный', 'без сои'],
     photo: '../images/img-guides/plant-based/avocado-toast.webp',
     quote: 'Самый быстрый и полезный завтрак! Авокадо — это полезные жиры, которые дают сытость на несколько часов. Добавьте лимон и специи — и у вас идеальное утро за 10 минут.',
     ingredients: [
@@ -572,7 +575,7 @@ RECIPES['bruschetta-cashew'] = {
     name: 'Брускетта с томатом и соусом из кешью', emoji: '🍅', time: 20, diff: 'easy', servings: 4,
     kcal: 260, protein: 7, fat: 12, carbs: 30, fiber: 4,
     added: '19 марта 2026',
-    tags: ['до 30 мин', 'простой'],
+    tags: ['растительный', 'без сои'],
     photo: '../images/img-guides/plant-based/tomato-bruschetta.webp',
     quote: 'Если у вас сейчас сезон томатов, то этот «бутерброд» не оставит вас равнодушными!',
     ingredients: [
@@ -604,7 +607,7 @@ RECIPES['veggie-concentrate'] = {
     name: 'Овощной концентрат', emoji: '🫙', time: 60, diff: 'medium', servings: 30,
     kcal: 15, protein: 0, fat: 1, carbs: 2, fiber: 1,
     added: '19 марта 2026',
-    tags: ['заготовка'],
+    tags: ['растительный', 'без сои'],
     photo: '../images/img-guides/plant-based/concentrat.webp',
     quote: 'Этот концентрат заменит вам все магазинные бульонные кубики. Натуральный, без химии, хранится в морозилке и делает любой суп невероятно ароматным. Готовлю сразу большую порцию!',
     ingredients: [
@@ -639,7 +642,7 @@ RECIPES['clear-broth'] = {
     name: 'Бульон №1 (светлый)', emoji: '🍵', time: 30, diff: 'easy', servings: 6,
     kcal: 20, protein: 1, fat: 0, carbs: 4, fiber: 1,
     added: '19 марта 2026',
-    tags: ['до 30 мин', 'простой', 'без глютена', 'заготовка'],
+    tags: ['растительный', 'без сои', 'без глютена'],
     photo: '../images/img-guides/plant-based/clear-broth.webp',
     quote: 'Супы — это то, к чему мы исторически привыкли и то, что любим. Без них совсем не могут мой муж и сын. Сочетания сезонных овощей, бобовых и цельнозерновых круп — это лучшее, что вы можете предложить своему организму.',
     ingredients: [
@@ -663,7 +666,7 @@ RECIPES['dark-broth'] = {
     name: 'Бульон №2 (тёмный)', emoji: '🍵', time: 35, diff: 'easy', servings: 6,
     kcal: 25, protein: 1, fat: 0, carbs: 5, fiber: 1,
     added: '19 марта 2026',
-    tags: ['простой', 'без глютена', 'заготовка'],
+    tags: ['растительный', 'без сои', 'без глютена'],
     photo: '../images/img-guides/plant-based/dark-broth.webp',
     quote: 'Супы — это то, к чему мы исторически привыкли и то, что любим. Без них совсем не могут мой муж и сын. Сочетания сезонных овощей, бобовых и цельнозерновых круп — это лучшее, что вы можете предложить своему организму.',
     ingredients: [
@@ -690,7 +693,7 @@ RECIPES['lentil-soup'] = {
     name: 'Чечевичный суп', emoji: '🍲', time: 40, diff: 'easy', servings: 4,
     kcal: 220, protein: 13, fat: 3, carbs: 36, fiber: 10,
     added: '19 марта 2026',
-    tags: ['простой', 'без глютена', 'бобовые'],
+    tags: ['растительный', 'без сои', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/lentil-soup.webp',
     quote: 'Красная чечевица разваривается за 15 минут и даёт кремовую текстуру без блендера. Это один из самых простых и сытных супов, который полюбит вся семья. Обязательно добавьте лимон при подаче!',
     ingredients: [
@@ -724,7 +727,7 @@ RECIPES['borscht'] = {
     name: 'Щи и Борщ', emoji: '🍲', time: 60, diff: 'medium', servings: 6,
     kcal: 180, protein: 8, fat: 2, carbs: 34, fiber: 9,
     added: '19 марта 2026',
-    tags: ['средний', 'без глютена'],
+    tags: ['растительный', 'без сои', 'без глютена'],
     photo: '../images/img-guides/plant-based/borsch.webp',
     quote: 'Я объединила эти два блюда, так как они отличаются только наличием свёклы и разной фасолью.',
     ingredients: [
@@ -762,7 +765,7 @@ RECIPES['chickpea-noodle-soup'] = {
     name: 'Суп с нутом и лапшой', emoji: '🍜', time: 35, diff: 'easy', servings: 4,
     kcal: 230, protein: 11, fat: 3, carbs: 40, fiber: 7,
     added: '19 марта 2026',
-    tags: ['простой', 'бобовые'],
+    tags: ['растительный', 'без сои', 'бобовые'],
     photo: '../images/img-guides/plant-based/chickpea-noodle-soup.webp',
     quote: 'Нут — король бобовых! Он даёт этому супу сытность и белок, а лапша делает его по-домашнему уютным. Мои дети называют его «суп как у бабушки, только полезный».',
     ingredients: [
@@ -791,7 +794,7 @@ RECIPES['buckwheat-soup'] = {
     name: 'Гречневый суп', emoji: '🍲', time: 40, diff: 'easy', servings: 4,
     kcal: 190, protein: 8, fat: 2, carbs: 35, fiber: 5,
     added: '19 марта 2026',
-    tags: ['простой', 'без глютена'],
+    tags: ['растительный', 'без сои', 'без глютена'],
     photo: 'images/recipes/soup-bucket-quinoa/soup-bucket--quinoa-final.webp',
     quote: 'Гречка — это полезная и низкокалорийная крупа, которая содержит в себе и белок, и витамины группы В, и вообще — кладезь различных минералов! Это любимый суп моих детей, поэтому варю я его достаточно часто.',
     ingredients: [
@@ -836,7 +839,7 @@ RECIPES['broccoli-cream-soup'] = {
     name: 'Крем-суп из брокколи', emoji: '🥦', time: 40, diff: 'easy', servings: 3,
     kcal: 200, protein: 8, fat: 9, carbs: 22, fiber: 5,
     added: '19 марта 2026',
-    tags: ['простой', 'без глютена'],
+    tags: ['растительный', 'без сои', 'без глютена'],
     photo: '../images/img-guides/plant-based/broccoli-cream-soup.webp',
     quote: 'Для того, чтобы крем-суп был вкусным и кремовым, в нём обязательно должны присутствовать жиры. В нашем случае это кешью. Ещё в этот рецепт я добавляю картофель. Получается мягкий вкус и нужная консистенция.',
     ingredients: [
@@ -866,7 +869,7 @@ RECIPES['rassolnik'] = {
     name: 'Рассольник', emoji: '🥒', time: 50, diff: 'medium', servings: 4,
     kcal: 195, protein: 6, fat: 2, carbs: 38, fiber: 4,
     added: '19 марта 2026',
-    tags: ['средний'],
+    tags: ['растительный', 'без сои'],
     photo: '../images/img-guides/plant-based/rassolnik-soup.webp',
     quote: 'Попробуйте разнообразить суп, каждый раз готовя его с разной крупой. Кроме классической перловки, прекрасно подойдут бурый рис и булгур. Подавайте с мелко нарубленным укропом и/или петрушкой. Вкусно с чайной ложкой соуса из кешью (смотрите мой рецепт в разделе «Соусы») или сметаны.',
     ingredients: [
@@ -902,7 +905,7 @@ RECIPES['roasted-veg-soup'] = {
     name: 'Суп с печёными овощами', emoji: '🍲', time: 45, diff: 'medium', servings: 4,
     kcal: 185, protein: 7, fat: 3, carbs: 33, fiber: 7,
     added: '19 марта 2026',
-    tags: ['средний', 'без глютена'],
+    tags: ['растительный', 'без сои', 'без глютена'],
     photo: '../images/img-guides/plant-based/roasted-vegetable-soup.webp',
     quote: 'Печёные овощи придают блюду совершенно новый вкус и аромат. Поэтому такой способ приготовления выведет ваш суп на совершенно новый уровень!',
     ingredients: [
@@ -935,7 +938,7 @@ RECIPES['oregano-croutons'] = {
     name: 'Сухарики с орегано', emoji: '🍞', time: 25, diff: 'easy', servings: 4,
     kcal: 120, protein: 3, fat: 4, carbs: 18, fiber: 2,
     added: '19 марта 2026',
-    tags: ['до 30 мин', 'простой'],
+    tags: ['растительный', 'без сои'],
     photo: '../images/img-guides/plant-based/oregano-croutons.webp',
     quote: 'Этот рецепт, который обожает моя семья. Тут ничего необычного, уверена, что и вы так делаете. Такие сухари просто созданы для супов-пюре и бобовых!',
     ingredients: [
@@ -960,7 +963,7 @@ RECIPES['ww-crackers'] = {
     name: 'Крекеры из цельнозерновой муки', emoji: '🫓', time: 30, diff: 'easy', servings: 6,
     kcal: 130, protein: 3, fat: 5, carbs: 19, fiber: 3,
     added: '19 марта 2026',
-    tags: ['до 30 мин', 'простой'],
+    tags: ['растительный', 'без сои'],
     photo: '../images/img-guides/plant-based/wholegrain-crackers.webp',
     quote: 'Они невероятные, хрустящие, яркие, ароматные и солнечные! Найдите свежий розмарин, с ним крекеры будут просто волшебными!',
     ingredients: [
@@ -991,7 +994,7 @@ RECIPES['potato-quinoa-cutlets'] = {
     name: 'Картофельные котлеты с киноа', emoji: '🥔', time: 50, diff: 'medium', servings: 4,
     kcal: 200, protein: 6, fat: 4, carbs: 36, fiber: 4,
     added: '19 марта 2026',
-    tags: ['средний', 'без глютена'],
+    tags: ['растительный', 'без сои', 'без глютена'],
     photo: '../images/img-guides/plant-based/potato-patties.webp',
     quote: 'Киноа — это суперфуд, который прекрасно сочетается с картофелем. Котлеты получаются с хрустящей корочкой и нежные внутри. Подавайте со свежими овощами и зеленью!',
     ingredients: [
@@ -1020,7 +1023,7 @@ RECIPES['green-lentil-cutlets'] = {
     name: 'Котлеты из зелёной чечевицы', emoji: '🫘', time: 45, diff: 'medium', servings: 3,
     kcal: 230, protein: 14, fat: 4, carbs: 32, fiber: 10,
     added: '19 марта 2026',
-    tags: ['средний', 'без глютена', 'бобовые'],
+    tags: ['растительный', 'без сои', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/green-lentil-cutlets.webp',
     quote: 'Из этих ингредиентов получится 6 средних котлет. Они максимально «похожи» на мясные. Ещё котлеты очень вкусны в домашних бургерах. Таких котлет я сразу делаю много, формирую и замораживаю. Потом достаточно просто пожарить их, не размораживая.',
     ingredients: [
@@ -1047,7 +1050,7 @@ RECIPES['broccoli-rice-cutlets'] = {
     name: 'Котлеты из брокколи, риса и грибов', emoji: '🥦', time: 45, diff: 'medium', servings: 4,
     kcal: 170, protein: 7, fat: 3, carbs: 28, fiber: 5,
     added: '19 марта 2026',
-    tags: ['средний', 'без глютена'],
+    tags: ['растительный', 'без сои', 'без глютена'],
     photo: '../images/img-guides/plant-based/broccoli-patties.webp',
     quote: 'Брокколи, рис и грибы — это трио, которое превращается в нежнейшие котлеты. Дети даже не догадаются, что внутри столько овощей! Секрет — хорошо отжать брокколи после варки.',
     ingredients: [
@@ -1077,7 +1080,7 @@ RECIPES['chickpea-eggplant-cutlets'] = {
     name: 'Котлеты из нута и баклажана', emoji: '🫘', time: 55, diff: 'medium', servings: 4,
     kcal: 240, protein: 12, fat: 5, carbs: 36, fiber: 10,
     added: '19 марта 2026',
-    tags: ['средний', 'без глютена', 'бобовые'],
+    tags: ['растительный', 'без сои', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/chickpea-eggplant-patties.webp',
     quote: 'Это самые вкусные котлеты по версии моих знакомых-мясоедов. Очень советую за раз приготовить сразу пачку нута. Порционно заморозить его и потом размораживать по мере необходимости. В этом уникальность бобовых: они не теряют своих замечательных свойств после заморозки. Их тоже, как из чечевицы, можно заморозить уже сформированные и жарить не размораживая.',
     ingredients: [
@@ -1111,7 +1114,7 @@ RECIPES['chickpea-meatballs'] = {
     name: 'Тефтели из нута', emoji: '🫘', time: 60, diff: 'medium', servings: 4,
     kcal: 220, protein: 11, fat: 4, carbs: 34, fiber: 8,
     added: '19 марта 2026',
-    tags: ['средний', 'без глютена', 'бобовые'],
+    tags: ['растительный', 'без сои', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/chickpea-meatballs.webp',
     quote: 'Этот рецепт похож на «Котлеты из нута», но здесь нет баклажана и тефтели мы будем сначала запекать, а потом тушить в томатах. Подавайте с любым гарниром, но я рекомендую с пюре — это что-то с чем-то!',
     ingredients: [
@@ -1142,7 +1145,7 @@ RECIPES['red-lentil-cutlets'] = {
     name: 'Котлеты из красной чечевицы', emoji: '🫘', time: 35, diff: 'easy', servings: 3,
     kcal: 210, protein: 12, fat: 3, carbs: 33, fiber: 8,
     added: '19 марта 2026',
-    tags: ['простой', 'без глютена', 'бобовые'],
+    tags: ['растительный', 'без сои', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/red-lentil-cutlets.webp',
     quote: 'Можно использовать красную, жёлтую или оранжевую чечевицу. Очень нежные котлетки, которые понравятся детям!',
     ingredients: [
@@ -1171,8 +1174,8 @@ RECIPES['lentil-mushroom-pilaf'] = {
     id: 'lentil-mushroom-pilaf', cat: 'mains',
     name: 'Плов с чечевицей и грибами', emoji: '🍚', time: 45, diff: 'easy', servings: 4, portionGrams: 380,
     kcal: 350, protein: 14, fat: 5, carbs: 57, fiber: 9,
-    added: '19 марта 2026',
-    tags: ['простой', 'бобовые'],
+    added: '25 марта 2026',
+    tags: ['растительный', 'без сои', 'без глютена', 'бобовые'],
     photo: 'images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-final.webp',
     quote: 'Не выпаривайте воду полностью. Оставьте немного жидкости, выключите огонь и дайте плову настояться под крышкой около 30–60 минут (если есть время). За это время он впитает остатки влаги и не будет сухим.',
     ingredients: [
@@ -1186,7 +1189,7 @@ RECIPES['lentil-mushroom-pilaf'] = {
         { name: 'Тимьян — 1 ч. л.', swap: null },
         { name: 'Кумин — ½ ч. л.', swap: null },
         { name: 'Куркума — ¼ ч. л.', swap: null },
-        { name: 'Вода — 900 мл', swap: 'Овощной бульон (добавить 1 ч. л. овощного концентрата)' },
+        { name: 'Вода — 900 мл', swap: '[Овощной бульон](veggie-concentrate) (добавить 1 ч. л. [овощного концентрата](veggie-concentrate))' },
         { name: 'Соль — 1 ч. л. (по вкусу)', swap: null },
         { name: 'Оливковое масло — 1 ст. л.', swap: null },
     ],
@@ -1214,7 +1217,7 @@ RECIPES['pasta-boloniase'] = {
     name: 'Паста с томатами и баклажанами «а-ля болоньезе»', emoji: '🍝', time: 40, diff: 'medium', servings: 3,
     kcal: 360, protein: 10, fat: 8, carbs: 62, fiber: 8,
     added: '19 марта 2026',
-    tags: ['средний'],
+    tags: ['растительный', 'без сои'],
     photo: '../images/img-guides/plant-based/pasta-boloniase.webp',
     quote: 'Баклажан, измельчённый в блендере, создаёт текстуру, неотличимую от мясного фарша. Добавьте томаты, чеснок, базилик — и это будет одна из лучших паст, что вы пробовали!',
     ingredients: [
@@ -1248,7 +1251,7 @@ RECIPES['pasta-carbonara'] = {
     name: 'Сливочная паста «а-ля карбонара»', emoji: '🍝', time: 25, diff: 'easy', servings: 4,
     kcal: 380, protein: 22, fat: 12, carbs: 48, fiber: 3,
     added: '19 марта 2026',
-    tags: ['до 30 мин', 'простой', 'на спорте'],
+    tags: ['растительный', 'без сои'],
     photo: '../images/img-guides/plant-based/pasta-carbonara.webp',
     quote: 'Сливочная паста за 25 минут — это спасение для вечера, когда нет сил готовить долго. Тунец даёт белок, а сливочный соус из кешью — ту самую нежность настоящей карбонары.',
     ingredients: [
@@ -1279,7 +1282,7 @@ RECIPES['cashew-sauce'] = {
     name: 'Соус из кешью', emoji: '🥛', time: 10, diff: 'easy', servings: 8,
     kcal: 130, protein: 4, fat: 10, carbs: 7, fiber: 1,
     added: '19 марта 2026',
-    tags: ['до 15 мин', 'простой', 'без глютена'],
+    tags: ['растительный', 'без сои', 'без глютена'],
     photo: '../images/img-guides/plant-based/cashew-sauce.webp',
     quote: 'Этот универсальный соус. Можно заправлять салаты, добавлять в супы, в томатные подливы. Я также использую его как основу для сливочной пиццы вместо томатного соуса. Если сделать соус чуть гуще, добавить зелень, то можно использовать его как творожный сыр и намазывать на брускетты. Часто для меня соус из кешью является основой для других соусов.',
     ingredients: [
@@ -1304,7 +1307,7 @@ RECIPES['cashew-sour-cream'] = {
     name: 'Сметана из кешью', emoji: '🥛', time: 15, diff: 'medium', servings: 8,
     kcal: 125, protein: 4, fat: 10, carbs: 6, fiber: 1,
     added: '19 марта 2026',
-    tags: ['без глютена', 'ферментированный'],
+    tags: ['растительный', 'без сои', 'без глютена'],
     photo: '../images/img-guides/plant-based/cashew-sour-cream.webp',
     quote: 'Вы не отличите эту сметану от молочной! Белок, полезный жир, микроэлементы — всё в одной ложке. Мы ферментируем кешью, а любой ферментированный продукт — это супереда для полезных бактерий, а значит — для пользы нашего ЖКТ. Добавляем сметану в супы, едим с блинами, панкейками, заправляем салаты — это отличная замена традиционной молочной сметаны!',
     ingredients: [
@@ -1330,7 +1333,7 @@ RECIPES['caesar-sauce'] = {
     name: 'Соус «а-ля Цезарь»', emoji: '🥗', time: 10, diff: 'easy', servings: 6,
     kcal: 145, protein: 4, fat: 11, carbs: 7, fiber: 1,
     added: '19 марта 2026',
-    tags: ['до 15 мин', 'простой', 'без глютена'],
+    tags: ['растительный', 'без сои', 'без глютена'],
     photo: '../images/img-guides/plant-based/sauce-сesar.webp',
     quote: 'Очень интересный и вкусный соус. Подойдёт к любому сочетанию овощей, не только к салату «Цезарь» — пробуйте!',
     ingredients: [
@@ -1356,7 +1359,7 @@ RECIPES['white-bean-sauce'] = {
     name: 'Соус из белой фасоли', emoji: '🫘', time: 5, diff: 'easy', servings: 6,
     kcal: 110, protein: 5, fat: 7, carbs: 8, fiber: 3,
     added: '19 марта 2026',
-    tags: ['до 15 мин', 'простой', 'без глютена', 'бобовые'],
+    tags: ['растительный', 'без сои', 'без глютена', 'бобовые'],
     photo: '../images/img-guides/plant-based/white-bean-sauce.webp',
     quote: 'Этот соус может заменить вам майонез. Очень вкусный сам по себе — можно есть со свежеиспечённым цельнозерновым хлебом, добавлять в любое блюдо, в том числе в качестве подливы или намазки для бургера и питы.',
     ingredients: [
@@ -1378,7 +1381,7 @@ RECIPES['roasted-veg-sauce'] = {
     name: 'Соус из запечённых овощей', emoji: '🥕', time: 40, diff: 'easy', servings: 6,
     kcal: 70, protein: 2, fat: 4, carbs: 8, fiber: 2,
     added: '19 марта 2026',
-    tags: ['простой', 'без глютена'],
+    tags: ['растительный', 'без сои', 'без глютена'],
     photo: '../images/img-guides/plant-based/Roasted-vegetable-sauce.webp',
     quote: 'Запечённые овощи — это совершенно другой вкус! Томаты становятся сладкими, морковь карамельной, а перец — дымным. Этот соус универсален: к пасте, к крупам, к хлебу.',
     ingredients: [
@@ -1407,7 +1410,7 @@ RECIPES['beetroot-bean-arugula'] = {
     name: 'Салат из запечённой свёклы, белой фасоли и рукколы', emoji: '🥗', time: 18, diff: 'easy', servings: 3, portionGrams: 275,
     kcal: 280, protein: 9, fat: 16, carbs: 27, fiber: 8,
     added: '25 марта 2026',
-    tags: ['простой', 'без глютена', 'бобовые'],
+    tags: ['растительный', 'без сои', 'без глютена', 'бобовые'],
     photo: 'images/recipes/salad-beetroot-white beans-arugula/salad-beetroot-white beans-arugula-final.webp',
     quote: 'Не варите свёклу — запекайте её. Так она становится сладкой, ароматной и нежной, без лишней воды. Запеките несколько штук сразу на неделю: они отлично хранятся в холодильнике и всегда готовы для яркого салата или ароматного борща. Маленькие корнеплоды запекайте без фольги на пергаменте 45–50 минут, пока они не станут мягкими и легко протыкаются вилкой.',
     ingredients: [
@@ -1485,10 +1488,10 @@ function getCategoryDishes(catId, filters = {}) {
         else dishes = dishes.filter(d => d.time <= filters.time);
     }
     if (filters.difficulty) dishes = dishes.filter(d => d.diff === filters.difficulty);
-    if (filters.gluten)      dishes = dishes.filter(d => (d.tags||[]).includes('без глютена'));
-    if (filters.plant)  dishes = dishes.filter(d => !(d.tags||[]).includes('рыбное'));
-    if (filters.fish)   dishes = dishes.filter(d => (d.tags||[]).includes('рыбное'));
-    if (filters.noSoy)   dishes = dishes.filter(d => !(d.tags||[]).includes('соя'));
+    if (filters.gluten)  dishes = dishes.filter(d => (d.tags||[]).includes('без глютена'));
+    if (filters.plant)   dishes = dishes.filter(d => (d.tags||[]).includes('растительный'));
+    if (filters.fish)    dishes = dishes.filter(d => (d.tags||[]).includes('рыбное'));
+    if (filters.noSoy)   dishes = dishes.filter(d => (d.tags||[]).includes('без сои'));
     if (filters.legumes) dishes = dishes.filter(d => (d.tags||[]).includes('бобовые'));
     return dishes;
 }

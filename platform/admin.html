@@ -783,7 +783,7 @@
 <!-- Toast -->
 <div class="adm-toast" id="adm-toast"></div>
 
-<script src="data-v2.js?v=1774300005"></script>
+<script src="data-v2.js?v=1774400001"></script>
 <script>
 (function() {
     // ── Auth check ──
@@ -1246,9 +1246,12 @@
         document.getElementById('recipe-ingredients').value = ingr.map(function(i) {
             return typeof i === 'string' ? i : (i.name || '') + (i.swap ? ' | ' + i.swap : '');
         }).join('\n');
-        // Steps
+        // Steps: объектные шаги сериализуем как JSON-строки, простые — как есть
         var steps = r ? (r.steps || []) : [];
-        document.getElementById('recipe-steps').value = steps.join('\n');
+        document.getElementById('recipe-steps').value = steps.map(function(s) {
+            if (typeof s === 'string') return s;
+            return JSON.stringify(s);
+        }).join('\n');
         document.getElementById('recipe-modal').classList.add('open');
     };
 
@@ -1295,7 +1298,14 @@
             var parts = l.split('|');
             return { name: parts[0].trim(), swap: parts[1] ? parts[1].trim() : null };
         });
-        var steps = document.getElementById('recipe-steps').value.split('\n').filter(function(l) { return l.trim(); });
+        var steps = document.getElementById('recipe-steps').value.split('\n').filter(function(l) { return l.trim(); }).map(function(l) {
+            var trimmed = l.trim();
+            // Если строка начинается с { — пробуем распарсить как JSON (объектный шаг с фото)
+            if (trimmed.charAt(0) === '{') {
+                try { return JSON.parse(trimmed); } catch(e) { /* не JSON — оставляем строкой */ }
+            }
+            return trimmed;
+        });
         var tags = document.getElementById('recipe-tags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
         var body = {
             id: document.getElementById('recipe-id').value.trim(),

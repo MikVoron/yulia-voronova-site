@@ -45,8 +45,8 @@ async function migrate() {
             await client.query(`
                 INSERT INTO recipes (id, cat, name, emoji, time_min, difficulty, servings, is_free,
                     kcal, protein, fat, carbs, fiber, tags, photo, img_position, quote,
-                    ingredients, steps, note, vk_video, add_protein, add_fat, add_carbs, add_fiber, sort_order)
-                VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)
+                    ingredients, steps, note, vk_video, add_protein, add_fat, add_carbs, add_fiber, portion_grams, sort_order)
+                VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
                 ON CONFLICT (id) DO UPDATE SET
                     cat=EXCLUDED.cat, name=EXCLUDED.name, emoji=EXCLUDED.emoji,
                     time_min=EXCLUDED.time_min, difficulty=EXCLUDED.difficulty,
@@ -58,17 +58,18 @@ async function migrate() {
                     steps=EXCLUDED.steps, note=EXCLUDED.note, vk_video=EXCLUDED.vk_video,
                     add_protein=EXCLUDED.add_protein, add_fat=EXCLUDED.add_fat,
                     add_carbs=EXCLUDED.add_carbs, add_fiber=EXCLUDED.add_fiber,
+                    portion_grams=EXCLUDED.portion_grams,
                     sort_order=EXCLUDED.sort_order, updated_at=now()
             `, [
                 id, r.cat, r.name, r.emoji || '🍴', r.time || 30, r.diff || 'easy',
-                r.servings || 2, r.free || false,
+                r.servings || 4, r.free || false,
                 r.kcal || 0, r.protein || 0, r.fat || 0, r.carbs || 0, r.fiber || 0,
                 r.tags || [], r.photo || null, r.imgPosition || null, r.quote || null,
                 JSON.stringify(r.ingredients || []), JSON.stringify(r.steps || []),
                 r.note || null, r.vkVideo || null,
                 JSON.stringify(r.addProtein || []), JSON.stringify(r.addFat || []),
                 JSON.stringify(r.addCarbs || []), JSON.stringify(r.addFiber || []),
-                count
+                r.portionGrams || 300, count
             ]);
             count++;
             console.log(`  ✓ ${id}`);

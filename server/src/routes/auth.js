@@ -3,7 +3,7 @@ const db = require('../db');
 const { generateAccessToken, generateRefreshToken, hashToken, verifyAccessToken, generateLoginCode } = require('../auth');
 const { sendLoginCode, sendWelcome } = require('../email');
 const { authenticate } = require('../middleware');
-const { shouldGrantTrial, recordTrial } = require('../trial-guard');
+const { tryGrantTrial } = require('../trial-guard');
 const audit = require('../audit');
 
 async function authRoutes(fastify) {
@@ -57,14 +57,11 @@ async function authRoutes(fastify) {
       userRes = await db.query('INSERT INTO users (email) VALUES ($1) RETURNING *', [lower]);
       const userId = userRes.rows[0].id;
       await db.query('INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)', [userId, 'email', lower]);
-      // Проверка: давать ли триал
-      const trial = await shouldGrantTrial(fingerprint, req.ip);
+      // Атомарная проверка + fingerprint + subscription — всё в одной транзакции
+      const trial = await tryGrantTrial(fingerprint, req.ip, userId);
       if (trial.grant) {
-        await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip, registration_fingerprint) VALUES ($1, 'trial', now() + interval '7 days', $2, $3)", [userId, req.ip, fingerprint]);
-        await recordTrial(fingerprint, req.ip, userId);
         audit.log('trial_granted', { userId, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
       } else {
-        await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip, registration_fingerprint) VALUES ($1, 'expired', now(), $2, $3)", [userId, req.ip, fingerprint]);
         audit.log('trial_denied', { userId, email: lower, detail: trial.reason, ip: req.ip, ua: req.headers['user-agent'] });
       }
       audit.log('register', { userId, email: lower, detail: 'email', ip: req.ip, ua: req.headers['user-agent'] });

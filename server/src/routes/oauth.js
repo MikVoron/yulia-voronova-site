@@ -1,7 +1,7 @@
 const db = require('../db');
 const { generateAccessToken, generateRefreshToken, hashToken } = require('../auth');
 const { sendWelcome } = require('../email');
-const { shouldGrantTrial, recordTrial } = require('../trial-guard');
+const { tryGrantTrial } = require('../trial-guard');
 const audit = require('../audit');
 
 // ── VK ID ───────────────────────────────────────────────────────────────────
@@ -64,14 +64,11 @@ async function findOrCreateUser(provider, providerId, email, displayName, fastif
     'INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)',
     [user.id, provider, providerId]
   );
-  // Проверка: давать ли триал (OAuth — только по IP, fingerprint недоступен)
-  const trial = await shouldGrantTrial(null, ip);
+  // Атомарная проверка + fingerprint + subscription — всё в одной транзакции
+  const trial = await tryGrantTrial(null, ip, user.id);
   if (trial.grant) {
-    await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip) VALUES ($1, 'trial', now() + interval '7 days', $2)", [user.id, ip]);
-    await recordTrial(null, ip, user.id);
     audit.log('trial_granted', { userId: user.id, email, detail: provider, ip });
   } else {
-    await db.query("INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip) VALUES ($1, 'expired', now(), $2)", [user.id, ip]);
     audit.log('trial_denied', { userId: user.id, email, detail: trial.reason + ' (' + provider + ')', ip });
   }
   audit.log('register', { userId: user.id, email, detail: provider, ip });

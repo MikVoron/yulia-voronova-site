@@ -87,7 +87,7 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1774300005"></script>
+<script src="data-v2.js?v=1774400001"></script>
 <script>
     Auth.requireAuth();
     Auth.checkAccess();
@@ -102,7 +102,7 @@
         const uAva = document.getElementById('u-ava');
         const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
         if (savedAva) {
-            uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+            uAva.innerHTML = `<img src="${savedAva.replace(/"/g,'&quot;')}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
         } else {
             uAva.textContent = (customName || user.email || '?').charAt(0).toUpperCase();
         }
@@ -191,28 +191,28 @@
         const items = (r.subItems || []).map(id => RECIPES[id]).filter(Boolean);
         const html = `
             <div class="anim">
-                <div style="font-size:40px;margin-bottom:10px">${r.emoji}</div>
-                <h1 class="recipe-title" style="margin-bottom:6px">${r.name}</h1>
+                <div style="font-size:40px;margin-bottom:10px">${escHtml(r.emoji)}</div>
+                <h1 class="recipe-title" style="margin-bottom:6px">${escHtml(r.name)}</h1>
                 <div class="sublist-note">Выберите намазку — откроется её рецепт</div>
                 <div class="sublist-items">
                     ${items.map(item => `
-                        <button class="dish-card anim" onclick="location.href='recipe.html?id=${item.id}&from=${fromCat}'">
-                            <div class="dish-emoji-box" style="background:var(--green-l)">${item.emoji}</div>
+                        <button class="dish-card anim" onclick="location.href='recipe.html?id=${encodeURIComponent(item.id)}&from=${encodeURIComponent(fromCat)}'">
+                            <div class="dish-emoji-box" style="background:var(--green-l)">${escHtml(item.emoji)}</div>
                             <div class="dish-info">
-                                <div class="dish-name">${item.name}</div>
+                                <div class="dish-name">${escHtml(item.name)}</div>
                                 <div class="dish-meta">
-                                    <span class="pill">⏱ ${item.time} мин</span>
-                                    <span class="pill">${DIFF_LABELS[item.diff] || item.diff}</span>
+                                    <span class="pill">⏱ ${Number(item.time)} мин</span>
+                                    <span class="pill">${escHtml(DIFF_LABELS[item.diff] || item.diff)}</span>
                                 </div>
                             </div>
-                            <div class="dish-kcal">${item.kcal}<span>ккал</span></div>
+                            <div class="dish-kcal">${Number(item.kcal)}<span>ккал</span></div>
                             <div class="dish-arrow">›</div>
                         </button>`).join('')}
                 </div>
                 ${r.tip ? `<div class="julia-tip anim" style="margin-top:20px">
                     <img src="../images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
                     <div class="julia-tip-bubble">
-                        <div class="julia-tip-text">«${r.tip}»</div>
+                        <div class="julia-tip-text">«${escHtml(r.tip)}»</div>
                         <div class="julia-tip-name">— Юлия Воронова</div>
                     </div>
                 </div>` : ''}
@@ -259,11 +259,28 @@
                 { name: 'Огурец свежий (½ шт.)', kcal: 10, protein: 0, fat: 0, carbs: 2, fiber: 1 },
             ],
         };
-        const addProtein = (r.addProtein && r.addProtein.length) ? r.addProtein : DEFAULT_ADD.protein;
-        const addFat     = (r.addFat     && r.addFat.length    ) ? r.addFat     : DEFAULT_ADD.fat;
-        const addCarbs   = (r.addCarbs   && r.addCarbs.length  ) ? r.addCarbs   : DEFAULT_ADD.carbs;
-        const addFiber   = (r.addFiber   && r.addFiber.length  ) ? r.addFiber   : DEFAULT_ADD.fiber;
-        const hasAdditions = !simpleMode;
+        // Если у рецепта явно пустые add* — сайдбар не показываем (правило: нет добавок = нет сайдбара)
+        const _hasOwn = (arr) => Array.isArray(arr) && arr.length > 0;
+        const _hasAnyAdd = _hasOwn(r.addProtein) || _hasOwn(r.addFat) || _hasOwn(r.addCarbs) || _hasOwn(r.addFiber);
+        // undefined = рецепт без явных данных → показать дефолты; [] = явно пусто → не показывать
+        const _useDefaults = r.addProtein === undefined && r.addFat === undefined && r.addCarbs === undefined && r.addFiber === undefined;
+        const addProtein = _hasOwn(r.addProtein) ? r.addProtein : (_useDefaults ? DEFAULT_ADD.protein : []);
+        const addFat     = _hasOwn(r.addFat)     ? r.addFat     : (_useDefaults ? DEFAULT_ADD.fat     : []);
+        const addCarbs   = _hasOwn(r.addCarbs)   ? r.addCarbs   : (_useDefaults ? DEFAULT_ADD.carbs   : []);
+        const addFiber   = _hasOwn(r.addFiber)   ? r.addFiber   : (_useDefaults ? DEFAULT_ADD.fiber   : []);
+        const hasAdditions = !simpleMode && (_hasAnyAdd || _useDefaults);
+
+        // Экранирование HTML — защита от XSS
+        function escHtml(s) {
+            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+        // Сначала escape, потом safe-linkify: [текст](recipeId) → ссылка
+        // recipeId валидируется: только буквы, цифры, дефис
+        function linkify(text) {
+            return escHtml(text).replace(/\[([^\]]+)\]\(([a-zA-Z0-9-]+)\)/g, function(_, label, rid) {
+                return '<a href="recipe.html?id=' + rid + '" style="color:var(--accent);text-decoration:underline;cursor:pointer">' + label + '</a>';
+            });
+        }
 
         const ingHtml = (r.ingredients || []).map((ing, i) => {
             const name = typeof ing === 'string' ? ing : ing.name;
@@ -271,20 +288,20 @@
             return `<div>
                 <div class="ing-item">
                     <div class="ing-dot"></div>
-                    <div class="ing-name">${name}</div>
+                    <div class="ing-name">${linkify(name)}</div>
                     ${swap ? `<button class="ing-swap-btn" onclick="toggleSwap(${i})">чем заменить?</button>` : ''}
                 </div>
-                ${swap ? `<div class="ing-swap-tip" id="swap-${i}">${swap}</div>` : ''}
+                ${swap ? `<div class="ing-swap-tip" id="swap-${i}">${linkify(swap)}</div>` : ''}
             </div>`;
         }).join('');
 
         const stepsHtml = (r.steps || []).map((s, i) => {
-            const text  = typeof s === 'string' ? s : s.text;
+            const text  = escHtml(typeof s === 'string' ? s : s.text);
             const photo = typeof s === 'object' && s.photo ? s.photo : null;
             const photoHtml = photo
                 ? (photo === true
                     ? `<div class="step-photo-placeholder"><span>📷</span><span>Фото шага ${i+1}</span></div>`
-                    : `<img class="step-photo-img" src="${photo}" alt="Шаг ${i+1}" loading="lazy" onerror="this.style.display='none'">`)
+                    : `<img class="step-photo-img" src="${escHtml(photo)}" alt="Шаг ${i+1}" loading="lazy" onerror="this.style.display='none'">`)
                 : '';
             return `<div class="step-item"><div class="step-num">${i+1}</div><div style="flex:1">${text}${photoHtml}</div></div>`;
         }).join('');
@@ -302,15 +319,15 @@
                 <div class="add-total" id="add-total-bar">
                     <div>
                         <div class="add-total-label">Итого (блюдо + добавки):</div>
-                        <div class="add-total-macro" id="add-macro">Б${r.protein}г · Ж${r.fat}г · У${r.carbs}г · Кл${r.fiber||0}г</div>
+                        <div class="add-total-macro" id="add-macro">Б${Number(r.protein)}г · Ж${Number(r.fat)}г · У${Number(r.carbs)}г · Кл${Number(r.fiber||0)}г</div>
                     </div>
-                    <div class="add-total-val" id="add-total-kcal">${r.kcal} ккал</div>
+                    <div class="add-total-val" id="add-total-kcal">${Number(r.kcal)} ккал</div>
                 </div>
             </div>` : '';
 
         const alreadyInPlate = isInPlate();
         const fiberCell = (r.fiber !== undefined)
-            ? `<div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fiber">${r.fiber}г</div><div class="kbzhu-lbl">Клетчатка</div></div>`
+            ? `<div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fiber">${Number(r.fiber)}г</div><div class="kbzhu-lbl">Клетчатка</div></div>`
             : '';
 
         const tipHtml = r.tip ? `<div class="julia-tip">
@@ -332,20 +349,17 @@
                 onclick="rateInline(${i})">★</span>`).join('');
         const voterCount = rv.count || 0;
         const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-        let dateStr = '';
-        if (r.added) {
-            dateStr = r.added;
-        }
+        const dateStr = r.added || '';
 
         document.getElementById('page-content').innerHTML = `
             <div class="recipe-layout">
                 <div class="recipe-main anim">
                     <div class="recipe-hero-img">
-                        <img src="${r.photo || PHOTO_BY_CAT[r.cat] || PHOTO_FALLBACK}"
-                             alt="${r.name}"
+                        <img src="${escHtml(r.photo || PHOTO_BY_CAT[r.cat] || PHOTO_FALLBACK)}"
+                             alt="${escHtml(r.name)}"
                              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
                              onerror="this.style.display='none'">
-                        ${!r.photo ? `<div class="recipe-hero-emoji" style="position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)">${r.emoji}</div>` : ''}
+                        ${!r.photo ? `<div class="recipe-hero-emoji" style="position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)">${escHtml(r.emoji)}</div>` : ''}
                         <div class="card-fav-btn${isFav ? ' active' : ''}" id="recipe-fav-btn"
                             onclick="event.stopPropagation();toggleRecipeFav()">
                             <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
@@ -369,12 +383,12 @@
                         </div>
                     </div>
                     <div class="recipe-badges">
-                        <span class="recipe-badge">⏱ ${r.time} мин</span>
-                        <span class="recipe-badge">⚡ ${diff}</span>
-                        <span class="recipe-badge">🍽 ${r.servings || 4} порции <span style="font-weight:400;color:var(--text-3)">(1 порция ≈ ${r.portionGrams || 300} г)</span></span>
-                        ${r.added ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">Рецепт добавлен: ${r.added}</span>` : ''}
+                        <span class="recipe-badge">⏱ ${Number(r.time)} мин</span>
+                        <span class="recipe-badge">⚡ ${escHtml(diff)}</span>
+                        <span class="recipe-badge">🍽 ${Number(r.servings || 4)} порции <span style="font-weight:400;color:var(--text-3)">(1 порция ≈ ${Number(r.portionGrams || 300)} г)</span></span>
+                        ${dateStr ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">Рецепт добавлен: ${escHtml(dateStr)}</span>` : ''}
                     </div>
-                    <h1 class="recipe-title">${r.name}</h1>
+                    <h1 class="recipe-title">${escHtml(r.name)}</h1>
                     <div class="recipe-meta-row" id="recipe-stars-row">
                         <span class="recipe-meta-stars${rv.mine ? ' user-rated' : ''}">
                             ${starsRow}
@@ -384,16 +398,16 @@
                     ${r.quote ? `<div class="julia-tip" style="margin-top:0;margin-bottom:18px">
                         <img src="../images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
                         <div class="julia-tip-bubble">
-                            <div class="julia-tip-text">«${r.quote}»</div>
+                            <div class="julia-tip-text">«${escHtml(r.quote)}»</div>
                             <div class="julia-tip-name">— Юлия Воронова</div>
                         </div>
                     </div>` : ''}
                     <div class="v-section-title" style="margin-bottom:8px">В одной порции блюда:</div>
                     <div class="kbzhu" id="kbzhu-block">
-                        <div class="kbzhu-cell main"><div class="kbzhu-val" id="kbzhu-kcal">${r.kcal}</div><div class="kbzhu-lbl">Ккал</div></div>
-                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-protein">${r.protein}г</div><div class="kbzhu-lbl">Белки</div></div>
-                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fat">${r.fat}г</div><div class="kbzhu-lbl">Жиры</div></div>
-                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-carbs">${r.carbs}г</div><div class="kbzhu-lbl">Углеводы</div></div>
+                        <div class="kbzhu-cell main"><div class="kbzhu-val" id="kbzhu-kcal">${Number(r.kcal)}</div><div class="kbzhu-lbl">Ккал</div></div>
+                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-protein">${Number(r.protein)}г</div><div class="kbzhu-lbl">Белки</div></div>
+                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fat">${Number(r.fat)}г</div><div class="kbzhu-lbl">Жиры</div></div>
+                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-carbs">${Number(r.carbs)}г</div><div class="kbzhu-lbl">Углеводы</div></div>
                         ${fiberCell}
                     </div>
 
@@ -405,6 +419,7 @@
                         <button class="btn btn-ghost btn-sm" onclick="shareRecipeIngredients()" style="padding:6px 10px;font-size:11px">📤 Поделиться</button>
                     </div>
                     <div class="ing-list">${ingHtml}</div>
+                    ${r.photo ? `<img class="step-photo-img" src="${escHtml(r.photo.replace('-final.', '-start.'))}" alt="Ингредиенты" loading="lazy" onerror="this.style.display='none'" style="margin-top:16px;border-radius:12px;width:100%">` : ''}
 
                     <div class="v-section-title" style="margin-top:20px">Приготовление</div>
                     <div class="steps-list">${stepsHtml}</div>
@@ -413,7 +428,7 @@
                         <div class="v-section-title" style="margin-top:20px">Видеорецепт</div>
                         <div class="vk-embed" style="cursor:default;background:#000">
                             <iframe
-                                src="${r.ytVideo || r.vkVideo}"
+                                src="${escHtml(r.ytVideo || r.vkVideo)}"
                                 width="100%" height="100%"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen; screen-wake-lock;"
                                 frameborder="0" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"
@@ -477,34 +492,33 @@
                     const hasRecipe = item.recipeId;
                     const hasCat = item.catLink;
                     if (hasRecipe) {
-                        // Items with recipe: show "добавить в тарелку" button
                         subItemRegistry[key] = item;
                         const subInPlate = Plate.get().some(p => p.recipeId === item.recipeId);
+                        const safeRid = encodeURIComponent(item.recipeId);
                         return `<div class="add-item" id="ai-${key}" style="position:relative">
                             <div class="add-item-check" id="chk-${key}"></div>
                             <div class="add-item-text">
-                                ${item.name}
-                                <a class="add-item-recipe-link" onclick="event.stopPropagation();location.href='recipe.html?id=${item.recipeId}&from=${fromCat}'">→ Открыть рецепт</a>
+                                ${escHtml(item.name)}
+                                <a class="add-item-recipe-link" onclick="event.stopPropagation();location.href='recipe.html?id=${safeRid}&from=${encodeURIComponent(fromCat)}'">→ Открыть рецепт</a>
                             </div>
                             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
-                                <div class="add-item-kcal">+${item.kcal} ккал</div>
+                                <div class="add-item-kcal">+${Number(item.kcal)} ккал</div>
                                 <button id="sub-add-${key}" class="btn btn-sm ${subInPlate ? 'btn-ghost' : 'btn-green'}"
                                     style="padding:5px 10px;font-size:10px;${subInPlate ? 'opacity:.6;cursor:default' : ''}"
-                                    onclick="addSubToPlate('${key}',event)"
+                                    onclick="addSubToPlate('${escHtml(key)}',event)"
                                     ${subInPlate ? 'disabled' : ''}>
                                     ${subInPlate ? '✓ В тарелке' : '+ В тарелку'}
                                 </button>
                             </div>
                         </div>`;
                     } else {
-                        // Items without recipe: checkbox behavior
-                        return `<button class="add-item" id="ai-${key}" onclick="toggleAddItem('${key}',${item.kcal||0},${item.protein||0},${item.fat||0},${item.carbs||0},${item.fiber||0})" style="position:relative">
+                        return `<button class="add-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal||0)},${Number(item.protein||0)},${Number(item.fat||0)},${Number(item.carbs||0)},${Number(item.fiber||0)})" style="position:relative">
                             <div class="add-item-check" id="chk-${key}"></div>
                             <div class="add-item-text">
-                                ${item.name}
-                                ${hasCat ? `<a class="add-item-recipe-link" onclick="event.stopPropagation();location.href='category.html?cat=${item.catLink}'">→ Выбрать из списка</a>` : ''}
+                                ${escHtml(item.name)}
+                                ${hasCat ? `<a class="add-item-recipe-link" onclick="event.stopPropagation();location.href='category.html?cat=${encodeURIComponent(item.catLink)}'">→ Выбрать из списка</a>` : ''}
                             </div>
-                            <div class="add-item-kcal">+${item.kcal} ккал</div>
+                            <div class="add-item-kcal">+${Number(item.kcal)} ккал</div>
                         </button>`;
                     }
                 }).join('')}
@@ -637,19 +651,19 @@
             body.innerHTML = '<div class="plate-items">' +
                 items.map((item, i) => `<div class="plate-item">
                     ${item.photo
-                        ? `<img class="plate-item-photo" src="${item.photo}" alt="">`
-                        : `<div class="plate-item-emoji">${item.emoji || '🍴'}</div>`}
+                        ? `<img class="plate-item-photo" src="${escHtml(String(item.photo))}" alt="">`
+                        : `<div class="plate-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
                     <div class="plate-item-info">
                         ${item.recipeId
-                            ? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
-                            : `<div class="plate-item-name">${item.name}</div>`}
-                        <div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div>
+                            ? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1'">${escHtml(String(item.name))}</div>`
+                            : `<div class="plate-item-name">${escHtml(String(item.name))}</div>`}
+                        <div class="plate-item-kcal">${Number(item.kcal)||0} ккал · Б${Number(item.protein)||0}г · Ж${Number(item.fat)||0}г · У${Number(item.carbs)||0}г</div>
                     </div>
-                    <button class="plate-item-del" onclick="removeItemR(${i})">✕</button>
+                    <button class="plate-item-del" onclick="removeItemR(${Number(i)})">✕</button>
                 </div>`).join('') + '</div>' +
                 `<div class="plate-total-block" style="margin-top:12px">
                     <div class="plate-total-title">Итого</div>
-                    <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г${t.fiber ? ' | Кл: ' + t.fiber + 'г' : ''}</div>
+                    <div class="plate-total-val">${Number(t.kcal)||0} ккал | Б: ${Number(t.protein)||0}г | Ж: ${Number(t.fat)||0}г | У: ${Number(t.carbs)||0}г${t.fiber ? ' | Кл: ' + (Number(t.fiber)||0) + 'г' : ''}</div>
                 </div>
                 <div style="display:flex;gap:8px;margin-top:10px">
                     <button class="btn btn-orange" style="flex:1" onclick="location.href='index.html'">← Вернуться</button>
