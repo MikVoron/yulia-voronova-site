@@ -16,7 +16,7 @@ async function subscriptionRoutes(fastify) {
   // GET /subscription — статус подписки текущего пользователя
   fastify.get('/subscription', { preHandler: authenticate }, async (req) => {
     const result = await db.query(
-      'SELECT status, trial_ends_at, active_until, is_early_bird, created_at FROM subscriptions WHERE user_id=$1',
+      'SELECT status, trial_ends_at, active_until, created_at FROM subscriptions WHERE user_id=$1',
       [req.user.sub]
     );
     if (!result.rows.length) return { status: 'none' };
@@ -28,7 +28,7 @@ async function subscriptionRoutes(fastify) {
     } else if (sub.status === 'active' && sub.active_until) {
       daysLeft = Math.max(0, Math.ceil((new Date(sub.active_until) - now) / 86400000));
     }
-    return { status: sub.status, trialEndsAt: sub.trial_ends_at, activeUntil: sub.active_until, daysLeft, isEarlyBird: !!sub.is_early_bird, createdAt: sub.created_at };
+    return { status: sub.status, trialEndsAt: sub.trial_ends_at, activeUntil: sub.active_until, daysLeft, createdAt: sub.created_at };
   });
 
   // POST /subscription/payment — пользователь сообщает об оплате

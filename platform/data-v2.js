@@ -68,6 +68,11 @@ const Auth = {
         const uKey = this._userKey('hp_user_name');
         if (val) localStorage.setItem(uKey, val);
         else localStorage.removeItem(uKey);
+        const user = this.getUser();
+        if (user) {
+            user.name = val || (user.email ? user.email.split('@')[0] : user.name);
+            localStorage.setItem(this.KEY, JSON.stringify(user));
+        }
     },
     _subStatus: null,
     async checkAccess() {
@@ -134,7 +139,13 @@ const Auth = {
             this._token = data.accessToken;
             sessionStorage.setItem(this._ST, data.accessToken);
             const user = this.getUser();
-            if (user && data.user) { user.name = data.user.displayName || user.name; user.email = data.user.email; localStorage.setItem(this.KEY, JSON.stringify(user)); }
+            if (user && data.user) {
+                user.name = data.user.displayName || user.name;
+                user.email = data.user.email;
+                localStorage.setItem(this.KEY, JSON.stringify(user));
+                const nameKey = this._userKey('hp_user_name');
+                if (data.user.displayName) localStorage.setItem(nameKey, data.user.displayName);
+            }
             return true;
         } catch { return false; }
     },
@@ -265,6 +276,15 @@ const RECIPES = {};
 let CATEGORIES = {};
 let _contentLoaded = false;
 
+// Normalize image paths: ../images/... → absolute URL on main site
+function _fixPhoto(p) {
+    if (!p) return null;
+    if (p.startsWith('../images/')) return 'https://voronova.online/' + p.slice(3);
+    if (p.startsWith('/images/')) return window.location.origin + p;
+    if (p.startsWith('images/')) return window.location.origin + '/' + p;
+    return p;
+}
+
 // Map API snake_case → frontend camelCase
 function _mapRecipe(r) {
     return {
@@ -274,10 +294,10 @@ function _mapRecipe(r) {
         kcal: r.kcal || 0, protein: r.protein || 0, fat: r.fat || 0,
         carbs: r.carbs || 0, fiber: r.fiber || 0,
         tags: r.tags || [],
-        photo: r.photo || null, imgPosition: r.img_position || null,
+        photo: _fixPhoto(r.photo), imgPosition: r.img_position || null,
         quote: r.quote || null,
         ingredients: r.ingredients || [],
-        steps: r.steps || [],
+        steps: (r.steps || []).map(s => typeof s === 'object' && s && s.photo ? {...s, photo: _fixPhoto(s.photo)} : s),
         note: r.note || null,
         vkVideo: r.vk_video || null,
         addProtein: r.add_protein || [],

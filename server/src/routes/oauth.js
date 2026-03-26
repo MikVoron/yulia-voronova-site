@@ -16,13 +16,15 @@ const YANDEX_CLIENT_ID = process.env.YANDEX_CLIENT_ID;
 const YANDEX_CLIENT_SECRET = process.env.YANDEX_CLIENT_SECRET;
 const YANDEX_REDIRECT = process.env.YANDEX_REDIRECT || 'https://api.voronova.online/auth/oauth/yandex/callback';
 
+const PLATFORM_URL = process.env.PLATFORM_URL || 'https://app.voronova.online';
+
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 function setCookieAndRedirect(reply, refreshToken, isNew) {
   reply.setCookie('refreshToken', refreshToken, {
     path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 2592000
   });
-  const target = 'https://voronova.online/platform/auth-callback.html' + (isNew ? '?welcome=1' : '');
+  const target = PLATFORM_URL + '/auth-callback.html' + (isNew ? '?welcome=1' : '');
   return reply.redirect(target);
 }
 
@@ -82,7 +84,7 @@ async function findOrCreateUser(provider, providerId, email, displayName, fastif
 async function issueTokens(user, req, reply, isNew, fastify) {
   if (user.is_blocked) {
     audit.log('login_blocked', { userId: user.id, email: user.email, ip: req.ip });
-    return reply.redirect('https://voronova.online/platform/login.html?error=blocked');
+    return reply.redirect(PLATFORM_URL + '/login.html?error=blocked');
   }
   audit.log('login', { userId: user.id, email: user.email, detail: 'oauth', ip: req.ip, ua: req.headers['user-agent'] });
   const accessToken = generateAccessToken(user);
@@ -113,7 +115,7 @@ async function oauthRoutes(fastify) {
   // ── VK: callback ──
   fastify.get('/auth/oauth/vk/callback', async (req, reply) => {
     const { code } = req.query;
-    if (!code) return reply.redirect('https://voronova.online/platform/login.html?error=no_code');
+    if (!code) return reply.redirect(PLATFORM_URL + '/login.html?error=no_code');
 
     try {
       // Exchange code for token
@@ -132,7 +134,7 @@ async function oauthRoutes(fastify) {
       const tokenData = await tokenRes.json();
       if (!tokenData.access_token) {
         fastify.log.error(tokenData, 'VK token exchange failed');
-        return reply.redirect('https://voronova.online/platform/login.html?error=vk_token');
+        return reply.redirect(PLATFORM_URL + '/login.html?error=vk_token');
       }
 
       // Get user info
@@ -155,7 +157,7 @@ async function oauthRoutes(fastify) {
       return issueTokens(dbUser, req, reply, isNew, fastify);
     } catch (e) {
       fastify.log.error(e, 'VK OAuth error');
-      return reply.redirect('https://voronova.online/platform/login.html?error=vk_fail');
+      return reply.redirect(PLATFORM_URL + '/login.html?error=vk_fail');
     }
   });
 
@@ -173,7 +175,7 @@ async function oauthRoutes(fastify) {
   // ── Yandex: callback ──
   fastify.get('/auth/oauth/yandex/callback', async (req, reply) => {
     const { code } = req.query;
-    if (!code) return reply.redirect('https://voronova.online/platform/login.html?error=no_code');
+    if (!code) return reply.redirect(PLATFORM_URL + '/login.html?error=no_code');
 
     try {
       // Exchange code for token
@@ -190,7 +192,7 @@ async function oauthRoutes(fastify) {
       const tokenData = await tokenRes.json();
       if (!tokenData.access_token) {
         fastify.log.error(tokenData, 'Yandex token exchange failed');
-        return reply.redirect('https://voronova.online/platform/login.html?error=yandex_token');
+        return reply.redirect(PLATFORM_URL + '/login.html?error=yandex_token');
       }
 
       // Get user info
@@ -207,7 +209,7 @@ async function oauthRoutes(fastify) {
       return issueTokens(dbUser, req, reply, isNew, fastify);
     } catch (e) {
       fastify.log.error(e, 'Yandex OAuth error');
-      return reply.redirect('https://voronova.online/platform/login.html?error=yandex_fail');
+      return reply.redirect(PLATFORM_URL + '/login.html?error=yandex_fail');
     }
   });
 }

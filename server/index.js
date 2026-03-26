@@ -10,7 +10,7 @@ const contentRoutes = require('./src/routes/content');
 const { startCron } = require('./src/cron');
 
 fastify.register(cors, {
-  origin: ['https://voronova.online', 'https://www.voronova.online', 'http://127.0.0.1:5500', 'http://localhost:5500'],
+  origin: ['https://voronova.online', 'https://www.voronova.online', 'https://app.voronova.online', 'http://127.0.0.1:5500', 'http://localhost:5500'],
   credentials: true
 });
 fastify.register(cookie);

@@ -1029,14 +1029,15 @@
 		(function () {
 			const user = Auth.getUser();
 			if (!user) return;
+			const emailBase = user.email ? user.email.split('@')[0] : '?';
 			const customName = Auth.getDisplayName();
-			const displayName = customName || user.email.split('@')[0];
+			const displayName = customName || user.name || emailBase;
 			const uAva = document.getElementById('u-ava');
 			const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
 			if (savedAva) {
 				uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
 			} else {
-				uAva.textContent = (customName || user.email || '?').charAt(0).toUpperCase();
+				uAva.textContent = displayName.charAt(0).toUpperCase();
 			}
 			document.getElementById('u-name').textContent = displayName;
 		})();
@@ -1066,11 +1067,13 @@
 		// ── PROFILE ───────────────────────────────────────────────────────────────
 		const user = Auth.getUser();
 		if (user) {
+			const emailBase = user.email ? user.email.split('@')[0] : '?';
 			const customName = Auth.getDisplayName();
-			document.getElementById('cab-name').textContent = customName || user.email.split('@')[0];
+			const profileName = customName || user.name || emailBase;
+			document.getElementById('cab-name').textContent = profileName;
 			document.getElementById('cab-email').textContent = user.email;
-			if (customName) {
-				document.getElementById('cab-custom-name').value = customName;
+			if (customName || (user.name && user.name !== emailBase)) {
+				document.getElementById('cab-custom-name').value = customName || user.name || '';
 				document.getElementById('name-edit-btn').style.display = 'inline-flex';
 			} else {
 				// No name yet — show input
@@ -1085,7 +1088,7 @@
 			if (savedAva) {
 				avaEl.innerHTML = `<img src="${savedAva}" alt="avatar">`;
 			} else {
-				avaEl.textContent = (customName || user.email || '?').charAt(0).toUpperCase();
+				avaEl.textContent = profileName.charAt(0).toUpperCase();
 			}
 		}
 
@@ -1125,8 +1128,18 @@
 			if (!file) return;
 			const reader = new FileReader();
 			reader.onload = e => {
-				localStorage.setItem(Auth._userKey('user_avatar'), e.target.result);
+				try {
+					localStorage.setItem(Auth._userKey('user_avatar'), e.target.result);
+				} catch (err) {
+					alert('Не удалось сохранить фото. Попробуйте выбрать изображение меньшего размера.');
+					return;
+				}
 				document.getElementById('cab-ava').innerHTML = `<img src="${e.target.result}" alt="avatar">`;
+				const uAva = document.getElementById('u-ava');
+				if (uAva) {
+					uAva.innerHTML = `<img src="${e.target.result}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+				}
+				input.value = '';
 			};
 			reader.readAsDataURL(file);
 		}

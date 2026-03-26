@@ -129,15 +129,15 @@
 
     // Фото-заглушки по категориям (временно — из блога и гайда)
     const PHOTO_BY_CAT = {
-        breakfasts: '../images/blog/post-290.webp',
-        mains:      '../images/cook-healthy-food.webp',
-        pancakes:   '../images/blog/random-pic-blog-2.webp',
-        spreads:    '../images/blog/random-pic-blog-3.webp',
-        salads:     '../images/blog/random-pic-blog-4.webp',
-        drinks:     '../images/blog/random-pic-blog-1.webp',
-        _sides:     '../images/blog/post-281.webp',
+        breakfasts: 'https://voronova.online/images/blog/post-290.webp',
+        mains:      'https://voronova.online/images/cook-healthy-food.webp',
+        pancakes:   'https://voronova.online/images/blog/random-pic-blog-2.webp',
+        spreads:    'https://voronova.online/images/blog/random-pic-blog-3.webp',
+        salads:     'https://voronova.online/images/blog/random-pic-blog-4.webp',
+        drinks:     'https://voronova.online/images/blog/random-pic-blog-1.webp',
+        _sides:     'https://voronova.online/images/blog/post-281.webp',
     };
-    const PHOTO_FALLBACK = '../images/background-guide.webp';
+    const PHOTO_FALLBACK = 'https://voronova.online/images/background-guide.webp';
 
     window.addEventListener('scroll', () =>
         document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
@@ -216,7 +216,7 @@
                         </button>`).join('')}
                 </div>
                 ${r.tip ? `<div class="julia-tip anim" style="margin-top:20px">
-                    <img src="../images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
+                    <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
                     <div class="julia-tip-bubble">
                         <div class="julia-tip-text">«${escHtml(r.tip)}»</div>
                         <div class="julia-tip-name">— Юлия Воронова</div>
@@ -265,16 +265,14 @@
                 { name: 'Огурец свежий (½ шт.)', kcal: 10, protein: 0, fat: 0, carbs: 2, fiber: 1 },
             ],
         };
-        // Если у рецепта явно пустые add* — сайдбар не показываем (правило: нет добавок = нет сайдбара)
+        // Сайдбар показывается ТОЛЬКО если хотя бы одно add* поле содержит данные
         const _hasOwn = (arr) => Array.isArray(arr) && arr.length > 0;
         const _hasAnyAdd = _hasOwn(r.addProtein) || _hasOwn(r.addFat) || _hasOwn(r.addCarbs) || _hasOwn(r.addFiber);
-        // undefined = рецепт без явных данных → показать дефолты; [] = явно пусто → не показывать
-        const _useDefaults = r.addProtein === undefined && r.addFat === undefined && r.addCarbs === undefined && r.addFiber === undefined;
-        const addProtein = _hasOwn(r.addProtein) ? r.addProtein : (_useDefaults ? DEFAULT_ADD.protein : []);
-        const addFat     = _hasOwn(r.addFat)     ? r.addFat     : (_useDefaults ? DEFAULT_ADD.fat     : []);
-        const addCarbs   = _hasOwn(r.addCarbs)   ? r.addCarbs   : (_useDefaults ? DEFAULT_ADD.carbs   : []);
-        const addFiber   = _hasOwn(r.addFiber)   ? r.addFiber   : (_useDefaults ? DEFAULT_ADD.fiber   : []);
-        const hasAdditions = !simpleMode && (_hasAnyAdd || _useDefaults);
+        const addProtein = r.addProtein || [];
+        const addFat     = r.addFat || [];
+        const addCarbs   = r.addCarbs || [];
+        const addFiber   = r.addFiber || [];
+        const hasAdditions = !simpleMode && _hasAnyAdd;
 
         // Экранирование HTML — защита от XSS
         function escHtml(s) {
@@ -337,7 +335,7 @@
             : '';
 
         const tipHtml = r.tip ? `<div class="julia-tip">
-            <img src="../images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
+            <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
             <div class="julia-tip-bubble">
                 <div class="julia-tip-text">«${r.tip}»</div>
                 <div class="julia-tip-name">— Юлия Воронова</div>
@@ -402,7 +400,7 @@
                         </span>
                     </div>
                     ${r.quote ? `<div class="julia-tip" style="margin-top:0;margin-bottom:18px">
-                        <img src="../images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
+                        <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
                         <div class="julia-tip-bubble">
                             <div class="julia-tip-text">«${escHtml(r.quote)}»</div>
                             <div class="julia-tip-name">— Юлия Воронова</div>

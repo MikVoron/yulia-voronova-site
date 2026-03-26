@@ -8,6 +8,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const FROM = '"Умная тарелка" <' + (process.env.SMTP_FROM || 'noreply@voronova.online') + '>';
+const PLATFORM_URL = process.env.PLATFORM_URL || 'https://app.voronova.online';
 
 function wrap(body) {
   return '<div style="font-family:\'Montserrat\',system-ui,sans-serif;max-width:480px;margin:0 auto;padding:0">'
@@ -21,7 +22,7 @@ function wrap(body) {
     + body
     + '</div>'
     + '<div style="padding:16px 24px;text-align:center;font-size:11px;color:#999">'
-    + '<a href="https://voronova.online/platform/" style="color:#e8400a;text-decoration:none;font-weight:600">voronova.online</a>'
+    + '<a href="' + PLATFORM_URL + '/" style="color:#e8400a;text-decoration:none;font-weight:600">voronova.online</a>'
     + ' · Платформа сбалансированного питания'
     + '</div>'
     + '</div>';
@@ -60,7 +61,7 @@ async function sendWelcome(to) {
     + '<li>Конструктор сбалансированной тарелки</li>'
     + '<li>Списки покупок</li>'
     + '</ul>'
-    + btn('Открыть платформу', 'https://voronova.online/platform/')
+    + btn('Открыть платформу', '' + PLATFORM_URL + '/')
     + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
     + 'Приятного использования!</p>';
   await send(to, 'Добро пожаловать в Умную тарелку!', wrap(body));
@@ -74,7 +75,7 @@ async function sendTrialExpired(to) {
     + 'Ваш 7-дневный пробный период на платформе <strong>Умная тарелка</strong> подошёл к концу.</p>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
     + 'Чтобы продолжить пользоваться всеми рецептами и конструктором тарелки — оформите подписку в личном кабинете.</p>'
-    + btn('Оформить подписку', 'https://voronova.online/platform/cabinet.html')
+    + btn('Оформить подписку', '' + PLATFORM_URL + '/cabinet.html')
     + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
     + 'Спасибо, что попробовали! Мы будем рады видеть вас снова.</p>';
   await send(to, 'Пробный период завершён — Умная тарелка', wrap(body));
@@ -88,7 +89,7 @@ async function sendSubscriptionExpired(to) {
     + 'Ваша подписка на платформу <strong>Умная тарелка</strong> завершилась.</p>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
     + 'Продлите подписку, чтобы снова получить доступ ко всем рецептам, конструктору тарелки и спискам покупок.</p>'
-    + btn('Продлить подписку', 'https://voronova.online/platform/cabinet.html')
+    + btn('Продлить подписку', '' + PLATFORM_URL + '/cabinet.html')
     + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
     + 'Если вы уже оплатили — подождите подтверждения администратором.</p>';
   await send(to, 'Подписка истекла — Умная тарелка', wrap(body));
@@ -103,7 +104,7 @@ async function sendPaymentConfirmed(to, days) {
     + days + ' дней</strong>.</p>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
     + 'Все рецепты, конструктор тарелки и другие возможности теперь полностью доступны.</p>'
-    + btn('Перейти на платформу', 'https://voronova.online/platform/')
+    + btn('Перейти на платформу', '' + PLATFORM_URL + '/')
     + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
     + 'Спасибо за доверие!</p>';
   await send(to, 'Оплата подтверждена — Умная тарелка', wrap(body));
@@ -121,7 +122,7 @@ async function sendPaymentNotification(userEmail, amount, paymentDate, hasScreen
     + '<tr><td style="color:#777">Дата перевода:</td><td>' + paymentDate + '</td></tr>'
     + '<tr><td style="color:#777">Скриншот:</td><td>' + (hasScreenshot ? '📎 Приложен (смотрите в админке)' : 'Не приложен') + '</td></tr>'
     + '</table>'
-    + btn('Проверить в админке', 'https://voronova.online/platform/admin.html')
+    + btn('Проверить в админке', '' + PLATFORM_URL + '/admin.html')
     + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
     + 'Проверьте поступление и подтвердите платёж.</p>';
   await send(ADMIN_EMAIL, 'Новый платёж от ' + userEmail, wrap(body));

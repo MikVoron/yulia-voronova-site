@@ -1224,7 +1224,7 @@ img { display: block; max-width: 100%; }
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: var(--accent-l) url('../images/YV-small.webp') center/cover no-repeat;
+    background: var(--accent-l) url('https://voronova.online/images/YV-small.webp') center/cover no-repeat;
     border: 2px solid var(--accent);
     flex-shrink: 0;
     box-shadow: 0 4px 14px rgba(232,64,10,.18);
