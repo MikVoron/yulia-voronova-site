@@ -1,6 +1,6 @@
 #!/bin/bash
 # Бэкап PostgreSQL → GPG → Backblaze B2
-# Cron: 0 3 * * * /opt/smartplate/backup.sh >> /var/log/smartplate-backup.log 2>&1
+# Cron: 0 3 * * * . /opt/voronova/.b2-credentials && /opt/voronova/backup.sh >> /var/log/voronova-backup.log 2>&1
 
 set -e
 
@@ -8,12 +8,12 @@ set -e
 DB_NAME="smartplate"
 DB_USER="smartplate"
 BUCKET="voronova-backups"
-B2_ENDPOINT="https://s3.eu-central-003.backblazeb2.com"
-B2_KEY_ID="449631c817c5"
-B2_APP_KEY="00370d378e9119aee2f6676eb033db471140c12ad6"
-GPG_PASSPHRASE_FILE="/opt/smartplate/.gpg-passphrase"
+B2_ENDPOINT="${B2_ENDPOINT:-https://s3.eu-central-003.backblazeb2.com}"
+B2_KEY_ID="${B2_KEY_ID:?ОШИБКА: задайте B2_KEY_ID}"
+B2_APP_KEY="${B2_APP_KEY:?ОШИБКА: задайте B2_APP_KEY}"
+GPG_PASSPHRASE_FILE="/opt/voronova/.gpg-passphrase"
 KEEP_DAYS=30
-BACKUP_DIR="/tmp/smartplate-backups"
+BACKUP_DIR="/opt/voronova/backups"
 
 # ── Проверки ──
 if [ ! -f "$GPG_PASSPHRASE_FILE" ]; then
@@ -50,10 +50,12 @@ aws s3 cp "$ENCRYPTED_FILE" \
     "s3://${BUCKET}/db/${DB_NAME}_${TIMESTAMP}.sql.gz.gpg" \
     --endpoint-url "$B2_ENDPOINT"
 
-rm "$ENCRYPTED_FILE"
 echo "$(date): Загружено в B2"
 
-# ── Удаление старых бэкапов ──
+# ── Удаление старых локальных бэкапов (оставляем 3 последних) ──
+ls -t "$BACKUP_DIR"/*.gpg 2>/dev/null | tail -n +4 | xargs -r rm -f
+
+# ── Удаление старых бэкапов в B2 ──
 CUTOFF=$(date -d "-${KEEP_DAYS} days" +%Y-%m-%d 2>/dev/null || date -v-${KEEP_DAYS}d +%Y-%m-%d)
 
 AWS_ACCESS_KEY_ID="$B2_KEY_ID" \

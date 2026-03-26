@@ -20,7 +20,20 @@ fastify.register(adminRoutes);
 fastify.register(oauthRoutes);
 fastify.register(contentRoutes);
 
-fastify.get('/health', async () => ({ status: 'ok', time: new Date().toISOString() }));
+const db = require('./src/db');
+
+fastify.get('/health', async () => {
+  const checks = { status: 'ok', time: new Date().toISOString() };
+  try {
+    const result = await db.query('SELECT 1 AS ok');
+    checks.db = result.rows[0].ok === 1 ? 'ok' : 'error';
+  } catch (e) {
+    checks.db = 'error';
+    checks.status = 'degraded';
+    fastify.log.error(e, 'Health check: DB unreachable');
+  }
+  return checks;
+});
 
 fastify.listen({ port: process.env.PORT || 3000, host: '0.0.0.0' }, (err) => {
   if (err) { console.error(err); process.exit(1); }

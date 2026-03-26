@@ -1019,7 +1019,7 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=1774400001"></script>
+	<script src="data-v2.js?v=1774512677"></script>
 	<script>
 		Auth.requireAuth();
 		loadContent();
@@ -1450,6 +1450,14 @@
 				return;
 			}
 			const dishes = ids.map(id => RECIPES[id]).filter(Boolean);
+			if (ids.length && !dishes.length && isContentError()) {
+				grid.innerHTML = '<div class="fav-empty" style="text-align:center">' +
+					'<div style="font-size:32px;margin-bottom:8px">📡</div>' +
+					'Не удалось загрузить рецепты<br>' +
+					'<button onclick="location.reload()" style="margin-top:12px;background:var(--accent,#e8734a);color:#fff;border:none;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:14px">Повторить</button>' +
+					'</div>';
+				return;
+			}
 			grid.innerHTML = dishes.map(d => recipeCardHtml(d)).join('');
 		}
 
@@ -1524,26 +1532,33 @@
 		function escHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
 		function recipeCardHtml(d) {
-			const diff = (typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {})[d.diff] || d.diff;
+			const _id = encodeURIComponent(d.id);
+			const _name = escHtml(d.name || '');
+			const _photo = escHtml(d.photo || '');
+			const _emoji = escHtml(d.emoji || '🍴');
+			const _imgPos = escHtml(d.imgPosition || '');
+			const _diff = escHtml((typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {})[d.diff] || d.diff || '');
+			const _time = Number(d.time) || 0;
+			const _kcal = Number(d.kcal) || 0;
 			const isFav = Favorites.has(d.id);
-			const photoHtml = d.photo
-				? `<img src="${d.photo}" alt="${d.name}" loading="lazy"${d.imgPosition ? ` style="object-position:${d.imgPosition}"` : ''}>`
-				: `<div class="recipe-card-emoji">${d.emoji}</div>`;
-			return `<button class="recipe-card" onclick="goToRecipe('${d.id}')">
+			const photoHtml = _photo
+				? `<img src="${_photo}" alt="${_name}" loading="lazy"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
+				: `<div class="recipe-card-emoji">${_emoji}</div>`;
+			return `<button class="recipe-card" onclick="goToRecipe('${_id}')">
             <div class="recipe-card-photo" style="position:relative">
                 ${photoHtml}
-                <div class="card-fav-btn${isFav ? ' active' : ''}" id="fav-${d.id}"
-                    onclick="event.stopPropagation();toggleFav('${d.id}')">
+                <div class="card-fav-btn${isFav ? ' active' : ''}" id="fav-${_id}"
+                    onclick="event.stopPropagation();toggleFav('${_id}')">
                     <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
                 </div>
             </div>
             <div class="recipe-card-body">
-                <div class="recipe-card-name">${d.name}</div>
+                <div class="recipe-card-name">${_name}</div>
                 <div class="recipe-card-meta">
-                    <span class="pill">⏱ ${d.time} мин</span>
-                    <span class="pill">${diff}</span>
+                    <span class="pill">⏱ ${_time} мин</span>
+                    <span class="pill">${_diff}</span>
                 </div>
-                <div class="recipe-card-kcal" style="margin-top:4px">${d.kcal} ккал</div>
+                <div class="recipe-card-kcal" style="margin-top:4px">${_kcal} ккал</div>
             </div>
         </button>`;
 		}
@@ -1560,7 +1575,7 @@
 
 		function goToRecipe(id) {
 			const r = RECIPES[id];
-			location.href = `recipe.html?id=${id}&from=${r ? r.cat : 'breakfasts'}`;
+			location.href = 'recipe.html?id=' + encodeURIComponent(id) + '&from=' + encodeURIComponent(r ? r.cat : 'breakfasts');
 		}
 
 		// ── PLATE ─────────────────────────────────────────────────────────────────
