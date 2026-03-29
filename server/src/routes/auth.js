@@ -7,13 +7,6 @@ const { tryGrantTrial } = require('../trial-guard');
 const audit = require('../audit');
 
 async function authRoutes(fastify) {
-  let avatarColumnReady = false;
-  async function ensureAvatarColumn() {
-    if (avatarColumnReady) return;
-    await db.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT');
-    avatarColumnReady = true;
-  }
-
   // POST /auth/send-code
   fastify.post('/auth/send-code', async (req, reply) => {
     const { email } = req.body || {};
@@ -55,7 +48,7 @@ async function authRoutes(fastify) {
     }
     await db.query('UPDATE login_codes SET used=true WHERE id=$1', [row.id]);
     // найти или создать пользователя
-    await ensureAvatarColumn();
+
     let userRes = await db.query('SELECT * FROM users WHERE email=$1', [lower]);
     let isNew = false;
     if (!userRes.rows.length) {
@@ -94,7 +87,7 @@ async function authRoutes(fastify) {
 
   // POST /auth/refresh
   fastify.post('/auth/refresh', async (req, reply) => {
-    await ensureAvatarColumn();
+
     const token = req.cookies.refreshToken;
     if (!token) return reply.status(401).send({ error: 'Нет refresh токена' });
     const tokenHash = hashToken(token);
@@ -133,7 +126,7 @@ async function authRoutes(fastify) {
 
   // GET /auth/me
   fastify.get('/auth/me', async (req, reply) => {
-    await ensureAvatarColumn();
+
     const auth = req.headers.authorization;
     if (!auth || !auth.startsWith('Bearer ')) return reply.status(401).send({ error: 'Не авторизован' });
     try {
@@ -164,7 +157,7 @@ async function authRoutes(fastify) {
 
   // PUT /auth/profile — обновить display_name и/или avatar
   fastify.put('/auth/profile', { preHandler: authenticate }, async (req, reply) => {
-    await ensureAvatarColumn();
+
     const { displayName, avatar } = req.body || {};
     const name = displayName !== undefined ? (displayName ? displayName.trim().slice(0, 100) : null) : undefined;
     const ava = avatar !== undefined ? (avatar && avatar.length <= 300000 ? avatar : null) : undefined;
