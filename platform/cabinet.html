@@ -1019,7 +1019,7 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=1774559463"></script>
+	<script src="data-v2.js?v=1774804585"></script>
 	<script>
 		Auth.requireAuth();
 		const _cabAccess = Auth.checkAccess();
@@ -1244,10 +1244,13 @@
 					var paySection = document.querySelector('.pay-section');
 					if (ebCard) ebCard.style.display = 'none';
 					if (paySection) paySection.style.display = 'none';
+					loadPaymentHistory();
+					return true;
 				}
 			} catch (e) { /* ignore */ }
 
 			loadPaymentHistory();
+			return false;
 		}
 
 		function pluralDays(n) {
@@ -1445,7 +1448,7 @@
 
 		// Load subscription tab on init — wait for checkAccess to set _subStatus
 		_cabAccess.then(function() {
-			loadSubscription().then(function() { loadEarlyBird(); });
+			loadSubscription().then(function(isActive) { if (!isActive) loadEarlyBird(); });
 		});
 
 		// ── ИСТОРИЯ ТАРЕЛОК ───────────────────────────────────────────────────────

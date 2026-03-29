@@ -28,8 +28,8 @@ const Auth = {
             subscription: subscription || null
         };
         localStorage.setItem(this.KEY, JSON.stringify(user));
-        if (name !== undefined) this.setName(name || '');
-        if (avatar !== undefined) this.setAvatar(avatar || null);
+        if (name) this.setName(name);
+        if (avatar) this.setAvatar(avatar);
         if (token) { this._token = token; sessionStorage.setItem(this._ST, token); }
         return user;
     },

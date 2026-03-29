@@ -55,6 +55,7 @@ async function authRoutes(fastify) {
     }
     await db.query('UPDATE login_codes SET used=true WHERE id=$1', [row.id]);
     // найти или создать пользователя
+    await ensureAvatarColumn();
     let userRes = await db.query('SELECT * FROM users WHERE email=$1', [lower]);
     let isNew = false;
     if (!userRes.rows.length) {
