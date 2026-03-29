@@ -16,11 +16,24 @@ async function subscriptionRoutes(fastify) {
   // GET /subscription — статус подписки текущего пользователя
   fastify.get('/subscription', { preHandler: authenticate }, async (req) => {
     const result = await db.query(
-      'SELECT status, trial_ends_at, active_until, created_at FROM subscriptions WHERE user_id=$1',
+      `SELECT u.role, s.status, s.trial_ends_at, s.active_until, s.created_at
+         FROM users u
+         LEFT JOIN subscriptions s ON s.user_id = u.id
+        WHERE u.id=$1`,
       [req.user.sub]
     );
     if (!result.rows.length) return { status: 'none' };
     const sub = result.rows[0];
+    if (sub.role === 'admin') {
+      return {
+        status: 'active',
+        trialEndsAt: null,
+        activeUntil: null,
+        createdAt: sub.created_at || null,
+        isAdmin: true
+      };
+    }
+    if (!sub.status) return { status: 'none' };
     const now = new Date();
     let daysLeft = 0;
     if (sub.status === 'trial' && sub.trial_ends_at) {
