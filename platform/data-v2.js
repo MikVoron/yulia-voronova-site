@@ -10,7 +10,7 @@ const Auth = {
     KEY: 'hp_user',
     _token: null,
     _ST: 'hp_st',
-    login(email, name, token, subscription, avatar, role) {
+    login(email, name, token, subscription, avatar, role, createdAt) {
         localStorage.removeItem('hp_token'); // cleanup legacy
         const prev = this.getUser();
         if (prev && prev.email && prev.email !== email) {
@@ -24,7 +24,7 @@ const Auth = {
             email,
             name: name || (prev && prev.email === email && prev.name) || email.split('@')[0],
             avatar: avatar || (prev && prev.email === email && prev.avatar) || null,
-            joined: (prev && prev.email === email && prev.joined) || Date.now(),
+            joined: createdAt || (prev && prev.email === email && prev.joined) || Date.now(),
             subscription: subscription || null,
             role: role || (prev && prev.email === email && prev.role) || null
         };
@@ -93,6 +93,10 @@ const Auth = {
         if (!data) return;
         if (data.displayName !== undefined) this.setName(data.displayName || '');
         if (data.avatar !== undefined) this.setAvatar(data.avatar || null);
+        if (data.createdAt) {
+            const user = this.getUser();
+            if (user) { user.joined = data.createdAt; localStorage.setItem(this.KEY, JSON.stringify(user)); }
+        }
     },
     _subStatus: null,
     _isAdmin() {

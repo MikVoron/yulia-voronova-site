@@ -43,7 +43,7 @@
         if (!res.ok) throw new Error('refresh failed');
         const data = await res.json();
 
-        Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription, data.user.avatar, data.user.role);
+        Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription, data.user.avatar, data.user.role, data.user.createdAt);
 
         document.getElementById('title').textContent = 'Добро пожаловать!';
         document.getElementById('sub').textContent = 'Загружаем платформу...';

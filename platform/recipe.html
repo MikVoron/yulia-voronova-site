@@ -316,21 +316,21 @@
         }).join('');
 
         const sidebarHtml = hasAdditions ? `
-            <div class="add-sidebar anim anim-d2">
-                <div class="add-sidebar-head">
-                    <div class="add-sidebar-head-title">🌿 Сбалансируй тарелку</div>
-                    <div class="add-sidebar-head-sub">Отметьте что добавите — КБЖУ пересчитается</div>
+            <div class="bal-sidebar anim anim-d2">
+                <div class="bal-sidebar-head">
+                    <div class="bal-sidebar-head-title">🌿 Сбалансируй тарелку</div>
+                    <div class="bal-sidebar-head-sub">Отметьте что добавите — КБЖУ пересчитается</div>
                 </div>
                 ${buildGroup('💪 Добавь белка для сытости', 'p', addProtein)}
                 ${buildGroup('🥑 Добавь жиров для баланса', 'f', addFat)}
                 ${buildGroup('🌾 Добавь углеводов для энергии', 'c', addCarbs)}
                 ${buildGroup('🥬 Добавь клетчатки', 'fi', addFiber)}
-                <div class="add-total" id="add-total-bar">
+                <div class="bal-total" id="bal-total-bar">
                     <div>
-                        <div class="add-total-label">Итого (блюдо + добавки):</div>
-                        <div class="add-total-macro" id="add-macro">Б${Number(r.protein)}г · Ж${Number(r.fat)}г · У${Number(r.carbs)}г · Кл${Number(r.fiber||0)}г</div>
+                        <div class="bal-total-label">Итого (блюдо + добавки):</div>
+                        <div class="bal-total-macro" id="add-macro">Б${Number(r.protein)}г · Ж${Number(r.fat)}г · У${Number(r.carbs)}г · Кл${Number(r.fiber||0)}г</div>
                     </div>
-                    <div class="add-total-val" id="add-total-kcal">${Number(r.kcal)} ккал</div>
+                    <div class="bal-total-val" id="bal-total-kcal">${Number(r.kcal)} ккал</div>
                 </div>
             </div>` : '';
         console.log('[SIDEBAR]', {hasAdditions, sidebarLen: sidebarHtml.length, first100: sidebarHtml.slice(0,100)});
@@ -495,9 +495,9 @@
         console.log('[buildGroup]', prefix, 'items:', items ? items.length : 'null');
         if (!items || !items.length) return '';
         const cls = GROUP_CLASS[prefix] || '';
-        return `<div class="add-group ${cls}">
-            <div class="add-group-title">${label}</div>
-            <div class="add-group-items">
+        return `<div class="bal-group ${cls}">
+            <div class="bal-group-title">${label}</div>
+            <div class="bal-group-items">
                 ${items.map((item, i) => {
                     const key = prefix + '-' + i;
                     const hasRecipe = item.recipeId;
@@ -506,14 +506,14 @@
                         subItemRegistry[key] = item;
                         const subInPlate = Plate.get().some(p => p.recipeId === item.recipeId);
                         const safeRid = encodeURIComponent(item.recipeId);
-                        return `<div class="add-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal||0)},${Number(item.protein||0)},${Number(item.fat||0)},${Number(item.carbs||0)},${Number(item.fiber||0)})" style="position:relative;cursor:pointer">
-                            <div class="add-item-check" id="chk-${key}"></div>
-                            <div class="add-item-text">
+                        return `<div class="bal-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal||0)},${Number(item.protein||0)},${Number(item.fat||0)},${Number(item.carbs||0)},${Number(item.fiber||0)})" style="position:relative;cursor:pointer">
+                            <div class="bal-item-check" id="chk-${key}"></div>
+                            <div class="bal-item-text">
                                 ${escHtml(item.name)}
-                                <a class="add-item-recipe-link" onclick="event.stopPropagation();location.href='recipe.html?id=${safeRid}&from=${encodeURIComponent(fromCat)}'">→ Открыть рецепт</a>
+                                <a class="bal-item-recipe-link" onclick="event.stopPropagation();location.href='recipe.html?id=${safeRid}&from=${encodeURIComponent(fromCat)}'">→ Открыть рецепт</a>
                             </div>
                             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
-                                <div class="add-item-kcal">+${Number(item.kcal)} ккал</div>
+                                <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
                                 <button id="sub-add-${key}" class="btn btn-sm ${subInPlate ? 'btn-ghost' : 'btn-green'}"
                                     style="padding:5px 10px;font-size:10px;${subInPlate ? 'opacity:.6;cursor:default' : ''}"
                                     onclick="event.stopPropagation();addSubToPlate('${escHtml(key)}',event)"
@@ -523,13 +523,13 @@
                             </div>
                         </div>`;
                     } else {
-                        return `<button class="add-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal||0)},${Number(item.protein||0)},${Number(item.fat||0)},${Number(item.carbs||0)},${Number(item.fiber||0)})" style="position:relative">
-                            <div class="add-item-check" id="chk-${key}"></div>
-                            <div class="add-item-text">
+                        return `<button class="bal-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal||0)},${Number(item.protein||0)},${Number(item.fat||0)},${Number(item.carbs||0)},${Number(item.fiber||0)})" style="position:relative">
+                            <div class="bal-item-check" id="chk-${key}"></div>
+                            <div class="bal-item-text">
                                 ${escHtml(item.name)}
-                                ${hasCat ? `<a class="add-item-recipe-link" onclick="event.stopPropagation();location.href='category.html?cat=${encodeURIComponent(item.catLink)}'">→ Выбрать из списка</a>` : ''}
+                                ${hasCat ? `<a class="bal-item-recipe-link" onclick="event.stopPropagation();location.href='category.html?cat=${encodeURIComponent(item.catLink)}'">→ Выбрать из списка</a>` : ''}
                             </div>
-                            <div class="add-item-kcal">+${Number(item.kcal)} ккал</div>
+                            <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
                         </button>`;
                     }
                 }).join('')}
@@ -593,7 +593,7 @@
             total.carbs   += v.carbs   || 0;
             total.fiber   += v.fiber   || 0;
         });
-        const tEl = document.getElementById('add-total-kcal');
+        const tEl = document.getElementById('bal-total-kcal');
         const mEl = document.getElementById('add-macro');
         if (tEl) tEl.textContent = total.kcal + ' ккал';
         if (mEl) mEl.textContent = `Б${total.protein}г · Ж${total.fat}г · У${total.carbs}г · Кл${total.fiber}г`;

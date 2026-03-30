@@ -82,7 +82,7 @@ async function authRoutes(fastify) {
     reply.setCookie('refreshToken', refreshToken, {
       path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 2592000
     });
-    return { accessToken, user: { id: user.id, email: user.email, displayName: user.display_name, avatar: user.avatar || null, role: user.role }, isNew };
+    return { accessToken, user: { id: user.id, email: user.email, displayName: user.display_name, avatar: user.avatar || null, role: user.role, createdAt: user.created_at }, isNew };
   });
 
   // POST /auth/refresh
@@ -92,7 +92,7 @@ async function authRoutes(fastify) {
     if (!token) return reply.status(401).send({ error: 'Нет refresh токена' });
     const tokenHash = hashToken(token);
     const result = await db.query(
-      'SELECT rs.*, u.email, u.role, u.display_name, u.avatar, u.is_blocked FROM refresh_sessions rs JOIN users u ON u.id=rs.user_id WHERE rs.refresh_token_hash=$1 AND rs.expires_at > now()',
+      'SELECT rs.*, u.email, u.role, u.display_name, u.avatar, u.is_blocked, u.created_at AS user_created_at FROM refresh_sessions rs JOIN users u ON u.id=rs.user_id WHERE rs.refresh_token_hash=$1 AND rs.expires_at > now()',
       [tokenHash]
     );
     if (!result.rows.length) {
@@ -111,7 +111,7 @@ async function authRoutes(fastify) {
     reply.setCookie('refreshToken', newRefresh, {
       path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 2592000
     });
-    return { accessToken, user: { id: session.user_id, email: session.email, displayName: session.display_name, avatar: session.avatar || null, role: session.role } };
+    return { accessToken, user: { id: session.user_id, email: session.email, displayName: session.display_name, avatar: session.avatar || null, role: session.role, createdAt: session.user_created_at } };
   });
 
   // POST /auth/logout
@@ -149,7 +149,7 @@ async function authRoutes(fastify) {
         }
       }
       return {
-        id: u.id, email: u.email, displayName: u.display_name, avatar: u.avatar || null, role: u.role,
+        id: u.id, email: u.email, displayName: u.display_name, avatar: u.avatar || null, role: u.role, createdAt: u.created_at,
         subscription: { status, trialEndsAt: u.trial_ends_at, activeUntil: u.active_until }
       };
     } catch (e) {
