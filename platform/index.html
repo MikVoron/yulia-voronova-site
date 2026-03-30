@@ -610,11 +610,13 @@
 						var dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 						return { type: n.type, text: n.text, id: n.recipe_id, badge: n.badge, label: n.label, date: dateStr };
 					});
-					// 1 закреплённая новость-рецепт (последняя) + 3 текстовые
-					var pinnedRecipe = all.find(function(n) { return n.type === 'recipe'; });
 					var textNews = all.filter(function(n) { return n.type === 'news'; }).slice(0, 3);
+					// Последний добавленный рецепт — автоматически закрепляется вверху
+					var latestRecipe = Object.values(RECIPES).sort(function(a, b) { return (b.addedTs || 0) - (a.addedTs || 0); })[0];
 					NEWS_FEED = [];
-					if (pinnedRecipe) NEWS_FEED.push(pinnedRecipe);
+					if (latestRecipe) {
+						NEWS_FEED.push({ type: 'recipe', id: latestRecipe.id, badge: 'Новинка', date: latestRecipe.added });
+					}
 					NEWS_FEED = NEWS_FEED.concat(textNews);
 				}
 			} catch {}

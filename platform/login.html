@@ -488,6 +488,7 @@
 <script src="data-v2.js?v=1774804585"></script>
 <script>
     var _returnUrl = new URLSearchParams(location.search).get('return') || 'index.html';
+    var _isAdminLogin = _returnUrl.indexOf('admin.html') !== -1;
     if (Auth.isLoggedIn()) location.href = _returnUrl;
 
     // Show OAuth error if redirected back
@@ -553,7 +554,7 @@
             var res = await fetch(API_BASE + '/auth/send-code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email })
+                body: JSON.stringify({ email: email, context: _isAdminLogin ? 'admin' : undefined })
             });
             var data = await res.json();
             if (!res.ok) { showError('email-error', data.error || 'Ошибка'); setLoading('send-code-btn', false); return; }
@@ -601,7 +602,7 @@
             var res = await fetch(API_BASE + '/auth/send-code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: currentEmail })
+                body: JSON.stringify({ email: currentEmail, context: _isAdminLogin ? 'admin' : undefined })
             });
             var data = await res.json();
             if (!res.ok) { block.innerHTML = '<span style="color:#c0392b">' + (data.error || 'Ошибка') + '</span>'; return; }

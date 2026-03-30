@@ -9,9 +9,16 @@ const audit = require('../audit');
 async function authRoutes(fastify) {
   // POST /auth/send-code
   fastify.post('/auth/send-code', async (req, reply) => {
-    const { email } = req.body || {};
+    const { email, context } = req.body || {};
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply.status(400).send({ error: 'Некорректный email' });
     const lower = email.toLowerCase().trim();
+    // Если вход через админку — проверяем что email принадлежит админу
+    if (context === 'admin') {
+      const adminCheck = await db.query("SELECT role FROM users WHERE email=$1", [lower]);
+      if (!adminCheck.rows.length || adminCheck.rows[0].role !== 'admin') {
+        return reply.status(403).send({ error: 'Нет доступа' });
+      }
+    }
     // rate limit по IP: макс 10 кодов за 15 минут с одного IP
     const ip = req.ip;
     const ipRecent = await db.query("SELECT COUNT(*) FROM login_codes WHERE ip=$1 AND created_at > now() - interval '15 minutes'", [ip]);

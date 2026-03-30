@@ -789,6 +789,7 @@
     // ── Auth check ──
     if (!Auth.isLoggedIn()) { location.href = 'login.html?return=admin.html'; return; }
     var user = Auth.getUser();
+    if (!user || user.role !== 'admin') { alert('Нет прав администратора'); location.href = 'index.html'; return; }
     document.getElementById('admin-email').textContent = user.email || '';
 
     var allUsers = [];

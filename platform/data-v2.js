@@ -358,6 +358,7 @@ function _mapRecipe(r) {
         addFiber: r.add_fiber || [],
         sortOrder: r.sort_order || 0,
         added: r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : null,
+        addedTs: r.created_at ? new Date(r.created_at).getTime() : 0,
     };
 }
 
