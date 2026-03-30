@@ -34,10 +34,15 @@
 	<link rel="icon" type="image/svg+xml" href="images/favicons/favicon.svg">
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 	<link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon.png">
-<style>
-	.form-container input[type="range"]::-webkit-slider-thumb { background: var(--slider-thumb, var(--sage-green)) !important; }
-	.form-container input[type="range"]::-moz-range-thumb    { background: var(--slider-thumb, var(--sage-green)) !important; }
-</style>
+	<style>
+		.form-container input[type="range"]::-webkit-slider-thumb {
+			background: var(--slider-thumb, var(--sage-green)) !important;
+		}
+
+		.form-container input[type="range"]::-moz-range-thumb {
+			background: var(--slider-thumb, var(--sage-green)) !important;
+		}
+	</style>
 </head>
 
 <body class="questionnaire-form-page">
@@ -45,7 +50,7 @@
 
 		<div class="intro-card">
 			<div class="logo-container">
-				<a href="https://www.youtube.com/@voronova_nutrition">
+				<a href="https://t.me/voronova_nutrition">
 					<img src="images/YV-small.webp" alt="Юлия Воронова">
 				</a>
 			</div>
@@ -694,7 +699,7 @@
 
 					// Точки
 					var dots = dotsEl.querySelectorAll('span');
-					dots.forEach(function(d) {
+					dots.forEach(function (d) {
 						var dv = parseInt(d.dataset.v);
 						var active = dv === v;
 						var filled = dv <= v;
@@ -713,7 +718,7 @@
 						first = false;
 					} else {
 						valueBox.style.opacity = '0';
-						setTimeout(function() {
+						setTimeout(function () {
 							display.textContent = text;
 							display.style.color = lbl.color;
 							valueBox.style.opacity = '1';
@@ -734,7 +739,7 @@
 	</script>
 
 	<script>
-		(function() {
+		(function () {
 			var checkbox = document.getElementById('privacyCheck');
 			var btn = document.getElementById('submitBtn');
 			var label = checkbox.closest('.privacy-checkbox');
@@ -748,13 +753,13 @@
 
 			checkbox.addEventListener('change', updateBtn);
 
-			btn.addEventListener('click', function(e) {
+			btn.addEventListener('click', function (e) {
 				if (!checkbox.checked) {
 					e.preventDefault();
 					label.classList.remove('shake');
 					void label.offsetWidth;
 					label.classList.add('shake');
-					setTimeout(function() { label.classList.remove('shake'); }, 600);
+					setTimeout(function () { label.classList.remove('shake'); }, 600);
 					return;
 				}
 				var clientName = document.querySelector('input[name="Имя и фамилия клиента"]').value.trim();
