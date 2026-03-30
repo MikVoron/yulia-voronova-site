@@ -10,7 +10,7 @@ const Auth = {
     KEY: 'hp_user',
     _token: null,
     _ST: 'hp_st',
-    login(email, name, token, subscription, avatar) {
+    login(email, name, token, subscription, avatar, role) {
         localStorage.removeItem('hp_token'); // cleanup legacy
         const prev = this.getUser();
         if (prev && prev.email && prev.email !== email) {
@@ -25,7 +25,8 @@ const Auth = {
             name: name || (prev && prev.email === email && prev.name) || email.split('@')[0],
             avatar: avatar || (prev && prev.email === email && prev.avatar) || null,
             joined: (prev && prev.email === email && prev.joined) || Date.now(),
-            subscription: subscription || null
+            subscription: subscription || null,
+            role: role || (prev && prev.email === email && prev.role) || null
         };
         localStorage.setItem(this.KEY, JSON.stringify(user));
         if (name) this.setName(name);
@@ -94,11 +95,21 @@ const Auth = {
         if (data.avatar !== undefined) this.setAvatar(data.avatar || null);
     },
     _subStatus: null,
+    _isAdmin() {
+        const user = this.getUser();
+        return user && user.role === 'admin';
+    },
+    _setRole(role) {
+        if (!role) return;
+        const user = this.getUser();
+        if (user) { user.role = role; localStorage.setItem(this.KEY, JSON.stringify(user)); }
+    },
     async checkAccess() {
         if (!this.isLoggedIn()) { location.href = 'login.html'; return false; }
         if (!this.getToken()) {
             const ok = await this.refreshToken();
             if (!ok) {
+                if (this._isAdmin()) { this._subStatus = 'active'; this.startAutoRefresh(); return true; }
                 this._subStatus = 'trial';
                 this.startAutoRefresh();
                 return true;
@@ -107,12 +118,14 @@ const Auth = {
         try {
             const res = await this.api('/auth/me');
             if (!res.ok) {
+                if (this._isAdmin()) { this._subStatus = 'active'; this.startAutoRefresh(); return true; }
                 this._subStatus = 'trial';
                 this.startAutoRefresh();
                 return true;
             }
             const data = await res.json();
-            // Sync displayName + avatar from server → localStorage
+            // Sync role + displayName + avatar from server → localStorage
+            this._setRole(data.role);
             if (data.displayName) {
                 const user = this.getUser();
                 if (user) { user.name = data.displayName; localStorage.setItem(this.KEY, JSON.stringify(user)); }
@@ -131,6 +144,7 @@ const Auth = {
             if (sub.status === 'active' && new Date(sub.activeUntil) > now) { this.startAutoRefresh(); return true; }
             this._showPaywall(sub.status); return false;
         } catch {
+            if (this._isAdmin()) { this._subStatus = 'active'; this.startAutoRefresh(); return true; }
             this._subStatus = 'trial';
             this.startAutoRefresh();
             return true;
@@ -171,6 +185,7 @@ const Auth = {
             if (user && data.user) {
                 user.name = data.user.displayName || user.name;
                 user.email = data.user.email;
+                if (data.user.role) user.role = data.user.role;
                 localStorage.setItem(this.KEY, JSON.stringify(user));
                 this._syncProfile(data.user);
                 const nameKey = this._userKey('hp_user_name');
@@ -312,7 +327,9 @@ function _fixPhoto(p) {
     if (!p) return null;
     if (p.startsWith('../images/')) return 'https://voronova.online/' + p.slice(3);
     if (p.startsWith('/images/')) return window.location.origin + p;
-    if (p.startsWith('images/')) return window.location.origin + '/' + p;
+    if (p.startsWith('images/')) {
+        return 'https://voronova.online/' + p;
+    }
     return p;
 }
 
