@@ -621,6 +621,15 @@
 			renderNewsFeed();
 		}
 
+		function imgFallback(img, emoji) {
+			img.onerror = null;
+			img.style.display = 'none';
+			var d = document.createElement('div');
+			d.style.cssText = 'display:flex;align-items:center;justify-content:center;height:100%;font-size:56px';
+			d.textContent = emoji;
+			img.parentElement.insertBefore(d, img);
+		}
+
 		function renderNewsFeed() {
 			const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
 			const feed = document.getElementById('news-feed');
@@ -654,7 +663,7 @@
 					const _protein = Number(d.protein) || 0;
 					const locked = Auth.isTrial() && !d.free;
 					const photoHtml = _photo
-						? `<img src="${_photo}" alt="${_name}" loading="lazy">`
+						? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')">`
 						: `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:56px">${_emoji}</div>`;
 					const lockBadge = locked ? '<div class="locked-badge"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>Pro</div>' : '';
 					html = `<button class="featured-card${locked ? ' locked' : ''}" onclick="${locked ? 'showLockedMsg()' : "location.href=\'recipe.html?id=" + _id + "&from=" + _cat + "\'"}">

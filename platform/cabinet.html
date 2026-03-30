@@ -1580,6 +1580,15 @@
 		}
 		function escHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
+		function imgFallback(img, emoji) {
+			img.onerror = null;
+			img.style.display = 'none';
+			var d = document.createElement('div');
+			d.className = 'recipe-card-emoji';
+			d.textContent = emoji;
+			img.parentElement.insertBefore(d, img);
+		}
+
 		function recipeCardHtml(d) {
 			const _id = encodeURIComponent(d.id);
 			const _name = escHtml(d.name || '');
@@ -1591,7 +1600,7 @@
 			const _kcal = Number(d.kcal) || 0;
 			const isFav = Favorites.has(d.id);
 			const photoHtml = _photo
-				? `<img src="${_photo}" alt="${_name}" loading="lazy"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
+				? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
 				: `<div class="recipe-card-emoji">${_emoji}</div>`;
 			return `<button class="recipe-card" onclick="goToRecipe('${_id}')">
             <div class="recipe-card-photo" style="position:relative">

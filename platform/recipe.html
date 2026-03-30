@@ -368,7 +368,7 @@
                         <img src="${escHtml(r.photo || PHOTO_BY_CAT[r.cat] || PHOTO_FALLBACK)}"
                              alt="${escHtml(r.name)}"
                              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
-                             onerror="this.style.display='none'">
+                             onerror="this.style.display='none';var e=document.createElement('div');e.className='recipe-hero-emoji';e.style.cssText='position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)';e.textContent='${escHtml(r.emoji)}';this.parentElement.insertBefore(e,this)">
                         ${!r.photo ? `<div class="recipe-hero-emoji" style="position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)">${escHtml(r.emoji)}</div>` : ''}
                         <div class="card-fav-btn${isFav ? ' active' : ''}" id="recipe-fav-btn"
                             onclick="event.stopPropagation();toggleRecipeFav()">
@@ -506,7 +506,7 @@
                         subItemRegistry[key] = item;
                         const subInPlate = Plate.get().some(p => p.recipeId === item.recipeId);
                         const safeRid = encodeURIComponent(item.recipeId);
-                        return `<div class="add-item" id="ai-${key}" style="position:relative">
+                        return `<div class="add-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal||0)},${Number(item.protein||0)},${Number(item.fat||0)},${Number(item.carbs||0)},${Number(item.fiber||0)})" style="position:relative;cursor:pointer">
                             <div class="add-item-check" id="chk-${key}"></div>
                             <div class="add-item-text">
                                 ${escHtml(item.name)}
@@ -516,7 +516,7 @@
                                 <div class="add-item-kcal">+${Number(item.kcal)} ккал</div>
                                 <button id="sub-add-${key}" class="btn btn-sm ${subInPlate ? 'btn-ghost' : 'btn-green'}"
                                     style="padding:5px 10px;font-size:10px;${subInPlate ? 'opacity:.6;cursor:default' : ''}"
-                                    onclick="addSubToPlate('${escHtml(key)}',event)"
+                                    onclick="event.stopPropagation();addSubToPlate('${escHtml(key)}',event)"
                                     ${subInPlate ? 'disabled' : ''}>
                                     ${subInPlate ? '✓ В тарелке' : '+ В тарелку'}
                                 </button>
