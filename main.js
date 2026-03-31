@@ -522,7 +522,6 @@ if (prevBtn && nextBtn) {
 
 function updateTestimonials() {
     // This would implement carousel logic if needed
-    console.log('Current testimonial:', currentTestimonial);
 }
 
 // Newsletter form submission
@@ -724,8 +723,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Инициализация: присваиваем уникальные ID и ЯВНО закрываем все карточки
     const allCards = document.querySelectorAll('.tariff-card-collapsible');
     const tariffsGrid = document.querySelector('.tariffs-grid');
-    console.log('Found cards:', allCards.length);
-
     allCards.forEach((card, index) => {
         card.setAttribute('data-card-id', index);
         card.classList.remove('is-open');

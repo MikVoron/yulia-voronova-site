@@ -15,7 +15,7 @@ const TRIAL_DAYS = 7;
  * @returns {{ grant: boolean, reason: string }}
  */
 async function tryGrantTrial(fingerprint, ip, userId) {
-  const client = await db.connect();
+  const client = await db.pool.connect();
   try {
     await client.query('BEGIN');
 
