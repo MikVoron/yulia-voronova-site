@@ -69,6 +69,19 @@ async function subscriptionRoutes(fastify) {
     );
     return result.rows;
   });
+  // GET /subscription/newsletter — статус подписки на рассылку
+  fastify.get('/subscription/newsletter', { preHandler: authenticate }, async (req) => {
+    const result = await db.query('SELECT newsletter_subscribed FROM users WHERE id=$1', [req.user.sub]);
+    return { subscribed: result.rows[0]?.newsletter_subscribed ?? true };
+  });
+
+  // PUT /subscription/newsletter — переключить подписку на рассылку
+  fastify.put('/subscription/newsletter', { preHandler: authenticate }, async (req) => {
+    const { subscribed } = req.body || {};
+    await db.query('UPDATE users SET newsletter_subscribed=$1 WHERE id=$2', [!!subscribed, req.user.sub]);
+    return { subscribed: !!subscribed };
+  });
+
   // POST /feedback — обратная связь от пользователя
   fastify.post('/feedback', { preHandler: authenticate }, async (req, reply) => {
     const { category, text } = req.body || {};

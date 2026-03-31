@@ -10,7 +10,10 @@ const transporter = nodemailer.createTransport({
 const FROM = '"Умная тарелка" <' + (process.env.SMTP_FROM || 'noreply@voronova.online') + '>';
 const PLATFORM_URL = process.env.PLATFORM_URL || 'https://app.voronova.online';
 
-function wrap(body) {
+function wrap(body, unsubscribeToken) {
+  const unsubLink = unsubscribeToken
+    ? '<div style="margin-top:8px"><a href="' + PLATFORM_URL + '/api/unsubscribe?token=' + encodeURIComponent(unsubscribeToken) + '" style="color:#bbb;font-size:10px;text-decoration:underline">Отписаться от рассылки</a></div>'
+    : '';
   return '<div style="font-family:\'Montserrat\',system-ui,sans-serif;max-width:480px;margin:0 auto;padding:0">'
     + '<div style="background:#fff;padding:20px 24px;border-bottom:2px solid #eee">'
     + '<table cellpadding="0" cellspacing="0" border="0"><tr>'
@@ -24,6 +27,7 @@ function wrap(body) {
     + '<div style="padding:16px 24px;text-align:center;font-size:11px;color:#999">'
     + '<a href="' + PLATFORM_URL + '/" style="color:#e8400a;text-decoration:none;font-weight:600">voronova.online</a>'
     + ' · Платформа сбалансированного питания'
+    + unsubLink
     + '</div>'
     + '</div>';
 }
@@ -138,6 +142,32 @@ async function sendFeedback(userEmail, category, text) {
   await send('hello@voronova.online', '[Умная тарелка] ' + label + ' от ' + userEmail, wrap(body));
 }
 
+// ── 7. Уведомление об отзыве ──
+async function sendReviewNotification(author, recipeName, stars, text, recipeId) {
+  const starsStr = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+  const reviewUrl = PLATFORM_URL + '/recipe.html?id=' + encodeURIComponent(recipeId || '') + '#reviews-section';
+  const body =
+    '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Новый отзыв</h2>'
+    + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
+    + '<strong>' + author.replace(/</g, '&lt;') + '</strong> оставил(а) отзыв на рецепт <strong>' + recipeName.replace(/</g, '&lt;') + '</strong>:</p>'
+    + '<div style="padding:16px;background:#faf8f5;border-radius:10px;border:1px solid #eee;margin-bottom:16px">'
+    + '<div style="font-size:20px;margin-bottom:8px;color:#f5a623">' + starsStr + '</div>'
+    + '<p style="font-size:14px;color:#333;margin:0;white-space:pre-wrap">' + text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>'
+    + '</div>'
+    + btn('Посмотреть отзыв', reviewUrl);
+  await send('hello@voronova.online', 'Новый отзыв: ' + recipeName.replace(/</g, '&lt;'), wrap(body));
+}
+
+// ── 8. Рассылка новости ──
+async function sendNewsletter(to, newsText, unsubscribeToken) {
+  const body =
+    '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Новости Умной тарелки</h2>'
+    + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px;white-space:pre-wrap">'
+    + newsText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>'
+    + btn('Открыть платформу', '' + PLATFORM_URL + '/');
+  await send(to, 'Новости — Умная тарелка', wrap(body, unsubscribeToken));
+}
+
 module.exports = {
   sendLoginCode,
   sendWelcome,
@@ -145,5 +175,7 @@ module.exports = {
   sendSubscriptionExpired,
   sendPaymentConfirmed,
   sendPaymentNotification,
-  sendFeedback
+  sendFeedback,
+  sendReviewNotification,
+  sendNewsletter
 };

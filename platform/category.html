@@ -86,6 +86,7 @@
                 <svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg>
             </button>
             <div class="filter-sep"></div>
+            <button class="filter-chip" data-f="popular" onclick="togglePopular(this)">⭐ Популярные</button>
             <button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
             <button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
             <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
@@ -177,7 +178,7 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1774804585"></script>
+<script src="data-v2.js?v=1774941737"></script>
 <script>
     Auth.requireAuth();
     loadContent().then(function() {
@@ -337,10 +338,11 @@
                 : `<div class="recipe-card-emoji">${_emoji}</div>`;
             const isFav = Favorites.has(d.id);
             const lockBadge = locked ? '<div class="locked-badge"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>Pro</div>' : '';
+            const trialBadge = !locked && d.free && Auth.isTrial() ? '<div class="trial-badge">Trial</div>' : '';
             return `<button class="recipe-card${locked ? ' locked' : ''}" onclick="${locked ? 'showLockedMsg()' : "goToRecipe('" + _id + "')"}">
                 <div class="recipe-card-photo" style="position:relative">
                     ${photoHtml}
-                    ${lockBadge}
+                    ${lockBadge}${trialBadge}
                     ${locked ? '' : `<div class="card-fav-btn${isFav ? ' active' : ''}" id="fav-${_id}"
                         onclick="event.stopPropagation();toggleFav('${_id}')">
                         <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
@@ -370,6 +372,102 @@
         dishes.forEach(d => updatePopStars(d.id));
     }
     renderDishes();
+
+    // ── LOAD API RATINGS for Popular filter + accurate pills ────────────
+    const _apiRatings = {}; // recipeId → { avg, count }
+    let _popularActive = false;
+
+    (async function loadApiRatings() {
+        try {
+            const res = await fetch(API_BASE + '/content/ratings');
+            if (!res.ok) return;
+            const data = await res.json();
+            Object.assign(_apiRatings, data);
+            // Update rating pills with server data
+            Object.entries(_apiRatings).forEach(([rid, r]) => {
+                const pill = document.getElementById('rpill-' + rid);
+                if (pill) pill.querySelector('.pr-val').textContent = r.avg > 0 ? r.avg : '—';
+            });
+        } catch(e) { console.error('Ratings load error:', e); }
+    })();
+
+    function togglePopular(el) {
+        _popularActive = !_popularActive;
+        el.classList.toggle('on', _popularActive);
+        renderDishes();
+    }
+
+    // Patch renderDishes to support popular sort
+    const _origRenderDishes = renderDishes;
+    renderDishes = function() {
+        if (_popularActive) {
+            const dishes = getCategoryDishes(catId, activeFilters);
+            dishes.sort((a, b) => {
+                const ra = _apiRatings[a.id] || { avg: 0, count: 0 };
+                const rb = _apiRatings[b.id] || { avg: 0, count: 0 };
+                if (rb.avg !== ra.avg) return rb.avg - ra.avg;
+                return rb.count - ra.count;
+            });
+            // Render sorted list (copy logic from original but with pre-sorted dishes)
+            document.getElementById('count-label').textContent = pluralR(dishes.length);
+            if (!dishes.length) {
+                document.getElementById('dish-list').innerHTML =
+                    '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">Ничего не найдено. Измените фильтры.</div>';
+                return;
+            }
+            const photo = CAT_PHOTOS[catId] || '';
+            const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
+            document.getElementById('dish-list').innerHTML = dishes.map(d => {
+                const _id = encodeURIComponent(d.id);
+                const _name = escHtml(String(d.name || ''));
+                const _emoji = escHtml(String(d.emoji || '🍴'));
+                const _photo = escHtml(String(d.photo || photo || ''));
+                const _imgPos = escHtml(String(d.imgPosition || ''));
+                const _diff = escHtml(String(diff_labels[d.diff] || d.diff || ''));
+                const _time = Number(d.time) || 0;
+                const _kcal = Number(d.kcal) || 0;
+                const isSublist = d.isSublist;
+                const locked = Auth.isTrial() && !d.free;
+                const photoHtml = _photo
+                    ? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
+                    : `<div class="recipe-card-emoji">${_emoji}</div>`;
+                const isFav = Favorites.has(d.id);
+                const lockBadge = locked ? '<div class="locked-badge"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>Pro</div>' : '';
+                const trialBadge = !locked && d.free && Auth.isTrial() ? '<div class="trial-badge">Trial</div>' : '';
+                return `<button class="recipe-card${locked ? ' locked' : ''}" onclick="${locked ? 'showLockedMsg()' : "goToRecipe('" + _id + "')"}">
+                    <div class="recipe-card-photo" style="position:relative">
+                        ${photoHtml}
+                        ${lockBadge}${trialBadge}
+                        ${locked ? '' : `<div class="card-fav-btn${isFav ? ' active' : ''}" id="fav-${_id}"
+                            onclick="event.stopPropagation();toggleFav('${_id}')">
+                            <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+                        </div>`}
+                        <div class="photo-overlay">
+                            ${ratingPillHtml(d.id)}
+                            ${commentBtnHtml(d.id)}
+                        </div>
+                        <div class="rating-popup" id="rpop-${_id}">
+                            ${[1,2,3,4,5].map(i => `<span class="rp-star" data-n="${i}"
+                                onmouseenter="hoverPopStar('${_id}',${i})"
+                                onmouseleave="unhoverPopStar('${_id}')"
+                                onclick="event.stopPropagation();rateFromPop('${_id}',${i})">★</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="recipe-card-body">
+                        <div class="recipe-card-name">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</div>
+                        <div class="recipe-card-meta">
+                            <span class="pill">⏱ ${_time} мин</span>
+                            <span class="pill">${_diff}</span>
+                        </div>
+                        <div class="recipe-card-kcal" style="margin-top:4px">${_kcal} ккал</div>
+                    </div>
+                </button>`;
+            }).join('');
+            dishes.forEach(d => updatePopStars(d.id));
+        } else {
+            _origRenderDishes();
+        }
+    };
 
     // Restore filter UI (chips + dropdown labels) if filters were loaded from sessionStorage
     (function syncFilterUI() {
@@ -461,15 +559,19 @@
         showToast('Оценка сохранена ★');
     }
 
-    // ── COMMENTS MODAL ───────────────────────────────────────────────────────
+    // ── COMMENTS MODAL (API-based, synced with recipe.html) ─────────────────
     let commentsRecipeId = null;
+    let _commentStars = 0;
+    const _reviewsCache = {}; // recipeId → [reviews]
+
     function openComments(recipeId) {
         commentsRecipeId = recipeId;
         const r = RECIPES[recipeId] || {};
         document.getElementById('comments-title').textContent = `💬 ${r.name || 'Отзывы'}`;
-        renderCommentsBody();
+        document.getElementById('comments-body').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-3)">Загрузка…</div>';
         document.getElementById('comments-overlay').classList.add('open');
         document.body.style.overflow = 'hidden';
+        loadCommentsFromAPI(recipeId);
     }
     function closeComments() {
         document.getElementById('comments-overlay').classList.remove('open');
@@ -480,13 +582,25 @@
         if (e.target === document.getElementById('comments-overlay')) closeComments();
     }
 
-    let selectedStars = 0;
+    async function loadCommentsFromAPI(recipeId) {
+        try {
+            const res = await fetch(API_BASE + '/content/reviews/' + encodeURIComponent(recipeId));
+            if (!res.ok) throw new Error('API error');
+            const reviews = await res.json();
+            _reviewsCache[recipeId] = reviews;
+            renderCommentsBody(reviews);
+            updateCommentBadge(recipeId, reviews.length);
+        } catch (e) {
+            console.error('Reviews load error:', e);
+            document.getElementById('comments-body').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-3)">Не удалось загрузить отзывы</div>';
+        }
+    }
 
-    function renderCommentsBody() {
-        const items = Comments.forRecipe(commentsRecipeId);
+    function renderCommentsBody(reviews) {
         const user = Auth.getUser();
-        const authorDefault = user ? user.name : '';
-        const userEmail = user ? user.email : '';
+        const curEmail = user ? user.email : '';
+        const isAdmin = user && user.role === 'admin';
+        const hasOwnReview = reviews.some(rv => curEmail && rv.email === curEmail);
 
         function starsHtml(n) {
             return [1,2,3,4,5].map(i =>
@@ -495,76 +609,96 @@
         }
         function fmtDate(ts) {
             const d = new Date(ts);
-            const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
-            return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+            return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
         }
 
-        const list = items.length
-            ? `<div class="comments-list">${items.map(c => {
-                const isOwn = userEmail && c.email === userEmail;
-                return `<div class="comment-item">
-                    <div class="comment-item-header">
-                        <span class="comment-item-author">${escHtml(c.author)}</span>
-                        ${c.stars ? `<span class="comment-item-stars">${starsHtml(c.stars)}</span>` : ''}
+        const list = reviews.length
+            ? `<div class="comments-list">${reviews.map(rv => {
+                const canDelete = isAdmin || (curEmail && rv.email === curEmail);
+                const avatarHtml = rv.avatar
+                    ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+                      + `<span class="review-avatar-fallback" style="display:none;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
+                    : `<span style="width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
+                return `<div class="comment-item" style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+                    <div style="flex-shrink:0">${avatarHtml}</div>
+                    <div style="flex:1;min-width:0">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+                            <span style="font-weight:700;font-size:14px;color:var(--text)">${escHtml(rv.author)}</span>
+                            <div style="display:flex;align-items:center;gap:6px">
+                                <span style="font-size:11px;color:var(--text-3)">${fmtDate(rv.createdAt)}</span>
+                                ${canDelete ? `<button style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px" onclick="deleteCatReview(${rv.id},${isAdmin})" title="Удалить">✕</button>` : ''}
+                            </div>
+                        </div>
+                        <div style="margin-bottom:4px">${starsHtml(rv.stars)}</div>
+                        ${rv.text ? `<div style="font-size:13px;color:var(--text);line-height:1.5">${escHtml(rv.text)}</div>` : ''}
                     </div>
-                    <div class="comment-item-text">${escHtml(c.text)}</div>
-                    <div class="comment-item-date">${fmtDate(c.ts)}</div>
-                    ${isOwn ? `<button class="comment-item-delete" onclick="deleteComment(${c.ts})">Удалить мой отзыв</button>` : ''}
                 </div>`;
             }).join('')}</div>`
             : `<div style="text-align:center;padding:24px 0;color:var(--text-3);font-size:14px">Пока нет отзывов. Будьте первым!</div>`;
 
-        selectedStars = 0;
-        document.getElementById('comments-body').innerHTML = `
-            ${list}
-            <div class="comments-form" style="margin-top:14px">
+        _commentStars = 0;
+        const formHtml = Auth.isLoggedIn() && !hasOwnReview
+            ? `<div class="comments-form" style="margin-top:14px">
                 <div class="c-star-row">
                     <label>Оценка:</label>
                     ${[1,2,3,4,5].map(i => `<span class="cstar" data-n="${i}" onclick="selectStar(${i})">★</span>`).join('')}
                 </div>
-                <input class="c-input" id="c-author" placeholder="Ваше имя" value="${escHtml(authorDefault)}" style="height:40px;resize:none">
-                <textarea class="c-input" id="c-text" placeholder="Ваш отзыв…" rows="3"></textarea>
-                <button class="btn btn-orange btn-full" onclick="submitComment()">Отправить</button>
-            </div>`;
+                <textarea class="c-input" id="c-text" placeholder="Ваш отзыв… (необязательно)" rows="3"></textarea>
+                <button class="btn btn-orange btn-full" id="c-submit-btn" onclick="submitComment()">Отправить</button>
+            </div>`
+            : Auth.isLoggedIn() && hasOwnReview
+                ? `<div style="text-align:center;padding:12px 0;color:var(--text-3);font-size:13px;margin-top:10px">Вы уже оставили отзыв на этот рецепт</div>`
+                : `<div style="text-align:center;padding:12px 0;color:var(--text-3);font-size:13px;margin-top:10px">Войдите, чтобы оставить отзыв</div>`;
+
+        document.getElementById('comments-body').innerHTML = list + formHtml;
     }
 
     function selectStar(n) {
-        selectedStars = n;
+        _commentStars = n;
         document.querySelectorAll('#comments-body .cstar').forEach((s, i) =>
             s.classList.toggle('on', i < n));
     }
 
-    function deleteComment(ts) {
-        Comments.remove(commentsRecipeId, ts);
-        updateCommentBadge(commentsRecipeId);
-        renderCommentsBody();
-        showToast('Отзыв удалён');
-    }
+    window.deleteCatReview = async function(id, isAdmin) {
+        if (!confirm('Удалить отзыв?')) return;
+        try {
+            const endpoint = isAdmin ? '/admin/reviews/' : '/content/reviews/';
+            const res = await Auth.api(endpoint + id, { method: 'DELETE' });
+            if (!res.ok) { showToast('Не удалось удалить'); return; }
+            showToast('Отзыв удалён');
+            loadCommentsFromAPI(commentsRecipeId);
+        } catch (e) { showToast('Ошибка сети'); }
+    };
 
-    function submitComment() {
-        const author = (document.getElementById('c-author').value || '').trim();
-        const text   = (document.getElementById('c-text').value  || '').trim();
-        if (!author || !text) { showToast('Заполните имя и текст'); return; }
-        const user = Auth.getUser();
-        Comments.add(commentsRecipeId, author, text, selectedStars, user ? user.email : '');
-        if (selectedStars > 0) {
-            Ratings.rate(commentsRecipeId, selectedStars);
-            updatePopStars(commentsRecipeId);
-            const pill = document.getElementById('rpill-' + commentsRecipeId);
-            if (pill) {
-                const rv = Ratings.forRecipe(commentsRecipeId);
-                pill.querySelector('.pr-val').textContent = rv.mine || (rv.count > 0 ? (rv.sum / rv.count).toFixed(1) : '—');
+    async function submitComment() {
+        if (!_commentStars) { showToast('Выберите оценку'); return; }
+        const text = (document.getElementById('c-text')?.value || '').trim();
+
+        const btn = document.getElementById('c-submit-btn');
+        if (btn) { btn.disabled = true; btn.textContent = '...'; }
+        try {
+            const body = { recipe_id: commentsRecipeId, stars: _commentStars, text: text || '⭐' };
+            const res = await Auth.api('/content/reviews', {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                showToast(err.error || 'Ошибка');
+                return;
             }
+            showToast('Отзыв сохранён!');
+            loadCommentsFromAPI(commentsRecipeId);
+        } catch (e) {
+            showToast('Ошибка сети');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'Отправить'; }
         }
-        updateCommentBadge(commentsRecipeId);
-        showToast('Отзыв добавлен!');
-        closeComments();
     }
 
-    function updateCommentBadge(recipeId) {
+    function updateCommentBadge(recipeId, cnt) {
         const cbtn = document.getElementById('cbtn-' + recipeId);
         if (!cbtn) return;
-        const cnt = Comments.count(recipeId);
         let badge = cbtn.querySelector('.photo-comment-badge');
         if (cnt > 0) {
             if (!badge) { badge = document.createElement('div'); badge.className = 'photo-comment-badge'; cbtn.appendChild(badge); }

@@ -296,41 +296,36 @@ img { display: block; max-width: 100%; }
 
 /* ── FEATURED RECIPE CARD ────────────────────────────── */
 .featured-card {
-    display: flex; width: 100%; cursor: pointer; text-align: left;
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: var(--r-m); overflow: hidden;
-    border: none; padding: 0; transition: var(--tr);
+    display: flex; flex-direction: row; width: 100%; cursor: pointer; text-align: left;
+    background: var(--card); border: none;
+    border-radius: 0; overflow: hidden;
+    padding: 0; transition: var(--tr);
 }
 .featured-card:hover .featured-card-photo img { transform: scale(1.04); }
 .featured-card-photo {
-    width: 42%; flex-shrink: 0; position: relative; overflow: hidden;
-    background: var(--bg-alt);
+    aspect-ratio: 3/4; width: 220px; min-width: 220px; position: relative; overflow: hidden;
+    background: var(--bg-alt); border-radius: var(--r-m);
 }
 .featured-card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
 .featured-card-body {
-    flex: 1; padding: clamp(16px,3vw,36px) clamp(16px,3vw,40px);
-    display: flex; flex-direction: column; justify-content: center; gap: 8px;
+    padding: 4px 0 4px 14px;
+    display: flex; flex-direction: column; gap: 4px; justify-content: center;
 }
 .featured-card-label {
     font-size: 11px; font-weight: 800; color: var(--accent);
     text-transform: uppercase; letter-spacing: 1px;
 }
 .featured-card-name {
-    font-family: var(--serif); font-size: clamp(18px,2.5vw,28px);
-    font-weight: 700; color: var(--text); line-height: 1.2;
+    font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.25;
 }
 .featured-card-meta { display: flex; gap: 6px; flex-wrap: wrap; }
-.featured-card-kcal { font-size: 13px; font-weight: 700; color: var(--accent); }
+.featured-card-kcal { font-size: 12px; font-weight: 700; color: var(--accent); }
 .card-new-badge {
-    position: absolute; top: 12px; left: 12px;
+    position: absolute; top: 8px; left: 8px;
     background: #e84a3a; color: #fff;
     font-size: 10px; font-weight: 800;
-    padding: 4px 10px; border-radius: 20px;
+    padding: 3px 8px; border-radius: 20px;
     letter-spacing: .8px; text-transform: uppercase; z-index: 3;
-}
-@media (max-width: 600px) {
-    .featured-card { flex-direction: column; }
-    .featured-card-photo { width: 100%; height: 220px; }
 }
 
 /* ── WEIGHT INPUT ────────────────────────────────────── */
@@ -425,6 +420,12 @@ img { display: block; max-width: 100%; }
     backdrop-filter: blur(4px);
 }
 .locked-badge svg { width: 12px; height: 12px; fill: #fff; }
+.trial-badge {
+    position: absolute; top: 8px; right: 8px; z-index: 2;
+    background: rgba(91,158,201,.85); color: #fff; border-radius: 6px;
+    padding: 3px 8px; font-size: 11px; font-weight: 600;
+    backdrop-filter: blur(4px);
+}
 
 /* Bottom row: kcal + rating */
 .recipe-card-bottom {
@@ -622,6 +623,15 @@ img { display: block; max-width: 100%; }
              font-size: 11px; font-weight: 800;
              display: flex; align-items: center; justify-content: center;
              flex-shrink: 0; margin-top: 1px; }
+.step-body { flex: 1; min-width: 0; }
+.step-body.has-photo { display: flex; gap: 16px; align-items: flex-start; }
+.step-text { flex: 1; min-width: 0; }
+.step-media { flex-shrink: 0; width: 220px; }
+.step-media .step-photo-img { width: 100%; border-radius: 10px; }
+@media (max-width: 600px) {
+    .step-body.has-photo { flex-direction: column; }
+    .step-media { width: 100%; }
+}
 
 /* VK Video */
 .vk-embed { border-radius: var(--r-m); overflow: hidden; aspect-ratio: 16/9;
@@ -634,6 +644,16 @@ img { display: block; max-width: 100%; }
             display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; }
 .vk-badge-label { position: absolute; top: 10px; right: 10px; background: #0077ff;
                    color: white; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 800; }
+
+/* Dzen link card (no embed available) */
+.dzen-link-card {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; position: absolute; inset: 0; background: #1a1a1a;
+    text-decoration: none; color: #fff; transition: background .2s;
+}
+.dzen-link-card:hover { background: #2a2a2a; }
+.dzen-link-icon { opacity: .85; }
+.dzen-link-text { font-size: 15px; font-weight: 700; letter-spacing: .3px; }
 
 /* Julia tip — speech bubble with avatar on top */
 .julia-tip { margin-top: 32px; display: flex; flex-direction: column; align-items: center; }
@@ -902,6 +922,45 @@ img { display: block; max-width: 100%; }
                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hist-kcal { font-size: 14px; font-weight: 800; color: var(--accent); flex-shrink: 0; }
 
+/* ── REVIEWS ─────────────────────────────────────────── */
+.reviews-section { margin-top: 24px; padding: 20px; background: var(--card); border-radius: var(--r-m); border: 1px solid var(--border); }
+.review-form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.review-form-stars { display: flex; gap: 2px; }
+.review-star { font-size: 24px; cursor: pointer; color: var(--border); transition: color .15s; }
+.review-star.filled { color: #f5a623; }
+.review-star:hover { color: #f5a623; }
+.review-textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--r-s);
+    padding: 10px 12px; font-size: 13px; font-family: inherit; resize: vertical;
+    background: var(--bg); color: var(--text); min-height: 60px;
+}
+.review-textarea:focus { outline: none; border-color: var(--accent); }
+.review-char-count { font-size: 11px; color: var(--text-3); }
+.review-item {
+    padding: 14px 16px; margin-bottom: 10px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: var(--r-s);
+}
+.review-item:last-child { margin-bottom: 0; }
+.review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.review-author-wrap { display: flex; align-items: center; gap: 8px; }
+.review-avatar {
+    width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
+}
+.review-avatar-fallback {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--accent);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; flex-shrink: 0;
+}
+.review-author { font-size: 14px; font-weight: 700; color: var(--text); }
+.review-date { font-size: 11px; color: var(--text-3); }
+.review-stars-row { margin-bottom: 6px; }
+.review-text { font-size: 14px; color: var(--text); line-height: 1.6; }
+.review-delete-btn {
+    background: none; border: none; color: var(--text-3); cursor: pointer;
+    font-size: 14px; padding: 2px 6px; border-radius: 4px; transition: var(--tr);
+}
+.review-delete-btn:hover { background: #fee; color: #c00; }
+
 /* ── SUBLIST ─────────────────────────────────────────── */
 .sublist-note { padding: 14px 16px; background: var(--accent-l);
                 border-radius: var(--r-m); font-size: 13px; color: var(--accent);
@@ -940,6 +999,9 @@ img { display: block; max-width: 100%; }
     }
 }
 @media (max-width: 460px) {
+    .featured-card { flex-direction: column; }
+    .featured-card-photo { width: 100%; min-width: 0; aspect-ratio: 1/1; }
+    .featured-card-body { padding: 10px 0 0; }
     .cat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
     .recipe-card-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
     .kbzhu { grid-template-columns: repeat(auto-fit, minmax(56px,1fr)); gap: 6px; }
@@ -983,6 +1045,7 @@ img { display: block; max-width: 100%; }
     border-radius: var(--r-m); margin-top: 10px;
     object-fit: contain;
 }
+.step-media .step-photo-img { max-width: 100%; margin-top: 0; }
 
 /* ── LOGIN PAGE ──────────────────────────────────────── */
 .login-page {

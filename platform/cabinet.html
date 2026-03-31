@@ -158,7 +158,7 @@
 		}
 
 		.cab-metric-value .cab-weight-input {
-			width: 140px;
+			width: 100px;
 			padding: 0;
 			font-size: clamp(36px, 8vw, 52px);
 			font-weight: 700;
@@ -183,6 +183,7 @@
 			font-weight: 700;
 			color: var(--text);
 			padding-bottom: 8px;
+			margin-left: -4px;
 		}
 
 
@@ -810,7 +811,7 @@
 					<div class="cab-metric">
 						<div class="cab-metric-label">Мой вес</div>
 						<div class="cab-metric-value">
-							<input type="number" class="cab-weight-input" id="cab-weight" placeholder="—" min="30" max="300" step="0.5" onchange="saveWeight(this.value)" oninput="saveWeight(this.value)">
+							<input type="number" class="cab-weight-input" id="cab-weight" placeholder="—" min="30" max="999" step="0.5" maxlength="3" oninput="if(this.value.length>3)this.value=this.value.slice(0,3);saveWeight(this.value)" onchange="saveWeight(this.value)">
 							<span class="cab-weight-unit">кг</span>
 						</div>
 					</div>
@@ -954,7 +955,23 @@
 				<div class="fb-sent" id="fb-sent-list"></div>
 			</div>
 
+			<!-- Настройки рассылки (внизу панели обратной связи) -->
+
 		</div>
+
+		<!-- Newsletter toggle (всегда видно внизу) -->
+		<div style="margin-top:24px;padding:16px 20px;background:var(--bg-alt);border-radius:var(--r-m);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+			<div>
+				<div style="font-size:14px;font-weight:700;color:var(--text)">Email-рассылка новостей</div>
+				<div style="font-size:12px;color:var(--text-3);margin-top:2px">Получать уведомления о новых рецептах и новостях</div>
+			</div>
+			<label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0">
+				<input type="checkbox" id="newsletter-toggle" checked onchange="toggleNewsletter(this.checked)" style="opacity:0;width:0;height:0">
+				<span style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:24px;transition:.3s"></span>
+				<span id="nl-slider" style="position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s"></span>
+			</label>
+		</div>
+
 	</main>
 
 	<!-- MY PLATE MODAL -->
@@ -1019,7 +1036,7 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=1774804585"></script>
+	<script src="data-v2.js?v=1774941737"></script>
 	<script>
 		Auth.requireAuth();
 		const _cabAccess = Auth.checkAccess();
@@ -1181,6 +1198,40 @@
 				updateWaterNorm(n);
 			}
 		}
+		// ── Newsletter toggle ─────────────────────────────
+		(async function loadNewsletterState() {
+			try {
+				const res = await Auth.api('/subscription/newsletter');
+				if (!res.ok) return;
+				const data = await res.json();
+				const cb = document.getElementById('newsletter-toggle');
+				if (cb) {
+					cb.checked = data.subscribed;
+					updateNlSlider(data.subscribed);
+				}
+			} catch(e) {}
+		})();
+
+		function updateNlSlider(on) {
+			const slider = document.getElementById('nl-slider');
+			const bg = slider?.parentElement?.querySelector('span');
+			if (slider) slider.style.transform = on ? 'translateX(20px)' : 'translateX(0)';
+			if (bg) bg.style.background = on ? 'var(--accent)' : '#ccc';
+		}
+
+		async function toggleNewsletter(checked) {
+			updateNlSlider(checked);
+			try {
+				await Auth.api('/subscription/newsletter', {
+					method: 'PUT',
+					body: JSON.stringify({ subscribed: checked })
+				});
+				showToast(checked ? 'Рассылка включена' : 'Вы отписались от рассылки');
+			} catch(e) {
+				showToast('Ошибка сети');
+			}
+		}
+
 		function updateWaterNorm(w) {
 			const norm = document.getElementById('water-norm');
 			const val = document.getElementById('water-val');
