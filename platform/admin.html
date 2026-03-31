@@ -765,7 +765,15 @@
                 <textarea class="adm-modal-input" id="recipe-add-fiber" rows="2" style="resize:vertical;font-size:12px" placeholder="Свежая зелень (горсть) | 5 | 0 | 0 | 1 | 1&#10;Шпинат (горсть) | 15 | 2 | 0 | 2 | 2"></textarea>
             </div>
         </div>
-        <div style="display:flex;gap:16px;align-items:center">
+        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px">
+            <label class="adm-modal-label" style="margin-bottom:8px">Видеорецепт (ссылки)</label>
+            <div style="display:flex;flex-direction:column;gap:6px">
+                <input class="adm-modal-input" id="recipe-yt-video" placeholder="YouTube — https://youtu.be/..." style="font-size:12px">
+                <input class="adm-modal-input" id="recipe-vk-video" placeholder="VK Video — https://vkvideo.ru/..." style="font-size:12px">
+                <input class="adm-modal-input" id="recipe-dzen-video" placeholder="Дзен — https://dzen.ru/video/..." style="font-size:12px">
+            </div>
+        </div>
+        <div style="display:flex;gap:16px;align-items:center;margin-top:12px">
             <div style="display:flex;align-items:center;gap:6px">
                 <input type="checkbox" id="recipe-free"> <label for="recipe-free" style="font-size:13px;cursor:pointer">Бесплатный</label>
             </div>
@@ -783,7 +791,7 @@
 <!-- Toast -->
 <div class="adm-toast" id="adm-toast"></div>
 
-<script src="data-v2.js?v=1774804585"></script>
+<script src="data-v2.js?v=1774941737"></script>
 <script>
 (function() {
     // ── Auth check ──
@@ -1226,6 +1234,9 @@
         document.getElementById('recipe-quote').value = r ? (r.quote || '') : '';
         document.getElementById('recipe-note').value = r ? (r.note || '') : '';
         document.getElementById('recipe-tags').value = r ? (r.tags || []).join(', ') : '';
+        document.getElementById('recipe-yt-video').value = r ? (r.yt_video || '') : '';
+        document.getElementById('recipe-vk-video').value = r ? (r.vk_video || '') : '';
+        document.getElementById('recipe-dzen-video').value = r ? (r.dzen_video || '') : '';
         document.getElementById('recipe-free').checked = r ? r.is_free : false;
         document.getElementById('recipe-published').checked = r ? r.is_published : true;
         // Add-panels (serialize objects to line format: name | kcal | protein | fat | carbs | fiber [| @recipeId])
@@ -1326,6 +1337,9 @@
             quote: document.getElementById('recipe-quote').value.trim() || null,
             note: document.getElementById('recipe-note').value.trim() || null,
             tags: tags,
+            yt_video: document.getElementById('recipe-yt-video').value.trim() || null,
+            vk_video: document.getElementById('recipe-vk-video').value.trim() || null,
+            dzen_video: document.getElementById('recipe-dzen-video').value.trim() || null,
             is_free: document.getElementById('recipe-free').checked,
             is_published: document.getElementById('recipe-published').checked,
             ingredients: ingredients,

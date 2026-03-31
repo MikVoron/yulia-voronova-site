@@ -352,6 +352,8 @@ function _mapRecipe(r) {
         steps: (r.steps || []).map(s => typeof s === 'object' && s && s.photo ? {...s, photo: _fixPhoto(s.photo)} : s),
         note: r.note || null,
         vkVideo: r.vk_video || null,
+        ytVideo: r.yt_video || null,
+        dzenVideo: r.dzen_video || null,
         addProtein: r.add_protein || [],
         addFat: r.add_fat || [],
         addCarbs: r.add_carbs || [],
