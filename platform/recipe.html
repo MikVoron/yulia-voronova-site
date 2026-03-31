@@ -413,10 +413,8 @@
         const avgRating = rv.count > 0 ? (rv.sum / rv.count) : 0;
         const avgDisplay = rv.mine || (avgRating > 0 ? avgRating.toFixed(1) : '—');
         const starsRow = [1,2,3,4,5].map(i =>
-            `<span class="star r-star${i <= Math.round(rv.mine || avgRating) ? ' filled' : ''}" data-n="${i}"
-                onmouseenter="hoverInlineStar(${i})" onmouseleave="unhoverInlineStar()"
-                onclick="rateInline(${i})">★</span>`).join('');
-        const voterCount = rv.count || 0;
+            `<span class="star r-star${i <= Math.round(avgRating) ? ' filled' : ''}" style="cursor:pointer" onclick="scrollToReviews()">★</span>`).join('');
+        const voterCount = 0; // will be updated from API by loadReviews()
         const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
         const dateStr = r.added || '';
 
@@ -519,7 +517,7 @@
                                 <div class="review-form-stars" id="review-form-stars">
                                     ${[1,2,3,4,5].map(i => `<span class="star review-star" data-n="${i}" onclick="setReviewStars(${i})">★</span>`).join('')}
                                 </div>
-                                <textarea id="review-text" class="review-textarea" placeholder="Поделитесь впечатлениями о рецепте..." maxlength="1000" rows="3"></textarea>
+                                <textarea id="review-text" class="review-textarea" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." maxlength="1000" rows="3"></textarea>
                                 <div style="display:flex;align-items:center;justify-content:space-between">
                                     <span class="review-char-count" id="review-char-count">0 / 1000</span>
                                     <button class="btn btn-green btn-sm" id="review-submit-btn" onclick="submitReview()">Отправить</button>

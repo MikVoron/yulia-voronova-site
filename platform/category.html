@@ -296,12 +296,10 @@
     }
 
     function commentBtnHtml(recipeId) {
-        const cnt = Comments.count(recipeId);
-        const badge = cnt > 0 ? `<div class="photo-comment-badge">${cnt}</div>` : '';
         return `<div class="photo-comment-btn" id="cbtn-${recipeId}" role="button"
             onclick="event.stopPropagation();openComments('${recipeId}')">
             <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-            Отзыв${badge}</div>`;
+            Отзыв</div>`;
     }
 
     function pluralR(n) {
@@ -643,7 +641,7 @@
                     <label>Оценка:</label>
                     ${[1,2,3,4,5].map(i => `<span class="cstar" data-n="${i}" onclick="selectStar(${i})">★</span>`).join('')}
                 </div>
-                <textarea class="c-input" id="c-text" placeholder="Ваш отзыв… (необязательно)" rows="3"></textarea>
+                <textarea class="c-input" id="c-text" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." rows="3"></textarea>
                 <button class="btn btn-orange btn-full" id="c-submit-btn" onclick="submitComment()">Отправить</button>
             </div>`
             : Auth.isLoggedIn() && hasOwnReview

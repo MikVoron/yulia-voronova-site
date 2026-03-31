@@ -379,6 +379,7 @@
 								<path d="M1 1l4 4 4-4" />
 							</svg>
 						</button>
+						<button class="filter-chip" data-f="popular" id="popular-chip" onclick="togglePopular(this)">⭐ Популярные</button>
 						<div class="filter-sep"></div>
 						<button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
 						<button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
@@ -391,8 +392,8 @@
 			</div>
 
 			<!-- Categories -->
-			<div class="v-sec-head anim anim-d2" style="align-items:baseline;gap:14px">
-				<div class="v-sec-title">Категории</div>
+			<div class="v-sec-head anim anim-d2" style="align-items:baseline;gap:14px" id="cats-head">
+				<div class="v-sec-title" id="cats-title">Категории</div>
 				<div class="recipes-total-count" id="recipes-total-count"></div>
 			</div>
 			<div class="cat-grid anim anim-d2" id="cat-grid"></div>
@@ -477,7 +478,7 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=1774804585"></script>
+	<script src="data-v2.js?v=1774941737"></script>
 	<script>
 		function escHtml(s) {
 			return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -668,10 +669,11 @@
 						? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')">`
 						: `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:56px">${_emoji}</div>`;
 					const lockBadge = locked ? '<div class="locked-badge"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>Pro</div>' : '';
+					const trialBadge = !locked && d.free && Auth.isTrial() ? '<div class="trial-badge">Trial</div>' : '';
 					html = `<button class="featured-card${locked ? ' locked' : ''}" onclick="${locked ? 'showLockedMsg()' : "location.href=\'recipe.html?id=" + _id + "&from=" + _cat + "\'"}">
                     <div class="featured-card-photo" style="position:relative">
                         ${photoHtml}
-                        ${lockBadge}
+                        ${lockBadge}${trialBadge}
                         ${item.badge ? '<div class="card-new-badge">' + escHtml(String(item.badge)) + '</div>' : ''}
                     </div>
                     <div class="featured-card-body">
@@ -767,8 +769,69 @@
 			else { el.classList.add('on'); activeFilters[f] = true; }
 			renderCats();
 		}
+		// ── POPULAR FILTER ───────────────────────────────────────────────────
+		const _apiRatings = {}; // recipeId → { avg, count }
+		let _popularActive = false;
+
+		(async function loadApiRatings() {
+			try {
+				const res = await fetch(API_BASE + '/content/ratings');
+				if (!res.ok) return;
+				const data = await res.json();
+				Object.assign(_apiRatings, data);
+			} catch(e) { /* silent */ }
+		})();
+
+		function togglePopular(el) {
+			_popularActive = !_popularActive;
+			el.classList.toggle('on', _popularActive);
+			if (_popularActive) {
+				document.getElementById('cats-title').textContent = 'Популярные рецепты';
+				renderPopular();
+			} else {
+				document.getElementById('cats-title').textContent = 'Категории';
+				renderCats();
+			}
+		}
+
+		function renderPopular() {
+			const allRecipes = Object.values(RECIPES);
+			const rated = allRecipes.filter(r => _apiRatings[r.id] && _apiRatings[r.id].avg > 0);
+			rated.sort((a, b) => {
+				const ra = _apiRatings[a.id];
+				const rb = _apiRatings[b.id];
+				if (rb.avg !== ra.avg) return rb.avg - ra.avg;
+				return rb.count - ra.count;
+			});
+			const shown = rated.length ? rated : allRecipes.slice(0, 12);
+			const grid = document.getElementById('cat-grid');
+			grid.innerHTML = shown.map(r => {
+				const _id = encodeURIComponent(r.id);
+				const _name = escHtml(r.name);
+				const _emoji = escHtml(r.emoji || '🍴');
+				const photo = escHtml(r.photo || '');
+				const rv = _apiRatings[r.id] || {};
+				const avgStr = rv.avg > 0 ? rv.avg : '';
+				const starsHtml = avgStr ? `<span style="color:#f5a623;font-size:12px">★</span><span style="font-size:12px;font-weight:600;color:var(--text-2)">${avgStr}</span>` : '';
+				const photoHtml = photo
+					? `<img src="${photo}" alt="${_name}" loading="lazy" style="width:100%;height:100%;object-fit:cover">`
+					: `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:40px">${_emoji}</div>`;
+				return `<button class="cat-card" onclick="location.href='recipe.html?id=${_id}'">
+					<div class="cat-icon-wrap">${photoHtml}</div>
+					<div class="cat-body">
+						<div class="cat-name">${_name}</div>
+						<div class="cat-desc">${starsHtml}</div>
+					</div>
+				</button>`;
+			}).join('');
+		}
+
 		function clearFilters() {
 			Object.keys(activeFilters).forEach(k => delete activeFilters[k]);
+			_popularActive = false;
+			const chip = document.getElementById('popular-chip');
+			if (chip) chip.classList.remove('on');
+			document.getElementById('cats-title').textContent = 'Категории';
 			document.querySelectorAll('.filter-chip.on').forEach(c => c.classList.remove('on'));
 			document.querySelectorAll('.fgroup-btn').forEach(b => {
 				b.classList.remove('has-value');
