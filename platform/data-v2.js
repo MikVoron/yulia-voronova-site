@@ -209,7 +209,9 @@ const Auth = {
     },
     async api(path, options = {}) {
         const token = this.getToken();
-        const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+        const needsCT = options.body != null;
+        const defaults = needsCT ? { 'Content-Type': 'application/json' } : {};
+        const headers = Object.assign(defaults, options.headers || {});
         if (token) headers['Authorization'] = 'Bearer ' + token;
         const res = await fetch(API_BASE + path, Object.assign({}, options, { headers, credentials: 'include' }));
         if (res.status === 401) {

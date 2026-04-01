@@ -285,9 +285,8 @@
     }
 
     function ratingPillHtml(recipeId) {
-        const r = Ratings.forRecipe(recipeId);
-        const val = r.mine || (r.count > 0 ? (r.sum / r.count).toFixed(1) : 0);
-        const display = val > 0 ? val : '—';
+        // Show '—' initially; loadApiRatings() will update with real server data
+        const display = '—';
         return `<div class="photo-rating-pill" id="rpill-${recipeId}" role="button"
             onclick="event.stopPropagation();openRatingPopup('${recipeId}',this)">
             <span class="pr-star">★</span>
@@ -617,7 +616,7 @@
                     ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
                       + `<span class="review-avatar-fallback" style="display:none;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
                     : `<span style="width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
-                return `<div class="comment-item" style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+                return `<div class="comment-item" style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)">
                     <div style="flex-shrink:0">${avatarHtml}</div>
                     <div style="flex:1;min-width:0">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
@@ -645,8 +644,8 @@
                 <button class="btn btn-orange btn-full" id="c-submit-btn" onclick="submitComment()">Отправить</button>
             </div>`
             : Auth.isLoggedIn() && hasOwnReview
-                ? `<div style="text-align:center;padding:12px 0;color:var(--text-3);font-size:13px;margin-top:10px">Вы уже оставили отзыв на этот рецепт</div>`
-                : `<div style="text-align:center;padding:12px 0;color:var(--text-3);font-size:13px;margin-top:10px">Войдите, чтобы оставить отзыв</div>`;
+                ? `<div style="text-align:center;padding:16px;color:var(--text-3);font-size:13px">Вы уже оставили отзыв на этот рецепт</div>`
+                : `<div style="text-align:center;padding:16px;color:var(--text-3);font-size:13px">Войдите, чтобы оставить отзыв</div>`;
 
         document.getElementById('comments-body').innerHTML = list + formHtml;
     }

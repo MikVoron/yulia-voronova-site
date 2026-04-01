@@ -241,6 +241,7 @@
         renderSublist(r);
     } else {
         renderRecipe(r);
+        setTimeout(loadReviews, 300);
     }
     } // end initRecipe
 
@@ -408,13 +409,13 @@
         </div>` : '';
 
         // Recipe meta: rating stars + date
+        // Stars and count will be filled from API by loadReviews()
+        // Do NOT use localStorage Ratings here — it only stores local clicks, not real reviews
         const rv = Ratings.forRecipe(r.id);
         const isFav = Favorites.has(r.id);
-        const avgRating = rv.count > 0 ? (rv.sum / rv.count) : 0;
-        const avgDisplay = rv.mine || (avgRating > 0 ? avgRating.toFixed(1) : '—');
         const starsRow = [1,2,3,4,5].map(i =>
-            `<span class="star r-star${i <= Math.round(avgRating) ? ' filled' : ''}" style="cursor:pointer" onclick="scrollToReviews()">★</span>`).join('');
-        const voterCount = 0; // will be updated from API by loadReviews()
+            `<span class="star r-star${i <= 0 ? ' filled' : ''}" style="cursor:pointer" onclick="scrollToReviews()">★</span>`).join('');
+        const voterCount = 0;
         const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
         const dateStr = r.added || '';
 
@@ -435,7 +436,7 @@
                             <div class="photo-rating-pill" id="recipe-rpill"
                                 onclick="event.stopPropagation();scrollToStars()">
                                 <span class="pr-star">★</span>
-                                <span class="pr-val" id="recipe-rating-val">${avgDisplay}</span>
+                                <span class="pr-val" id="recipe-rating-val">—</span>
                             </div>
                             <button class="photo-comment-btn" onclick="event.stopPropagation();scrollToReviews()">
                                 <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
@@ -453,7 +454,7 @@
                     <div class="recipe-meta-row" id="recipe-stars-row">
                         <span class="recipe-meta-stars${rv.mine ? ' user-rated' : ''}">
                             ${starsRow}
-                            <span style="color:var(--text-3)">(${voterCount})</span>
+                            <span id="recipe-voter-count" style="color:var(--text-3)">(${voterCount})</span>
                         </span>
                     </div>
                     ${r.quote ? `<div class="julia-tip" style="margin-top:0;margin-bottom:18px">
@@ -905,16 +906,18 @@
             const list = document.getElementById('reviews-list');
             if (!list) return;
 
-            // Update voter count + star fill from API data
-            const countEl = document.getElementById('recipe-stars-row');
-            if (countEl) {
-                const cSpan = countEl.querySelector('span[style*="color:var(--text-3)"]');
-                if (cSpan) cSpan.textContent = '(' + reviews.length + ')';
-                if (reviews.length) {
-                    const apiAvg = reviews.reduce((s, rv) => s + rv.stars, 0) / reviews.length;
-                    countEl.querySelectorAll('.r-star').forEach((s, i) =>
-                        s.classList.toggle('filled', i < Math.round(apiAvg)));
-                }
+            // Update voter count, star fill, and rating pill from API data
+            const cSpan = document.getElementById('recipe-voter-count');
+            if (cSpan) cSpan.textContent = '(' + reviews.length + ')';
+            const ratingVal = document.getElementById('recipe-rating-val');
+            if (reviews.length) {
+                const apiAvg = reviews.reduce((s, rv) => s + rv.stars, 0) / reviews.length;
+                document.querySelectorAll('#recipe-stars-row .r-star').forEach((s, i) =>
+                    s.classList.toggle('filled', i < Math.round(apiAvg)));
+                if (ratingVal) ratingVal.textContent = apiAvg.toFixed(1);
+                // Mark as rated so hint animation stops
+                const starsRow = document.getElementById('recipe-stars-row');
+                if (starsRow) starsRow.querySelector('.recipe-meta-stars')?.classList.add('user-rated');
             }
 
             if (!reviews.length) {
@@ -928,7 +931,7 @@
             const hasOwnReview = reviews.some(rv => curEmail && rv.email === curEmail);
             const formWrap = document.getElementById('review-form-wrap');
             if (formWrap && hasOwnReview) {
-                formWrap.innerHTML = '<div style="font-size:13px;color:var(--text-3);padding:8px 0">Вы уже оставили отзыв. Удалите его, чтобы написать новый.</div>';
+                formWrap.innerHTML = '<div style="font-size:13px;color:var(--text-3);padding:12px 16px;text-align:center">Вы уже оставили отзыв. Удалите его, чтобы написать новый.</div>';
             }
             list.innerHTML = reviews.map(rv => {
                 const d = new Date(rv.createdAt);
@@ -957,7 +960,11 @@
                     <div class="review-text">${escHtml(rv.text)}</div>
                 </div>`;
             }).join('');
-        } catch (e) { console.error('Reviews load error:', e); }
+        } catch (e) {
+            console.error('Reviews load error:', e);
+            const list = document.getElementById('reviews-list');
+            if (list && !list.innerHTML) list.innerHTML = '<div style="font-size:12px;color:red">Ошибка загрузки отзывов: ' + e.message + '</div>';
+        }
     }
 
     async function submitReview() {
@@ -1011,8 +1018,7 @@
         }
     });
 
-    // Load reviews after page renders
-    if (r && !r.isSublist) setTimeout(loadReviews, 300);
+    // loadReviews is now called inside initRecipe() after renderRecipe(r)
 
 </script>
 

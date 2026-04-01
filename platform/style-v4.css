@@ -206,7 +206,7 @@ img { display: block; max-width: 100%; }
 .filter-bar {
     display: flex; flex-wrap: nowrap; align-items: center;
     gap: 4px; min-width: max-content;
-    overflow: visible;
+    overflow: visible; padding-right: 8px;
 }
 
 
@@ -303,7 +303,7 @@ img { display: block; max-width: 100%; }
 }
 .featured-card:hover .featured-card-photo img { transform: scale(1.04); }
 .featured-card-photo {
-    aspect-ratio: 3/4; width: 220px; min-width: 220px; position: relative; overflow: hidden;
+    aspect-ratio: 3/4; width: calc((100% - 60px) / 4); min-width: 180px; position: relative; overflow: hidden;
     background: var(--bg-alt); border-radius: var(--r-m);
 }
 .featured-card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
