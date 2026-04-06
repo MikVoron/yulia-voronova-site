@@ -368,7 +368,9 @@
         // restore filled stars in popups
         dishes.forEach(d => updatePopStars(d.id));
     }
-    renderDishes();
+    // Initial render deferred to loadContent().then() — show loader until data is ready
+    document.getElementById('dish-list').innerHTML =
+        '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">Загрузка рецептов…</div>';
 
     // ── LOAD API RATINGS for Popular filter + accurate pills ────────────
     const _apiRatings = {}; // recipeId → { avg, count }
@@ -531,8 +533,8 @@
     });
 
     function updatePopStars(recipeId) {
-        const r = Ratings.forRecipe(recipeId);
-        const filled = r.mine || 0;
+        const ar = _apiRatings[recipeId];
+        const filled = ar ? Math.round(ar.avg) : 0;
         document.querySelectorAll(`#rpop-${recipeId} .rp-star`).forEach((s, i) =>
             s.classList.toggle('filled', i < filled));
     }
@@ -541,19 +543,31 @@
             s.classList.toggle('filled', i < n));
     }
     function unhoverPopStar(recipeId) { updatePopStars(recipeId); }
-    function rateFromPop(recipeId, stars) {
-        Ratings.rate(recipeId, stars);
-        updatePopStars(recipeId);
-        // update pill
-        const pill = document.getElementById('rpill-' + recipeId);
-        if (pill) {
-            const r = Ratings.forRecipe(recipeId);
-            const val = r.mine || (r.count > 0 ? (r.sum / r.count).toFixed(1) : '—');
-            pill.querySelector('.pr-val').textContent = val;
-        }
+    async function rateFromPop(recipeId, stars) {
         document.getElementById('rpop-' + recipeId)?.classList.remove('open');
         activePopId = null;
-        showToast('Оценка сохранена ★');
+        // Отправить оценку на сервер
+        try {
+            const res = await Auth.api('/content/reviews', {
+                method: 'POST',
+                body: JSON.stringify({ recipe_id: recipeId, stars, text: '' })
+            });
+            if (res.ok) {
+                // Обновить локальный кэш рейтингов
+                const ar = _apiRatings[recipeId] || { avg: 0, count: 0 };
+                ar.avg = ((ar.avg * ar.count) + stars) / (ar.count + 1);
+                ar.count += 1;
+                _apiRatings[recipeId] = ar;
+                updatePopStars(recipeId);
+                const pill = document.getElementById('rpill-' + recipeId);
+                if (pill) pill.querySelector('.pr-val').textContent = ar.avg.toFixed(1);
+                showToast('Оценка сохранена ★');
+            } else {
+                showToast('Не удалось сохранить оценку');
+            }
+        } catch {
+            showToast('Ошибка сети');
+        }
     }
 
     // ── COMMENTS MODAL (API-based, synced with recipe.html) ─────────────────
@@ -595,9 +609,9 @@
 
     function renderCommentsBody(reviews) {
         const user = Auth.getUser();
-        const curEmail = user ? user.email : '';
+        const curUserId = user ? user.id : null;
         const isAdmin = user && user.role === 'admin';
-        const hasOwnReview = reviews.some(rv => curEmail && rv.email === curEmail);
+        const hasOwnReview = reviews.some(rv => curUserId && rv.userId === curUserId);
 
         function starsHtml(n) {
             return [1,2,3,4,5].map(i =>
@@ -611,7 +625,7 @@
 
         const list = reviews.length
             ? `<div class="comments-list">${reviews.map(rv => {
-                const canDelete = isAdmin || (curEmail && rv.email === curEmail);
+                const canDelete = isAdmin || (curUserId && rv.userId === curUserId);
                 const avatarHtml = rv.avatar
                     ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
                       + `<span class="review-avatar-fallback" style="display:none;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`

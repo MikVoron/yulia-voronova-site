@@ -33,4 +33,24 @@ async function requireActiveSubscription(req, reply) {
   return reply.status(403).send({ error: 'Подписка неактивна', status: sub.status });
 }
 
-module.exports = { authenticate, requireAdmin, requireActiveSubscription };
+async function optionalAuthenticate(req) {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith('Bearer ')) return;
+  try {
+    req.user = verifyAccessToken(auth.slice(7));
+  } catch {}
+}
+
+async function checkActiveSubscription(userId) {
+  const result = await db.query(
+    'SELECT status, trial_ends_at, active_until FROM subscriptions WHERE user_id=$1', [userId]
+  );
+  if (!result.rows.length) return false;
+  const sub = result.rows[0];
+  const now = new Date();
+  if (sub.status === 'trial' && new Date(sub.trial_ends_at) > now) return true;
+  if (sub.status === 'active' && new Date(sub.active_until) > now) return true;
+  return false;
+}
+
+module.exports = { authenticate, requireAdmin, requireActiveSubscription, optionalAuthenticate, checkActiveSubscription };

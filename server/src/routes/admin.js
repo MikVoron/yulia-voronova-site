@@ -35,26 +35,51 @@ async function adminRoutes(fastify) {
     const { id } = req.params;
     const { months, comment } = req.body || {};
     const days = (months || 1) * 30;
-    const payment = await db.query('SELECT * FROM payments WHERE id=$1', [id]);
-    if (!payment.rows.length) return reply.status(404).send({ error: 'Платёж не найден' });
-    const p = payment.rows[0];
-    await db.query("UPDATE payments SET status='confirmed', admin_comment=$2, updated_at=now() WHERE id=$1", [id, comment || null]);
-    // продлить подписку
-    const sub = await db.query('SELECT * FROM subscriptions WHERE user_id=$1', [p.user_id]);
-    if (sub.rows.length) {
-      const current = sub.rows[0];
-      const baseDate = (current.status === 'active' && new Date(current.active_until) > new Date()) ? new Date(current.active_until) : new Date();
-      const newUntil = new Date(baseDate.getTime() + days * 86400000);
-      await db.query("UPDATE subscriptions SET status='active', active_until=$2, updated_at=now() WHERE user_id=$1", [p.user_id, newUntil]);
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+      // Идемпотентно: только pending → confirmed
+      const payment = await client.query(
+        "UPDATE payments SET status='confirmed', admin_comment=$2, updated_at=now() WHERE id=$1 AND status='pending' RETURNING *",
+        [id, comment || null]
+      );
+      if (!payment.rows.length) {
+        await client.query('ROLLBACK');
+        // Проверим, существует ли платёж вообще
+        const exists = await db.query('SELECT status FROM payments WHERE id=$1', [id]);
+        if (!exists.rows.length) return reply.status(404).send({ error: 'Платёж не найден' });
+        return reply.status(409).send({ error: 'Платёж уже обработан (статус: ' + exists.rows[0].status + ')' });
+      }
+      const p = payment.rows[0];
+      // UPSERT подписку: продлить существующую или создать новую
+      const sub = await client.query('SELECT * FROM subscriptions WHERE user_id=$1', [p.user_id]);
+      if (sub.rows.length) {
+        const current = sub.rows[0];
+        const baseDate = (current.status === 'active' && new Date(current.active_until) > new Date()) ? new Date(current.active_until) : new Date();
+        const newUntil = new Date(baseDate.getTime() + days * 86400000);
+        await client.query("UPDATE subscriptions SET status='active', active_until=$2, updated_at=now() WHERE user_id=$1", [p.user_id, newUntil]);
+      } else {
+        const newUntil = new Date(Date.now() + days * 86400000);
+        await client.query(
+          "INSERT INTO subscriptions (user_id, status, active_until) VALUES ($1, 'active', $2)",
+          [p.user_id, newUntil]
+        );
+      }
+      await client.query('COMMIT');
+      // отправить email подтверждения (вне транзакции)
+      const userRes = await db.query('SELECT email FROM users WHERE id=$1', [p.user_id]);
+      const payEmail = userRes.rows.length ? userRes.rows[0].email : null;
+      audit.log('payment_confirm', { userId: req.user.sub, email: payEmail, detail: 'payment#' + id + ' +' + days + 'd', ip: req.ip });
+      if (payEmail) {
+        sendPaymentConfirmed(payEmail, days).catch(e => fastify.log.error(e, 'Payment confirmed email error'));
+      }
+      return { ok: true, message: 'Подписка активирована на ' + days + ' дней' };
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
     }
-    // отправить email подтверждения
-    const userRes = await db.query('SELECT email FROM users WHERE id=$1', [p.user_id]);
-    const payEmail = userRes.rows.length ? userRes.rows[0].email : null;
-    audit.log('payment_confirm', { userId: req.user.sub, email: payEmail, detail: 'payment#' + id + ' +' + days + 'd', ip: req.ip });
-    if (payEmail) {
-      sendPaymentConfirmed(payEmail, days).catch(e => fastify.log.error(e, 'Payment confirmed email error'));
-    }
-    return { ok: true, message: 'Подписка активирована на ' + days + ' дней' };
   });
 
   // POST /admin/payments/:id/reject — отклонить платёж

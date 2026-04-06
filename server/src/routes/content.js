@@ -1,5 +1,5 @@
 const db = require('../db');
-const { authenticate, requireAdmin } = require('../middleware');
+const { authenticate, requireAdmin, optionalAuthenticate, checkActiveSubscription } = require('../middleware');
 const email = require('../email');
 
 async function contentRoutes(fastify) {
@@ -19,16 +19,32 @@ async function contentRoutes(fastify) {
   });
 
   // GET /content/recipes — all published recipes
-  fastify.get('/content/recipes', async () => {
+  // Paid fields (ingredients, steps, note) are stripped for users without active subscription
+  fastify.get('/content/recipes', async (req) => {
+    await optionalAuthenticate(req);
+    let hasAccess = false;
+    if (req.user) {
+      const userRes = await db.query('SELECT role FROM users WHERE id=$1', [req.user.sub]);
+      if (userRes.rows.length && userRes.rows[0].role === 'admin') {
+        hasAccess = true;
+      } else {
+        hasAccess = await checkActiveSubscription(req.user.sub);
+      }
+    }
     const result = await db.query(
       `SELECT id, cat, name, emoji, time_min, difficulty, servings, is_free,
               kcal, protein, fat, carbs, fiber, tags, photo, img_position, quote,
               ingredients, steps, note, vk_video, yt_video, dzen_video,
               add_protein, add_fat, add_carbs, add_fiber,
-              portion_grams, created_at
+              portion_grams, sort_order, created_at
        FROM recipes WHERE is_published = true ORDER BY sort_order, created_at`
     );
-    return result.rows;
+    if (hasAccess) return result.rows;
+    return result.rows.map(r => {
+      if (r.is_free) return r;
+      const { ingredients, steps, note, ...meta } = r;
+      return meta;
+    });
   });
 
   // GET /content/categories — all categories
@@ -69,7 +85,7 @@ async function contentRoutes(fastify) {
   fastify.get('/content/reviews/:recipeId', async (req) => {
     const result = await db.query(
       `SELECT r.id, r.stars, r.text, r.created_at, r.user_id,
-              u.email, u.display_name, u.avatar
+              u.display_name, u.avatar
        FROM reviews r JOIN users u ON u.id = r.user_id
        WHERE r.recipe_id = $1 ORDER BY r.created_at DESC`,
       [req.params.recipeId]
@@ -79,8 +95,8 @@ async function contentRoutes(fastify) {
       stars: row.stars,
       text: row.text,
       createdAt: row.created_at,
-      email: row.email,
-      author: row.display_name || (row.email ? row.email.split('@')[0] : 'Аноним'),
+      userId: row.user_id,
+      author: row.display_name || 'Аноним',
       avatar: row.avatar || null
     }));
   });

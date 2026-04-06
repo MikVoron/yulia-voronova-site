@@ -10,7 +10,7 @@ const Auth = {
     KEY: 'hp_user',
     _token: null,
     _ST: 'hp_st',
-    login(email, name, token, subscription, avatar, role, createdAt) {
+    login(email, name, token, subscription, avatar, role, createdAt, id) {
         localStorage.removeItem('hp_token'); // cleanup legacy
         const prev = this.getUser();
         if (prev && prev.email && prev.email !== email) {
@@ -21,6 +21,7 @@ const Auth = {
             localStorage.setItem('hp_user_name', prev.customName);
         }
         const user = {
+            id: id || (prev && prev.email === email && prev.id) || null,
             email,
             name: name || (prev && prev.email === email && prev.name) || email.split('@')[0],
             avatar: avatar || (prev && prev.email === email && prev.avatar) || null,
@@ -114,21 +115,27 @@ const Auth = {
             const ok = await this.refreshToken();
             if (!ok) {
                 if (this._isAdmin()) { this._subStatus = 'active'; this.startAutoRefresh(); return true; }
-                this._subStatus = 'trial';
-                this.startAutoRefresh();
-                return true;
+                // Session expired — redirect to login
+                this.logout();
+                location.href = 'login.html';
+                return false;
             }
         }
         try {
             const res = await this.api('/auth/me');
             if (!res.ok) {
                 if (this._isAdmin()) { this._subStatus = 'active'; this.startAutoRefresh(); return true; }
-                this._subStatus = 'trial';
-                this.startAutoRefresh();
-                return true;
+                // Auth failed — redirect to login
+                this.logout();
+                location.href = 'login.html';
+                return false;
             }
             const data = await res.json();
-            // Sync role + displayName + avatar from server → localStorage
+            // Sync id + role + displayName + avatar from server → localStorage
+            if (data.id) {
+                const user = this.getUser();
+                if (user && !user.id) { user.id = data.id; localStorage.setItem(this.KEY, JSON.stringify(user)); }
+            }
             this._setRole(data.role);
             if (data.displayName) {
                 const user = this.getUser();
@@ -149,9 +156,10 @@ const Auth = {
             this._showPaywall(sub.status); return false;
         } catch {
             if (this._isAdmin()) { this._subStatus = 'active'; this.startAutoRefresh(); return true; }
-            this._subStatus = 'trial';
-            this.startAutoRefresh();
-            return true;
+            // Fail-close: при ошибке сети не давать доступ
+            this._subStatus = 'error';
+            this._showPaywall('error');
+            return false;
         }
     },
     isTrial() { return this._subStatus === 'trial'; },
@@ -187,6 +195,7 @@ const Auth = {
             sessionStorage.setItem(this._ST, data.accessToken);
             const user = this.getUser();
             if (user && data.user) {
+                if (data.user.id) user.id = data.user.id;
                 user.name = data.user.displayName || user.name;
                 user.email = data.user.email;
                 if (data.user.role) user.role = data.user.role;
@@ -372,8 +381,11 @@ async function loadContent() {
     if (_contentLoaded) return;
     _contentError = false;
     try {
+        const headers = {};
+        const token = Auth.getToken();
+        if (token) headers['Authorization'] = 'Bearer ' + token;
         const [recipesRes, catsRes] = await Promise.all([
-            fetch(API_BASE + '/content/recipes'),
+            fetch(API_BASE + '/content/recipes', { headers }),
             fetch(API_BASE + '/content/categories')
         ]);
         if (!recipesRes.ok || !catsRes.ok) {

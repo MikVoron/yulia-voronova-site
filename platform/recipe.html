@@ -365,16 +365,37 @@
             </div>`;
         }).join('');
 
-        const stepsHtml = (r.steps || []).map((s, i) => {
+        const stepsArr = (r.steps || []).map((s, i) => {
             const text  = escHtml(typeof s === 'string' ? s : s.text);
             const photo = typeof s === 'object' && s.photo ? s.photo : null;
             const photoHtml = photo
                 ? (photo === true
                     ? `<div class="step-photo-placeholder"><span>📷</span><span>Фото шага ${i+1}</span></div>`
-                    : `<img class="step-photo-img" src="${escHtml(photo)}" alt="Шаг ${i+1}" loading="lazy" onerror="this.style.display='none'">`)
+                    : `<img class="step-photo-img" src="${escHtml(photo)}" alt="Шаг ${i+1}" loading="lazy" onerror="this.closest('.step-photo-wrap').style.display='none'">`)
                 : '';
-            return `<div class="step-item"><div class="step-num">${i+1}</div><div class="step-body${photoHtml ? ' has-photo' : ''}">${photoHtml ? `<div class="step-text">${text}</div><div class="step-media">${photoHtml}</div>` : `<div class="step-text">${text}</div>`}</div></div>`;
-        }).join('');
+            return `<div class="step-item">
+                <div class="step-num">${i+1}</div>
+                <div class="step-body">
+                    <div class="step-text">${text}</div>
+                    ${photoHtml ? `<div class="step-photo-wrap">${photoHtml}</div>` : ''}
+                </div>
+            </div>`;
+        });
+        // Final step: finished dish photo
+        const finalPhoto = r.photoFinal || (r.photo
+            ? (/-final\.[^.]+$/.test(r.photo) ? r.photo : r.photo.replace(/(\.[^.]+)$/, '-final$1'))
+            : '');
+        if (finalPhoto) {
+            const n = stepsArr.length + 1;
+            stepsArr.push(`<div class="step-item step-final">
+                <div class="step-num">${n}</div>
+                <div class="step-body">
+                    <div class="step-text">Наслаждайтесь! Приятного вам аппетита 😋</div>
+                    <div class="step-photo-wrap"><img class="step-photo-img" src="${escHtml(finalPhoto)}" alt="Готовое блюдо" loading="lazy" onerror="this.closest('.step-final').style.display='none'"></div>
+                </div>
+            </div>`);
+        }
+        const stepsHtml = stepsArr.join('');
 
         const sidebarHtml = hasAdditions ? `
             <div class="bal-sidebar anim anim-d2">
@@ -388,7 +409,7 @@
                 ${buildGroup('🥬 Добавь клетчатки', 'fi', addFiber)}
                 <div class="bal-total" id="bal-total-bar">
                     <div>
-                        <div class="bal-total-label">Итого (блюдо + добавки):</div>
+                        <div class="bal-total-label" id="bal-total-label">Итого:</div>
                         <div class="bal-total-macro" id="add-macro">Б${Number(r.protein)}г · Ж${Number(r.fat)}г · У${Number(r.carbs)}г · Кл${Number(r.fiber||0)}г</div>
                     </div>
                     <div class="bal-total-val" id="bal-total-kcal">${Number(r.kcal)} ккал</div>
@@ -410,8 +431,6 @@
 
         // Recipe meta: rating stars + date
         // Stars and count will be filled from API by loadReviews()
-        // Do NOT use localStorage Ratings here — it only stores local clicks, not real reviews
-        const rv = Ratings.forRecipe(r.id);
         const isFav = Favorites.has(r.id);
         const starsRow = [1,2,3,4,5].map(i =>
             `<span class="star r-star${i <= 0 ? ' filled' : ''}" style="cursor:pointer" onclick="scrollToReviews()">★</span>`).join('');
@@ -591,15 +610,7 @@
                                 ${escHtml(item.name)}
                                 <a class="bal-item-recipe-link" onclick="event.stopPropagation();location.href='recipe.html?id=${safeRid}&from=${encodeURIComponent(fromCat)}'">→ Открыть рецепт</a>
                             </div>
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
-                                <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
-                                <button id="sub-add-${key}" class="btn btn-sm ${subInPlate ? 'btn-ghost' : 'btn-green'}"
-                                    style="padding:5px 10px;font-size:10px;${subInPlate ? 'opacity:.6;cursor:default' : ''}"
-                                    onclick="event.stopPropagation();addSubToPlate('${escHtml(key)}',event)"
-                                    ${subInPlate ? 'disabled' : ''}>
-                                    ${subInPlate ? '✓ В тарелке' : '+ В тарелку'}
-                                </button>
-                            </div>
+                            <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
                         </div>`;
                     } else {
                         return `<button class="bal-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal||0)},${Number(item.protein||0)},${Number(item.fat||0)},${Number(item.carbs||0)},${Number(item.fiber||0)})" style="position:relative">
@@ -656,7 +667,15 @@
             delete checkedItems[key];
             btn.classList.remove('checked');
         } else {
-            checkedItems[key] = { kcal, protein, fat, carbs, fiber: fiber || 0 };
+            const nameEl = btn.querySelector('.bal-item-text');
+            let name = key;
+            if (nameEl) {
+                const clone = nameEl.cloneNode(true);
+                const link = clone.querySelector('.bal-item-recipe-link');
+                if (link) link.remove();
+                name = clone.textContent.trim() || key;
+            }
+            checkedItems[key] = { name, kcal, protein, fat, carbs, fiber: fiber || 0 };
             btn.classList.add('checked');
         }
         updateAddTotal();
@@ -674,8 +693,10 @@
         });
         const tEl = document.getElementById('bal-total-kcal');
         const mEl = document.getElementById('add-macro');
+        const lEl = document.getElementById('bal-total-label');
         if (tEl) tEl.textContent = total.kcal + ' ккал';
         if (mEl) mEl.textContent = `Б${total.protein}г · Ж${total.fat}г · У${total.carbs}г · Кл${total.fiber}г`;
+        if (lEl) lEl.textContent = Object.keys(checkedItems).length ? 'Итого (блюдо + добавки):' : 'Итого:';
         // Also update KBZHU block
         const ke = document.getElementById('kbzhu-kcal');
         const kp = document.getElementById('kbzhu-protein');
@@ -728,7 +749,7 @@
             if (isActive) loadVideoFrame(f);
         });
     };
-    // Load first video on init
+    // Load only the first (active) video on init; others load on tab click
     setTimeout(function() {
         var first = document.querySelector('.video-frame.active');
         if (first) loadVideoFrame(first);
@@ -747,11 +768,12 @@
             total.fiber   += v.fiber   || 0;
         });
 
-        const extras = Object.keys(checkedItems).length
-            ? ' + ' + Object.keys(checkedItems).length + ' добавок' : '';
+        const additions = Object.values(checkedItems).map(v => ({
+            name: v.name, kcal: v.kcal, protein: v.protein, fat: v.fat, carbs: v.carbs
+        }));
 
         Plate.add({
-            name: r.name + extras,
+            name: r.name,
             emoji: r.emoji,
             photo: r.photo || '',
             kcal: total.kcal,
@@ -760,7 +782,8 @@
             carbs: total.carbs,
             fiber: total.fiber,
             recipeId: r.id,
-            ingredients: r.ingredients
+            ingredients: r.ingredients,
+            additions: additions
         });
 
         showToast(r.emoji + ' Добавлено в тарелку!');
@@ -784,18 +807,30 @@
         } else {
             const t = Plate.totals();
             body.innerHTML = '<div class="plate-items">' +
-                items.map((item, i) => `<div class="plate-item">
-                    ${item.photo
-                        ? `<img class="plate-item-photo" src="${escHtml(String(item.photo))}" alt="">`
-                        : `<div class="plate-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
-                    <div class="plate-item-info">
-                        ${item.recipeId
-                            ? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1'">${escHtml(String(item.name))}</div>`
-                            : `<div class="plate-item-name">${escHtml(String(item.name))}</div>`}
-                        <div class="plate-item-kcal">${Number(item.kcal)||0} ккал · Б${Number(item.protein)||0}г · Ж${Number(item.fat)||0}г · У${Number(item.carbs)||0}г</div>
-                    </div>
-                    <button class="plate-item-del" onclick="removeItemR(${Number(i)})">✕</button>
-                </div>`).join('') + '</div>' +
+                items.map((item, i) => {
+                    const adds = item.additions || [];
+                    const additionsHtml = adds.length
+                        ? `<div class="plate-additions">${adds.map(a =>
+                            `<div class="plate-addition-item">
+                                <span class="plate-addition-dot">+</span>
+                                <span class="plate-addition-name">${escHtml(String(a.name))}</span>
+                                <span class="plate-addition-kcal">${Number(a.kcal)||0} ккал</span>
+                            </div>`).join('')}</div>`
+                        : '';
+                    return `<div class="plate-item">
+                        ${item.photo
+                            ? `<img class="plate-item-photo" src="${escHtml(String(item.photo))}" alt="">`
+                            : `<div class="plate-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
+                        <div class="plate-item-info">
+                            ${item.recipeId
+                                ? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1'">${escHtml(String(item.name))}</div>`
+                                : `<div class="plate-item-name">${escHtml(String(item.name))}</div>`}
+                            <div class="plate-item-kcal">${Number(item.kcal)||0} ккал · Б${Number(item.protein)||0}г · Ж${Number(item.fat)||0}г · У${Number(item.carbs)||0}г</div>
+                            ${additionsHtml}
+                        </div>
+                        <button class="plate-item-del" onclick="removeItemR(${Number(i)})">✕</button>
+                    </div>`;
+                }).join('') + '</div>' +
                 `<div class="plate-total-block" style="margin-top:12px">
                     <div class="plate-total-title">Итого</div>
                     <div class="plate-total-val">${Number(t.kcal)||0} ккал | Б: ${Number(t.protein)||0}г | Ж: ${Number(t.fat)||0}г | У: ${Number(t.carbs)||0}г${t.fiber ? ' | Кл: ' + (Number(t.fiber)||0) + 'г' : ''}</div>
@@ -847,33 +882,35 @@
             s.classList.toggle('filled', i < n));
     }
 
+    let _inlineAvg = 0;
+
     function unhoverInlineStar() {
-        const rv = Ratings.forRecipe(r.id);
-        const avg = rv.mine || (rv.count > 0 ? Math.round(rv.sum / rv.count) : 0);
         document.querySelectorAll('.r-star').forEach((s, i) =>
-            s.classList.toggle('filled', i < avg));
+            s.classList.toggle('filled', i < Math.round(_inlineAvg)));
     }
 
-    function rateInline(n) {
+    async function rateInline(n) {
         if (n < 1) return;
-        Ratings.rate(r.id, n);
-        const rv = Ratings.forRecipe(r.id);
-        const avg = rv.count > 0 ? rv.sum / rv.count : n;
-        document.querySelectorAll('.r-star').forEach((s, i) =>
-            s.classList.toggle('filled', i < Math.round(avg)));
-        // Update pill value
-        const valEl = document.getElementById('recipe-rating-val');
-        if (valEl) valEl.textContent = rv.mine;
-        // Update voter count in parentheses
-        const starsRow = document.getElementById('recipe-stars-row');
-        if (starsRow) {
-            const countSpan = starsRow.querySelector('span[style*="color:var(--text-3)"]');
-            if (countSpan) countSpan.textContent = '(' + (rv.count || 0) + ')';
+        // Отправить оценку на сервер
+        try {
+            const res = await Auth.api('/content/reviews', {
+                method: 'POST',
+                body: JSON.stringify({ recipe_id: r.id, stars: n, text: '' })
+            });
+            if (!res.ok) { showToast('Не удалось сохранить оценку'); return; }
+            _inlineAvg = n;
+            document.querySelectorAll('.r-star').forEach((s, i) =>
+                s.classList.toggle('filled', i < n));
+            const valEl = document.getElementById('recipe-rating-val');
+            if (valEl) valEl.textContent = n;
+            const starsWrap = document.querySelector('.recipe-meta-stars');
+            if (starsWrap) starsWrap.classList.add('user-rated');
+            showToast('Оценка сохранена ★');
+            // Обновить список отзывов
+            loadReviews();
+        } catch {
+            showToast('Ошибка сети');
         }
-        // Stop hint animation after rating
-        const starsWrap = document.querySelector('.recipe-meta-stars');
-        if (starsWrap) starsWrap.classList.add('user-rated');
-        showToast('Оценка сохранена ★');
     }
 
     function shareRecipeIngredients() {
@@ -926,9 +963,9 @@
             }
 
             const curUser = Auth.getUser();
-            const curEmail = curUser && curUser.email;
+            const curUserId = curUser && curUser.id;
             const isAdmin = curUser && curUser.role === 'admin';
-            const hasOwnReview = reviews.some(rv => curEmail && rv.email === curEmail);
+            const hasOwnReview = reviews.some(rv => curUserId && rv.userId === curUserId);
             const formWrap = document.getElementById('review-form-wrap');
             if (formWrap && hasOwnReview) {
                 formWrap.innerHTML = '<div style="font-size:13px;color:var(--text-3);padding:12px 16px;text-align:center">Вы уже оставили отзыв. Удалите его, чтобы написать новый.</div>';
@@ -941,7 +978,7 @@
                     ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
                       + `<span class="review-avatar-fallback" style="display:none">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
                     : `<span class="review-avatar-fallback">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
-                const canDelete = isAdmin || (curEmail && rv.email === curEmail);
+                const canDelete = isAdmin || (curUserId && rv.userId === curUserId);
                 const deleteBtn = canDelete
                     ? `<button class="review-delete-btn" onclick="deleteReview(${rv.id}, ${isAdmin})" title="Удалить отзыв">✕</button>`
                     : '';
