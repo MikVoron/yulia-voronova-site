@@ -3,13 +3,13 @@
 
 CREATE TABLE IF NOT EXISTS feedback_messages (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   category VARCHAR(20) NOT NULL DEFAULT 'wish' CHECK (category IN ('wish', 'recipe', 'problem')),
   text TEXT NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'answered')),
   admin_reply TEXT,
   admin_replied_at TIMESTAMPTZ,
-  admin_id INTEGER REFERENCES users(id),
+  admin_id UUID REFERENCES users(id),
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
