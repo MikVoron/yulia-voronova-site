@@ -87,14 +87,26 @@ async function subscriptionRoutes(fastify) {
     const { category, text } = req.body || {};
     if (!text || !text.trim()) return reply.status(400).send({ error: 'Введите текст' });
     if (text.length > 2000) return reply.status(400).send({ error: 'Слишком длинный текст' });
+    const cat = ['wish', 'recipe', 'problem'].includes(category) ? category : 'wish';
+    const trimmed = text.trim();
     const email = req.user.email;
-    try {
-      await sendFeedback(email, category || 'wish', text.trim());
-    } catch (e) {
-      fastify.log.error(e, 'Feedback email error');
-      return reply.status(500).send({ error: 'Не удалось отправить' });
-    }
-    return { ok: true };
+    // Сохраняем в БД
+    const result = await db.query(
+      'INSERT INTO feedback_messages (user_id, category, text) VALUES ($1,$2,$3) RETURNING *',
+      [req.user.sub, cat, trimmed]
+    );
+    // Email админу (не блокируем ответ)
+    sendFeedback(email, cat, trimmed).catch(e => fastify.log.error(e, 'Feedback email error'));
+    return result.rows[0];
+  });
+
+  // GET /feedback — обращения текущего пользователя
+  fastify.get('/feedback', { preHandler: authenticate }, async (req) => {
+    const result = await db.query(
+      'SELECT id, category, text, status, admin_reply, admin_replied_at, created_at FROM feedback_messages WHERE user_id=$1 ORDER BY created_at DESC',
+      [req.user.sub]
+    );
+    return result.rows;
   });
 }
 

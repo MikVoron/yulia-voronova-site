@@ -1,6 +1,6 @@
 const db = require('../db');
 const { requireAdmin } = require('../middleware');
-const { sendPaymentConfirmed } = require('../email');
+const { sendPaymentConfirmed, sendFeedbackReply } = require('../email');
 const audit = require('../audit');
 
 async function adminRoutes(fastify) {
@@ -115,6 +115,39 @@ async function adminRoutes(fastify) {
       WHERE user_id = $1 AND status = 'blocked'
     `, [id]);
     audit.log('user_unblock', { userId: req.user.sub, detail: 'unblocked user#' + id, ip: req.ip });
+    return { ok: true };
+  });
+
+  // GET /admin/feedback — все обращения
+  fastify.get('/admin/feedback', { preHandler: requireAdmin }, async () => {
+    const result = await db.query(
+      `SELECT f.id, f.user_id, f.category, f.text, f.status, f.admin_reply, f.admin_replied_at, f.created_at, u.email
+       FROM feedback_messages f JOIN users u ON u.id = f.user_id
+       ORDER BY f.created_at DESC`
+    );
+    return result.rows;
+  });
+
+  // POST /admin/feedback/:id/reply — ответ админа на обращение
+  fastify.post('/admin/feedback/:id/reply', { preHandler: requireAdmin }, async (req, reply) => {
+    const { id } = req.params;
+    const { reply: replyText } = req.body || {};
+    if (!replyText || !replyText.trim()) return reply.status(400).send({ error: 'Введите текст ответа' });
+    if (replyText.length > 5000) return reply.status(400).send({ error: 'Слишком длинный ответ' });
+    const result = await db.query(
+      `UPDATE feedback_messages SET admin_reply=$2, admin_replied_at=now(), admin_id=$3, status='answered', updated_at=now()
+       WHERE id=$1 RETURNING *`,
+      [id, replyText.trim(), req.user.sub]
+    );
+    if (!result.rows.length) return reply.status(404).send({ error: 'Обращение не найдено' });
+    // Email пользователю
+    const userRow = await db.query('SELECT email FROM users WHERE id=$1', [result.rows[0].user_id]);
+    const userEmail = userRow.rows[0]?.email;
+    if (userEmail) {
+      sendFeedbackReply(userEmail, result.rows[0].category, result.rows[0].text, replyText.trim())
+        .catch(e => fastify.log.error(e, 'Feedback reply email error'));
+    }
+    audit.log('feedback_reply', { userId: req.user.sub, detail: 'feedback#' + id, ip: req.ip });
     return { ok: true };
   });
 

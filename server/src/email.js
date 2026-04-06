@@ -168,6 +168,22 @@ async function sendNewsletter(to, newsText, unsubscribeToken) {
   await send(to, 'Новости — Умная тарелка', wrap(body, unsubscribeToken));
 }
 
+// ── 9. Уведомление пользователю об ответе на обращение ──
+async function sendFeedbackReply(to, category, originalText, replyText) {
+  const labels = { wish: 'Пожелание', recipe: 'Идея рецепта', problem: 'Проблема' };
+  const label = labels[category] || category;
+  const body =
+    '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Ответ на ваше обращение</h2>'
+    + '<p style="font-size:14px;color:#777;margin:0 0 4px">Категория: <strong>' + label + '</strong></p>'
+    + '<div style="padding:14px;background:#faf8f5;border-radius:10px;border:1px solid #eee;margin:12px 0;font-size:14px;color:#444;line-height:1.6;white-space:pre-wrap">'
+    + originalText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>'
+    + '<p style="font-size:15px;color:#111;font-weight:700;margin:16px 0 8px">Ответ Юлии:</p>'
+    + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px;white-space:pre-wrap">'
+    + replyText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>'
+    + btn('Открыть личный кабинет', '' + PLATFORM_URL + '/cabinet.html');
+  await send(to, 'Ответ на ваше обращение — Умная тарелка', wrap(body));
+}
+
 module.exports = {
   sendLoginCode,
   sendWelcome,
@@ -176,6 +192,7 @@ module.exports = {
   sendPaymentConfirmed,
   sendPaymentNotification,
   sendFeedback,
+  sendFeedbackReply,
   sendReviewNotification,
   sendNewsletter
 };

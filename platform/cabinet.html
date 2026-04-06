@@ -437,33 +437,108 @@
 			margin-top: 20px;
 		}
 
-		.fb-sent-item {
-			padding: 12px 14px;
+		.fb-ticket {
+			padding: 16px;
+			background: var(--card);
 			border: 1px solid var(--border);
-			border-radius: var(--r-s);
+			border-radius: var(--r-m);
+			margin-bottom: 12px;
+		}
+
+		.fb-ticket-head {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 10px;
 			margin-bottom: 10px;
-			background: var(--bg-alt);
 		}
 
-		.fb-sent-cat {
+		.fb-badge {
+			display: inline-flex;
+			align-items: center;
+			padding: 0 10px;
+			min-height: 26px;
+			border-radius: 999px;
 			font-size: 11px;
-			font-weight: 700;
-			color: var(--accent);
+			font-weight: 800;
 			text-transform: uppercase;
-			letter-spacing: .05em;
+			letter-spacing: .06em;
 		}
 
-		.fb-sent-text {
-			font-size: 13px;
+		.fb-badge-wish { color: var(--accent); background: var(--accent-l); }
+		.fb-badge-recipe { color: #7c5ca8; background: rgba(124, 92, 168, 0.12); }
+		.fb-badge-problem { color: #be7a00; background: rgba(190, 122, 0, 0.14); }
+
+		.fb-ticket-text {
+			font-size: 14px;
 			color: var(--text);
-			margin-top: 4px;
-			line-height: 1.5;
+			line-height: 1.6;
+			margin: 0 0 12px;
 		}
 
-		.fb-sent-date {
+		.fb-ticket-status {
+			display: inline-flex;
+			align-items: center;
+			padding: 0 10px;
+			min-height: 28px;
+			border-radius: 999px;
+			font-size: 12px;
+			font-weight: 700;
+		}
+
+		.fb-st-new { color: var(--text-3); background: var(--bg-alt); }
+		.fb-st-answered { color: #476b4c; background: #edf6ee; }
+
+		.fb-reply {
+			margin-top: 14px;
+			display: flex;
+			gap: 10px;
+			padding: 14px;
+			border-radius: var(--r-s);
+			background: var(--bg-alt);
+			border: 1px solid var(--border);
+		}
+
+		.fb-reply-mark {
+			width: 36px;
+			height: 36px;
+			flex: 0 0 auto;
+			display: grid;
+			place-items: center;
+			border-radius: 50%;
+			background: linear-gradient(135deg, var(--accent), #ff9c71);
+			color: #fff;
+			font-size: 12px;
+			font-weight: 800;
+			letter-spacing: .04em;
+		}
+
+		.fb-reply-title {
+			font-size: 12px;
+			font-weight: 800;
+			text-transform: uppercase;
+			letter-spacing: .1em;
+			color: var(--text-3);
+			margin-bottom: 6px;
+		}
+
+		.fb-reply-body p {
+			margin: 0 0 8px;
+			font-size: 14px;
+			line-height: 1.6;
+			color: var(--text);
+		}
+
+		.fb-reply-body time {
 			font-size: 11px;
 			color: var(--text-3);
-			margin-top: 6px;
+			font-weight: 600;
+		}
+
+		.fb-ticket-head time {
+			font-size: 11px;
+			color: var(--text-3);
+			font-weight: 600;
 		}
 
 		/* ── ПОДПИСКА ── */
@@ -951,7 +1026,7 @@
 				<div class="fb-actions">
 					<button class="btn btn-orange" onclick="sendFeedback()">Отправить</button>
 				</div>
-				<div class="fb-hint">Сообщение будет отправлено напрямую Юлии. Копия сохранится здесь.</div>
+				<div class="fb-hint">Сообщение будет отправлено напрямую Юлии. Ответ появится здесь.</div>
 				<div class="fb-sent" id="fb-sent-list"></div>
 			</div>
 
@@ -1263,7 +1338,7 @@
 			if (name === 'history') renderHistory();
 			if (name === 'favorites') renderFavorites();
 			if (name === 'notes') loadNotes();
-			if (name === 'feedback') renderFeedbackHistory();
+			if (name === 'feedback') loadFeedbackHistory();
 		}
 
 		// ── ПОДПИСКА ──────────────────────────────────────────────────────────────
@@ -1726,9 +1801,12 @@
 		function removePlateItem(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
 
 		// ── ОБРАТНАЯ СВЯЗЬ ────────────────────────────────────────────────────────
+		// Очистка старого localStorage (обращения теперь хранятся на сервере)
+		localStorage.removeItem('user_feedback');
+
 		let fbCat = 'wish';
-		const FB_KEY = 'user_feedback';
 		const FB_LABELS = { wish: 'Пожелание', recipe: 'Идея рецепта', problem: 'Проблема' };
+		const FB_BADGE = { wish: 'fb-badge-wish', recipe: 'fb-badge-recipe', problem: 'fb-badge-problem' };
 
 		function pickFbCat(btn) {
 			document.querySelectorAll('.fb-cat').forEach(b => b.classList.remove('active'));
@@ -1752,41 +1830,64 @@
 					btn.disabled = false; btn.textContent = 'Отправить';
 					return;
 				}
-				// Save local copy
-				const all = JSON.parse(localStorage.getItem(FB_KEY) || '[]');
-				all.unshift({ cat: fbCat, text, date: new Date().toISOString() });
-				localStorage.setItem(FB_KEY, JSON.stringify(all.slice(0, 50)));
 				document.getElementById('fb-text').value = '';
-				renderFeedbackHistory();
 				btn.disabled = false; btn.textContent = 'Отправить';
+				loadFeedbackHistory();
 			} catch {
 				alert('Ошибка сети');
 				btn.disabled = false; btn.textContent = 'Отправить';
 			}
 		}
 
-		function deleteFeedback(idx) {
-			const all = JSON.parse(localStorage.getItem(FB_KEY) || '[]');
-			all.splice(idx, 1);
-			localStorage.setItem(FB_KEY, JSON.stringify(all));
-			renderFeedbackHistory();
+		async function loadFeedbackHistory() {
+			const el = document.getElementById('fb-sent-list');
+			try {
+				const res = await Auth.api('/feedback');
+				if (!res.ok) { el.innerHTML = ''; return; }
+				const all = await res.json();
+				renderFeedbackHistory(all);
+			} catch {
+				el.innerHTML = '';
+			}
 		}
 
-		function renderFeedbackHistory() {
-			const all = JSON.parse(localStorage.getItem(FB_KEY) || '[]');
+		function renderFeedbackHistory(all) {
 			const el = document.getElementById('fb-sent-list');
-			if (!all.length) { el.innerHTML = ''; return; }
-			el.innerHTML = '<div style="font-size:13px;color:var(--text-3);font-weight:600;margin-bottom:10px">Ваши обращения</div>' +
-				all.map((f, idx) => {
-					const d = new Date(f.date);
+			if (!all || !all.length) { el.innerHTML = ''; return; }
+			const counter = all.length + ' ' + (all.length === 1 ? 'обращение' : all.length < 5 ? 'обращения' : 'обращений');
+			el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
+				+ '<div style="font-size:14px;font-weight:700;color:var(--text)">Ваши обращения</div>'
+				+ '<span style="font-size:12px;color:var(--text-3);font-weight:600">' + counter + '</span></div>'
+				+ all.map(f => {
+					const d = new Date(f.created_at);
 					const ds = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
 					const ts = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-					return `<div class="fb-sent-item" style="position:relative">
-                    <button onclick="deleteFeedback(${idx})" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--text-3);font-size:14px;padding:4px" title="Удалить">✕</button>
-                    <div class="fb-sent-cat">${FB_LABELS[f.cat] || f.cat}</div>
-                    <div class="fb-sent-text">${escHtml(f.text)}</div>
-                    <div class="fb-sent-date">${ds} · ${ts}</div>
-                </div>`;
+					const badgeCls = FB_BADGE[f.category] || 'fb-badge-wish';
+					const statusHtml = f.status === 'answered'
+						? '<div class="fb-ticket-status fb-st-answered">Ответ получен</div>'
+						: '<div class="fb-ticket-status fb-st-new">На рассмотрении</div>';
+					let replyHtml = '';
+					if (f.admin_reply) {
+						const rd = new Date(f.admin_replied_at);
+						const rds = rd.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+						const rts = rd.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+						replyHtml = '<div class="fb-reply">'
+							+ '<div class="fb-reply-mark">ЮВ</div>'
+							+ '<div class="fb-reply-body">'
+							+ '<div class="fb-reply-title">Ответ Юлии</div>'
+							+ '<p>' + escHtml(f.admin_reply) + '</p>'
+							+ '<time>' + rds + ', ' + rts + '</time>'
+							+ '</div></div>';
+					}
+					return '<article class="fb-ticket">'
+						+ '<div class="fb-ticket-head">'
+						+ '<span class="fb-badge ' + badgeCls + '">' + (FB_LABELS[f.category] || f.category) + '</span>'
+						+ '<time>' + ds + ', ' + ts + '</time>'
+						+ '</div>'
+						+ '<p class="fb-ticket-text">' + escHtml(f.text) + '</p>'
+						+ statusHtml
+						+ replyHtml
+						+ '</article>';
 				}).join('');
 		}
 	</script>

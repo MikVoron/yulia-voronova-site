@@ -453,6 +453,9 @@
     </button>
     <button class="adm-tab" data-tab="news" onclick="switchTab('news')">Новости</button>
     <button class="adm-tab" data-tab="recipes" onclick="switchTab('recipes')">Рецепты</button>
+    <button class="adm-tab" data-tab="feedback" onclick="switchTab('feedback')">
+        Обращения <span class="adm-tab-badge" id="feedback-badge" style="display:none">0</span>
+    </button>
     <button class="adm-tab" data-tab="audit" onclick="switchTab('audit')">Аудит</button>
 </div>
 
@@ -533,6 +536,36 @@
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="recipe-cat-filters"></div>
         <input type="text" class="adm-search" id="recipe-search" placeholder="Поиск по названию..." oninput="filterRecipes()">
         <div id="recipes-list"></div>
+    </div>
+
+    <!-- Feedback -->
+    <div class="adm-section" id="sec-feedback">
+        <div class="adm-section-title">Обращения пользователей</div>
+        <div style="margin-bottom:16px">
+            <button class="adm-btn" style="margin-right:4px" onclick="loadFeedback('new')" id="fb-filter-new">Новые</button>
+            <button class="adm-btn" onclick="loadFeedback('answered')" id="fb-filter-answered">Отвеченные</button>
+            <button class="adm-btn" onclick="loadFeedback('all')" id="fb-filter-all">Все</button>
+        </div>
+        <div id="feedback-list">
+            <div class="adm-empty">Нажмите на вкладку для загрузки</div>
+        </div>
+    </div>
+
+    <!-- Feedback reply modal -->
+    <div class="adm-modal-bg" id="fb-reply-modal">
+        <div class="adm-modal" style="max-width:500px">
+            <div class="adm-modal-title">Ответить на обращение</div>
+            <input type="hidden" id="fb-reply-id">
+            <div style="padding:12px;background:var(--bg);border-radius:8px;margin-bottom:12px;font-size:13px;color:var(--text-2);line-height:1.5" id="fb-reply-original"></div>
+            <div class="adm-modal-field">
+                <label class="adm-modal-label">Текст ответа</label>
+                <textarea class="adm-modal-input" id="fb-reply-text" rows="4" style="resize:vertical" placeholder="Введите ответ..."></textarea>
+            </div>
+            <div class="adm-modal-actions">
+                <button class="adm-btn adm-btn-reject" onclick="closeFbReplyModal()">Отмена</button>
+                <button class="adm-btn adm-btn-confirm" id="fb-reply-submit" onclick="submitFbReply()">Отправить ответ</button>
+            </div>
+        </div>
     </div>
 
     <!-- Audit log -->
@@ -830,10 +863,18 @@
         if (tab === 'payments') loadPayments('pending');
         if (tab === 'news') loadNews();
         if (tab === 'recipes') loadRecipesList();
+        if (tab === 'feedback') loadFeedback('new');
         if (tab === 'audit') loadAudit();
     };
 
     // ── Stats ──
+    // Load feedback badge count on init
+    api('/admin/feedback').then(function(data) {
+        var newCount = data.filter(function(f) { return f.status === 'new'; }).length;
+        var badge = document.getElementById('feedback-badge');
+        if (newCount > 0) { badge.textContent = newCount; badge.style.display = 'inline'; }
+    }).catch(function() {});
+
     function loadStats() {
         api('/admin/stats').then(function(data) {
             var grid = document.getElementById('stats-grid');
@@ -1360,6 +1401,97 @@
     };
 
     function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // ── Feedback ──────────────────────────────────────────────────────────────
+    var allFeedback = [];
+    var fbFilter = 'new';
+    var FB_CAT_LABELS = { wish: 'Пожелание', recipe: 'Идея рецепта', problem: 'Проблема' };
+
+    window.loadFeedback = function(filter) {
+        fbFilter = filter || 'all';
+        document.querySelectorAll('[id^="fb-filter-"]').forEach(function(b) {
+            b.style.background = b.id === 'fb-filter-' + fbFilter ? 'var(--accent)' : '';
+            b.style.color = b.id === 'fb-filter-' + fbFilter ? '#fff' : '';
+        });
+        api('/admin/feedback').then(function(data) {
+            allFeedback = data;
+            // badge count for new
+            var newCount = data.filter(function(f) { return f.status === 'new'; }).length;
+            var badge = document.getElementById('feedback-badge');
+            if (newCount > 0) { badge.textContent = newCount; badge.style.display = 'inline'; }
+            else { badge.style.display = 'none'; }
+            // filter
+            var filtered = fbFilter === 'all' ? data : data.filter(function(f) { return f.status === fbFilter; });
+            renderFeedback(filtered);
+        });
+    };
+
+    function renderFeedback(items) {
+        var el = document.getElementById('feedback-list');
+        if (!items.length) { el.innerHTML = '<div class="adm-empty">Нет обращений</div>'; return; }
+        el.innerHTML = items.map(function(f) {
+            var catLabel = FB_CAT_LABELS[f.category] || f.category;
+            var statusBadge = f.status === 'answered'
+                ? '<span class="st-badge st-confirmed">Отвечено</span>'
+                : '<span class="st-badge st-trial">Новое</span>';
+            var replyBlock = '';
+            if (f.admin_reply) {
+                replyBlock = '<div style="margin-top:10px;padding:10px;background:#edf6ee;border-radius:8px;font-size:13px;color:#333;line-height:1.5">'
+                    + '<strong style="font-size:11px;color:#476b4c;text-transform:uppercase;letter-spacing:.05em">Ответ:</strong><br>'
+                    + esc(f.admin_reply)
+                    + '<div style="font-size:11px;color:#777;margin-top:6px">' + fmtDateTime(f.admin_replied_at) + '</div>'
+                    + '</div>';
+            }
+            var actions = f.status === 'new'
+                ? '<button class="adm-btn adm-btn-confirm" onclick="openFbReply(' + f.id + ')" style="font-size:12px;padding:6px 12px">Ответить</button>'
+                : '<button class="adm-btn" onclick="openFbReply(' + f.id + ')" style="font-size:12px;padding:6px 12px">Изменить ответ</button>';
+            return '<div style="padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:#fff">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+                + '<div><strong style="font-size:13px">' + esc(f.email) + '</strong> · <span style="font-size:12px;color:var(--text-3)">' + catLabel + '</span></div>'
+                + '<div style="display:flex;align-items:center;gap:8px">' + statusBadge + '<span style="font-size:11px;color:var(--text-3)">' + fmtDateTime(f.created_at) + '</span></div>'
+                + '</div>'
+                + '<div style="font-size:14px;color:var(--text);line-height:1.6;white-space:pre-wrap">' + esc(f.text) + '</div>'
+                + replyBlock
+                + '<div style="margin-top:10px">' + actions + '</div>'
+                + '</div>';
+        }).join('');
+    }
+
+    window.openFbReply = function(id) {
+        var f = allFeedback.find(function(x) { return x.id === id; });
+        if (!f) return;
+        document.getElementById('fb-reply-id').value = id;
+        document.getElementById('fb-reply-original').innerHTML =
+            '<strong>' + esc(f.email) + '</strong> · ' + (FB_CAT_LABELS[f.category] || f.category)
+            + '<br><br>' + esc(f.text);
+        document.getElementById('fb-reply-text').value = f.admin_reply || '';
+        document.getElementById('fb-reply-modal').classList.add('open');
+    };
+
+    window.closeFbReplyModal = function() {
+        document.getElementById('fb-reply-modal').classList.remove('open');
+    };
+
+    window.submitFbReply = function() {
+        var id = document.getElementById('fb-reply-id').value;
+        var text = document.getElementById('fb-reply-text').value.trim();
+        if (!text) { document.getElementById('fb-reply-text').focus(); return; }
+        var btn = document.getElementById('fb-reply-submit');
+        btn.disabled = true; btn.textContent = 'Отправка...';
+        api('/admin/feedback/' + id + '/reply', {
+            method: 'POST',
+            body: { reply: text }
+        }).then(function() {
+            closeFbReplyModal();
+            showToast('Ответ отправлен');
+            loadFeedback(fbFilter);
+        }).catch(function() {
+            showToast('Ошибка');
+        }).finally(function() {
+            btn.disabled = false;
+            btn.textContent = 'Отправить ответ';
+        });
+    };
 
     // ── Audit log ──
     var EVENT_LABELS = {
