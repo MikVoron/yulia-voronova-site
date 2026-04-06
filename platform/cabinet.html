@@ -503,14 +503,9 @@
 			width: 36px;
 			height: 36px;
 			flex: 0 0 auto;
-			display: grid;
-			place-items: center;
 			border-radius: 50%;
-			background: linear-gradient(135deg, var(--accent), #ff9c71);
-			color: #fff;
-			font-size: 12px;
-			font-weight: 800;
-			letter-spacing: .04em;
+			object-fit: cover;
+			border: 2px solid var(--accent);
 		}
 
 		.fb-reply-title {
@@ -539,6 +534,22 @@
 			font-size: 11px;
 			color: var(--text-3);
 			font-weight: 600;
+		}
+
+		.fb-unseen-badge {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 18px;
+			height: 18px;
+			padding: 0 5px;
+			border-radius: 999px;
+			background: var(--accent);
+			color: #fff;
+			font-size: 11px;
+			font-weight: 800;
+			margin-left: 4px;
+			vertical-align: middle;
 		}
 
 		/* ── ПОДПИСКА ── */
@@ -907,7 +918,7 @@
 				<button class="cab-tab" onclick="switchTab('history',this)">История</button>
 				<button class="cab-tab" onclick="switchTab('favorites',this)">Избранные</button>
 				<button class="cab-tab" onclick="switchTab('notes',this)">Заметки</button>
-				<button class="cab-tab" onclick="switchTab('feedback',this)">Связь</button>
+				<button class="cab-tab" onclick="switchTab('feedback',this)">Связь <span class="fb-unseen-badge" id="fb-unseen-badge" style="display:none">0</span></button>
 			</div>
 
 			<!-- Подписка -->
@@ -1839,6 +1850,20 @@
 			}
 		}
 
+		// Загрузить счётчик непрочитанных ответов для бейджа (при загрузке страницы)
+		async function loadFeedbackBadge() {
+			try {
+				const res = await Auth.api('/feedback');
+				if (!res.ok) return;
+				const all = await res.json();
+				const unseen = all.filter(f => f.status === 'answered' && !f.reply_seen).length;
+				const badge = document.getElementById('fb-unseen-badge');
+				if (unseen > 0) { badge.textContent = unseen; badge.style.display = ''; }
+				else { badge.style.display = 'none'; }
+			} catch {}
+		}
+		loadFeedbackBadge();
+
 		async function loadFeedbackHistory() {
 			const el = document.getElementById('fb-sent-list');
 			try {
@@ -1846,6 +1871,12 @@
 				if (!res.ok) { el.innerHTML = ''; return; }
 				const all = await res.json();
 				renderFeedbackHistory(all);
+				// Пометить ответы как просмотренные
+				const hasUnseen = all.some(f => f.status === 'answered' && !f.reply_seen);
+				if (hasUnseen) {
+					Auth.api('/feedback/mark-seen', { method: 'POST' }).catch(() => {});
+					document.getElementById('fb-unseen-badge').style.display = 'none';
+				}
 			} catch {
 				el.innerHTML = '';
 			}
@@ -1872,7 +1903,7 @@
 						const rds = rd.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
 						const rts = rd.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 						replyHtml = '<div class="fb-reply">'
-							+ '<div class="fb-reply-mark">ЮВ</div>'
+							+ '<img class="fb-reply-mark" src="../images/YV-blog.webp" alt="Юлия Воронова">'
 							+ '<div class="fb-reply-body">'
 							+ '<div class="fb-reply-title">Ответ Юлии</div>'
 							+ '<p>' + escHtml(f.admin_reply) + '</p>'

@@ -1447,7 +1447,7 @@
                 : '<button class="adm-btn" onclick="openFbReply(' + f.id + ')" style="font-size:12px;padding:6px 12px">Изменить ответ</button>';
             return '<div style="padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:#fff">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
-                + '<div><strong style="font-size:13px">' + esc(f.email) + '</strong> · <span style="font-size:12px;color:var(--text-3)">' + catLabel + '</span></div>'
+                + '<div><strong style="font-size:13px">' + esc(f.display_name || f.email) + '</strong>' + (f.display_name ? '<br><span style="font-size:11px;color:var(--text-3)">' + esc(f.email) + '</span>' : '') + ' · <span style="font-size:12px;color:var(--text-3)">' + catLabel + '</span></div>'
                 + '<div style="display:flex;align-items:center;gap:8px">' + statusBadge + '<span style="font-size:11px;color:var(--text-3)">' + fmtDateTime(f.created_at) + '</span></div>'
                 + '</div>'
                 + '<div style="font-size:14px;color:var(--text);line-height:1.6;white-space:pre-wrap">' + esc(f.text) + '</div>'
@@ -1462,7 +1462,7 @@
         if (!f) return;
         document.getElementById('fb-reply-id').value = id;
         document.getElementById('fb-reply-original').innerHTML =
-            '<strong>' + esc(f.email) + '</strong> · ' + (FB_CAT_LABELS[f.category] || f.category)
+            '<strong>' + esc(f.display_name || f.email) + '</strong>' + (f.display_name ? '<br><span style="font-size:11px;color:var(--text-3)">' + esc(f.email) + '</span>' : '') + ' · ' + (FB_CAT_LABELS[f.category] || f.category)
             + '<br><br>' + esc(f.text);
         document.getElementById('fb-reply-text').value = f.admin_reply || '';
         document.getElementById('fb-reply-modal').classList.add('open');

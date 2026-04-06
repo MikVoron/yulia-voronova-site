@@ -121,7 +121,7 @@ async function adminRoutes(fastify) {
   // GET /admin/feedback — все обращения
   fastify.get('/admin/feedback', { preHandler: requireAdmin }, async () => {
     const result = await db.query(
-      `SELECT f.id, f.user_id, f.category, f.text, f.status, f.admin_reply, f.admin_replied_at, f.created_at, u.email
+      `SELECT f.id, f.user_id, f.category, f.text, f.status, f.admin_reply, f.admin_replied_at, f.created_at, u.email, u.display_name
        FROM feedback_messages f JOIN users u ON u.id = f.user_id
        ORDER BY f.created_at DESC`
     );
@@ -135,7 +135,7 @@ async function adminRoutes(fastify) {
     if (!replyText || !replyText.trim()) return reply.status(400).send({ error: 'Введите текст ответа' });
     if (replyText.length > 5000) return reply.status(400).send({ error: 'Слишком длинный ответ' });
     const result = await db.query(
-      `UPDATE feedback_messages SET admin_reply=$2, admin_replied_at=now(), admin_id=$3, status='answered', updated_at=now()
+      `UPDATE feedback_messages SET admin_reply=$2, admin_replied_at=now(), admin_id=$3, status='answered', reply_seen=false, updated_at=now()
        WHERE id=$1 RETURNING *`,
       [id, replyText.trim(), req.user.sub]
     );

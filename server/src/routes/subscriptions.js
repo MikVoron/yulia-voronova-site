@@ -103,10 +103,19 @@ async function subscriptionRoutes(fastify) {
   // GET /feedback — обращения текущего пользователя
   fastify.get('/feedback', { preHandler: authenticate }, async (req) => {
     const result = await db.query(
-      'SELECT id, category, text, status, admin_reply, admin_replied_at, created_at FROM feedback_messages WHERE user_id=$1 ORDER BY created_at DESC',
+      'SELECT id, category, text, status, admin_reply, admin_replied_at, reply_seen, created_at FROM feedback_messages WHERE user_id=$1 ORDER BY created_at DESC',
       [req.user.sub]
     );
     return result.rows;
+  });
+
+  // POST /feedback/mark-seen — пометить ответы как просмотренные
+  fastify.post('/feedback/mark-seen', { preHandler: authenticate }, async (req) => {
+    await db.query(
+      "UPDATE feedback_messages SET reply_seen=true WHERE user_id=$1 AND status='answered' AND reply_seen=false",
+      [req.user.sub]
+    );
+    return { ok: true };
   });
 }
 
