@@ -9,14 +9,16 @@ async function authenticate(req, reply) {
   } catch (e) {
     return reply.status(401).send({ error: 'Токен невалиден' });
   }
+  const u = await db.query('SELECT is_blocked FROM users WHERE id=$1', [req.user.sub]);
+  if (!u.rows.length || u.rows[0].is_blocked) return reply.status(403).send({ error: 'Аккаунт заблокирован' });
 }
 
 async function requireAdmin(req, reply) {
   await authenticate(req, reply);
   if (reply.sent) return;
-  const u = await db.query('SELECT role, is_blocked FROM users WHERE id=$1', [req.user.sub]);
-  if (!u.rows.length || u.rows[0].is_blocked) return reply.status(403).send({ error: 'Аккаунт заблокирован' });
-  if (u.rows[0].role !== 'admin') return reply.status(403).send({ error: 'Нет доступа' });
+  // is_blocked уже проверен в authenticate(), здесь только роль
+  const u = await db.query('SELECT role FROM users WHERE id=$1', [req.user.sub]);
+  if (!u.rows.length || u.rows[0].role !== 'admin') return reply.status(403).send({ error: 'Нет доступа' });
 }
 
 async function requireActiveSubscription(req, reply) {

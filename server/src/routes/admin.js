@@ -105,6 +105,15 @@ async function adminRoutes(fastify) {
   fastify.post('/admin/users/:id/unblock', { preHandler: requireAdmin }, async (req) => {
     const { id } = req.params;
     await db.query('UPDATE users SET is_blocked=false, updated_at=now() WHERE id=$1', [id]);
+    // Восстановить подписку: active_until в будущем → active, trial_ends_at в будущем → trial, иначе expired
+    await db.query(`
+      UPDATE subscriptions SET status = CASE
+        WHEN active_until > now() THEN 'active'
+        WHEN trial_ends_at > now() THEN 'trial'
+        ELSE 'expired'
+      END, updated_at = now()
+      WHERE user_id = $1 AND status = 'blocked'
+    `, [id]);
     audit.log('user_unblock', { userId: req.user.sub, detail: 'unblocked user#' + id, ip: req.ip });
     return { ok: true };
   });

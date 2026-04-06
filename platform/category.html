@@ -553,15 +553,22 @@
                 body: JSON.stringify({ recipe_id: recipeId, stars, text: '' })
             });
             if (res.ok) {
-                // Обновить локальный кэш рейтингов
-                const ar = _apiRatings[recipeId] || { avg: 0, count: 0 };
-                ar.avg = ((ar.avg * ar.count) + stars) / (ar.count + 1);
-                ar.count += 1;
-                _apiRatings[recipeId] = ar;
-                updatePopStars(recipeId);
-                const pill = document.getElementById('rpill-' + recipeId);
-                if (pill) pill.querySelector('.pr-val').textContent = ar.avg.toFixed(1);
                 showToast('Оценка сохранена ★');
+                // Обновить рейтинги с сервера (источник истины)
+                try {
+                    const rr = await fetch(API_BASE + '/content/ratings');
+                    if (rr.ok) {
+                        const data = await rr.json();
+                        Object.assign(_apiRatings, data);
+                        updatePopStars(recipeId);
+                        const pill = document.getElementById('rpill-' + recipeId);
+                        if (pill) {
+                            const ar = _apiRatings[recipeId];
+                            pill.querySelector('.pr-val').textContent = ar && ar.avg > 0 ? ar.avg : '—';
+                        }
+                    }
+                } catch {}
+
             } else {
                 showToast('Не удалось сохранить оценку');
             }

@@ -194,13 +194,24 @@ async function contentRoutes(fastify) {
     const result = await db.query(
       `INSERT INTO news (type, text, recipe_id, badge, label, is_published)
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [type || 'news', text.trim(), recipe_id || null, badge || null, label || null, is_published !== false]
+      [type || 'news', text.trim(), recipe_id || null, badge || null, label || null, is_published === true]
     );
 
     // Send newsletter to all subscribed users (async, don't block response)
-    if (is_published !== false) {
+    // Только если is_published явно true и новость успешно создана
+    const newsId = result.rows[0]?.id;
+    if (is_published === true && newsId) {
       (async () => {
         try {
+          // Дедупликация: пометить новость как «рассылка отправлена»
+          const lock = await db.query(
+            'UPDATE news SET newsletter_sent = true WHERE id = $1 AND (newsletter_sent IS NULL OR newsletter_sent = false) RETURNING id',
+            [newsId]
+          );
+          if (!lock.rows.length) {
+            console.log('Newsletter already sent for news#' + newsId + ', skipping');
+            return;
+          }
           const subscribers = await db.query(
             'SELECT email, unsubscribe_token FROM users WHERE newsletter_subscribed = true AND email IS NOT NULL'
           );
@@ -209,7 +220,7 @@ async function contentRoutes(fastify) {
               await email.sendNewsletter(sub.email, text.trim(), sub.unsubscribe_token);
             } catch (e) { console.error('Newsletter send error for', sub.email, ':', e.message); }
           }
-          console.log(`Newsletter sent to ${subscribers.rows.length} subscribers`);
+          console.log(`Newsletter sent to ${subscribers.rows.length} subscribers for news#${newsId}`);
         } catch (e) { console.error('Newsletter query error:', e.message); }
       })();
     }
@@ -223,7 +234,7 @@ async function contentRoutes(fastify) {
     const result = await db.query(
       `UPDATE news SET type=$1, text=$2, recipe_id=$3, badge=$4, label=$5, is_published=$6
        WHERE id=$7 RETURNING *`,
-      [type || 'news', text, recipe_id || null, badge || null, label || null, is_published !== false, req.params.id]
+      [type || 'news', text, recipe_id || null, badge || null, label || null, is_published === true, req.params.id]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
     return result.rows[0];
@@ -269,7 +280,7 @@ async function contentRoutes(fastify) {
         r.note || null, r.vk_video || null, r.yt_video || null, r.dzen_video || null,
         JSON.stringify(r.add_protein || []), JSON.stringify(r.add_fat || []),
         JSON.stringify(r.add_carbs || []), JSON.stringify(r.add_fiber || []),
-        r.portion_grams || 300, r.sort_order || 0, r.is_published !== false
+        r.portion_grams || 300, r.sort_order || 0, r.is_published === true
       ]
     );
     return result.rows[0];
@@ -294,7 +305,7 @@ async function contentRoutes(fastify) {
         r.note || null, r.vk_video || null, r.yt_video || null, r.dzen_video || null,
         JSON.stringify(r.add_protein || []), JSON.stringify(r.add_fat || []),
         JSON.stringify(r.add_carbs || []), JSON.stringify(r.add_fiber || []),
-        r.portion_grams || 300, r.sort_order || 0, r.is_published !== false, req.params.id
+        r.portion_grams || 300, r.sort_order || 0, r.is_published === true, req.params.id
       ]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });

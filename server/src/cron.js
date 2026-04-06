@@ -56,19 +56,29 @@ async function cleanExpiredCodes() {
   }
 }
 
+let _running = false;
+
+async function runCronJobs(fastify) {
+  if (_running) return;
+  _running = true;
+  try {
+    const t = await expireTrials(fastify);
+    const s = await expireSubscriptions(fastify);
+    const c = await cleanExpiredCodes();
+    if (t || s || c) fastify.log.info({ expiredTrials: t, expiredSubs: s, cleanedCodes: c }, 'cron completed');
+  } catch (e) {
+    fastify.log.error(e, 'cron error');
+  } finally {
+    _running = false;
+  }
+}
+
 function startCron(fastify) {
-  // каждый час
-  setInterval(async () => {
-    try {
-      const t = await expireTrials(fastify);
-      const s = await expireSubscriptions(fastify);
-      const c = await cleanExpiredCodes();
-      if (t || s || c) fastify.log.info({ expiredTrials: t, expiredSubs: s, cleanedCodes: c }, 'cron completed');
-    } catch (e) {
-      fastify.log.error(e, 'cron error');
-    }
-  }, 60 * 60 * 1000);
-  fastify.log.info('Cron started (every 1h)');
+  // Запуск сразу при старте сервера
+  runCronJobs(fastify);
+  // Затем каждый час с защитой от параллельного выполнения
+  setInterval(() => runCronJobs(fastify), 60 * 60 * 1000);
+  fastify.log.info('Cron started (every 1h, with overlap guard)');
 }
 
 module.exports = { startCron };

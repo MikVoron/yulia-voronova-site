@@ -296,33 +296,6 @@ const Plate = {
     getHistory() { try { return JSON.parse(localStorage.getItem(this._hkey()) || '[]'); } catch { return []; } }
 };
 
-// ─── RATINGS ──────────────────────────────────────────────────────────────────
-const Ratings = {
-    KEY: 'recipe_ratings',
-    get()  { try { return JSON.parse(localStorage.getItem(this.KEY) || '{}'); } catch { return {}; } },
-    set(v) { localStorage.setItem(this.KEY, JSON.stringify(v)); },
-    rate(recipeId, stars) {
-        const all = this.get();
-        const prev = all[recipeId] || { sum: 0, count: 0, mine: 0 };
-        if (prev.mine) {
-            prev.sum = prev.sum - prev.mine + stars;
-        } else {
-            prev.sum += stars;
-            prev.count += 1;
-        }
-        prev.mine = stars;
-        all[recipeId] = prev;
-        this.set(all);
-        return prev;
-    },
-    forRecipe(recipeId) {
-        return this.get()[recipeId] || { sum: 0, count: 0, mine: 0 };
-    },
-    avg(recipeId) {
-        const r = this.forRecipe(recipeId);
-        return r.count > 0 ? Math.round(r.sum / r.count) : 0;
-    }
-};
 
 function updatePlateIcon() {
     const n = Plate.count();
@@ -477,23 +450,3 @@ function shareShoppingList() {
     else { navigator.clipboard.writeText(txt).then(() => showToast('📋 Скопировано!')).catch(() => showToast('Не удалось скопировать')); }
 }
 
-// ─── COMMENTS ─────────────────────────────────────────────────────────────────
-const Comments = {
-    KEY: 'recipe_comments',
-    get() { try { return JSON.parse(localStorage.getItem(this.KEY) || '{}'); } catch { return {}; } },
-    set(v) { localStorage.setItem(this.KEY, JSON.stringify(v)); },
-    forRecipe(recipeId) { return (this.get()[recipeId] || []); },
-    add(recipeId, author, text, stars, email) {
-        const all = this.get();
-        if (!all[recipeId]) all[recipeId] = [];
-        all[recipeId].unshift({ author, text, stars: stars || 0, email: email || '', ts: Date.now() });
-        this.set(all);
-    },
-    remove(recipeId, ts) {
-        const all = this.get();
-        if (!all[recipeId]) return;
-        all[recipeId] = all[recipeId].filter(c => c.ts !== ts);
-        this.set(all);
-    },
-    count(recipeId) { return this.forRecipe(recipeId).length; }
-};
