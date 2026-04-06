@@ -869,19 +869,30 @@
 			}
 
 			const t = Plate.totals();
-			const list = items.map((item, i) => `
-            <div class="plate-item" id="pi-${i}">
-                ${item.photo
-					? `<img class="plate-item-photo" src="${item.photo}" alt="">`
-					: `<div class="plate-item-emoji">${item.emoji || '🍴'}</div>`}
-                <div class="plate-item-info">
-                    ${item.recipeId
-					? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
-					: `<div class="plate-item-name">${item.name}</div>`}
-                    <div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div>
-                </div>
-                <button class="plate-item-del" onclick="removeItem(${i})">✕</button>
-            </div>`).join('');
+			const list = items.map((item, i) => {
+				const adds = item.additions || [];
+				const additionsHtml = adds.length
+					? `<div class="plate-additions">${adds.map(a =>
+						`<div class="plate-addition-item">
+							<span class="plate-addition-dot">+</span>
+							<span class="plate-addition-name">${a.name}</span>
+							<span class="plate-addition-kcal">${a.kcal||0} ккал</span>
+						</div>`).join('')}</div>`
+					: '';
+				return `<div class="plate-item" id="pi-${i}">
+					${item.photo
+						? `<img class="plate-item-photo" src="${item.photo}" alt="">`
+						: `<div class="plate-item-emoji">${item.emoji || '🍴'}</div>`}
+					<div class="plate-item-info">
+						${item.recipeId
+						? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
+						: `<div class="plate-item-name">${item.name}</div>`}
+						<div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div>
+						${additionsHtml}
+					</div>
+					<button class="plate-item-del" onclick="removeItem(${i})">✕</button>
+				</div>`;
+			}).join('');
 
 			body.innerHTML = `
             <div class="plate-items">${list}</div>
