@@ -440,6 +440,7 @@
 				document.getElementById('pay-success').style.display = 'block';
 				clearScreenshot();
 				loadPaymentHistory();
+				startPaymentPolling();
 			} catch (e) {
 				errEl.textContent = 'Ошибка сети'; errEl.style.display = 'block';
 			}
@@ -448,11 +449,38 @@
 
 		var PAY_STATUS_LABELS = { pending: 'На проверке', confirmed: 'Подтверждён', rejected: 'Отклонён' };
 
+		// Poll payment status every 15s while there are pending payments
+		var _payPollTimer = null;
+		function startPaymentPolling() {
+			stopPaymentPolling();
+			_payPollTimer = setInterval(async function() {
+				try {
+					var res = await Auth.api('/subscription/payments');
+					if (!res.ok) return;
+					var payments = await res.json();
+					var hasPending = payments.some(function(p) { return p.status === 'pending'; });
+					loadPaymentHistory();
+					if (!hasPending) {
+						stopPaymentPolling();
+						// Refresh subscription status — payment was confirmed or rejected
+						Auth.checkAccess();
+					}
+				} catch(e) { /* ignore */ }
+			}, 15000);
+		}
+		function stopPaymentPolling() {
+			if (_payPollTimer) { clearInterval(_payPollTimer); _payPollTimer = null; }
+		}
+
 		async function loadPaymentHistory() {
 			try {
 				var res = await Auth.api('/subscription/payments');
 				if (!res.ok) return;
 				var payments = await res.json();
+				// Auto-start polling if there are pending payments
+				if (payments.some(function(p) { return p.status === 'pending'; })) {
+					if (!_payPollTimer) startPaymentPolling();
+				}
 				var el = document.getElementById('pay-history');
 				if (!payments.length) { el.innerHTML = ''; return; }
 				el.innerHTML = '<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px">История платежей</div>'
@@ -851,7 +879,7 @@
 						const rds = rd.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
 						const rts = rd.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 						replyHtml = '<div class="fb-reply">'
-							+ '<img class="fb-reply-mark" src="https://voronova.online/images/YV-blog.webp" alt="Юлия Воронова">'
+							+ '<img class="fb-reply-mark" src="' + SITE_BASE + '/images/YV-blog.webp" alt="Юлия Воронова">'
 							+ '<div class="fb-reply-body">'
 							+ '<div class="fb-reply-title">Ответ Юлии</div>'
 							+ '<p>' + escHtml(f.admin_reply) + '</p>'

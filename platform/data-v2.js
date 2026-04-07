@@ -4,8 +4,11 @@
  * Источник рецептов: Гайд растительного питания Юлии Вороновой
  */
 
+// ─── CONFIG ─────────────────────────────────────────────────────────────────
+const API_BASE  = 'https://api.voronova.online';
+const SITE_BASE = 'https://voronova.online';
+
 // ─── AUTH ───────────────────────────────────────────────────────────────────
-const API_BASE = 'https://api.voronova.online';
 const Auth = {
     KEY: 'hp_user',
     _token: null,
@@ -378,10 +381,10 @@ let _contentLoaded = false;
 // Normalize image paths: ../images/... → absolute URL on main site
 function _fixPhoto(p) {
     if (!p) return null;
-    if (p.startsWith('../images/')) return 'https://voronova.online/' + p.slice(3);
-    if (p.startsWith('/images/')) return 'https://voronova.online' + p;
+    if (p.startsWith('../images/')) return SITE_BASE + '/' + p.slice(3);
+    if (p.startsWith('/images/')) return SITE_BASE + p;
     if (p.startsWith('images/')) {
-        return 'https://voronova.online/' + p;
+        return SITE_BASE + '/' + p;
     }
     return p;
 }

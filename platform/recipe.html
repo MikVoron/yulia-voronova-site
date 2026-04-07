@@ -190,15 +190,15 @@
 
     // Фото-заглушки по категориям (временно — из блога и гайда)
     const PHOTO_BY_CAT = {
-        breakfasts: 'https://voronova.online/images/blog/post-290.webp',
-        mains:      'https://voronova.online/images/cook-healthy-food.webp',
-        pancakes:   'https://voronova.online/images/blog/random-pic-blog-2.webp',
-        spreads:    'https://voronova.online/images/blog/random-pic-blog-3.webp',
-        salads:     'https://voronova.online/images/blog/random-pic-blog-4.webp',
-        drinks:     'https://voronova.online/images/blog/random-pic-blog-1.webp',
-        _sides:     'https://voronova.online/images/blog/post-281.webp',
+        breakfasts: SITE_BASE + '/images/blog/post-290.webp',
+        mains:      SITE_BASE + '/images/cook-healthy-food.webp',
+        pancakes:   SITE_BASE + '/images/blog/random-pic-blog-2.webp',
+        spreads:    SITE_BASE + '/images/blog/random-pic-blog-3.webp',
+        salads:     SITE_BASE + '/images/blog/random-pic-blog-4.webp',
+        drinks:     SITE_BASE + '/images/blog/random-pic-blog-1.webp',
+        _sides:     SITE_BASE + '/images/blog/post-281.webp',
     };
-    const PHOTO_FALLBACK = 'https://voronova.online/images/background-guide.webp';
+    const PHOTO_FALLBACK = SITE_BASE + '/images/background-guide.webp';
 
     window.addEventListener('scroll', () =>
         document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
