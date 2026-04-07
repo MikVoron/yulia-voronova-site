@@ -253,7 +253,7 @@ const Favorites = {
         this.has(id) ? this.remove(id) : this.add(id);
         const now = this.has(id);
         if (Auth.getToken()) {
-            Auth.apiFetch('/favorites/toggle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ recipe_id: id }) }).catch(function() {});
+            Auth.api('/favorites/toggle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ recipe_id: id }) }).catch(function() {});
         }
         return now;
     },
@@ -262,7 +262,7 @@ const Favorites = {
         if (!Auth.getToken()) return Promise.resolve();
         var self = this;
         var local = self.get();
-        return Auth.apiFetch('/favorites').then(function(r) { return r.json(); }).then(function(server) {
+        return Auth.api('/favorites').then(function(r) { return r.json(); }).then(function(server) {
             if (!Array.isArray(server)) return;
             // Merge: keep order — server first, then local-only items
             var merged = server.slice();
@@ -270,7 +270,7 @@ const Favorites = {
             self.set(merged);
             // If local had items not on server, sync them up
             if (merged.length !== server.length) {
-                Auth.apiFetch('/favorites/sync', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: merged }) }).catch(function() {});
+                Auth.api('/favorites/sync', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: merged }) }).catch(function() {});
             }
         }).catch(function() {});
     }
@@ -287,7 +287,7 @@ const Notes = {
         const note = { id: Date.now(), text, title, date: new Date().toISOString() };
         notes.unshift(note); this.set(notes);
         if (Auth.getToken()) {
-            Auth.apiFetch('/notes/upsert', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: note.id, title: note.title, text: note.text }) }).catch(function() {});
+            Auth.api('/notes/upsert', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: note.id, title: note.title, text: note.text }) }).catch(function() {});
         }
         return note;
     },
@@ -297,14 +297,14 @@ const Notes = {
         if (n) {
             n.text = text; n.title = text.trim().split('\n')[0].trim().slice(0, 60) || 'Заметка'; n.updated = new Date().toISOString(); this.set(notes);
             if (Auth.getToken()) {
-                Auth.apiFetch('/notes/upsert', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: n.id, title: n.title, text: n.text }) }).catch(function() {});
+                Auth.api('/notes/upsert', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: n.id, title: n.title, text: n.text }) }).catch(function() {});
             }
         }
     },
     remove(id) {
         this.set(this.get().filter(n => n.id !== id));
         if (Auth.getToken()) {
-            Auth.apiFetch('/notes/' + id, { method: 'DELETE' }).catch(function() {});
+            Auth.api('/notes/' + id, { method: 'DELETE' }).catch(function() {});
         }
     },
     /** Pull notes from server, merge with local, push back if needed */
@@ -312,7 +312,7 @@ const Notes = {
         if (!Auth.getToken()) return Promise.resolve();
         var self = this;
         var local = self.get();
-        return Auth.apiFetch('/notes').then(function(r) { return r.json(); }).then(function(server) {
+        return Auth.api('/notes').then(function(r) { return r.json(); }).then(function(server) {
             if (!Array.isArray(server)) return;
             // Build map by id: server wins on conflicts, local-only items appended
             var map = {};
@@ -325,7 +325,7 @@ const Notes = {
             self.set(merged);
             // If local had items not on server, sync them up
             if (localOnly.length) {
-                Auth.apiFetch('/notes/sync', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: merged }) }).catch(function() {});
+                Auth.api('/notes/sync', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: merged }) }).catch(function() {});
             }
         }).catch(function() {});
     }
