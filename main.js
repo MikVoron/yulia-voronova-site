@@ -742,6 +742,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const btn = card.querySelector('.expand-indicator-line');
             const lineText = btn ? btn.querySelector('.line-text') : null;
 
+            // Если карточка была раскрыта, отключаем transition чтобы
+            // она мгновенно вернулась в позицию стека (иначе transform
+            // анимируется и карточка «зависает» сдвинутой вправо)
+            const wasOpen = card.classList.contains('is-open');
+            if (wasOpen) {
+                card.style.transition = 'none';
+            }
+
             card.classList.remove('is-open');
             if (details) {
                 details.classList.remove('is-visible');
@@ -751,6 +759,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             if (lineText) {
                 lineText.textContent = 'Подробнее';
+            }
+
+            if (wasOpen) {
+                void card.offsetHeight; // форсируем reflow
+                card.style.transition = '';
             }
         });
 
