@@ -102,7 +102,10 @@ async function contentRoutes(fastify) {
   });
 
   // POST /content/reviews — submit or update a review (auth required)
-  fastify.post('/content/reviews', { preHandler: [authenticate] }, async (req, reply) => {
+  fastify.post('/content/reviews', {
+    preHandler: [authenticate],
+    config: { rateLimit: { max: 10, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
     const { recipe_id, stars, text } = req.body || {};
     if (!recipe_id || !stars) {
       return reply.status(400).send({ error: 'recipe_id и stars обязательны' });

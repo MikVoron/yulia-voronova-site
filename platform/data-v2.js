@@ -314,7 +314,7 @@ let _contentLoaded = false;
 function _fixPhoto(p) {
     if (!p) return null;
     if (p.startsWith('../images/')) return 'https://voronova.online/' + p.slice(3);
-    if (p.startsWith('/images/')) return window.location.origin + p;
+    if (p.startsWith('/images/')) return 'https://voronova.online' + p;
     if (p.startsWith('images/')) {
         return 'https://voronova.online/' + p;
     }

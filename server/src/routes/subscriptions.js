@@ -45,7 +45,10 @@ async function subscriptionRoutes(fastify) {
   });
 
   // POST /subscription/payment — пользователь сообщает об оплате
-  fastify.post('/subscription/payment', { preHandler: authenticate }, async (req, reply) => {
+  fastify.post('/subscription/payment', {
+    preHandler: authenticate,
+    config: { rateLimit: { max: 5, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
     const { amount, paymentDate, comment, screenshot } = req.body || {};
     if (!amount || !paymentDate) return reply.status(400).send({ error: 'amount и paymentDate обязательны' });
     // Validate screenshot if present (max ~5MB base64)
@@ -83,7 +86,10 @@ async function subscriptionRoutes(fastify) {
   });
 
   // POST /feedback — обратная связь от пользователя
-  fastify.post('/feedback', { preHandler: authenticate }, async (req, reply) => {
+  fastify.post('/feedback', {
+    preHandler: authenticate,
+    config: { rateLimit: { max: 5, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
     const { category, text } = req.body || {};
     if (!text || !text.trim()) return reply.status(400).send({ error: 'Введите текст' });
     if (text.length > 2000) return reply.status(400).send({ error: 'Слишком длинный текст' });

@@ -113,7 +113,9 @@ async function oauthRoutes(fastify) {
   });
 
   // ── VK: callback ──
-  fastify.get('/auth/oauth/vk/callback', async (req, reply) => {
+  fastify.get('/auth/oauth/vk/callback', {
+    config: { rateLimit: { max: 10, timeWindow: '15 minutes' } }
+  }, async (req, reply) => {
     const { code } = req.query;
     if (!code) return reply.redirect(PLATFORM_URL + '/login.html?error=no_code');
 
@@ -173,7 +175,9 @@ async function oauthRoutes(fastify) {
   });
 
   // ── Yandex: callback ──
-  fastify.get('/auth/oauth/yandex/callback', async (req, reply) => {
+  fastify.get('/auth/oauth/yandex/callback', {
+    config: { rateLimit: { max: 10, timeWindow: '15 minutes' } }
+  }, async (req, reply) => {
     const { code } = req.query;
     if (!code) return reply.redirect(PLATFORM_URL + '/login.html?error=no_code');
 

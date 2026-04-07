@@ -31,7 +31,10 @@ async function adminRoutes(fastify) {
   });
 
   // POST /admin/payments/:id/confirm — подтвердить оплату
-  fastify.post('/admin/payments/:id/confirm', { preHandler: requireAdmin }, async (req, reply) => {
+  fastify.post('/admin/payments/:id/confirm', {
+    preHandler: requireAdmin,
+    config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
     const { id } = req.params;
     const { months, comment } = req.body || {};
     const days = (months || 1) * 30;
@@ -129,7 +132,10 @@ async function adminRoutes(fastify) {
   });
 
   // POST /admin/feedback/:id/reply — ответ админа на обращение
-  fastify.post('/admin/feedback/:id/reply', { preHandler: requireAdmin }, async (req, reply) => {
+  fastify.post('/admin/feedback/:id/reply', {
+    preHandler: requireAdmin,
+    config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
     const { id } = req.params;
     const { reply: replyText } = req.body || {};
     if (!replyText || !replyText.trim()) return reply.status(400).send({ error: 'Введите текст ответа' });
