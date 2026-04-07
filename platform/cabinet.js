@@ -70,11 +70,16 @@
 			}
 		}
 
-		// After checkAccess, sync favorites from server then re-sync displayName + avatar
+		// After checkAccess, sync favorites + notes from server then re-sync displayName + avatar
 		_cabAccess.then(function() {
 			return Favorites.load();
 		}).then(function() {
 			if (document.getElementById('panel-favorites') && document.getElementById('panel-favorites').classList.contains('active')) renderFavorites();
+		}).catch(function() {});
+		_cabAccess.then(function() {
+			return Notes.load();
+		}).then(function() {
+			if (document.getElementById('panel-notes') && document.getElementById('panel-notes').classList.contains('active')) renderNotesList();
 		}).catch(function() {});
 		_cabAccess.then(function() {
 			const freshName = Auth.getDisplayName();
