@@ -236,6 +236,16 @@
 			if (name === 'feedback') loadFeedbackHistory();
 		}
 
+		// Handle ?tab= query param (e.g. from paywall redirect)
+		(function() {
+			var params = new URLSearchParams(location.search);
+			var tab = params.get('tab');
+			if (tab) {
+				var tabBtn = document.querySelector('.cab-tab[onclick*="' + tab + '"]');
+				if (tabBtn) switchTab(tab, tabBtn);
+			}
+		})();
+
 		// ── ПОДПИСКА ──────────────────────────────────────────────────────────────
 		const SUB_LABELS = { trial: 'Пробный период', active: 'Активна', expired: 'Истекла' };
 
@@ -284,15 +294,22 @@
 		}
 
 		function copyCard() {
-			const num = document.getElementById('pay-card-num').textContent.replace(/\s/g, '');
+			var num = document.getElementById('pay-card-num').textContent.replace(/\s/g, '');
 			navigator.clipboard.writeText(num).then(function () {
-				const btn = event.target;
+				var btn = document.getElementById('pay-copy-btn');
 				btn.textContent = 'Скопировано!';
-				setTimeout(function () { btn.textContent = 'Скопировать номер'; }, 1500);
+				btn.style.background = '#28a745';
+				btn.style.borderColor = '#28a745';
+				btn.style.color = '#fff';
+				setTimeout(function () {
+					btn.textContent = 'Скопировать';
+					btn.style.background = '';
+					btn.style.borderColor = '';
+					btn.style.color = '';
+				}, 1500);
 			});
 		}
 
-		// Set default date to today
 		// Set default datetime to now
 		(function() {
 			var now = new Date();
@@ -303,7 +320,7 @@
 		// Screenshot preview
 		var _screenshotData = null;
 		function previewScreenshot(input) {
-			const file = input.files[0];
+			var file = input.files[0];
 			if (!file) return;
 			if (file.size > 5 * 1024 * 1024) {
 				document.getElementById('pay-error').textContent = 'Файл слишком большой (макс. 5 МБ)';
@@ -311,7 +328,7 @@
 				input.value = '';
 				return;
 			}
-			const reader = new FileReader();
+			var reader = new FileReader();
 			reader.onload = function(e) {
 				_screenshotData = e.target.result;
 				document.getElementById('pay-screenshot-img').src = _screenshotData;
@@ -327,57 +344,129 @@
 			document.getElementById('pay-screenshot-name').textContent = 'Прикрепить изображение';
 		}
 
-		async function submitPayment() {
-			const amount = parseInt(document.getElementById('pay-amount').value);
-			const paymentDate = document.getElementById('pay-date').value;
-			const comment = document.getElementById('pay-comment').value.trim();
+		// ── Wizard navigation ──
+		var _selectedPlan = null;
 
-			const errEl = document.getElementById('pay-error');
+		function goPayStep(step) {
+			// Update step indicators
+			document.querySelectorAll('.pay-step').forEach(function(el) {
+				var s = parseInt(el.dataset.step);
+				el.classList.remove('active', 'done');
+				if (s < step) el.classList.add('done');
+				if (s === step) el.classList.add('active');
+			});
+			// Show/hide panels
+			for (var i = 1; i <= 3; i++) {
+				document.getElementById('pay-step-' + i).style.display = (i === step) ? 'block' : 'none';
+			}
+			// Populate sender on step 3
+			if (step === 3) {
+				var user = Auth.getUser();
+				if (user && user.email) document.getElementById('pay-sender-display').textContent = user.email;
+			}
+		}
+
+		function selectPlan(months, amount, el) {
+			_selectedPlan = { months: months, amount: amount };
+			document.getElementById('pay-amount').value = amount;
+			document.getElementById('pay-transfer-amount').textContent = amount + ' ₽';
+			document.querySelectorAll('.pay-plan-card').forEach(function(c) { c.classList.remove('selected'); });
+			el.classList.add('selected');
+			document.getElementById('pay-next-1').disabled = false;
+		}
+
+		function renderPlanCards() {
+			var p = _pricePerMonth;
+			var plans = [
+				{ months: 1, label: '1 месяц', amount: p },
+				{ months: 3, label: '3 месяца', amount: p * 3 },
+				{ months: 6, label: '6 месяцев', amount: p * 6, badge: null },
+				{ months: 12, label: '12 месяцев', amount: p * 12, badge: null }
+			];
+			var grid = document.getElementById('pay-plan-grid');
+			grid.innerHTML = plans.map(function(pl) {
+				var perMonth = Math.round(pl.amount / pl.months);
+				var badgeHtml = pl.badge ? '<div class="pay-plan-badge">' + pl.badge + '</div>' : '';
+				return '<div class="pay-plan-card" onclick="selectPlan(' + pl.months + ',' + pl.amount + ',this)">'
+					+ badgeHtml
+					+ '<div class="pay-plan-duration">' + pl.label + '</div>'
+					+ '<div class="pay-plan-price">' + pl.amount + ' ₽</div>'
+					+ (pl.months > 1 ? '<div class="pay-plan-permonth">' + perMonth + ' ₽/мес</div>' : '')
+					+ '</div>';
+			}).join('');
+		}
+
+		function resetPayWizard() {
+			_selectedPlan = null;
+			document.getElementById('pay-success').style.display = 'none';
+			document.querySelectorAll('.pay-plan-card').forEach(function(c) { c.classList.remove('selected'); });
+			document.getElementById('pay-next-1').disabled = true;
+			document.getElementById('pay-form').style.display = 'flex';
+			document.getElementById('pay-comment').value = '';
+			clearScreenshot();
+			// Reset datetime
+			var now = new Date();
+			now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+			document.getElementById('pay-date').value = now.toISOString().slice(0, 16);
+			goPayStep(1);
+		}
+
+		async function submitPayment() {
+			var amount = parseInt(document.getElementById('pay-amount').value);
+			var paymentDate = document.getElementById('pay-date').value;
+			var comment = document.getElementById('pay-comment').value.trim();
+
+			var errEl = document.getElementById('pay-error');
 			errEl.style.display = 'none';
 
 			if (!amount || amount <= 0) { errEl.textContent = 'Укажите сумму'; errEl.style.display = 'block'; return; }
 			if (!paymentDate) { errEl.textContent = 'Укажите дату перевода'; errEl.style.display = 'block'; return; }
 
-			const btn = document.getElementById('pay-submit-btn');
+			var btn = document.getElementById('pay-submit-btn');
 			btn.disabled = true; btn.textContent = 'Отправка...';
 
 			try {
-				const body = { amount, paymentDate, comment };
+				var body = { amount: amount, paymentDate: paymentDate, comment: comment };
 				if (_screenshotData) body.screenshot = _screenshotData;
-				const res = await Auth.api('/subscription/payment', {
+				var res = await Auth.api('/subscription/payment', {
 					method: 'POST',
 					body: JSON.stringify(body)
 				});
-				const data = await res.json();
-				if (!res.ok) { errEl.textContent = data.error || 'Ошибка'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Я оплатил'; return; }
-				document.getElementById('pay-form').style.display = 'none';
+				var data = await res.json();
+				if (!res.ok) { errEl.textContent = data.error || 'Ошибка'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Отправить на проверку'; return; }
+				// Hide all wizard steps, show success
+				for (var i = 1; i <= 3; i++) document.getElementById('pay-step-' + i).style.display = 'none';
+				document.querySelector('.pay-steps').style.display = 'none';
 				document.getElementById('pay-success').style.display = 'block';
 				clearScreenshot();
 				loadPaymentHistory();
 			} catch (e) {
 				errEl.textContent = 'Ошибка сети'; errEl.style.display = 'block';
 			}
-			btn.disabled = false; btn.textContent = 'Я оплатил';
+			btn.disabled = false; btn.textContent = 'Отправить на проверку';
 		}
 
-		const PAY_STATUS_LABELS = { pending: 'На проверке', confirmed: 'Подтверждён', rejected: 'Отклонён' };
+		var PAY_STATUS_LABELS = { pending: 'На проверке', confirmed: 'Подтверждён', rejected: 'Отклонён' };
 
 		async function loadPaymentHistory() {
 			try {
-				const res = await Auth.api('/subscription/payments');
+				var res = await Auth.api('/subscription/payments');
 				if (!res.ok) return;
-				const payments = await res.json();
-				const el = document.getElementById('pay-history');
+				var payments = await res.json();
+				var el = document.getElementById('pay-history');
 				if (!payments.length) { el.innerHTML = ''; return; }
 				el.innerHTML = '<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px">История платежей</div>'
 					+ payments.map(function (p) {
-						const d = new Date(p.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
-						const statusClass = p.status || 'pending';
-						return '<div class="pay-hist-item">'
+						var d = new Date(p.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+						var statusClass = p.status || 'pending';
+						var rejectReason = (p.status === 'rejected' && p.admin_comment)
+							? '<div class="pay-hist-reject-reason">Причина: ' + escHtml(p.admin_comment) + '</div>'
+							: (p.admin_comment ? '<div style="font-size:12px;color:var(--text-2);margin-top:4px">' + escHtml(p.admin_comment) + '</div>' : '');
+						return '<div class="pay-hist-item' + (p.status === 'rejected' ? ' rejected' : '') + '">'
 							+ '<div><div style="font-size:14px;font-weight:600;color:var(--text)">' + p.amount + ' ₽</div>'
 							+ '<div style="font-size:12px;color:var(--text-3);margin-top:2px">' + d
 							+ (p.sender_name ? ' · ' + escHtml(p.sender_name) : '') + '</div>'
-							+ (p.admin_comment ? '<div style="font-size:12px;color:var(--text-2);margin-top:4px">' + escHtml(p.admin_comment) + '</div>' : '')
+							+ rejectReason
 							+ '</div>'
 							+ '<span class="pay-hist-status ' + statusClass + '">' + (PAY_STATUS_LABELS[p.status] || p.status) + '</span>'
 							+ '</div>';
@@ -386,13 +475,13 @@
 		}
 
 		function togglePaySection() {
-			const details = document.getElementById('pay-details');
-			const btn = document.getElementById('pay-toggle-btn');
+			var details = document.getElementById('pay-details');
+			var btn = document.getElementById('pay-toggle-btn');
 			if (details.style.display === 'none') {
 				details.style.display = 'block';
 				details.style.animation = 'fadeUp .3s ease both';
-				var user = Auth.getUser();
-				if (user && user.email) document.getElementById('pay-sender-display').textContent = user.email;
+				document.querySelector('.pay-steps').style.display = 'flex';
+				resetPayWizard();
 				btn.textContent = 'Скрыть';
 				btn.className = 'btn btn-ghost';
 				btn.style.width = '100%';
@@ -414,62 +503,37 @@
 			return 'месяцев';
 		}
 
-		function updateMonthsCalc() {
-			var amount = parseInt(document.getElementById('pay-amount').value) || 0;
-			var el = document.getElementById('pay-months-val');
-			if (amount <= 0) { el.textContent = '—'; return; }
-			var months = Math.floor(amount / _pricePerMonth);
-			if (months < 1) { el.textContent = 'менее 1 месяца'; return; }
-			el.textContent = months + ' ' + pluralMonths(months);
-		}
-
-		document.getElementById('pay-amount').addEventListener('input', function () {
-			updateMonthsCalc();
-			// снять active с кнопок при ручном вводе
-			document.querySelectorAll('.pay-quick-btn').forEach(function (b) { b.classList.remove('active'); });
-		});
-
-		function renderQuickBtns() {
-			var p = _pricePerMonth;
-			var btns = [
-				{ label: 'Месяц', amount: p },
-				{ label: 'Полгода', amount: p * 6 },
-				{ label: 'Год', amount: p * 12 }
-			];
-			var wrap = document.getElementById('pay-quick-btns');
-			wrap.innerHTML = btns.map(function (b) {
-				return '<button type="button" class="pay-quick-btn" data-amount="' + b.amount + '">' + b.label + ' · ' + b.amount + ' ₽</button>';
-			}).join('');
-			wrap.querySelectorAll('.pay-quick-btn').forEach(function (btn) {
-				btn.addEventListener('click', function () {
-					document.getElementById('pay-amount').value = btn.dataset.amount;
-					wrap.querySelectorAll('.pay-quick-btn').forEach(function (b) { b.classList.remove('active'); });
-					btn.classList.add('active');
-					updateMonthsCalc();
-				});
-			});
-		}
-
 		async function loadEarlyBird() {
 			// Не показывать early-bird если подписка активна
 			if (Auth._subStatus === 'active') return;
 			try {
-				const res = await fetch(API_BASE + '/subscription/early-bird');
+				var res = await fetch(API_BASE + '/subscription/early-bird');
 				if (!res.ok) return;
-				const data = await res.json();
+				var data = await res.json();
 				if (data.active && data.remaining > 0) {
 					document.getElementById('early-bird-card').style.display = 'block';
 					document.getElementById('early-bird-remaining').textContent = data.remaining;
 					_pricePerMonth = 100;
 				}
 			} catch (e) { /* ignore */ }
-			renderQuickBtns();
-			updateMonthsCalc();
+			renderPlanCards();
 		}
 
 		// Load subscription tab on init — wait for checkAccess to set _subStatus
 		_cabAccess.then(function() {
-			loadSubscription().then(function(isActive) { if (!isActive) loadEarlyBird(); });
+			loadSubscription().then(function(isActive) {
+				if (!isActive) {
+					loadEarlyBird().then(function() {
+						// Auto-open payment section if arrived via ?tab=subscription
+						if (new URLSearchParams(location.search).get('tab') === 'subscription') {
+							var toggleBtn = document.getElementById('pay-toggle-btn');
+							if (toggleBtn && document.getElementById('pay-details').style.display === 'none') {
+								togglePaySection();
+							}
+						}
+					});
+				}
+			});
 		});
 
 		// ── ИСТОРИЯ ТАРЕЛОК ───────────────────────────────────────────────────────

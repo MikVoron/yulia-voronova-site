@@ -166,6 +166,11 @@ const Auth = {
     hasFullAccess() { return this._subStatus === 'active'; },
     canViewRecipe(recipe) { return recipe.free || this.hasFullAccess(); },
     _showPaywall(reason) {
+        // Не блокировать cabinet.html — это и есть страница оплаты
+        if (location.pathname.indexOf('cabinet.html') !== -1) {
+            document.body.style.visibility = 'visible';
+            return;
+        }
         document.body.style.visibility = 'visible';
         const main = document.querySelector('main');
         if (main) { main.style.filter = 'blur(8px)'; main.style.pointerEvents = 'none'; main.style.userSelect = 'none'; }
@@ -181,7 +186,7 @@ const Auth = {
             + '<div style="font-size:48px;margin-bottom:16px">🔒</div>'
             + '<h2 style="font-family:Playfair Display,serif;font-size:28px;color:#1a1a1a;margin-bottom:12px">' + title + '</h2>'
             + '<p style="color:#666;font-size:15px;line-height:1.5;margin-bottom:24px">' + text + '</p>'
-            + '<a href="cabinet.html" style="display:inline-block;background:var(--accent,#e8734a);color:#fff;padding:14px 32px;border-radius:12px;font-weight:600;text-decoration:none;font-size:16px">Оформить подписку</a>'
+            + '<a href="cabinet.html?tab=subscription" style="display:inline-block;background:var(--accent,#e8734a);color:#fff;padding:14px 32px;border-radius:12px;font-weight:600;text-decoration:none;font-size:16px">Оформить подписку</a>'
             + '<br><a href="cabinet.html" style="display:inline-block;margin-top:12px;color:#888;font-size:13px;text-decoration:underline">Личный кабинет</a>'
             + '</div></div>';
         document.body.appendChild(overlay);
