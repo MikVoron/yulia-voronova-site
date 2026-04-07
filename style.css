@@ -10937,14 +10937,16 @@ button[class*="btn-"]:hover,
 .guide-card-image-area {
     position: relative;
     margin: 0 0 18px;
+    /* Safari fix: ensure area participates in layout so badge positions correctly */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Image wrapper */
 .guide-card-image-wrap {
     position: relative;
     width: 100%;
-    height: 0;
-    padding-bottom: 140%;
+    aspect-ratio: 5 / 7;
     margin: 0;
     border-radius: 10px;
     overflow: hidden;
@@ -10960,9 +10962,6 @@ button[class*="btn-"]:hover,
 
 .guide-card-minimal .guide-pdf-preview,
 .guide-card-minimal .guide-cover-image {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -11003,6 +11002,9 @@ button[class*="btn-"]:hover,
 
 .guide-btn-read,
 .guide-btn-save {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 8px 18px;
     border-radius: 20px;
     font-family: var(--font-montserrat);
@@ -11011,6 +11013,7 @@ button[class*="btn-"]:hover,
     text-decoration: none;
     transition: all 0.3s ease;
     cursor: pointer;
+    box-sizing: border-box;
 }
 
 .guide-btn-read {
