@@ -1,6 +1,7 @@
 const db = require('../db');
 const { authenticate, requireAdmin, optionalAuthenticate, checkActiveSubscription } = require('../middleware');
 const email = require('../email');
+const audit = require('../audit');
 
 async function contentRoutes(fastify) {
 
@@ -155,6 +156,7 @@ async function contentRoutes(fastify) {
   fastify.delete('/admin/reviews/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
     const result = await db.query('DELETE FROM reviews WHERE id=$1 RETURNING id', [req.params.id]);
     if (!result.rows.length) return reply.status(404).send({ error: 'Отзыв не найден' });
+    audit.log('review_delete', { userId: req.user.sub, detail: 'review#' + req.params.id, ip: req.ip });
     return { ok: true };
   });
 
@@ -228,6 +230,7 @@ async function contentRoutes(fastify) {
       })();
     }
 
+    audit.log('news_create', { userId: req.user.sub, detail: 'news#' + result.rows[0].id, ip: req.ip });
     return result.rows[0];
   });
 
@@ -240,6 +243,7 @@ async function contentRoutes(fastify) {
       [type || 'news', text, recipe_id || null, badge || null, label || null, is_published === true, req.params.id]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
+    audit.log('news_update', { userId: req.user.sub, detail: 'news#' + req.params.id, ip: req.ip });
     return result.rows[0];
   });
 
@@ -247,6 +251,7 @@ async function contentRoutes(fastify) {
   fastify.delete('/admin/news/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
     const result = await db.query('DELETE FROM news WHERE id=$1 RETURNING id', [req.params.id]);
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
+    audit.log('news_delete', { userId: req.user.sub, detail: 'news#' + req.params.id, ip: req.ip });
     return { ok: true };
   });
 
@@ -286,6 +291,7 @@ async function contentRoutes(fastify) {
         r.portion_grams || 300, r.sort_order || 0, r.is_published === true
       ]
     );
+    audit.log('recipe_create', { userId: req.user.sub, detail: 'recipe:' + r.id, ip: req.ip });
     return result.rows[0];
   });
 
@@ -312,6 +318,7 @@ async function contentRoutes(fastify) {
       ]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
+    audit.log('recipe_update', { userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip });
     return result.rows[0];
   });
 
@@ -319,6 +326,7 @@ async function contentRoutes(fastify) {
   fastify.delete('/admin/recipes/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
     const result = await db.query('DELETE FROM recipes WHERE id=$1 RETURNING id', [req.params.id]);
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
+    audit.log('recipe_delete', { userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip });
     return { ok: true };
   });
 
@@ -334,6 +342,7 @@ async function contentRoutes(fastify) {
       [name, emoji, color, description, sort_order || 0, req.params.id]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
+    audit.log('category_update', { userId: req.user.sub, detail: 'category:' + req.params.id, ip: req.ip });
     return result.rows[0];
   });
 }

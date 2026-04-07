@@ -121,11 +121,16 @@
 
     window.filterUsers = function() {
         var q = document.getElementById('user-search').value.toLowerCase();
-        if (!q) { renderUsers(allUsers); return; }
-        renderUsers(allUsers.filter(function(u) {
-            return (u.email && u.email.toLowerCase().includes(q)) ||
-                   (u.display_name && u.display_name.toLowerCase().includes(q));
-        }));
+        var statusFilter = document.getElementById('user-status-filter').value;
+        var filtered = allUsers.filter(function(u) {
+            if (q && !(u.email && u.email.toLowerCase().includes(q)) && !(u.display_name && u.display_name.toLowerCase().includes(q))) return false;
+            if (statusFilter === 'admin') return u.role === 'admin';
+            if (statusFilter === 'blocked') return u.is_blocked;
+            if (statusFilter && u.role === 'admin') return false;
+            if (statusFilter && (u.sub_status || 'нет') !== statusFilter) return false;
+            return true;
+        });
+        renderUsers(filtered);
     };
 
     window.blockUser = function(id, email) {

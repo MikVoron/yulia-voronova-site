@@ -1,97 +1,121 @@
 # Operational Checklist — Voronova Platform
 
-Быстрая проверка состояния продакшена.
+Быстрая справка по эксплуатации.
 
-## Команды проверки
+## 1. Deploy
+
+### Фронтенд (статика, nginx — перезапуск не нужен)
+```bash
+scp platform/*.html platform/*.js platform/*.css root@5.42.119.198:/var/www/smartplate-platform/
+```
+
+### Бэкенд (Node.js API — нужен pm2 restart)
+```bash
+# Роуты
+scp server/src/routes/*.js root@5.42.119.198:/var/www/smartplate-api/src/routes/
+# Корневые модули (db, audit, middleware, email)
+scp server/src/*.js root@5.42.119.198:/var/www/smartplate-api/src/
+# Перезапуск
+ssh root@5.42.119.198 "pm2 restart smartplate-api"
+```
+
+### Post-deploy
+```bash
+# Smoke-тесты (23 проверки: health, headers, CORS, auth, rate limits, 404)
+bash server/smoke-test.sh https://api.voronova.online
+# Или расширенная проверка
+ssh root@5.42.119.198 "/var/www/smartplate-api/post-deploy-check.sh https://api.voronova.online"
+```
+
+## 2. Migrations
 
 ```bash
-# 1. Health — API + БД
+# Локально → VPS (копирует файлы + запускает)
+bash server/migrate.sh --remote
+
+# На VPS напрямую
+cd /var/www/smartplate-api && bash migrate.sh
+```
+
+Файлы миграций: `server/migrations/001_*.sql` — `009_*.sql`
+Трекинг: таблица `schema_migrations` (автоматически, идемпотентно).
+
+## 3. Health-проверки
+
+```bash
+# API + БД
 curl -s https://api.voronova.online/health | python3 -m json.tool
 
-# 2. Backend process
-pm2 status voronova-api
+# Процесс
+ssh root@5.42.119.198 "pm2 status smartplate-api"
 
-# 3. PostgreSQL
-sudo -u postgres pg_isready
+# PostgreSQL
+ssh root@5.42.119.198 "sudo -u postgres pg_isready"
 
-# 4. Диск
-df -h /
+# Диск + память
+ssh root@5.42.119.198 "df -h / && free -h"
 
-# 5. Память
-free -h
-
-# 6. Логи (последние ошибки)
-pm2 logs voronova-api --lines 50 --err
-
-# 7. Бэкапы (последний файл)
-ls -lht /opt/voronova/backups/*.gpg | head -3
-
-# 8. SSL срок
-echo | openssl s_client -connect api.voronova.online:443 -servername api.voronova.online 2>/dev/null | openssl x509 -noout -enddate
-
-# 9. Cron задачи
-crontab -l
+# Последние ошибки
+ssh root@5.42.119.198 "pm2 logs smartplate-api --lines 50 --err --nostream"
 ```
 
-## Настройка мониторинга
+## 4. Бэкапы
 
-### 1. Telegram-алерты
-
-1. Создать бота через [@BotFather](https://t.me/BotFather), получить токен
-2. Написать боту `/start`, получить `chat_id` через `https://api.telegram.org/bot<TOKEN>/getUpdates`
-3. На VPS:
+- Cron: ежедневно 3:00 → pg_dump → gzip → GPG → Backblaze B2
+- Подробная настройка: `BACKUP-SETUP.md`
 
 ```bash
-export TG_BOT_TOKEN="123456:ABC..."
-export TG_CHAT_ID="your_chat_id"
+# Последний файл
+ssh root@5.42.119.198 "ls -lht /opt/voronova/backups/*.gpg | head -3"
+
+# Тест восстановления (на тестовой БД!)
+ssh root@5.42.119.198 "gpg --batch --decrypt --passphrase-file /opt/voronova/.gpg-passphrase <file>.gpg | gunzip > /tmp/test.sql && psql -U smartplate -d test_restore < /tmp/test.sql"
 ```
 
-### 2. Автоматический мониторинг (cron)
+## 5. SSL
 
 ```bash
-# Каждые 5 минут
-*/5 * * * * TG_BOT_TOKEN=... TG_CHAT_ID=... /opt/voronova/monitor.sh >> /var/log/voronova-monitor.log 2>&1
+ssh root@5.42.119.198 "echo | openssl s_client -connect api.voronova.online:443 -servername api.voronova.online 2>/dev/null | openssl x509 -noout -enddate"
 ```
 
-### 3. Автоперезапуск (pm2)
+Certbot с автообновлением (Let's Encrypt).
+
+## 6. SMTP
+
+Email отправляется через Nodemailer (настройки в `.env` на VPS).
+Используется для: код авторизации, подтверждение оплаты, ответ на обращение, newsletter.
 
 ```bash
-pm2 start /opt/voronova/server/index.js --name voronova-api
-pm2 save
-pm2 startup   # генерирует systemd-сервис для запуска при ребуте
+# Проверить отправку — отправить тестовый код авторизации
+curl -s -X POST https://api.voronova.online/auth/send-code \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com"}'
 ```
 
-### 4. Бэкапы (cron)
+## 7. Cron-задачи
 
 ```bash
-# Ежедневно в 3:00
-0 3 * * * /opt/voronova/backup.sh >> /var/log/voronova-backup.log 2>&1
+ssh root@5.42.119.198 "crontab -l"
 ```
 
-### 5. Post-deploy
+| Задача | Расписание | Скрипт |
+|--------|-----------|--------|
+| Бэкап БД | 0 3 * * * | `/opt/voronova/backup.sh` |
+| Мониторинг | */5 * * * * | `/opt/voronova/monitor.sh` |
 
-```bash
-./post-deploy-check.sh https://api.voronova.online
-```
+## 8. Мониторинг (Telegram-алерты)
+
+`monitor.sh` проверяет: health, pm2, диск, память, pg, ssl, бэкапы → отправляет в Telegram при проблемах.
+
+Настройка: переменные `TG_BOT_TOKEN` и `TG_CHAT_ID` в crontab.
 
 ## Файлы
 
 | Файл | Назначение |
 |------|-----------|
-| `monitor.sh` | Мониторинг: health, pm2, диск, память, pg, ssl, бэкапы → Telegram |
-| `post-deploy-check.sh` | Проверка после деплоя: API, БД, рецепты, авторизация, SSL |
-| `backup.sh` | Бэкап БД: pg_dump → gzip → GPG → Backblaze B2 |
-| `BACKUP-SETUP.md` | Инструкция настройки бэкапов |
-
-## Восстановление из бэкапа
-
-```bash
-# Расшифровать
-gpg --decrypt backup-2026-03-26.sql.gz.gpg > backup.sql.gz
-
-# Распаковать
-gunzip backup.sql.gz
-
-# Восстановить
-psql -U smartplate -d smartplate < backup.sql
-```
+| `smoke-test.sh` | 23 smoke-теста после деплоя |
+| `post-deploy-check.sh` | Расширенная проверка: API, БД, рецепты, авторизация, SSL |
+| `migrate.sh` | Миграции с трекингом (`schema_migrations`) |
+| `monitor.sh` | Мониторинг → Telegram |
+| `backup.sh` | Бэкап: pg_dump → gzip → GPG → B2 |
+| `BACKUP-SETUP.md` | Инструкция настройки бэкапов с нуля |

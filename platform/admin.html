@@ -471,7 +471,17 @@
     <!-- Users -->
     <div class="adm-section" id="sec-users">
         <div class="adm-section-title">Пользователи</div>
-        <input type="text" class="adm-search" id="user-search" placeholder="Поиск по email или имени..." oninput="filterUsers()">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+            <input type="text" class="adm-search" id="user-search" placeholder="Поиск по email или имени..." oninput="filterUsers()" style="margin-bottom:0;flex:1;min-width:200px">
+            <select class="adm-modal-select" id="user-status-filter" onchange="filterUsers()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="">Все статусы</option>
+                <option value="trial">Trial</option>
+                <option value="active">Активные</option>
+                <option value="expired">Истекшие</option>
+                <option value="blocked">Заблокированные</option>
+                <option value="admin">Админы</option>
+            </select>
+        </div>
         <div class="adm-table-wrap">
             <table class="adm-table">
                 <thead>
@@ -583,6 +593,14 @@
                 <option value="payment_reject">Платёж откл.</option>
                 <option value="user_block">Блокировка</option>
                 <option value="user_unblock">Разблокировка</option>
+                <option value="payment_submit">Платёж отправлен</option>
+                <option value="feedback_reply">Ответ на обращ.</option>
+                <option value="news_create">Новость создана</option>
+                <option value="news_update">Новость изменена</option>
+                <option value="news_delete">Новость удалена</option>
+                <option value="recipe_create">Рецепт создан</option>
+                <option value="recipe_update">Рецепт изменён</option>
+                <option value="recipe_delete">Рецепт удалён</option>
             </select>
         </div>
         <div class="adm-table-wrap">
