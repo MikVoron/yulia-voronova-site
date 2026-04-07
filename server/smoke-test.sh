@@ -81,6 +81,8 @@ code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/auth/me")
 check "GET /auth/me without token → 401" "401" "$code"
 code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/subscription")
 check "GET /subscription without token → 401" "401" "$code"
+code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/favorites")
+check "GET /favorites without token → 401" "401" "$code"
 
 # ─── 6. Auth — bad input ───
 echo "[Auth — validation]"

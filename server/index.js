@@ -9,6 +9,7 @@ const subscriptionRoutes = require('./src/routes/subscriptions');
 const adminRoutes = require('./src/routes/admin');
 const oauthRoutes = require('./src/routes/oauth');
 const contentRoutes = require('./src/routes/content');
+const favoritesRoutes = require('./src/routes/favorites');
 const { startCron } = require('./src/cron');
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -40,6 +41,7 @@ fastify.register(subscriptionRoutes);
 fastify.register(adminRoutes);
 fastify.register(oauthRoutes);
 fastify.register(contentRoutes);
+fastify.register(favoritesRoutes);
 
 const db = require('./src/db');
 

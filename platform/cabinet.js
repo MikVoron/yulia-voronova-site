@@ -70,7 +70,12 @@
 			}
 		}
 
-		// After checkAccess, re-sync displayName + avatar from server
+		// After checkAccess, sync favorites from server then re-sync displayName + avatar
+		_cabAccess.then(function() {
+			return Favorites.load();
+		}).then(function() {
+			if (document.getElementById('panel-favorites') && document.getElementById('panel-favorites').classList.contains('active')) renderFavorites();
+		}).catch(function() {});
 		_cabAccess.then(function() {
 			const freshName = Auth.getDisplayName();
 			if (freshName) {

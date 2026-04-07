@@ -244,7 +244,31 @@ const Favorites = {
     has(id)       { return this.get().includes(id); },
     add(id)       { const f = this.get(); if (!f.includes(id)) { f.unshift(id); this.set(f); } },
     remove(id)    { this.set(this.get().filter(x => x !== id)); },
-    toggle(id)    { this.has(id) ? this.remove(id) : this.add(id); return this.has(id); }
+    toggle(id) {
+        this.has(id) ? this.remove(id) : this.add(id);
+        const now = this.has(id);
+        if (Auth.getToken()) {
+            Auth.apiFetch('/favorites/toggle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ recipe_id: id }) }).catch(function() {});
+        }
+        return now;
+    },
+    /** Pull favorites from server, merge with local, push back if needed */
+    load() {
+        if (!Auth.getToken()) return Promise.resolve();
+        var self = this;
+        var local = self.get();
+        return Auth.apiFetch('/favorites').then(function(r) { return r.json(); }).then(function(server) {
+            if (!Array.isArray(server)) return;
+            // Merge: keep order — server first, then local-only items
+            var merged = server.slice();
+            local.forEach(function(id) { if (merged.indexOf(id) === -1) merged.push(id); });
+            self.set(merged);
+            // If local had items not on server, sync them up
+            if (merged.length !== server.length) {
+                Auth.apiFetch('/favorites/sync', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: merged }) }).catch(function() {});
+            }
+        }).catch(function() {});
+    }
 };
 
 // ─── NOTES ───────────────────────────────────────────────────────────────────

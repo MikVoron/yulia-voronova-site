@@ -245,7 +245,7 @@
     }
     } // end initRecipe
 
-    Promise.all([loadContent(), _accessReady]).then(function() {
+    Promise.all([loadContent(), _accessReady, Favorites.load()]).then(function() {
         if (isContentError()) {
             showApiError(document.getElementById('page-content'));
             return;
