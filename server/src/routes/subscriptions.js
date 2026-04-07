@@ -1,6 +1,7 @@
 const db = require('../db');
 const { authenticate } = require('../middleware');
 const { sendPaymentNotification, sendFeedback } = require('../email');
+const audit = require('../audit');
 
 async function subscriptionRoutes(fastify) {
 
@@ -60,6 +61,7 @@ async function subscriptionRoutes(fastify) {
       'INSERT INTO payments (user_id, amount, sender_name, payment_date, user_comment, screenshot, status) VALUES ($1,$2,$3,$4,$5,$6,$7)',
       [req.user.sub, amount, senderEmail, paymentDate, comment || null, screenshot || null, 'pending']
     );
+    audit.log('payment_submit', { userId: req.user.sub, email: senderEmail, detail: amount + '₽', ip: req.ip });
     sendPaymentNotification(senderEmail, amount, paymentDate, !!screenshot).catch(err => fastify.log.error(err, 'payment notification email failed'));
     return { ok: true, message: 'Платёж отправлен на проверку' };
   });

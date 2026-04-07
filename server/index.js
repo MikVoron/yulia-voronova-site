@@ -56,6 +56,18 @@ fastify.get('/health', async () => {
   return checks;
 });
 
+// Unified error handler: consistent { error, statusCode } format + log 500s
+fastify.setErrorHandler((err, req, reply) => {
+  const status = err.statusCode || 500;
+  if (status >= 500) {
+    fastify.log.error(err, `Unhandled error on ${req.method} ${req.url}`);
+  }
+  reply.status(status).send({
+    error: status >= 500 ? 'Внутренняя ошибка сервера' : (err.message || 'Ошибка'),
+    statusCode: status
+  });
+});
+
 fastify.listen({ port: process.env.PORT || 3000, host: '0.0.0.0' }, (err) => {
   if (err) { console.error(err); process.exit(1); }
   startCron(fastify);
