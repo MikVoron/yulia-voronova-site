@@ -82,6 +82,9 @@
 			if (document.getElementById('panel-notes') && document.getElementById('panel-notes').classList.contains('active')) renderNotesList();
 		}).catch(function() {});
 		_cabAccess.then(function() {
+			return Plate.load();
+		}).catch(function() {});
+		_cabAccess.then(function() {
 			const freshName = Auth.getDisplayName();
 			if (freshName) {
 				document.getElementById('cab-name').textContent = freshName;

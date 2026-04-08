@@ -340,9 +340,19 @@ const Plate = {
     _hkey() { return Auth._userKey('plate_history'); },
     get()  { try { return JSON.parse(localStorage.getItem(this._key()) || '[]'); } catch { return []; } },
     set(v) { localStorage.setItem(this._key(), JSON.stringify(v)); updatePlateIcon(); },
-    add(item) { const p = this.get(); p.push({ ...item, addedAt: Date.now() }); this.set(p); },
-    remove(idx) { const p = this.get(); p.splice(idx, 1); this.set(p); },
-    clear() { localStorage.removeItem(this._key()); updatePlateIcon(); },
+    add(item) {
+        const p = this.get();
+        p.push({ ...item, addedAt: Date.now() });
+        this.set(p);
+        this._syncToServer();
+    },
+    remove(idx) {
+        const p = this.get();
+        p.splice(idx, 1);
+        this.set(p);
+        this._syncToServer();
+    },
+    clear() { localStorage.removeItem(this._key()); updatePlateIcon(); this._syncToServer(); },
     count() { return this.get().length; },
     totals() {
         return this.get().reduce((t, i) => ({
@@ -356,12 +366,89 @@ const Plate = {
     saveHistory() {
         const items = this.get();
         if (!items.length) return;
+        const totals = this.totals();
         const h = this.getHistory();
-        h.unshift({ date: new Date().toISOString(), items, totals: this.totals() });
+        h.unshift({ date: new Date().toISOString(), items, totals });
         localStorage.setItem(this._hkey(), JSON.stringify(h.slice(0, 30)));
         this.clear();
+        // Sync save to server
+        if (Auth.getToken()) {
+            Auth.api('/plate/history', {
+                method: 'POST',
+                body: JSON.stringify({ items, totals })
+            }).catch(function() {});
+        }
     },
-    getHistory() { try { return JSON.parse(localStorage.getItem(this._hkey()) || '[]'); } catch { return []; } }
+    getHistory() { try { return JSON.parse(localStorage.getItem(this._hkey()) || '[]'); } catch { return []; } },
+    /** Sync current plate to server (fire-and-forget) */
+    _syncToServer() {
+        if (!Auth.getToken()) return;
+        Auth.api('/plate', {
+            method: 'PUT',
+            body: JSON.stringify({ items: this.get() })
+        }).catch(function() {});
+    },
+    /** Pull from server, merge with local, push back if needed. Called after login. */
+    load() {
+        if (!Auth.getToken()) return Promise.resolve();
+        var self = this;
+        var localItems = self.get();
+        var localHistory = self.getHistory();
+
+        var pItems = Auth.api('/plate').then(function(r) { return r.json(); }).catch(function() { return null; });
+        var pHistory = Auth.api('/plate/history').then(function(r) { return r.json(); }).catch(function() { return null; });
+
+        return Promise.all([pItems, pHistory]).then(function(results) {
+            var serverData = results[0];
+            var serverHistory = results[1];
+
+            // --- Merge current plate items ---
+            var serverItems = (serverData && Array.isArray(serverData.items)) ? serverData.items : [];
+            if (serverItems.length && !localItems.length) {
+                // Server has items, local is empty — take server
+                self.set(serverItems);
+            } else if (localItems.length && !serverItems.length) {
+                // Local has items, server is empty — push local to server
+                self._syncToServer();
+            } else if (localItems.length && serverItems.length) {
+                // Both have items — keep local (user's active session), push to server
+                self._syncToServer();
+            }
+            // Both empty — nothing to do
+
+            // --- Merge history ---
+            var sHist = Array.isArray(serverHistory) ? serverHistory : [];
+            if (sHist.length && !localHistory.length) {
+                // Server has history, local empty — take server
+                localStorage.setItem(self._hkey(), JSON.stringify(sHist.slice(0, 30)));
+            } else if (localHistory.length && !sHist.length) {
+                // Local has history, server empty — push to server
+                Auth.api('/plate/history/sync', {
+                    method: 'PUT',
+                    body: JSON.stringify({ history: localHistory })
+                }).catch(function() {});
+            } else if (localHistory.length && sHist.length) {
+                // Both have history — merge by date, deduplicate, keep newest 30
+                var map = {};
+                sHist.forEach(function(h) { map[h.date] = h; });
+                localHistory.forEach(function(h) { if (!map[h.date]) map[h.date] = h; });
+                var merged = Object.values(map).sort(function(a, b) {
+                    return new Date(b.date) - new Date(a.date);
+                }).slice(0, 30);
+                localStorage.setItem(self._hkey(), JSON.stringify(merged));
+                // Find local-only entries to sync up
+                var serverDates = {};
+                sHist.forEach(function(h) { serverDates[h.date] = true; });
+                var localOnly = localHistory.filter(function(h) { return !serverDates[h.date]; });
+                if (localOnly.length) {
+                    Auth.api('/plate/history/sync', {
+                        method: 'PUT',
+                        body: JSON.stringify({ history: localOnly })
+                    }).catch(function() {});
+                }
+            }
+        }).catch(function() {});
+    }
 };
 
 

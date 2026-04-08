@@ -41,8 +41,8 @@
 
     // ── Stats ──
     // Load feedback badge count on init
-    api('/admin/feedback').then(function(data) {
-        var newCount = data.filter(function(f) { return f.status === 'new'; }).length;
+    api('/admin/feedback?limit=1').then(function(data) {
+        var newCount = data.totalNew || 0;
         var badge = document.getElementById('feedback-badge');
         if (newCount > 0) { badge.textContent = newCount; badge.style.display = 'inline'; }
     }).catch(function() {});
@@ -582,31 +582,41 @@
     // ── Feedback ──────────────────────────────────────────────────────────────
     var allFeedback = [];
     var fbFilter = 'new';
+    var fbPage = 1;
+    var fbHasMore = false;
     var FB_CAT_LABELS = { wish: 'Пожелание', recipe: 'Идея рецепта', problem: 'Проблема' };
 
-    window.loadFeedback = function(filter) {
-        fbFilter = filter || 'all';
+    window.loadFeedback = function(filter, append) {
+        if (!append) {
+            fbFilter = filter || 'all';
+            fbPage = 1;
+            allFeedback = [];
+        }
         document.querySelectorAll('[id^="fb-filter-"]').forEach(function(b) {
             b.style.background = b.id === 'fb-filter-' + fbFilter ? 'var(--accent)' : '';
             b.style.color = b.id === 'fb-filter-' + fbFilter ? '#fff' : '';
         });
-        api('/admin/feedback').then(function(data) {
-            allFeedback = data;
-            // badge count for new
-            var newCount = data.filter(function(f) { return f.status === 'new'; }).length;
+        var statusParam = fbFilter === 'all' ? '' : '&status=' + fbFilter;
+        api('/admin/feedback?page=' + fbPage + '&limit=20' + statusParam).then(function(data) {
+            allFeedback = allFeedback.concat(data.rows);
+            fbHasMore = data.hasMore;
+            // badge
             var badge = document.getElementById('feedback-badge');
-            if (newCount > 0) { badge.textContent = newCount; badge.style.display = 'inline'; }
+            if (data.totalNew > 0) { badge.textContent = data.totalNew; badge.style.display = 'inline'; }
             else { badge.style.display = 'none'; }
-            // filter
-            var filtered = fbFilter === 'all' ? data : data.filter(function(f) { return f.status === fbFilter; });
-            renderFeedback(filtered);
+            renderFeedback(allFeedback);
         });
+    };
+
+    window.loadMoreFeedback = function() {
+        fbPage++;
+        loadFeedback(fbFilter, true);
     };
 
     function renderFeedback(items) {
         var el = document.getElementById('feedback-list');
         if (!items.length) { el.innerHTML = '<div class="adm-empty">Нет обращений</div>'; return; }
-        el.innerHTML = items.map(function(f) {
+        var html = items.map(function(f) {
             var catLabel = FB_CAT_LABELS[f.category] || f.category;
             var statusBadge = f.status === 'answered'
                 ? '<span class="st-badge st-confirmed">Отвечено</span>'
@@ -632,6 +642,10 @@
                 + '<div style="margin-top:10px">' + actions + '</div>'
                 + '</div>';
         }).join('');
+        if (fbHasMore) {
+            html += '<div style="text-align:center;margin:16px 0"><button class="adm-btn" onclick="loadMoreFeedback()" style="padding:8px 24px">Загрузить ещё</button></div>';
+        }
+        el.innerHTML = html;
     }
 
     window.openFbReply = function(id) {
@@ -671,6 +685,9 @@
     };
 
     // ── Audit log ──
+    var auditRows = [];
+    var auditPage = 1;
+    var auditHasMore = false;
     var EVENT_LABELS = {
         login: '🔑 Вход',
         register: '📝 Регистрация',
@@ -683,31 +700,50 @@
         user_unblock: '🔓 Разблокировка'
     };
 
-    window.loadAudit = function() {
+    window.loadAudit = function(append) {
+        if (!append) {
+            auditPage = 1;
+            auditRows = [];
+        }
         var filter = document.getElementById('audit-filter').value;
-        var url = '/admin/audit' + (filter ? '?event=' + filter : '');
+        var url = '/admin/audit?page=' + auditPage + '&limit=50' + (filter ? '&event=' + filter : '');
         api(url).then(function(data) {
-            var tbody = document.getElementById('audit-tbody');
-            if (!data.length) {
-                tbody.innerHTML = '<tr><td colspan="5" class="adm-empty">Нет событий</td></tr>';
-                return;
-            }
-            tbody.innerHTML = data.map(function(e) {
-                var label = EVENT_LABELS[e.event] || e.event;
-                var badgeClass = 'st-active';
-                if (e.event.includes('denied') || e.event.includes('blocked') || e.event.includes('reject') || e.event.includes('block')) badgeClass = 'st-rejected';
-                else if (e.event === 'register' || e.event === 'trial_granted') badgeClass = 'st-trial';
-                else if (e.event.includes('confirm') || e.event.includes('unblock')) badgeClass = 'st-confirmed';
-                return '<tr>' +
-                    '<td class="adm-date">' + fmtDateTime(e.created_at) + '</td>' +
-                    '<td><span class="st-badge ' + badgeClass + '">' + label + '</span></td>' +
-                    '<td>' + esc(e.email) + '</td>' +
-                    '<td style="font-size:12px;color:var(--text-3)">' + esc(e.detail) + '</td>' +
-                    '<td style="font-size:12px;color:var(--text-3)">' + esc(e.ip) + '</td>' +
-                    '</tr>';
-            }).join('');
+            auditRows = auditRows.concat(data.rows);
+            auditHasMore = data.hasMore;
+            renderAudit(auditRows);
         });
     };
+
+    window.loadMoreAudit = function() {
+        auditPage++;
+        loadAudit(true);
+    };
+
+    function renderAudit(rows) {
+        var tbody = document.getElementById('audit-tbody');
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="adm-empty">Нет событий</td></tr>';
+            return;
+        }
+        var html = rows.map(function(e) {
+            var label = EVENT_LABELS[e.event] || e.event;
+            var badgeClass = 'st-active';
+            if (e.event.includes('denied') || e.event.includes('blocked') || e.event.includes('reject') || e.event.includes('block')) badgeClass = 'st-rejected';
+            else if (e.event === 'register' || e.event === 'trial_granted') badgeClass = 'st-trial';
+            else if (e.event.includes('confirm') || e.event.includes('unblock')) badgeClass = 'st-confirmed';
+            return '<tr>' +
+                '<td class="adm-date">' + fmtDateTime(e.created_at) + '</td>' +
+                '<td><span class="st-badge ' + badgeClass + '">' + label + '</span></td>' +
+                '<td>' + esc(e.email) + '</td>' +
+                '<td style="font-size:12px;color:var(--text-3)">' + esc(e.detail) + '</td>' +
+                '<td style="font-size:12px;color:var(--text-3)">' + esc(e.ip) + '</td>' +
+                '</tr>';
+        }).join('');
+        if (auditHasMore) {
+            html += '<tr><td colspan="5" style="text-align:center;padding:12px"><button class="adm-btn" onclick="loadMoreAudit()" style="padding:8px 24px">Загрузить ещё</button></td></tr>';
+        }
+        tbody.innerHTML = html;
+    }
 
     // ── Init ──
     loadStats();

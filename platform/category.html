@@ -198,7 +198,7 @@
                 '<div><div class="cat-hero-name">' + escHtml(String(cat.name)) + '</div>' +
                 '<div class="cat-hero-desc">' + escHtml(String(cat.desc)) + '</div></div></div>';
         }
-        Auth.checkAccess().then(function() { Favorites.load().then(function() { if (typeof renderDishes === 'function') renderDishes(); }); });
+        Auth.checkAccess().then(function() { Favorites.load().then(function() { if (typeof renderDishes === 'function') renderDishes(); }); Plate.load(); });
     });
     updatePlateIcon();
 

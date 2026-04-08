@@ -121,14 +121,41 @@ async function adminRoutes(fastify) {
     return { ok: true };
   });
 
-  // GET /admin/feedback — все обращения
-  fastify.get('/admin/feedback', { preHandler: requireAdmin }, async () => {
+  // GET /admin/feedback — обращения с пагинацией
+  fastify.get('/admin/feedback', { preHandler: requireAdmin }, async (req) => {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const offset = (page - 1) * limit;
+    const status = req.query.status || null;
+
+    let where = '';
+    const params = [];
+    if (status) {
+      params.push(status);
+      where = ' WHERE f.status=$' + params.length;
+    }
+
+    const countResult = await db.query(
+      'SELECT COUNT(*) FROM feedback_messages f' + where, params
+    );
+    const total = parseInt(countResult.rows[0].count);
+
+    // count new for badge
+    const newCountResult = await db.query(
+      "SELECT COUNT(*) FROM feedback_messages WHERE status='new'"
+    );
+    const totalNew = parseInt(newCountResult.rows[0].count);
+
+    params.push(limit);
+    params.push(offset);
     const result = await db.query(
       `SELECT f.id, f.user_id, f.category, f.text, f.status, f.admin_reply, f.admin_replied_at, f.created_at, u.email, u.display_name
-       FROM feedback_messages f JOIN users u ON u.id = f.user_id
-       ORDER BY f.created_at DESC`
+       FROM feedback_messages f JOIN users u ON u.id = f.user_id${where}
+       ORDER BY f.created_at DESC
+       LIMIT $${params.length - 1} OFFSET $${params.length}`,
+      params
     );
-    return result.rows;
+    return { rows: result.rows, total, totalNew, page, limit, hasMore: offset + result.rows.length < total };
   });
 
   // POST /admin/feedback/:id/reply — ответ админа на обращение
@@ -157,18 +184,34 @@ async function adminRoutes(fastify) {
     return { ok: true };
   });
 
-  // GET /admin/audit — аудит-лог (последние 200 событий)
+  // GET /admin/audit — аудит-лог с пагинацией
   fastify.get('/admin/audit', { preHandler: requireAdmin }, async (req) => {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(200, Math.max(1, parseInt(req.query.limit) || 50));
+    const offset = (page - 1) * limit;
     const event = req.query.event || null;
-    let q = 'SELECT id, user_id, email, event, detail, ip, created_at FROM audit_log';
+
+    let where = '';
     const params = [];
     if (event) {
-      q += ' WHERE event=$1';
       params.push(event);
+      where = ' WHERE event=$' + params.length;
     }
-    q += ' ORDER BY created_at DESC LIMIT 200';
-    const result = await db.query(q, params);
-    return result.rows;
+
+    const countResult = await db.query(
+      'SELECT COUNT(*) FROM audit_log' + where, params
+    );
+    const total = parseInt(countResult.rows[0].count);
+
+    params.push(limit);
+    params.push(offset);
+    const result = await db.query(
+      `SELECT id, user_id, email, event, detail, ip, created_at FROM audit_log${where}
+       ORDER BY created_at DESC
+       LIMIT $${params.length - 1} OFFSET $${params.length}`,
+      params
+    );
+    return { rows: result.rows, total, page, limit, hasMore: offset + result.rows.length < total };
   });
 
   // GET /admin/stats — базовая статистика
