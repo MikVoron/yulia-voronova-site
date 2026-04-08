@@ -699,7 +699,9 @@
 			const rcEl = document.getElementById('recipes-total-count');
 			if (rcEl) {
 				const n = Object.keys(RECIPES).length;
-				rcEl.innerHTML = `<span class="rtc-num">${n}</span><span class="rtc-label">рецептов</span>`;
+				const m10 = n % 10, m100 = n % 100;
+				const word = (m100 >= 11 && m100 <= 14) ? 'рецептов' : m10 === 1 ? 'рецепт' : (m10 >= 2 && m10 <= 4) ? 'рецепта' : 'рецептов';
+				rcEl.innerHTML = `<span class="rtc-num">${n}</span><span class="rtc-label">${word}</span>`;
 			}
 		}
 
