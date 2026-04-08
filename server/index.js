@@ -12,6 +12,7 @@ const contentRoutes = require('./src/routes/content');
 const favoritesRoutes = require('./src/routes/favorites');
 const notesRoutes = require('./src/routes/notes');
 const plateRoutes = require('./src/routes/plate');
+const aiRoutes = require('./src/routes/ai');
 const { startCron } = require('./src/cron');
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -46,6 +47,7 @@ fastify.register(contentRoutes);
 fastify.register(favoritesRoutes);
 fastify.register(notesRoutes);
 fastify.register(plateRoutes);
+fastify.register(aiRoutes);
 
 const db = require('./src/db');
 

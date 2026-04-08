@@ -541,7 +541,10 @@
     <div class="adm-section" id="sec-recipes">
         <div class="adm-section-title" style="display:flex;justify-content:space-between;align-items:center">
             Рецепты
-            <button class="adm-btn" style="background:var(--accent);color:#fff" onclick="openRecipeModal()">+ Добавить</button>
+            <div style="display:flex;gap:6px">
+                <button class="adm-btn" style="background:var(--accent);color:#fff" onclick="openRecipeEditor()">+ Новый рецепт</button>
+                <button class="adm-btn" onclick="openRecipeModal()" title="Быстрое добавление (модалка)">+ Быстрое</button>
+            </div>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="recipe-cat-filters"></div>
         <input type="text" class="adm-search" id="recipe-search" placeholder="Поиск по названию..." oninput="filterRecipes()">

@@ -421,7 +421,7 @@
                 + '<div style="font-size:11px;color:var(--text-3);margin-top:2px">' + (CAT_NAMES[r.cat] || r.cat) + ' · ' + r.time_min + ' мин · ' + r.kcal + ' ккал' + free + ' · ' + status + '</div>'
                 + '</div>'
                 + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">'
-                + '<button class="adm-btn" onclick="editRecipe(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px">✏️</button>'
+                + '<button class="adm-btn" onclick="openRecipeEditor(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px" title="Открыть в редакторе">✏️</button>'
                 + '<button class="adm-btn adm-btn-reject" onclick="deleteRecipe(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px">✕</button>'
                 + '</div></div>';
         }).join('');
@@ -490,6 +490,10 @@
     window.editRecipe = function(id) {
         var r = allRecipes.find(function(x) { return x.id === id; });
         if (r) openRecipeModal(r);
+    };
+
+    window.openRecipeEditor = function(id) {
+        location.href = 'recipe-editor.html' + (id ? '?id=' + encodeURIComponent(id) : '');
     };
 
     window.deleteRecipe = function(id) {
