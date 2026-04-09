@@ -479,7 +479,7 @@ function _fixPhoto(p) {
 // Map API snake_case → frontend camelCase
 function _mapRecipe(r) {
     return {
-        id: r.id, cat: r.cat, name: r.name, emoji: r.emoji || '🍴',
+        id: r.id, cat: r.cat, categories: r.categories || (r.cat ? [r.cat] : []), name: r.name, emoji: r.emoji || '🍴',
         time: r.time_min || 30, diff: r.difficulty || 'easy', servings: r.servings || 4, portionGrams: r.portion_grams || 300,
         free: !!r.is_free,
         kcal: r.kcal || 0, protein: r.protein || 0, fat: r.fat || 0,

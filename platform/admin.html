@@ -708,15 +708,15 @@
                 <input type="text" class="adm-modal-input" id="recipe-id" placeholder="my-new-recipe">
             </div>
             <div class="adm-modal-field">
-                <label class="adm-modal-label">Категория</label>
-                <select class="adm-modal-select" id="recipe-cat">
-                    <option value="breakfasts">Завтраки</option>
-                    <option value="mains">Основные блюда</option>
-                    <option value="pancakes">Блины / Оладьи</option>
-                    <option value="spreads">Намазки</option>
-                    <option value="salads">Салаты</option>
-                    <option value="drinks">Напитки</option>
-                </select>
+                <label class="adm-modal-label">Категории</label>
+                <div id="recipe-cat" style="display:flex;flex-wrap:wrap;gap:4px 10px;padding:4px 0">
+                    <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px"><input type="checkbox" value="breakfasts"> Завтраки</label>
+                    <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px"><input type="checkbox" value="mains"> Основные</label>
+                    <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px"><input type="checkbox" value="pancakes"> Блины</label>
+                    <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px"><input type="checkbox" value="spreads"> Намазки</label>
+                    <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px"><input type="checkbox" value="salads"> Салаты</label>
+                    <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px"><input type="checkbox" value="drinks"> Напитки</label>
+                </div>
             </div>
         </div>
         <div class="adm-modal-field">

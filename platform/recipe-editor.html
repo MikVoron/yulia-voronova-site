@@ -1140,15 +1140,15 @@
                     <div class="re-hint">Уникальный идентификатор. Нельзя менять после создания.</div>
                 </div>
                 <div class="re-field">
-                    <label class="re-label">Категория</label>
-                    <select class="re-select" id="re-cat">
-                        <option value="breakfasts">Завтраки</option>
-                        <option value="mains">Основные блюда</option>
-                        <option value="pancakes">Блины / Оладьи</option>
-                        <option value="spreads">Намазки</option>
-                        <option value="salads">Салаты</option>
-                        <option value="drinks">Напитки</option>
-                    </select>
+                    <label class="re-label">Категории</label>
+                    <div id="re-cat" class="re-cat-checkboxes" style="display:flex;flex-wrap:wrap;gap:6px 12px;padding:6px 0">
+                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="checkbox" value="breakfasts"> Завтраки</label>
+                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="checkbox" value="mains"> Основные блюда</label>
+                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="checkbox" value="pancakes"> Блины / Оладьи</label>
+                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="checkbox" value="spreads"> Намазки</label>
+                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="checkbox" value="salads"> Салаты</label>
+                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="checkbox" value="drinks"> Напитки</label>
+                    </div>
                 </div>
             </div>
 
@@ -1569,6 +1569,15 @@
     // VALIDATION
     // ══════════════════════════════════════════════════════════════════════
 
+    function getCategories() {
+        var checks = document.querySelectorAll('#re-cat input[type=checkbox]:checked');
+        return Array.prototype.map.call(checks, function(c) { return c.value; });
+    }
+    function setCategories(arr) {
+        var checks = document.querySelectorAll('#re-cat input[type=checkbox]');
+        checks.forEach(function(c) { c.checked = arr.indexOf(c.value) !== -1; });
+    }
+
     function clearError(id) {
         var el = document.getElementById(id);
         el.classList.remove('re-error');
@@ -1605,7 +1614,7 @@
             setError('re-id', 'Минимум 2 символа');
             valid = false;
         }
-        if (!body.cat) { setError('re-cat', 'Категория обязательна'); valid = false; }
+        if (!body.categories || !body.categories.length) { setError('re-cat', 'Выберите хотя бы одну категорию'); valid = false; }
 
         if (!valid) {
             // Scroll to first error
@@ -1646,7 +1655,7 @@
         document.getElementById('re-id').value = r.id;
         document.getElementById('re-id').disabled = true;
         document.getElementById('btn-gen-slug').style.display = 'none';
-        document.getElementById('re-cat').value = r.cat;
+        setCategories(r.categories || (r.cat ? [r.cat] : []));
         document.getElementById('re-name').value = r.name;
         document.getElementById('re-emoji').value = r.emoji || '🍴';
         document.getElementById('re-time').value = r.time_min || 30;
@@ -1966,7 +1975,8 @@
 
         return {
             id: document.getElementById('re-id').value.trim(),
-            cat: document.getElementById('re-cat').value,
+            categories: getCategories(),
+            cat: getCategories()[0] || '',
             name: document.getElementById('re-name').value.trim(),
             emoji: document.getElementById('re-emoji').value || '🍴',
             time_min: parseInt(document.getElementById('re-time').value) || 30,
@@ -2201,7 +2211,7 @@
 
             // Fill simple fields
             if (!editId && r.id) { document.getElementById('re-id').value = r.id; }
-            if (r.cat) document.getElementById('re-cat').value = r.cat;
+            if (r.categories) { setCategories(r.categories); } else if (r.cat) { setCategories([r.cat]); }
             if (r.name) document.getElementById('re-name').value = r.name;
             document.getElementById('re-emoji').value = r.emoji || '🍴';
             document.getElementById('re-time').value = r.time_min || 30;
@@ -2548,7 +2558,7 @@
 
         // Simple fields
         if (r.name) { document.getElementById('re-name').value = r.name; filled.push('name'); }
-        if (r.cat) { document.getElementById('re-cat').value = r.cat; filled.push('cat'); }
+        if (r.categories) { setCategories(r.categories); filled.push('cat'); } else if (r.cat) { setCategories([r.cat]); filled.push('cat'); }
         if (r.emoji) { document.getElementById('re-emoji').value = r.emoji; filled.push('emoji'); }
         if (r.time_min) { document.getElementById('re-time').value = r.time_min; filled.push('time_min'); }
         if (r.difficulty) { document.getElementById('re-diff').value = r.difficulty; filled.push('difficulty'); }
@@ -2660,9 +2670,10 @@
     };
 
     // Clear validation errors on input
-    ['re-id', 're-name', 're-cat'].forEach(function(id) {
+    ['re-id', 're-name'].forEach(function(id) {
         document.getElementById(id).addEventListener('input', function() { clearError(id); });
     });
+    document.getElementById('re-cat').addEventListener('change', function() { clearError('re-cat'); });
 
     function esc(s) {
         return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

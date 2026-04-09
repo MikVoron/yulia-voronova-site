@@ -383,7 +383,10 @@
 
     function renderCatFilters() {
         var cats = {};
-        allRecipes.forEach(function(r) { cats[r.cat] = (cats[r.cat] || 0) + 1; });
+        allRecipes.forEach(function(r) {
+            var rc = r.categories || (r.cat ? [r.cat] : []);
+            rc.forEach(function(c) { cats[c] = (cats[c] || 0) + 1; });
+        });
         var el = document.getElementById('recipe-cat-filters');
         var html = '<button class="adm-btn' + (recipeCatFilter === 'all' ? '' : '') + '" style="font-size:12px;padding:6px 12px;' + (recipeCatFilter === 'all' ? 'background:var(--accent);color:#fff;border-color:var(--accent)' : '') + '" onclick="setRecipeCat(\'all\')">Все (' + allRecipes.length + ')</button>';
         Object.keys(cats).forEach(function(cat) {
@@ -402,7 +405,8 @@
     function applyRecipeFilters() {
         var q = document.getElementById('recipe-search').value.toLowerCase();
         var filtered = allRecipes.filter(function(r) {
-            if (recipeCatFilter !== 'all' && r.cat !== recipeCatFilter) return false;
+            var rc = r.categories || (r.cat ? [r.cat] : []);
+            if (recipeCatFilter !== 'all' && rc.indexOf(recipeCatFilter) === -1) return false;
             if (q && !r.name.toLowerCase().includes(q) && !r.id.includes(q)) return false;
             return true;
         });
@@ -418,7 +422,7 @@
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:#fff">'
                 + '<div style="flex:1;min-width:0">'
                 + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + (r.emoji || '') + ' ' + esc(r.name) + '</div>'
-                + '<div style="font-size:11px;color:var(--text-3);margin-top:2px">' + (CAT_NAMES[r.cat] || r.cat) + ' · ' + r.time_min + ' мин · ' + r.kcal + ' ккал' + free + ' · ' + status + '</div>'
+                + '<div style="font-size:11px;color:var(--text-3);margin-top:2px">' + (r.categories || [r.cat]).map(function(c) { return CAT_NAMES[c] || c; }).join(', ') + ' · ' + r.time_min + ' мин · ' + r.kcal + ' ккал' + free + ' · ' + status + '</div>'
                 + '</div>'
                 + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">'
                 + '<button class="adm-btn" onclick="openRecipeEditor(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px" title="Открыть в редакторе">✏️</button>'
@@ -436,7 +440,8 @@
         document.getElementById('recipe-edit-id').value = r ? r.id : '';
         document.getElementById('recipe-id').value = r ? r.id : '';
         document.getElementById('recipe-id').disabled = !!r;
-        document.getElementById('recipe-cat').value = r ? r.cat : 'breakfasts';
+        var cats = r ? (r.categories || (r.cat ? [r.cat] : ['breakfasts'])) : ['breakfasts'];
+        document.querySelectorAll('#recipe-cat input[type=checkbox]').forEach(function(c) { c.checked = cats.indexOf(c.value) !== -1; });
         document.getElementById('recipe-name').value = r ? r.name : '';
         document.getElementById('recipe-emoji').value = r ? (r.emoji || '🍴') : '🍴';
         document.getElementById('recipe-time').value = r ? r.time_min : 30;
@@ -543,7 +548,8 @@
         var tags = document.getElementById('recipe-tags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
         var body = {
             id: document.getElementById('recipe-id').value.trim(),
-            cat: document.getElementById('recipe-cat').value,
+            categories: Array.prototype.map.call(document.querySelectorAll('#recipe-cat input[type=checkbox]:checked'), function(c) { return c.value; }),
+            cat: (document.querySelector('#recipe-cat input[type=checkbox]:checked') || {}).value || 'breakfasts',
             name: document.getElementById('recipe-name').value.trim(),
             emoji: document.getElementById('recipe-emoji').value || '🍴',
             time_min: parseInt(document.getElementById('recipe-time').value) || 30,

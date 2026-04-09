@@ -33,12 +33,16 @@ async function contentRoutes(fastify) {
       }
     }
     const result = await db.query(
-      `SELECT id, cat, name, emoji, time_min, difficulty, servings, is_free,
-              kcal, protein, fat, carbs, fiber, tags, photo, img_position, quote,
-              ingredients, steps, note, vk_video, yt_video, dzen_video,
-              add_protein, add_fat, add_carbs, add_fiber,
-              portion_grams, sort_order, created_at
-       FROM recipes WHERE is_published = true ORDER BY sort_order, created_at`
+      `SELECT r.id, r.cat, r.name, r.emoji, r.time_min, r.difficulty, r.servings, r.is_free,
+              r.kcal, r.protein, r.fat, r.carbs, r.fiber, r.tags, r.photo, r.img_position, r.quote,
+              r.ingredients, r.steps, r.note, r.vk_video, r.yt_video, r.dzen_video,
+              r.add_protein, r.add_fat, r.add_carbs, r.add_fiber,
+              r.portion_grams, r.sort_order, r.created_at,
+              COALESCE(
+                (SELECT array_agg(rc.category_id) FROM recipe_categories rc WHERE rc.recipe_id = r.id),
+                ARRAY[r.cat]
+              ) AS categories
+       FROM recipes r WHERE r.is_published = true ORDER BY r.sort_order, r.created_at`
     );
     if (hasAccess) return result.rows;
     return result.rows.map(r => {
@@ -51,16 +55,19 @@ async function contentRoutes(fastify) {
   // GET /content/categories — all categories
   fastify.get('/content/categories', async () => {
     const cats = await db.query('SELECT * FROM categories ORDER BY sort_order');
-    // For each category, get its recipe ids
     const recipes = await db.query(
-      "SELECT id, cat FROM recipes WHERE is_published = true ORDER BY sort_order"
+      `SELECT rc.category_id, r.id
+       FROM recipe_categories rc
+       JOIN recipes r ON r.id = rc.recipe_id
+       WHERE r.is_published = true
+       ORDER BY r.sort_order`
     );
     const catMap = {};
     for (const c of cats.rows) {
       catMap[c.id] = { ...c, dishes: [] };
     }
     for (const r of recipes.rows) {
-      if (catMap[r.cat]) catMap[r.cat].dishes.push(r.id);
+      if (catMap[r.category_id]) catMap[r.category_id].dishes.push(r.id);
     }
     return Object.values(catMap);
   });
@@ -261,17 +268,27 @@ async function contentRoutes(fastify) {
 
   // GET /admin/recipes — all recipes (including drafts)
   fastify.get('/admin/recipes', { preHandler: [authenticate, requireAdmin] }, async () => {
-    const result = await db.query('SELECT * FROM recipes ORDER BY sort_order, created_at');
+    const result = await db.query(
+      `SELECT r.*,
+              COALESCE(
+                (SELECT array_agg(rc.category_id) FROM recipe_categories rc WHERE rc.recipe_id = r.id),
+                ARRAY[r.cat]
+              ) AS categories
+       FROM recipes r ORDER BY r.sort_order, r.created_at`
+    );
     return result.rows;
   });
 
   // POST /admin/recipes — create recipe
   fastify.post('/admin/recipes', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
     const r = req.body || {};
-    if (!r.id || !r.name || !r.cat) return reply.status(400).send({ error: 'id, name и cat обязательны' });
+    // Support both: categories[] (new) and cat (legacy)
+    const cats = Array.isArray(r.categories) && r.categories.length ? r.categories : (r.cat ? [r.cat] : []);
+    if (!r.id || !r.name || !cats.length) return reply.status(400).send({ error: 'id, name и категория обязательны' });
     // Check id uniqueness
     const exists = await db.query('SELECT id FROM recipes WHERE id=$1', [r.id]);
     if (exists.rows.length) return reply.status(409).send({ error: 'Рецепт с таким id уже существует' });
+    const primaryCat = cats[0];
     const result = await db.query(
       `INSERT INTO recipes (id, cat, name, emoji, time_min, difficulty, servings, is_free,
           kcal, protein, fat, carbs, fiber, tags, photo, img_position, quote,
@@ -280,7 +297,7 @@ async function contentRoutes(fastify) {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30)
        RETURNING *`,
       [
-        r.id, r.cat, r.name, r.emoji || '🍴', r.time_min || 30, r.difficulty || 'easy',
+        r.id, primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, r.difficulty || 'easy',
         r.servings || 4, r.is_free || false,
         r.kcal || 0, r.protein || 0, r.fat || 0, r.carbs || 0, r.fiber || 0,
         r.tags || [], r.photo || null, r.img_position || null, r.quote || null,
@@ -291,13 +308,21 @@ async function contentRoutes(fastify) {
         r.portion_grams || 300, r.sort_order || 0, r.is_published === true
       ]
     );
+    // Write to recipe_categories
+    for (const catId of cats) {
+      await db.query('INSERT INTO recipe_categories (recipe_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [r.id, catId]);
+    }
     audit.log('recipe_create', { userId: req.user.sub, detail: 'recipe:' + r.id, ip: req.ip });
+    result.rows[0].categories = cats;
     return result.rows[0];
   });
 
   // PUT /admin/recipes/:id — update recipe
   fastify.put('/admin/recipes/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
     const r = req.body || {};
+    // Support both: categories[] (new) and cat (legacy)
+    const cats = Array.isArray(r.categories) && r.categories.length ? r.categories : (r.cat ? [r.cat] : []);
+    const primaryCat = cats.length ? cats[0] : r.cat;
     const result = await db.query(
       `UPDATE recipes SET cat=$1, name=$2, emoji=$3, time_min=$4, difficulty=$5, servings=$6,
           is_free=$7, kcal=$8, protein=$9, fat=$10, carbs=$11, fiber=$12, tags=$13,
@@ -306,7 +331,7 @@ async function contentRoutes(fastify) {
           portion_grams=$27, sort_order=$28, is_published=$29, updated_at=now()
        WHERE id=$30 RETURNING *`,
       [
-        r.cat, r.name, r.emoji || '🍴', r.time_min || 30, r.difficulty || 'easy',
+        primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, r.difficulty || 'easy',
         r.servings || 4, r.is_free || false,
         r.kcal || 0, r.protein || 0, r.fat || 0, r.carbs || 0, r.fiber || 0,
         r.tags || [], r.photo || null, r.img_position || null, r.quote || null,
@@ -318,7 +343,15 @@ async function contentRoutes(fastify) {
       ]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
+    // Update recipe_categories
+    if (cats.length) {
+      await db.query('DELETE FROM recipe_categories WHERE recipe_id = $1', [req.params.id]);
+      for (const catId of cats) {
+        await db.query('INSERT INTO recipe_categories (recipe_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [req.params.id, catId]);
+      }
+    }
     audit.log('recipe_update', { userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip });
+    result.rows[0].categories = cats;
     return result.rows[0];
   });
 
