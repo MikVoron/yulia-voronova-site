@@ -403,6 +403,136 @@
             padding: 7px 4px;
         }
 
+        .re-add-source {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            align-self: center;
+        }
+        .re-add-source.from-recipe { background: #e8f5e9; color: #2e7d32; }
+        .re-add-source.from-usda { background: #e3f2fd; color: #1565c0; }
+        .re-add-source.manual { background: #f5f5f5; color: #757575; }
+        .re-add-source.error { background: #fce4ec; color: #c62828; }
+
+        /* Nutrition calculator panel */
+        .re-nutrition-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .re-nutrition-btn:hover { opacity: 0.9; }
+        .re-nutrition-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .re-nutrition-panel {
+            margin-top: 14px;
+            padding: 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: none;
+        }
+        .re-nutrition-panel.open { display: block; }
+
+        .re-nutrition-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        .re-nutrition-table th {
+            text-align: left;
+            padding: 6px 8px;
+            border-bottom: 2px solid var(--border);
+            font-weight: 600;
+            color: var(--text-2);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .re-nutrition-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        .re-nutrition-table tr:last-child td { border-bottom: none; }
+
+        .re-nutr-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .re-nutr-status.high { background: #e8f5e9; color: #2e7d32; }
+        .re-nutr-status.medium { background: #fff3e0; color: #e65100; }
+        .re-nutr-status.not_found { background: #fce4ec; color: #c62828; }
+
+        .re-nutrition-summary {
+            display: flex;
+            gap: 16px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+        }
+        .re-nutrition-summary-col {
+            flex: 1;
+        }
+        .re-nutrition-summary-col h4 {
+            margin: 0 0 8px;
+            font-size: 12px;
+            color: var(--text-3);
+            font-weight: 600;
+        }
+        .re-nutrition-summary-col .val {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .re-nutrition-summary-col .label {
+            font-size: 10px;
+            color: var(--text-3);
+        }
+        .re-nutrition-summary-row {
+            display: flex;
+            gap: 12px;
+        }
+        .re-nutrition-summary-item { text-align: center; flex: 1; }
+
+        .re-nutrition-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .re-nutrition-warnings {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-3);
+        }
+        .re-nutrition-warnings li {
+            margin-bottom: 2px;
+        }
+
+        .re-nutr-alt-select {
+            font-size: 11px;
+            padding: 2px 4px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: #fff;
+            max-width: 200px;
+        }
+
         .re-list-item .re-item-textarea {
             padding: 7px 10px;
             border: 1px solid var(--border);
@@ -1190,6 +1320,36 @@
                     <div class="re-kbzhu-label">клетчатка</div>
                 </div>
             </div>
+
+            <button class="re-nutrition-btn" id="btn-calc-nutrition" onclick="calcNutrition()">
+                🔬 Рассчитать КБЖУ по ингредиентам
+            </button>
+            <span id="nutrition-status" style="font-size:12px;color:var(--text-3);margin-left:8px"></span>
+
+            <div class="re-nutrition-panel" id="nutrition-panel">
+                <div class="re-nutrition-summary" id="nutrition-summary"></div>
+                <table class="re-nutrition-table">
+                    <thead>
+                        <tr>
+                            <th>Ингредиент</th>
+                            <th>Вес</th>
+                            <th>Продукт USDA</th>
+                            <th>Статус</th>
+                            <th>Ккал</th>
+                            <th>Б</th>
+                            <th>Ж</th>
+                            <th>У</th>
+                            <th>Кл</th>
+                        </tr>
+                    </thead>
+                    <tbody id="nutrition-tbody"></tbody>
+                </table>
+                <div class="re-nutrition-warnings" id="nutrition-warnings"></div>
+                <div class="re-nutrition-actions">
+                    <button class="re-btn" onclick="applyNutrition()" style="background:var(--accent);color:#fff;border-color:var(--accent)">Применить на порцию</button>
+                    <button class="re-btn" onclick="applyNutrition();document.getElementById('nutrition-panel').classList.remove('open')">Применить и закрыть</button>
+                </div>
+            </div>
         </div>
 
         <!-- ══════════ Секция 4: Ингредиенты ══════════ -->
@@ -1644,12 +1804,59 @@
                     '<input class="re-item-input re-input-sm" data-field="carbs" type="number" step="0.1" placeholder="У" value="' + carbs + '" title="Углеводы">' +
                     '<input class="re-item-input re-input-sm" data-field="fiber" type="number" step="0.1" placeholder="Кл" value="' + fiber + '" title="Клетчатка">' +
                     '<input class="re-item-input" data-field="recipeId" placeholder="@id рецепта" value="' + escAttr(recipeId) + '" style="max-width:120px;font-size:11px">' +
+                    '<span class="re-add-source manual" data-source-badge>✏️ вручную</span>' +
                 '</div>' +
             '</div>' +
             '<button class="re-item-remove" onclick="removeItem(this)" title="Удалить">&times;</button>';
         list.appendChild(item);
         initDrag(item, list);
+
+        // Auto-fetch nutrition when recipeId is entered
+        var ridInput = item.querySelector('[data-field="recipeId"]');
+        ridInput.addEventListener('blur', function() { fetchAddItemNutrition(item); });
+
+        // If loaded with recipeId, show correct source badge
+        if (recipeId) {
+            var badge = item.querySelector('[data-source-badge]');
+            badge.className = 're-add-source from-recipe';
+            badge.textContent = '📗 из рецепта';
+        }
     };
+
+    // Fetch КБЖУ from an existing recipe by recipeId and fill add-item fields
+    function fetchAddItemNutrition(item) {
+        var ridInput = item.querySelector('[data-field="recipeId"]');
+        var badge = item.querySelector('[data-source-badge]');
+        var rid = ridInput.value.trim().replace(/^@/, '');
+        if (!rid) {
+            badge.className = 're-add-source manual';
+            badge.textContent = '✏️ вручную';
+            return;
+        }
+        badge.className = 're-add-source manual';
+        badge.textContent = '⏳ загрузка...';
+        api('/admin/recipes/' + encodeURIComponent(rid) + '/nutrition')
+            .then(function(res) {
+                if (res.error) {
+                    badge.className = 're-add-source error';
+                    badge.textContent = '⚠ не найден';
+                    badge.title = res.error;
+                    return;
+                }
+                item.querySelector('[data-field="kcal"]').value = res.kcal || 0;
+                item.querySelector('[data-field="protein"]').value = res.protein || 0;
+                item.querySelector('[data-field="fat"]').value = res.fat || 0;
+                item.querySelector('[data-field="carbs"]').value = res.carbs || 0;
+                item.querySelector('[data-field="fiber"]').value = res.fiber || 0;
+                badge.className = 're-add-source from-recipe';
+                badge.textContent = '📗 из рецепта';
+                badge.title = res.name || rid;
+            })
+            .catch(function() {
+                badge.className = 're-add-source error';
+                badge.textContent = '⚠ ошибка';
+            });
+    }
 
     // ══════════════════════════════════════════════════════════════════════
     // REMOVE + DRAG & DROP
@@ -2089,6 +2296,141 @@
     });
 
     // ══════════════════════════════════════════════════════════════════════
+    // NUTRITION CALCULATOR (USDA)
+    // ══════════════════════════════════════════════════════════════════════
+
+    var lastNutritionResult = null;
+
+    window.calcNutrition = function() {
+        var ingrItems = document.getElementById('re-ingredients-list').children;
+        var ingredients = [];
+        for (var i = 0; i < ingrItems.length; i++) {
+            var name = ingrItems[i].querySelector('[data-field="name"]').value.trim();
+            if (name) ingredients.push({ name: name });
+        }
+        if (!ingredients.length) {
+            showToast('Добавьте ингредиенты для расчёта', true);
+            return;
+        }
+        var servings = parseInt(document.getElementById('re-servings').value) || 1;
+        var btn = document.getElementById('btn-calc-nutrition');
+        var status = document.getElementById('nutrition-status');
+        btn.disabled = true;
+        status.textContent = 'Рассчитываю через USDA...';
+
+        api('/admin/nutrition/calculate', {
+            method: 'POST',
+            body: { ingredients: ingredients, servings: servings }
+        }).then(function(res) {
+            btn.disabled = false;
+            status.textContent = '';
+            if (res.error) {
+                showToast(res.error, true);
+                return;
+            }
+            lastNutritionResult = res;
+            renderNutritionResult(res);
+        }).catch(function() {
+            btn.disabled = false;
+            status.textContent = '';
+            showToast('Ошибка соединения с сервером', true);
+        });
+    };
+
+    function renderNutritionResult(res) {
+        var panel = document.getElementById('nutrition-panel');
+        panel.classList.add('open');
+
+        // Summary
+        var summaryEl = document.getElementById('nutrition-summary');
+        summaryEl.innerHTML =
+            '<div class="re-nutrition-summary-col">' +
+                '<h4>На весь рецепт</h4>' +
+                '<div class="re-nutrition-summary-row">' +
+                    nutrSummaryItem(res.total.kcal, 'ккал') +
+                    nutrSummaryItem(res.total.protein, 'Б') +
+                    nutrSummaryItem(res.total.fat, 'Ж') +
+                    nutrSummaryItem(res.total.carbs, 'У') +
+                    nutrSummaryItem(res.total.fiber, 'Кл') +
+                '</div>' +
+            '</div>' +
+            '<div class="re-nutrition-summary-col">' +
+                '<h4>На порцию (' + res.servings + ' порц.)</h4>' +
+                '<div class="re-nutrition-summary-row">' +
+                    nutrSummaryItem(res.per_serving.kcal, 'ккал') +
+                    nutrSummaryItem(res.per_serving.protein, 'Б') +
+                    nutrSummaryItem(res.per_serving.fat, 'Ж') +
+                    nutrSummaryItem(res.per_serving.carbs, 'У') +
+                    nutrSummaryItem(res.per_serving.fiber, 'Кл') +
+                '</div>' +
+            '</div>';
+
+        // Table
+        var tbody = document.getElementById('nutrition-tbody');
+        tbody.innerHTML = '';
+        res.items.forEach(function(item, idx) {
+            var statusClass = item.confidence;
+            var statusLabel = item.confidence === 'high' ? '🟢 найдено' :
+                              item.confidence === 'medium' ? '🟡 проверить' : '🔴 не найдено';
+
+            var matchedHtml = item.matched ? esc(item.matched) : '—';
+            if (item.alternatives && item.alternatives.length > 1) {
+                matchedHtml = '<select class="re-nutr-alt-select" data-item-idx="' + idx + '" onchange="selectNutrAlt(this)">';
+                item.alternatives.forEach(function(alt, ai) {
+                    matchedHtml += '<option value="' + ai + '"' + (ai === 0 ? ' selected' : '') + '>' + esc(alt.description) + '</option>';
+                });
+                matchedHtml += '</select>';
+            }
+
+            var tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td>' + esc(item.original) + '</td>' +
+                '<td>' + (item.amount_g ? item.amount_g + ' г' : '?') + '</td>' +
+                '<td>' + matchedHtml + '</td>' +
+                '<td><span class="re-nutr-status ' + statusClass + '">' + statusLabel + '</span></td>' +
+                '<td>' + item.nutrition.kcal + '</td>' +
+                '<td>' + item.nutrition.protein + '</td>' +
+                '<td>' + item.nutrition.fat + '</td>' +
+                '<td>' + item.nutrition.carbs + '</td>' +
+                '<td>' + item.nutrition.fiber + '</td>';
+            tbody.appendChild(tr);
+        });
+
+        // Warnings
+        var warningsEl = document.getElementById('nutrition-warnings');
+        if (res.warnings && res.warnings.length) {
+            warningsEl.innerHTML = '<b>Предупреждения:</b><ul>' +
+                res.warnings.map(function(w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul>';
+        } else {
+            warningsEl.innerHTML = '';
+        }
+    }
+
+    function nutrSummaryItem(val, label) {
+        return '<div class="re-nutrition-summary-item">' +
+            '<div class="val">' + val + '</div>' +
+            '<div class="label">' + label + '</div>' +
+        '</div>';
+    }
+
+    window.applyNutrition = function() {
+        if (!lastNutritionResult) return;
+        var ps = lastNutritionResult.per_serving;
+        document.getElementById('re-kcal').value = Math.round(ps.kcal);
+        document.getElementById('re-protein').value = ps.protein;
+        document.getElementById('re-fat').value = ps.fat;
+        document.getElementById('re-carbs').value = ps.carbs;
+        document.getElementById('re-fiber').value = ps.fiber;
+        updateKbzhuBar();
+        showToast('КБЖУ применены (на порцию)');
+    };
+
+    window.selectNutrAlt = function(select) {
+        // Placeholder for future: re-calculate with alternative USDA food
+        showToast('Альтернатива выбрана. Пересчёт будет в следующей версии.', false);
+    };
+
+    // ══════════════════════════════════════════════════════════════════════
     // PREVIEW
     // ══════════════════════════════════════════════════════════════════════
 
@@ -2291,6 +2633,16 @@
             html += '<span class="re-ai-filled-tag unfilled">' + (FIELD_LABELS[f] || f) + '</span>';
         });
         html += '</div>';
+        // If AI filled ingredients but not КБЖУ — suggest calculation
+        var hasIngredients = filled.indexOf('ingredients') !== -1;
+        var hasKbzhu = filled.indexOf('kcal') !== -1;
+        if (hasIngredients && !hasKbzhu) {
+            html += '<div style="margin-top:10px;padding:10px;background:#fff3e0;border-radius:8px;font-size:12px">' +
+                '<b>КБЖУ не указаны в тексте.</b> Рассчитать автоматически через USDA?' +
+                '<button class="re-nutrition-btn" onclick="calcNutrition()" style="margin-top:8px;font-size:12px;padding:6px 12px">🔬 Рассчитать КБЖУ</button>' +
+            '</div>';
+        }
+
         html += '<div style="margin-top:10px;font-size:12px;color:var(--text-3)">Проверьте заполненные поля и нажмите «Сохранить» когда всё готово.</div>';
         html += '</div>';
         resultEl.innerHTML = html;

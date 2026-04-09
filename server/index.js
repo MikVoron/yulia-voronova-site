@@ -13,6 +13,7 @@ const favoritesRoutes = require('./src/routes/favorites');
 const notesRoutes = require('./src/routes/notes');
 const plateRoutes = require('./src/routes/plate');
 const aiRoutes = require('./src/routes/ai');
+const nutritionRoutes = require('./src/routes/nutrition');
 const { startCron } = require('./src/cron');
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -48,6 +49,7 @@ fastify.register(favoritesRoutes);
 fastify.register(notesRoutes);
 fastify.register(plateRoutes);
 fastify.register(aiRoutes);
+fastify.register(nutritionRoutes);
 
 const db = require('./src/db');
 

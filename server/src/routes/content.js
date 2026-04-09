@@ -330,6 +330,16 @@ async function contentRoutes(fastify) {
     return { ok: true };
   });
 
+  // GET /admin/recipes/:id/nutrition — get nutrition data for a recipe (used by add-panel recipeId auto-fill)
+  fastify.get('/admin/recipes/:id/nutrition', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+    const result = await db.query(
+      'SELECT id, name, kcal, protein, fat, carbs, fiber FROM recipes WHERE id=$1',
+      [req.params.id]
+    );
+    if (!result.rows.length) return reply.status(404).send({ error: 'Рецепт не найден' });
+    return result.rows[0];
+  });
+
   // ═══════════════════════════════════════════════════════════════════════════
   // ADMIN — Categories
   // ═══════════════════════════════════════════════════════════════════════════
