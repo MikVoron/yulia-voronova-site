@@ -18,7 +18,19 @@
             opts.body = JSON.stringify(opts.body);
         }
         return fetch(API_BASE + path, opts).then(function(res) {
-            if (res.status === 401) { location.href = 'login.html'; }
+            if (res.status === 401) {
+                return Auth.refreshToken().then(function(ok) {
+                    if (ok) {
+                        opts.headers['Authorization'] = 'Bearer ' + Auth.getToken();
+                        return fetch(API_BASE + path, opts).then(function(r2) {
+                            if (r2.status === 401) { location.href = 'login.html?return=admin.html'; }
+                            if (r2.status === 403) { showToast('Нет прав администратора'); throw new Error('403'); }
+                            return r2.json();
+                        });
+                    }
+                    location.href = 'login.html?return=admin.html';
+                });
+            }
             if (res.status === 403) { showToast('Нет прав администратора'); throw new Error('403'); }
             return res.json();
         });
@@ -281,7 +293,7 @@
 
     window.doLogout = function() {
         Auth.logout();
-        location.href = 'login.html';
+        location.href = 'login.html?return=admin.html';
     };
 
     // ── NEWS ──────────────────────────────────────────────────────────────────
