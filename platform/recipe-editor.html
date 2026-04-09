@@ -739,6 +739,73 @@
             flex-shrink: 0;
         }
 
+        /* ── Save success overlay ── */
+        .re-save-success {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(0,0,0,.35);
+            align-items: center;
+            justify-content: center;
+        }
+        .re-save-success.visible { display: flex; }
+
+        .re-save-success-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 36px 32px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 8px 40px rgba(0,0,0,.15);
+            animation: re-pop .25s ease-out;
+        }
+
+        @keyframes re-pop {
+            from { transform: scale(.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .re-save-success-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--green-l);
+            color: var(--green);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        .re-save-success-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .re-save-success-sub {
+            font-size: 13px;
+            color: var(--text-3);
+            margin-bottom: 24px;
+        }
+
+        .re-save-success-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .re-save-success-actions .re-btn {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 14px;
+            justify-content: center;
+        }
+
         /* ── Preview card ── */
         .re-preview-section {
             background: var(--card);
@@ -754,17 +821,17 @@
             justify-content: space-between;
             padding: 14px 20px;
             cursor: pointer;
-            background: var(--bg);
+            background: var(--accent-l);
             border: none;
             width: 100%;
             font-family: inherit;
             font-size: 14px;
             font-weight: 700;
-            color: var(--text-2);
+            color: var(--accent);
             transition: background .15s;
         }
 
-        .re-preview-toggle:hover { background: #eee; }
+        .re-preview-toggle:hover { background: #ffe8df; }
 
         .re-preview-body {
             display: none;
@@ -1192,6 +1259,20 @@
         </div>
 
     </div><!-- /editor-content -->
+</div>
+
+<!-- Save success overlay -->
+<div class="re-save-success" id="save-success">
+    <div class="re-save-success-card">
+        <div class="re-save-success-icon">✓</div>
+        <div class="re-save-success-title" id="save-success-title">Рецепт сохранён</div>
+        <div class="re-save-success-sub" id="save-success-sub"></div>
+        <div class="re-save-success-actions">
+            <a class="re-btn re-btn-primary" id="save-success-open" href="#">Открыть рецепт</a>
+            <button class="re-btn re-btn-secondary" onclick="dismissSuccess()">Продолжить редактирование</button>
+            <a class="re-btn re-btn-secondary" href="admin.html">&larr; Вернуться к списку рецептов</a>
+        </div>
+    </div>
 </div>
 
 <!-- Toast -->
@@ -1739,7 +1820,7 @@
                 return;
             }
 
-            showToast(editId ? 'Рецепт сохранён' : 'Рецепт создан!');
+            var wasCreate = !editId;
 
             if (!editId) {
                 editId = body.id;
@@ -1757,12 +1838,40 @@
             updateStatusBadge();
             clearDraft();
             lastSavedJson = JSON.stringify(body);
+
+            showSaveSuccess(body, wasCreate);
         }).catch(function() {
             btn.disabled = false;
             btn.textContent = 'Сохранить';
             showToast('Ошибка сохранения', true);
         });
     };
+
+    // ══════════════════════════════════════════════════════════════════════
+    // SAVE SUCCESS
+    // ══════════════════════════════════════════════════════════════════════
+
+    function showSaveSuccess(data, wasCreate) {
+        var overlay = document.getElementById('save-success');
+        document.getElementById('save-success-title').textContent =
+            wasCreate ? 'Рецепт создан!' : 'Рецепт сохранён';
+        document.getElementById('save-success-sub').textContent =
+            (data.emoji || '') + ' ' + (data.name || '') + (data.published ? '' : ' (черновик)');
+
+        var openLink = document.getElementById('save-success-open');
+        openLink.href = 'recipe.html?id=' + encodeURIComponent(data.id);
+
+        overlay.classList.add('visible');
+    }
+
+    window.dismissSuccess = function() {
+        document.getElementById('save-success').classList.remove('visible');
+    };
+
+    // close on overlay click (outside the card)
+    document.getElementById('save-success').addEventListener('click', function(e) {
+        if (e.target === this) dismissSuccess();
+    });
 
     // ══════════════════════════════════════════════════════════════════════
     // UI HELPERS
@@ -1957,8 +2066,16 @@
     }
 
     // Listen for changes on all inputs
-    document.getElementById('editor-content').addEventListener('input', scheduleSave);
-    document.getElementById('editor-content').addEventListener('change', scheduleSave);
+    var previewRefreshTimer = null;
+    function schedulePreviewRefresh() {
+        scheduleSave();
+        clearTimeout(previewRefreshTimer);
+        previewRefreshTimer = setTimeout(function() {
+            if (document.getElementById('preview-section').classList.contains('open')) renderPreview();
+        }, 500);
+    }
+    document.getElementById('editor-content').addEventListener('input', schedulePreviewRefresh);
+    document.getElementById('editor-content').addEventListener('change', schedulePreviewRefresh);
 
     // ══════════════════════════════════════════════════════════════════════
     // UNSAVED CHANGES WARNING
@@ -2020,6 +2137,13 @@
                 '</div>' +
             '</div>' +
         '</div>';
+
+        if (editId) {
+            html += '<div style="margin-top:12px;text-align:center">' +
+                '<a href="recipe.html?id=' + encodeURIComponent(data.id) + '" target="_blank" ' +
+                'style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:600">' +
+                'Открыть полную страницу рецепта &rarr;</a></div>';
+        }
 
         container.innerHTML = html;
     }
