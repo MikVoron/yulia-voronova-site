@@ -72,6 +72,91 @@
             .video-play-btn { width: 52px; height: 52px; }
             .video-open-label { font-size: 13px; }
         }
+
+        /* ── Balance UX ─────────────────────────────────────── */
+        .bal-banner {
+            padding: 14px 16px; border-radius: 12px;
+            font-size: 13px; line-height: 1.45;
+            margin-bottom: 14px; transition: all .4s ease;
+        }
+        .bal-banner-warn {
+            background: #fff7ec; border: 1px solid #f0d8a8;
+            color: #8a5a00;
+        }
+        .bal-banner-warn .bal-banner-icon { font-size: 18px; }
+        .bal-banner-success {
+            background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+            border: 1px solid #a5d6a7; color: #2e7d32;
+        }
+        .bal-banner-title {
+            font-weight: 700; font-size: 14px; margin-bottom: 4px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .bal-banner-sub { font-weight: 500; opacity: .85; }
+
+        /* Category progress pills */
+        .bal-progress {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            margin-top: 10px;
+        }
+        .bal-progress-pill {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 600;
+            border: 1.5px solid var(--border);
+            background: #fff; color: var(--text-2);
+            transition: all .3s ease;
+        }
+        .bal-progress-pill.done {
+            background: #e8f5e9; border-color: #66bb6a; color: #2e7d32;
+        }
+        .bal-progress-pill .pill-check {
+            width: 14px; height: 14px; border-radius: 50%;
+            border: 1.5px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9px; transition: all .3s ease;
+        }
+        .bal-progress-pill.done .pill-check {
+            background: #66bb6a; border-color: #66bb6a; color: #fff;
+        }
+
+        /* Celebration sparkles */
+        @keyframes balCelebrate {
+            0% { transform: scale(.9); opacity: 0; }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .bal-banner-success { animation: balCelebrate .4s ease-out; }
+
+        @keyframes sparkle {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-60px) scale(0); opacity: 0; }
+        }
+        .bal-sparkle-wrap {
+            position: relative; pointer-events: none; height: 0; overflow: visible;
+        }
+        .bal-sparkle {
+            position: absolute; font-size: 16px;
+            animation: sparkle .8s ease-out forwards;
+        }
+
+        /* Unbalanced warning toast (extended) */
+        .bal-warn-toast {
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #fff3e0; border: 1px solid #ffe0b2; color: #e65100;
+            padding: 14px 20px; border-radius: 14px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.12);
+            font-size: 13px; line-height: 1.4; text-align: center;
+            max-width: 360px; z-index: 9999;
+            opacity: 0; pointer-events: none;
+            transition: all .35s ease;
+        }
+        .bal-warn-toast.show {
+            opacity: 1; pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+        .bal-warn-toast-title { font-weight: 700; margin-bottom: 4px; }
+        .bal-warn-toast-sub { font-weight: 500; opacity: .85; font-size: 12px; }
     </style>
 </head>
 <body class="v-page" style="padding-bottom: 90px;">
@@ -295,6 +380,11 @@
     // ── RECIPE PAGE ───────────────────────────────────────────────────────
     let checkedItems = {};
 
+    // Balance state
+    let _balRequired = []; // filled during render: [{key,prefix,label}]
+    let _wasBalanced = false;
+    let _celebrationShown = false;
+
     function isInPlate() {
         return Plate.get().some(item => item.recipeId === r.id);
     }
@@ -397,8 +487,27 @@
         }
         const stepsHtml = stepsArr.join('');
 
+        // Balance: determine required categories
+        const _balCats = [];
+        if (addProtein.length) _balCats.push({ key: 'p', label: 'Белок', prefix: 'p' });
+        if (addFat.length)     _balCats.push({ key: 'f', label: 'Жиры', prefix: 'f' });
+        if (addCarbs.length)   _balCats.push({ key: 'c', label: 'Углеводы', prefix: 'c' });
+        if (addFiber.length)   _balCats.push({ key: 'fi', label: 'Клетчатка', prefix: 'fi' });
+
+        _balRequired = _balCats; // store for balance checking
+
+        const balProgressHtml = _balCats.map(c =>
+            `<span class="bal-progress-pill" id="bal-pill-${c.key}"><span class="pill-check" id="bal-chk-${c.key}"></span>${c.key === 'p' ? '💪' : c.key === 'f' ? '🥑' : c.key === 'c' ? '🌾' : '🥬'} ${c.label}</span>`
+        ).join('');
+
         const sidebarHtml = hasAdditions ? `
             <div class="bal-sidebar anim anim-d2">
+                <div id="bal-banner" class="bal-banner bal-banner-warn">
+                    <div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div>
+                    <div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи</div>
+                    <div class="bal-progress">${balProgressHtml}</div>
+                </div>
+                <div id="bal-sparkle-container" class="bal-sparkle-wrap"></div>
                 <div class="bal-sidebar-head">
                     <div class="bal-sidebar-head-title">🌿 Сбалансируй тарелку</div>
                     <div class="bal-sidebar-head-sub">Отметьте что добавите — КБЖУ пересчитается</div>
@@ -681,6 +790,60 @@
         updateAddTotal();
     }
 
+    function checkBalance() {
+        if (!_balRequired.length) return true; // no sidebar = balanced
+        const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
+        let allDone = true;
+        _balRequired.forEach(cat => {
+            const done = checkedPrefixes.has(cat.prefix);
+            const pill = document.getElementById('bal-pill-' + cat.key);
+            const chk = document.getElementById('bal-chk-' + cat.key);
+            if (pill) pill.classList.toggle('done', done);
+            if (chk) chk.textContent = done ? '✓' : '';
+            if (!done) allDone = false;
+        });
+        // Update banner
+        const banner = document.getElementById('bal-banner');
+        if (banner) {
+            if (allDone) {
+                banner.className = 'bal-banner bal-banner-success';
+                banner.innerHTML = `<div class="bal-banner-title">✅ Блюдо сбалансировано!</div><div class="bal-banner-sub">Добавьте его в тарелку — это полноценный приём пищи</div>`;
+                if (!_celebrationShown) {
+                    _celebrationShown = true;
+                    spawnSparkles();
+                }
+            } else {
+                if (_wasBalanced) {
+                    // was balanced, now not — reset banner
+                    banner.className = 'bal-banner bal-banner-warn';
+                    const pills = _balRequired.map(c =>
+                        `<span class="bal-progress-pill${new Set(Object.keys(checkedItems).map(k=>k.replace(/-\d+$/,''))).has(c.prefix) ? ' done' : ''}" id="bal-pill-${c.key}"><span class="pill-check" id="bal-chk-${c.key}">${new Set(Object.keys(checkedItems).map(k=>k.replace(/-\d+$/,''))).has(c.prefix) ? '✓' : ''}</span>${c.key === 'p' ? '💪' : c.key === 'f' ? '🥑' : c.key === 'c' ? '🌾' : '🥬'} ${c.label}</span>`
+                    ).join('');
+                    banner.innerHTML = `<div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div><div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи</div><div class="bal-progress">${pills}</div>`;
+                    _celebrationShown = false;
+                }
+            }
+            _wasBalanced = allDone;
+        }
+        return allDone;
+    }
+
+    function spawnSparkles() {
+        const container = document.getElementById('bal-sparkle-container');
+        if (!container) return;
+        const emojis = ['✨', '🌟', '⭐', '💚', '🎉', '🌿'];
+        for (let i = 0; i < 8; i++) {
+            const s = document.createElement('span');
+            s.className = 'bal-sparkle';
+            s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            s.style.left = (Math.random() * 90 + 5) + '%';
+            s.style.animationDelay = (Math.random() * .3) + 's';
+            s.style.animationDuration = (.6 + Math.random() * .4) + 's';
+            container.appendChild(s);
+        }
+        setTimeout(() => { container.innerHTML = ''; }, 1200);
+    }
+
     function updateAddTotal() {
         if (!r) return;
         let total = { kcal: r.kcal, protein: r.protein, fat: r.fat, carbs: r.carbs, fiber: r.fiber || 0 };
@@ -708,6 +871,8 @@
         if (kf) kf.textContent = total.fat + 'г';
         if (kc) kc.textContent = total.carbs + 'г';
         if (kfi) kfi.textContent = total.fiber + 'г';
+        // Check balance
+        checkBalance();
     }
 
     // ── VIDEO PLATFORM SWITCH ────────────────────────────────────────────
@@ -759,6 +924,15 @@
     function addToPlate() {
         if (!r) return;
         if (isInPlate()) return;
+
+        const isBalanced = checkBalance();
+        const hasAdds = _balRequired.length > 0;
+
+        // Soft warning for unbalanced dish (not blocking)
+        if (hasAdds && !isBalanced) {
+            showBalWarnToast();
+        }
+
         let total = { kcal: r.kcal, protein: r.protein, fat: r.fat, carbs: r.carbs, fiber: r.fiber || 0 };
         Object.values(checkedItems).forEach(v => {
             total.kcal    += v.kcal    || 0;
@@ -786,7 +960,6 @@
             additions: additions
         });
 
-        showToast(r.emoji + ' Добавлено в тарелку!');
         const btn = document.getElementById('add-btn');
         if (btn) {
             btn.textContent = '✓ В тарелке';
@@ -795,7 +968,27 @@
             btn.style.cursor = 'default';
         }
 
-        setTimeout(() => { history.back(); }, 1000);
+        if (hasAdds && !isBalanced) {
+            showToast(r.emoji + ' Добавлено без балансировки');
+            // Don't auto-navigate — let user see the warning and maybe add supplements
+        } else {
+            showToast(r.emoji + ' Добавлено в тарелку!');
+            setTimeout(() => { history.back(); }, 1000);
+        }
+    }
+
+    function showBalWarnToast() {
+        let el = document.getElementById('bal-warn-toast');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'bal-warn-toast';
+            el.className = 'bal-warn-toast';
+            el.innerHTML = '<div class="bal-warn-toast-title">⚖️ Блюдо добавлено без балансировки</div><div class="bal-warn-toast-sub">Если хотите сделать его полноценным приёмом пищи, выберите добавки в сайдбаре</div>';
+            document.body.appendChild(el);
+        }
+        el.classList.add('show');
+        clearTimeout(el._t);
+        el._t = setTimeout(() => el.classList.remove('show'), 4500);
     }
 
     // ── MY PLATE MODAL ────────────────────────────────────────────────────
