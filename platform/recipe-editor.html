@@ -911,15 +911,20 @@
         }
 
         .re-save-success-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-3);
+            margin-bottom: 8px;
         }
 
         .re-save-success-sub {
-            font-size: 13px;
-            color: var(--text-3);
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 700;
+            line-height: 1.25;
+            color: var(--text-1);
             margin-bottom: 24px;
         }
 
@@ -934,6 +939,7 @@
             padding: 12px 20px;
             font-size: 14px;
             justify-content: center;
+            text-decoration: none;
         }
 
         /* ── Preview card ── */
@@ -1141,14 +1147,7 @@
                 </div>
                 <div class="re-field">
                     <label class="re-label">Категории</label>
-                    <div id="re-cat" class="re-cat-checkboxes" style="display:flex;flex-wrap:wrap;gap:6px 12px;padding:6px 0">
-                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="checkbox" value="breakfasts"> Завтраки</label>
-                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="checkbox" value="mains"> Основные блюда</label>
-                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="checkbox" value="pancakes"> Блины / Оладьи</label>
-                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="checkbox" value="spreads"> Намазки</label>
-                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="checkbox" value="salads"> Салаты</label>
-                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="checkbox" value="drinks"> Напитки</label>
-                    </div>
+                    <div id="re-cat" class="re-cat-checkboxes" style="display:flex;flex-wrap:wrap;gap:6px 12px;padding:6px 0"></div>
                 </div>
             </div>
 
@@ -1321,9 +1320,13 @@
                 </div>
             </div>
 
-            <button class="re-nutrition-btn" id="btn-calc-nutrition" onclick="calcNutrition()">
+            <!-- Автоматический расчёт КБЖУ временно отключён: считает КБЖУ сухих ингредиентов, а нужно на готовое блюдо. Вводите значения вручную. -->
+            <button class="re-nutrition-btn" id="btn-calc-nutrition" onclick="calcNutrition()" style="display:none">
                 🔬 Рассчитать КБЖУ по ингредиентам
             </button>
+            <div style="font-size:12px;color:var(--text-3);padding:8px 0">
+                Вводите КБЖУ вручную — считайте по готовому блюду (взвесьте блюдо после приготовления, поделите на вес порции).
+            </div>
             <span id="nutrition-status" style="font-size:12px;color:var(--text-3);margin-left:8px"></span>
 
             <div class="re-nutrition-panel" id="nutrition-panel">
@@ -1404,6 +1407,31 @@
                 <div class="re-add-panel-label">🥬 Добавить клетчатку</div>
                 <div class="re-list" id="re-add-fiber-list"></div>
                 <button class="re-list-add" onclick="addAddItem('fiber')">+ Клетчатка</button>
+            </div>
+
+            <div style="margin-top:20px;padding-top:16px;border-top:1px dashed var(--border)">
+                <div class="re-add-panel-label" style="display:flex;align-items:center;gap:8px">⚙️ Авто-добавки <span style="font-size:10px;font-weight:400;color:var(--text-3);text-transform:none;letter-spacing:0">правила</span></div>
+                <div class="re-hint" style="margin-bottom:10px;padding:8px 10px;background:var(--bg);border-radius:8px;line-height:1.5">
+                    Автоматически подтягивать все опубликованные рецепты из выбранной категории в соответствующий слот. Работает поверх правил категории этого рецепта. Явные добавки выше имеют приоритет (дедуп по id/названию).
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                    <div>
+                        <label style="font-size:11px;color:var(--text-3);display:block;margin-bottom:4px">💪 Белок ← категория</label>
+                        <select class="re-input" id="re-aa-protein"><option value="">— нет —</option></select>
+                    </div>
+                    <div>
+                        <label style="font-size:11px;color:var(--text-3);display:block;margin-bottom:4px">🥑 Жиры ← категория</label>
+                        <select class="re-input" id="re-aa-fat"><option value="">— нет —</option></select>
+                    </div>
+                    <div>
+                        <label style="font-size:11px;color:var(--text-3);display:block;margin-bottom:4px">🌾 Углеводы ← категория</label>
+                        <select class="re-input" id="re-aa-carbs"><option value="">— нет —</option></select>
+                    </div>
+                    <div>
+                        <label style="font-size:11px;color:var(--text-3);display:block;margin-bottom:4px">🥬 Клетчатка ← категория</label>
+                        <select class="re-input" id="re-aa-fiber"><option value="">— нет —</option></select>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1492,18 +1520,43 @@
     var params = new URLSearchParams(window.location.search);
     editId = params.get('id') || null;
 
-    if (editId) {
-        loadRecipe(editId);
-    } else {
-        isCreateMode = true;
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('editor-content').style.display = 'block';
-        document.getElementById('recipe-header').textContent = 'Новый рецепт';
-        document.getElementById('create-hint').style.display = 'block';
-        document.getElementById('re-published').checked = false;
-        updateStatusBadge();
-        checkForDraft();
+    var allCategoriesEditor = [];
+    function populateCategoryUI() {
+        // Checkboxes
+        var catBox = document.getElementById('re-cat');
+        catBox.innerHTML = allCategoriesEditor.map(function(c) {
+            return '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px">' +
+                '<input type="checkbox" value="' + c.id + '"> ' + esc(c.name) + '</label>';
+        }).join('');
+        // Auto-addons selects
+        ['protein', 'fat', 'carbs', 'fiber'].forEach(function(s) {
+            var el = document.getElementById('re-aa-' + s);
+            if (!el) return;
+            var opts = '<option value="">— нет —</option>';
+            allCategoriesEditor.forEach(function(c) {
+                opts += '<option value="' + c.id + '">' + esc(c.name) + '</option>';
+            });
+            el.innerHTML = opts;
+        });
     }
+
+    fetch(API_BASE + '/content/categories').then(function(r) { return r.json(); }).then(function(cats) {
+        allCategoriesEditor = cats || [];
+        populateCategoryUI();
+    }).catch(function() {}).finally(function() {
+        if (editId) {
+            loadRecipe(editId);
+        } else {
+            isCreateMode = true;
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('editor-content').style.display = 'block';
+            document.getElementById('recipe-header').textContent = 'Новый рецепт';
+            document.getElementById('create-hint').style.display = 'block';
+            document.getElementById('re-published').checked = false;
+            updateStatusBadge();
+            checkForDraft();
+        }
+    });
 
     // ══════════════════════════════════════════════════════════════════════
     // SLUG GENERATION (transliteration)
@@ -1715,6 +1768,14 @@
         populateAddPanel('fat', r.add_fat);
         populateAddPanel('carbs', r.add_carbs);
         populateAddPanel('fiber', r.add_fiber);
+
+        // Auto-addons
+        var aa = r.auto_addons || {};
+        ['protein', 'fat', 'carbs', 'fiber'].forEach(function(s) {
+            var rule = aa[s] || {};
+            var el = document.getElementById('re-aa-' + s);
+            if (el) el.value = rule.fromCategory || '';
+        });
 
         updatePhotoPreview();
         updateStatusBadge();
@@ -2016,8 +2077,19 @@
             add_protein: collectAddPanel('protein'),
             add_fat: collectAddPanel('fat'),
             add_carbs: collectAddPanel('carbs'),
-            add_fiber: collectAddPanel('fiber')
+            add_fiber: collectAddPanel('fiber'),
+            auto_addons: collectAutoAddons()
         };
+    }
+
+    function collectAutoAddons() {
+        var slots = ['protein', 'fat', 'carbs', 'fiber'];
+        var out = {};
+        slots.forEach(function(s) {
+            var v = document.getElementById('re-aa-' + s).value;
+            if (v) out[s] = { fromCategory: v };
+        });
+        return out;
     }
 
     // ══════════════════════════════════════════════════════════════════════
@@ -2655,13 +2727,12 @@
             html += '<span class="re-ai-filled-tag unfilled">' + (FIELD_LABELS[f] || f) + '</span>';
         });
         html += '</div>';
-        // If AI filled ingredients but not КБЖУ — suggest calculation
+        // КБЖУ: только ручной ввод (автоматический расчёт отключён, см. блок с кнопкой calc)
         var hasIngredients = filled.indexOf('ingredients') !== -1;
         var hasKbzhu = filled.indexOf('kcal') !== -1;
         if (hasIngredients && !hasKbzhu) {
             html += '<div style="margin-top:10px;padding:10px;background:#fff3e0;border-radius:8px;font-size:12px">' +
-                '<b>КБЖУ не указаны в тексте.</b> Рассчитать автоматически через USDA?' +
-                '<button class="re-nutrition-btn" onclick="calcNutrition()" style="margin-top:8px;font-size:12px;padding:6px 12px">🔬 Рассчитать КБЖУ</button>' +
+                '<b>КБЖУ не указаны.</b> Заполните поля вручную — по готовому блюду.' +
             '</div>';
         }
 

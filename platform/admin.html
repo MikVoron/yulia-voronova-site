@@ -238,6 +238,21 @@
         .st-confirmed { background: var(--green-l); color: var(--green); }
         .st-rejected { background: var(--red-l); color: var(--red); }
 
+        /* Recipe status badges */
+        .rbadge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .rbadge-draft { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+        .rbadge-trial { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+        .rbadge-pro   { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
+
         /* Action buttons */
         .adm-btn {
             padding: 6px 14px;
@@ -453,6 +468,7 @@
     </button>
     <button class="adm-tab" data-tab="news" onclick="switchTab('news')">Новости</button>
     <button class="adm-tab" data-tab="recipes" onclick="switchTab('recipes')">Рецепты</button>
+    <button class="adm-tab" data-tab="categories" onclick="switchTab('categories')">Категории</button>
     <button class="adm-tab" data-tab="feedback" onclick="switchTab('feedback')">
         Обращения <span class="adm-tab-badge" id="feedback-badge" style="display:none">0</span>
     </button>
@@ -549,6 +565,77 @@
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="recipe-cat-filters"></div>
         <input type="text" class="adm-search" id="recipe-search" placeholder="Поиск по названию..." oninput="filterRecipes()">
         <div id="recipes-list"></div>
+    </div>
+
+    <!-- Categories -->
+    <div class="adm-section" id="sec-categories">
+        <div class="adm-section-title" style="display:flex;justify-content:space-between;align-items:center">
+            Категории
+            <button class="adm-btn" style="background:var(--accent);color:#fff" onclick="openCategoryModal()">+ Новая категория</button>
+        </div>
+        <div style="font-size:12px;color:var(--text-3);margin-bottom:12px">
+            Авто-добавки: правила автоматически подтягивают рецепты из указанной категории как добавки к текущему блюду.
+            Рецепт-уровень перекрывает категорию для одного слота.
+        </div>
+        <div id="categories-list"></div>
+    </div>
+
+    <!-- Category edit modal -->
+    <div class="adm-modal-bg" id="category-modal">
+        <div class="adm-modal" style="max-width:560px">
+            <div class="adm-modal-title" id="category-modal-title">Новая категория</div>
+            <div class="adm-modal-field">
+                <label class="adm-modal-label">ID (латиница, без пробелов)</label>
+                <input type="text" class="adm-modal-input" id="cat-id" placeholder="sides" autocomplete="off">
+            </div>
+            <div class="adm-modal-field">
+                <label class="adm-modal-label">Название</label>
+                <input type="text" class="adm-modal-input" id="cat-name" placeholder="Гарниры">
+            </div>
+            <div style="display:flex;gap:10px">
+                <div class="adm-modal-field" style="flex:1">
+                    <label class="adm-modal-label">Эмодзи</label>
+                    <input type="text" class="adm-modal-input" id="cat-emoji" placeholder="🍚" maxlength="4">
+                </div>
+                <div class="adm-modal-field" style="flex:1">
+                    <label class="adm-modal-label">Цвет</label>
+                    <input type="text" class="adm-modal-input" id="cat-color" placeholder="#d97706">
+                </div>
+                <div class="adm-modal-field" style="flex:1">
+                    <label class="adm-modal-label">Порядок</label>
+                    <input type="number" class="adm-modal-input" id="cat-sort" value="0">
+                </div>
+            </div>
+            <div class="adm-modal-field">
+                <label class="adm-modal-label">Описание</label>
+                <input type="text" class="adm-modal-input" id="cat-desc" placeholder="">
+            </div>
+            <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+                <div style="font-weight:600;font-size:13px;margin-bottom:8px">Авто-добавки (правила для всех рецептов этой категории)</div>
+                <div style="font-size:11px;color:var(--text-3);margin-bottom:10px">Для каждого слота можно выбрать категорию-источник. Все опубликованные рецепты из источника автоматически попадут в сайдбар.</div>
+                <div class="adm-modal-field">
+                    <label class="adm-modal-label">💪 Белок ← из категории</label>
+                    <select class="adm-modal-select" id="cat-aa-protein"><option value="">— нет —</option></select>
+                </div>
+                <div class="adm-modal-field">
+                    <label class="adm-modal-label">🥑 Жиры ← из категории</label>
+                    <select class="adm-modal-select" id="cat-aa-fat"><option value="">— нет —</option></select>
+                </div>
+                <div class="adm-modal-field">
+                    <label class="adm-modal-label">🌾 Углеводы ← из категории</label>
+                    <select class="adm-modal-select" id="cat-aa-carbs"><option value="">— нет —</option></select>
+                </div>
+                <div class="adm-modal-field">
+                    <label class="adm-modal-label">🥬 Клетчатка ← из категории</label>
+                    <select class="adm-modal-select" id="cat-aa-fiber"><option value="">— нет —</option></select>
+                </div>
+            </div>
+            <div class="adm-modal-actions">
+                <button class="adm-btn adm-btn-reject" id="cat-delete-btn" onclick="deleteCategory()" style="margin-right:auto;display:none">Удалить</button>
+                <button class="adm-btn" onclick="closeCategoryModal()">Отмена</button>
+                <button class="adm-btn adm-btn-confirm" onclick="saveCategory()">Сохранить</button>
+            </div>
+        </div>
     </div>
 
     <!-- Feedback -->
@@ -709,14 +796,7 @@
             </div>
             <div class="adm-modal-field">
                 <label class="adm-modal-label">Категории</label>
-                <div id="recipe-cat" style="display:flex;flex-wrap:wrap;gap:4px 10px;padding:4px 0">
-                    <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px"><input type="checkbox" value="breakfasts"> Завтраки</label>
-                    <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px"><input type="checkbox" value="mains"> Основные</label>
-                    <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px"><input type="checkbox" value="pancakes"> Блины</label>
-                    <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px"><input type="checkbox" value="spreads"> Намазки</label>
-                    <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px"><input type="checkbox" value="salads"> Салаты</label>
-                    <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px"><input type="checkbox" value="drinks"> Напитки</label>
-                </div>
+                <div id="recipe-cat" style="display:flex;flex-wrap:wrap;gap:4px 10px;padding:4px 0"></div>
             </div>
         </div>
         <div class="adm-modal-field">

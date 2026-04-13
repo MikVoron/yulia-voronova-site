@@ -479,7 +479,7 @@
     </div>
 
     <div class="lp-features">
-        <div class="lp-feat"><div class="lp-feat-dot"></div>36+ рецептов</div>
+        <div class="lp-feat"><div class="lp-feat-dot"></div><span id="lp-recipes-count">36+ рецептов</span></div>
         <div class="lp-feat"><div class="lp-feat-dot"></div>КБЖУ расчёт</div>
         <div class="lp-feat"><div class="lp-feat-dot"></div>Конструктор тарелки</div>
     </div>
@@ -502,6 +502,18 @@
     var currentEmail = '';
     var timerInterval = null;
     var _fingerprint = null;
+
+    // Dynamic recipe count
+    fetch(API_BASE + '/content/stats')
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(d) {
+            if (d && d.recipes) {
+                var plural = d.recipes % 10 === 1 && d.recipes % 100 !== 11 ? 'рецепт'
+                    : (d.recipes % 10 >= 2 && d.recipes % 10 <= 4 && (d.recipes % 100 < 10 || d.recipes % 100 >= 20)) ? 'рецепта' : 'рецептов';
+                document.getElementById('lp-recipes-count').textContent = d.recipes + ' ' + plural;
+            }
+        })
+        .catch(function(){});
 
     // Генерация browser fingerprint (canvas + screen + timezone + UA)
     (async function() {

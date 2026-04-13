@@ -36,7 +36,7 @@ async function contentRoutes(fastify) {
       `SELECT r.id, r.cat, r.name, r.emoji, r.time_min, r.difficulty, r.servings, r.is_free,
               r.kcal, r.protein, r.fat, r.carbs, r.fiber, r.tags, r.photo, r.img_position, r.quote,
               r.ingredients, r.steps, r.note, r.vk_video, r.yt_video, r.dzen_video,
-              r.add_protein, r.add_fat, r.add_carbs, r.add_fiber,
+              r.add_protein, r.add_fat, r.add_carbs, r.add_fiber, r.auto_addons,
               r.portion_grams, r.sort_order, r.created_at,
               COALESCE(
                 (SELECT array_agg(rc.category_id) FROM recipe_categories rc WHERE rc.recipe_id = r.id),
@@ -52,9 +52,15 @@ async function contentRoutes(fastify) {
     });
   });
 
-  // GET /content/categories — all categories
+  // GET /content/stats — public stats (count of published recipes) for landing page
+  fastify.get('/content/stats', async () => {
+    const result = await db.query('SELECT COUNT(*)::int AS count FROM recipes WHERE is_published = true');
+    return { recipes: result.rows[0].count };
+  });
+
+  // GET /content/categories — all categories (includes auto_addons rules)
   fastify.get('/content/categories', async () => {
-    const cats = await db.query('SELECT * FROM categories ORDER BY sort_order');
+    const cats = await db.query('SELECT id, name, emoji, color, description, sort_order, auto_addons FROM categories ORDER BY sort_order');
     const recipes = await db.query(
       `SELECT rc.category_id, r.id
        FROM recipe_categories rc
@@ -293,8 +299,8 @@ async function contentRoutes(fastify) {
       `INSERT INTO recipes (id, cat, name, emoji, time_min, difficulty, servings, is_free,
           kcal, protein, fat, carbs, fiber, tags, photo, img_position, quote,
           ingredients, steps, note, vk_video, yt_video, dzen_video, add_protein, add_fat, add_carbs, add_fiber,
-          portion_grams, sort_order, is_published)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30)
+          portion_grams, sort_order, is_published, auto_addons)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31)
        RETURNING *`,
       [
         r.id, primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, r.difficulty || 'easy',
@@ -305,7 +311,8 @@ async function contentRoutes(fastify) {
         r.note || null, r.vk_video || null, r.yt_video || null, r.dzen_video || null,
         JSON.stringify(r.add_protein || []), JSON.stringify(r.add_fat || []),
         JSON.stringify(r.add_carbs || []), JSON.stringify(r.add_fiber || []),
-        r.portion_grams || 300, r.sort_order || 0, r.is_published === true
+        r.portion_grams || 300, r.sort_order || 0, r.is_published === true,
+        JSON.stringify(r.auto_addons || {})
       ]
     );
     // Write to recipe_categories
@@ -328,8 +335,8 @@ async function contentRoutes(fastify) {
           is_free=$7, kcal=$8, protein=$9, fat=$10, carbs=$11, fiber=$12, tags=$13,
           photo=$14, img_position=$15, quote=$16, ingredients=$17, steps=$18, note=$19,
           vk_video=$20, yt_video=$21, dzen_video=$22, add_protein=$23, add_fat=$24, add_carbs=$25, add_fiber=$26,
-          portion_grams=$27, sort_order=$28, is_published=$29, updated_at=now()
-       WHERE id=$30 RETURNING *`,
+          portion_grams=$27, sort_order=$28, is_published=$29, auto_addons=$30, updated_at=now()
+       WHERE id=$31 RETURNING *`,
       [
         primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, r.difficulty || 'easy',
         r.servings || 4, r.is_free || false,
@@ -339,7 +346,8 @@ async function contentRoutes(fastify) {
         r.note || null, r.vk_video || null, r.yt_video || null, r.dzen_video || null,
         JSON.stringify(r.add_protein || []), JSON.stringify(r.add_fat || []),
         JSON.stringify(r.add_carbs || []), JSON.stringify(r.add_fiber || []),
-        r.portion_grams || 300, r.sort_order || 0, r.is_published === true, req.params.id
+        r.portion_grams || 300, r.sort_order || 0, r.is_published === true,
+        JSON.stringify(r.auto_addons || {}), req.params.id
       ]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
@@ -377,16 +385,49 @@ async function contentRoutes(fastify) {
   // ADMIN — Categories
   // ═══════════════════════════════════════════════════════════════════════════
 
+  // GET /admin/categories — full list for admin (includes auto_addons)
+  fastify.get('/admin/categories', { preHandler: [authenticate, requireAdmin] }, async () => {
+    const result = await db.query('SELECT * FROM categories ORDER BY sort_order');
+    return result.rows;
+  });
+
+  // POST /admin/categories — create category
+  fastify.post('/admin/categories', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+    const { id, name, emoji, color, description, sort_order, auto_addons } = req.body || {};
+    if (!id || !name) return reply.status(400).send({ error: 'id и name обязательны' });
+    if (!/^[a-z0-9_-]+$/.test(id)) return reply.status(400).send({ error: 'id: только латиница, цифры, _ и -' });
+    const exists = await db.query('SELECT id FROM categories WHERE id=$1', [id]);
+    if (exists.rows.length) return reply.status(409).send({ error: 'Категория с таким id уже существует' });
+    const result = await db.query(
+      `INSERT INTO categories (id, name, emoji, color, description, sort_order, auto_addons)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+      [id, name, emoji || '', color || '#999', description || '', sort_order || 0, JSON.stringify(auto_addons || {})]
+    );
+    audit.log('category_create', { userId: req.user.sub, detail: 'category:' + id, ip: req.ip });
+    return result.rows[0];
+  });
+
   // PUT /admin/categories/:id
   fastify.put('/admin/categories/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
-    const { name, emoji, color, description, sort_order } = req.body || {};
+    const { name, emoji, color, description, sort_order, auto_addons } = req.body || {};
     const result = await db.query(
-      'UPDATE categories SET name=$1, emoji=$2, color=$3, description=$4, sort_order=$5 WHERE id=$6 RETURNING *',
-      [name, emoji, color, description, sort_order || 0, req.params.id]
+      `UPDATE categories SET name=$1, emoji=$2, color=$3, description=$4, sort_order=$5, auto_addons=$6
+       WHERE id=$7 RETURNING *`,
+      [name, emoji, color, description, sort_order || 0, JSON.stringify(auto_addons || {}), req.params.id]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
     audit.log('category_update', { userId: req.user.sub, detail: 'category:' + req.params.id, ip: req.ip });
     return result.rows[0];
+  });
+
+  // DELETE /admin/categories/:id — only if no recipes in it
+  fastify.delete('/admin/categories/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+    const inUse = await db.query('SELECT COUNT(*)::int AS n FROM recipe_categories WHERE category_id=$1', [req.params.id]);
+    if (inUse.rows[0].n > 0) return reply.status(409).send({ error: 'В категории есть рецепты (' + inUse.rows[0].n + '). Сначала удалите или перенесите.' });
+    const result = await db.query('DELETE FROM categories WHERE id=$1 RETURNING id', [req.params.id]);
+    if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
+    audit.log('category_delete', { userId: req.user.sub, detail: 'category:' + req.params.id, ip: req.ip });
+    return { ok: true };
   });
 }
 

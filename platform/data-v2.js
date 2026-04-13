@@ -497,6 +497,7 @@ function _mapRecipe(r) {
         addFat: r.add_fat || [],
         addCarbs: r.add_carbs || [],
         addFiber: r.add_fiber || [],
+        autoAddons: r.auto_addons || {},
         sortOrder: r.sort_order || 0,
         added: r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : null,
         addedTs: r.created_at ? new Date(r.created_at).getTime() : 0,
@@ -528,7 +529,8 @@ async function loadContent() {
             CATEGORIES[c.id] = {
                 id: c.id, name: c.name, emoji: c.emoji, color: c.color,
                 desc: c.description || '',
-                dishes: c.dishes || []
+                dishes: c.dishes || [],
+                autoAddons: c.auto_addons || {}
             };
         });
         _contentLoaded = true;

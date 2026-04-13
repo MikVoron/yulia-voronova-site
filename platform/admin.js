@@ -47,9 +47,13 @@
         if (tab === 'payments') loadPayments('pending');
         if (tab === 'news') loadNews();
         if (tab === 'recipes') loadRecipesList();
+        if (tab === 'categories') loadCategoriesList();
         if (tab === 'feedback') loadFeedback('new');
         if (tab === 'audit') loadAudit();
     };
+
+    // Preload categories meta on page init (needed by recipes tab + modal)
+    loadCategoriesMeta();
 
     // ── Stats ──
     // Load feedback badge count on init
@@ -383,7 +387,25 @@
     // ── RECIPES ───────────────────────────────────────────────────────────────
     var allRecipes = [];
     var recipeCatFilter = 'all';
-    var CAT_NAMES = { breakfasts: 'Завтраки', mains: 'Основные', pancakes: 'Блины', spreads: 'Намазки', salads: 'Салаты', drinks: 'Напитки' };
+    var allCategories = [];          // full category objects from API
+    var CAT_NAMES = {};              // populated from /content/categories on init
+
+    function loadCategoriesMeta() {
+        return api('/content/categories').then(function(cats) {
+            allCategories = cats || [];
+            CAT_NAMES = {};
+            allCategories.forEach(function(c) { CAT_NAMES[c.id] = c.name; });
+            // Populate recipe-cat checkboxes (used by quick-add modal)
+            var box = document.getElementById('recipe-cat');
+            if (box) {
+                box.innerHTML = allCategories.map(function(c) {
+                    return '<label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px">' +
+                        '<input type="checkbox" value="' + c.id + '"> ' + esc(c.name) + '</label>';
+                }).join('');
+            }
+        }).catch(function() {});
+    }
+    window.loadCategoriesMeta = loadCategoriesMeta;
 
     function loadRecipesList() {
         api('/admin/recipes').then(function(data) {
@@ -429,12 +451,18 @@
         var el = document.getElementById('recipes-list');
         if (!items.length) { el.innerHTML = '<div class="adm-empty">Нет рецептов</div>'; return; }
         el.innerHTML = items.map(function(r) {
-            var status = r.is_published ? '<span style="color:var(--green);font-weight:700">●</span>' : '<span style="color:var(--text-3)">Черновик</span>';
-            var free = r.is_free ? ' · <span style="color:var(--blue)">Free</span>' : '';
+            var badge;
+            if (!r.is_published) {
+                badge = '<span class="rbadge rbadge-draft">Черновик</span>';
+            } else if (r.is_free) {
+                badge = '<span class="rbadge rbadge-trial">Trial</span>';
+            } else {
+                badge = '<span class="rbadge rbadge-pro">Pro</span>';
+            }
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:#fff">'
                 + '<div style="flex:1;min-width:0">'
-                + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + (r.emoji || '') + ' ' + esc(r.name) + '</div>'
-                + '<div style="font-size:11px;color:var(--text-3);margin-top:2px">' + (r.categories || [r.cat]).map(function(c) { return CAT_NAMES[c] || c; }).join(', ') + ' · ' + r.time_min + ' мин · ' + r.kcal + ' ккал' + free + ' · ' + status + '</div>'
+                + '<div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text)">' + badge + '<span>' + (r.emoji || '') + ' ' + esc(r.name) + '</span></div>'
+                + '<div style="font-size:11px;color:var(--text-3);margin-top:4px">' + (r.categories || [r.cat]).map(function(c) { return CAT_NAMES[c] || c; }).join(', ') + ' · ' + r.time_min + ' мин · ' + r.kcal + ' ккал</div>'
                 + '</div>'
                 + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">'
                 + '<button class="adm-btn" onclick="openRecipeEditor(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px" title="Открыть в редакторе">✏️</button>'
@@ -519,6 +547,135 @@
             showToast('Удалено');
             loadRecipesList();
         });
+    };
+
+    // ── CATEGORIES ────────────────────────────────────────────────────────────
+    var AA_SLOTS = [
+        { key: 'protein', label: '💪 Белок',     field: 'cat-aa-protein' },
+        { key: 'fat',     label: '🥑 Жиры',      field: 'cat-aa-fat' },
+        { key: 'carbs',   label: '🌾 Углеводы',  field: 'cat-aa-carbs' },
+        { key: 'fiber',   label: '🥬 Клетчатка', field: 'cat-aa-fiber' }
+    ];
+
+    function loadCategoriesList() {
+        api('/admin/categories').then(function(cats) {
+            allCategories = cats || [];
+            CAT_NAMES = {};
+            allCategories.forEach(function(c) { CAT_NAMES[c.id] = c.name; });
+            renderCategoriesList();
+        });
+    }
+
+    function renderCategoriesList() {
+        var el = document.getElementById('categories-list');
+        if (!allCategories.length) { el.innerHTML = '<div class="adm-empty">Нет категорий</div>'; return; }
+        el.innerHTML = allCategories.map(function(c) {
+            var aa = c.auto_addons || {};
+            var rules = AA_SLOTS.map(function(s) {
+                var r = aa[s.key];
+                if (!r || !r.fromCategory) return '';
+                var name = CAT_NAMES[r.fromCategory] || r.fromCategory;
+                return '<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#f1f5f9;color:#475569;font-size:10px;font-weight:600;margin:2px 2px 0 0">' + s.label + ' ← ' + esc(name) + '</span>';
+            }).join('');
+            return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:#fff">'
+                + '<div style="flex:1;min-width:0">'
+                + '<div style="font-size:14px;font-weight:600">' + (c.emoji || '') + ' ' + esc(c.name) + ' <span style="font-size:11px;color:var(--text-3);font-weight:400">(' + c.id + ')</span></div>'
+                + (c.description ? '<div style="font-size:11px;color:var(--text-3);margin-top:2px">' + esc(c.description) + '</div>' : '')
+                + (rules ? '<div style="margin-top:6px">' + rules + '</div>' : '')
+                + '</div>'
+                + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">'
+                + '<button class="adm-btn" onclick="editCategory(\'' + c.id + '\')" style="font-size:12px;padding:6px 10px">✏️</button>'
+                + '</div></div>';
+        }).join('');
+    }
+
+    function populateCatSelect(selectId, currentValue, excludeId) {
+        var el = document.getElementById(selectId);
+        var opts = '<option value="">— нет —</option>';
+        allCategories.forEach(function(c) {
+            if (c.id === excludeId) return;
+            var sel = c.id === currentValue ? ' selected' : '';
+            opts += '<option value="' + c.id + '"' + sel + '>' + esc(c.name) + '</option>';
+        });
+        el.innerHTML = opts;
+    }
+
+    var editingCategoryId = null;
+
+    window.openCategoryModal = function() {
+        editingCategoryId = null;
+        document.getElementById('category-modal-title').textContent = 'Новая категория';
+        document.getElementById('cat-id').value = '';
+        document.getElementById('cat-id').disabled = false;
+        document.getElementById('cat-name').value = '';
+        document.getElementById('cat-emoji').value = '';
+        document.getElementById('cat-color').value = '#999';
+        document.getElementById('cat-sort').value = 0;
+        document.getElementById('cat-desc').value = '';
+        AA_SLOTS.forEach(function(s) { populateCatSelect(s.field, '', null); });
+        document.getElementById('cat-delete-btn').style.display = 'none';
+        document.getElementById('category-modal').classList.add('open');
+    };
+
+    window.editCategory = function(id) {
+        var c = allCategories.find(function(x) { return x.id === id; });
+        if (!c) return;
+        editingCategoryId = id;
+        document.getElementById('category-modal-title').textContent = 'Редактировать: ' + c.name;
+        document.getElementById('cat-id').value = c.id;
+        document.getElementById('cat-id').disabled = true;
+        document.getElementById('cat-name').value = c.name || '';
+        document.getElementById('cat-emoji').value = c.emoji || '';
+        document.getElementById('cat-color').value = c.color || '#999';
+        document.getElementById('cat-sort').value = c.sort_order || 0;
+        document.getElementById('cat-desc').value = c.description || '';
+        var aa = c.auto_addons || {};
+        AA_SLOTS.forEach(function(s) {
+            var r = aa[s.key] || {};
+            populateCatSelect(s.field, r.fromCategory || '', id);
+        });
+        document.getElementById('cat-delete-btn').style.display = 'inline-block';
+        document.getElementById('category-modal').classList.add('open');
+    };
+
+    window.closeCategoryModal = function() {
+        document.getElementById('category-modal').classList.remove('open');
+    };
+
+    window.saveCategory = function() {
+        var body = {
+            id: document.getElementById('cat-id').value.trim(),
+            name: document.getElementById('cat-name').value.trim(),
+            emoji: document.getElementById('cat-emoji').value.trim(),
+            color: document.getElementById('cat-color').value.trim(),
+            description: document.getElementById('cat-desc').value.trim(),
+            sort_order: parseInt(document.getElementById('cat-sort').value) || 0,
+            auto_addons: {}
+        };
+        AA_SLOTS.forEach(function(s) {
+            var v = document.getElementById(s.field).value;
+            if (v) body.auto_addons[s.key] = { fromCategory: v };
+        });
+        if (!body.id || !body.name) { showToast('ID и название обязательны'); return; }
+        var url = editingCategoryId ? '/admin/categories/' + editingCategoryId : '/admin/categories';
+        var method = editingCategoryId ? 'PUT' : 'POST';
+        api(url, { method: method, body: body }).then(function() {
+            showToast('Сохранено');
+            closeCategoryModal();
+            loadCategoriesList();
+            loadCategoriesMeta(); // refresh global CAT_NAMES + checkboxes
+        }).catch(function(e) { showToast(e.message || 'Ошибка'); });
+    };
+
+    window.deleteCategory = function() {
+        if (!editingCategoryId) return;
+        if (!confirm('Удалить категорию «' + editingCategoryId + '»?')) return;
+        api('/admin/categories/' + editingCategoryId, { method: 'DELETE' }).then(function() {
+            showToast('Удалено');
+            closeCategoryModal();
+            loadCategoriesList();
+            loadCategoriesMeta();
+        }).catch(function(e) { showToast(e.message || 'Ошибка'); });
     };
 
     // Parse add-panel textarea: "name | kcal | protein | fat | carbs | fiber [| @recipeId]"

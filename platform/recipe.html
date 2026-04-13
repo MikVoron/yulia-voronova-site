@@ -285,6 +285,14 @@
     };
     const PHOTO_FALLBACK = SITE_BASE + '/images/background-guide.webp';
 
+    // Prepend voronova.online to relative image paths. Images live in the main site repo,
+    // so editor entries like "images/recipes/foo/bar.webp" must be resolved to the main domain.
+    function photoUrl(p) {
+        if (!p) return p;
+        if (/^(https?:|data:|blob:)/i.test(p)) return p;
+        return SITE_BASE + '/' + p.replace(/^\/+/, '');
+    }
+
     window.addEventListener('scroll', () =>
         document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
 
@@ -433,13 +441,71 @@
                 { name: 'Огурец свежий (½ шт.)', kcal: 10, protein: 0, fat: 0, carbs: 2, fiber: 1 },
             ],
         };
-        // Сайдбар показывается ТОЛЬКО если хотя бы одно add* поле содержит данные
+        // Resolve auto-addons (recipe-level overrides category-level per slot)
+        // Rule shape: { fromCategory: "salads" } → pulls all published recipes from that category
+        function _resolveAutoAddons(recipe) {
+            const slots = ['protein', 'fat', 'carbs', 'fiber'];
+            const resolved = { protein: [], fat: [], carbs: [], fiber: [] };
+            const rules = {};
+            // Category-level rules (union across recipe's categories, first-win per slot)
+            const recipeCats = recipe.categories || (recipe.cat ? [recipe.cat] : []);
+            recipeCats.forEach(catId => {
+                const cat = (typeof CATEGORIES !== 'undefined' && CATEGORIES[catId]) || null;
+                const aa = cat && cat.autoAddons || {};
+                slots.forEach(s => { if (!rules[s] && aa[s]) rules[s] = aa[s]; });
+            });
+            // Recipe-level overrides
+            const rAA = recipe.autoAddons || {};
+            slots.forEach(s => { if (rAA[s]) rules[s] = rAA[s]; });
+            // Materialize: find published recipes in target category
+            slots.forEach(s => {
+                const rule = rules[s];
+                if (!rule || !rule.fromCategory) return;
+                const sourceId = rule.fromCategory;
+                if (typeof RECIPES === 'undefined') return;
+                Object.values(RECIPES).forEach(rx => {
+                    if (rx.id === recipe.id) return;
+                    const rxCats = rx.categories || (rx.cat ? [rx.cat] : []);
+                    if (rxCats.indexOf(sourceId) === -1) return;
+                    resolved[s].push({
+                        name: rx.name,
+                        kcal: rx.kcal || 0,
+                        protein: rx.protein || 0,
+                        fat: rx.fat || 0,
+                        carbs: rx.carbs || 0,
+                        fiber: rx.fiber || 0,
+                        recipeId: rx.id,
+                        _auto: true
+                    });
+                });
+            });
+            return resolved;
+        }
+        function _mergeAddItems(explicit, auto) {
+            const out = (explicit || []).slice();
+            const seen = new Set();
+            out.forEach(it => {
+                if (it && it.recipeId) seen.add('r:' + it.recipeId);
+                if (it && it.name) seen.add('n:' + it.name.toLowerCase().trim());
+            });
+            (auto || []).forEach(it => {
+                const keyR = it.recipeId ? 'r:' + it.recipeId : null;
+                const keyN = 'n:' + (it.name || '').toLowerCase().trim();
+                if ((keyR && seen.has(keyR)) || seen.has(keyN)) return;
+                out.push(it);
+                if (keyR) seen.add(keyR);
+                seen.add(keyN);
+            });
+            return out;
+        }
+        const _autoAdd = _resolveAutoAddons(r);
+        const addProtein = _mergeAddItems(r.addProtein, _autoAdd.protein);
+        const addFat     = _mergeAddItems(r.addFat,     _autoAdd.fat);
+        const addCarbs   = _mergeAddItems(r.addCarbs,   _autoAdd.carbs);
+        const addFiber   = _mergeAddItems(r.addFiber,   _autoAdd.fiber);
+        // Сайдбар показывается ТОЛЬКО если хотя бы одно add* поле (после резолва) содержит данные
         const _hasOwn = (arr) => Array.isArray(arr) && arr.length > 0;
-        const _hasAnyAdd = _hasOwn(r.addProtein) || _hasOwn(r.addFat) || _hasOwn(r.addCarbs) || _hasOwn(r.addFiber);
-        const addProtein = r.addProtein || [];
-        const addFat     = r.addFat || [];
-        const addCarbs   = r.addCarbs || [];
-        const addFiber   = r.addFiber || [];
+        const _hasAnyAdd = _hasOwn(addProtein) || _hasOwn(addFat) || _hasOwn(addCarbs) || _hasOwn(addFiber);
         const hasAdditions = !simpleMode && _hasAnyAdd;
 
         const ingHtml = (r.ingredients || []).map((ing, i) => {
@@ -461,7 +527,7 @@
             const photoHtml = photo
                 ? (photo === true
                     ? `<div class="step-photo-placeholder"><span>📷</span><span>Фото шага ${i+1}</span></div>`
-                    : `<img class="step-photo-img" src="${escHtml(photo)}" alt="Шаг ${i+1}" loading="lazy" onerror="this.closest('.step-photo-wrap').style.display='none'">`)
+                    : `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i+1}" loading="lazy" onerror="this.closest('.step-photo-wrap').style.display='none'">`)
                 : '';
             return `<div class="step-item">
                 <div class="step-num">${i+1}</div>
@@ -481,7 +547,7 @@
                 <div class="step-num">${n}</div>
                 <div class="step-body">
                     <div class="step-text">Наслаждайтесь! Приятного вам аппетита 😋</div>
-                    <div class="step-photo-wrap"><img class="step-photo-img" src="${escHtml(finalPhoto)}" alt="Готовое блюдо" loading="lazy" onerror="this.closest('.step-final').style.display='none'"></div>
+                    <div class="step-photo-wrap"><img class="step-photo-img" src="${escHtml(photoUrl(finalPhoto))}" alt="Готовое блюдо" loading="lazy" onerror="this.closest('.step-final').style.display='none'"></div>
                 </div>
             </div>`);
         }
@@ -551,7 +617,7 @@
             <div class="recipe-layout">
                 <div class="recipe-main anim">
                     <div class="recipe-hero-img">
-                        <img src="${escHtml(r.photo || PHOTO_BY_CAT[r.cat] || PHOTO_FALLBACK)}"
+                        <img src="${escHtml(photoUrl(r.photo) || PHOTO_BY_CAT[r.cat] || PHOTO_FALLBACK)}"
                              alt="${escHtml(r.name)}"
                              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
                              onerror="this.style.display='none';var e=document.createElement('div');e.className='recipe-hero-emoji';e.style.cssText='position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)';e.textContent='${escHtml(r.emoji)}';this.parentElement.insertBefore(e,this)">
@@ -609,7 +675,7 @@
                         <button class="btn btn-ghost btn-sm" onclick="shareRecipeIngredients()" style="padding:6px 10px;font-size:11px">📤 Поделиться</button>
                     </div>
                     <div class="ing-list">${ingHtml}</div>
-                    ${r.photo && r.photo.includes('-final.') ? `<img class="step-photo-img" src="${escHtml(r.photo.replace('-final.', '-start.'))}" alt="Ингредиенты" loading="lazy" onerror="this.style.display='none'" style="margin-top:16px;border-radius:12px;width:100%">` : ''}
+                    ${r.photo && r.photo.includes('-final.') ? `<img class="step-photo-img" src="${escHtml(photoUrl(r.photo.replace('-final.', '-start.')))}" alt="Ингредиенты" loading="lazy" onerror="this.style.display='none'" style="margin-top:16px;border-radius:12px;width:100%">` : ''}
 
                     <div class="v-section-title" style="margin-top:20px">Приготовление</div>
                     <div class="steps-list">${stepsHtml}</div>
