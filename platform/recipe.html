@@ -1,360 +1,546 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Рецепт — Конструктор питания</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
-    <style>body{visibility:hidden}</style>
-    <link rel="stylesheet" href="style-v4.css" id="vcss"><script>document.getElementById('vcss').href='style-v4.css?v='+Date.now()</script>
-    <style>
-        .sublist-items { display: flex; flex-direction: column; gap: 10px; }
-        .stars-highlight .r-star { animation: starPulse .4s ease; }
-        @keyframes starPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Рецепт — Конструктор питания</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
+	<style>
+		body {
+			visibility: hidden
+		}
+	</style>
+	<link rel="stylesheet" href="style-v4.css" id="vcss">
+	<script>document.getElementById('vcss').href = 'style-v4.css?v=' + Date.now()</script>
+	<style>
+		.sublist-items {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+		}
 
-        /* Video recipe platform selector */
-        .video-recipe-section { margin-top: 24px; }
-        .video-platform-tabs {
-            display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;
-        }
-        .video-tab {
-            display: flex; align-items: center; gap: 7px;
-            padding: 8px 16px; border-radius: 10px;
-            border: 2px solid var(--border);
-            background: var(--bg-alt);
-            font-size: 13px; font-weight: 600;
-            color: var(--text-2); cursor: pointer;
-            transition: all .2s;
-        }
-        .video-tab:hover { border-color: var(--tab-color); color: var(--tab-color); }
-        .video-tab.active {
-            border-color: var(--tab-color);
-            background: var(--tab-color);
-            color: #fff;
-        }
-        .video-tab-icon { display: flex; width: 18px; height: 18px; }
-        .video-tab-icon svg { width: 100%; height: 100%; }
-        .video-tab-label { white-space: nowrap; }
+		.stars-highlight .r-star {
+			animation: starPulse .4s ease;
+		}
 
-        .video-player-wrap {
-            margin-top: 12px; border-radius: var(--r-m, 12px);
-            overflow: hidden; aspect-ratio: 16/9;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            position: relative;
-        }
-        .video-frame {
-            display: none; position: absolute; inset: 0;
-        }
-        .video-frame.active { display: flex; }
-        .video-external-link {
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; width: 100%; height: 100%;
-            text-decoration: none; gap: 14px;
-            transition: opacity .2s;
-        }
-        .video-external-link:hover { opacity: .85; }
-        .video-play-btn {
-            width: 64px; height: 64px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,.3);
-            transition: transform .2s;
-        }
-        .video-external-link:hover .video-play-btn { transform: scale(1.08); }
-        .video-open-label {
-            color: rgba(255,255,255,.8); font-size: 14px; font-weight: 500;
-        }
+		@keyframes starPulse {
 
-        @media (max-width: 480px) {
-            .video-tab { padding: 7px 12px; font-size: 12px; }
-            .video-tab-icon { width: 15px; height: 15px; }
-            .video-play-btn { width: 52px; height: 52px; }
-            .video-open-label { font-size: 13px; }
-        }
+			0%,
+			100% {
+				transform: scale(1)
+			}
 
-        /* ── Balance UX ─────────────────────────────────────── */
-        .bal-banner {
-            padding: 14px 16px; border-radius: 12px;
-            font-size: 13px; line-height: 1.45;
-            margin-bottom: 14px; transition: all .4s ease;
-        }
-        .bal-banner-warn {
-            background: #fff7ec; border: 1px solid #f0d8a8;
-            color: #8a5a00;
-        }
-        .bal-banner-warn .bal-banner-icon { font-size: 18px; }
-        .bal-banner-success {
-            background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
-            border: 1px solid #a5d6a7; color: #2e7d32;
-        }
-        .bal-banner-title {
-            font-weight: 700; font-size: 14px; margin-bottom: 4px;
-            display: flex; align-items: center; gap: 6px;
-        }
-        .bal-banner-sub { font-weight: 500; opacity: .85; }
+			50% {
+				transform: scale(1.3)
+			}
+		}
 
-        /* Category progress pills */
-        .bal-progress {
-            display: flex; flex-wrap: wrap; gap: 6px;
-            margin-top: 10px;
-        }
-        .bal-progress-pill {
-            display: inline-flex; align-items: center; gap: 4px;
-            padding: 3px 10px; border-radius: 20px;
-            font-size: 11px; font-weight: 600;
-            border: 1.5px solid var(--border);
-            background: #fff; color: var(--text-2);
-            transition: all .3s ease;
-        }
-        .bal-progress-pill.done {
-            background: #e8f5e9; border-color: #66bb6a; color: #2e7d32;
-        }
-        .bal-progress-pill .pill-check {
-            width: 14px; height: 14px; border-radius: 50%;
-            border: 1.5px solid var(--border);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 9px; transition: all .3s ease;
-        }
-        .bal-progress-pill.done .pill-check {
-            background: #66bb6a; border-color: #66bb6a; color: #fff;
-        }
+		/* Video recipe platform selector */
+		.video-recipe-section {
+			margin-top: 24px;
+		}
 
-        /* Celebration sparkles */
-        @keyframes balCelebrate {
-            0% { transform: scale(.9); opacity: 0; }
-            50% { transform: scale(1.03); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .bal-banner-success { animation: balCelebrate .4s ease-out; }
+		.video-platform-tabs {
+			display: flex;
+			gap: 8px;
+			margin-top: 12px;
+			flex-wrap: wrap;
+		}
 
-        @keyframes sparkle {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-60px) scale(0); opacity: 0; }
-        }
-        .bal-sparkle-wrap {
-            position: relative; pointer-events: none; height: 0; overflow: visible;
-        }
-        .bal-sparkle {
-            position: absolute; font-size: 16px;
-            animation: sparkle .8s ease-out forwards;
-        }
+		.video-tab {
+			display: flex;
+			align-items: center;
+			gap: 7px;
+			padding: 8px 16px;
+			border-radius: 10px;
+			border: 2px solid var(--border);
+			background: var(--bg-alt);
+			font-size: 13px;
+			font-weight: 600;
+			color: var(--text-2);
+			cursor: pointer;
+			transition: all .2s;
+		}
 
-        /* Unbalanced warning toast (extended) */
-        .bal-warn-toast {
-            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
-            background: #fff3e0; border: 1px solid #ffe0b2; color: #e65100;
-            padding: 14px 20px; border-radius: 14px;
-            box-shadow: 0 8px 30px rgba(0,0,0,.12);
-            font-size: 13px; line-height: 1.4; text-align: center;
-            max-width: 360px; z-index: 9999;
-            opacity: 0; pointer-events: none;
-            transition: all .35s ease;
-        }
-        .bal-warn-toast.show {
-            opacity: 1; pointer-events: auto;
-            transform: translateX(-50%) translateY(0);
-        }
-        .bal-warn-toast-title { font-weight: 700; margin-bottom: 4px; }
-        .bal-warn-toast-sub { font-weight: 500; opacity: .85; font-size: 12px; }
-    </style>
+		.video-tab:hover {
+			border-color: var(--tab-color);
+			color: var(--tab-color);
+		}
+
+		.video-tab.active {
+			border-color: var(--tab-color);
+			background: var(--tab-color);
+			color: #fff;
+		}
+
+		.video-tab-icon {
+			display: flex;
+			width: 18px;
+			height: 18px;
+		}
+
+		.video-tab-icon svg {
+			width: 100%;
+			height: 100%;
+		}
+
+		.video-tab-label {
+			white-space: nowrap;
+		}
+
+		.video-player-wrap {
+			margin-top: 12px;
+			border-radius: var(--r-m, 12px);
+			overflow: hidden;
+			aspect-ratio: 16/9;
+			background: linear-gradient(135deg, #1a1a2e, #16213e);
+			position: relative;
+		}
+
+		.video-frame {
+			display: none;
+			position: absolute;
+			inset: 0;
+		}
+
+		.video-frame.active {
+			display: flex;
+		}
+
+		.video-external-link {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
+			height: 100%;
+			text-decoration: none;
+			gap: 14px;
+			transition: opacity .2s;
+		}
+
+		.video-external-link:hover {
+			opacity: .85;
+		}
+
+		.video-play-btn {
+			width: 64px;
+			height: 64px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, .3);
+			transition: transform .2s;
+		}
+
+		.video-external-link:hover .video-play-btn {
+			transform: scale(1.08);
+		}
+
+		.video-open-label {
+			color: rgba(255, 255, 255, .8);
+			font-size: 14px;
+			font-weight: 500;
+		}
+
+		@media (max-width: 480px) {
+			.video-tab {
+				padding: 7px 12px;
+				font-size: 12px;
+			}
+
+			.video-tab-icon {
+				width: 15px;
+				height: 15px;
+			}
+
+			.video-play-btn {
+				width: 52px;
+				height: 52px;
+			}
+
+			.video-open-label {
+				font-size: 13px;
+			}
+		}
+
+		/* ── Balance UX ─────────────────────────────────────── */
+		.bal-banner {
+			padding: 14px 16px;
+			border-radius: 12px;
+			font-size: 13px;
+			line-height: 1.45;
+			margin-bottom: 14px;
+			transition: all .4s ease;
+		}
+
+		.bal-banner-warn {
+			background: #fff7ec;
+			border: 1px solid #f0d8a8;
+			color: #8a5a00;
+		}
+
+		.bal-banner-warn .bal-banner-icon {
+			font-size: 18px;
+		}
+
+		.bal-banner-success {
+			background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+			border: 1px solid #a5d6a7;
+			color: #2e7d32;
+		}
+
+		.bal-banner-title {
+			font-weight: 700;
+			font-size: 14px;
+			margin-bottom: 4px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.bal-banner-sub {
+			font-weight: 500;
+			opacity: .85;
+		}
+
+		/* Category progress pills */
+		.bal-progress {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 6px;
+			margin-top: 10px;
+		}
+
+		.bal-progress-pill {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			padding: 3px 10px;
+			border-radius: 20px;
+			font-size: 11px;
+			font-weight: 600;
+			border: 1.5px solid var(--border);
+			background: #fff;
+			color: var(--text-2);
+			transition: all .3s ease;
+		}
+
+		.bal-progress-pill.done {
+			background: #e8f5e9;
+			border-color: #66bb6a;
+			color: #2e7d32;
+		}
+
+		.bal-progress-pill .pill-check {
+			width: 14px;
+			height: 14px;
+			border-radius: 50%;
+			border: 1.5px solid var(--border);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 9px;
+			transition: all .3s ease;
+		}
+
+		.bal-progress-pill.done .pill-check {
+			background: #66bb6a;
+			border-color: #66bb6a;
+			color: #fff;
+		}
+
+		/* Celebration sparkles */
+		@keyframes balCelebrate {
+			0% {
+				transform: scale(.9);
+				opacity: 0;
+			}
+
+			50% {
+				transform: scale(1.03);
+			}
+
+			100% {
+				transform: scale(1);
+				opacity: 1;
+			}
+		}
+
+		.bal-banner-success {
+			animation: balCelebrate .4s ease-out;
+		}
+
+		@keyframes sparkle {
+			0% {
+				transform: translateY(0) scale(1);
+				opacity: 1;
+			}
+
+			100% {
+				transform: translateY(-60px) scale(0);
+				opacity: 0;
+			}
+		}
+
+		.bal-sparkle-wrap {
+			position: relative;
+			pointer-events: none;
+			height: 0;
+			overflow: visible;
+		}
+
+		.bal-sparkle {
+			position: absolute;
+			font-size: 16px;
+			animation: sparkle .8s ease-out forwards;
+		}
+
+		/* Unbalanced warning toast (extended) */
+		.bal-warn-toast {
+			position: fixed;
+			bottom: 100px;
+			left: 50%;
+			transform: translateX(-50%) translateY(20px);
+			background: #fff3e0;
+			border: 1px solid #ffe0b2;
+			color: #e65100;
+			padding: 14px 20px;
+			border-radius: 14px;
+			box-shadow: 0 8px 30px rgba(0, 0, 0, .12);
+			font-size: 13px;
+			line-height: 1.4;
+			text-align: center;
+			max-width: 360px;
+			z-index: 9999;
+			opacity: 0;
+			pointer-events: none;
+			transition: all .35s ease;
+		}
+
+		.bal-warn-toast.show {
+			opacity: 1;
+			pointer-events: auto;
+			transform: translateX(-50%) translateY(0);
+		}
+
+		.bal-warn-toast-title {
+			font-weight: 700;
+			margin-bottom: 4px;
+		}
+
+		.bal-warn-toast-sub {
+			font-weight: 500;
+			opacity: .85;
+			font-size: 12px;
+		}
+	</style>
 </head>
+
 <body class="v-page" style="padding-bottom: 90px;">
 
-<!-- HEADER -->
-<header class="v-header" id="hdr">
-    <div class="v-wrap">
-        <div class="vh-inner">
-            <button class="vh-back-btn" id="back-btn" aria-label="Назад">
-                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-                <span id="back-label" style="display:none"></span>
-            </button>
-            <a href="index.html" class="vh-brand">
-                <span class="vh-brand-meta">
-                    <span class="vh-brand-name">Юлия Воронова</span>
-                    <span class="vh-brand-role">нутрициолог</span>
-                </span>
-                <span class="vh-brand-title">Умная <span class="vh-accent">тарелка</span></span>
-            </a>
-            <div class="vh-slogan-wrap">
-                <span class="vh-slogan">Персональный помощник в сбалансированном питании</span>
-            </div>
-            <div class="v-user-wrap" id="user-wrap">
-                <button class="vh-profile-pill" id="user-badge" onclick="toggleUserMenu(event)" type="button">
-                    <div class="v-user-avatar" id="u-ava" style="width:34px;height:34px;overflow:hidden;flex-shrink:0;border-radius:50%">?</div>
-                    <span class="vh-profile-name" id="u-name">Войти</span>
-                </button>
-                <div class="user-dropdown" id="user-dropdown">
-                    <a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
-                    <div class="user-dd-sep"></div>
-                    <button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
-                </div>
-            </div>
-            <button class="vh-plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
-                <span class="vh-plate-icon" style="position:relative;width:25px;height:25px;display:inline-block;overflow:hidden;border-radius:50%;flex-shrink:0">
-                    <span class="vh-slice vh-slice-g"></span>
-                    <span class="vh-slice vh-slice-y"></span>
-                    <span class="vh-slice vh-slice-r"></span>
-                </span>
-                <span class="plate-count" style="display:none">0</span>
-            </button>
-        </div>
-    </div>
-</header>
+	<!-- HEADER -->
+	<header class="v-header" id="hdr">
+		<div class="v-wrap">
+			<div class="vh-inner">
+				<button class="vh-back-btn" id="back-btn" aria-label="Назад">
+					<svg viewBox="0 0 24 24">
+						<path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+					</svg>
+					<span id="back-label" style="display:none"></span>
+				</button>
+				<a href="index.html" class="vh-brand">
+					<span class="vh-brand-meta">
+						<span class="vh-brand-name">Юлия Воронова</span>
+						<span class="vh-brand-role">нутрициолог</span>
+					</span>
+					<span class="vh-brand-title">Умная <span class="vh-accent">тарелка</span></span>
+				</a>
+				<div class="vh-slogan-wrap">
+					<span class="vh-slogan">Персональный помощник в сбалансированном питании</span>
+				</div>
+				<div class="v-user-wrap" id="user-wrap">
+					<button class="vh-profile-pill" id="user-badge" onclick="toggleUserMenu(event)" type="button">
+						<div class="v-user-avatar" id="u-ava" style="width:34px;height:34px;overflow:hidden;flex-shrink:0;border-radius:50%">?</div>
+						<span class="vh-profile-name" id="u-name">Войти</span>
+					</button>
+					<div class="user-dropdown" id="user-dropdown">
+						<a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
+						<div class="user-dd-sep"></div>
+						<button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
+					</div>
+				</div>
+				<button class="vh-plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
+					<span class="vh-plate-icon" style="position:relative;width:25px;height:25px;display:inline-block;overflow:hidden;border-radius:50%;flex-shrink:0">
+						<span class="vh-slice vh-slice-g"></span>
+						<span class="vh-slice vh-slice-y"></span>
+						<span class="vh-slice vh-slice-r"></span>
+					</span>
+					<span class="plate-count" style="display:none">0</span>
+				</button>
+			</div>
+		</div>
+	</header>
 
-<!-- CONTENT -->
-<main style="flex:1;">
-    <div class="v-wrap" id="page-content" style="padding-top:24px; padding-bottom:24px;"></div>
-</main>
+	<!-- CONTENT -->
+	<main style="flex:1;">
+		<div class="v-wrap" id="page-content" style="padding-top:24px; padding-bottom:24px;"></div>
+	</main>
 
-<!-- STICKY ADD BUTTON -->
-<div class="sticky-add" id="sticky-add" style="display:none">
-    <div class="sticky-add-inner" style="display:flex;justify-content:center">
-        <button class="btn btn-orange btn-lg" id="add-btn" style="width:100%;max-width:400px" onclick="addToPlate()">
-            + Добавить в тарелку
-        </button>
-    </div>
-</div>
+	<!-- STICKY ADD BUTTON -->
+	<div class="sticky-add" id="sticky-add" style="display:none">
+		<div class="sticky-add-inner" style="display:flex;justify-content:center">
+			<button class="btn btn-orange btn-lg" id="add-btn" style="width:100%;max-width:400px" onclick="addToPlate()">
+				+ Добавить в тарелку
+			</button>
+		</div>
+	</div>
 
-<!-- MY PLATE MODAL -->
-<div class="modal-overlay" id="plate-overlay" onclick="closePlateIfOutside(event)">
-    <div class="modal-box">
-        <div class="modal-handle"></div>
-        <div class="modal-header">
-            <div class="modal-title"><span class="modal-plate-icon"><span class="vh-slice vh-slice-g"></span><span class="vh-slice vh-slice-y"></span><span class="vh-slice vh-slice-r"></span></span> Моя тарелка</div>
-            <button class="modal-close" onclick="closePlate()">✕</button>
-        </div>
-        <div class="modal-body" id="plate-body"></div>
-    </div>
-</div>
+	<!-- MY PLATE MODAL -->
+	<div class="modal-overlay" id="plate-overlay" onclick="closePlateIfOutside(event)">
+		<div class="modal-box">
+			<div class="modal-handle"></div>
+			<div class="modal-header">
+				<div class="modal-title"><span class="modal-plate-icon"><span class="vh-slice vh-slice-g"></span><span class="vh-slice vh-slice-y"></span><span class="vh-slice vh-slice-r"></span></span> Моя тарелка</div>
+				<button class="modal-close" onclick="closePlate()">✕</button>
+			</div>
+			<div class="modal-body" id="plate-body"></div>
+		</div>
+	</div>
 
-<!-- CHAT FAB -->
-<button class="chat-fab" id="tawk-fab" onclick="openTawk()" title="Чат с отделом заботы">
-    <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
-</button>
+	<!-- CHAT FAB -->
+	<button class="chat-fab" id="tawk-fab" onclick="openTawk()" title="Чат с отделом заботы">
+		<svg class="chat-fab-icon" viewBox="0 0 24 24">
+			<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+		</svg>
+	</button>
 
-<script src="data-v2.js?v=1774941737"></script>
-<script>
-    Auth.requireAuth();
-    const _accessReady = Auth.checkAccess();
-    updatePlateIcon();
+	<script src="data-v2.js?v=1774941737"></script>
+	<script>
+		Auth.requireAuth();
+		const _accessReady = Auth.checkAccess();
+		updatePlateIcon();
 
-    // User pill init
-    (function() {
-        const user = Auth.getUser();
-        if (!user) return;
-        const customName = Auth.getDisplayName();
-        const displayName = customName || user.email.split('@')[0];
-        const uAva = document.getElementById('u-ava');
-        const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
-        if (savedAva) {
-            uAva.innerHTML = `<img src="${savedAva.replace(/"/g,'&quot;')}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-        } else {
-            uAva.textContent = (customName || user.email || '?').charAt(0).toUpperCase();
-        }
-        document.getElementById('u-name').textContent = displayName;
-    })();
+		// User pill init
+		(function () {
+			const user = Auth.getUser();
+			if (!user) return;
+			const customName = Auth.getDisplayName();
+			const displayName = customName || user.email.split('@')[0];
+			const uAva = document.getElementById('u-ava');
+			const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
+			if (savedAva) {
+				uAva.innerHTML = `<img src="${savedAva.replace(/"/g, '&quot;')}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+			} else {
+				uAva.textContent = (customName || user.email || '?').charAt(0).toUpperCase();
+			}
+			document.getElementById('u-name').textContent = displayName;
+		})();
 
-    function toggleUserMenu(e) {
-        e.stopPropagation();
-        document.getElementById('user-dropdown').classList.toggle('open');
-    }
-    document.addEventListener('click', function(e) {
-        const wrap = document.getElementById('user-wrap');
-        if (wrap && !wrap.contains(e.target)) document.getElementById('user-dropdown').classList.remove('open');
-    });
-    function doLogout() {
-        document.getElementById('user-dropdown').classList.remove('open');
-        const overlay = document.createElement('div');
-        overlay.className = 'farewell-overlay';
-        overlay.innerHTML = '<div class="farewell-emoji">👋</div><div class="farewell-text">До встречи!</div><div class="farewell-sub">Возвращайтесь — мы ждём вас</div>';
-        document.body.appendChild(overlay);
-        requestAnimationFrame(() => overlay.classList.add('show'));
-        setTimeout(() => { Auth.logout(); location.href = 'login.html'; }, 1800);
-    }
+		function toggleUserMenu(e) {
+			e.stopPropagation();
+			document.getElementById('user-dropdown').classList.toggle('open');
+		}
+		document.addEventListener('click', function (e) {
+			const wrap = document.getElementById('user-wrap');
+			if (wrap && !wrap.contains(e.target)) document.getElementById('user-dropdown').classList.remove('open');
+		});
+		function doLogout() {
+			document.getElementById('user-dropdown').classList.remove('open');
+			const overlay = document.createElement('div');
+			overlay.className = 'farewell-overlay';
+			overlay.innerHTML = '<div class="farewell-emoji">👋</div><div class="farewell-text">До встречи!</div><div class="farewell-sub">Возвращайтесь — мы ждём вас</div>';
+			document.body.appendChild(overlay);
+			requestAnimationFrame(() => overlay.classList.add('show'));
+			setTimeout(() => { Auth.logout(); location.href = 'login.html'; }, 1800);
+		}
 
-    // Фото-заглушки по категориям (временно — из блога и гайда)
-    const PHOTO_BY_CAT = {
-        breakfasts: SITE_BASE + '/images/blog/post-290.webp',
-        mains:      SITE_BASE + '/images/cook-healthy-food.webp',
-        pancakes:   SITE_BASE + '/images/blog/random-pic-blog-2.webp',
-        spreads:    SITE_BASE + '/images/blog/random-pic-blog-3.webp',
-        salads:     SITE_BASE + '/images/blog/random-pic-blog-4.webp',
-        drinks:     SITE_BASE + '/images/blog/random-pic-blog-1.webp',
-        _sides:     SITE_BASE + '/images/blog/post-281.webp',
-    };
-    const PHOTO_FALLBACK = SITE_BASE + '/images/background-guide.webp';
+		// Фото-заглушки по категориям (временно — из блога и гайда)
+		const PHOTO_BY_CAT = {
+			breakfasts: SITE_BASE + '/images/blog/post-290.webp',
+			mains: SITE_BASE + '/images/cook-healthy-food.webp',
+			pancakes: SITE_BASE + '/images/blog/random-pic-blog-2.webp',
+			spreads: SITE_BASE + '/images/blog/random-pic-blog-3.webp',
+			salads: SITE_BASE + '/images/blog/random-pic-blog-4.webp',
+			drinks: SITE_BASE + '/images/blog/random-pic-blog-1.webp',
+			_sides: SITE_BASE + '/images/blog/post-281.webp',
+		};
+		const PHOTO_FALLBACK = SITE_BASE + '/images/background-guide.webp';
 
-    // Prepend voronova.online to relative image paths. Images live in the main site repo,
-    // so editor entries like "images/recipes/foo/bar.webp" must be resolved to the main domain.
-    function photoUrl(p) {
-        if (!p) return p;
-        if (/^(https?:|data:|blob:)/i.test(p)) return p;
-        return SITE_BASE + '/' + p.replace(/^\/+/, '');
-    }
+		// Prepend voronova.online to relative image paths. Images live in the main site repo,
+		// so editor entries like "images/recipes/foo/bar.webp" must be resolved to the main domain.
+		function photoUrl(p) {
+			if (!p) return p;
+			if (/^(https?:|data:|blob:)/i.test(p)) return p;
+			return SITE_BASE + '/' + p.replace(/^\/+/, '');
+		}
 
-    window.addEventListener('scroll', () =>
-        document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
+		window.addEventListener('scroll', () =>
+			document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
 
-    const params = new URLSearchParams(location.search);
-    const recipeId = params.get('id');
-    const fromCat  = params.get('from') || '';
-    const simpleMode = params.get('simple') === '1';
-    let r, cat;
+		const params = new URLSearchParams(location.search);
+		const recipeId = params.get('id');
+		const fromCat = params.get('from') || '';
+		const simpleMode = params.get('simple') === '1';
+		let r, cat;
 
-    // Must be declared before renderRecipe is called (used inside buildGroup)
-    const subItemRegistry = {};
-    const GROUP_CLASS = { p: 'group-protein', f: 'group-fat', c: 'group-carbs', fi: 'group-fiber' };
+		// Must be declared before renderRecipe is called (used inside buildGroup)
+		const subItemRegistry = {};
+		const GROUP_CLASS = { p: 'group-protein', f: 'group-fat', c: 'group-carbs', fi: 'group-fiber' };
 
-    function initRecipe() {
-        r = RECIPES[recipeId];
-        if (r && !Auth.canViewRecipe(r)) {
-            Auth._showPaywall('trial');
-        }
-        cat = (fromCat && fromCat !== 'plate') ? CATEGORIES[fromCat] : null;
+		function initRecipe() {
+			r = RECIPES[recipeId];
+			if (r && !Auth.canViewRecipe(r)) {
+				Auth._showPaywall('trial');
+			}
+			cat = (fromCat && fromCat !== 'plate') ? CATEGORIES[fromCat] : null;
 
-        // Back button
-        const backBtn = document.getElementById('back-btn');
-        if (fromCat === 'plate') {
-            backBtn.onclick = () => location.href = 'index.html';
-            document.getElementById('back-label').textContent = 'Тарелка';
-        } else {
-            backBtn.onclick = () => fromCat ? location.href = 'category.html?cat=' + fromCat : location.href = 'index.html';
-            if (cat) document.getElementById('back-label').textContent = cat.name;
-        }
+			// Back button
+			const backBtn = document.getElementById('back-btn');
+			if (fromCat === 'plate') {
+				backBtn.onclick = () => location.href = 'index.html';
+				document.getElementById('back-label').textContent = 'Тарелка';
+			} else {
+				backBtn.onclick = () => fromCat ? location.href = 'category.html?cat=' + fromCat : location.href = 'index.html';
+				if (cat) document.getElementById('back-label').textContent = cat.name;
+			}
 
-        if (!r) {
-        document.getElementById('page-content').innerHTML =
-            '<div style="text-align:center;padding:80px 20px">' +
-            '<div style="font-size:48px">😕</div>' +
-            '<div style="font-size:16px;color:var(--text-2);margin-top:12px">Рецепт не найден</div>' +
-            '<button class="btn btn-green" style="margin-top:20px" onclick="history.back()">← Назад</button>' +
-            '</div>';
-    } else if (r.isSublist) {
-        renderSublist(r);
-    } else {
-        renderRecipe(r);
-        setTimeout(loadReviews, 300);
-    }
-    } // end initRecipe
+			if (!r) {
+				document.getElementById('page-content').innerHTML =
+					'<div style="text-align:center;padding:80px 20px">' +
+					'<div style="font-size:48px">😕</div>' +
+					'<div style="font-size:16px;color:var(--text-2);margin-top:12px">Рецепт не найден</div>' +
+					'<button class="btn btn-green" style="margin-top:20px" onclick="history.back()">← Назад</button>' +
+					'</div>';
+			} else if (r.isSublist) {
+				renderSublist(r);
+			} else {
+				renderRecipe(r);
+				setTimeout(loadReviews, 300);
+			}
+		} // end initRecipe
 
-    Promise.all([loadContent(), _accessReady, Favorites.load(), Plate.load()]).then(function() {
-        if (isContentError()) {
-            showApiError(document.getElementById('page-content'));
-            return;
-        }
-        initRecipe();
-    }).catch(function(err) {
-        console.error('Recipe render error:', err);
-        var pc = document.getElementById('page-content');
-        if (pc) pc.innerHTML = '<div style="text-align:center;padding:40px;color:red">Ошибка: ' + err.message + '</div>';
-    });
+		Promise.all([loadContent(), _accessReady, Favorites.load(), Plate.load()]).then(function () {
+			if (isContentError()) {
+				showApiError(document.getElementById('page-content'));
+				return;
+			}
+			initRecipe();
+		}).catch(function (err) {
+			console.error('Recipe render error:', err);
+			var pc = document.getElementById('page-content');
+			if (pc) pc.innerHTML = '<div style="text-align:center;padding:40px;color:red">Ошибка: ' + err.message + '</div>';
+		});
 
-    // ── SUBLIST (e.g. Здоровые бутерброды → список намазок) ─────────────
-    function renderSublist(r) {
-        document.title = r.name + ' — Конструктор питания';
-        const items = (r.subItems || []).map(id => RECIPES[id]).filter(Boolean);
-        const html = `
+		// ── SUBLIST (e.g. Здоровые бутерброды → список намазок) ─────────────
+		function renderSublist(r) {
+			document.title = r.name + ' — Конструктор питания';
+			const items = (r.subItems || []).map(id => RECIPES[id]).filter(Boolean);
+			const html = `
             <div class="anim">
                 <div style="font-size:40px;margin-bottom:10px">${escHtml(r.emoji)}</div>
                 <h1 class="recipe-title" style="margin-bottom:6px">${escHtml(r.name)}</h1>
@@ -378,140 +564,155 @@
                     <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
                     <div class="julia-tip-bubble">
                         <div class="julia-tip-text">«${escHtml(r.tip)}»</div>
-                        <div class="julia-tip-name">— Юлия Воронова</div>
+
                     </div>
                 </div>` : ''}
             </div>`;
-        document.getElementById('page-content').innerHTML = html;
-    }
+			document.getElementById('page-content').innerHTML = html;
+		}
 
-    // ── RECIPE PAGE ───────────────────────────────────────────────────────
-    let checkedItems = {};
+		// ── RECIPE PAGE ───────────────────────────────────────────────────────
+		let checkedItems = {};
 
-    // Balance state
-    let _balRequired = []; // filled during render: [{key,prefix,label}]
-    let _wasBalanced = false;
-    let _celebrationShown = false;
+		// Balance state
+		let _balRequired = []; // filled during render: [{key,prefix,label}]
+		let _wasBalanced = false;
+		let _celebrationShown = false;
 
-    function isInPlate() {
-        return Plate.get().some(item => item.recipeId === r.id);
-    }
+		function isInPlate() {
+			return Plate.get().some(item => item.recipeId === r.id);
+		}
 
-    // Экранирование HTML — защита от XSS
-    function escHtml(s) {
-        return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-    // Сначала escape, потом safe-linkify: [текст](recipeId) → ссылка
-    // recipeId валидируется: только буквы, цифры, дефис
-    function linkify(text) {
-        return escHtml(text).replace(/\[([^\]]+)\]\(([a-zA-Z0-9-]+)\)/g, function(_, label, rid) {
-            return '<a href="recipe.html?id=' + rid + '" style="color:var(--accent);text-decoration:underline;cursor:pointer">' + label + '</a>';
-        });
-    }
+		// Экранирование HTML — защита от XSS
+		function escHtml(s) {
+			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		}
+		// Сначала escape, потом safe-linkify: [текст](recipeId) → ссылка
+		// recipeId валидируется: только буквы, цифры, дефис
+		// AUTO_LINKS: ключевые слова в тексте автоматически становятся ссылками на рецепт.
+		// Каждая запись — { re: RegExp (с флагом g, без групп захвата), id: 'recipe-id' }.
+		const AUTO_LINKS = [
+			{ re: /овощн(?:ый|ого|ому|ым|ом|ая|ой|ую|ое|ые|ых|ым|ыми)?\s+концентрат(?:а|у|ом|е|ы|ов|ам|ами|ах)?/gi, id: 'veggie-concentrate' },
+		];
+		function _autoLink(html, selfId) {
+			const anchor = (label, rid) => '<a href="recipe.html?id=' + rid + '" style="color:var(--accent);text-decoration:underline;cursor:pointer">' + label + '</a>';
+			AUTO_LINKS.forEach(rule => {
+				if (rule.id === selfId) return;
+				html = html.replace(rule.re, m => anchor(m, rule.id));
+			});
+			return html;
+		}
+		function linkify(text) {
+			let html = escHtml(text).replace(/\[([^\]]+)\]\(([a-zA-Z0-9-]+)\)/g, function (_, label, rid) {
+				return '<a href="recipe.html?id=' + rid + '" style="color:var(--accent);text-decoration:underline;cursor:pointer">' + label + '</a>';
+			});
+			return _autoLink(html, window.__currentRecipeId);
+		}
 
-    function renderRecipe(r) {
-        document.title = r.name + ' — Конструктор питания';
-        document.getElementById('sticky-add').style.display = 'block';
-        const fab = document.getElementById('tawk-fab');
-        if (fab) fab.classList.add('above-sticky');
+		function renderRecipe(r) {
+			window.__currentRecipeId = r.id;
+			document.title = r.name + ' — Конструктор питания';
+			document.getElementById('sticky-add').style.display = 'block';
+			const fab = document.getElementById('tawk-fab');
+			if (fab) fab.classList.add('above-sticky');
 
-        const diff = DIFF_LABELS[r.diff] || r.diff;
-        const catObj = r.cat ? CATEGORIES[r.cat] : null;
-        const catColor = catObj ? catObj.color : '#9ab89e';
+			const diff = DIFF_LABELS[r.diff] || r.diff;
+			const catObj = r.cat ? CATEGORIES[r.cat] : null;
+			const catColor = catObj ? catObj.color : '#9ab89e';
 
-        const DEFAULT_ADD = {
-            protein: [
-                { name: 'Нут отварной (3 ст.л.)', kcal: 120, protein: 7, fat: 2, carbs: 18, fiber: 4 },
-                { name: 'Тофу (50 г)', kcal: 40, protein: 5, fat: 2, carbs: 1, fiber: 0 },
-                { name: 'Красная чечевица (2 ст.л. сухой)', kcal: 110, protein: 8, fat: 0, carbs: 18, fiber: 3 },
-            ],
-            fat: [
-                { name: 'Тыквенные семечки (1 ст.л.)', kcal: 55, protein: 3, fat: 4, carbs: 1, fiber: 0 },
-                { name: 'Льняные семечки (1 ч.л.)', kcal: 35, protein: 1, fat: 3, carbs: 2, fiber: 1 },
-                { name: 'Авокадо (¼ шт.)', kcal: 80, protein: 1, fat: 7, carbs: 4, fiber: 3 },
-            ],
-            carbs: [
-                { name: 'Цельнозерновой хлеб (1 кусок)', kcal: 80, protein: 3, fat: 1, carbs: 15, fiber: 2 },
-                { name: 'Бурый рис (3 ст.л. готового)', kcal: 75, protein: 2, fat: 0, carbs: 16, fiber: 1 },
-                { name: 'Гречка отварная (3 ст.л.)', kcal: 80, protein: 3, fat: 1, carbs: 17, fiber: 2 },
-            ],
-            fiber: [
-                { name: 'Свежая зелень — укроп, петрушка (горсть)', kcal: 5, protein: 0, fat: 0, carbs: 1, fiber: 1 },
-                { name: 'Листья шпината (горсть)', kcal: 15, protein: 2, fat: 0, carbs: 2, fiber: 2 },
-                { name: 'Огурец свежий (½ шт.)', kcal: 10, protein: 0, fat: 0, carbs: 2, fiber: 1 },
-            ],
-        };
-        // Resolve auto-addons (recipe-level overrides category-level per slot)
-        // Rule shape: { fromCategory: "salads" } → pulls all published recipes from that category
-        function _resolveAutoAddons(recipe) {
-            const slots = ['protein', 'fat', 'carbs', 'fiber'];
-            const resolved = { protein: [], fat: [], carbs: [], fiber: [] };
-            const rules = {};
-            // Category-level rules (union across recipe's categories, first-win per slot)
-            const recipeCats = recipe.categories || (recipe.cat ? [recipe.cat] : []);
-            recipeCats.forEach(catId => {
-                const cat = (typeof CATEGORIES !== 'undefined' && CATEGORIES[catId]) || null;
-                const aa = cat && cat.autoAddons || {};
-                slots.forEach(s => { if (!rules[s] && aa[s]) rules[s] = aa[s]; });
-            });
-            // Recipe-level overrides
-            const rAA = recipe.autoAddons || {};
-            slots.forEach(s => { if (rAA[s]) rules[s] = rAA[s]; });
-            // Materialize: find published recipes in target category
-            slots.forEach(s => {
-                const rule = rules[s];
-                if (!rule || !rule.fromCategory) return;
-                const sourceId = rule.fromCategory;
-                if (typeof RECIPES === 'undefined') return;
-                Object.values(RECIPES).forEach(rx => {
-                    if (rx.id === recipe.id) return;
-                    const rxCats = rx.categories || (rx.cat ? [rx.cat] : []);
-                    if (rxCats.indexOf(sourceId) === -1) return;
-                    resolved[s].push({
-                        name: rx.name,
-                        kcal: rx.kcal || 0,
-                        protein: rx.protein || 0,
-                        fat: rx.fat || 0,
-                        carbs: rx.carbs || 0,
-                        fiber: rx.fiber || 0,
-                        recipeId: rx.id,
-                        _auto: true
-                    });
-                });
-            });
-            return resolved;
-        }
-        function _mergeAddItems(explicit, auto) {
-            const out = (explicit || []).slice();
-            const seen = new Set();
-            out.forEach(it => {
-                if (it && it.recipeId) seen.add('r:' + it.recipeId);
-                if (it && it.name) seen.add('n:' + it.name.toLowerCase().trim());
-            });
-            (auto || []).forEach(it => {
-                const keyR = it.recipeId ? 'r:' + it.recipeId : null;
-                const keyN = 'n:' + (it.name || '').toLowerCase().trim();
-                if ((keyR && seen.has(keyR)) || seen.has(keyN)) return;
-                out.push(it);
-                if (keyR) seen.add(keyR);
-                seen.add(keyN);
-            });
-            return out;
-        }
-        const _autoAdd = _resolveAutoAddons(r);
-        const addProtein = _mergeAddItems(r.addProtein, _autoAdd.protein);
-        const addFat     = _mergeAddItems(r.addFat,     _autoAdd.fat);
-        const addCarbs   = _mergeAddItems(r.addCarbs,   _autoAdd.carbs);
-        const addFiber   = _mergeAddItems(r.addFiber,   _autoAdd.fiber);
-        // Сайдбар показывается ТОЛЬКО если хотя бы одно add* поле (после резолва) содержит данные
-        const _hasOwn = (arr) => Array.isArray(arr) && arr.length > 0;
-        const _hasAnyAdd = _hasOwn(addProtein) || _hasOwn(addFat) || _hasOwn(addCarbs) || _hasOwn(addFiber);
-        const hasAdditions = !simpleMode && _hasAnyAdd;
+			const DEFAULT_ADD = {
+				protein: [
+					{ name: 'Нут отварной (3 ст.л.)', kcal: 120, protein: 7, fat: 2, carbs: 18, fiber: 4 },
+					{ name: 'Тофу (50 г)', kcal: 40, protein: 5, fat: 2, carbs: 1, fiber: 0 },
+					{ name: 'Красная чечевица (2 ст.л. сухой)', kcal: 110, protein: 8, fat: 0, carbs: 18, fiber: 3 },
+				],
+				fat: [
+					{ name: 'Тыквенные семечки (1 ст.л.)', kcal: 55, protein: 3, fat: 4, carbs: 1, fiber: 0 },
+					{ name: 'Льняные семечки (1 ч.л.)', kcal: 35, protein: 1, fat: 3, carbs: 2, fiber: 1 },
+					{ name: 'Авокадо (¼ шт.)', kcal: 80, protein: 1, fat: 7, carbs: 4, fiber: 3 },
+				],
+				carbs: [
+					{ name: 'Цельнозерновой хлеб (1 кусок)', kcal: 80, protein: 3, fat: 1, carbs: 15, fiber: 2 },
+					{ name: 'Бурый рис (3 ст.л. готового)', kcal: 75, protein: 2, fat: 0, carbs: 16, fiber: 1 },
+					{ name: 'Гречка отварная (3 ст.л.)', kcal: 80, protein: 3, fat: 1, carbs: 17, fiber: 2 },
+				],
+				fiber: [
+					{ name: 'Свежая зелень — укроп, петрушка (горсть)', kcal: 5, protein: 0, fat: 0, carbs: 1, fiber: 1 },
+					{ name: 'Листья шпината (горсть)', kcal: 15, protein: 2, fat: 0, carbs: 2, fiber: 2 },
+					{ name: 'Огурец свежий (½ шт.)', kcal: 10, protein: 0, fat: 0, carbs: 2, fiber: 1 },
+				],
+			};
+			// Resolve auto-addons (recipe-level overrides category-level per slot)
+			// Rule shape: { fromCategory: "salads" } → pulls all published recipes from that category
+			function _resolveAutoAddons(recipe) {
+				const slots = ['protein', 'fat', 'carbs', 'fiber'];
+				const resolved = { protein: [], fat: [], carbs: [], fiber: [] };
+				const rules = {};
+				// Category-level rules (union across recipe's categories, first-win per slot)
+				const recipeCats = recipe.categories || (recipe.cat ? [recipe.cat] : []);
+				recipeCats.forEach(catId => {
+					const cat = (typeof CATEGORIES !== 'undefined' && CATEGORIES[catId]) || null;
+					const aa = cat && cat.autoAddons || {};
+					slots.forEach(s => { if (!rules[s] && aa[s]) rules[s] = aa[s]; });
+				});
+				// Recipe-level overrides
+				const rAA = recipe.autoAddons || {};
+				slots.forEach(s => { if (rAA[s]) rules[s] = rAA[s]; });
+				// Materialize: find published recipes in target category
+				slots.forEach(s => {
+					const rule = rules[s];
+					if (!rule || !rule.fromCategory) return;
+					const sourceId = rule.fromCategory;
+					if (typeof RECIPES === 'undefined') return;
+					Object.values(RECIPES).forEach(rx => {
+						if (rx.id === recipe.id) return;
+						const rxCats = rx.categories || (rx.cat ? [rx.cat] : []);
+						if (rxCats.indexOf(sourceId) === -1) return;
+						resolved[s].push({
+							name: rx.name,
+							kcal: rx.kcal || 0,
+							protein: rx.protein || 0,
+							fat: rx.fat || 0,
+							carbs: rx.carbs || 0,
+							fiber: rx.fiber || 0,
+							recipeId: rx.id,
+							_auto: true
+						});
+					});
+				});
+				return resolved;
+			}
+			function _mergeAddItems(explicit, auto) {
+				const out = (explicit || []).slice();
+				const seen = new Set();
+				out.forEach(it => {
+					if (it && it.recipeId) seen.add('r:' + it.recipeId);
+					if (it && it.name) seen.add('n:' + it.name.toLowerCase().trim());
+				});
+				(auto || []).forEach(it => {
+					const keyR = it.recipeId ? 'r:' + it.recipeId : null;
+					const keyN = 'n:' + (it.name || '').toLowerCase().trim();
+					if ((keyR && seen.has(keyR)) || seen.has(keyN)) return;
+					out.push(it);
+					if (keyR) seen.add(keyR);
+					seen.add(keyN);
+				});
+				return out;
+			}
+			const _autoAdd = _resolveAutoAddons(r);
+			const addProtein = _mergeAddItems(r.addProtein, _autoAdd.protein);
+			const addFat = _mergeAddItems(r.addFat, _autoAdd.fat);
+			const addCarbs = _mergeAddItems(r.addCarbs, _autoAdd.carbs);
+			const addFiber = _mergeAddItems(r.addFiber, _autoAdd.fiber);
+			// Сайдбар показывается ТОЛЬКО если хотя бы одно add* поле (после резолва) содержит данные
+			const _hasOwn = (arr) => Array.isArray(arr) && arr.length > 0;
+			const _hasAnyAdd = _hasOwn(addProtein) || _hasOwn(addFat) || _hasOwn(addCarbs) || _hasOwn(addFiber);
+			const hasAdditions = !simpleMode && _hasAnyAdd;
 
-        const ingHtml = (r.ingredients || []).map((ing, i) => {
-            const name = typeof ing === 'string' ? ing : ing.name;
-            const swap = typeof ing === 'object' ? ing.swap : null;
-            return `<div>
+			const ingHtml = (r.ingredients || []).map((ing, i) => {
+				const name = typeof ing === 'string' ? ing : ing.name;
+				const swap = typeof ing === 'object' ? ing.swap : null;
+				return `<div>
                 <div class="ing-item">
                     <div class="ing-dot"></div>
                     <div class="ing-name">${linkify(name)}</div>
@@ -519,65 +720,61 @@
                 </div>
                 ${swap ? `<div class="ing-swap-tip" id="swap-${i}">${linkify(swap)}</div>` : ''}
             </div>`;
-        }).join('');
+			}).join('');
 
-        const stepsArr = (r.steps || []).map((s, i) => {
-            const text  = escHtml(typeof s === 'string' ? s : s.text);
-            const photo = typeof s === 'object' && s.photo ? s.photo : null;
-            const photoHtml = photo
-                ? (photo === true
-                    ? `<div class="step-photo-placeholder"><span>📷</span><span>Фото шага ${i+1}</span></div>`
-                    : `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i+1}" loading="lazy" onerror="this.closest('.step-photo-wrap').style.display='none'">`)
-                : '';
-            return `<div class="step-item">
-                <div class="step-num">${i+1}</div>
+			const stepsArr = (r.steps || []).map((s, i) => {
+				const text = escHtml(typeof s === 'string' ? s : s.text);
+				const photo = typeof s === 'object' && s.photo ? s.photo : null;
+				const photoHtml = photo
+					? (photo === true
+						? `<div class="step-photo-placeholder"><span>📷</span><span>Фото шага ${i + 1}</span></div>`
+						: `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i + 1}" loading="lazy" onerror="this.closest('.step-photo-wrap').style.display='none'">`)
+					: '';
+				return `<div class="step-item">
+                <div class="step-num">${i + 1}</div>
                 <div class="step-body">
                     <div class="step-text">${text}</div>
                     ${photoHtml ? `<div class="step-photo-wrap">${photoHtml}</div>` : ''}
                 </div>
             </div>`;
-        });
-        // Final step: finished dish photo
-        const finalPhoto = r.photoFinal || (r.photo
-            ? (/-final\.[^.]+$/.test(r.photo) ? r.photo : r.photo.replace(/(\.[^.]+)$/, '-final$1'))
-            : '');
-        if (finalPhoto) {
-            const n = stepsArr.length + 1;
-            stepsArr.push(`<div class="step-item step-final">
+			});
+			// Final step: finished dish photo
+			const finalPhoto = r.photoFinal || (r.photo
+				? (/-final\.[^.]+$/.test(r.photo) ? r.photo : r.photo.replace(/(\.[^.]+)$/, '-final$1'))
+				: '');
+			if (finalPhoto) {
+				const n = stepsArr.length + 1;
+				stepsArr.push(`<div class="step-item step-final">
                 <div class="step-num">${n}</div>
                 <div class="step-body">
                     <div class="step-text">Наслаждайтесь! Приятного вам аппетита 😋</div>
                     <div class="step-photo-wrap"><img class="step-photo-img" src="${escHtml(photoUrl(finalPhoto))}" alt="Готовое блюдо" loading="lazy" onerror="this.closest('.step-final').style.display='none'"></div>
                 </div>
             </div>`);
-        }
-        const stepsHtml = stepsArr.join('');
+			}
+			const stepsHtml = stepsArr.join('');
 
-        // Balance: determine required categories
-        const _balCats = [];
-        if (addProtein.length) _balCats.push({ key: 'p', label: 'Белок', prefix: 'p' });
-        if (addFat.length)     _balCats.push({ key: 'f', label: 'Жиры', prefix: 'f' });
-        if (addCarbs.length)   _balCats.push({ key: 'c', label: 'Углеводы', prefix: 'c' });
-        if (addFiber.length)   _balCats.push({ key: 'fi', label: 'Клетчатка', prefix: 'fi' });
+			// Balance: determine required categories
+			const _balCats = [];
+			if (addProtein.length) _balCats.push({ key: 'p', label: 'Белок', prefix: 'p' });
+			if (addFat.length) _balCats.push({ key: 'f', label: 'Жиры', prefix: 'f' });
+			if (addCarbs.length) _balCats.push({ key: 'c', label: 'Углеводы', prefix: 'c' });
+			if (addFiber.length) _balCats.push({ key: 'fi', label: 'Клетчатка', prefix: 'fi' });
 
-        _balRequired = _balCats; // store for balance checking
+			_balRequired = _balCats; // store for balance checking
 
-        const balProgressHtml = _balCats.map(c =>
-            `<span class="bal-progress-pill" id="bal-pill-${c.key}"><span class="pill-check" id="bal-chk-${c.key}"></span>${c.key === 'p' ? '💪' : c.key === 'f' ? '🥑' : c.key === 'c' ? '🌾' : '🥬'} ${c.label}</span>`
-        ).join('');
+			const balProgressHtml = _balCats.map(c =>
+				`<span class="bal-progress-pill" id="bal-pill-${c.key}"><span class="pill-check" id="bal-chk-${c.key}"></span>${c.key === 'p' ? '💪' : c.key === 'f' ? '🥑' : c.key === 'c' ? '🌾' : '🥬'} ${c.label}</span>`
+			).join('');
 
-        const sidebarHtml = hasAdditions ? `
+			const sidebarHtml = hasAdditions ? `
             <div class="bal-sidebar anim anim-d2">
                 <div id="bal-banner" class="bal-banner bal-banner-warn">
                     <div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div>
-                    <div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи</div>
+                    <div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи — КБЖУ пересчитается</div>
                     <div class="bal-progress">${balProgressHtml}</div>
                 </div>
                 <div id="bal-sparkle-container" class="bal-sparkle-wrap"></div>
-                <div class="bal-sidebar-head">
-                    <div class="bal-sidebar-head-title">🌿 Сбалансируй тарелку</div>
-                    <div class="bal-sidebar-head-sub">Отметьте что добавите — КБЖУ пересчитается</div>
-                </div>
                 ${buildGroup('💪 Добавь белка для сытости', 'p', addProtein)}
                 ${buildGroup('🥑 Добавь жиров для баланса', 'f', addFat)}
                 ${buildGroup('🌾 Добавь углеводов для энергии', 'c', addCarbs)}
@@ -585,18 +782,18 @@
                 <div class="bal-total" id="bal-total-bar">
                     <div>
                         <div class="bal-total-label" id="bal-total-label">Итого:</div>
-                        <div class="bal-total-macro" id="add-macro">Б${Number(r.protein)}г · Ж${Number(r.fat)}г · У${Number(r.carbs)}г · Кл${Number(r.fiber||0)}г</div>
+                        <div class="bal-total-macro" id="add-macro"><span>Б&nbsp;${Number(r.protein)}&nbsp;г</span><span>·</span><span>Ж&nbsp;${Number(r.fat)}&nbsp;г</span><span>·</span><span>У&nbsp;${Number(r.carbs)}&nbsp;г</span><span>·</span><span>Кл&nbsp;${Number(r.fiber || 0)}&nbsp;г</span></div>
                     </div>
                     <div class="bal-total-val" id="bal-total-kcal">${Number(r.kcal)} ккал</div>
                 </div>
             </div>` : '';
 
-        const alreadyInPlate = isInPlate();
-        const fiberCell = (r.fiber !== undefined)
-            ? `<div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fiber">${Number(r.fiber)}г</div><div class="kbzhu-lbl">Клетчатка</div></div>`
-            : '';
+			const alreadyInPlate = isInPlate();
+			const fiberCell = (r.fiber !== undefined)
+				? `<div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fiber">${Number(r.fiber)}г</div><div class="kbzhu-lbl">Клетчатка</div></div>`
+				: '';
 
-        const tipHtml = r.tip ? `<div class="julia-tip">
+			const tipHtml = r.tip ? `<div class="julia-tip">
             <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
             <div class="julia-tip-bubble">
                 <div class="julia-tip-text">«${r.tip}»</div>
@@ -604,16 +801,16 @@
             </div>
         </div>` : '';
 
-        // Recipe meta: rating stars + date
-        // Stars and count will be filled from API by loadReviews()
-        const isFav = Favorites.has(r.id);
-        const starsRow = [1,2,3,4,5].map(i =>
-            `<span class="star r-star${i <= 0 ? ' filled' : ''}" style="cursor:pointer" onclick="scrollToReviews()">★</span>`).join('');
-        const voterCount = 0;
-        const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-        const dateStr = r.added || '';
+			// Recipe meta: rating stars + date
+			// Stars and count will be filled from API by loadReviews()
+			const isFav = Favorites.has(r.id);
+			const starsRow = [1, 2, 3, 4, 5].map(i =>
+				`<span class="star r-star${i <= 0 ? ' filled' : ''}" style="cursor:pointer" onclick="scrollToReviews()">★</span>`).join('');
+			const voterCount = 0;
+			const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+			const dateStr = r.added || '';
 
-        document.getElementById('page-content').innerHTML = `
+			document.getElementById('page-content').innerHTML = `
             <div class="recipe-layout">
                 <div class="recipe-main anim">
                     <div class="recipe-hero-img">
@@ -641,7 +838,7 @@
                     <div class="recipe-badges">
                         <span class="recipe-badge">⏱ ${Number(r.time)} мин</span>
                         <span class="recipe-badge">⚡ ${escHtml(diff)}</span>
-                        <span class="recipe-badge">🍽 ${Number(r.servings || 4)} порции <span style="font-weight:500;color:var(--text-2)">(1 порция ≈ ${Number(r.portionGrams || 300)} г)</span></span>
+                        <span class="recipe-badge">🍽 ${Number(r.servings || 4)} ${(()=>{const n=Number(r.servings||4),m10=n%10,m100=n%100;if(m10===1&&m100!==11)return 'порция';if([2,3,4].includes(m10)&&![12,13,14].includes(m100))return 'порции';return 'порций';})()} <span style="font-weight:500;color:var(--text-2)">(1 порция ≈ ${Number(r.portionGrams || 300)} г)</span></span>
                         ${dateStr ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">Рецепт добавлен: ${escHtml(dateStr)}</span>` : ''}
                     </div>
                     <h1 class="recipe-title">${escHtml(r.name)}</h1>
@@ -681,11 +878,11 @@
                     <div class="steps-list">${stepsHtml}</div>
 
                     ${!simpleMode && (r.ytVideo || r.vkVideo || r.dzenVideo) ? (() => {
-                        const vids = [];
-                        if (r.ytVideo) vids.push({ key: 'yt', label: 'YouTube', icon: '<svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.4 31.4 0 000 12a31.4 31.4 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.4 31.4 0 0024 12a31.4 31.4 0 00-.5-5.8zM9.5 15.6V8.4l6.3 3.6-6.3 3.6z" fill="currentColor"/></svg>', color: '#FF0000', url: r.ytVideo });
-                        if (r.vkVideo) vids.push({ key: 'vk', label: 'VK Видео', icon: '<svg viewBox="0 0 24 24"><path d="M21.6 7.2s.2-1.1-.4-1.6c-.5-.5-1-.5-1.3-.5C17.3 5 12 5 12 5s-5.3 0-7.9.1c-.3 0-.8 0-1.3.5-.6.5-.4 1.6-.4 1.6S2 8.5 2 9.9v1.3c0 1.3.4 2.7.4 2.7s.2 1.1.7 1.6c.7.7 1.6.7 2 .7 1.4.1 6 .2 6 .2s5.3 0 7.9-.2c.3 0 .8 0 1.3-.5.6-.5.4-1.6.4-1.6s.3-1.3.3-2.7V9.9c0-1.3-.4-2.7-.4-2.7zM9.5 15V8.5l6.5 3.3L9.5 15z" fill="currentColor"/></svg>', color: '#0077FF', url: r.vkVideo });
-                        if (r.dzenVideo) vids.push({ key: 'dzen', label: 'Дзен', icon: '<svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="currentColor"/><path d="M11 7.5L16 12l-5 4.5V7.5z" fill="currentColor"/></svg>', color: '#000', url: r.dzenVideo });
-                        return `
+					const vids = [];
+					if (r.ytVideo) vids.push({ key: 'yt', label: 'YouTube', icon: '<svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.4 31.4 0 000 12a31.4 31.4 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.4 31.4 0 0024 12a31.4 31.4 0 00-.5-5.8zM9.5 15.6V8.4l6.3 3.6-6.3 3.6z" fill="currentColor"/></svg>', color: '#FF0000', url: r.ytVideo });
+					if (r.vkVideo) vids.push({ key: 'vk', label: 'VK Видео', icon: '<svg viewBox="0 0 24 24"><path d="M21.6 7.2s.2-1.1-.4-1.6c-.5-.5-1-.5-1.3-.5C17.3 5 12 5 12 5s-5.3 0-7.9.1c-.3 0-.8 0-1.3.5-.6.5-.4 1.6-.4 1.6S2 8.5 2 9.9v1.3c0 1.3.4 2.7.4 2.7s.2 1.1.7 1.6c.7.7 1.6.7 2 .7 1.4.1 6 .2 6 .2s5.3 0 7.9-.2c.3 0 .8 0 1.3-.5.6-.5.4-1.6.4-1.6s.3-1.3.3-2.7V9.9c0-1.3-.4-2.7-.4-2.7zM9.5 15V8.5l6.5 3.3L9.5 15z" fill="currentColor"/></svg>', color: '#0077FF', url: r.vkVideo });
+					if (r.dzenVideo) vids.push({ key: 'dzen', label: 'Дзен', icon: '<svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="currentColor"/><path d="M11 7.5L16 12l-5 4.5V7.5z" fill="currentColor"/></svg>', color: '#000', url: r.dzenVideo });
+					return `
                         <div class="video-recipe-section">
                             <div class="v-section-title" style="margin-top:20px">Видеорецепт</div>
                             <div class="video-platform-tabs" id="video-tabs">
@@ -699,7 +896,7 @@
                                 </div>`).join('')}
                             </div>
                         </div>`;
-                    })() : ''}
+				})() : ''}
 
                     ${tipHtml}
 
@@ -711,7 +908,7 @@
                             ${Auth.isLoggedIn() ? `
                             <div class="review-form">
                                 <div class="review-form-stars" id="review-form-stars">
-                                    ${[1,2,3,4,5].map(i => `<span class="star review-star" data-n="${i}" onclick="setReviewStars(${i})">★</span>`).join('')}
+                                    ${[1, 2, 3, 4, 5].map(i => `<span class="star review-star" data-n="${i}" onclick="setReviewStars(${i})">★</span>`).join('')}
                                 </div>
                                 <textarea id="review-text" class="review-textarea" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." maxlength="1000" rows="3"></textarea>
                                 <div style="display:flex;align-items:center;justify-content:space-between">
@@ -729,57 +926,57 @@
                 </div>
             </div>`;
 
-        // Mobile: move sidebar DOM nodes (not innerHTML copy) to avoid duplicate IDs
-        if (window.innerWidth <= 767) {
-            const m = document.getElementById('sidebar-mobile');
-            const d = document.getElementById('sidebar-desktop');
-            if (m && d && d.firstChild) {
-                m.style.display = 'block';
-                while (d.firstChild) m.appendChild(d.firstChild);
-            }
-        }
+			// Mobile: move sidebar DOM nodes (not innerHTML copy) to avoid duplicate IDs
+			if (window.innerWidth <= 767) {
+				const m = document.getElementById('sidebar-mobile');
+				const d = document.getElementById('sidebar-desktop');
+				if (m && d && d.firstChild) {
+					m.style.display = 'block';
+					while (d.firstChild) m.appendChild(d.firstChild);
+				}
+			}
 
-        // Stars: animate when entering viewport
-        const starsRowEl = document.getElementById('recipe-stars-row');
-        if (starsRowEl && 'IntersectionObserver' in window) {
-            const io = new IntersectionObserver(function(entries) {
-                if (entries[0].isIntersecting) {
-                    starsRowEl.classList.add('stars-animate');
-                    io.disconnect();
-                }
-            }, { threshold: 0.5 });
-            io.observe(starsRowEl);
-        }
+			// Stars: animate when entering viewport
+			const starsRowEl = document.getElementById('recipe-stars-row');
+			if (starsRowEl && 'IntersectionObserver' in window) {
+				const io = new IntersectionObserver(function (entries) {
+					if (entries[0].isIntersecting) {
+						starsRowEl.classList.add('stars-animate');
+						io.disconnect();
+					}
+				}, { threshold: 0.5 });
+				io.observe(starsRowEl);
+			}
 
-        // Check if already in plate
-        if (alreadyInPlate) {
-            const btn = document.getElementById('add-btn');
-            if (btn) {
-                btn.textContent = '✓ В тарелке';
-                btn.disabled = true;
-                btn.style.opacity = '0.6';
-                btn.style.cursor = 'default';
-            }
-        }
-    }
+			// Check if already in plate
+			if (alreadyInPlate) {
+				const btn = document.getElementById('add-btn');
+				if (btn) {
+					btn.textContent = '✓ В тарелке';
+					btn.disabled = true;
+					btn.style.opacity = '0.6';
+					btn.style.cursor = 'default';
+				}
+			}
+		}
 
-    // subItemRegistry declared above (before renderRecipe call)
+		// subItemRegistry declared above (before renderRecipe call)
 
-    function buildGroup(label, prefix, items) {
-        if (!items || !items.length) return '';
-        const cls = GROUP_CLASS[prefix] || '';
-        return `<div class="bal-group ${cls}">
+		function buildGroup(label, prefix, items) {
+			if (!items || !items.length) return '';
+			const cls = GROUP_CLASS[prefix] || '';
+			return `<div class="bal-group ${cls}">
             <div class="bal-group-title">${label}</div>
             <div class="bal-group-items">
                 ${items.map((item, i) => {
-                    const key = prefix + '-' + i;
-                    const hasRecipe = item.recipeId;
-                    const hasCat = item.catLink;
-                    if (hasRecipe) {
-                        subItemRegistry[key] = item;
-                        const subInPlate = Plate.get().some(p => p.recipeId === item.recipeId);
-                        const safeRid = encodeURIComponent(item.recipeId);
-                        return `<div class="bal-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal||0)},${Number(item.protein||0)},${Number(item.fat||0)},${Number(item.carbs||0)},${Number(item.fiber||0)})" style="position:relative;cursor:pointer">
+				const key = prefix + '-' + i;
+				const hasRecipe = item.recipeId;
+				const hasCat = item.catLink;
+				if (hasRecipe) {
+					subItemRegistry[key] = item;
+					const subInPlate = Plate.get().some(p => p.recipeId === item.recipeId);
+					const safeRid = encodeURIComponent(item.recipeId);
+					return `<div class="bal-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative;cursor:pointer">
                             <div class="bal-item-check" id="chk-${key}"></div>
                             <div class="bal-item-text">
                                 ${escHtml(item.name)}
@@ -787,8 +984,8 @@
                             </div>
                             <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
                         </div>`;
-                    } else {
-                        return `<button class="bal-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal||0)},${Number(item.protein||0)},${Number(item.fat||0)},${Number(item.carbs||0)},${Number(item.fiber||0)})" style="position:relative">
+				} else {
+					return `<button class="bal-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative">
                             <div class="bal-item-check" id="chk-${key}"></div>
                             <div class="bal-item-text">
                                 ${escHtml(item.name)}
@@ -796,452 +993,452 @@
                             </div>
                             <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
                         </button>`;
-                    }
-                }).join('')}
+				}
+			}).join('')}
             </div>
         </div>`;
-    }
+		}
 
-    function addSubToPlate(key, event) {
-        event.stopPropagation();
-        const btn = document.getElementById('sub-add-' + key);
-        if (btn && btn.disabled) return;
-        const item = subItemRegistry[key];
-        if (!item) return;
-        Plate.add({
-            name: item.name,
-            emoji: item.emoji || '🍴',
-            kcal: item.kcal || 0,
-            protein: item.protein || 0,
-            fat: item.fat || 0,
-            carbs: item.carbs || 0,
-            fiber: item.fiber || 0,
-            recipeId: item.recipeId,
-            ingredients: []
-        });
-        if (btn) {
-            btn.textContent = '✓ В тарелке';
-            btn.disabled = true;
-            btn.className = 'btn btn-sm btn-ghost';
-            btn.style.opacity = '.6';
-            btn.style.cursor = 'default';
-        }
-        updatePlateIcon();
-        showToast((item.emoji || '') + ' Добавлено в тарелку!');
-    }
+		function addSubToPlate(key, event) {
+			event.stopPropagation();
+			const btn = document.getElementById('sub-add-' + key);
+			if (btn && btn.disabled) return;
+			const item = subItemRegistry[key];
+			if (!item) return;
+			Plate.add({
+				name: item.name,
+				emoji: item.emoji || '🍴',
+				kcal: item.kcal || 0,
+				protein: item.protein || 0,
+				fat: item.fat || 0,
+				carbs: item.carbs || 0,
+				fiber: item.fiber || 0,
+				recipeId: item.recipeId,
+				ingredients: []
+			});
+			if (btn) {
+				btn.textContent = '✓ В тарелке';
+				btn.disabled = true;
+				btn.className = 'btn btn-sm btn-ghost';
+				btn.style.opacity = '.6';
+				btn.style.cursor = 'default';
+			}
+			updatePlateIcon();
+			showToast((item.emoji || '') + ' Добавлено в тарелку!');
+		}
 
-    function toggleSwap(i) {
-        const el = document.getElementById('swap-' + i);
-        if (el) el.classList.toggle('open');
-    }
+		function toggleSwap(i) {
+			const el = document.getElementById('swap-' + i);
+			if (el) el.classList.toggle('open');
+		}
 
-    function toggleAddItem(key, kcal, protein, fat, carbs, fiber) {
-        const btn = document.getElementById('ai-' + key);
-        if (!btn) return;
-        if (checkedItems[key]) {
-            delete checkedItems[key];
-            btn.classList.remove('checked');
-        } else {
-            const nameEl = btn.querySelector('.bal-item-text');
-            let name = key;
-            if (nameEl) {
-                const clone = nameEl.cloneNode(true);
-                const link = clone.querySelector('.bal-item-recipe-link');
-                if (link) link.remove();
-                name = clone.textContent.trim() || key;
-            }
-            checkedItems[key] = { name, kcal, protein, fat, carbs, fiber: fiber || 0 };
-            btn.classList.add('checked');
-        }
-        updateAddTotal();
-    }
+		function toggleAddItem(key, kcal, protein, fat, carbs, fiber) {
+			const btn = document.getElementById('ai-' + key);
+			if (!btn) return;
+			if (checkedItems[key]) {
+				delete checkedItems[key];
+				btn.classList.remove('checked');
+			} else {
+				const nameEl = btn.querySelector('.bal-item-text');
+				let name = key;
+				if (nameEl) {
+					const clone = nameEl.cloneNode(true);
+					const link = clone.querySelector('.bal-item-recipe-link');
+					if (link) link.remove();
+					name = clone.textContent.trim() || key;
+				}
+				checkedItems[key] = { name, kcal, protein, fat, carbs, fiber: fiber || 0 };
+				btn.classList.add('checked');
+			}
+			updateAddTotal();
+		}
 
-    function checkBalance() {
-        if (!_balRequired.length) return true; // no sidebar = balanced
-        const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
-        let allDone = true;
-        _balRequired.forEach(cat => {
-            const done = checkedPrefixes.has(cat.prefix);
-            const pill = document.getElementById('bal-pill-' + cat.key);
-            const chk = document.getElementById('bal-chk-' + cat.key);
-            if (pill) pill.classList.toggle('done', done);
-            if (chk) chk.textContent = done ? '✓' : '';
-            if (!done) allDone = false;
-        });
-        // Update banner
-        const banner = document.getElementById('bal-banner');
-        if (banner) {
-            if (allDone) {
-                banner.className = 'bal-banner bal-banner-success';
-                banner.innerHTML = `<div class="bal-banner-title">✅ Блюдо сбалансировано!</div><div class="bal-banner-sub">Добавьте его в тарелку — это полноценный приём пищи</div>`;
-                if (!_celebrationShown) {
-                    _celebrationShown = true;
-                    spawnSparkles();
-                }
-            } else {
-                if (_wasBalanced) {
-                    // was balanced, now not — reset banner
-                    banner.className = 'bal-banner bal-banner-warn';
-                    const pills = _balRequired.map(c =>
-                        `<span class="bal-progress-pill${new Set(Object.keys(checkedItems).map(k=>k.replace(/-\d+$/,''))).has(c.prefix) ? ' done' : ''}" id="bal-pill-${c.key}"><span class="pill-check" id="bal-chk-${c.key}">${new Set(Object.keys(checkedItems).map(k=>k.replace(/-\d+$/,''))).has(c.prefix) ? '✓' : ''}</span>${c.key === 'p' ? '💪' : c.key === 'f' ? '🥑' : c.key === 'c' ? '🌾' : '🥬'} ${c.label}</span>`
-                    ).join('');
-                    banner.innerHTML = `<div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div><div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи</div><div class="bal-progress">${pills}</div>`;
-                    _celebrationShown = false;
-                }
-            }
-            _wasBalanced = allDone;
-        }
-        return allDone;
-    }
+		function checkBalance() {
+			if (!_balRequired.length) return true; // no sidebar = balanced
+			const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
+			let allDone = true;
+			_balRequired.forEach(cat => {
+				const done = checkedPrefixes.has(cat.prefix);
+				const pill = document.getElementById('bal-pill-' + cat.key);
+				const chk = document.getElementById('bal-chk-' + cat.key);
+				if (pill) pill.classList.toggle('done', done);
+				if (chk) chk.textContent = done ? '✓' : '';
+				if (!done) allDone = false;
+			});
+			// Update banner
+			const banner = document.getElementById('bal-banner');
+			if (banner) {
+				if (allDone) {
+					banner.className = 'bal-banner bal-banner-success';
+					banner.innerHTML = `<div class="bal-banner-title">✅ Блюдо сбалансировано!</div><div class="bal-banner-sub">Добавьте его в тарелку — это полноценный приём пищи</div>`;
+					if (!_celebrationShown) {
+						_celebrationShown = true;
+						spawnSparkles();
+					}
+				} else {
+					if (_wasBalanced) {
+						// was balanced, now not — reset banner
+						banner.className = 'bal-banner bal-banner-warn';
+						const pills = _balRequired.map(c =>
+							`<span class="bal-progress-pill${new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, ''))).has(c.prefix) ? ' done' : ''}" id="bal-pill-${c.key}"><span class="pill-check" id="bal-chk-${c.key}">${new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, ''))).has(c.prefix) ? '✓' : ''}</span>${c.key === 'p' ? '💪' : c.key === 'f' ? '🥑' : c.key === 'c' ? '🌾' : '🥬'} ${c.label}</span>`
+						).join('');
+						banner.innerHTML = `<div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div><div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи — КБЖУ пересчитается</div><div class="bal-progress">${pills}</div>`;
+						_celebrationShown = false;
+					}
+				}
+				_wasBalanced = allDone;
+			}
+			return allDone;
+		}
 
-    function spawnSparkles() {
-        const container = document.getElementById('bal-sparkle-container');
-        if (!container) return;
-        const emojis = ['✨', '🌟', '⭐', '💚', '🎉', '🌿'];
-        for (let i = 0; i < 8; i++) {
-            const s = document.createElement('span');
-            s.className = 'bal-sparkle';
-            s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-            s.style.left = (Math.random() * 90 + 5) + '%';
-            s.style.animationDelay = (Math.random() * .3) + 's';
-            s.style.animationDuration = (.6 + Math.random() * .4) + 's';
-            container.appendChild(s);
-        }
-        setTimeout(() => { container.innerHTML = ''; }, 1200);
-    }
+		function spawnSparkles() {
+			const container = document.getElementById('bal-sparkle-container');
+			if (!container) return;
+			const emojis = ['✨', '🌟', '⭐', '💚', '🎉', '🌿'];
+			for (let i = 0; i < 8; i++) {
+				const s = document.createElement('span');
+				s.className = 'bal-sparkle';
+				s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+				s.style.left = (Math.random() * 90 + 5) + '%';
+				s.style.animationDelay = (Math.random() * .3) + 's';
+				s.style.animationDuration = (.6 + Math.random() * .4) + 's';
+				container.appendChild(s);
+			}
+			setTimeout(() => { container.innerHTML = ''; }, 1200);
+		}
 
-    function updateAddTotal() {
-        if (!r) return;
-        let total = { kcal: r.kcal, protein: r.protein, fat: r.fat, carbs: r.carbs, fiber: r.fiber || 0 };
-        Object.values(checkedItems).forEach(v => {
-            total.kcal    += v.kcal    || 0;
-            total.protein += v.protein || 0;
-            total.fat     += v.fat     || 0;
-            total.carbs   += v.carbs   || 0;
-            total.fiber   += v.fiber   || 0;
-        });
-        const tEl = document.getElementById('bal-total-kcal');
-        const mEl = document.getElementById('add-macro');
-        const lEl = document.getElementById('bal-total-label');
-        if (tEl) tEl.textContent = total.kcal + ' ккал';
-        if (mEl) mEl.textContent = `Б${total.protein}г · Ж${total.fat}г · У${total.carbs}г · Кл${total.fiber}г`;
-        if (lEl) lEl.textContent = Object.keys(checkedItems).length ? 'Итого (блюдо + добавки):' : 'Итого:';
-        // Also update KBZHU block
-        const ke = document.getElementById('kbzhu-kcal');
-        const kp = document.getElementById('kbzhu-protein');
-        const kf = document.getElementById('kbzhu-fat');
-        const kc = document.getElementById('kbzhu-carbs');
-        const kfi = document.getElementById('kbzhu-fiber');
-        if (ke) ke.textContent = total.kcal;
-        if (kp) kp.textContent = total.protein + 'г';
-        if (kf) kf.textContent = total.fat + 'г';
-        if (kc) kc.textContent = total.carbs + 'г';
-        if (kfi) kfi.textContent = total.fiber + 'г';
-        // Check balance
-        checkBalance();
-    }
+		function updateAddTotal() {
+			if (!r) return;
+			let total = { kcal: r.kcal, protein: r.protein, fat: r.fat, carbs: r.carbs, fiber: r.fiber || 0 };
+			Object.values(checkedItems).forEach(v => {
+				total.kcal += v.kcal || 0;
+				total.protein += v.protein || 0;
+				total.fat += v.fat || 0;
+				total.carbs += v.carbs || 0;
+				total.fiber += v.fiber || 0;
+			});
+			const tEl = document.getElementById('bal-total-kcal');
+			const mEl = document.getElementById('add-macro');
+			const lEl = document.getElementById('bal-total-label');
+			if (tEl) tEl.textContent = total.kcal + ' ккал';
+			if (mEl) mEl.innerHTML = `<span>Б&nbsp;${total.protein}&nbsp;г</span><span>·</span><span>Ж&nbsp;${total.fat}&nbsp;г</span><span>·</span><span>У&nbsp;${total.carbs}&nbsp;г</span><span>·</span><span>Кл&nbsp;${total.fiber}&nbsp;г</span>`;
+			if (lEl) lEl.textContent = Object.keys(checkedItems).length ? 'Итого (блюдо + добавки):' : 'Итого:';
+			// Also update KBZHU block
+			const ke = document.getElementById('kbzhu-kcal');
+			const kp = document.getElementById('kbzhu-protein');
+			const kf = document.getElementById('kbzhu-fat');
+			const kc = document.getElementById('kbzhu-carbs');
+			const kfi = document.getElementById('kbzhu-fiber');
+			if (ke) ke.textContent = total.kcal;
+			if (kp) kp.textContent = total.protein + 'г';
+			if (kf) kf.textContent = total.fat + 'г';
+			if (kc) kc.textContent = total.carbs + 'г';
+			if (kfi) kfi.textContent = total.fiber + 'г';
+			// Check balance
+			checkBalance();
+		}
 
-    // ── VIDEO PLATFORM SWITCH ────────────────────────────────────────────
-    function toEmbedUrl(url) {
-        if (!url) return null;
-        // YouTube: youtu.be/ID or youtube.com/watch?v=ID
-        var m = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/) || url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/);
-        if (m) return 'https://www.youtube.com/embed/' + m[1];
-        // VK Video: vkvideo.ru/video-OID_VID or vk.com/video-OID_VID
-        m = url.match(/video-?(\d+)_(\d+)/);
-        if (m) return 'https://vk.com/video_ext.php?oid=-' + m[1] + '&id=' + m[2] + '&hd=2';
-        // Dzen: if already embed URL — use as-is; if watch URL — link card
-        m = url.match(/dzen\.ru\/embed\/([a-zA-Z0-9_-]+)/);
-        if (m) return url.split('?')[0] + '?from_block=partner&from=zen&mute=0&autoplay=0&tv=0';
-        m = url.match(/dzen\.ru\/video\/watch\//);
-        if (m) return 'dzen:' + url;
-        return url;
-    }
-    function loadVideoFrame(frame) {
-        if (frame.querySelector('iframe') || frame.querySelector('.dzen-link-card')) return;
-        var url = frame.dataset.url;
-        var embed = toEmbedUrl(url);
-        if (!embed) return;
-        if (embed.startsWith('dzen:')) {
-            var realUrl = embed.slice(5);
-            frame.innerHTML = '<a class="dzen-link-card" href="' + realUrl + '" target="_blank" rel="noopener">'
-                + '<div class="dzen-link-icon"><svg viewBox="0 0 24 24" width="48" height="48"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="#fff"/><path d="M11 7.5L16 12l-5 4.5V7.5z" fill="#fff"/></svg></div>'
-                + '<div class="dzen-link-text">Смотреть на Дзене</div>'
-                + '</a>';
-            return;
-        }
-        frame.innerHTML = '<iframe src="' + embed + '" style="position:absolute;inset:0;width:100%;height:100%;border:none;" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen" allowfullscreen></iframe>';
-    }
-    window.switchVideo = function(key) {
-        document.querySelectorAll('.video-tab').forEach(t => t.classList.toggle('active', t.dataset.key === key));
-        document.querySelectorAll('.video-frame').forEach(f => {
-            var isActive = f.dataset.key === key;
-            f.classList.toggle('active', isActive);
-            if (isActive) loadVideoFrame(f);
-        });
-    };
-    // Load only the first (active) video on init; others load on tab click
-    setTimeout(function() {
-        var first = document.querySelector('.video-frame.active');
-        if (first) loadVideoFrame(first);
-    }, 300);
+		// ── VIDEO PLATFORM SWITCH ────────────────────────────────────────────
+		function toEmbedUrl(url) {
+			if (!url) return null;
+			// YouTube: youtu.be/ID or youtube.com/watch?v=ID
+			var m = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/) || url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/);
+			if (m) return 'https://www.youtube.com/embed/' + m[1];
+			// VK Video: vkvideo.ru/video-OID_VID or vk.com/video-OID_VID
+			m = url.match(/video-?(\d+)_(\d+)/);
+			if (m) return 'https://vk.com/video_ext.php?oid=-' + m[1] + '&id=' + m[2] + '&hd=2';
+			// Dzen: if already embed URL — use as-is; if watch URL — link card
+			m = url.match(/dzen\.ru\/embed\/([a-zA-Z0-9_-]+)/);
+			if (m) return url.split('?')[0] + '?from_block=partner&from=zen&mute=0&autoplay=0&tv=0';
+			m = url.match(/dzen\.ru\/video\/watch\//);
+			if (m) return 'dzen:' + url;
+			return url;
+		}
+		function loadVideoFrame(frame) {
+			if (frame.querySelector('iframe') || frame.querySelector('.dzen-link-card')) return;
+			var url = frame.dataset.url;
+			var embed = toEmbedUrl(url);
+			if (!embed) return;
+			if (embed.startsWith('dzen:')) {
+				var realUrl = embed.slice(5);
+				frame.innerHTML = '<a class="dzen-link-card" href="' + realUrl + '" target="_blank" rel="noopener">'
+					+ '<div class="dzen-link-icon"><svg viewBox="0 0 24 24" width="48" height="48"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="#fff"/><path d="M11 7.5L16 12l-5 4.5V7.5z" fill="#fff"/></svg></div>'
+					+ '<div class="dzen-link-text">Смотреть на Дзене</div>'
+					+ '</a>';
+				return;
+			}
+			frame.innerHTML = '<iframe src="' + embed + '" style="position:absolute;inset:0;width:100%;height:100%;border:none;" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen" allowfullscreen></iframe>';
+		}
+		window.switchVideo = function (key) {
+			document.querySelectorAll('.video-tab').forEach(t => t.classList.toggle('active', t.dataset.key === key));
+			document.querySelectorAll('.video-frame').forEach(f => {
+				var isActive = f.dataset.key === key;
+				f.classList.toggle('active', isActive);
+				if (isActive) loadVideoFrame(f);
+			});
+		};
+		// Load only the first (active) video on init; others load on tab click
+		setTimeout(function () {
+			var first = document.querySelector('.video-frame.active');
+			if (first) loadVideoFrame(first);
+		}, 300);
 
-    // ── ADD TO PLATE ──────────────────────────────────────────────────────
-    function addToPlate() {
-        if (!r) return;
-        if (isInPlate()) return;
+		// ── ADD TO PLATE ──────────────────────────────────────────────────────
+		function addToPlate() {
+			if (!r) return;
+			if (isInPlate()) return;
 
-        const isBalanced = checkBalance();
-        const hasAdds = _balRequired.length > 0;
+			const isBalanced = checkBalance();
+			const hasAdds = _balRequired.length > 0;
 
-        // Soft warning for unbalanced dish (not blocking)
-        if (hasAdds && !isBalanced) {
-            showBalWarnToast();
-        }
+			// Soft warning for unbalanced dish (not blocking)
+			if (hasAdds && !isBalanced) {
+				showBalWarnToast();
+			}
 
-        let total = { kcal: r.kcal, protein: r.protein, fat: r.fat, carbs: r.carbs, fiber: r.fiber || 0 };
-        Object.values(checkedItems).forEach(v => {
-            total.kcal    += v.kcal    || 0;
-            total.protein += v.protein || 0;
-            total.fat     += v.fat     || 0;
-            total.carbs   += v.carbs   || 0;
-            total.fiber   += v.fiber   || 0;
-        });
+			let total = { kcal: r.kcal, protein: r.protein, fat: r.fat, carbs: r.carbs, fiber: r.fiber || 0 };
+			Object.values(checkedItems).forEach(v => {
+				total.kcal += v.kcal || 0;
+				total.protein += v.protein || 0;
+				total.fat += v.fat || 0;
+				total.carbs += v.carbs || 0;
+				total.fiber += v.fiber || 0;
+			});
 
-        const additions = Object.values(checkedItems).map(v => ({
-            name: v.name, kcal: v.kcal, protein: v.protein, fat: v.fat, carbs: v.carbs
-        }));
+			const additions = Object.values(checkedItems).map(v => ({
+				name: v.name, kcal: v.kcal, protein: v.protein, fat: v.fat, carbs: v.carbs
+			}));
 
-        Plate.add({
-            name: r.name,
-            emoji: r.emoji,
-            photo: r.photo || '',
-            kcal: total.kcal,
-            protein: total.protein,
-            fat: total.fat,
-            carbs: total.carbs,
-            fiber: total.fiber,
-            recipeId: r.id,
-            ingredients: r.ingredients,
-            additions: additions
-        });
+			Plate.add({
+				name: r.name,
+				emoji: r.emoji,
+				photo: r.photo || '',
+				kcal: total.kcal,
+				protein: total.protein,
+				fat: total.fat,
+				carbs: total.carbs,
+				fiber: total.fiber,
+				recipeId: r.id,
+				ingredients: r.ingredients,
+				additions: additions
+			});
 
-        const btn = document.getElementById('add-btn');
-        if (btn) {
-            btn.textContent = '✓ В тарелке';
-            btn.disabled = true;
-            btn.style.opacity = '0.6';
-            btn.style.cursor = 'default';
-        }
+			const btn = document.getElementById('add-btn');
+			if (btn) {
+				btn.textContent = '✓ В тарелке';
+				btn.disabled = true;
+				btn.style.opacity = '0.6';
+				btn.style.cursor = 'default';
+			}
 
-        if (hasAdds && !isBalanced) {
-            showToast(r.emoji + ' Добавлено без балансировки');
-            // Don't auto-navigate — let user see the warning and maybe add supplements
-        } else {
-            showToast(r.emoji + ' Добавлено в тарелку!');
-            setTimeout(() => { history.back(); }, 1000);
-        }
-    }
+			if (hasAdds && !isBalanced) {
+				showToast(r.emoji + ' Добавлено без балансировки');
+				// Don't auto-navigate — let user see the warning and maybe add supplements
+			} else {
+				showToast(r.emoji + ' Добавлено в тарелку!');
+				setTimeout(() => { history.back(); }, 1000);
+			}
+		}
 
-    function showBalWarnToast() {
-        let el = document.getElementById('bal-warn-toast');
-        if (!el) {
-            el = document.createElement('div');
-            el.id = 'bal-warn-toast';
-            el.className = 'bal-warn-toast';
-            el.innerHTML = '<div class="bal-warn-toast-title">⚖️ Блюдо добавлено без балансировки</div><div class="bal-warn-toast-sub">Если хотите сделать его полноценным приёмом пищи, выберите добавки в сайдбаре</div>';
-            document.body.appendChild(el);
-        }
-        el.classList.add('show');
-        clearTimeout(el._t);
-        el._t = setTimeout(() => el.classList.remove('show'), 4500);
-    }
+		function showBalWarnToast() {
+			let el = document.getElementById('bal-warn-toast');
+			if (!el) {
+				el = document.createElement('div');
+				el.id = 'bal-warn-toast';
+				el.className = 'bal-warn-toast';
+				el.innerHTML = '<div class="bal-warn-toast-title">⚖️ Блюдо добавлено без балансировки</div><div class="bal-warn-toast-sub">Если хотите сделать его полноценным приёмом пищи, выберите добавки в сайдбаре</div>';
+				document.body.appendChild(el);
+			}
+			el.classList.add('show');
+			clearTimeout(el._t);
+			el._t = setTimeout(() => el.classList.remove('show'), 4500);
+		}
 
-    // ── MY PLATE MODAL ────────────────────────────────────────────────────
-    function openPlate() {
-        const items = Plate.get();
-        const body  = document.getElementById('plate-body');
-        if (!items.length) {
-            body.innerHTML = '<div class="plate-empty"><div class="plate-empty-icon">🍽️</div><div class="plate-empty-text">Тарелка пока пуста</div></div>';
-        } else {
-            const t = Plate.totals();
-            body.innerHTML = '<div class="plate-items">' +
-                items.map((item, i) => {
-                    const adds = item.additions || [];
-                    const additionsHtml = adds.length
-                        ? `<div class="plate-additions">${adds.map(a =>
-                            `<div class="plate-addition-item">
+		// ── MY PLATE MODAL ────────────────────────────────────────────────────
+		function openPlate() {
+			const items = Plate.get();
+			const body = document.getElementById('plate-body');
+			if (!items.length) {
+				body.innerHTML = '<div class="plate-empty"><div class="plate-empty-icon">🍽️</div><div class="plate-empty-text">Тарелка пока пуста</div></div>';
+			} else {
+				const t = Plate.totals();
+				body.innerHTML = '<div class="plate-items">' +
+					items.map((item, i) => {
+						const adds = item.additions || [];
+						const additionsHtml = adds.length
+							? `<div class="plate-additions">${adds.map(a =>
+								`<div class="plate-addition-item">
                                 <span class="plate-addition-dot">+</span>
                                 <span class="plate-addition-name">${escHtml(String(a.name))}</span>
-                                <span class="plate-addition-kcal">${Number(a.kcal)||0} ккал</span>
+                                <span class="plate-addition-kcal">${Number(a.kcal) || 0} ккал</span>
                             </div>`).join('')}</div>`
-                        : '';
-                    return `<div class="plate-item">
+							: '';
+						return `<div class="plate-item">
                         ${item.photo
-                            ? `<img class="plate-item-photo" src="${escHtml(String(item.photo))}" alt="">`
-                            : `<div class="plate-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
+								? `<img class="plate-item-photo" src="${escHtml(String(item.photo))}" alt="">`
+								: `<div class="plate-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
                         <div class="plate-item-info">
                             ${item.recipeId
-                                ? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1'">${escHtml(String(item.name))}</div>`
-                                : `<div class="plate-item-name">${escHtml(String(item.name))}</div>`}
-                            <div class="plate-item-kcal">${Number(item.kcal)||0} ккал · Б${Number(item.protein)||0}г · Ж${Number(item.fat)||0}г · У${Number(item.carbs)||0}г</div>
+								? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1'">${escHtml(String(item.name))}</div>`
+								: `<div class="plate-item-name">${escHtml(String(item.name))}</div>`}
+                            <div class="plate-item-kcal">${Number(item.kcal) || 0} ккал · Б${Number(item.protein) || 0}г · Ж${Number(item.fat) || 0}г · У${Number(item.carbs) || 0}г</div>
                             ${additionsHtml}
                         </div>
                         <button class="plate-item-del" onclick="removeItemR(${Number(i)})">✕</button>
                     </div>`;
-                }).join('') + '</div>' +
-                `<div class="plate-total-block" style="margin-top:12px">
+					}).join('') + '</div>' +
+					`<div class="plate-total-block" style="margin-top:12px">
                     <div class="plate-total-title">Итого</div>
-                    <div class="plate-total-val">${Number(t.kcal)||0} ккал | Б: ${Number(t.protein)||0}г | Ж: ${Number(t.fat)||0}г | У: ${Number(t.carbs)||0}г${t.fiber ? ' | Кл: ' + (Number(t.fiber)||0) + 'г' : ''}</div>
+                    <div class="plate-total-val">${Number(t.kcal) || 0} ккал | Б: ${Number(t.protein) || 0}г | Ж: ${Number(t.fat) || 0}г | У: ${Number(t.carbs) || 0}г${t.fiber ? ' | Кл: ' + (Number(t.fiber) || 0) + 'г' : ''}</div>
                 </div>
                 <div style="display:flex;gap:8px;margin-top:10px">
                     <button class="btn btn-orange" style="flex:1" onclick="location.href='index.html'">← Вернуться</button>
                     <button class="btn btn-ghost" style="flex-shrink:0" onclick="shareShoppingList()">📤 Список продуктов</button>
                 </div>`;
-        }
-        document.getElementById('plate-overlay').classList.add('open');
-        document.body.style.overflow = 'hidden';
-    }
-    function closePlate() {
-        document.getElementById('plate-overlay').classList.remove('open');
-        document.body.style.overflow = '';
-    }
-    function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
-    function removeItemR(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
+			}
+			document.getElementById('plate-overlay').classList.add('open');
+			document.body.style.overflow = 'hidden';
+		}
+		function closePlate() {
+			document.getElementById('plate-overlay').classList.remove('open');
+			document.body.style.overflow = '';
+		}
+		function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
+		function removeItemR(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
 
-    // ── FAV + RATING ON PHOTO ─────────────────────────────────────────────
-    function toggleRecipeFav() {
-        if (!r) return;
-        const isNow = Favorites.toggle(r.id);
-        document.getElementById('recipe-fav-btn')?.classList.toggle('active', isNow);
-    }
+		// ── FAV + RATING ON PHOTO ─────────────────────────────────────────────
+		function toggleRecipeFav() {
+			if (!r) return;
+			const isNow = Favorites.toggle(r.id);
+			document.getElementById('recipe-fav-btn')?.classList.toggle('active', isNow);
+		}
 
-    function scrollToStars() {
-        const el = document.getElementById('reviews-section');
-        if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            const starsRow = document.getElementById('recipe-stars-row');
-            if (starsRow) {
-                starsRow.classList.add('stars-highlight');
-                setTimeout(() => starsRow.classList.remove('stars-highlight'), 1500);
-            }
-        }
-    }
+		function scrollToStars() {
+			const el = document.getElementById('reviews-section');
+			if (el) {
+				el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				const starsRow = document.getElementById('recipe-stars-row');
+				if (starsRow) {
+					starsRow.classList.add('stars-highlight');
+					setTimeout(() => starsRow.classList.remove('stars-highlight'), 1500);
+				}
+			}
+		}
 
-    function scrollToReviews() {
-        const el = document.getElementById('reviews-section');
-        if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    }
+		function scrollToReviews() {
+			const el = document.getElementById('reviews-section');
+			if (el) {
+				el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+		}
 
-    // ── INLINE STARS ──────────────────────────────────────────────────────
-    function hoverInlineStar(n) {
-        document.querySelectorAll('.r-star').forEach((s, i) =>
-            s.classList.toggle('filled', i < n));
-    }
+		// ── INLINE STARS ──────────────────────────────────────────────────────
+		function hoverInlineStar(n) {
+			document.querySelectorAll('.r-star').forEach((s, i) =>
+				s.classList.toggle('filled', i < n));
+		}
 
-    let _inlineAvg = 0;
+		let _inlineAvg = 0;
 
-    function unhoverInlineStar() {
-        document.querySelectorAll('.r-star').forEach((s, i) =>
-            s.classList.toggle('filled', i < Math.round(_inlineAvg)));
-    }
+		function unhoverInlineStar() {
+			document.querySelectorAll('.r-star').forEach((s, i) =>
+				s.classList.toggle('filled', i < Math.round(_inlineAvg)));
+		}
 
-    async function rateInline(n) {
-        if (n < 1) return;
-        // Отправить оценку на сервер
-        try {
-            const res = await Auth.api('/content/reviews', {
-                method: 'POST',
-                body: JSON.stringify({ recipe_id: r.id, stars: n, text: '' })
-            });
-            if (!res.ok) { showToast('Не удалось сохранить оценку'); return; }
-            _inlineAvg = n;
-            document.querySelectorAll('.r-star').forEach((s, i) =>
-                s.classList.toggle('filled', i < n));
-            const valEl = document.getElementById('recipe-rating-val');
-            if (valEl) valEl.textContent = n;
-            const starsWrap = document.querySelector('.recipe-meta-stars');
-            if (starsWrap) starsWrap.classList.add('user-rated');
-            showToast('Оценка сохранена ★');
-            // Обновить список отзывов
-            loadReviews();
-        } catch {
-            showToast('Ошибка сети');
-        }
-    }
+		async function rateInline(n) {
+			if (n < 1) return;
+			// Отправить оценку на сервер
+			try {
+				const res = await Auth.api('/content/reviews', {
+					method: 'POST',
+					body: JSON.stringify({ recipe_id: r.id, stars: n, text: '' })
+				});
+				if (!res.ok) { showToast('Не удалось сохранить оценку'); return; }
+				_inlineAvg = n;
+				document.querySelectorAll('.r-star').forEach((s, i) =>
+					s.classList.toggle('filled', i < n));
+				const valEl = document.getElementById('recipe-rating-val');
+				if (valEl) valEl.textContent = n;
+				const starsWrap = document.querySelector('.recipe-meta-stars');
+				if (starsWrap) starsWrap.classList.add('user-rated');
+				showToast('Оценка сохранена ★');
+				// Обновить список отзывов
+				loadReviews();
+			} catch {
+				showToast('Ошибка сети');
+			}
+		}
 
-    function shareRecipeIngredients() {
-        if (!r) return;
-        let txt = `🛒 ${r.name}\n\n`;
-        (r.ingredients || []).forEach(ing => {
-            const name = typeof ing === 'string' ? ing : ing.name;
-            txt += `• ${name}\n`;
-        });
-        txt += `\n⏱ ${r.time} мин · ${r.kcal} ккал`;
-        if (navigator.share) { navigator.share({ title: r.name, text: txt }).catch(() => {}); }
-        else { navigator.clipboard.writeText(txt).then(() => showToast('📋 Скопировано!')).catch(() => showToast('Не удалось скопировать')); }
-    }
+		function shareRecipeIngredients() {
+			if (!r) return;
+			let txt = `🛒 ${r.name}\n\n`;
+			(r.ingredients || []).forEach(ing => {
+				const name = typeof ing === 'string' ? ing : ing.name;
+				txt += `• ${name}\n`;
+			});
+			txt += `\n⏱ ${r.time} мин · ${r.kcal} ккал`;
+			if (navigator.share) { navigator.share({ title: r.name, text: txt }).catch(() => { }); }
+			else { navigator.clipboard.writeText(txt).then(() => showToast('📋 Скопировано!')).catch(() => showToast('Не удалось скопировать')); }
+		}
 
-    // ── REVIEWS ──────────────────────────────────────────────────────────
-    let _reviewStars = 0;
+		// ── REVIEWS ──────────────────────────────────────────────────────────
+		let _reviewStars = 0;
 
-    function setReviewStars(n) {
-        _reviewStars = n;
-        document.querySelectorAll('.review-star').forEach((s, i) =>
-            s.classList.toggle('filled', i < n));
-    }
+		function setReviewStars(n) {
+			_reviewStars = n;
+			document.querySelectorAll('.review-star').forEach((s, i) =>
+				s.classList.toggle('filled', i < n));
+		}
 
-    async function loadReviews() {
-        if (!r) return;
-        try {
-            const res = await fetch(API_BASE + '/content/reviews/' + encodeURIComponent(r.id));
-            if (!res.ok) return;
-            const reviews = await res.json();
-            const list = document.getElementById('reviews-list');
-            if (!list) return;
+		async function loadReviews() {
+			if (!r) return;
+			try {
+				const res = await fetch(API_BASE + '/content/reviews/' + encodeURIComponent(r.id));
+				if (!res.ok) return;
+				const reviews = await res.json();
+				const list = document.getElementById('reviews-list');
+				if (!list) return;
 
-            // Update voter count, star fill, and rating pill from API data
-            const cSpan = document.getElementById('recipe-voter-count');
-            if (cSpan) cSpan.textContent = '(' + reviews.length + ')';
-            const ratingVal = document.getElementById('recipe-rating-val');
-            if (reviews.length) {
-                const apiAvg = reviews.reduce((s, rv) => s + rv.stars, 0) / reviews.length;
-                document.querySelectorAll('#recipe-stars-row .r-star').forEach((s, i) =>
-                    s.classList.toggle('filled', i < Math.round(apiAvg)));
-                if (ratingVal) ratingVal.textContent = apiAvg.toFixed(1);
-                // Mark as rated so hint animation stops
-                const starsRow = document.getElementById('recipe-stars-row');
-                if (starsRow) starsRow.querySelector('.recipe-meta-stars')?.classList.add('user-rated');
-            }
+				// Update voter count, star fill, and rating pill from API data
+				const cSpan = document.getElementById('recipe-voter-count');
+				if (cSpan) cSpan.textContent = '(' + reviews.length + ')';
+				const ratingVal = document.getElementById('recipe-rating-val');
+				if (reviews.length) {
+					const apiAvg = reviews.reduce((s, rv) => s + rv.stars, 0) / reviews.length;
+					document.querySelectorAll('#recipe-stars-row .r-star').forEach((s, i) =>
+						s.classList.toggle('filled', i < Math.round(apiAvg)));
+					if (ratingVal) ratingVal.textContent = apiAvg.toFixed(1);
+					// Mark as rated so hint animation stops
+					const starsRow = document.getElementById('recipe-stars-row');
+					if (starsRow) starsRow.querySelector('.recipe-meta-stars')?.classList.add('user-rated');
+				}
 
-            if (!reviews.length) {
-                list.innerHTML = '<div style="font-size:13px;color:var(--text-3)">Пока нет отзывов. Будьте первым!</div>';
-                return;
-            }
+				if (!reviews.length) {
+					list.innerHTML = '<div style="font-size:13px;color:var(--text-3)">Пока нет отзывов. Будьте первым!</div>';
+					return;
+				}
 
-            const curUser = Auth.getUser();
-            const curUserId = curUser && curUser.id;
-            const isAdmin = curUser && curUser.role === 'admin';
-            const hasOwnReview = reviews.some(rv => curUserId && rv.userId === curUserId);
-            const formWrap = document.getElementById('review-form-wrap');
-            if (formWrap && hasOwnReview) {
-                formWrap.innerHTML = '<div style="font-size:13px;color:var(--text-3);padding:12px 16px;text-align:center">Вы уже оставили отзыв. Удалите его, чтобы написать новый.</div>';
-            }
-            list.innerHTML = reviews.map(rv => {
-                const d = new Date(rv.createdAt);
-                const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-                const starsHtml = [1,2,3,4,5].map(i => `<span class="star${i <= rv.stars ? ' filled' : ''}" style="font-size:14px">★</span>`).join('');
-                const avatarHtml = rv.avatar
-                    ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-                      + `<span class="review-avatar-fallback" style="display:none">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
-                    : `<span class="review-avatar-fallback">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
-                const canDelete = isAdmin || (curUserId && rv.userId === curUserId);
-                const deleteBtn = canDelete
-                    ? `<button class="review-delete-btn" onclick="deleteReview(${rv.id}, ${isAdmin})" title="Удалить отзыв">✕</button>`
-                    : '';
-                return `<div class="review-item">
+				const curUser = Auth.getUser();
+				const curUserId = curUser && curUser.id;
+				const isAdmin = curUser && curUser.role === 'admin';
+				const hasOwnReview = reviews.some(rv => curUserId && rv.userId === curUserId);
+				const formWrap = document.getElementById('review-form-wrap');
+				if (formWrap && hasOwnReview) {
+					formWrap.innerHTML = '<div style="font-size:13px;color:var(--text-3);padding:12px 16px;text-align:center">Вы уже оставили отзыв. Удалите его, чтобы написать новый.</div>';
+				}
+				list.innerHTML = reviews.map(rv => {
+					const d = new Date(rv.createdAt);
+					const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+					const starsHtml = [1, 2, 3, 4, 5].map(i => `<span class="star${i <= rv.stars ? ' filled' : ''}" style="font-size:14px">★</span>`).join('');
+					const avatarHtml = rv.avatar
+						? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+						+ `<span class="review-avatar-fallback" style="display:none">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
+						: `<span class="review-avatar-fallback">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
+					const canDelete = isAdmin || (curUserId && rv.userId === curUserId);
+					const deleteBtn = canDelete
+						? `<button class="review-delete-btn" onclick="deleteReview(${rv.id}, ${isAdmin})" title="Удалить отзыв">✕</button>`
+						: '';
+					return `<div class="review-item">
                     <div class="review-header">
                         <div class="review-author-wrap">
                             ${avatarHtml}
@@ -1255,83 +1452,86 @@
                     <div class="review-stars-row">${starsHtml}</div>
                     <div class="review-text">${escHtml(rv.text)}</div>
                 </div>`;
-            }).join('');
-        } catch (e) {
-            console.error('Reviews load error:', e);
-            const list = document.getElementById('reviews-list');
-            if (list && !list.innerHTML) list.innerHTML = '<div style="font-size:12px;color:red">Ошибка загрузки отзывов: ' + e.message + '</div>';
-        }
-    }
+				}).join('');
+			} catch (e) {
+				console.error('Reviews load error:', e);
+				const list = document.getElementById('reviews-list');
+				if (list && !list.innerHTML) list.innerHTML = '<div style="font-size:12px;color:red">Ошибка загрузки отзывов: ' + e.message + '</div>';
+			}
+		}
 
-    async function submitReview() {
-        if (!r || !Auth.isLoggedIn()) return;
-        if (!_reviewStars) { showToast('Выберите оценку'); return; }
-        const textEl = document.getElementById('review-text');
-        const text = (textEl?.value || '').trim();
+		async function submitReview() {
+			if (!r || !Auth.isLoggedIn()) return;
+			if (!_reviewStars) { showToast('Выберите оценку'); return; }
+			const textEl = document.getElementById('review-text');
+			const text = (textEl?.value || '').trim();
 
-        const btn = document.getElementById('review-submit-btn');
-        if (btn) { btn.disabled = true; btn.textContent = '...'; }
-        try {
-            const res = await Auth.api('/content/reviews', {
-                method: 'POST',
-                body: JSON.stringify({ recipe_id: r.id, stars: _reviewStars, text: text || null })
-            });
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                showToast(err.error || 'Ошибка');
-                return;
-            }
-            showToast('Отзыв сохранён!');
-            if (textEl) textEl.value = '';
-            _reviewStars = 0;
-            document.querySelectorAll('.review-star').forEach(s => s.classList.remove('filled'));
-            const countEl = document.getElementById('review-char-count');
-            if (countEl) countEl.textContent = '0 / 1000';
-            loadReviews();
-        } catch (e) {
-            showToast('Ошибка сети');
-        } finally {
-            if (btn) { btn.disabled = false; btn.textContent = 'Отправить'; }
-        }
-    }
+			const btn = document.getElementById('review-submit-btn');
+			if (btn) { btn.disabled = true; btn.textContent = '...'; }
+			try {
+				const res = await Auth.api('/content/reviews', {
+					method: 'POST',
+					body: JSON.stringify({ recipe_id: r.id, stars: _reviewStars, text: text || null })
+				});
+				if (!res.ok) {
+					const err = await res.json().catch(() => ({}));
+					showToast(err.error || 'Ошибка');
+					return;
+				}
+				showToast('Отзыв сохранён!');
+				if (textEl) textEl.value = '';
+				_reviewStars = 0;
+				document.querySelectorAll('.review-star').forEach(s => s.classList.remove('filled'));
+				const countEl = document.getElementById('review-char-count');
+				if (countEl) countEl.textContent = '0 / 1000';
+				loadReviews();
+			} catch (e) {
+				showToast('Ошибка сети');
+			} finally {
+				if (btn) { btn.disabled = false; btn.textContent = 'Отправить'; }
+			}
+		}
 
-    window.deleteReview = async function(id, isAdmin) {
-        if (!confirm('Удалить отзыв?')) return;
-        try {
-            const endpoint = isAdmin ? '/admin/reviews/' : '/content/reviews/';
-            const res = await Auth.api(endpoint + id, { method: 'DELETE' });
-            if (!res.ok) { showToast('Не удалось удалить'); return; }
-            showToast('Отзыв удалён');
-            loadReviews();
-        } catch (e) { showToast('Ошибка сети'); }
-    };
+		window.deleteReview = async function (id, isAdmin) {
+			if (!confirm('Удалить отзыв?')) return;
+			try {
+				const endpoint = isAdmin ? '/admin/reviews/' : '/content/reviews/';
+				const res = await Auth.api(endpoint + id, { method: 'DELETE' });
+				if (!res.ok) { showToast('Не удалось удалить'); return; }
+				showToast('Отзыв удалён');
+				loadReviews();
+			} catch (e) { showToast('Ошибка сети'); }
+		};
 
-    // Char counter
-    document.addEventListener('input', function(e) {
-        if (e.target.id === 'review-text') {
-            const cnt = document.getElementById('review-char-count');
-            if (cnt) cnt.textContent = e.target.value.length + ' / 1000';
-        }
-    });
+		// Char counter
+		document.addEventListener('input', function (e) {
+			if (e.target.id === 'review-text') {
+				const cnt = document.getElementById('review-char-count');
+				if (cnt) cnt.textContent = e.target.value.length + ' / 1000';
+			}
+		});
 
-    // loadReviews is now called inside initRecipe() after renderRecipe(r)
+		// loadReviews is now called inside initRecipe() after renderRecipe(r)
 
-</script>
+	</script>
 
-<!-- Tawk.to -->
-<script>
-var Tawk_API = Tawk_API || {};
-Tawk_API.onBeforeLoad = function(){ Tawk_API.hideWidget(); };
-Tawk_API.onLoad = function(){ Tawk_API.hideWidget(); };
-Tawk_API.onChatMinimized = function(){ Tawk_API.hideWidget(); };
-function openTawk(){
-    if(typeof Tawk_API!=='undefined'&&typeof Tawk_API.maximize==='function'){Tawk_API.maximize();}
-    else{window.open('https://t.me/voronova_support','_blank');}
-}
-(function(){var s=document.createElement('script');s.async=true;
-s.src='https://embed.tawk.to/699610c27418241c38dd96b3/1jhp32uj0';
-s.charset='UTF-8';s.setAttribute('crossorigin','*');
-document.head.appendChild(s);})();
-</script>
+	<!-- Tawk.to -->
+	<script>
+		var Tawk_API = Tawk_API || {};
+		Tawk_API.onBeforeLoad = function () { Tawk_API.hideWidget(); };
+		Tawk_API.onLoad = function () { Tawk_API.hideWidget(); };
+		Tawk_API.onChatMinimized = function () { Tawk_API.hideWidget(); };
+		function openTawk() {
+			if (typeof Tawk_API !== 'undefined' && typeof Tawk_API.maximize === 'function') { Tawk_API.maximize(); }
+			else { window.open('https://t.me/voronova_support', '_blank'); }
+		}
+		(function () {
+			var s = document.createElement('script'); s.async = true;
+			s.src = 'https://embed.tawk.to/699610c27418241c38dd96b3/1jhp32uj0';
+			s.charset = 'UTF-8'; s.setAttribute('crossorigin', '*');
+			document.head.appendChild(s);
+		})();
+	</script>
 </body>
+
 </html>
