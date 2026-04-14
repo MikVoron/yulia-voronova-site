@@ -39,15 +39,6 @@
 			padding-bottom: 80px;
 		}
 
-		/* ── HEADER BACKGROUND VARIANTS ─────────────────── */
-
-		/* Header background — вариант 1: персиковый */
-		.v-header {
-			background: linear-gradient(180deg, #fffaf7 0%, #fef0e6 100%);
-			border-bottom: 1px solid #f5c9b3;
-			box-shadow: 0 4px 16px rgba(0,0,0,.08);
-		}
-
 		/* ── NEW HEADER ─────────────────────────────────── */
 		.vh-inner {
 			display: flex;
@@ -247,6 +238,34 @@
 			.vh-plate-btn { order: 3; }
 		}
 
+		/* Featured card extras */
+		.featured-card-desc {
+			font-size: 14px; line-height: 1.5; color: var(--text-2);
+			display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
+			overflow: hidden;
+		}
+		.featured-card-macros {
+			display: flex; flex-wrap: wrap; gap: 4px 14px;
+			font: 600 13px/1.2 var(--sans); color: var(--text);
+		}
+		.featured-card-macros .kcal { color: var(--accent); font-weight: 800; }
+		.featured-card-macros span { white-space: nowrap; }
+		.featured-card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+		.featured-card-tag {
+			font: 600 11px/1 var(--sans);
+			padding: 5px 10px; border-radius: 999px;
+			background: var(--bg-alt); color: var(--text-2);
+			letter-spacing: .02em;
+		}
+		.featured-card-cta {
+			align-self: flex-start; margin-top: 6px;
+			display: inline-flex; align-items: center; gap: 6px;
+			padding: 10px 18px; border-radius: 999px;
+			background: var(--accent); color: #fff;
+			font: 700 13px/1 var(--sans); letter-spacing: .02em;
+		}
+		.featured-card:hover .featured-card-cta { background: #c14508; }
+
 		.recipes-total-count {
 			display: inline-flex;
 			align-items: baseline;
@@ -260,6 +279,73 @@
 			color: var(--text);
 			letter-spacing: -1px;
 		}
+		/* News collapse */
+		.news-more-wrap { overflow: hidden; max-height: 0; transition: max-height .4s ease; }
+		.news-more-wrap.open { max-height: 2000px; }
+		.news-toggle-btn {
+			display: inline-flex; align-items: center; gap: 6px;
+			margin-top: 14px; padding: 8px 16px;
+			background: transparent; border: 1px solid var(--border);
+			border-radius: 999px; cursor: pointer;
+			font: 600 12px/1 var(--sans); color: var(--text-2);
+			letter-spacing: .02em; transition: var(--tr);
+		}
+		.news-toggle-btn:hover { background: var(--bg-alt); color: var(--text); }
+		.news-toggle-btn .arr { transition: transform .3s ease; display: inline-block; }
+		.news-toggle-btn.open .arr { transform: rotate(180deg); }
+
+		/* Hero search */
+		.hero-search {
+			position: relative;
+			margin: 22px 0 34px;
+			max-width: 620px;
+		}
+		.hero-search-input {
+			width: 100%;
+			padding: 18px 22px 18px 54px;
+			font: 500 16px/1.2 var(--sans);
+			color: var(--text);
+			background: #fff;
+			border: 1.5px solid #eadfd6;
+			border-radius: 14px;
+			box-shadow: 0 4px 18px rgba(232,64,10,.06);
+			outline: none;
+			transition: border-color .2s, box-shadow .2s;
+		}
+		.hero-search-input::placeholder { color: #a89a8f; }
+		.hero-search-input:focus {
+			border-color: var(--accent);
+			box-shadow: 0 4px 22px rgba(232,64,10,.14);
+		}
+		.hero-search-icon {
+			position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+			width: 22px; height: 22px; color: var(--accent); pointer-events: none;
+		}
+		.hero-search-results {
+			position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+			background: #fff; border: 1px solid var(--border);
+			border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.12);
+			max-height: 360px; overflow-y: auto; z-index: 50;
+			display: none;
+		}
+		.hero-search-results.open { display: block; }
+		.hero-search-item {
+			display: flex; align-items: center; gap: 12px;
+			padding: 10px 14px; cursor: pointer;
+			border-bottom: 1px solid var(--border);
+			text-decoration: none; color: inherit;
+		}
+		.hero-search-item:last-child { border-bottom: none; }
+		.hero-search-item:hover { background: var(--bg-alt); }
+		.hero-search-thumb {
+			width: 44px; height: 44px; border-radius: 8px;
+			object-fit: cover; background: var(--bg-alt); flex-shrink: 0;
+		}
+		.hero-search-text { flex: 1; min-width: 0; }
+		.hero-search-name { font: 600 14px/1.3 var(--sans); color: var(--text); }
+		.hero-search-meta { font: 500 12px/1 var(--sans); color: var(--text-3); margin-top: 4px; }
+		.hero-search-empty { padding: 18px; text-align: center; color: var(--text-3); font-size: 13px; }
+
 		.recipes-total-count .rtc-label {
 			font-family: var(--sans);
 			font-size: clamp(11px, 1.2vw, 13px);
@@ -335,6 +421,13 @@
 				<div class="greeting anim">
 					<div class="greeting-hi" id="greeting-hi">Привет!</div>
 					<div class="greeting-sub">Что будем готовить сегодня?</div>
+				</div>
+
+				<!-- Hero search -->
+				<div class="hero-search anim anim-d1" id="hero-search">
+					<svg class="hero-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+					<input type="text" class="hero-search-input" id="hero-search-input" placeholder="Найти рецепт — например, киноа или гречотто" autocomplete="off">
+					<div class="hero-search-results" id="hero-search-results"></div>
 				</div>
 
 				<!-- Julia strip -->
@@ -634,15 +727,10 @@
 			img.parentElement.insertBefore(d, img);
 		}
 
-		function renderNewsFeed() {
+		function renderNewsItemHtml(item) {
 			const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
-			const feed = document.getElementById('news-feed');
-			if (!feed) return;
-			if (!NEWS_FEED.length) { feed.innerHTML = ''; return; }
-			const items = NEWS_FEED;
-			feed.innerHTML = items.map(function (item, idx) {
-				let html = '';
-				if (item.type === 'news') {
+			let html = '';
+			if (item.type === 'news') {
 					html = `<div class="news-text-card">
                     <div class="news-text-card-date">${escHtml(item.date || '')}</div>
                     <div class="news-text-card-top">
@@ -665,6 +753,16 @@
 					const _time = Number(d.time) || 0;
 					const _kcal = Number(d.kcal) || 0;
 					const _protein = Number(d.protein) || 0;
+					const _fat = Number(d.fat) || 0;
+					const _carbs = Number(d.carbs) || 0;
+					const _quoteRaw = String(d.quote || '').replace(/^[«"']|[»"']$/g, '').trim();
+					const _desc = _quoteRaw ? escHtml(_quoteRaw.length > 140 ? _quoteRaw.slice(0, 138).replace(/\s+\S*$/, '') + '…' : _quoteRaw) : '';
+					const TAG_LABELS = { gluten: 'Без глютена', plant: 'Растительное', fish: 'Рыбное', noSoy: 'Без сои', legumes: 'Бобовые' };
+					const _tagsArr = Array.isArray(d.tags) ? d.tags : [];
+					const _tagsHtml = _tagsArr.slice(0, 3).map(function(t){
+						const lbl = TAG_LABELS[t] || t;
+						return '<span class="featured-card-tag">' + escHtml(String(lbl)) + '</span>';
+					}).join('');
 					const locked = Auth.isTrial() && !d.free;
 					const photoHtml = _photo
 						? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')">`
@@ -684,13 +782,131 @@
                             <span class="pill">⏱ ${_time} мин</span>
                             <span class="pill">${_diff}</span>
                         </div>
-                        <div class="featured-card-kcal">${_kcal} ккал · ${_protein}г белка</div>
+                        ${_desc ? `<div class="featured-card-desc">${_desc}</div>` : ''}
+                        <div class="featured-card-macros">
+                            <span class="kcal">${_kcal} ккал</span>
+                            <span>Б ${_protein}</span>
+                            <span>Ж ${_fat}</span>
+                            <span>У ${_carbs} г</span>
+                        </div>
+                        ${_tagsHtml ? `<div class="featured-card-tags">${_tagsHtml}</div>` : ''}
+                        <span class="featured-card-cta">Открыть рецепт →</span>
                     </div>
                 </button>`;
+			}
+			return html;
+		}
+
+		function renderNewsFeed() {
+			const feed = document.getElementById('news-feed');
+			if (!feed) return;
+			if (!NEWS_FEED.length) { feed.innerHTML = ''; return; }
+
+			const recipeItems = NEWS_FEED.filter(function(i){ return i.type === 'recipe'; });
+			const textItems = NEWS_FEED.filter(function(i){ return i.type === 'news'; });
+			const visibleText = textItems.slice(0, 1);
+			const hiddenText = textItems.slice(1);
+			const visible = recipeItems.concat(visibleText);
+
+			function joinWithDividers(arr) {
+				return arr.map(function(item, idx) {
+					const html = renderNewsItemHtml(item);
+					if (!html) return '';
+					const divider = (idx < arr.length - 1) ? '<div class="news-divider"></div>' : '';
+					return html + divider;
+				}).join('');
+			}
+
+			let out = joinWithDividers(visible);
+			if (hiddenText.length) {
+				out += '<div class="news-divider"></div>';
+				out += '<div class="news-more-wrap" id="news-more-wrap">' + joinWithDividers(hiddenText) + '</div>';
+				out += '<button class="news-toggle-btn" id="news-toggle-btn" type="button" onclick="toggleNewsMore()">' +
+					'<span class="news-toggle-label">Показать ещё новости (' + hiddenText.length + ')</span>' +
+					'<span class="arr">▾</span></button>';
+			}
+			feed.innerHTML = out;
+		}
+
+		// ── HERO SEARCH ──────────────────────────────────────────────────────
+		(function initHeroSearch() {
+			const input = document.getElementById('hero-search-input');
+			const box = document.getElementById('hero-search-results');
+			if (!input || !box) return;
+
+			function norm(s) { return String(s || '').toLowerCase().replace(/ё/g, 'е').trim(); }
+
+			function match(q) {
+				const nq = norm(q);
+				if (!nq) return [];
+				const all = Object.values(RECIPES || {});
+				const scored = [];
+				for (const r of all) {
+					const name = norm(r.name);
+					const desc = norm(r.description || r.desc || '');
+					const tags = norm((r.tags || []).join(' '));
+					let score = 0;
+					if (name.startsWith(nq)) score = 100;
+					else if (name.includes(nq)) score = 60;
+					else if (tags.includes(nq)) score = 30;
+					else if (desc.includes(nq)) score = 15;
+					if (score) scored.push({ r, score });
 				}
-				const divider = (html && idx < items.length - 1) ? '<div class="news-divider"></div>' : '';
-				return html + divider;
-			}).join('');
+				scored.sort(function(a, b){ return b.score - a.score; });
+				return scored.slice(0, 6).map(function(x){ return x.r; });
+			}
+
+			function render(q) {
+				const res = match(q);
+				if (!q.trim()) { box.classList.remove('open'); box.innerHTML = ''; return; }
+				if (!res.length) {
+					box.innerHTML = '<div class="hero-search-empty">Ничего не найдено</div>';
+					box.classList.add('open');
+					return;
+				}
+				box.innerHTML = res.map(function(d) {
+					const _id = encodeURIComponent(d.id);
+					const _cat = encodeURIComponent(d.cat || '');
+					const _name = escHtml(String(d.name || ''));
+					const _photo = escHtml(String(d.photo || ''));
+					const _time = Number(d.time) || 0;
+					const _kcal = Number(d.kcal) || 0;
+					const thumb = _photo
+						? `<img class="hero-search-thumb" src="${_photo}" alt="" onerror="this.style.display='none'">`
+						: `<div class="hero-search-thumb"></div>`;
+					return `<a class="hero-search-item" href="recipe.html?id=${_id}&from=${_cat}">
+						${thumb}
+						<div class="hero-search-text">
+							<div class="hero-search-name">${_name}</div>
+							<div class="hero-search-meta">⏱ ${_time} мин · ${_kcal} ккал</div>
+						</div>
+					</a>`;
+				}).join('');
+				box.classList.add('open');
+			}
+
+			input.addEventListener('input', function(){ render(input.value); });
+			input.addEventListener('focus', function(){ if (input.value.trim()) render(input.value); });
+			document.addEventListener('click', function(e){
+				if (!e.target.closest('#hero-search')) box.classList.remove('open');
+			});
+			input.addEventListener('keydown', function(e){
+				if (e.key === 'Escape') { input.value = ''; box.classList.remove('open'); }
+				if (e.key === 'Enter') {
+					const first = box.querySelector('.hero-search-item');
+					if (first) location.href = first.getAttribute('href');
+				}
+			});
+		})();
+
+		function toggleNewsMore() {
+			const wrap = document.getElementById('news-more-wrap');
+			const btn = document.getElementById('news-toggle-btn');
+			if (!wrap || !btn) return;
+			const open = wrap.classList.toggle('open');
+			btn.classList.toggle('open', open);
+			const hiddenCount = wrap.querySelectorAll('.news-text-card').length;
+			btn.querySelector('.news-toggle-label').textContent = open ? 'Свернуть' : 'Показать ещё новости (' + hiddenCount + ')';
 		}
 		renderPlateInline();
 
