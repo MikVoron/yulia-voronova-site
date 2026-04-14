@@ -2190,11 +2190,17 @@
         el.addEventListener('input', updateKbzhuBar);
     });
 
+    function resolvePhotoUrl(p) {
+        if (!p) return p;
+        if (/^(https?:|data:|blob:)/i.test(p)) return p;
+        return 'https://voronova.online/' + p.replace(/^\/+/, '');
+    }
+
     function updatePhotoPreview() {
         var url = document.getElementById('re-photo').value.trim();
         var preview = document.getElementById('re-photo-preview');
         if (url) {
-            preview.src = url;
+            preview.src = resolvePhotoUrl(url);
             preview.classList.add('visible');
             preview.onerror = function() { preview.classList.remove('visible'); };
         } else {
@@ -2541,7 +2547,7 @@
 
         var imgHtml;
         if (data.photo) {
-            imgHtml = '<img src="' + escAttr(data.photo) + '" style="' + (data.img_position ? 'object-position:' + data.img_position : '') + '" onerror="this.parentNode.innerHTML=\'' + esc(data.emoji || '🍴') + '\'">';
+            imgHtml = '<img src="' + escAttr(resolvePhotoUrl(data.photo)) + '" style="' + (data.img_position ? 'object-position:' + data.img_position : '') + '" onerror="this.parentNode.innerHTML=\'' + esc(data.emoji || '🍴') + '\'">';
         } else {
             imgHtml = data.emoji || '🍴';
         }
