@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const db = require('../db');
 const { generateAccessToken, generateRefreshToken, hashToken } = require('../auth');
 const { sendWelcome } = require('../email');
@@ -103,12 +104,14 @@ async function oauthRoutes(fastify) {
   // ── VK: redirect ──
   fastify.get('/auth/oauth/vk', async (req, reply) => {
     if (!VK_APP_ID) return reply.status(500).send({ error: 'VK OAuth не настроен' });
+    const state = crypto.randomBytes(24).toString('hex');
+    reply.setCookie('oauth_state', state, { path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 600 });
     const url = 'https://id.vk.com/authorize'
       + '?response_type=code'
       + '&client_id=' + VK_APP_ID
       + '&redirect_uri=' + encodeURIComponent(VK_REDIRECT)
       + '&scope=email'
-      + '&state=vk';
+      + '&state=' + state;
     return reply.redirect(url);
   });
 
@@ -116,8 +119,13 @@ async function oauthRoutes(fastify) {
   fastify.get('/auth/oauth/vk/callback', {
     config: { rateLimit: { max: 10, timeWindow: '15 minutes' } }
   }, async (req, reply) => {
-    const { code } = req.query;
+    const { code, state } = req.query;
     if (!code) return reply.redirect(PLATFORM_URL + '/login.html?error=no_code');
+    const expectedState = req.cookies.oauth_state;
+    reply.clearCookie('oauth_state', { path: '/' });
+    if (!state || !expectedState || state !== expectedState) {
+      return reply.redirect(PLATFORM_URL + '/login.html?error=invalid_state');
+    }
 
     try {
       // Exchange code for token
@@ -166,11 +174,14 @@ async function oauthRoutes(fastify) {
   // ── Yandex: redirect ──
   fastify.get('/auth/oauth/yandex', async (req, reply) => {
     if (!YANDEX_CLIENT_ID) return reply.status(500).send({ error: 'Yandex OAuth не настроен' });
+    const state = crypto.randomBytes(24).toString('hex');
+    reply.setCookie('oauth_state', state, { path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 600 });
     const url = 'https://oauth.yandex.ru/authorize'
       + '?response_type=code'
       + '&client_id=' + YANDEX_CLIENT_ID
       + '&redirect_uri=' + encodeURIComponent(YANDEX_REDIRECT)
-      + '&force_confirm=yes';
+      + '&force_confirm=yes'
+      + '&state=' + state;
     return reply.redirect(url);
   });
 
@@ -178,8 +189,13 @@ async function oauthRoutes(fastify) {
   fastify.get('/auth/oauth/yandex/callback', {
     config: { rateLimit: { max: 10, timeWindow: '15 minutes' } }
   }, async (req, reply) => {
-    const { code } = req.query;
+    const { code, state } = req.query;
     if (!code) return reply.redirect(PLATFORM_URL + '/login.html?error=no_code');
+    const expectedState = req.cookies.oauth_state;
+    reply.clearCookie('oauth_state', { path: '/' });
+    if (!state || !expectedState || state !== expectedState) {
+      return reply.redirect(PLATFORM_URL + '/login.html?error=invalid_state');
+    }
 
     try {
       // Exchange code for token

@@ -13,10 +13,11 @@ async function authRoutes(fastify) {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply.status(400).send({ error: 'Некорректный email' });
     const lower = email.toLowerCase().trim();
     // Если вход через админку — проверяем что email принадлежит админу
+    // Отвечаем 200 в любом случае, чтобы не раскрывать наличие/роль аккаунта
     if (context === 'admin') {
       const adminCheck = await db.query("SELECT role FROM users WHERE email=$1", [lower]);
       if (!adminCheck.rows.length || adminCheck.rows[0].role !== 'admin') {
-        return reply.status(403).send({ error: 'Нет доступа' });
+        return reply.send({ ok: true });
       }
     }
     // rate limit по IP: макс 10 кодов за 15 минут с одного IP
@@ -169,7 +170,7 @@ async function authRoutes(fastify) {
 
     const { displayName, avatar } = req.body || {};
     const name = displayName !== undefined ? (displayName ? displayName.trim().slice(0, 100) : null) : undefined;
-    const ava = avatar !== undefined ? (avatar && avatar.length <= 300000 ? avatar : null) : undefined;
+    const ava = avatar !== undefined ? (avatar && avatar.length <= 300000 && /^data:image\/(png|jpeg|webp|gif);base64,/.test(avatar) ? avatar : null) : undefined;
     const sets = [];
     const vals = [];
     let idx = 1;
