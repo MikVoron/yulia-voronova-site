@@ -105,7 +105,7 @@ async function oauthRoutes(fastify) {
   fastify.get('/auth/oauth/vk', async (req, reply) => {
     if (!VK_APP_ID) return reply.status(500).send({ error: 'VK OAuth не настроен' });
     const state = crypto.randomBytes(24).toString('hex');
-    reply.setCookie('oauth_state', state, { path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 600 });
+    reply.setCookie('oauth_state_vk', state, { path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 600 });
     const url = 'https://id.vk.com/authorize'
       + '?response_type=code'
       + '&client_id=' + VK_APP_ID
@@ -121,8 +121,8 @@ async function oauthRoutes(fastify) {
   }, async (req, reply) => {
     const { code, state } = req.query;
     if (!code) return reply.redirect(PLATFORM_URL + '/login.html?error=no_code');
-    const expectedState = req.cookies.oauth_state;
-    reply.clearCookie('oauth_state', { path: '/' });
+    const expectedState = req.cookies.oauth_state_vk;
+    reply.clearCookie('oauth_state_vk', { path: '/' });
     if (!state || !expectedState || state !== expectedState) {
       return reply.redirect(PLATFORM_URL + '/login.html?error=invalid_state');
     }
@@ -175,7 +175,7 @@ async function oauthRoutes(fastify) {
   fastify.get('/auth/oauth/yandex', async (req, reply) => {
     if (!YANDEX_CLIENT_ID) return reply.status(500).send({ error: 'Yandex OAuth не настроен' });
     const state = crypto.randomBytes(24).toString('hex');
-    reply.setCookie('oauth_state', state, { path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 600 });
+    reply.setCookie('oauth_state_yandex', state, { path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 600 });
     const url = 'https://oauth.yandex.ru/authorize'
       + '?response_type=code'
       + '&client_id=' + YANDEX_CLIENT_ID
@@ -191,8 +191,8 @@ async function oauthRoutes(fastify) {
   }, async (req, reply) => {
     const { code, state } = req.query;
     if (!code) return reply.redirect(PLATFORM_URL + '/login.html?error=no_code');
-    const expectedState = req.cookies.oauth_state;
-    reply.clearCookie('oauth_state', { path: '/' });
+    const expectedState = req.cookies.oauth_state_yandex;
+    reply.clearCookie('oauth_state_yandex', { path: '/' });
     if (!state || !expectedState || state !== expectedState) {
       return reply.redirect(PLATFORM_URL + '/login.html?error=invalid_state');
     }

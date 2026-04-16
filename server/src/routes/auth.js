@@ -170,7 +170,21 @@ async function authRoutes(fastify) {
 
     const { displayName, avatar } = req.body || {};
     const name = displayName !== undefined ? (displayName ? displayName.trim().slice(0, 100) : null) : undefined;
-    const ava = avatar !== undefined ? (avatar && avatar.length <= 300000 && /^data:image\/(png|jpeg|webp|gif);base64,/.test(avatar) ? avatar : null) : undefined;
+
+    let ava = undefined;
+    if (avatar !== undefined) {
+      if (!avatar) {
+        ava = null; // сброс аватара
+      } else {
+        const match = avatar.match(/^data:image\/(png|jpeg|webp|gif);base64,(.+)$/);
+        if (!match) return reply.status(400).send({ error: 'Недопустимый формат аватара. Разрешены PNG, JPEG, WebP, GIF' });
+        let decoded;
+        try { decoded = Buffer.from(match[2], 'base64'); } catch { return reply.status(400).send({ error: 'Некорректный base64 в аватаре' }); }
+        if (decoded.length > 220 * 1024) return reply.status(400).send({ error: 'Аватар слишком большой. Максимум 220 КБ' });
+        ava = avatar;
+      }
+    }
+
     const sets = [];
     const vals = [];
     let idx = 1;

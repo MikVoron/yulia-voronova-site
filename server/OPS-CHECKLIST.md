@@ -109,6 +109,56 @@ ssh root@5.42.119.198 "crontab -l"
 
 Настройка: переменные `TG_BOT_TOKEN` и `TG_CHAT_ID` в crontab.
 
+## 9. Security Headers
+
+### Проверка API (api.voronova.online)
+
+```bash
+curl -sI https://api.voronova.online/health | grep -iE 'strict-transport|content-type-options|referrer-policy|x-frame|x-dns'
+```
+
+Ожидается:
+```
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+Referrer-Policy: no-referrer
+X-Frame-Options: SAMEORIGIN
+X-DNS-Prefetch-Control: off
+```
+
+### Проверка платформы (app.voronova.online)
+
+```bash
+curl -sI https://app.voronova.online/ | grep -iE 'strict-transport|content-security|content-type-options|referrer-policy'
+```
+
+Ожидается:
+```
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' ...
+```
+
+### Таблица заголовков
+
+| Заголовок | API | Платформа | Источник |
+|-----------|-----|-----------|----------|
+| `Strict-Transport-Security` | max-age=31536000 | max-age=31536000 | nginx |
+| `X-Content-Type-Options` | nosniff | nosniff | nginx + Helmet |
+| `Referrer-Policy` | no-referrer | strict-origin-when-cross-origin | Helmet / nginx |
+| `Content-Security-Policy` | — | да | nginx |
+| `X-Frame-Options` | SAMEORIGIN | — | Helmet |
+
+### Конфигурация nginx
+
+```
+/etc/nginx/sites-available/api.voronova.online
+/etc/nginx/sites-available/app.voronova.online
+```
+
+Бэкапы: `*.bak` в той же папке. После изменения: `nginx -t && systemctl reload nginx`.
+
 ## Файлы
 
 | Файл | Назначение |
