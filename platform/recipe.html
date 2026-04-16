@@ -492,6 +492,36 @@
 		const subItemRegistry = {};
 		const GROUP_CLASS = { p: 'group-protein', f: 'group-fat', c: 'group-carbs', fi: 'group-fiber' };
 
+		// ── SIDEBAR PLACEMENT (mobile ↔ desktop) ────────────────────────
+		function placeSidebarForViewport() {
+			const m = document.getElementById('sidebar-mobile');
+			const d = document.getElementById('sidebar-desktop');
+			if (!m || !d) return;
+			const isMobile = window.innerWidth <= 1024;
+			if (isMobile) {
+				// Move children from desktop → mobile (if not already there)
+				if (d.firstChild) {
+					while (d.firstChild) m.appendChild(d.firstChild);
+				}
+				m.style.display = m.children.length ? 'block' : 'none';
+				d.style.display = 'none';
+			} else {
+				// Move children from mobile → desktop
+				if (m.firstChild) {
+					while (m.firstChild) d.appendChild(m.firstChild);
+				}
+				m.style.display = 'none';
+				d.style.display = '';
+			}
+		}
+
+		// Debounced resize handler
+		let _sidebarResizeTimer = null;
+		window.addEventListener('resize', function () {
+			clearTimeout(_sidebarResizeTimer);
+			_sidebarResizeTimer = setTimeout(placeSidebarForViewport, 150);
+		});
+
 		function initRecipe() {
 			r = RECIPES[recipeId];
 			if (r && !Auth.canViewRecipe(r)) {
@@ -864,9 +894,6 @@
                         ${fiberCell}
                     </div>
 
-                    <!-- On mobile: sidebar appears here, right after КБЖУ -->
-                    <div id="sidebar-mobile" style="margin-top:16px;display:none"></div>
-
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:8px">
                         <div class="v-section-title">Ингредиенты</div>
                         <button class="btn btn-ghost btn-sm" onclick="shareRecipeIngredients()" style="padding:6px 10px;font-size:11px">📤 Поделиться</button>
@@ -900,6 +927,9 @@
 
                     ${tipHtml}
 
+                    <!-- On mobile: sidebar appears here, after recipe content, before reviews -->
+                    <div id="sidebar-mobile" style="margin-top:20px;display:none"></div>
+
                     <!-- Reviews section -->
                     <div class="reviews-section" id="reviews-section">
                         <div class="v-section-title" style="margin-top:24px">Отзывы</div>
@@ -926,15 +956,8 @@
                 </div>
             </div>`;
 
-			// Mobile: move sidebar DOM nodes (not innerHTML copy) to avoid duplicate IDs
-			if (window.innerWidth <= 767) {
-				const m = document.getElementById('sidebar-mobile');
-				const d = document.getElementById('sidebar-desktop');
-				if (m && d && d.firstChild) {
-					m.style.display = 'block';
-					while (d.firstChild) m.appendChild(d.firstChild);
-				}
-			}
+			// Place sidebar in correct container for current viewport
+			placeSidebarForViewport();
 
 			// Stars: animate when entering viewport
 			const starsRowEl = document.getElementById('recipe-stars-row');
@@ -958,6 +981,9 @@
 					btn.style.cursor = 'default';
 				}
 			}
+
+			// Init first video tab immediately after DOM insert
+			initVideoTabs();
 		}
 
 		// subItemRegistry declared above (before renderRecipe call)
@@ -1141,21 +1167,32 @@
 		// ── VIDEO PLATFORM SWITCH ────────────────────────────────────────────
 		function toEmbedUrl(url) {
 			if (!url) return null;
-			// YouTube: youtu.be/ID or youtube.com/watch?v=ID
-			var m = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/) || url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/);
-			if (m) return 'https://www.youtube.com/embed/' + m[1];
-			// VK Video: vkvideo.ru/video-OID_VID or vk.com/video-OID_VID
-			m = url.match(/video-?(\d+)_(\d+)/);
-			if (m) return 'https://vk.com/video_ext.php?oid=-' + m[1] + '&id=' + m[2] + '&hd=2';
-			// Dzen: if already embed URL — use as-is; if watch URL — link card
+			var m;
+			// YouTube: youtu.be/ID, youtube.com/watch?v=ID, /shorts/ID, /embed/ID, /live/ID
+			m = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+			if (!m) m = url.match(/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]+)/);
+			if (!m) m = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/);
+			if (!m) m = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/);
+			if (!m) m = url.match(/youtube\.com\/live\/([a-zA-Z0-9_-]+)/);
+			if (m) return 'https://www.youtube.com/embed/' + m[1] + '?rel=0&modestbranding=1';
+			// VK Video: vkvideo.ru/video-OID_VID or vk.com/video-OID_VID (preserve oid sign)
+			m = url.match(/video(-?\d+)_(\d+)/);
+			if (m) return 'https://vk.com/video_ext.php?oid=' + m[1] + '&id=' + m[2] + '&hd=2';
+			// Dzen: embed URL — use as-is; watch URL — fallback link card
 			m = url.match(/dzen\.ru\/embed\/([a-zA-Z0-9_-]+)/);
 			if (m) return url.split('?')[0] + '?from_block=partner&from=zen&mute=0&autoplay=0&tv=0';
 			m = url.match(/dzen\.ru\/video\/watch\//);
 			if (m) return 'dzen:' + url;
 			return url;
 		}
+		function showVideoFallback(frame, url) {
+			frame.innerHTML = '<a class="video-external-link" href="' + escHtml(url) + '" target="_blank" rel="noopener">'
+				+ '<div class="video-play-btn" style="background:rgba(255,255,255,.15)"><svg viewBox="0 0 24 24" width="32" height="32"><path d="M8 5v14l11-7z" fill="#fff"/></svg></div>'
+				+ '<div class="video-open-label">Открыть видео в новой вкладке</div>'
+				+ '</a>';
+		}
 		function loadVideoFrame(frame) {
-			if (frame.querySelector('iframe') || frame.querySelector('.dzen-link-card')) return;
+			if (frame.querySelector('iframe') || frame.querySelector('.dzen-link-card') || frame.querySelector('.video-external-link')) return;
 			var url = frame.dataset.url;
 			var embed = toEmbedUrl(url);
 			if (!embed) return;
@@ -1167,7 +1204,24 @@
 					+ '</a>';
 				return;
 			}
-			frame.innerHTML = '<iframe src="' + embed + '" style="position:absolute;inset:0;width:100%;height:100%;border:none;" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen" allowfullscreen></iframe>';
+			var iframe = document.createElement('iframe');
+			iframe.src = embed;
+			iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+			iframe.setAttribute('allow', 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen');
+			iframe.allowFullscreen = true;
+			iframe.onerror = function () { showVideoFallback(frame, url); };
+			frame.appendChild(iframe);
+			// Timeout fallback: if iframe doesn't load within 5 seconds, show link
+			var fallbackTimer = setTimeout(function () {
+				try {
+					// Check if iframe loaded something (will throw on cross-origin block)
+					var doc = iframe.contentDocument || iframe.contentWindow.document;
+					if (!doc || !doc.body || doc.body.innerHTML === '') showVideoFallback(frame, url);
+				} catch (e) {
+					// Cross-origin = loaded OK (YouTube/VK serve cross-origin content)
+				}
+			}, 5000);
+			iframe.onload = function () { clearTimeout(fallbackTimer); };
 		}
 		window.switchVideo = function (key) {
 			document.querySelectorAll('.video-tab').forEach(t => t.classList.toggle('active', t.dataset.key === key));
@@ -1177,11 +1231,21 @@
 				if (isActive) loadVideoFrame(f);
 			});
 		};
-		// Load only the first (active) video on init; others load on tab click
-		setTimeout(function () {
-			var first = document.querySelector('.video-frame.active');
-			if (first) loadVideoFrame(first);
-		}, 300);
+		// Init first active video tab (called from renderRecipe after DOM insert)
+		function initVideoTabs() {
+			var wrap = document.getElementById('video-player');
+			if (!wrap || wrap.dataset.initialized === '1') return;
+			var active = wrap.querySelector('.video-frame.active');
+			if (!active) {
+				// No active frame — activate the first one
+				var firstFrame = wrap.querySelector('.video-frame');
+				var firstTab = document.querySelector('.video-tab');
+				if (firstFrame) { firstFrame.classList.add('active'); active = firstFrame; }
+				if (firstTab) firstTab.classList.add('active');
+			}
+			if (active) loadVideoFrame(active);
+			wrap.dataset.initialized = '1';
+		}
 
 		// ── ADD TO PLATE ──────────────────────────────────────────────────────
 		function addToPlate() {

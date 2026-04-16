@@ -558,7 +558,7 @@ img { display: block; max-width: 100%; }
 
 /* ── RECIPE PAGE ─────────────────────────────────────── */
 .recipe-layout { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
-.recipe-sidebar { position: sticky; top: 76px; max-height: calc(100dvh - 90px); overflow-y: auto; }
+.recipe-sidebar { position: sticky; top: 96px; max-height: calc(100dvh - 110px); overflow-y: auto; }
 
 .recipe-hero-img {
     width: 100%; aspect-ratio: 4/3; border-radius: var(--r-l);
@@ -627,7 +627,7 @@ img { display: block; max-width: 100%; }
              flex-shrink: 0; margin-top: 1px; }
 .step-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
 .step-text { flex: 1; min-width: 0; }
-.step-photo-wrap { width: 100%; max-width: 420px; }
+.step-photo-wrap { width: 100%; }
 .step-photo-wrap .step-photo-img { width: 100%; border-radius: 10px; display: block; }
 
 /* VK Video */
@@ -985,10 +985,10 @@ img { display: block; max-width: 100%; }
 /* ── RESPONSIVE ──────────────────────────────────────── */
 @media (max-width: 1024px) {
     .recipe-card-grid { grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .recipe-layout { grid-template-columns: 1fr; }
+    .recipe-sidebar { display: none; }
 }
 @media (max-width: 767px) {
-    .recipe-layout { grid-template-columns: 1fr; }
-    .recipe-sidebar { position: static; }
     .cat-grid { grid-template-columns: repeat(2,1fr); gap: 16px; }
     .recipe-card-grid { grid-template-columns: repeat(2,1fr); gap: 14px; }
     .v-user-name { display: none; }
@@ -1058,7 +1058,7 @@ img { display: block; max-width: 100%; }
 }
 .step-photo-placeholder span:first-child { font-size: 26px; }
 .step-photo-img {
-    width: 100%; max-width: 340px;
+    width: 100%;
     height: auto; display: block;
     border-radius: var(--r-m); margin-top: 10px;
     object-fit: contain;
