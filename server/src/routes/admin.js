@@ -1,6 +1,6 @@
 const db = require('../db');
 const { requireAdmin } = require('../middleware');
-const { sendPaymentConfirmed, sendFeedbackReply } = require('../email');
+const { sendPaymentConfirmed, sendSubscriptionExtended, sendFeedbackReply } = require('../email');
 const audit = require('../audit');
 
 async function adminRoutes(fastify) {
@@ -119,6 +119,54 @@ async function adminRoutes(fastify) {
     `, [id]);
     audit.log('user_unblock', { userId: req.user.sub, detail: 'unblocked user#' + id, ip: req.ip });
     return { ok: true };
+  });
+
+  // POST /admin/users/:id/extend — продлить подписку вручную на N дней
+  fastify.post('/admin/users/:id/extend', {
+    preHandler: requireAdmin,
+    config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
+    const { id } = req.params;
+    const days = parseInt(req.body && req.body.days, 10);
+    if (!Number.isFinite(days) || days < 1 || days > 3650) {
+      return reply.status(400).send({ error: 'days: число от 1 до 3650' });
+    }
+    const userRes = await db.query('SELECT id, email, role FROM users WHERE id=$1', [id]);
+    if (!userRes.rows.length) return reply.status(404).send({ error: 'Пользователь не найден' });
+    if (userRes.rows[0].role === 'admin') return reply.status(400).send({ error: 'Нельзя продлить подписку администратора' });
+
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const sub = await client.query('SELECT * FROM subscriptions WHERE user_id=$1', [id]);
+      let newUntil;
+      if (sub.rows.length) {
+        const current = sub.rows[0];
+        const baseDate = (current.status === 'active' && current.active_until && new Date(current.active_until) > new Date())
+          ? new Date(current.active_until)
+          : new Date();
+        newUntil = new Date(baseDate.getTime() + days * 86400000);
+        await client.query("UPDATE subscriptions SET status='active', active_until=$2, updated_at=now() WHERE user_id=$1", [id, newUntil]);
+      } else {
+        newUntil = new Date(Date.now() + days * 86400000);
+        await client.query(
+          "INSERT INTO subscriptions (user_id, status, active_until) VALUES ($1, 'active', $2)",
+          [id, newUntil]
+        );
+      }
+      await client.query('COMMIT');
+      audit.log('subscription_extend', { userId: req.user.sub, email: userRes.rows[0].email, detail: 'user#' + id + ' +' + days + 'd → ' + newUntil.toISOString(), ip: req.ip });
+      // Email вне транзакции — не роняем ответ если SMTP упал
+      if (userRes.rows[0].email) {
+        sendSubscriptionExtended(userRes.rows[0].email, days, newUntil).catch(e => fastify.log.error(e, 'Subscription extended email error'));
+      }
+      return { ok: true, active_until: newUntil.toISOString(), message: 'Подписка продлена на ' + days + ' дн.' };
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
   });
 
   // GET /admin/feedback — обращения с пагинацией

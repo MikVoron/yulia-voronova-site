@@ -510,6 +510,12 @@ async function loadContent() {
     if (_contentLoaded) return;
     _contentError = false;
     try {
+        // New tabs start with empty sessionStorage. If the user is logged in but token
+        // is missing, refresh it first — otherwise the API strips ingredients/steps/note
+        // for "unauthenticated" requests.
+        if (Auth.isLoggedIn() && !Auth.getToken()) {
+            await Auth.refreshToken();
+        }
         const headers = {};
         const token = Auth.getToken();
         if (token) headers['Authorization'] = 'Bearer ' + token;

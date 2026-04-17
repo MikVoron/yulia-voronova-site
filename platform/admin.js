@@ -119,7 +119,8 @@
             if (u.is_blocked) {
                 actions = '<button class="adm-btn adm-btn-unblock" onclick="unblockUser(\'' + u.id + '\')">Разблокировать</button>';
             } else if (u.role !== 'admin') {
-                actions = '<button class="adm-btn adm-btn-block" onclick="blockUser(\'' + u.id + '\',\'' + esc(u.email) + '\')">Блок</button>';
+                actions = '<button class="adm-btn adm-btn-extend" onclick="openExtendModal(\'' + u.id + '\',\'' + esc(u.email) + '\',\'' + (u.active_until || '') + '\')">Продлить</button>' +
+                    '<button class="adm-btn adm-btn-block" onclick="blockUser(\'' + u.id + '\',\'' + esc(u.email) + '\')">Блок</button>';
             } else {
                 actions = '<span style="color:var(--text-3);font-size:12px">admin</span>';
             }
@@ -163,6 +164,55 @@
             showToast('Пользователь разблокирован');
             loadUsers();
             loadStats();
+        });
+    };
+
+    var extendUserId = null;
+    window.openExtendModal = function(id, email, activeUntil) {
+        extendUserId = id;
+        document.getElementById('extend-user-email').textContent = email || '';
+        var untilEl = document.getElementById('extend-current-until');
+        if (activeUntil) {
+            var until = new Date(activeUntil);
+            var now = new Date();
+            untilEl.textContent = until > now
+                ? 'Активна до: ' + fmtDate(activeUntil)
+                : 'Истекла: ' + fmtDate(activeUntil);
+        } else {
+            untilEl.textContent = 'Активной подписки нет';
+        }
+        document.getElementById('extend-days').value = 30;
+        document.getElementById('extend-modal').classList.add('open');
+    };
+
+    window.closeExtendModal = function() {
+        document.getElementById('extend-modal').classList.remove('open');
+        extendUserId = null;
+    };
+
+    window.submitExtend = function() {
+        if (!extendUserId) return;
+        var days = parseInt(document.getElementById('extend-days').value, 10);
+        if (!days || days < 1 || days > 3650) {
+            showToast('Введите число дней от 1 до 3650');
+            return;
+        }
+        var btn = document.getElementById('extend-submit-btn');
+        btn.disabled = true;
+        btn.textContent = 'Отправка...';
+        api('/admin/users/' + extendUserId + '/extend', {
+            method: 'POST',
+            body: { days: days }
+        }).then(function(data) {
+            showToast(data.message || 'Подписка продлена');
+            closeExtendModal();
+            loadUsers();
+            loadStats();
+        }).catch(function() {
+            showToast('Ошибка');
+        }).finally(function() {
+            btn.disabled = false;
+            btn.textContent = 'Продлить';
         });
     };
 

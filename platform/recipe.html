@@ -825,7 +825,7 @@
 
 			const alreadyInPlate = isInPlate();
 			const fiberCell = (r.fiber !== undefined)
-				? `<div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fiber">${Number(r.fiber)}г</div><div class="kbzhu-lbl">Клетчатка</div></div>`
+				? `<div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fiber">~${Number(r.fiber)}г</div><div class="kbzhu-lbl">Клетчатка</div></div>`
 				: '';
 
 			const tipHtml = r.tip ? `<div class="julia-tip">
@@ -890,10 +890,10 @@
                     </div>` : ''}
                     <div class="v-section-title" style="margin-bottom:8px">В одной порции блюда:</div>
                     <div class="kbzhu" id="kbzhu-block">
-                        <div class="kbzhu-cell main"><div class="kbzhu-val" id="kbzhu-kcal">${Number(r.kcal)}</div><div class="kbzhu-lbl">Ккал</div></div>
-                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-protein">${Number(r.protein)}г</div><div class="kbzhu-lbl">Белки</div></div>
-                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fat">${Number(r.fat)}г</div><div class="kbzhu-lbl">Жиры</div></div>
-                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-carbs">${Number(r.carbs)}г</div><div class="kbzhu-lbl">Углеводы</div></div>
+                        <div class="kbzhu-cell main"><div class="kbzhu-val" id="kbzhu-kcal">~${Number(r.kcal)}</div><div class="kbzhu-lbl">Ккал</div></div>
+                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-protein">~${Number(r.protein)}г</div><div class="kbzhu-lbl">Белки</div></div>
+                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fat">~${Number(r.fat)}г</div><div class="kbzhu-lbl">Жиры</div></div>
+                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-carbs">~${Number(r.carbs)}г</div><div class="kbzhu-lbl">Углеводы</div></div>
                         ${fiberCell}
                     </div>
 
@@ -1158,11 +1158,11 @@
 			const kf = document.getElementById('kbzhu-fat');
 			const kc = document.getElementById('kbzhu-carbs');
 			const kfi = document.getElementById('kbzhu-fiber');
-			if (ke) ke.textContent = total.kcal;
-			if (kp) kp.textContent = total.protein + 'г';
-			if (kf) kf.textContent = total.fat + 'г';
-			if (kc) kc.textContent = total.carbs + 'г';
-			if (kfi) kfi.textContent = total.fiber + 'г';
+			if (ke) ke.textContent = '~' + total.kcal;
+			if (kp) kp.textContent = '~' + total.protein + 'г';
+			if (kf) kf.textContent = '~' + total.fat + 'г';
+			if (kc) kc.textContent = '~' + total.carbs + 'г';
+			if (kfi) kfi.textContent = '~' + total.fiber + 'г';
 			// Check balance
 			checkBalance();
 		}

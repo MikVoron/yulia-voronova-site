@@ -296,6 +296,14 @@
 
         .adm-btn-unblock:hover:not(:disabled) { background: #dcfce7; }
 
+        .adm-btn-extend {
+            background: var(--green-l);
+            color: var(--green);
+            margin-right: 6px;
+        }
+
+        .adm-btn-extend:hover:not(:disabled) { background: #dcfce7; }
+
         .adm-btn-back {
             background: none;
             border: 1px solid var(--border);
@@ -730,6 +738,33 @@
         <div class="adm-modal-actions">
             <button class="adm-btn adm-btn-reject" onclick="closeModal()">Отмена</button>
             <button class="adm-btn adm-btn-confirm" id="confirm-submit-btn" onclick="submitConfirm()">Подтвердить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Extend subscription modal -->
+<div class="adm-modal-bg" id="extend-modal">
+    <div class="adm-modal">
+        <div class="adm-modal-title">Продлить подписку</div>
+        <div class="adm-modal-field">
+            <label class="adm-modal-label">Пользователь</label>
+            <div id="extend-user-email" style="font-size:14px;font-weight:600;color:var(--text-1)"></div>
+            <div id="extend-current-until" style="font-size:12px;color:var(--text-3);margin-top:2px"></div>
+        </div>
+        <div class="adm-modal-field">
+            <label class="adm-modal-label">На сколько дней продлить</label>
+            <input type="number" min="1" max="3650" class="adm-modal-input" id="extend-days" value="30">
+            <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+                <button type="button" class="adm-btn" onclick="document.getElementById('extend-days').value=7">7 дн.</button>
+                <button type="button" class="adm-btn" onclick="document.getElementById('extend-days').value=30">30 дн.</button>
+                <button type="button" class="adm-btn" onclick="document.getElementById('extend-days').value=90">90 дн.</button>
+                <button type="button" class="adm-btn" onclick="document.getElementById('extend-days').value=180">180 дн.</button>
+                <button type="button" class="adm-btn" onclick="document.getElementById('extend-days').value=360">360 дн.</button>
+            </div>
+        </div>
+        <div class="adm-modal-actions">
+            <button class="adm-btn adm-btn-reject" onclick="closeExtendModal()">Отмена</button>
+            <button class="adm-btn adm-btn-confirm" id="extend-submit-btn" onclick="submitExtend()">Продлить</button>
         </div>
     </div>
 </div>

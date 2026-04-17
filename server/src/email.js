@@ -99,6 +99,24 @@ async function sendSubscriptionExpired(to) {
   await send(to, 'Подписка истекла — Умная тарелка', wrap(body));
 }
 
+// ── 5b. Подписка продлена админом вручную ──
+async function sendSubscriptionExtended(to, days, activeUntil) {
+  const untilStr = activeUntil
+    ? new Date(activeUntil).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : '';
+  const body =
+    '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Подписка продлена</h2>'
+    + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
+    + 'Ваша подписка на платформу <strong>Умная тарелка</strong> продлена на <strong>'
+    + days + ' дн.</strong>' + (untilStr ? ' — до <strong>' + untilStr + '</strong>' : '') + '</p>'
+    + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
+    + 'Все рецепты, конструктор тарелки и другие возможности полностью доступны.</p>'
+    + btn('Перейти на платформу', '' + PLATFORM_URL + '/')
+    + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
+    + 'Спасибо, что вы с нами!</p>';
+  await send(to, 'Подписка продлена — Умная тарелка', wrap(body));
+}
+
 // ── 5. Оплата подтверждена ──
 async function sendPaymentConfirmed(to, days) {
   const body =
@@ -190,6 +208,7 @@ module.exports = {
   sendTrialExpired,
   sendSubscriptionExpired,
   sendPaymentConfirmed,
+  sendSubscriptionExtended,
   sendPaymentNotification,
   sendFeedback,
   sendFeedbackReply,
