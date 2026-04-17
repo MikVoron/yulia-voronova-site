@@ -27,12 +27,12 @@ INSERT INTO recipes (
     {"name": "Соль", "amount": "по вкусу"}
   ]',
   '[
-    {"text": "Морковь натереть на крупной тёрке.", "photo": "images/recipes/salad-carrot-cucumber-pepper/salad-carrot-cucumber-pepper-start.webp"},
+    "Морковь натереть на крупной тёрке.",
     "Огурец натереть и слегка отжать сок.",
     "Красный перец нарезать соломкой или натереть.",
     "Смешать все овощи с йогуртом или соусом из кешью.",
     "Добавить зелень: укроп и кинзу.",
-    {"text": "Посолить, аккуратно перемешать.", "photo": "images/recipes/salad-carrot-cucumber-pepper/salad-carrot-cucumber-pepper-final.webp"}
+    "Посолить, аккуратно перемешать."
   ]',
   false, 0
 );
