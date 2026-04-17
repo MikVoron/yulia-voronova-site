@@ -5,6 +5,9 @@
     if (!user || user.role !== 'admin') { alert('Нет прав администратора'); location.href = 'index.html'; return; }
     document.getElementById('admin-email').textContent = user.email || '';
 
+    // Keep token alive — without this the access token expires after ~15 min and saves fail with 401
+    Auth.startAutoRefresh();
+
     var allUsers = [];
     var confirmPaymentId = null;
 
@@ -12,28 +15,37 @@
     function api(path, opts) {
         opts = opts || {};
         opts.headers = opts.headers || {};
-        opts.headers['Authorization'] = 'Bearer ' + Auth.getToken();
+        // Refresh token if missing (e.g. new tab with empty sessionStorage)
+        var _doFetch = function() {
+            opts.headers['Authorization'] = 'Bearer ' + Auth.getToken();
+            return fetch(API_BASE + path, opts).then(function(res) {
+                if (res.status === 401) {
+                    return Auth.refreshToken().then(function(ok) {
+                        if (ok) {
+                            opts.headers['Authorization'] = 'Bearer ' + Auth.getToken();
+                            return fetch(API_BASE + path, opts).then(function(r2) {
+                                if (r2.status === 401) { location.href = 'login.html?return=admin.html'; }
+                                if (r2.status === 403) { showToast('Нет прав администратора'); throw new Error('403'); }
+                                if (r2.status === 429) { showToast('Слишком много запросов, подождите'); throw new Error('429'); }
+                                return r2.json();
+                            });
+                        }
+                        location.href = 'login.html?return=admin.html';
+                    });
+                }
+                if (res.status === 403) { showToast('Нет прав администратора'); throw new Error('403'); }
+                if (res.status === 429) { showToast('Слишком много запросов, подождите'); throw new Error('429'); }
+                return res.json();
+            });
+        };
         if (opts.body && typeof opts.body === 'object') {
             opts.headers['Content-Type'] = 'application/json';
             opts.body = JSON.stringify(opts.body);
         }
-        return fetch(API_BASE + path, opts).then(function(res) {
-            if (res.status === 401) {
-                return Auth.refreshToken().then(function(ok) {
-                    if (ok) {
-                        opts.headers['Authorization'] = 'Bearer ' + Auth.getToken();
-                        return fetch(API_BASE + path, opts).then(function(r2) {
-                            if (r2.status === 401) { location.href = 'login.html?return=admin.html'; }
-                            if (r2.status === 403) { showToast('Нет прав администратора'); throw new Error('403'); }
-                            return r2.json();
-                        });
-                    }
-                    location.href = 'login.html?return=admin.html';
-                });
-            }
-            if (res.status === 403) { showToast('Нет прав администратора'); throw new Error('403'); }
-            return res.json();
-        });
+        if (!Auth.getToken()) {
+            return Auth.refreshToken().then(function() { return _doFetch(); });
+        }
+        return _doFetch();
     }
 
     // ── Tabs ──
