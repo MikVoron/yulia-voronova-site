@@ -623,6 +623,7 @@
 		// Каждая запись — { re: RegExp (с флагом g, без групп захвата), id: 'recipe-id' }.
 		const AUTO_LINKS = [
 			{ re: /овощн(?:ый|ого|ому|ым|ом|ая|ой|ую|ое|ые|ых|ым|ыми)?\s+концентрат(?:а|у|ом|е|ы|ов|ам|ами|ах)?/gi, id: 'veggie-concentrate' },
+			{ re: /соус(?:а|у|ом|е)?\s+из\s+кешью/gi, id: 'cashew-sauce' },
 		];
 		function _autoLink(html, selfId) {
 			const anchor = (label, rid) => '<a href="recipe.html?id=' + rid + '" style="color:var(--accent);text-decoration:underline;cursor:pointer">' + label + '</a>';
