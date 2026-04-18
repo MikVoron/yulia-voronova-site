@@ -622,6 +622,12 @@
 		// the base recipe totals: { kcal, protein, fat, carbs, fiber, label, hasKbzhu }.
 		let _swapInfo = {};
 		let _appliedSwaps = {};
+		// Ingredients marked swap="можно без него" can be toggled off (_excludedIngredients[i] = true)
+		// and hidden from the list, sharing text, and shopping list.
+		let _excludedIngredients = {};
+		function isOptionalSwap(swap) {
+			return typeof swap === 'string' && swap.trim().toLowerCase() === 'можно без него';
+		}
 
 		function isInPlate() {
 			return Plate.get().some(item => item.recipeId === r.id);
@@ -665,7 +671,7 @@
 		const INGREDIENT_DB = {
 			'yogurt-medium-fat': {
 				aliases: ['йогурт средней жирности', 'йогурт'],
-				per100g: { kcal: 60, protein: 3.5, fat: 3.5, carbs: 4.7, fiber: 0 }
+				per100g: { kcal: 60, protein: 6.67, fat: 6.67, carbs: 6.67, fiber: 0 }
 			}
 		};
 
@@ -905,6 +911,22 @@
 			updateAddTotal();
 		};
 
+		window.optOutIngredient = function(i) {
+			_excludedIngredients[i] = true;
+			const row = document.getElementById('ing-row-' + i);
+			const ph = document.getElementById('ing-placeholder-' + i);
+			if (row) row.style.display = 'none';
+			if (ph) ph.style.display = '';
+		};
+
+		window.restoreIngredient = function(i) {
+			delete _excludedIngredients[i];
+			const row = document.getElementById('ing-row-' + i);
+			const ph = document.getElementById('ing-placeholder-' + i);
+			if (row) row.style.display = '';
+			if (ph) ph.style.display = 'none';
+		};
+
 		function renderRecipe(r) {
 			window.__currentRecipeId = r.id;
 			document.title = r.name + ' — Конструктор питания';
@@ -1009,16 +1031,32 @@
 			// Reset swap state for this recipe render
 			_swapInfo = {};
 			_appliedSwaps = {};
+			_excludedIngredients = {};
 			const ingHtml = (r.ingredients || []).map((ing, i) => {
 				const name = typeof ing === 'string' ? ing : ing.name;
 				const swap = typeof ing === 'object' ? ing.swap : null;
+				const optional = isOptionalSwap(swap);
+				const actionBtn = optional
+					? `<button class="ing-optout-btn" id="ing-optout-btn-${i}" onclick="optOutIngredient(${i})">можно без него</button>`
+					: (swap ? `<button class="ing-swap-btn" id="ing-swap-btn-${i}" onclick="toggleSwap(${i})">чем заменить?</button>` : '');
+				const swapTip = (swap && !optional)
+					? `<div class="ing-swap-tip" id="swap-${i}">${renderSwapOptions(swap, i, name)}</div>`
+					: '';
+				const placeholder = optional
+					? `<div class="ing-item ing-item-excluded" id="ing-placeholder-${i}" style="display:none">
+                    <div class="ing-dot ing-dot-muted"></div>
+                    <div class="ing-name ing-name-excluded">${linkify(name)}</div>
+                    <button class="ing-restore-btn" onclick="restoreIngredient(${i})">вернуть</button>
+                </div>`
+					: '';
 				return `<div>
-                <div class="ing-item">
+                <div class="ing-item" id="ing-row-${i}">
                     <div class="ing-dot"></div>
                     <div class="ing-name" id="ing-name-${i}">${linkify(name)}</div>
-                    ${swap ? `<button class="ing-swap-btn" id="ing-swap-btn-${i}" onclick="toggleSwap(${i})">чем заменить?</button>` : ''}
+                    ${actionBtn}
                 </div>
-                ${swap ? `<div class="ing-swap-tip" id="swap-${i}">${renderSwapOptions(swap, i, name)}</div>` : ''}
+                ${swapTip}
+                ${placeholder}
             </div>`;
 			}).join('');
 
@@ -1566,6 +1604,7 @@
 			}
 
 			// Main dish: own KBZHU only — selected addons go in as separate Plate entries below.
+			const _plateIngredients = (r.ingredients || []).filter((_, i) => !_excludedIngredients[i]);
 			Plate.add({
 				name: r.name,
 				emoji: r.emoji,
@@ -1576,7 +1615,7 @@
 				carbs: r.carbs,
 				fiber: r.fiber || 0,
 				recipeId: r.id,
-				ingredients: r.ingredients,
+				ingredients: _plateIngredients,
 				additions: []
 			});
 
@@ -1747,7 +1786,8 @@
 		function shareRecipeIngredients() {
 			if (!r) return;
 			let txt = `🛒 ${r.name}\n\n`;
-			(r.ingredients || []).forEach(ing => {
+			(r.ingredients || []).forEach((ing, i) => {
+				if (_excludedIngredients[i]) return;
 				const name = typeof ing === 'string' ? ing : ing.name;
 				txt += `• ${name}\n`;
 			});

@@ -638,6 +638,25 @@ img { display: block; max-width: 100%; }
     vertical-align: middle; transition: var(--tr);
 }
 .ing-swap-revert:hover { color: var(--accent); border-color: var(--accent); }
+.ing-optout-btn {
+    font-size: 10px; font-weight: 700; padding: 3px 9px;
+    border-radius: var(--r-f); background: transparent;
+    color: var(--text-3); border: 1px dashed var(--text-3);
+    cursor: pointer; white-space: nowrap; transition: var(--tr); flex-shrink: 0;
+}
+.ing-optout-btn:hover { background: var(--text-3); color: #fff; border-style: solid; }
+.ing-item-excluded { opacity: .75; background: #f8f5f2; }
+.ing-item-excluded .ing-name-excluded {
+    text-decoration: line-through; color: var(--text-3);
+}
+.ing-dot-muted { background: var(--text-3); opacity: .5; }
+.ing-restore-btn {
+    font-size: 10px; font-weight: 700; padding: 3px 9px;
+    border-radius: var(--r-f); background: var(--accent-l);
+    color: var(--accent); border: 1px solid var(--accent);
+    cursor: pointer; white-space: nowrap; transition: var(--tr); flex-shrink: 0;
+}
+.ing-restore-btn:hover { background: var(--accent); color: #fff; }
 
 /* Steps — vertical layout: number + text, photo below */
 .steps-list { display: flex; flex-direction: column; }
