@@ -609,9 +609,10 @@
 		let _wasBalanced = false;
 		let _celebrationShown = false;
 
-		// Ingredient swaps — per-ingredient metadata + currently-applied replacements
+		// Ingredient swaps — per-ingredient metadata + currently-applied replacements.
 		// _swapInfo[i] = { origName, parts: [alt-text...], origAmountG: number|null }
-		// _appliedSwaps[i] = { partIndex, kcal, protein, fat, carbs, fiber, label, hasKbzhu }
+		// _appliedSwaps[i] stores a KBZHU *delta* (replacement − original) that is added to
+		// the base recipe totals: { kcal, protein, fat, carbs, fiber, label, hasKbzhu }.
 		let _swapInfo = {};
 		let _appliedSwaps = {};
 
@@ -644,6 +645,73 @@
 				return '<a href="recipe.html?id=' + rid + '" style="color:var(--accent);text-decoration:underline;cursor:pointer">' + label + '</a>';
 			});
 			return _autoLink(html, window.__currentRecipeId);
+		}
+
+		// ── INGREDIENT KBZHU DATABASE ─────────────────────────────────────────
+		// Used when an ingredient is NOT a standalone recipe in RECIPES.
+		// Stored per 100 g (fixed convention). Aliases — normalized, case-insensitive
+		// (ё→е, non-letters → spaces).
+		const INGREDIENT_DB = {
+			'yogurt-medium-fat': {
+				aliases: ['йогурт средней жирности', 'йогурт'],
+				per100g: { kcal: 60, protein: 3.5, fat: 3.5, carbs: 4.7, fiber: 0 }
+			}
+		};
+
+		function _normIng(s) {
+			return String(s == null ? '' : s).toLowerCase().replace(/ё/g, 'е').replace(/[^а-яa-z0-9]+/g, ' ').trim();
+		}
+
+		// Find an ingredient entry whose alias matches the start of the normalized text.
+		// Prefers the longest alias when several match (e.g. "йогурт средней жирности" > "йогурт").
+		function matchIngredientKbzhu(text) {
+			const n = _normIng(text);
+			if (!n) return null;
+			let best = null;
+			for (const id in INGREDIENT_DB) {
+				const entry = INGREDIENT_DB[id];
+				for (const alias of entry.aliases) {
+					const an = _normIng(alias);
+					if (!an) continue;
+					const hit = n === an || n.startsWith(an + ' ') || n.indexOf(' ' + an + ' ') !== -1 || n.startsWith(an);
+					if (hit && (!best || an.length > best.aliasLen)) best = { id, entry, aliasLen: an.length };
+				}
+			}
+			return best ? { id: best.id, entry: best.entry } : null;
+		}
+
+		// Resolve swap/ingredient text → nutrition source. Recipe takes priority over DB.
+		function _resolveNutritionSource(text) {
+			const rid = findRecipeForSwapText(text);
+			if (rid && typeof RECIPES !== 'undefined' && RECIPES && RECIPES[rid]) {
+				return { kind: 'recipe', recipe: RECIPES[rid], name: RECIPES[rid].name };
+			}
+			const m = matchIngredientKbzhu(text);
+			if (m) return { kind: 'ingredient', entry: m.entry };
+			return null;
+		}
+
+		// KBZHU contribution of a source for a given mass in grams.
+		// Returns null if the source can't be scaled (missing portionGrams, zero mass, etc).
+		function _contribution(src, amountG) {
+			if (!src || !(amountG > 0)) return null;
+			let base, factor;
+			if (src.kind === 'recipe') {
+				const r = src.recipe;
+				if (!r.portionGrams || r.portionGrams <= 0) return null;
+				base = r;
+				factor = amountG / r.portionGrams;
+			} else {
+				base = src.entry.per100g;
+				factor = amountG / 100;
+			}
+			return {
+				kcal:    (base.kcal    || 0) * factor,
+				protein: (base.protein || 0) * factor,
+				fat:     (base.fat     || 0) * factor,
+				carbs:   (base.carbs   || 0) * factor,
+				fiber:   (base.fiber   || 0) * factor
+			};
 		}
 
 		// ── INGREDIENT SWAPS ──────────────────────────────────────────────────
@@ -773,27 +841,25 @@
 			const btn = document.getElementById('ing-swap-btn-' + i);
 			if (btn) btn.style.display = 'none';
 
-			// Compute KBZHU delta = replacement − original. Base recipe KBZHU already includes
-			// the original ingredient, so we subtract its contribution and add the replacement's.
-			// Only applies when BOTH original and replacement are linked recipes with known KBZHU;
-			// otherwise rename only (avoids guessing values and double-counting).
-			const origRid = findRecipeForSwapText(info.origName || '');
-			let delta = { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0, label: displayPart, hasKbzhu: false };
-			const hasRecipes = typeof RECIPES !== 'undefined';
-			if (rid && origRid && hasRecipes && RECIPES[rid] && RECIPES[origRid]) {
-				const newRec = RECIPES[rid];
-				const origRec = RECIPES[origRid];
-				const amountG = info.origAmountG || 0;
-				if (amountG > 0 && newRec.portionGrams > 0 && origRec.portionGrams > 0) {
-					const fNew = amountG / newRec.portionGrams;
-					const fOrig = amountG / origRec.portionGrams;
+			// Compute KBZHU delta = replacement − original.
+			// Source priority: RECIPES (linked recipe) → INGREDIENT_DB. If either side
+			// can't be resolved or the amount is unknown, skip delta (rename-only).
+			const origSrc = _resolveNutritionSource(info.origName || '');
+			const replSrc = _resolveNutritionSource(partText);
+			const amountG = info.origAmountG || 0;
+			const replLabel = (replSrc && replSrc.kind === 'recipe') ? replSrc.name : displayPart;
+			let delta = { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0, label: replLabel, hasKbzhu: false };
+			if (origSrc && replSrc && amountG > 0) {
+				const o = _contribution(origSrc, amountG);
+				const n = _contribution(replSrc, amountG);
+				if (o && n) {
 					delta = {
-						kcal: Math.round((newRec.kcal || 0) * fNew - (origRec.kcal || 0) * fOrig),
-						protein: Math.round(((newRec.protein || 0) * fNew - (origRec.protein || 0) * fOrig) * 10) / 10,
-						fat: Math.round(((newRec.fat || 0) * fNew - (origRec.fat || 0) * fOrig) * 10) / 10,
-						carbs: Math.round(((newRec.carbs || 0) * fNew - (origRec.carbs || 0) * fOrig) * 10) / 10,
-						fiber: Math.round(((newRec.fiber || 0) * fNew - (origRec.fiber || 0) * fOrig) * 10) / 10,
-						label: newRec.name,
+						kcal:    Math.round(n.kcal    - o.kcal),
+						protein: Math.round(n.protein - o.protein),
+						fat:     Math.round(n.fat     - o.fat),
+						carbs:   Math.round(n.carbs   - o.carbs),
+						fiber:   Math.round(n.fiber   - o.fiber),
+						label:   replLabel,
 						hasKbzhu: true
 					};
 				}
