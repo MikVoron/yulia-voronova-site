@@ -819,7 +819,14 @@
 			const origText = info.origName || '';
 			const dashMatch = origText.match(/\s[—–\-]\s/);
 			const amountPart = dashMatch ? origText.substring(origText.indexOf(dashMatch[0])) : '';
-			const newLabel = displayPart + amountPart;
+			// Skip appending amountPart if the replacement text already carries a measure
+			// (e.g. "Консервированная фасоль — 300 г", "Тофу (50 г)", "Йогурт 100 г").
+			const displayPartHasAmount =
+				/\s[—–\-]\s/.test(displayPart) ||
+				/\([^)]*\d[^)]*\)/.test(displayPart) ||
+				/\d+\s*(г|мл|кг|ст\.?\s*л\.?|ч\.?\s*л\.?)\b/i.test(displayPart);
+			const effectiveAmount = displayPartHasAmount ? '' : amountPart;
+			const newLabel = displayPart + effectiveAmount;
 
 			const nameEl = document.getElementById('ing-name-' + i);
 			if (nameEl) {
@@ -828,7 +835,7 @@
 				let labelHtml;
 				if (rid) {
 					labelHtml = '<a href="recipe.html?id=' + encodeURIComponent(rid) + '&asIngredient=1" style="color:var(--accent);text-decoration:underline;cursor:pointer">'
-						+ escHtml(displayPart) + '</a>' + escHtml(amountPart);
+						+ escHtml(displayPart) + '</a>' + escHtml(effectiveAmount);
 				} else {
 					labelHtml = linkify(newLabel);
 				}
@@ -1254,13 +1261,12 @@
 				const hasCat = item.catLink;
 				if (hasRecipe) {
 					subItemRegistry[key] = item;
-					const subInPlate = Plate.get().some(p => p.recipeId === item.recipeId);
 					const safeRid = encodeURIComponent(item.recipeId);
 					return `<div class="bal-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative;cursor:pointer">
                             <div class="bal-item-check" id="chk-${key}"></div>
                             <div class="bal-item-text">
                                 ${escHtml(item.name)}
-                                <a class="bal-item-recipe-link" onclick="event.stopPropagation();location.href='recipe.html?id=${safeRid}&from=${encodeURIComponent(fromCat)}'">→ Открыть рецепт</a>
+                                <a class="bal-item-recipe-link" onclick="event.stopPropagation();location.href='recipe.html?id=${safeRid}&from=${encodeURIComponent(fromCat)}&asIngredient=1'">→ Открыть рецепт</a>
                             </div>
                             <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
                         </div>`;
@@ -1319,6 +1325,15 @@
 				delete checkedItems[key];
 				btn.classList.remove('checked');
 			} else {
+				// Only one addon per category (prefix p/f/c/fi): clear siblings first
+				const prefix = key.replace(/-\d+$/, '');
+				Object.keys(checkedItems).forEach(k => {
+					if (k.replace(/-\d+$/, '') === prefix) {
+						delete checkedItems[k];
+						const prev = document.getElementById('ai-' + k);
+						if (prev) prev.classList.remove('checked');
+					}
+				});
 				const nameEl = btn.querySelector('.bal-item-text');
 				let name = key;
 				if (nameEl) {
@@ -1327,7 +1342,17 @@
 					if (link) link.remove();
 					name = clone.textContent.trim() || key;
 				}
-				checkedItems[key] = { name, kcal, protein, fat, carbs, fiber: fiber || 0 };
+				const src = subItemRegistry[key] || {};
+				checkedItems[key] = {
+					name,
+					kcal,
+					protein,
+					fat,
+					carbs,
+					fiber: fiber || 0,
+					recipeId: src.recipeId || null,
+					emoji: src.emoji || ''
+				};
 				btn.classList.add('checked');
 			}
 			updateAddTotal();
@@ -1528,31 +1553,37 @@
 				showBalWarnToast();
 			}
 
-			let total = { kcal: r.kcal, protein: r.protein, fat: r.fat, carbs: r.carbs, fiber: r.fiber || 0 };
-			Object.values(checkedItems).forEach(v => {
-				total.kcal += v.kcal || 0;
-				total.protein += v.protein || 0;
-				total.fat += v.fat || 0;
-				total.carbs += v.carbs || 0;
-				total.fiber += v.fiber || 0;
-			});
-
-			const additions = Object.values(checkedItems).map(v => ({
-				name: v.name, kcal: v.kcal, protein: v.protein, fat: v.fat, carbs: v.carbs
-			}));
-
+			// Main dish: own KBZHU only — selected addons go in as separate Plate entries below.
 			Plate.add({
 				name: r.name,
 				emoji: r.emoji,
 				photo: r.photo || '',
-				kcal: total.kcal,
-				protein: total.protein,
-				fat: total.fat,
-				carbs: total.carbs,
-				fiber: total.fiber,
+				kcal: r.kcal,
+				protein: r.protein,
+				fat: r.fat,
+				carbs: r.carbs,
+				fiber: r.fiber || 0,
 				recipeId: r.id,
 				ingredients: r.ingredients,
-				additions: additions
+				additions: []
+			});
+
+			// Deferred addons → separate Plate entries; dedup by recipeId when present.
+			Object.values(checkedItems).forEach(v => {
+				if (v.recipeId && Plate.get().some(p => p.recipeId === v.recipeId)) return;
+				const linked = (v.recipeId && typeof RECIPES !== 'undefined') ? RECIPES[v.recipeId] : null;
+				Plate.add({
+					name: v.name,
+					emoji: (linked && linked.emoji) || v.emoji || '🥗',
+					photo: (linked && linked.photo) || '',
+					kcal: v.kcal || 0,
+					protein: v.protein || 0,
+					fat: v.fat || 0,
+					carbs: v.carbs || 0,
+					fiber: v.fiber || 0,
+					recipeId: v.recipeId || null,
+					ingredients: (linked && linked.ingredients) || []
+				});
 			});
 
 			const btn = document.getElementById('add-btn');
