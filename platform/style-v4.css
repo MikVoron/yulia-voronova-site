@@ -627,11 +627,6 @@ img { display: block; max-width: 100%; }
     transition: var(--tr); text-align: left;
 }
 .ing-swap-option:hover { background: var(--accent); color: #fff; }
-.ing-swap-option:hover .ing-swap-kbzhu-hint { color: #ffd8c2; }
-.ing-swap-kbzhu-hint {
-    margin-left: 4px; font-size: 10px; font-weight: 500;
-    color: var(--text-3); opacity: .85;
-}
 .ing-name-swapped {
     color: var(--accent); font-weight: 600;
 }

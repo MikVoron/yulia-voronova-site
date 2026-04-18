@@ -773,20 +773,27 @@
 			const btn = document.getElementById('ing-swap-btn-' + i);
 			if (btn) btn.style.display = 'none';
 
-			// Compute replacement KBZHU if replacement is a linked recipe
+			// Compute KBZHU delta = replacement − original. Base recipe KBZHU already includes
+			// the original ingredient, so we subtract its contribution and add the replacement's.
+			// Only applies when BOTH original and replacement are linked recipes with known KBZHU;
+			// otherwise rename only (avoids guessing values and double-counting).
+			const origRid = findRecipeForSwapText(info.origName || '');
 			let delta = { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0, label: displayPart, hasKbzhu: false };
-			if (rid && typeof RECIPES !== 'undefined' && RECIPES[rid]) {
-				const rec = RECIPES[rid];
-				const amountG = info.origAmountG || rec.portionGrams || 0;
-				if (amountG > 0 && rec.portionGrams > 0) {
-					const f = amountG / rec.portionGrams;
+			const hasRecipes = typeof RECIPES !== 'undefined';
+			if (rid && origRid && hasRecipes && RECIPES[rid] && RECIPES[origRid]) {
+				const newRec = RECIPES[rid];
+				const origRec = RECIPES[origRid];
+				const amountG = info.origAmountG || 0;
+				if (amountG > 0 && newRec.portionGrams > 0 && origRec.portionGrams > 0) {
+					const fNew = amountG / newRec.portionGrams;
+					const fOrig = amountG / origRec.portionGrams;
 					delta = {
-						kcal: Math.round((rec.kcal || 0) * f),
-						protein: Math.round((rec.protein || 0) * f * 10) / 10,
-						fat: Math.round((rec.fat || 0) * f * 10) / 10,
-						carbs: Math.round((rec.carbs || 0) * f * 10) / 10,
-						fiber: Math.round((rec.fiber || 0) * f * 10) / 10,
-						label: rec.name,
+						kcal: Math.round((newRec.kcal || 0) * fNew - (origRec.kcal || 0) * fOrig),
+						protein: Math.round(((newRec.protein || 0) * fNew - (origRec.protein || 0) * fOrig) * 10) / 10,
+						fat: Math.round(((newRec.fat || 0) * fNew - (origRec.fat || 0) * fOrig) * 10) / 10,
+						carbs: Math.round(((newRec.carbs || 0) * fNew - (origRec.carbs || 0) * fOrig) * 10) / 10,
+						fiber: Math.round(((newRec.fiber || 0) * fNew - (origRec.fiber || 0) * fOrig) * 10) / 10,
+						label: newRec.name,
 						hasKbzhu: true
 					};
 				}
@@ -794,7 +801,8 @@
 			_appliedSwaps[i] = delta;
 			updateAddTotal();
 			if (delta.hasKbzhu) {
-				showToast('🔄 Замена учтена: +' + delta.kcal + ' ккал (' + delta.label + ')');
+				const sign = delta.kcal >= 0 ? '+' : '';
+				showToast('🔄 Замена учтена: ' + sign + delta.kcal + ' ккал');
 			}
 		};
 
