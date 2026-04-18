@@ -761,7 +761,13 @@
 		// and hidden from the list, sharing text, and shopping list.
 		let _excludedIngredients = {};
 		function isOptionalSwap(swap) {
-			return typeof swap === 'string' && swap.trim().toLowerCase() === 'можно без него';
+			if (typeof swap !== 'string') return false;
+			// Normalize: trim, lowercase, collapse inner whitespace, strip leading punctuation
+			const norm = swap.trim().toLowerCase().replace(/\s+/g, ' ');
+			if (!norm) return false;
+			// Match "можно без него" exactly, or as a prefix followed by punctuation/space
+			// (e.g. "можно без него.", "можно без него, по желанию")
+			return /^можно без него(?:[\s.,!;:—-].*)?$/.test(norm);
 		}
 
 		function isInPlate() {
