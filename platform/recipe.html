@@ -734,7 +734,7 @@
 				const rid = findRecipeForSwapText(part);
 				const label = swapDisplayLabel(part, rid);
 				return '<button class="ing-swap-option" onclick="applySwap(' + i + ',' + j + ')">'
-					+ linkify(label) + '</button>';
+					+ escHtml(label) + '</button>';
 			}).join('');
 			return '<div class="ing-swap-label">Выберите замену:</div>'
 				+ '<div class="ing-swap-grid">' + btns + '</div>';
@@ -755,7 +755,16 @@
 
 			const nameEl = document.getElementById('ing-name-' + i);
 			if (nameEl) {
-				nameEl.innerHTML = linkify(newLabel)
+				// If swap points to a linked recipe, render a custom link with asIngredient=1
+				// so the target recipe page knows to hide the "Add to plate" button.
+				let labelHtml;
+				if (rid) {
+					labelHtml = '<a href="recipe.html?id=' + encodeURIComponent(rid) + '&asIngredient=1" style="color:var(--accent);text-decoration:underline;cursor:pointer">'
+						+ escHtml(displayPart) + '</a>' + escHtml(amountPart);
+				} else {
+					labelHtml = linkify(newLabel);
+				}
+				nameEl.innerHTML = labelHtml
 					+ ' <button class="ing-swap-revert" onclick="revertSwap(' + i + ')" title="Вернуть исходный">↺</button>';
 				nameEl.classList.add('ing-name-swapped');
 			}
@@ -806,7 +815,8 @@
 		function renderRecipe(r) {
 			window.__currentRecipeId = r.id;
 			document.title = r.name + ' — Конструктор питания';
-			document.getElementById('sticky-add').style.display = 'block';
+			const _asIngredient = new URLSearchParams(location.search).get('asIngredient') === '1';
+			document.getElementById('sticky-add').style.display = _asIngredient ? 'none' : 'block';
 			const fab = document.getElementById('tawk-fab');
 			if (fab) fab.classList.add('above-sticky');
 
