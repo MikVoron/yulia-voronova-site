@@ -338,6 +338,121 @@
 			opacity: .85;
 			font-size: 12px;
 		}
+
+		/* ── Sticky mini balance status ──────────────────── */
+		.bal-mini-status {
+			position: fixed;
+			top: 70px;
+			left: 50%;
+			transform: translateX(-50%) translateY(-10px);
+			display: inline-flex;
+			align-items: center;
+			gap: 10px;
+			padding: 7px 8px 7px 14px;
+			border-radius: 999px;
+			background: #fff;
+			border: 1px solid #f0d8a8;
+			box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+			font-size: 13px;
+			font-weight: 600;
+			color: #8a5a00;
+			cursor: pointer;
+			transition: opacity .25s ease, transform .25s ease, background-color .3s ease, color .3s ease, border-color .3s ease;
+			opacity: 0;
+			pointer-events: none;
+			z-index: 90;
+			max-width: calc(100% - 24px);
+			white-space: nowrap;
+		}
+
+		.bal-mini-status.show {
+			opacity: 1;
+			pointer-events: auto;
+			transform: translateX(-50%) translateY(0);
+		}
+
+		.bal-mini-status.success {
+			background: #e8f5e9;
+			border-color: #a5d6a7;
+			color: #2e7d32;
+		}
+
+		.bal-mini-progress {
+			font-weight: 800;
+			font-size: 13px;
+			letter-spacing: .2px;
+		}
+
+		.bal-mini-sound-btn {
+			width: 28px;
+			height: 28px;
+			border-radius: 50%;
+			border: 1px solid var(--border);
+			background: #fff;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			font-size: 13px;
+			padding: 0;
+			flex-shrink: 0;
+			transition: background-color .2s, border-color .2s;
+		}
+
+		.bal-mini-sound-btn:hover {
+			border-color: var(--accent);
+		}
+
+		.bal-mini-sound-btn.on {
+			background: var(--accent-l);
+			border-color: var(--accent);
+		}
+
+		/* ── Collapsed add-on groups (show-more) ────────── */
+		.bal-group-toggle-wrap {
+			padding: 0 12px 12px;
+		}
+
+		.bal-group-toggle {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 6px 12px;
+			background: rgba(255, 255, 255, .85);
+			border: 1px solid var(--border);
+			border-radius: 999px;
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--text-2);
+			cursor: pointer;
+			transition: background .15s, border-color .15s, color .15s;
+		}
+
+		.bal-group-toggle:hover {
+			background: #fff;
+			border-color: var(--accent);
+			color: var(--accent);
+		}
+
+		.bal-group-toggle-dot {
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background: var(--accent);
+			flex-shrink: 0;
+			box-shadow: 0 0 0 2px rgba(216, 88, 27, .15);
+		}
+
+		@media (max-width: 767px) {
+			.bal-mini-status {
+				top: 66px;
+				font-size: 12.5px;
+				padding: 6px 8px 6px 12px;
+			}
+			.bal-mini-progress {
+				font-size: 12.5px;
+			}
+		}
 	</style>
 </head>
 
@@ -385,6 +500,15 @@
 			</div>
 		</div>
 	</header>
+
+	<!-- STICKY MINI BALANCE STATUS -->
+	<div id="bal-mini-status" class="bal-mini-status" onclick="scrollToBalanceBanner()" onkeydown="handleMiniStatusKey(event)" role="button" tabindex="0" aria-label="Прогресс баланса — перейти к добавкам">
+		<span class="bal-mini-progress" id="bal-mini-progress">0 / 0</span>
+		<span class="bal-mini-label" id="bal-mini-label">Не сбалансировано</span>
+		<button type="button" class="bal-mini-sound-btn" id="bal-mini-sound-btn" onclick="event.stopPropagation();toggleBalanceSound()" aria-label="Звук уведомлений" title="Звук уведомлений">
+			<span id="bal-mini-sound-icon">🔕</span>
+		</button>
+	</div>
 
 	<!-- CONTENT -->
 	<main style="flex:1;">
@@ -615,6 +739,17 @@
 		let _balRequired = []; // filled during render: [{key,prefix,label}]
 		let _wasBalanced = false;
 		let _celebrationShown = false;
+		let _balBannerObserver = null;
+
+		// Add-on groups: collapse state + per-group config for re-rendering
+		let expandedGroups = { p: false, f: false, c: false, fi: false };
+		const _groupConfig = {}; // { p: {label, items}, ... }
+		const GROUP_COLLAPSE_LIMIT = 3;
+
+		// Sound preference (off by default, persisted)
+		let _soundEnabled = (function () {
+			try { return localStorage.getItem('balanceSoundEnabled') === '1'; } catch (e) { return false; }
+		})();
 
 		// Ingredient swaps — per-ingredient metadata + currently-applied replacements.
 		// _swapInfo[i] = { origName, parts: [alt-text...], origAmountG: number|null }
@@ -934,6 +1069,11 @@
 			document.getElementById('sticky-add').style.display = _asIngredient ? 'none' : 'block';
 			const fab = document.getElementById('tawk-fab');
 			if (fab) fab.classList.add('above-sticky');
+
+			// Reset per-recipe balance/collapse state
+			expandedGroups = { p: false, f: false, c: false, fi: false };
+			_wasBalanced = false;
+			_celebrationShown = false;
 
 			const diff = DIFF_LABELS[r.diff] || r.diff;
 			const catObj = r.cat ? CATEGORIES[r.cat] : null;
@@ -1270,6 +1410,10 @@
 			// Place sidebar in correct container for current viewport
 			placeSidebarForViewport();
 
+			// Sticky mini balance status: init observer + initial state
+			updateMiniBalanceStatus();
+			setupBalBannerObserver();
+
 			// Stars: animate when entering viewport
 			const starsRowEl = document.getElementById('recipe-stars-row');
 			if (starsRowEl && 'IntersectionObserver' in window) {
@@ -1299,20 +1443,16 @@
 
 		// subItemRegistry declared above (before renderRecipe call)
 
-		function buildGroup(label, prefix, items) {
-			if (!items || !items.length) return '';
-			const cls = GROUP_CLASS[prefix] || '';
-			return `<div class="bal-group ${cls}">
-            <div class="bal-group-title">${label}</div>
-            <div class="bal-group-items">
-                ${items.map((item, i) => {
-				const key = prefix + '-' + i;
-				const hasRecipe = item.recipeId;
-				const hasCat = item.catLink;
-				if (hasRecipe) {
-					subItemRegistry[key] = item;
-					const safeRid = encodeURIComponent(item.recipeId);
-					return `<div class="bal-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative;cursor:pointer">
+		function _renderBalItem(item, prefix, i) {
+			const key = prefix + '-' + i;
+			const hasRecipe = item.recipeId;
+			const hasCat = item.catLink;
+			const isChecked = !!checkedItems[key];
+			const checkedCls = isChecked ? ' checked' : '';
+			if (hasRecipe) {
+				subItemRegistry[key] = item;
+				const safeRid = encodeURIComponent(item.recipeId);
+				return `<div class="bal-item${checkedCls}" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative;cursor:pointer">
                             <div class="bal-item-check" id="chk-${key}"></div>
                             <div class="bal-item-text">
                                 ${escHtml(item.name)}
@@ -1320,8 +1460,8 @@
                             </div>
                             <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
                         </div>`;
-				} else {
-					return `<button class="bal-item" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative">
+			} else {
+				return `<button class="bal-item${checkedCls}" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative">
                             <div class="bal-item-check" id="chk-${key}"></div>
                             <div class="bal-item-text">
                                 ${escHtml(item.name)}
@@ -1329,10 +1469,51 @@
                             </div>
                             <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
                         </button>`;
-				}
-			}).join('')}
+			}
+		}
+
+		function _hasHiddenSelected(prefix, items) {
+			return Object.keys(checkedItems).some(k => {
+				if (!k.startsWith(prefix + '-')) return false;
+				const idx = parseInt(k.slice(prefix.length + 1), 10);
+				return idx >= GROUP_COLLAPSE_LIMIT && idx < items.length;
+			});
+		}
+
+		function buildGroup(label, prefix, items) {
+			if (!items || !items.length) return '';
+			_groupConfig[prefix] = { label, items };
+			const cls = GROUP_CLASS[prefix] || '';
+			const shouldCollapse = items.length > GROUP_COLLAPSE_LIMIT;
+			const expanded = !!expandedGroups[prefix];
+			const visible = (shouldCollapse && !expanded) ? items.slice(0, GROUP_COLLAPSE_LIMIT) : items;
+			const toggleHtml = shouldCollapse
+				? `<div class="bal-group-toggle-wrap">
+                    <button type="button" class="bal-group-toggle" onclick="toggleGroupExpand('${prefix}')">
+                        ${expanded ? 'Свернуть' : 'Показать ещё ' + (items.length - GROUP_COLLAPSE_LIMIT)}
+                        ${(!expanded && _hasHiddenSelected(prefix, items)) ? '<span class="bal-group-toggle-dot" title="В скрытой части есть выбранное"></span>' : ''}
+                    </button>
+                </div>`
+				: '';
+			return `<div class="bal-group ${cls}" id="bal-group-${prefix}">
+            <div class="bal-group-title">${label}</div>
+            <div class="bal-group-items" id="bal-group-items-${prefix}">
+                ${visible.map((item, i) => _renderBalItem(item, prefix, i)).join('')}
             </div>
+            ${toggleHtml}
         </div>`;
+		}
+
+		function toggleGroupExpand(prefix) {
+			const cfg = _groupConfig[prefix];
+			if (!cfg) return;
+			expandedGroups[prefix] = !expandedGroups[prefix];
+			const oldEl = document.getElementById('bal-group-' + prefix);
+			if (!oldEl) return;
+			const wrap = document.createElement('div');
+			wrap.innerHTML = buildGroup(cfg.label, prefix, cfg.items).trim();
+			const newEl = wrap.firstChild;
+			if (newEl) oldEl.parentNode.replaceChild(newEl, oldEl);
 		}
 
 		function addSubToPlate(key, event) {
@@ -1409,7 +1590,10 @@
 		}
 
 		function checkBalance() {
-			if (!_balRequired.length) return true; // no sidebar = balanced
+			if (!_balRequired.length) {
+				updateMiniBalanceStatus();
+				return true; // no sidebar = balanced
+			}
 			const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
 			let allDone = true;
 			_balRequired.forEach(cat => {
@@ -1429,6 +1613,8 @@
 					if (!_celebrationShown) {
 						_celebrationShown = true;
 						spawnSparkles();
+						showToast('Блюдо сбалансировано ✅');
+						playBalanceSound();
 					}
 				} else {
 					if (_wasBalanced) {
@@ -1443,7 +1629,101 @@
 				}
 				_wasBalanced = allDone;
 			}
+			updateMiniBalanceStatus(allDone);
 			return allDone;
+		}
+
+		// ── Mini balance status (sticky) ───────────────────────────────
+		function updateMiniBalanceStatus(allDone) {
+			const el = document.getElementById('bal-mini-status');
+			if (!el) return;
+			if (!_balRequired.length) {
+				el.classList.remove('show');
+				return;
+			}
+			const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
+			const done = _balRequired.filter(c => checkedPrefixes.has(c.prefix)).length;
+			const total = _balRequired.length;
+			const balanced = (typeof allDone === 'boolean') ? allDone : done === total;
+			const progressEl = document.getElementById('bal-mini-progress');
+			const labelEl = document.getElementById('bal-mini-label');
+			if (balanced) {
+				el.classList.add('success');
+				if (progressEl) progressEl.textContent = '✅';
+				if (labelEl) labelEl.textContent = 'Сбалансировано';
+			} else {
+				el.classList.remove('success');
+				if (progressEl) progressEl.textContent = done + ' / ' + total;
+				if (labelEl) labelEl.textContent = 'Добавки';
+			}
+			// Sync sound button state
+			const soundBtn = document.getElementById('bal-mini-sound-btn');
+			const soundIcon = document.getElementById('bal-mini-sound-icon');
+			if (soundBtn) soundBtn.classList.toggle('on', _soundEnabled);
+			if (soundIcon) soundIcon.textContent = _soundEnabled ? '🔔' : '🔕';
+		}
+
+		function scrollToBalanceBanner() {
+			const banner = document.getElementById('bal-banner');
+			if (!banner) return;
+			banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		}
+
+		function handleMiniStatusKey(e) {
+			if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+				e.preventDefault();
+				scrollToBalanceBanner();
+			}
+		}
+
+		function toggleBalanceSound() {
+			_soundEnabled = !_soundEnabled;
+			try { localStorage.setItem('balanceSoundEnabled', _soundEnabled ? '1' : '0'); } catch (e) { }
+			const btn = document.getElementById('bal-mini-sound-btn');
+			const icon = document.getElementById('bal-mini-sound-icon');
+			if (btn) btn.classList.toggle('on', _soundEnabled);
+			if (icon) icon.textContent = _soundEnabled ? '🔔' : '🔕';
+			showToast(_soundEnabled ? '🔔 Звук включён' : '🔕 Звук выключен');
+		}
+
+		function playBalanceSound() {
+			if (!_soundEnabled) return;
+			try {
+				const Ctx = window.AudioContext || window.webkitAudioContext;
+				if (!Ctx) return;
+				const ctx = new Ctx();
+				const osc = ctx.createOscillator();
+				const gain = ctx.createGain();
+				osc.type = 'sine';
+				osc.frequency.setValueAtTime(880, ctx.currentTime);
+				osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.15);
+				gain.gain.setValueAtTime(0.001, ctx.currentTime);
+				gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.02);
+				gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+				osc.connect(gain).connect(ctx.destination);
+				osc.start();
+				osc.stop(ctx.currentTime + 0.28);
+				setTimeout(() => { try { ctx.close(); } catch (e) { } }, 500);
+			} catch (e) { /* ignore */ }
+		}
+
+		function setupBalBannerObserver() {
+			if (_balBannerObserver) { _balBannerObserver.disconnect(); _balBannerObserver = null; }
+			const mini = document.getElementById('bal-mini-status');
+			const banner = document.getElementById('bal-banner');
+			if (!mini || !banner || !_balRequired.length) {
+				if (mini) mini.classList.remove('show');
+				return;
+			}
+			if (!('IntersectionObserver' in window)) {
+				mini.classList.add('show');
+				return;
+			}
+			_balBannerObserver = new IntersectionObserver(function (entries) {
+				const visible = entries[0] && entries[0].isIntersecting;
+				mini.classList.toggle('show', !visible);
+			}, { threshold: 0.15 });
+			_balBannerObserver.observe(banner);
 		}
 
 		function spawnSparkles() {
