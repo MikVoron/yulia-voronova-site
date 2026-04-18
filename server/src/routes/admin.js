@@ -268,12 +268,14 @@ async function adminRoutes(fastify) {
     const trials = await db.query("SELECT COUNT(*) FROM subscriptions s JOIN users u ON u.id=s.user_id WHERE s.status='trial' AND u.role != 'admin'");
     const active = await db.query("SELECT COUNT(*) FROM subscriptions s JOIN users u ON u.id=s.user_id WHERE s.status='active' AND u.role != 'admin'");
     const expired = await db.query("SELECT COUNT(*) FROM subscriptions s JOIN users u ON u.id=s.user_id WHERE s.status='expired' AND u.role != 'admin'");
+    const blocked = await db.query("SELECT COUNT(*) FROM users WHERE is_blocked = true AND role != 'admin'");
     const pendingPayments = await db.query("SELECT COUNT(*) FROM payments WHERE status='pending'");
     return {
       totalUsers: Number(users.rows[0].count),
       trials: Number(trials.rows[0].count),
       active: Number(active.rows[0].count),
       expired: Number(expired.rows[0].count),
+      blocked: Number(blocked.rows[0].count),
       pendingPayments: Number(pendingPayments.rows[0].count)
     };
   });

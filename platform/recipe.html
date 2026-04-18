@@ -609,6 +609,12 @@
 		let _wasBalanced = false;
 		let _celebrationShown = false;
 
+		// Ingredient swaps — per-ingredient metadata + currently-applied replacements
+		// _swapInfo[i] = { origName, parts: [alt-text...], origAmountG: number|null }
+		// _appliedSwaps[i] = { partIndex, kcal, protein, fat, carbs, fiber, label, hasKbzhu }
+		let _swapInfo = {};
+		let _appliedSwaps = {};
+
 		function isInPlate() {
 			return Plate.get().some(item => item.recipeId === r.id);
 		}
@@ -639,6 +645,152 @@
 			});
 			return _autoLink(html, window.__currentRecipeId);
 		}
+
+		// ── INGREDIENT SWAPS ──────────────────────────────────────────────────
+		// Split swap text like "Дайкон или зелёная редька" into ["Дайкон", "зелёная редька"].
+		// Respects parentheses (doesn't split inside them).
+		function splitSwapAlternatives(text) {
+			if (!text) return [];
+			const parts = [];
+			let depth = 0, buf = '', i = 0;
+			while (i < text.length) {
+				const ch = text[i];
+				if (ch === '(') { depth++; buf += ch; i++; continue; }
+				if (ch === ')') { depth = Math.max(0, depth - 1); buf += ch; i++; continue; }
+				if (depth === 0) {
+					if (ch === ',' || ch === ';' || ch === '/') {
+						if (buf.trim()) parts.push(buf.trim());
+						buf = ''; i++; continue;
+					}
+					const orMatch = text.substr(i).match(/^\s+или\s+/);
+					if (orMatch) {
+						if (buf.trim()) parts.push(buf.trim());
+						buf = ''; i += orMatch[0].length; continue;
+					}
+				}
+				buf += ch; i++;
+			}
+			if (buf.trim()) parts.push(buf.trim());
+			return parts;
+		}
+
+		// Find a recipe id matching a swap alternative text (e.g. "Соус из кешью" → "cashew-sauce")
+		function findRecipeForSwapText(text) {
+			if (!text) return null;
+			// 1. Explicit markdown link [label](id)
+			const md = text.match(/\[([^\]]+)\]\(([a-zA-Z0-9-]+)\)/);
+			if (md) return md[2];
+			// 2. AUTO_LINKS regex patterns (case-insensitive)
+			for (const rule of AUTO_LINKS) {
+				rule.re.lastIndex = 0;
+				const hit = rule.re.test(text);
+				rule.re.lastIndex = 0;
+				if (hit) return rule.id;
+			}
+			// 3. Fuzzy match against loaded recipe names
+			if (typeof RECIPES === 'undefined' || !RECIPES) return null;
+			const norm = text.toLowerCase().replace(/[.,!?()«»"']/g, '').trim();
+			for (const id in RECIPES) {
+				const rname = (RECIPES[id].name || '').toLowerCase().trim();
+				if (!rname) continue;
+				if (rname === norm || norm.startsWith(rname) || rname.startsWith(norm)) return id;
+			}
+			return null;
+		}
+
+		// Parse amount in grams from an ingredient string, e.g. "Йогурт — 2 ст. л. (~30 г)" → 30
+		function parseAmountGrams(text) {
+			if (!text) return null;
+			const gr = text.match(/(\d+(?:[.,]\d+)?)\s*г\b/);
+			if (gr) return parseFloat(gr[1].replace(',', '.'));
+			const ml = text.match(/(\d+(?:[.,]\d+)?)\s*мл\b/);
+			if (ml) return parseFloat(ml[1].replace(',', '.'));
+			const tb = text.match(/(\d+(?:[.,]\d+)?)(?:\s*[–\-]\s*\d+(?:[.,]\d+)?)?\s*ст\.?\s*л/);
+			if (tb) return parseFloat(tb[1].replace(',', '.')) * 15;
+			const ts = text.match(/(\d+(?:[.,]\d+)?)(?:\s*[–\-]\s*\d+(?:[.,]\d+)?)?\s*ч\.?\s*л/);
+			if (ts) return parseFloat(ts[1].replace(',', '.')) * 5;
+			return null;
+		}
+
+		function renderSwapOptions(swapText, i, origName) {
+			const parts = splitSwapAlternatives(swapText);
+			const origAmountG = parseAmountGrams(origName);
+			_swapInfo[i] = { origName: origName, parts: parts, origAmountG: origAmountG };
+			if (parts.length === 0) {
+				return linkify(swapText);
+			}
+			const btns = parts.map((part, j) => {
+				const rid = findRecipeForSwapText(part);
+				const hint = rid && typeof RECIPES !== 'undefined' && RECIPES[rid]
+					? ` <span class="ing-swap-kbzhu-hint">⚡ пересчёт КБЖУ</span>` : '';
+				return '<button class="ing-swap-option" onclick="applySwap(' + i + ',' + j + ')">'
+					+ linkify(part) + hint + '</button>';
+			}).join('');
+			return '<div class="ing-swap-label">Выберите замену:</div>'
+				+ '<div class="ing-swap-grid">' + btns + '</div>';
+		}
+
+		window.applySwap = function(i, j) {
+			const info = _swapInfo[i];
+			if (!info || !info.parts[j]) return;
+			const partText = info.parts[j];
+			const rid = findRecipeForSwapText(partText);
+
+			// Build new display name, preserving the amount suffix after the first " — "
+			const origText = info.origName || '';
+			const dashMatch = origText.match(/\s[—–\-]\s/);
+			const amountPart = dashMatch ? origText.substring(origText.indexOf(dashMatch[0])) : '';
+			const newLabel = partText + amountPart;
+
+			const nameEl = document.getElementById('ing-name-' + i);
+			if (nameEl) {
+				nameEl.innerHTML = linkify(newLabel)
+					+ ' <button class="ing-swap-revert" onclick="revertSwap(' + i + ')" title="Вернуть исходный">↺</button>';
+				nameEl.classList.add('ing-name-swapped');
+			}
+			const tipEl = document.getElementById('swap-' + i);
+			if (tipEl) tipEl.classList.remove('open');
+			const btn = document.getElementById('ing-swap-btn-' + i);
+			if (btn) btn.style.display = 'none';
+
+			// Compute replacement KBZHU if replacement is a linked recipe
+			let delta = { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0, label: partText, hasKbzhu: false };
+			if (rid && typeof RECIPES !== 'undefined' && RECIPES[rid]) {
+				const rec = RECIPES[rid];
+				const amountG = info.origAmountG || rec.portionGrams || 0;
+				if (amountG > 0 && rec.portionGrams > 0) {
+					const f = amountG / rec.portionGrams;
+					delta = {
+						kcal: Math.round((rec.kcal || 0) * f),
+						protein: Math.round((rec.protein || 0) * f * 10) / 10,
+						fat: Math.round((rec.fat || 0) * f * 10) / 10,
+						carbs: Math.round((rec.carbs || 0) * f * 10) / 10,
+						fiber: Math.round((rec.fiber || 0) * f * 10) / 10,
+						label: rec.name,
+						hasKbzhu: true
+					};
+				}
+			}
+			_appliedSwaps[i] = delta;
+			updateAddTotal();
+			if (delta.hasKbzhu) {
+				showToast('🔄 Замена учтена: +' + delta.kcal + ' ккал (' + delta.label + ')');
+			}
+		};
+
+		window.revertSwap = function(i) {
+			const info = _swapInfo[i];
+			if (!info) return;
+			const nameEl = document.getElementById('ing-name-' + i);
+			if (nameEl) {
+				nameEl.innerHTML = linkify(info.origName);
+				nameEl.classList.remove('ing-name-swapped');
+			}
+			const btn = document.getElementById('ing-swap-btn-' + i);
+			if (btn) btn.style.display = '';
+			delete _appliedSwaps[i];
+			updateAddTotal();
+		};
 
 		function renderRecipe(r) {
 			window.__currentRecipeId = r.id;
@@ -740,16 +892,19 @@
 			const _hasAnyAdd = _hasOwn(addProtein) || _hasOwn(addFat) || _hasOwn(addCarbs) || _hasOwn(addFiber);
 			const hasAdditions = !simpleMode && _hasAnyAdd;
 
+			// Reset swap state for this recipe render
+			_swapInfo = {};
+			_appliedSwaps = {};
 			const ingHtml = (r.ingredients || []).map((ing, i) => {
 				const name = typeof ing === 'string' ? ing : ing.name;
 				const swap = typeof ing === 'object' ? ing.swap : null;
 				return `<div>
                 <div class="ing-item">
                     <div class="ing-dot"></div>
-                    <div class="ing-name">${linkify(name)}</div>
-                    ${swap ? `<button class="ing-swap-btn" onclick="toggleSwap(${i})">чем заменить?</button>` : ''}
+                    <div class="ing-name" id="ing-name-${i}">${linkify(name)}</div>
+                    ${swap ? `<button class="ing-swap-btn" id="ing-swap-btn-${i}" onclick="toggleSwap(${i})">чем заменить?</button>` : ''}
                 </div>
-                ${swap ? `<div class="ing-swap-tip" id="swap-${i}">${linkify(swap)}</div>` : ''}
+                ${swap ? `<div class="ing-swap-tip" id="swap-${i}">${renderSwapOptions(swap, i, name)}</div>` : ''}
             </div>`;
 			}).join('');
 
@@ -1147,6 +1302,20 @@
 				total.carbs += v.carbs || 0;
 				total.fiber += v.fiber || 0;
 			});
+			// Ingredient-swap adjustments: only those with known KBZHU replacements contribute.
+			Object.values(_appliedSwaps).forEach(s => {
+				if (!s || !s.hasKbzhu) return;
+				total.kcal += s.kcal || 0;
+				total.protein += s.protein || 0;
+				total.fat += s.fat || 0;
+				total.carbs += s.carbs || 0;
+				total.fiber += s.fiber || 0;
+			});
+			// Round protein/fat/carbs/fiber to 1 decimal to avoid floating-point drift in display.
+			total.protein = Math.round(total.protein * 10) / 10;
+			total.fat = Math.round(total.fat * 10) / 10;
+			total.carbs = Math.round(total.carbs * 10) / 10;
+			total.fiber = Math.round(total.fiber * 10) / 10;
 			const tEl = document.getElementById('bal-total-kcal');
 			const mEl = document.getElementById('add-macro');
 			const lEl = document.getElementById('bal-total-label');

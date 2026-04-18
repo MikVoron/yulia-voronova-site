@@ -488,8 +488,21 @@
 <script src="data-v2.js?v=1774941737"></script>
 <script>
     var _returnUrl = new URLSearchParams(location.search).get('return') || 'index.html';
-    var _isAdminLogin = _returnUrl.indexOf('admin.html') !== -1;
-    if (Auth.isLoggedIn()) location.href = _returnUrl;
+    var _isAdminLogin = _returnUrl.indexOf('admin.html') !== -1 || _returnUrl.indexOf('recipe-editor.html') !== -1;
+    var _hasReturn = new URLSearchParams(location.search).has('return');
+    if (Auth.isLoggedIn()) {
+        if (_hasReturn) {
+            // Originating page redirected us here because its API calls failed despite localStorage flag.
+            // Try a silent refresh — if it works, go back; otherwise stay on the form (no server logout,
+            // so a transient 429 on /auth/refresh doesn't nuke a valid refresh cookie).
+            Auth.refreshToken().then(function(ok) {
+                if (ok) location.href = _returnUrl;
+                // else: show login form and let the user re-auth by email code
+            });
+        } else {
+            location.href = _returnUrl;
+        }
+    }
 
     // Show OAuth error if redirected back
     (function() {

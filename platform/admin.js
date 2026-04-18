@@ -83,6 +83,7 @@
                 statCard('Trial', data.trials, 'blue-l') +
                 statCard('Активных', data.active, 'green') +
                 statCard('Истекших', data.expired, 'yellow') +
+                statCard('Заблокированных', data.blocked || 0, 'red') +
                 statCard('Ожидают оплату', data.pendingPayments, 'red');
 
             var badge = document.getElementById('pending-badge');

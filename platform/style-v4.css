@@ -613,6 +613,36 @@ img { display: block; max-width: 100%; }
     font-size: 12px; color: var(--text-2); display: none;
 }
 .ing-swap-tip.open { display: block; }
+.ing-swap-label {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .4px; color: var(--text-3); margin-bottom: 6px;
+}
+.ing-swap-grid {
+    display: flex; flex-wrap: wrap; gap: 6px;
+}
+.ing-swap-option {
+    font-size: 12px; font-weight: 600; padding: 6px 12px;
+    border-radius: var(--r-f); background: #fff; color: var(--accent);
+    border: 1px solid var(--accent); cursor: pointer;
+    transition: var(--tr); text-align: left;
+}
+.ing-swap-option:hover { background: var(--accent); color: #fff; }
+.ing-swap-option:hover .ing-swap-kbzhu-hint { color: #ffd8c2; }
+.ing-swap-kbzhu-hint {
+    margin-left: 4px; font-size: 10px; font-weight: 500;
+    color: var(--text-3); opacity: .85;
+}
+.ing-name-swapped {
+    color: var(--accent); font-weight: 600;
+}
+.ing-swap-revert {
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 50%; width: 20px; height: 20px;
+    font-size: 12px; line-height: 1; color: var(--text-3);
+    cursor: pointer; padding: 0; margin-left: 4px;
+    vertical-align: middle; transition: var(--tr);
+}
+.ing-swap-revert:hover { color: var(--accent); border-color: var(--accent); }
 
 /* Steps — vertical layout: number + text, photo below */
 .steps-list { display: flex; flex-direction: column; }

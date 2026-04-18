@@ -1470,7 +1470,7 @@
 <script>
 (function() {
     // ── Auth check ──
-    if (!Auth.isLoggedIn()) { location.href = 'login.html?return=recipe-editor.html'; return; }
+    if (!Auth.isLoggedIn()) { location.href = 'login.html?return=' + encodeURIComponent('recipe-editor.html' + location.search); return; }
     var user = Auth.getUser();
     if (!user || user.role !== 'admin') { alert('Нет прав администратора'); location.href = 'index.html'; return; }
 
@@ -1489,13 +1489,13 @@
                         if (ok) {
                             opts.headers['Authorization'] = 'Bearer ' + Auth.getToken();
                             return fetch(API_BASE + path, opts).then(function(r2) {
-                                if (r2.status === 401) { location.href = 'login.html?return=recipe-editor.html'; }
+                                if (r2.status === 401) { location.href = 'login.html?return=' + encodeURIComponent('recipe-editor.html' + location.search); }
                                 if (r2.status === 403) { showToast('Нет прав администратора', true); throw new Error('403'); }
                                 if (r2.status === 429) { showToast('Слишком много запросов, подождите', true); throw new Error('429'); }
                                 return r2.json();
                             });
                         }
-                        location.href = 'login.html?return=recipe-editor.html';
+                        location.href = 'login.html?return=' + encodeURIComponent('recipe-editor.html' + location.search);
                     });
                 }
                 if (res.status === 403) { showToast('Нет прав администратора', true); throw new Error('403'); }
@@ -2134,6 +2134,10 @@
 
             var wasCreate = !editId;
 
+            // Clear draft BEFORE mutating editId, otherwise clearDraft uses the new id
+            // and the stale `_new` key survives, leaking old data into the next create session.
+            clearDraft();
+
             if (!editId) {
                 editId = body.id;
                 isCreateMode = false;
@@ -2148,7 +2152,6 @@
             document.getElementById('recipe-header').innerHTML =
                 esc(body.emoji) + ' ' + esc(body.name) + ' <em>(' + esc(body.id) + ')</em>';
             updateStatusBadge();
-            clearDraft();
             lastSavedJson = JSON.stringify(body);
 
             showSaveSuccess(body, wasCreate);
