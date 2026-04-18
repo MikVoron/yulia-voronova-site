@@ -712,6 +712,17 @@
 			return null;
 		}
 
+		// Display label for a swap alternative: use linked recipe name if matched,
+		// otherwise capitalize the first letter of the raw text.
+		function swapDisplayLabel(part, rid) {
+			if (rid && typeof RECIPES !== 'undefined' && RECIPES[rid] && RECIPES[rid].name) {
+				return RECIPES[rid].name;
+			}
+			const t = (part || '').trim();
+			if (!t) return t;
+			return t.charAt(0).toUpperCase() + t.slice(1);
+		}
+
 		function renderSwapOptions(swapText, i, origName) {
 			const parts = splitSwapAlternatives(swapText);
 			const origAmountG = parseAmountGrams(origName);
@@ -721,10 +732,9 @@
 			}
 			const btns = parts.map((part, j) => {
 				const rid = findRecipeForSwapText(part);
-				const hint = rid && typeof RECIPES !== 'undefined' && RECIPES[rid]
-					? ` <span class="ing-swap-kbzhu-hint">⚡ пересчёт КБЖУ</span>` : '';
+				const label = swapDisplayLabel(part, rid);
 				return '<button class="ing-swap-option" onclick="applySwap(' + i + ',' + j + ')">'
-					+ linkify(part) + hint + '</button>';
+					+ linkify(label) + '</button>';
 			}).join('');
 			return '<div class="ing-swap-label">Выберите замену:</div>'
 				+ '<div class="ing-swap-grid">' + btns + '</div>';
@@ -735,12 +745,13 @@
 			if (!info || !info.parts[j]) return;
 			const partText = info.parts[j];
 			const rid = findRecipeForSwapText(partText);
+			const displayPart = swapDisplayLabel(partText, rid);
 
 			// Build new display name, preserving the amount suffix after the first " — "
 			const origText = info.origName || '';
 			const dashMatch = origText.match(/\s[—–\-]\s/);
 			const amountPart = dashMatch ? origText.substring(origText.indexOf(dashMatch[0])) : '';
-			const newLabel = partText + amountPart;
+			const newLabel = displayPart + amountPart;
 
 			const nameEl = document.getElementById('ing-name-' + i);
 			if (nameEl) {
@@ -754,7 +765,7 @@
 			if (btn) btn.style.display = 'none';
 
 			// Compute replacement KBZHU if replacement is a linked recipe
-			let delta = { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0, label: partText, hasKbzhu: false };
+			let delta = { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0, label: displayPart, hasKbzhu: false };
 			if (rid && typeof RECIPES !== 'undefined' && RECIPES[rid]) {
 				const rec = RECIPES[rid];
 				const amountG = info.origAmountG || rec.portionGrams || 0;
