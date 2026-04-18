@@ -453,6 +453,95 @@
 				font-size: 12.5px;
 			}
 		}
+
+		/* ── Balance success modal ───────────────────────── */
+		.bal-success-modal-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(24, 24, 27, .55);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 16px;
+			z-index: 10000;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity .2s ease;
+		}
+		.bal-success-modal-overlay.show {
+			opacity: 1;
+			pointer-events: auto;
+		}
+		.bal-success-modal-box {
+			background: #fff;
+			border-radius: 18px;
+			box-shadow: 0 24px 60px rgba(0, 0, 0, .25);
+			padding: 28px 24px 22px;
+			max-width: 380px;
+			width: 100%;
+			text-align: center;
+			transform: scale(.92) translateY(10px);
+			transition: transform .22s cubic-bezier(.2, .9, .3, 1.2);
+		}
+		.bal-success-modal-overlay.show .bal-success-modal-box {
+			transform: scale(1) translateY(0);
+		}
+		.bal-success-modal-title {
+			font-size: 20px;
+			font-weight: 800;
+			color: #2e7d32;
+			margin-bottom: 8px;
+			line-height: 1.25;
+		}
+		.bal-success-modal-text {
+			font-size: 14px;
+			color: #555;
+			line-height: 1.45;
+			margin-bottom: 20px;
+		}
+		.bal-success-modal-actions {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+		.bal-success-modal-primary {
+			background: var(--accent);
+			color: #fff;
+			border: none;
+			padding: 13px 18px;
+			border-radius: 12px;
+			font-size: 15px;
+			font-weight: 700;
+			cursor: pointer;
+			transition: background .2s ease;
+		}
+		.bal-success-modal-primary:hover,
+		.bal-success-modal-primary:focus-visible {
+			background: var(--accent-d);
+			outline: none;
+		}
+		.bal-success-modal-secondary {
+			background: transparent;
+			color: #666;
+			border: none;
+			padding: 10px 18px;
+			border-radius: 10px;
+			font-size: 14px;
+			font-weight: 600;
+			cursor: pointer;
+		}
+		.bal-success-modal-secondary:hover,
+		.bal-success-modal-secondary:focus-visible {
+			color: #222;
+			outline: none;
+		}
+		@media (max-width: 480px) {
+			.bal-success-modal-box {
+				width: calc(100% - 24px);
+				padding: 24px 20px 18px;
+			}
+			.bal-success-modal-title { font-size: 18px; }
+		}
 	</style>
 </head>
 
@@ -521,6 +610,21 @@
 			<button class="btn btn-orange btn-lg" id="add-btn" style="width:100%;max-width:400px" onclick="addToPlate()">
 				+ Добавить в тарелку
 			</button>
+		</div>
+	</div>
+
+	<!-- BALANCE SUCCESS MODAL -->
+	<div class="bal-success-modal-overlay" id="bal-success-modal" role="dialog" aria-modal="true"
+		aria-labelledby="bal-success-title" aria-describedby="bal-success-text">
+		<div class="bal-success-modal-box">
+			<div class="bal-success-modal-title" id="bal-success-title">✅ Блюдо сбалансировано!</div>
+			<div class="bal-success-modal-text" id="bal-success-text">Добавьте его в тарелку — это полноценный приём пищи.</div>
+			<div class="bal-success-modal-actions">
+				<button class="bal-success-modal-primary" id="bal-success-primary" type="button"
+					onclick="confirmBalanceSuccessAdd()">+ Добавить в тарелку</button>
+				<button class="bal-success-modal-secondary" type="button"
+					onclick="hideBalanceSuccessModal('secondary')">Продолжить</button>
+			</div>
 		</div>
 	</div>
 
@@ -1621,6 +1725,7 @@
 						spawnSparkles();
 						showToast('Блюдо сбалансировано ✅');
 						playBalanceSound();
+						showBalanceSuccessModal();
 					}
 				} else {
 					if (_wasBalanced) {
@@ -1690,6 +1795,75 @@
 			if (btn) btn.classList.toggle('on', _soundEnabled);
 			if (icon) icon.textContent = _soundEnabled ? '🔔' : '🔕';
 			showToast(_soundEnabled ? '🔔 Звук включён' : '🔕 Звук выключен');
+		}
+
+		// ── Balance success modal ──────────────────────────────────────────
+		let _balSuccessAutoHideTimer = null;
+		let _balSuccessPrevFocus = null;
+
+		function showBalanceSuccessModal() {
+			const asIng = new URLSearchParams(location.search).get('asIngredient') === '1';
+			if (asIng) return;
+			if (typeof isInPlate === 'function' && isInPlate()) return;
+			const overlay = document.getElementById('bal-success-modal');
+			if (!overlay) return;
+			_balSuccessPrevFocus = document.activeElement;
+			overlay.classList.add('show');
+			overlay.addEventListener('click', _balSuccessBackdropHandler);
+			document.addEventListener('keydown', _balSuccessKeyHandler);
+			const primary = document.getElementById('bal-success-primary');
+			if (primary) setTimeout(() => { try { primary.focus(); } catch (e) { } }, 50);
+			clearTimeout(_balSuccessAutoHideTimer);
+			_balSuccessAutoHideTimer = setTimeout(() => hideBalanceSuccessModal('timeout'), 3000);
+		}
+
+		function hideBalanceSuccessModal(reason) {
+			const overlay = document.getElementById('bal-success-modal');
+			if (!overlay) return;
+			if (!overlay.classList.contains('show')) return;
+			overlay.classList.remove('show');
+			overlay.removeEventListener('click', _balSuccessBackdropHandler);
+			document.removeEventListener('keydown', _balSuccessKeyHandler);
+			clearTimeout(_balSuccessAutoHideTimer);
+			_balSuccessAutoHideTimer = null;
+			if (_balSuccessPrevFocus && typeof _balSuccessPrevFocus.focus === 'function') {
+				try { _balSuccessPrevFocus.focus(); } catch (e) { }
+			}
+			_balSuccessPrevFocus = null;
+		}
+
+		function _balSuccessBackdropHandler(e) {
+			if (e.target && e.target.id === 'bal-success-modal') {
+				hideBalanceSuccessModal('backdrop');
+			}
+		}
+
+		function _balSuccessKeyHandler(e) {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				hideBalanceSuccessModal('esc');
+				return;
+			}
+			if (e.key === 'Tab') {
+				const overlay = document.getElementById('bal-success-modal');
+				if (!overlay) return;
+				const focusable = overlay.querySelectorAll('button');
+				if (!focusable.length) return;
+				const first = focusable[0];
+				const last = focusable[focusable.length - 1];
+				if (e.shiftKey && document.activeElement === first) {
+					e.preventDefault();
+					last.focus();
+				} else if (!e.shiftKey && document.activeElement === last) {
+					e.preventDefault();
+					first.focus();
+				}
+			}
+		}
+
+		function confirmBalanceSuccessAdd() {
+			hideBalanceSuccessModal('primary');
+			addToPlate();
 		}
 
 		function playBalanceSound() {
