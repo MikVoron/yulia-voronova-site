@@ -670,15 +670,42 @@ img { display: block; max-width: 100%; }
 .steps-head .v-section-title { margin-top: 0 !important; margin-bottom: 0 !important; }
 .steps-mode-btn {
     display: none;
-    align-items: center; gap: 6px;
-    padding: 7px 12px; border-radius: 999px;
-    border: 1px solid var(--border);
-    background: transparent; color: var(--text-2);
-    font: 700 12px/1 var(--sans); cursor: pointer;
+    align-items: center; justify-content: center; gap: 8px;
+    min-height: 44px; padding: 10px 16px;
+    border-radius: var(--r-f);
+    border: 1px solid var(--accent);
+    background: var(--accent); color: #fff;
+    font: 700 14px/1.1 var(--sans); cursor: pointer;
     flex-shrink: 0; -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 8px rgba(232, 64, 10, .25);
     transition: var(--tr);
 }
-.steps-mode-btn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.steps-mode-btn:active { transform: translateY(1px); }
+.steps-mode-btn.on {
+    background: #fff; color: var(--accent);
+    border-color: var(--accent); box-shadow: none;
+}
+.steps-mode-btn .steps-mode-icon { font-size: 16px; line-height: 1; }
+
+/* Hint banner for long recipes */
+.steps-hint {
+    display: none;
+    align-items: flex-start; gap: 10px;
+    margin-top: 12px; padding: 10px 12px;
+    background: var(--accent-l); border: 1px solid var(--accent);
+    border-radius: var(--r-m);
+    font: 500 13px/1.4 var(--sans); color: var(--text);
+}
+.steps-hint-icon { font-size: 16px; line-height: 1.2; flex-shrink: 0; }
+.steps-hint-text { flex: 1; min-width: 0; }
+.steps-hint-text b { color: var(--accent); font-weight: 700; }
+.steps-hint-close {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    border: none; background: transparent; color: var(--text-2);
+    font-size: 18px; line-height: 1; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.steps-hint-close:hover { background: rgba(0,0,0,.06); }
 .steps-expand-btn {
     display: none;
     width: 100%; margin-top: 12px; padding: 11px 14px;
@@ -706,7 +733,7 @@ img { display: block; max-width: 100%; }
 
 /* Step-by-step mode (mobile only) */
 .steps-stepper { margin-top: 12px; display: flex; flex-direction: column; gap: 0; }
-.steps-stepper[hidden], .steps-list[hidden], .steps-expand-btn[hidden] { display: none !important; }
+.steps-stepper[hidden], .steps-list[hidden], .steps-expand-btn[hidden], .steps-hint[hidden] { display: none !important; }
 .stepper-progress { display: flex; flex-direction: column; gap: 6px; }
 .stepper-progress-text { font: 700 13px/1 var(--sans); color: var(--text-2); }
 .stepper-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
@@ -732,13 +759,18 @@ img { display: block; max-width: 100%; }
 @media (max-width: 767px) {
     .steps-mode-btn { display: inline-flex; }
     .steps-expand-btn { display: flex; }
+    .steps-hint { display: flex; }
     .steps-list.is-collapsed .step-item:nth-child(n+4) { display: none; }
+    /* Steps mode toggle visually leads — place it as a full-width row under the title */
+    .steps-head { flex-wrap: wrap; }
+    .steps-head .steps-mode-btn { width: 100%; margin-top: 6px; }
 }
 
 /* Desktop: keep full steps list, suppress compact/stepper controls even if JS left them on */
 @media (min-width: 768px) {
     .steps-mode-btn,
     .steps-expand-btn,
+    .steps-hint,
     .steps-stepper { display: none !important; }
     .steps-list { display: flex !important; }
     .steps-list.is-collapsed .step-item { display: flex !important; }

@@ -724,6 +724,7 @@
 			_stepperIdx = 0;
 			_stepperDone = _stepsHtmlArr.map(() => false);
 			applyStepsUI();
+			maybeShowStepsHint();
 		}
 		function applyStepsUI() {
 			const list = document.getElementById('steps-list');
@@ -757,7 +758,7 @@
 					if (arrow) arrow.textContent = _stepsCollapsed ? '▾' : '▴';
 				}
 				if (modeLabel) modeLabel.textContent = 'Пошагово';
-				if (modeIcon) modeIcon.textContent = '🚶';
+				if (modeIcon) modeIcon.textContent = '👣';
 				if (modeBtn) modeBtn.classList.remove('on');
 			}
 		}
@@ -767,8 +768,23 @@
 		}
 		function toggleStepperMode() {
 			_stepperMode = !_stepperMode;
-			if (_stepperMode) _stepperIdx = 0;
+			if (_stepperMode) {
+				_stepperIdx = 0;
+				dismissStepsHint();
+			}
 			applyStepsUI();
+		}
+		function dismissStepsHint() {
+			const hint = document.getElementById('steps-hint');
+			if (hint) hint.hidden = true;
+			try { localStorage.setItem('stepsHintDismissed', '1'); } catch (e) { }
+		}
+		function maybeShowStepsHint() {
+			const hint = document.getElementById('steps-hint');
+			if (!hint) return;
+			let dismissed = false;
+			try { dismissed = localStorage.getItem('stepsHintDismissed') === '1'; } catch (e) { }
+			hint.hidden = dismissed;
 		}
 		function renderStepperCurrent() {
 			const wrap = document.getElementById('stepper-current');
@@ -1557,10 +1573,15 @@
                     <div class="steps-head">
                         <div class="v-section-title">Приготовление</div>
                         ${_stepsCount > 1 ? `<button class="steps-mode-btn" id="steps-mode-btn" type="button" onclick="toggleStepperMode()">
-                            <span id="steps-mode-icon">🚶</span>
+                            <span class="steps-mode-icon" id="steps-mode-icon">👣</span>
                             <span id="steps-mode-label">Пошагово</span>
                         </button>` : ''}
                     </div>
+                    ${_stepsCount > 8 ? `<div class="steps-hint" id="steps-hint" hidden>
+                        <span class="steps-hint-icon">💡</span>
+                        <span class="steps-hint-text">Совет: включите <b>«Пошагово»</b> — так удобнее готовить длинный рецепт.</span>
+                        <button class="steps-hint-close" type="button" onclick="dismissStepsHint()" aria-label="Закрыть подсказку">×</button>
+                    </div>` : ''}
                     <div class="steps-list" id="steps-list">${stepsHtml}</div>
                     ${_stepsCount > 3 ? `<button class="steps-expand-btn" id="steps-expand-btn" type="button" onclick="toggleStepsExpanded()">
                         <span id="steps-expand-label">Показать все шаги (${_stepsCount})</span>
@@ -2357,7 +2378,8 @@
                 <div style="display:flex;gap:8px;margin-top:10px">
                     <button class="btn btn-orange" style="flex:1" onclick="location.href='index.html'">← Вернуться</button>
                     <button class="btn btn-ghost" style="flex-shrink:0" onclick="shareShoppingList()">📤 Список продуктов</button>
-                </div>`;
+                </div>
+                <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="savePlateR()">Сохранить в историю</button>`;
 			}
 			document.getElementById('plate-overlay').classList.add('open');
 			document.body.style.overflow = 'hidden';
@@ -2368,6 +2390,14 @@
 		}
 		function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
 		function removeItemR(i) { Plate.remove(i); updatePlateIcon(); refreshAddButtonStateByPlate(); openPlate(); }
+		function savePlateR() {
+			if (!Plate.count()) return;
+			Plate.saveHistory();
+			updatePlateIcon();
+			refreshAddButtonStateByPlate();
+			closePlate();
+			showToast('Тарелка сохранена в историю 🎉');
+		}
 
 		// ── FAV + RATING ON PHOTO ─────────────────────────────────────────────
 		function toggleRecipeFav() {
