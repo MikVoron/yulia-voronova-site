@@ -794,8 +794,14 @@
 			if (cur) cur.textContent = String(_stepperIdx + 1);
 			const fill = document.getElementById('stepper-bar-fill');
 			if (fill) fill.style.width = (((_stepperIdx + 1) / _stepsHtmlArr.length) * 100) + '%';
+			const done = !!_stepperDone[_stepperIdx];
 			const cb = document.getElementById('stepper-done-cb');
-			if (cb) cb.checked = !!_stepperDone[_stepperIdx];
+			if (cb) {
+				cb.checked = done;
+				cb.setAttribute('aria-label', 'Шаг ' + (_stepperIdx + 1) + (done ? ' выполнен' : ' не выполнен'));
+			}
+			const item = wrap.querySelector('.step-item');
+			if (item) item.classList.toggle('is-done', done);
 			const prev = document.getElementById('stepper-prev');
 			const next = document.getElementById('stepper-next');
 			if (prev) prev.disabled = _stepperIdx === 0;
@@ -809,7 +815,13 @@
 		}
 		function toggleStepperDone() {
 			const cb = document.getElementById('stepper-done-cb');
-			if (cb) _stepperDone[_stepperIdx] = cb.checked;
+			if (!cb) return;
+			const done = cb.checked;
+			_stepperDone[_stepperIdx] = done;
+			const wrap = document.getElementById('stepper-current');
+			const item = wrap && wrap.querySelector('.step-item');
+			if (item) item.classList.toggle('is-done', done);
+			cb.setAttribute('aria-label', 'Шаг ' + (_stepperIdx + 1) + (done ? ' выполнен' : ' не выполнен'));
 		}
 
 		// ── SIDEBAR PLACEMENT (mobile ↔ desktop) ────────────────────────

@@ -740,6 +740,14 @@ img { display: block; max-width: 100%; }
                      transition: width .25s ease; border-radius: 2px; }
 .stepper-current { margin-top: 14px; }
 .stepper-current .step-item { padding: 0; border: none; }
+.step-item.is-done .step-text {
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: var(--text-3);
+    color: var(--text-2);
+}
+.step-item.is-done .step-num { background: var(--text-3); }
+.step-item.is-done .step-photo-wrap { opacity: .75; }
 .stepper-done { display: inline-flex; align-items: center; gap: 8px;
                  margin-top: 14px; font-size: 14px; color: var(--text-2); cursor: pointer;
                  -webkit-tap-highlight-color: transparent; }
