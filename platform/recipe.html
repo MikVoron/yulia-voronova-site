@@ -2003,46 +2003,8 @@
 		function playBalanceSound() {
 			if (!_soundEnabled) return;
 			try {
-				const Ctx = window.AudioContext || window.webkitAudioContext;
-				if (!Ctx) return;
-				const ctx = new Ctx();
-				// Warm Bell Bloom: F5 → A5 → C6 → F6 (arpeggio), triangle + sine tail, ~480ms total.
-				const notes = [698.46, 880.00, 1046.50, 1396.91];
-				const t0 = ctx.currentTime;
-				const noteGap = 0.09;   // 4 × 90ms = 360ms of onsets
-				const tail = 0.18;      // final note sustains a bit longer
-				const peak = 0.12;
-				const masterGain = ctx.createGain();
-				masterGain.gain.setValueAtTime(1, t0);
-				masterGain.connect(ctx.destination);
-				notes.forEach((freq, i) => {
-					const start = t0 + i * noteGap;
-					const dur = (i === notes.length - 1) ? tail + 0.12 : noteGap + 0.12;
-					// Body: triangle (warm, bell-like attack).
-					const oTri = ctx.createOscillator();
-					oTri.type = 'triangle';
-					oTri.frequency.setValueAtTime(freq, start);
-					const gTri = ctx.createGain();
-					gTri.gain.setValueAtTime(0.0001, start);
-					gTri.gain.exponentialRampToValueAtTime(peak, start + 0.015);
-					gTri.gain.exponentialRampToValueAtTime(0.0001, start + dur);
-					oTri.connect(gTri).connect(masterGain);
-					oTri.start(start);
-					oTri.stop(start + dur + 0.02);
-					// Tail: sine (soft bloom).
-					const oSin = ctx.createOscillator();
-					oSin.type = 'sine';
-					oSin.frequency.setValueAtTime(freq, start);
-					const gSin = ctx.createGain();
-					gSin.gain.setValueAtTime(0.0001, start);
-					gSin.gain.exponentialRampToValueAtTime(peak * 0.7, start + 0.03);
-					gSin.gain.exponentialRampToValueAtTime(0.0001, start + dur + 0.05);
-					oSin.connect(gSin).connect(masterGain);
-					oSin.start(start);
-					oSin.stop(start + dur + 0.08);
-				});
-				const totalDur = (notes.length - 1) * noteGap + tail + 0.25;
-				setTimeout(() => { try { ctx.close(); } catch (e) { } }, Math.ceil(totalDur * 1000) + 100);
+				const audio = new Audio('sounds/plate-is-ready.mp3');
+				audio.play();
 			} catch (e) { /* ignore */ }
 		}
 
