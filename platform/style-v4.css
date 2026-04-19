@@ -670,20 +670,19 @@ img { display: block; max-width: 100%; }
 .steps-head .v-section-title { margin-top: 0 !important; margin-bottom: 0 !important; }
 .steps-mode-btn {
     display: none;
-    align-items: center; justify-content: center; gap: 8px;
-    min-height: 44px; padding: 10px 16px;
+    align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 10px 14px;
     border-radius: var(--r-f);
     border: 1px solid var(--accent);
-    background: var(--accent); color: #fff;
-    font: 700 14px/1.1 var(--sans); cursor: pointer;
+    background: var(--accent-l); color: var(--accent);
+    font: 700 13px/1.1 var(--sans); cursor: pointer;
     flex-shrink: 0; -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 2px 8px rgba(232, 64, 10, .25);
     transition: var(--tr);
 }
-.steps-mode-btn:active { transform: translateY(1px); }
+.steps-mode-btn:active { opacity: .8; }
 .steps-mode-btn.on {
-    background: #fff; color: var(--accent);
-    border-color: var(--accent); box-shadow: none;
+    background: var(--accent-l); color: var(--accent);
+    border-color: var(--accent);
 }
 .steps-mode-btn .steps-mode-icon { font-size: 16px; line-height: 1; }
 
@@ -761,9 +760,6 @@ img { display: block; max-width: 100%; }
     .steps-expand-btn { display: flex; }
     .steps-hint { display: flex; }
     .steps-list.is-collapsed .step-item:nth-child(n+4) { display: none; }
-    /* Steps mode toggle visually leads — place it as a full-width row under the title */
-    .steps-head { flex-wrap: wrap; }
-    .steps-head .steps-mode-btn { width: 100%; margin-top: 6px; }
 }
 
 /* Desktop: keep full steps list, suppress compact/stepper controls even if JS left them on */
