@@ -822,7 +822,8 @@
                 <div style="display:flex;gap:8px;margin-top:10px">
                     <button class="btn btn-orange" style="flex:1" onclick="location.href='index.html'">← На главную</button>
                     <button class="btn btn-ghost" style="flex-shrink:0" onclick="shareShoppingList()">📤 Список продуктов</button>
-                </div>`;
+                </div>
+                <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="savePlateCat()">Сохранить в историю</button>`;
         }
         document.getElementById('plate-overlay').classList.add('open');
         document.body.style.overflow = 'hidden';
@@ -833,6 +834,13 @@
     }
     function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
     function removeItemCat(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
+    function savePlateCat() {
+        if (!Plate.count()) return;
+        Plate.saveHistory();
+        updatePlateIcon();
+        closePlate();
+        showToast('Тарелка сохранена в историю 🎉');
+    }
 </script>
 
 <!-- Tawk.to -->
