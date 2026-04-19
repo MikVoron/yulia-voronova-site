@@ -300,45 +300,6 @@
 			animation: sparkle .8s ease-out forwards;
 		}
 
-		/* Unbalanced warning toast (extended) */
-		.bal-warn-toast {
-			position: fixed;
-			bottom: 100px;
-			left: 50%;
-			transform: translateX(-50%) translateY(20px);
-			background: #fff3e0;
-			border: 1px solid #ffe0b2;
-			color: #e65100;
-			padding: 14px 20px;
-			border-radius: 14px;
-			box-shadow: 0 8px 30px rgba(0, 0, 0, .12);
-			font-size: 13px;
-			line-height: 1.4;
-			text-align: center;
-			max-width: 360px;
-			z-index: 9999;
-			opacity: 0;
-			pointer-events: none;
-			transition: all .35s ease;
-		}
-
-		.bal-warn-toast.show {
-			opacity: 1;
-			pointer-events: auto;
-			transform: translateX(-50%) translateY(0);
-		}
-
-		.bal-warn-toast-title {
-			font-weight: 700;
-			margin-bottom: 4px;
-		}
-
-		.bal-warn-toast-sub {
-			font-weight: 500;
-			opacity: .85;
-			font-size: 12px;
-		}
-
 		/* ── Sticky mini balance status ──────────────────── */
 		.bal-mini-status {
 			position: fixed;
@@ -639,6 +600,24 @@
 		</div>
 	</div>
 
+	<!-- BALANCE WARN MODAL (unbalanced add confirmation) -->
+	<div class="bal-success-modal-overlay" id="bal-warn-modal" role="dialog" aria-modal="true"
+		aria-labelledby="bal-warn-title" aria-describedby="bal-warn-text">
+		<div class="bal-success-modal-box">
+			<div class="bal-success-modal-title" id="bal-warn-title" style="color:#b45309">⚠️ Тарелка не сбалансирована</div>
+			<div class="bal-success-modal-text" id="bal-warn-text">
+				Чтобы блюдо стало полноценным приёмом пищи, выберите обязательные группы добавок в сайдбаре.
+				<div id="bal-warn-missing" style="margin-top:8px;font-size:13px;color:#666"></div>
+			</div>
+			<div class="bal-success-modal-actions">
+				<button class="bal-success-modal-primary" id="bal-warn-primary" type="button"
+					style="background:#b45309" onclick="confirmBalanceWarnAdd()">Добавить всё равно</button>
+				<button class="bal-success-modal-secondary" id="bal-warn-secondary" type="button"
+					onclick="hideBalanceWarnModal()">Вернуться и сбалансировать</button>
+			</div>
+		</div>
+	</div>
+
 	<!-- MY PLATE MODAL -->
 	<div class="modal-overlay" id="plate-overlay" onclick="closePlateIfOutside(event)">
 		<div class="modal-box">
@@ -887,6 +866,22 @@
 
 		function isInPlate() {
 			return Plate.get().some(item => item.recipeId === r.id);
+		}
+
+		function refreshAddButtonStateByPlate() {
+			const btn = document.getElementById('add-btn');
+			if (!btn || !r) return;
+			if (isInPlate()) {
+				btn.textContent = '✓ В тарелке';
+				btn.disabled = true;
+				btn.style.opacity = '0.6';
+				btn.style.cursor = 'default';
+			} else {
+				btn.textContent = '+ Добавить в тарелку';
+				btn.disabled = false;
+				btn.style.opacity = '';
+				btn.style.cursor = '';
+			}
 		}
 
 		// Экранирование HTML — защита от XSS
@@ -1546,16 +1541,7 @@
 				io.observe(starsRowEl);
 			}
 
-			// Check if already in plate
-			if (alreadyInPlate) {
-				const btn = document.getElementById('add-btn');
-				if (btn) {
-					btn.textContent = '✓ В тарелке';
-					btn.disabled = true;
-					btn.style.opacity = '0.6';
-					btn.style.cursor = 'default';
-				}
-			}
+			refreshAddButtonStateByPlate();
 
 			// Init first video tab immediately after DOM insert
 			initVideoTabs();
@@ -2095,11 +2081,15 @@
 			const isBalanced = checkBalance();
 			const hasAdds = _balRequired.length > 0;
 
-			// Soft warning for unbalanced dish (not blocking)
 			if (hasAdds && !isBalanced) {
-				showBalWarnToast();
+				showBalanceWarnModal();
+				return;
 			}
 
+			_executePlateAdd(false);
+		}
+
+		function _executePlateAdd(unbalanced) {
 			// Main dish: own KBZHU only — selected addons go in as separate Plate entries below.
 			const _plateIngredients = (r.ingredients || []).filter((_, i) => !_excludedIngredients[i]);
 			Plate.add({
@@ -2134,35 +2124,81 @@
 				});
 			});
 
-			const btn = document.getElementById('add-btn');
-			if (btn) {
-				btn.textContent = '✓ В тарелке';
-				btn.disabled = true;
-				btn.style.opacity = '0.6';
-				btn.style.cursor = 'default';
-			}
+			refreshAddButtonStateByPlate();
 
-			if (hasAdds && !isBalanced) {
+			if (unbalanced) {
 				showToast(r.emoji + ' Добавлено без балансировки');
-				// Don't auto-navigate — let user see the warning and maybe add supplements
+				// Don't auto-navigate — let user see the result and maybe add supplements
 			} else {
 				showToast(r.emoji + ' Добавлено в тарелку!');
 				setTimeout(() => { history.back(); }, 1000);
 			}
 		}
 
-		function showBalWarnToast() {
-			let el = document.getElementById('bal-warn-toast');
-			if (!el) {
-				el = document.createElement('div');
-				el.id = 'bal-warn-toast';
-				el.className = 'bal-warn-toast';
-				el.innerHTML = '<div class="bal-warn-toast-title">⚖️ Блюдо добавлено без балансировки</div><div class="bal-warn-toast-sub">Если хотите сделать его полноценным приёмом пищи, выберите добавки в сайдбаре</div>';
-				document.body.appendChild(el);
+		// ── Balance warning modal (unbalanced add confirmation) ────────────
+		let _balWarnPrevFocus = null;
+
+		function showBalanceWarnModal() {
+			const overlay = document.getElementById('bal-warn-modal');
+			if (!overlay) return;
+			// Build dynamic missing-groups list from _balRequired vs checkedItems
+			const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
+			const missing = _balRequired.filter(c => !checkedPrefixes.has(c.prefix));
+			const listEl = document.getElementById('bal-warn-missing');
+			if (listEl) {
+				listEl.innerHTML = missing.length
+					? 'Не выбраны группы: ' + missing.map(c => '<b>' + escHtml(c.label) + '</b>').join(', ') + '.'
+					: '';
 			}
-			el.classList.add('show');
-			clearTimeout(el._t);
-			el._t = setTimeout(() => el.classList.remove('show'), 4500);
+			_balWarnPrevFocus = document.activeElement;
+			overlay.classList.add('show');
+			overlay.addEventListener('click', _balWarnBackdropHandler);
+			document.addEventListener('keydown', _balWarnKeyHandler);
+			const secondary = document.getElementById('bal-warn-secondary');
+			if (secondary) setTimeout(() => { try { secondary.focus(); } catch (e) {} }, 50);
+		}
+
+		function hideBalanceWarnModal() {
+			const overlay = document.getElementById('bal-warn-modal');
+			if (!overlay) return;
+			if (!overlay.classList.contains('show')) return;
+			overlay.classList.remove('show');
+			overlay.removeEventListener('click', _balWarnBackdropHandler);
+			document.removeEventListener('keydown', _balWarnKeyHandler);
+			if (_balWarnPrevFocus && typeof _balWarnPrevFocus.focus === 'function') {
+				try { _balWarnPrevFocus.focus(); } catch (e) {}
+			}
+			_balWarnPrevFocus = null;
+		}
+
+		function _balWarnBackdropHandler(e) {
+			if (e.target && e.target.id === 'bal-warn-modal') hideBalanceWarnModal();
+		}
+
+		function _balWarnKeyHandler(e) {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				hideBalanceWarnModal();
+			} else if (e.key === 'Tab') {
+				const overlay = document.getElementById('bal-warn-modal');
+				if (!overlay) return;
+				const focusable = overlay.querySelectorAll('button');
+				if (!focusable.length) return;
+				const first = focusable[0];
+				const last = focusable[focusable.length - 1];
+				if (e.shiftKey && document.activeElement === first) {
+					e.preventDefault();
+					last.focus();
+				} else if (!e.shiftKey && document.activeElement === last) {
+					e.preventDefault();
+					first.focus();
+				}
+			}
+		}
+
+		function confirmBalanceWarnAdd() {
+			hideBalanceWarnModal();
+			_executePlateAdd(true);
 		}
 
 		// ── MY PLATE MODAL ────────────────────────────────────────────────────
@@ -2215,7 +2251,7 @@
 			document.body.style.overflow = '';
 		}
 		function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
-		function removeItemR(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
+		function removeItemR(i) { Plate.remove(i); updatePlateIcon(); refreshAddButtonStateByPlate(); openPlate(); }
 
 		// ── FAV + RATING ON PHOTO ─────────────────────────────────────────────
 		function toggleRecipeFav() {
