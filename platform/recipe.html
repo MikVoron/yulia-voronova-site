@@ -711,6 +711,91 @@
 		const subItemRegistry = {};
 		const GROUP_CLASS = { p: 'group-protein', f: 'group-fat', c: 'group-carbs', fi: 'group-fiber' };
 
+		// Steps UX state (mobile compact + stepper) — reset per-recipe in initStepsUI
+		let _stepsHtmlArr = [];
+		let _stepsCollapsed = true;
+		let _stepperMode = false;
+		let _stepperIdx = 0;
+		let _stepperDone = [];
+
+		function initStepsUI() {
+			_stepsCollapsed = true;
+			_stepperMode = false;
+			_stepperIdx = 0;
+			_stepperDone = _stepsHtmlArr.map(() => false);
+			applyStepsUI();
+		}
+		function applyStepsUI() {
+			const list = document.getElementById('steps-list');
+			const stepper = document.getElementById('steps-stepper');
+			const expandBtn = document.getElementById('steps-expand-btn');
+			const modeBtn = document.getElementById('steps-mode-btn');
+			const modeLabel = document.getElementById('steps-mode-label');
+			const modeIcon = document.getElementById('steps-mode-icon');
+			if (!list) return;
+			if (_stepperMode && stepper) {
+				list.hidden = true;
+				if (expandBtn) expandBtn.hidden = true;
+				stepper.hidden = false;
+				if (modeLabel) modeLabel.textContent = 'Списком';
+				if (modeIcon) modeIcon.textContent = '📋';
+				if (modeBtn) modeBtn.classList.add('on');
+				renderStepperCurrent();
+			} else {
+				list.hidden = false;
+				if (stepper) stepper.hidden = true;
+				list.classList.toggle('is-collapsed', _stepsCollapsed);
+				if (expandBtn) {
+					expandBtn.hidden = false;
+					const label = document.getElementById('steps-expand-label');
+					if (label) {
+						label.textContent = _stepsCollapsed
+							? 'Показать все шаги (' + _stepsHtmlArr.length + ')'
+							: 'Свернуть';
+					}
+					const arrow = document.getElementById('steps-expand-arrow');
+					if (arrow) arrow.textContent = _stepsCollapsed ? '▾' : '▴';
+				}
+				if (modeLabel) modeLabel.textContent = 'Пошагово';
+				if (modeIcon) modeIcon.textContent = '🚶';
+				if (modeBtn) modeBtn.classList.remove('on');
+			}
+		}
+		function toggleStepsExpanded() {
+			_stepsCollapsed = !_stepsCollapsed;
+			applyStepsUI();
+		}
+		function toggleStepperMode() {
+			_stepperMode = !_stepperMode;
+			if (_stepperMode) _stepperIdx = 0;
+			applyStepsUI();
+		}
+		function renderStepperCurrent() {
+			const wrap = document.getElementById('stepper-current');
+			if (!wrap || !_stepsHtmlArr.length) return;
+			wrap.innerHTML = _stepsHtmlArr[_stepperIdx] || '';
+			const cur = document.getElementById('stepper-current-n');
+			if (cur) cur.textContent = String(_stepperIdx + 1);
+			const fill = document.getElementById('stepper-bar-fill');
+			if (fill) fill.style.width = (((_stepperIdx + 1) / _stepsHtmlArr.length) * 100) + '%';
+			const cb = document.getElementById('stepper-done-cb');
+			if (cb) cb.checked = !!_stepperDone[_stepperIdx];
+			const prev = document.getElementById('stepper-prev');
+			const next = document.getElementById('stepper-next');
+			if (prev) prev.disabled = _stepperIdx === 0;
+			if (next) next.disabled = _stepperIdx >= _stepsHtmlArr.length - 1;
+		}
+		function stepperPrev() {
+			if (_stepperIdx > 0) { _stepperIdx--; renderStepperCurrent(); }
+		}
+		function stepperNext() {
+			if (_stepperIdx < _stepsHtmlArr.length - 1) { _stepperIdx++; renderStepperCurrent(); }
+		}
+		function toggleStepperDone() {
+			const cb = document.getElementById('stepper-done-cb');
+			if (cb) _stepperDone[_stepperIdx] = cb.checked;
+		}
+
 		// ── SIDEBAR PLACEMENT (mobile ↔ desktop) ────────────────────────
 		function placeSidebarForViewport() {
 			const m = document.getElementById('sidebar-mobile');
@@ -1352,6 +1437,8 @@
             </div>`);
 			}
 			const stepsHtml = stepsArr.join('');
+			_stepsHtmlArr = stepsArr;
+			const _stepsCount = stepsArr.length;
 
 			// Balance: determine required categories
 			const _balCats = [];
@@ -1467,8 +1554,33 @@
                     <div class="ing-list">${ingHtml}</div>
                     ${r.photo ? `<img class="step-photo-img" src="${escHtml(photoUrl(derivePhoto(r.photo, 'start')))}" alt="Ингредиенты" loading="lazy" onerror="this.style.display='none'" style="margin-top:16px;border-radius:12px;width:100%">` : ''}
 
-                    <div class="v-section-title" style="margin-top:20px">Приготовление</div>
-                    <div class="steps-list">${stepsHtml}</div>
+                    <div class="steps-head">
+                        <div class="v-section-title">Приготовление</div>
+                        ${_stepsCount > 1 ? `<button class="steps-mode-btn" id="steps-mode-btn" type="button" onclick="toggleStepperMode()">
+                            <span id="steps-mode-icon">🚶</span>
+                            <span id="steps-mode-label">Пошагово</span>
+                        </button>` : ''}
+                    </div>
+                    <div class="steps-list" id="steps-list">${stepsHtml}</div>
+                    ${_stepsCount > 3 ? `<button class="steps-expand-btn" id="steps-expand-btn" type="button" onclick="toggleStepsExpanded()">
+                        <span id="steps-expand-label">Показать все шаги (${_stepsCount})</span>
+                        <span class="steps-expand-arrow" id="steps-expand-arrow">▾</span>
+                    </button>` : ''}
+                    ${_stepsCount > 1 ? `<div class="steps-stepper" id="steps-stepper" hidden>
+                        <div class="stepper-progress">
+                            <span class="stepper-progress-text">Шаг <span id="stepper-current-n">1</span> из <span id="stepper-total-n">${_stepsCount}</span></span>
+                            <div class="stepper-bar"><div class="stepper-bar-fill" id="stepper-bar-fill"></div></div>
+                        </div>
+                        <div class="stepper-current" id="stepper-current"></div>
+                        <label class="stepper-done">
+                            <input type="checkbox" id="stepper-done-cb" onchange="toggleStepperDone()">
+                            <span>Выполнено</span>
+                        </label>
+                        <div class="stepper-nav">
+                            <button class="stepper-nav-btn" id="stepper-prev" type="button" onclick="stepperPrev()">← Назад</button>
+                            <button class="stepper-nav-btn stepper-nav-next" id="stepper-next" type="button" onclick="stepperNext()">Далее →</button>
+                        </div>
+                    </div>` : ''}
 
                     ${!simpleMode && (r.ytVideo || r.vkVideo || r.dzenVideo) ? (() => {
 					const vids = [];
@@ -1542,6 +1654,9 @@
 			}
 
 			refreshAddButtonStateByPlate();
+
+			// Init steps UI (mobile compact + stepper)
+			initStepsUI();
 
 			// Init first video tab immediately after DOM insert
 			initVideoTabs();
@@ -2124,6 +2239,7 @@
 				});
 			});
 
+			updatePlateIcon();
 			refreshAddButtonStateByPlate();
 
 			if (unbalanced) {

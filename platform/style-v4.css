@@ -221,7 +221,9 @@ img { display: block; max-width: 100%; }
     transition: var(--tr); white-space: nowrap; flex-shrink: 0;
     -webkit-tap-highlight-color: transparent;
 }
-.filter-chip:hover { background: #fde68a; color: #92400e; transform: translateY(-1px); }
+@media (hover: hover) {
+    .filter-chip:hover { background: #fde68a; color: #92400e; transform: translateY(-1px); }
+}
 .filter-chip.on { background: #f5e9a8; color: var(--text); }
 .filter-clear {
     flex-shrink: 0; border: none; background: none; cursor: pointer;
@@ -246,7 +248,9 @@ img { display: block; max-width: 100%; }
     white-space: nowrap; transition: var(--tr);
     -webkit-tap-highlight-color: transparent;
 }
-.fgroup-btn:hover { background: #fde68a; color: #92400e; transform: translateY(-1px); }
+@media (hover: hover) {
+    .fgroup-btn:hover { background: #fde68a; color: #92400e; transform: translateY(-1px); }
+}
 .fgroup-btn.has-value { background: #f5e9a8; color: var(--text); }
 .fg-arrow {
     width: 10px; height: 6px; flex-shrink: 0;
@@ -266,7 +270,9 @@ img { display: block; max-width: 100%; }
     padding: 9px 14px; border-radius: 6px; text-align: left;
     width: 100%;
 }
-.fgroup-drop .filter-chip:hover { background: #fde68a; color: #92400e; }
+@media (hover: hover) {
+    .fgroup-drop .filter-chip:hover { background: #fde68a; color: #92400e; }
+}
 .fgroup-drop .filter-chip.on { background: transparent; color: var(--accent); font-weight: 700; }
 
 /* ── FAVORITE BUTTON on recipe cards ─────────────────── */
@@ -659,6 +665,30 @@ img { display: block; max-width: 100%; }
 .ing-restore-btn:hover { background: var(--accent); color: #fff; }
 
 /* Steps — vertical layout: number + text, photo below */
+.steps-head { display: flex; align-items: center; justify-content: space-between;
+              gap: 10px; margin-top: 20px; margin-bottom: 4px; }
+.steps-head .v-section-title { margin-top: 0 !important; margin-bottom: 0 !important; }
+.steps-mode-btn {
+    display: none;
+    align-items: center; gap: 6px;
+    padding: 7px 12px; border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--text-2);
+    font: 700 12px/1 var(--sans); cursor: pointer;
+    flex-shrink: 0; -webkit-tap-highlight-color: transparent;
+    transition: var(--tr);
+}
+.steps-mode-btn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.steps-expand-btn {
+    display: none;
+    width: 100%; margin-top: 12px; padding: 11px 14px;
+    border: 1px dashed var(--border); border-radius: 10px;
+    background: transparent; color: var(--accent);
+    font: 700 13px/1.2 var(--sans); cursor: pointer;
+    align-items: center; justify-content: center; gap: 8px;
+    -webkit-tap-highlight-color: transparent;
+}
+.steps-expand-arrow { font-size: 10px; }
 .steps-list { display: flex; flex-direction: column; }
 .step-item { display: flex; gap: 14px; padding: 18px 0;
               border-bottom: 1px solid var(--border);
@@ -673,6 +703,46 @@ img { display: block; max-width: 100%; }
 .step-text { flex: 1; min-width: 0; }
 .step-photo-wrap { width: 100%; }
 .step-photo-wrap .step-photo-img { width: 100%; border-radius: 10px; display: block; }
+
+/* Step-by-step mode (mobile only) */
+.steps-stepper { margin-top: 12px; display: flex; flex-direction: column; gap: 0; }
+.steps-stepper[hidden], .steps-list[hidden], .steps-expand-btn[hidden] { display: none !important; }
+.stepper-progress { display: flex; flex-direction: column; gap: 6px; }
+.stepper-progress-text { font: 700 13px/1 var(--sans); color: var(--text-2); }
+.stepper-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.stepper-bar-fill { height: 100%; background: var(--accent); width: 0%;
+                     transition: width .25s ease; border-radius: 2px; }
+.stepper-current { margin-top: 14px; }
+.stepper-current .step-item { padding: 0; border: none; }
+.stepper-done { display: inline-flex; align-items: center; gap: 8px;
+                 margin-top: 14px; font-size: 14px; color: var(--text-2); cursor: pointer;
+                 -webkit-tap-highlight-color: transparent; }
+.stepper-done input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+.stepper-nav { display: flex; gap: 10px; margin-top: 16px; }
+.stepper-nav-btn {
+    flex: 1; padding: 12px; border-radius: 10px;
+    border: 1px solid var(--border); background: transparent; color: var(--text);
+    font: 700 14px/1 var(--sans); cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.stepper-nav-btn.stepper-nav-next { background: var(--accent); color: #fff; border-color: var(--accent); }
+.stepper-nav-btn:disabled { opacity: .45; cursor: default; }
+
+/* Mobile: show mode toggle + expand button; collapse list to first 3 steps */
+@media (max-width: 767px) {
+    .steps-mode-btn { display: inline-flex; }
+    .steps-expand-btn { display: flex; }
+    .steps-list.is-collapsed .step-item:nth-child(n+4) { display: none; }
+}
+
+/* Desktop: keep full steps list, suppress compact/stepper controls even if JS left them on */
+@media (min-width: 768px) {
+    .steps-mode-btn,
+    .steps-expand-btn,
+    .steps-stepper { display: none !important; }
+    .steps-list { display: flex !important; }
+    .steps-list.is-collapsed .step-item { display: flex !important; }
+}
 
 /* VK Video */
 .vk-embed { border-radius: var(--r-m); overflow: hidden; aspect-ratio: 16/9;
@@ -814,7 +884,7 @@ img { display: block; max-width: 100%; }
 .modal-overlay {
     position: fixed; inset: 0;
     background: rgba(15,15,15,.55);
-    z-index: 400; opacity: 0; pointer-events: none;
+    z-index: 2000; opacity: 0; pointer-events: none;
     transition: opacity .25s ease;
     backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     display: flex; align-items: flex-end; justify-content: center;
