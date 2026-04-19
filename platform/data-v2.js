@@ -352,7 +352,12 @@ const Plate = {
         this.set(p);
         this._syncToServer();
     },
-    clear() { localStorage.removeItem(this._key()); updatePlateIcon(); this._syncToServer(); },
+    clear() {
+        localStorage.setItem(this._key(), '[]');
+        try { localStorage.setItem(Auth._userKey('plate_last_local_change'), String(Date.now())); } catch (e) {}
+        updatePlateIcon();
+        this._syncToServer();
+    },
     count() { return this.get().length; },
     totals() {
         return this.get().reduce((t, i) => ({
@@ -392,6 +397,7 @@ const Plate = {
     load() {
         if (!Auth.getToken()) return Promise.resolve();
         var self = this;
+        var hasLocalState = localStorage.getItem(self._key()) !== null;
         var localItems = self.get();
         var localHistory = self.getHistory();
 
@@ -405,8 +411,14 @@ const Plate = {
             // --- Merge current plate items ---
             var serverItems = (serverData && Array.isArray(serverData.items)) ? serverData.items : [];
             if (serverItems.length && !localItems.length) {
-                // Server has items, local is empty — take server
-                self.set(serverItems);
+                if (hasLocalState) {
+                    // User explicitly cleared locally (e.g. saveHistory) — local empty wins.
+                    // Push empty up so a stale server snapshot can't resurrect old items.
+                    self._syncToServer();
+                } else {
+                    // First load on this device — adopt server items.
+                    self.set(serverItems);
+                }
             } else if (localItems.length && !serverItems.length) {
                 // Local has items, server is empty — push local to server
                 self._syncToServer();

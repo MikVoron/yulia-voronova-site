@@ -473,6 +473,7 @@
 			pointer-events: auto;
 		}
 		.bal-success-modal-box {
+			position: relative;
 			background: #fff;
 			border-radius: 18px;
 			box-shadow: 0 24px 60px rgba(0, 0, 0, .25);
@@ -482,6 +483,15 @@
 			text-align: center;
 			transform: scale(.92) translateY(10px);
 			transition: transform .22s cubic-bezier(.2, .9, .3, 1.2);
+		}
+		.bal-success-sparkles {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 0;
+			overflow: visible;
+			pointer-events: none;
 		}
 		.bal-success-modal-overlay.show .bal-success-modal-box {
 			transform: scale(1) translateY(0);
@@ -617,6 +627,7 @@
 	<div class="bal-success-modal-overlay" id="bal-success-modal" role="dialog" aria-modal="true"
 		aria-labelledby="bal-success-title" aria-describedby="bal-success-text">
 		<div class="bal-success-modal-box">
+			<div id="bal-sparkle-container" class="bal-sparkle-wrap bal-success-sparkles" aria-hidden="true"></div>
 			<div class="bal-success-modal-title" id="bal-success-title">✅ Блюдо сбалансировано!</div>
 			<div class="bal-success-modal-text" id="bal-success-text">Добавьте его в тарелку — это полноценный приём пищи.</div>
 			<div class="bal-success-modal-actions">
@@ -1367,7 +1378,6 @@
                     <div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи — КБЖУ пересчитается</div>
                     <div class="bal-progress">${balProgressHtml}</div>
                 </div>
-                <div id="bal-sparkle-container" class="bal-sparkle-wrap"></div>
                 ${buildGroup('💪 Добавь белка для сытости', 'p', addProtein)}
                 ${buildGroup('🥑 Добавь жиров для баланса', 'f', addFat)}
                 ${buildGroup('🌾 Добавь углеводов для энергии', 'c', addCarbs)}
@@ -1722,7 +1732,6 @@
 					banner.innerHTML = `<div class="bal-banner-title">✅ Блюдо сбалансировано!</div><div class="bal-banner-sub">Добавьте его в тарелку — это полноценный приём пищи</div>`;
 					if (!_celebrationShown) {
 						_celebrationShown = true;
-						spawnSparkles();
 						showToast('Блюдо сбалансировано ✅');
 						playBalanceSound();
 						showBalanceSuccessModal();
@@ -1811,6 +1820,7 @@
 			overlay.classList.add('show');
 			overlay.addEventListener('click', _balSuccessBackdropHandler);
 			document.addEventListener('keydown', _balSuccessKeyHandler);
+			spawnSparkles();
 			const primary = document.getElementById('bal-success-primary');
 			if (primary) setTimeout(() => { try { primary.focus(); } catch (e) { } }, 50);
 			clearTimeout(_balSuccessAutoHideTimer);
@@ -1826,6 +1836,8 @@
 			document.removeEventListener('keydown', _balSuccessKeyHandler);
 			clearTimeout(_balSuccessAutoHideTimer);
 			_balSuccessAutoHideTimer = null;
+			const sparkleHost = document.getElementById('bal-sparkle-container');
+			if (sparkleHost) sparkleHost.innerHTML = '';
 			if (_balSuccessPrevFocus && typeof _balSuccessPrevFocus.focus === 'function') {
 				try { _balSuccessPrevFocus.focus(); } catch (e) { }
 			}
