@@ -565,7 +565,7 @@
 	<div id="bal-mini-status" class="bal-mini-status" onclick="scrollToBalanceBanner()" onkeydown="handleMiniStatusKey(event)" role="button" tabindex="0" aria-label="Прогресс баланса — перейти к добавкам">
 		<span class="bal-mini-progress" id="bal-mini-progress">0 / 0</span>
 		<span class="bal-mini-label" id="bal-mini-label">Не сбалансировано</span>
-		<button type="button" class="bal-mini-sound-btn" id="bal-mini-sound-btn" onclick="event.stopPropagation();toggleBalanceSound()" aria-label="Звук уведомлений" title="Звук уведомлений">
+		<button type="button" class="bal-mini-sound-btn" id="bal-mini-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений">
 			<span id="bal-mini-sound-icon">🔕</span>
 		</button>
 	</div>
@@ -945,6 +945,20 @@
 		let _soundEnabled = (function () {
 			try { return localStorage.getItem('balanceSoundEnabled') === '1'; } catch (e) { return false; }
 		})();
+		// ── Audio module config + state ─────────────────────────────
+		// MP3 is the primary channel; fallback is a WebAudio polyphony chord.
+		// Add new sounds by extending SOUND_ASSETS — no logic changes required.
+		const SOUND_ASSETS = {
+			balanceReady: ['sounds/plate-is-ready.mp3', 'platform/sounds/plate-is-ready.mp3']
+		};
+		let _balanceAudio = null;
+		let _balanceAudioSrcIndex = 0;
+		let _audioUnlocked = false;
+		let _audioMode = 'mp3'; // 'mp3' | 'fallback'
+		let _audioCtx = null;
+		let _soundToggleBusy = false;
+		let _soundBlockedToastShown = false; // legacy anti-spam; kept for compat
+		const _soundErrorToastShown = { blocked: false, asset: false, unknown: false };
 
 		// Ingredient swaps — per-ingredient metadata + currently-applied replacements.
 		// _swapInfo[i] = { origName, parts: [alt-text...], origAmountG: number|null }
@@ -1472,6 +1486,7 @@
 			const sidebarHtml = hasAdditions ? `
             <div class="bal-sidebar anim anim-d2">
                 <div id="bal-banner" class="bal-banner bal-banner-warn">
+                    <button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">🔕</span></button>
                     <div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div>
                     <div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи — КБЖУ пересчитается</div>
                     <div class="bal-progress">${balProgressHtml}</div>
@@ -1849,9 +1864,10 @@
 			// Update banner
 			const banner = document.getElementById('bal-banner');
 			if (banner) {
+				const soundBtnHtml = `<button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">🔕</span></button>`;
 				if (allDone) {
 					banner.className = 'bal-banner bal-banner-success';
-					banner.innerHTML = `<div class="bal-banner-title">✅ Блюдо сбалансировано!</div><div class="bal-banner-sub">Добавьте его в тарелку — это полноценный приём пищи</div>`;
+					banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-title">✅ Блюдо сбалансировано!</div><div class="bal-banner-sub">Добавьте его в тарелку — это полноценный приём пищи</div>`;
 					if (!_celebrationShown) {
 						_celebrationShown = true;
 						showToast('Блюдо сбалансировано ✅');
@@ -1865,7 +1881,7 @@
 						const pills = _balRequired.map(c =>
 							`<span class="bal-progress-pill${new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, ''))).has(c.prefix) ? ' done' : ''}" id="bal-pill-${c.key}"><span class="pill-check" id="bal-chk-${c.key}">${new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, ''))).has(c.prefix) ? '✓' : ''}</span>${c.key === 'p' ? '💪' : c.key === 'f' ? '🥑' : c.key === 'c' ? '🌾' : '🥬'} ${c.label}</span>`
 						).join('');
-						banner.innerHTML = `<div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div><div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи — КБЖУ пересчитается</div><div class="bal-progress">${pills}</div>`;
+						banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div><div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи — КБЖУ пересчитается</div><div class="bal-progress">${pills}</div>`;
 						_celebrationShown = false;
 					}
 				}
@@ -1898,11 +1914,7 @@
 				if (progressEl) progressEl.textContent = done + ' / ' + total;
 				if (labelEl) labelEl.textContent = 'Добавки';
 			}
-			// Sync sound button state
-			const soundBtn = document.getElementById('bal-mini-sound-btn');
-			const soundIcon = document.getElementById('bal-mini-sound-icon');
-			if (soundBtn) soundBtn.classList.toggle('on', _soundEnabled);
-			if (soundIcon) soundIcon.textContent = _soundEnabled ? '🔔' : '🔕';
+			syncSoundButtonsUI();
 		}
 
 		function scrollToBalanceBanner() {
@@ -1918,15 +1930,90 @@
 			}
 		}
 
-		function toggleBalanceSound() {
-			_soundEnabled = !_soundEnabled;
-			try { localStorage.setItem('balanceSoundEnabled', _soundEnabled ? '1' : '0'); } catch (e) { }
-			const btn = document.getElementById('bal-mini-sound-btn');
-			const icon = document.getElementById('bal-mini-sound-icon');
-			if (btn) btn.classList.toggle('on', _soundEnabled);
-			if (icon) icon.textContent = _soundEnabled ? '🔔' : '🔕';
-			showToast(_soundEnabled ? '🔔 Звук включён' : '🔕 Звук выключен');
+		function syncSoundButtonsUI() {
+			const on = !!_soundEnabled;
+			const miniBtn = document.getElementById('bal-mini-sound-btn');
+			const miniIcon = document.getElementById('bal-mini-sound-icon');
+			const bannerBtn = document.getElementById('bal-banner-sound-btn');
+			const bannerIcon = document.getElementById('bal-banner-sound-icon');
+			if (miniBtn) {
+				miniBtn.classList.toggle('on', on);
+				miniBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+			}
+			if (miniIcon) miniIcon.textContent = on ? '🔔' : '🔕';
+			if (bannerBtn) {
+				bannerBtn.classList.toggle('on', on);
+				bannerBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+			}
+			if (bannerIcon) bannerIcon.textContent = on ? '🔔' : '🔕';
 		}
+
+		// Unlocks BOTH the MP3 element and a WebAudio context inside a user gesture.
+		// Returns {mp3Ok, ctxOk} — if either succeeds, sound can be played going forward.
+		async function unlockBalanceAudioByGesture() {
+			let mp3Ok = false, ctxOk = false;
+			try {
+				ensureBalanceAudio();
+				_balanceAudio.muted = true;
+				_balanceAudio.currentTime = 0;
+				await _balanceAudio.play();
+				_balanceAudio.pause();
+				_balanceAudio.currentTime = 0;
+				_balanceAudio.muted = false;
+				mp3Ok = true;
+			} catch (err) {
+				try { if (_balanceAudio) _balanceAudio.muted = false; } catch (_) { }
+				if (console && console.debug) console.debug('[audio unlock mp3]', err && err.name, err && err.message);
+			}
+			try {
+				const AC = window.AudioContext || window.webkitAudioContext;
+				if (AC) {
+					if (!_audioCtx) _audioCtx = new AC();
+					if (_audioCtx.state === 'suspended') await _audioCtx.resume();
+					ctxOk = _audioCtx.state === 'running';
+				}
+			} catch (err) {
+				if (console && console.debug) console.debug('[audio unlock ctx]', err && err.name, err && err.message);
+			}
+			_audioUnlocked = mp3Ok || ctxOk;
+			if (mp3Ok) _audioMode = 'mp3';
+			else if (ctxOk) _audioMode = 'fallback';
+			return { mp3Ok, ctxOk };
+		}
+
+		async function toggleBalanceSound(e) {
+			if (e && e.stopPropagation) e.stopPropagation();
+			if (_soundToggleBusy) return;
+			if (_soundEnabled) {
+				_soundEnabled = false;
+				try { localStorage.setItem('balanceSoundEnabled', '0'); } catch (_) { }
+				syncSoundButtonsUI();
+				showToast('🔕 Звук выключен');
+				return;
+			}
+			_soundToggleBusy = true;
+			try {
+				const { mp3Ok, ctxOk } = await unlockBalanceAudioByGesture();
+				if (mp3Ok || ctxOk) {
+					_soundEnabled = true;
+					_soundBlockedToastShown = false;
+					_soundErrorToastShown.blocked = false;
+					_soundErrorToastShown.asset = false;
+					_soundErrorToastShown.unknown = false;
+					try { localStorage.setItem('balanceSoundEnabled', '1'); } catch (_) { }
+					syncSoundButtonsUI();
+					showToast(mp3Ok ? '🔔 Звук включён' : '🔔 Звук включён (резервный)');
+				} else {
+					_soundEnabled = false;
+					try { localStorage.setItem('balanceSoundEnabled', '0'); } catch (_) { }
+					syncSoundButtonsUI();
+					showToast('Браузер блокирует звук. Нажмите 🔔 ещё раз после взаимодействия');
+				}
+			} finally {
+				_soundToggleBusy = false;
+			}
+		}
+
 
 		// ── Balance success modal ──────────────────────────────────────────
 		let _balSuccessAutoHideTimer = null;
@@ -2000,12 +2087,103 @@
 			addToPlate();
 		}
 
+		function ensureBalanceAudio() {
+			if (_balanceAudio) return;
+			const paths = SOUND_ASSETS.balanceReady;
+			_balanceAudioSrcIndex = 0;
+			_balanceAudio = new Audio(paths[0]);
+			_balanceAudio.preload = 'auto';
+			// Walk through the paths chain on asset errors (file moved, 404, wrong context)
+			_balanceAudio.addEventListener('error', function () {
+				_balanceAudioSrcIndex++;
+				if (_balanceAudioSrcIndex < paths.length && _balanceAudio) {
+					_balanceAudio.src = paths[_balanceAudioSrcIndex];
+				}
+			});
+		}
+
+		function classifyAudioError(err, audioEl) {
+			if (err && err.name === 'NotAllowedError') return 'blocked';
+			if (err && err.name === 'NotSupportedError') return 'asset';
+			const me = audioEl && audioEl.error;
+			if (me) {
+				// 2=NETWORK, 3=DECODE, 4=SRC_NOT_SUPPORTED
+				if (me.code === 2 || me.code === 3 || me.code === 4) return 'asset';
+			}
+			return 'unknown';
+		}
+
+		// Short "magic" chord via WebAudio — no asset dependency, works whenever AudioContext is running.
+		function playBalanceFallbackPolyphony() {
+			try {
+				const AC = window.AudioContext || window.webkitAudioContext;
+				if (!AC) return false;
+				if (!_audioCtx) _audioCtx = new AC();
+				if (_audioCtx.state === 'suspended') _audioCtx.resume();
+				const ctx = _audioCtx;
+				const now = ctx.currentTime;
+				const master = ctx.createGain();
+				master.gain.setValueAtTime(0.0001, now);
+				master.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
+				master.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
+				master.connect(ctx.destination);
+				// C-major triad, staggered attack for a lighter feel (~280ms)
+				[523.25, 659.25, 783.99].forEach(function (f, i) {
+					const osc = ctx.createOscillator();
+					osc.type = 'triangle';
+					osc.frequency.setValueAtTime(f, now + i * 0.015);
+					osc.connect(master);
+					osc.start(now + i * 0.015);
+					osc.stop(now + 0.34);
+				});
+				return true;
+			} catch (err) {
+				if (console && console.debug) console.debug('[audio fallback]', err && err.name, err && err.message);
+				return false;
+			}
+		}
+
 		function playBalanceSound() {
 			if (!_soundEnabled) return;
-			try {
-				const audio = new Audio('sounds/plate-is-ready.mp3');
-				audio.play();
-			} catch (e) { /* ignore */ }
+			if (_audioMode === 'fallback') {
+				playBalanceFallbackPolyphony();
+				return;
+			}
+			ensureBalanceAudio();
+			_balanceAudio.currentTime = 0;
+			let p;
+			try { p = _balanceAudio.play(); } catch (err) { p = Promise.reject(err); }
+			if (p && p.catch) {
+				p.catch(function (err) {
+					const type = classifyAudioError(err, _balanceAudio);
+					// Switch to fallback and play immediately so the user hears the signal now
+					_audioMode = 'fallback';
+					const fbOk = playBalanceFallbackPolyphony();
+					if (type === 'blocked') {
+						// Autoplay policy — honest rollback so UI reflects reality
+						if (!fbOk) {
+							_soundEnabled = false;
+							try { localStorage.setItem('balanceSoundEnabled', '0'); } catch (_) { }
+							syncSoundButtonsUI();
+						}
+						if (!_soundErrorToastShown.blocked) {
+							_soundErrorToastShown.blocked = true;
+							showToast('Браузер блокирует звук. Нажмите 🔔 ещё раз после взаимодействия');
+						}
+					} else if (type === 'asset') {
+						if (!_soundErrorToastShown.asset) {
+							_soundErrorToastShown.asset = true;
+							showToast('Не удалось загрузить mp3, включён резервный звук');
+						}
+					} else {
+						if (!_soundErrorToastShown.unknown) {
+							_soundErrorToastShown.unknown = true;
+							showToast('Не удалось воспроизвести mp3, включён резервный звук');
+						}
+					}
+					if (console && console.debug) console.debug('[balance-sound play]', type, err && err.name, err && err.message);
+				});
+			}
 		}
 
 		function setupBalBannerObserver() {

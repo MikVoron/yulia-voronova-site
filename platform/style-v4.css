@@ -1644,5 +1644,42 @@ img { display: block; max-width: 100%; }
     .vh-back-btn ~ .v-user-wrap { display: none; }
 }
 
+/* Balance banner sound toggle — always-accessible control in #bal-banner */
+.bal-banner { position: relative; }
+.bal-banner-title,
+.bal-banner-sub { padding-right: 52px; }
+.bal-banner-sound-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, .12);
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0;
+    transition: background-color .2s, border-color .2s, transform .1s;
+    -webkit-tap-highlight-color: transparent;
+    z-index: 1;
+}
+.bal-banner-sound-btn:hover { border-color: var(--accent, #f26c3f); }
+.bal-banner-sound-btn:focus-visible {
+    outline: 2px solid var(--accent, #f26c3f);
+    outline-offset: 2px;
+}
+.bal-banner-sound-btn.on {
+    background: var(--accent-l, #fff1ec);
+    border-color: var(--accent, #f26c3f);
+}
+.bal-banner-sound-btn:active { transform: scale(.95); }
+
 /* FOUC prevention: make body visible once CSS is loaded */
 body { visibility: visible !important; }
