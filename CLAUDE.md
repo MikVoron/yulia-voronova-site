@@ -182,6 +182,16 @@ ssh root@5.42.119.198 "echo 'SELECT * FROM users LIMIT 5;' | sudo -u postgres ps
   - Нормализация URL через `photoUrl()` применяется к каждой строке, не к массиву целиком
   - При добавлении мультифото в БД использовать JSON-массив строк (см. `server/migrate-borsch.sql` как пример)
 
+### Рецепты / Ввод текстом (Text → Recipe) — постоянный контракт
+Пользователь присылает рецепт **обычным текстом на русском** — AI сам парсит, валидирует и выдаёт SQL-миграцию в стиле `server/migrate-borsch.sql` (или чистый JSON по запросу). Никогда не требовать от пользователя JSON-форматирование.
+
+- Полный контракт: [`docs/ai-recipe-input-contract.md`](docs/ai-recipe-input-contract.md) (single source of truth).
+- **Режим по умолчанию: `strict` / No Guessing** (§0 контракта). Никаких выдуманных значений, «взял из прошлой версии», «разумного дефолта». Нет в тексте — `null` + вопрос в `_needs_clarification`.
+- Выход — серверная схема `recipes` (snake_case). `ingredients: [{name, swap}]`, `steps: [{text, photo}]`, `photo ∈ {string | string[] | true | null}`.
+- Все 4 `add_*` массива возвращаем всегда (пустой `[]` = нет сайдбара).
+- Обязательный отчёт из трёх списков: `_filled_from_input`, `_needs_clarification`, `_not_provided`. Плюс опционально `_warnings` / `_todo`.
+- Валидация per-field: ошибка одного поля не валит весь импорт (см. §4 контракта).
+
 ### Оценка рисков
 - При оценке риска серверной фичи **всегда** проверять фронтенд/localStorage — может уже быть реализация
 

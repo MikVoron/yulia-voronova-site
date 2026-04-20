@@ -48,28 +48,28 @@ INSERT INTO recipes (
   ]'::jsonb,
   '[
     {"text": "Лук мелко нарежьте, сельдерей и картофель нарежьте кубиками, морковь натрите, зелень порубите."},
-    {"text": "В кипящую воду добавьте картофель, капусту и лавровый лист."},
+    {"text": "В кипящую воду добавьте картофель, капусту и лавровый лист.", "photo": "images/recipes/borscht-red-beans/borsch-2.webp"},
     {"text": "Добавьте овощной концентрат (можно без него) и варите 10 минут."},
-    {"text": "На сковороде разогрейте масло. Обжарьте лук 1 минуту."},
-    {"text": "Добавьте морковь и сельдерей, готовьте ещё 5 минут."},
-    {"text": "Добавьте половину зелени и специи, перемешайте."},
+    {"text": "На сковороде разогрейте масло. Обжарьте лук 1 минуту.", "photo": "images/recipes/borscht-red-beans/borsch-4.webp"},
+    {"text": "Добавьте морковь и сельдерей, готовьте ещё 5 минут.", "photo": "images/recipes/borscht-red-beans/borsch-5.webp"},
+    {"text": "Добавьте половину зелени и специи, перемешайте.", "photo": "images/recipes/borscht-red-beans/borsch-6.webp"},
     {"text": "Добавьте томатную пасту, перемешайте."},
-    {"text": "Переложите зажарку в кастрюлю, варите 10 минут."},
-    {"text": "Свёклу натрите и добавьте в суп."},
+    {"text": "Переложите зажарку в кастрюлю, варите 10 минут.", "photo": "images/recipes/borscht-red-beans/borsch-8.webp"},
+    {"text": "Свёклу натрите и добавьте в суп.", "photo": "images/recipes/borscht-red-beans/borsch-9.webp"},
     {"text": "Добавьте чеснок и лимонный сок.", "photo": ["images/recipes/borscht-red-beans/borsch-10.1.webp", "images/recipes/borscht-red-beans/borsch-10.2.webp"]},
-    {"text": "Фасоль пробейте блендером с 1–2 половниками бульона."},
-    {"text": "Добавьте фасоль в суп, перемешайте."},
-    {"text": "Добавьте оставшуюся зелень."},
+    {"text": "Фасоль пробейте блендером с 1–2 половниками бульона.", "photo": "images/recipes/borscht-red-beans/borsch-11.webp"},
+    {"text": "Добавьте фасоль в суп, перемешайте.", "photo": "images/recipes/borscht-red-beans/borsch-12.webp"},
+    {"text": "Добавьте оставшуюся зелень.", "photo": "images/recipes/borscht-red-beans/borsch-13.webp"},
     {"text": "Попробуйте и посолите."}
   ]'::jsonb,
   '[
     {"name": "Белое мясо", "amount": "50 г", "kcal": 80, "protein": 16, "fat": 1, "carbs": 0, "fiber": 0},
     {"name": "Тофу", "amount": "100 г", "kcal": 70, "protein": 10, "fat": 4, "carbs": 1, "fiber": 0},
     {"name": "Хумус", "amount": "40 г", "kcal": 120, "protein": 3, "fat": 6, "carbs": 13, "fiber": 2, "recipeId": "hummus"},
-    {"name": "Хумус со свёклой", "amount": "40 г", "kcal": 110, "protein": 3, "fat": 6, "carbs": 12, "fiber": 2, "recipeId": "beet-hummus"}
+    {"name": "Хумус со свёклой", "amount": "40 г", "kcal": 110, "protein": 3, "fat": 6, "carbs": 12, "fiber": 2, "recipeId": "beetroot-hummus"}
   ]'::jsonb,
   '[
-    {"name": "Цельнозерновой хлеб", "amount": "1 шт.", "kcal": 70, "protein": 3, "fat": 1, "carbs": 15, "fiber": 3}
+    {"name": "Цельнозерновой хлеб", "amount": "1 ломтик", "kcal": 70, "protein": 3, "fat": 1, "carbs": 15, "fiber": 3}
   ]'::jsonb,
   400,
   false,
