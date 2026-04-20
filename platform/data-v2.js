@@ -477,15 +477,26 @@ const RECIPES = {};
 let CATEGORIES = {};
 let _contentLoaded = false;
 
-// Normalize image paths: ../images/... → absolute URL on main site
-function _fixPhoto(p) {
-    if (!p) return null;
+// Normalize image paths: ../images/... → absolute URL on main site.
+// Контракт photo (для обложки рецепта и для step.photo):
+//   string      → нормализованный URL
+//   string[]    → массив нормализованных URL (пустые/не-строки отфильтрованы)
+//   true        → true (плейсхолдер-маркер, рендерится как «📷 Фото шага N»)
+//   null / undefined / "" / что-то иное → null (блок фото не рендерится)
+function _fixPhotoStr(p) {
+    if (typeof p !== 'string' || !p) return null;
     if (p.startsWith('../images/')) return SITE_BASE + '/' + p.slice(3);
     if (p.startsWith('/images/')) return SITE_BASE + p;
-    if (p.startsWith('images/')) {
-        return SITE_BASE + '/' + p;
-    }
+    if (p.startsWith('images/')) return SITE_BASE + '/' + p;
     return p;
+}
+function _fixPhoto(p) {
+    if (p === true) return true;
+    if (Array.isArray(p)) {
+        const arr = p.map(_fixPhotoStr).filter(Boolean);
+        return arr.length ? arr : null;
+    }
+    return _fixPhotoStr(p);
 }
 
 // Map API snake_case → frontend camelCase
@@ -541,7 +552,13 @@ async function loadContent() {
             return;
         }
         const data = await recipesRes.json();
-        data.forEach(r => { RECIPES[r.id] = _mapRecipe(r); });
+        data.forEach(r => {
+            try {
+                RECIPES[r.id] = _mapRecipe(r);
+            } catch (err) {
+                console.error('Failed to map recipe', r && r.id, err);
+            }
+        });
         const cats = await catsRes.json();
         cats.forEach(c => {
             CATEGORIES[c.id] = {
