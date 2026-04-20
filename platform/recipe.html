@@ -1734,13 +1734,14 @@
 			const hasCat = item.catLink;
 			const isChecked = !!checkedItems[key];
 			const checkedCls = isChecked ? ' checked' : '';
+			const amountHtml = item.amount ? ` <span class="bal-item-amount">· ${escHtml(item.amount)}</span>` : '';
 			if (hasRecipe) {
 				subItemRegistry[key] = item;
 				const safeRid = encodeURIComponent(item.recipeId);
 				return `<div class="bal-item${checkedCls}" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative;cursor:pointer">
                             <div class="bal-item-check" id="chk-${key}"></div>
                             <div class="bal-item-text">
-                                ${escHtml(item.name)}
+                                ${escHtml(item.name)}${amountHtml}
                                 <a class="bal-item-recipe-link" onclick="event.stopPropagation();location.href='recipe.html?id=${safeRid}&from=${encodeURIComponent(fromCat)}&asIngredient=1&parentRecipeId=${encodeURIComponent(r.id)}'">→ Открыть рецепт</a>
                             </div>
                             <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
@@ -1749,7 +1750,7 @@
 				return `<button class="bal-item${checkedCls}" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative">
                             <div class="bal-item-check" id="chk-${key}"></div>
                             <div class="bal-item-text">
-                                ${escHtml(item.name)}
+                                ${escHtml(item.name)}${amountHtml}
                                 ${hasCat ? `<a class="bal-item-recipe-link" onclick="event.stopPropagation();location.href='category.html?cat=${encodeURIComponent(item.catLink)}'">→ Выбрать из списка</a>` : ''}
                             </div>
                             <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>

@@ -570,7 +570,7 @@
             if (!items || !items.length) return '';
             return items.map(function(it) {
                 if (typeof it === 'string') return it;
-                var line = (it.name||'') + ' | ' + (it.kcal||0) + ' | ' + (it.protein||0) + ' | ' + (it.fat||0) + ' | ' + (it.carbs||0) + ' | ' + (it.fiber||0);
+                var line = (it.name||'') + ' | ' + (it.amount||'') + ' | ' + (it.kcal||0) + ' | ' + (it.protein||0) + ' | ' + (it.fat||0) + ' | ' + (it.carbs||0) + ' | ' + (it.fiber||0);
                 if (it.recipeId) line += ' | @' + it.recipeId;
                 return line;
             }).join('\n');
@@ -745,19 +745,29 @@
     function parseAddItems(elId) {
         return document.getElementById(elId).value.split('\n').filter(function(l) { return l.trim(); }).map(function(line) {
             var parts = line.split('|').map(function(s) { return s.trim(); });
+            // Strip trailing @recipeId first so it doesn't confuse length-based format detection.
+            var recipeId = null;
+            if (parts.length && parts[parts.length - 1].charAt(0) === '@') {
+                recipeId = parts.pop().substring(1);
+            }
             var obj = { name: parts[0] || '' };
-            if (parts.length >= 6) {
+            if (parts.length >= 7) {
+                // Format: name | amount | kcal | protein | fat | carbs | fiber
+                obj.amount = parts[1] || null;
+                obj.kcal = parseFloat(parts[2]) || 0;
+                obj.protein = parseFloat(parts[3]) || 0;
+                obj.fat = parseFloat(parts[4]) || 0;
+                obj.carbs = parseFloat(parts[5]) || 0;
+                obj.fiber = parseFloat(parts[6]) || 0;
+            } else if (parts.length >= 6) {
+                // Legacy format without amount: name | kcal | protein | fat | carbs | fiber
                 obj.kcal = parseFloat(parts[1]) || 0;
                 obj.protein = parseFloat(parts[2]) || 0;
                 obj.fat = parseFloat(parts[3]) || 0;
                 obj.carbs = parseFloat(parts[4]) || 0;
                 obj.fiber = parseFloat(parts[5]) || 0;
             }
-            // Check for recipe reference: @recipeId
-            var last = parts[parts.length - 1];
-            if (last && last.charAt(0) === '@') {
-                obj.recipeId = last.substring(1);
-            }
+            if (recipeId) obj.recipeId = recipeId;
             return obj;
         });
     }

@@ -65,6 +65,7 @@ INSERT INTO recipes (
   '[
     {"name": "Белое мясо", "amount": "50 г", "kcal": 80, "protein": 16, "fat": 1, "carbs": 0, "fiber": 0},
     {"name": "Тофу", "amount": "100 г", "kcal": 70, "protein": 10, "fat": 4, "carbs": 1, "fiber": 0},
+    {"name": "Соевые бобы эдамаме", "amount": "100 г", "kcal": 109, "protein": 12, "fat": 5, "carbs": 3, "fiber": 5},
     {"name": "Хумус", "amount": "40 г", "kcal": 120, "protein": 3, "fat": 6, "carbs": 13, "fiber": 2, "recipeId": "hummus"},
     {"name": "Хумус со свёклой", "amount": "40 г", "kcal": 110, "protein": 3, "fat": 6, "carbs": 12, "fiber": 2, "recipeId": "beetroot-hummus"}
   ]'::jsonb,
