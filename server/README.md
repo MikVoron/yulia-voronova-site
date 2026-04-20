@@ -34,6 +34,10 @@ SMTP_USER=your-smtp-user
 SMTP_PASS=your-smtp-password
 SMTP_FROM="Юлия Воронова <noreply@voronova.online>"
 
+# Опциональные — уведомление админу о новых регистрациях
+NEW_USER_NOTIFY_ENABLED=true                 # false отключает (по умолчанию включено)
+NEW_USER_NOTIFY_TO=hello@voronova.online     # получатель уведомления
+
 # Опциональные — OAuth (пока не активны)
 VK_APP_ID=
 VK_APP_SECRET=

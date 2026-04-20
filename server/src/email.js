@@ -160,6 +160,36 @@ async function sendFeedback(userEmail, category, text) {
   await send('hello@voronova.online', '[Умная тарелка] ' + label + ' от ' + userEmail, wrap(body));
 }
 
+// ── 6b. Новый пользователь зарегистрирован (уведомление админу) ──
+const NEW_USER_NOTIFY_ENABLED = process.env.NEW_USER_NOTIFY_ENABLED !== 'false';
+const NEW_USER_NOTIFY_TO = process.env.NEW_USER_NOTIFY_TO || 'hello@voronova.online';
+
+async function sendNewUserNotification(user, meta) {
+  if (!NEW_USER_NOTIFY_ENABLED) return;
+  const method = (meta && meta.method) || 'email';
+  const ip = (meta && meta.ip) || '—';
+  const ua = (meta && meta.userAgent) || '—';
+  const now = new Date();
+  const utcStr = now.toISOString();
+  const mskStr = now.toLocaleString('ru-RU', { timeZone: 'Europe/Moscow', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const esc = (s) => String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const body =
+    '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Новый пользователь</h2>'
+    + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
+    + 'На платформе <strong>Умная тарелка</strong> зарегистрирован новый пользователь:</p>'
+    + '<table cellpadding="6" cellspacing="0" border="0" style="font-size:14px;color:#444;margin-bottom:16px">'
+    + '<tr><td style="color:#777">Email:</td><td style="font-weight:700;color:#111">' + esc(user.email || '—') + '</td></tr>'
+    + '<tr><td style="color:#777">User ID:</td><td>' + esc(user.id) + '</td></tr>'
+    + '<tr><td style="color:#777">Способ:</td><td>' + esc(method) + '</td></tr>'
+    + '<tr><td style="color:#777">Дата (МСК):</td><td>' + mskStr + '</td></tr>'
+    + '<tr><td style="color:#777">Дата (UTC):</td><td>' + utcStr + '</td></tr>'
+    + '<tr><td style="color:#777">IP:</td><td>' + esc(ip) + '</td></tr>'
+    + '<tr><td style="color:#777;vertical-align:top">User-agent:</td><td style="font-size:12px;color:#777">' + esc(String(ua).slice(0, 300)) + '</td></tr>'
+    + '</table>'
+    + btn('Открыть админку', PLATFORM_URL + '/admin.html');
+  await send(NEW_USER_NOTIFY_TO, 'Новый пользователь зарегистрирован', wrap(body));
+}
+
 // ── 7. Уведомление об отзыве ──
 async function sendReviewNotification(author, recipeName, stars, text, recipeId) {
   const starsStr = '★'.repeat(stars) + '☆'.repeat(5 - stars);
@@ -210,6 +240,7 @@ module.exports = {
   sendPaymentConfirmed,
   sendSubscriptionExtended,
   sendPaymentNotification,
+  sendNewUserNotification,
   sendFeedback,
   sendFeedbackReply,
   sendReviewNotification,

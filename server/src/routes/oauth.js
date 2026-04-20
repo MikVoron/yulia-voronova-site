@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const db = require('../db');
 const { generateAccessToken, generateRefreshToken, hashToken } = require('../auth');
-const { sendWelcome } = require('../email');
+const { sendWelcome, sendNewUserNotification } = require('../email');
 const { tryGrantTrial } = require('../trial-guard');
 const audit = require('../audit');
 
@@ -29,7 +29,7 @@ function setCookieAndRedirect(reply, refreshToken, isNew) {
   return reply.redirect(target);
 }
 
-async function findOrCreateUser(provider, providerId, email, displayName, fastify, ip) {
+async function findOrCreateUser(provider, providerId, email, displayName, fastify, ip, ua) {
   let isNew = false;
 
   // 1. Ищем существующий auth_account
@@ -78,6 +78,10 @@ async function findOrCreateUser(provider, providerId, email, displayName, fastif
   if (email) {
     sendWelcome(email).catch(e => fastify.log.error(e, 'Welcome email error (OAuth)'));
   }
+  sendNewUserNotification(
+    { id: user.id, email: email || null },
+    { method: provider, ip, userAgent: ua }
+  ).catch(e => fastify.log.error(e, 'New user notification error (OAuth)'));
 
   return { user, isNew };
 }
@@ -163,7 +167,7 @@ async function oauthRoutes(fastify) {
       const email = user.email || tokenData.email || null;
       const displayName = [user.first_name, user.last_name].filter(Boolean).join(' ') || null;
 
-      const { user: dbUser, isNew } = await findOrCreateUser('vk', vkId, email, displayName, fastify, req.ip);
+      const { user: dbUser, isNew } = await findOrCreateUser('vk', vkId, email, displayName, fastify, req.ip, req.headers['user-agent']);
       return issueTokens(dbUser, req, reply, isNew, fastify);
     } catch (e) {
       fastify.log.error(e, 'VK OAuth error');
@@ -225,7 +229,7 @@ async function oauthRoutes(fastify) {
       const email = user.default_email || null;
       const displayName = user.display_name || user.real_name || null;
 
-      const { user: dbUser, isNew } = await findOrCreateUser('yandex', yandexId, email, displayName, fastify, req.ip);
+      const { user: dbUser, isNew } = await findOrCreateUser('yandex', yandexId, email, displayName, fastify, req.ip, req.headers['user-agent']);
       return issueTokens(dbUser, req, reply, isNew, fastify);
     } catch (e) {
       fastify.log.error(e, 'Yandex OAuth error');

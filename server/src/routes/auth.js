@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const db = require('../db');
 const { generateAccessToken, generateRefreshToken, hashToken, verifyAccessToken, generateLoginCode } = require('../auth');
-const { sendLoginCode, sendWelcome } = require('../email');
+const { sendLoginCode, sendWelcome, sendNewUserNotification } = require('../email');
 const { authenticate } = require('../middleware');
 const { tryGrantTrial } = require('../trial-guard');
 const audit = require('../audit');
@@ -74,6 +74,10 @@ async function authRoutes(fastify) {
       }
       audit.log('register', { userId, email: lower, detail: 'email', ip: req.ip, ua: req.headers['user-agent'] });
       sendWelcome(lower).catch(e => fastify.log.error(e, 'Welcome email error'));
+      sendNewUserNotification(
+        { id: userId, email: lower },
+        { method: 'email', ip: req.ip, userAgent: req.headers['user-agent'] }
+      ).catch(e => fastify.log.error(e, 'New user notification error'));
     }
     const user = userRes.rows[0];
     if (user.is_blocked) {
