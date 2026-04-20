@@ -1443,14 +1443,30 @@
             </div>`;
 			}).join('');
 
+			// Контракт step.photo:
+			//   string      → 1 фото
+			//   string[]    → N фото по порядку (галерея)
+			//   true        → плейсхолдер-заглушка
+			//   null/""/нет → без блока фото
+			// Нормализация URL (photoUrl) применяется к каждой строке, не к массиву целиком.
 			const stepsArr = (r.steps || []).map((s, i) => {
 				const text = escHtml(typeof s === 'string' ? s : s.text);
 				const photo = typeof s === 'object' && s.photo ? s.photo : null;
-				const photoHtml = photo
-					? (photo === true
-						? `<div class="step-photo-placeholder"><span>📷</span><span>Фото шага ${i + 1}</span></div>`
-						: `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i + 1}" loading="lazy" onerror="this.closest('.step-photo-wrap').style.display='none'">`)
-					: '';
+				let photoHtml = '';
+				if (photo === true) {
+					photoHtml = `<div class="step-photo-placeholder"><span>📷</span><span>Фото шага ${i + 1}</span></div>`;
+				} else if (Array.isArray(photo)) {
+					const imgs = photo.filter(p => typeof p === 'string' && p);
+					if (imgs.length === 1) {
+						photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(imgs[0]))}" alt="Фото шага ${i + 1}" loading="lazy" onerror="this.style.display='none'">`;
+					} else if (imgs.length > 1) {
+						photoHtml = `<div class="step-photo-gallery">` + imgs.map((p, idx) =>
+							`<img class="step-photo-img" src="${escHtml(photoUrl(p))}" alt="Фото шага ${i + 1} (${idx + 1})" loading="lazy" onerror="this.style.display='none'">`
+						).join('') + `</div>`;
+					}
+				} else if (typeof photo === 'string' && photo) {
+					photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i + 1}" loading="lazy" onerror="this.closest('.step-photo-wrap').style.display='none'">`;
+				}
 				return `<div class="step-item">
                 <div class="step-num">${i + 1}</div>
                 <div class="step-body">
