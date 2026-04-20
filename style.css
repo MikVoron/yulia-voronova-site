@@ -13721,6 +13721,53 @@ button[class*="btn-"]:hover,
     transform: translateX(4px);
 }
 
+.blog-cta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    flex-wrap: nowrap;
+}
+
+.blog-cta-row .btn-read-more {
+    margin-top: 0;
+    padding-top: 8px;
+    flex-shrink: 0;
+}
+
+.blog-cta-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid var(--beige);
+    background-color: var(--cream);
+    color: var(--dark-text);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.blog-cta-icon:hover {
+    background-color: var(--beige);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+}
+
+.blog-cta-icon:focus-visible {
+    outline: 2px solid var(--sage-green, #8a9a8d);
+    outline-offset: 2px;
+}
+
+.blog-cta-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
 .blog-channel-link {
     text-align: center;
     margin-top: 40px;
