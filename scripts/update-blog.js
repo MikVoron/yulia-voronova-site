@@ -6,7 +6,16 @@ const CHANNEL = 'voronova_nutrition';
 const BLOG_FILE = path.join(__dirname, '..', 'blog.html');
 const SITEMAP_FILE = path.join(__dirname, '..', 'sitemap.xml');
 const BLOG_IMAGES_DIR = path.join(__dirname, '..', 'images', 'blog');
-const MAX_POSTS = 9;
+const VK_LINKS_FILE = path.join(__dirname, '..', 'data', 'blog-vk-links.json');
+const MAX_POSTS = 6;
+
+function loadVkLinks() {
+    try {
+        return JSON.parse(fs.readFileSync(VK_LINKS_FILE, 'utf8'));
+    } catch (e) {
+        return {};
+    }
+}
 const PREVIEW_LENGTH = 200;
 const RANDOM_PICS = [
     'images/blog/random-pic-blog-1.webp',
@@ -120,10 +129,6 @@ async function fetchPostsData() {
         if (!numMatch) continue;
         const postNumber = parseInt(numMatch[1], 10);
 
-        // Skip service messages (pinned a file, pinned a message, joined, etc.)
-        if (part.includes('tgme_widget_message_service')) continue;
-        if (part.includes('pinned a ') || part.includes('pinned the ')) continue;
-
         // Extract text
         const textMatch = part.match(/tgme_widget_message_text[^>]*>([\s\S]*?)<\/div>/);
         const rawHtml = textMatch ? textMatch[1].trim() : '';
@@ -167,12 +172,16 @@ async function fetchPostsData() {
     return top;
 }
 
-function articleCardTemplate(post, index) {
+const TG_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>`;
+const VK_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.066 13.394c.49.483 1.007.952 1.404 1.526.176.253.344.513.456.808.158.42.015.882-.366.906l-2.398-.001c-.618.051-1.113-.196-1.541-.609-.338-.326-.65-.673-.972-1.01-.135-.141-.276-.269-.44-.372-.31-.195-.58-.126-.753.207-.177.338-.217.71-.239 1.084-.03.534-.232.674-.766.697-1.143.05-2.227-.12-3.23-.673-.883-.486-1.556-1.188-2.137-1.98-.954-1.3-1.696-2.735-2.363-4.207-.194-.428-.05-.66.417-.668.776-.013 1.553-.011 2.329-.002.31.004.518.19.642.473.394.904.862 1.762 1.416 2.563.148.214.299.428.513.582.244.176.43.118.546-.158.075-.18.107-.372.123-.565.052-.633.059-1.266-.01-1.897-.042-.39-.241-.643-.631-.709-.2-.033-.17-.099-.073-.199.145-.149.282-.242.554-.242h2.043c.322.064.393.209.437.532l.002 2.27c-.004.148.074.587.341.685.215.075.357-.109.486-.244.577-.606.989-1.316 1.342-2.126.132-.299.25-.608.363-.918.084-.23.215-.343.471-.337l2.597.003c.077 0 .155 0 .23.013.375.065.478.231.361.593-.185.571-.537 1.045-.888 1.516-.37.497-.762.976-1.13 1.474-.331.448-.305.672.09 1.052z"/></svg>`;
+
+function articleCardTemplate(post, index, vkLinks) {
     const title = escapeHtml(extractTitle(post.plainText));
     const body = extractBody(post.plainText);
     const preview = body ? escapeHtml(truncateText(body, PREVIEW_LENGTH)) : '';
     const dateFormatted = formatDateRu(post.dateISO);
     const postUrl = `https://t.me/${CHANNEL}/${post.postNumber}`;
+    const vkUrl = vkLinks && vkLinks[String(post.postNumber)];
 
     const badgeHtml = index === 0
         ? `<span class="blog-badge-new">Новый пост</span>`
@@ -191,16 +200,23 @@ function articleCardTemplate(post, index) {
         ? `\t\t\t\t\t\t<div class="blog-card-meta">\n\t\t\t\t\t\t\t<time class="blog-card-date" datetime="${post.dateISO}">${dateFormatted}</time>\n\t\t\t\t\t\t</div>`
         : '';
 
+    const vkIconHtml = vkUrl
+        ? `\n\t\t\t\t\t\t\t<a href="${vkUrl}" target="_blank" rel="noopener" class="blog-cta-icon" aria-label="Читать во VK">${VK_SVG}</a>`
+        : '';
+
     return `\t\t\t<!-- Пост ${index + 1} -->
 \t\t\t\t<article class="blog-article-card${index === 0 ? ' latest' : ''}${!imageSrc ? ' no-image' : ''}" data-post="${post.postNumber}">${badgeHtml ? `\n\t\t\t\t\t${badgeHtml}` : ''}${imageBlock}
 \t\t\t\t\t<div class="blog-card-body">
 ${dateRow}
 \t\t\t\t\t\t<h3 class="blog-card-title">${title}</h3>
 ${preview ? `\t\t\t\t\t\t<p class="blog-card-text">${preview}</p>` : ''}
-\t\t\t\t\t\t<a href="${postUrl}" target="_blank" rel="noopener" class="btn-read-more">
-\t\t\t\t\t\t\tЧитать в Telegram
-\t\t\t\t\t\t\t<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-\t\t\t\t\t\t</a>
+\t\t\t\t\t\t<div class="blog-cta-row">
+\t\t\t\t\t\t\t<a href="${postUrl}" target="_blank" rel="noopener" class="btn-read-more">
+\t\t\t\t\t\t\t\tЧитать
+\t\t\t\t\t\t\t\t<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+\t\t\t\t\t\t\t</a>
+\t\t\t\t\t\t\t<a href="${postUrl}" target="_blank" rel="noopener" class="blog-cta-icon" aria-label="Читать в Telegram">${TG_SVG}</a>${vkIconHtml}
+\t\t\t\t\t\t</div>
 \t\t\t\t\t</div>
 \t\t\t\t</article>`;
 }
@@ -268,8 +284,9 @@ function updateBlogHtml(posts) {
         process.exit(1);
     }
 
+    const vkLinks = loadVkLinks();
     const divider = `${nl}\t\t\t\t<hr class="blog-divider">${nl}${nl}`;
-    const cards = posts.map((p, i) => articleCardTemplate(p, i)).join(divider);
+    const cards = posts.map((p, i) => articleCardTemplate(p, i, vkLinks)).join(divider);
     const before = html.substring(0, startIdx);
     const after = html.substring(endIdx);
     const newGrid = startMarker + nl + cards + nl + `\t\t\t</div>${nl}${nl}\t\t\t`;
