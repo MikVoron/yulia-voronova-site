@@ -282,6 +282,38 @@
 	</noscript>
 	<link rel="stylesheet" href="style.min.css">
 		<style>
+		.header-user-btn {
+			position: relative;
+			width: 48px;
+			height: 48px;
+			border-radius: 18px;
+			border: 1px solid rgba(255, 255, 255, 0.24);
+			background: linear-gradient(160deg, #ff925d 0%, #ff5f2f 100%);
+			margin-left: 10px;
+			box-shadow: 0 14px 30px rgba(255, 101, 49, 0.34);
+			transform: rotate(-4deg);
+			transition: transform 0.24s ease, box-shadow 0.24s ease, filter 0.24s ease;
+		}
+
+		.header-user-btn::before {
+			content: "";
+			position: absolute;
+			inset: -6px;
+			border-radius: 22px;
+			border: 1px dashed rgba(255, 255, 255, 0.34);
+			pointer-events: none;
+		}
+
+		.header-user-btn:hover {
+			filter: saturate(1.05) brightness(1.04);
+			transform: rotate(-4deg) translateY(-2px) scale(1.04);
+			box-shadow: 0 18px 34px rgba(255, 101, 49, 0.4);
+		}
+
+		.header-user-btn:hover svg {
+			transform: scale(1.12);
+		}
+
 		/* Mobile blog image consistency for iOS/Chrome */
 		@media (max-width: 768px) {
 			.blog-article-card {

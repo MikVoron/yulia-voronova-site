@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Варианты значка кабинета</title>
+  <style>
+    :root {
+      --bg: #f6f3ee;
+      --card: rgba(255, 255, 255, 0.9);
+      --line: rgba(95, 111, 98, 0.16);
+      --text: #2f3932;
+      --muted: #7f7a73;
+      --sage: #8ca88f;
+      --sage-dark: #5f6f62;
+      --cream: #fff8ef;
+      --peach: #ffb08a;
+      --peach-strong: #ff7b4d;
+      --gold: #e6c27a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(197, 223, 232, 0.45), transparent 26%),
+        radial-gradient(circle at top right, rgba(255, 225, 205, 0.6), transparent 28%),
+        linear-gradient(180deg, #fcfaf7 0%, var(--bg) 100%);
+      color: var(--text);
+      font-family: "Montserrat", Arial, sans-serif;
+      padding: 36px 18px 56px;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .intro {
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    .intro h1 {
+      margin: 0 0 10px;
+      font: 600 44px/1.02 Georgia, serif;
+    }
+
+    .intro p {
+      margin: 0 auto;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      padding: 18px;
+      box-shadow: 0 18px 40px rgba(58, 70, 61, 0.08);
+      backdrop-filter: blur(10px);
+    }
+
+    .card-label {
+      display: inline-flex;
+      margin-bottom: 14px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #f4efe7;
+      color: #7b756f;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .header-mock {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 80px;
+      padding: 16px 18px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #8a9a8d 0%, #c5dfe8 100%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.22);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+    }
+
+    .brand-text {
+      color: #fff;
+      font: 500 16px/1.1 Georgia, serif;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .variant {
+      position: relative;
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.24s ease, box-shadow 0.24s ease, background-color 0.24s ease, border-color 0.24s ease;
+    }
+
+    .variant svg {
+      display: block;
+      width: 21px;
+      height: 21px;
+    }
+
+    .variant-1 {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      color: #fff;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.1) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.44);
+      box-shadow: 0 10px 24px rgba(40, 44, 42, 0.16), 0 0 0 7px rgba(255, 255, 255, 0.08);
+      animation: pulseGlow 2.6s ease-in-out infinite;
+    }
+
+    .variant-1::before {
+      content: "";
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffe08a 0%, #ff8a5c 100%);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+    }
+
+    .variant-2 {
+      min-width: 112px;
+      height: 44px;
+      padding: 0 14px;
+      gap: 8px;
+      border-radius: 999px;
+      color: var(--sage-dark);
+      background: linear-gradient(135deg, #fff9f0 0%, #f7ecdd 100%);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      box-shadow: 0 10px 24px rgba(65, 74, 68, 0.15);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .variant-2::after {
+      content: "→";
+      font-size: 15px;
+      line-height: 1;
+      color: var(--peach-strong);
+    }
+
+    .variant-3 {
+      width: 50px;
+      height: 50px;
+      border-radius: 18px;
+      color: #fff;
+      background: linear-gradient(160deg, #ff925d 0%, #ff5f2f 100%);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      box-shadow: 0 14px 30px rgba(255, 101, 49, 0.34);
+      transform: rotate(-4deg);
+    }
+
+    .variant-3::before {
+      content: "";
+      position: absolute;
+      inset: -6px;
+      border-radius: 22px;
+      border: 1px dashed rgba(255, 255, 255, 0.35);
+      opacity: 0.9;
+    }
+
+    .variant:hover {
+      transform: translateY(-2px) scale(1.06);
+    }
+
+    .variant-3:hover {
+      transform: rotate(-4deg) translateY(-2px) scale(1.04);
+    }
+
+    .zoom {
+      display: grid;
+      place-items: center;
+      min-height: 168px;
+      margin: 16px 0 14px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.86) 0%, rgba(248, 243, 235, 0.9) 100%);
+      border: 1px solid rgba(95, 111, 98, 0.08);
+    }
+
+    .zoom .variant-1 {
+      width: 76px;
+      height: 76px;
+    }
+
+    .zoom .variant-1 svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    .zoom .variant-2 {
+      min-width: 168px;
+      height: 58px;
+      font-size: 14px;
+      gap: 10px;
+    }
+
+    .zoom .variant-2 svg {
+      width: 25px;
+      height: 25px;
+    }
+
+    .zoom .variant-3 {
+      width: 82px;
+      height: 82px;
+      border-radius: 24px;
+    }
+
+    .zoom .variant-3 svg {
+      width: 34px;
+      height: 34px;
+    }
+
+    .title {
+      margin: 0 0 8px;
+      font: 600 28px/1.08 Georgia, serif;
+    }
+
+    .desc {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .pros {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .pros li {
+      position: relative;
+      padding-left: 18px;
+      color: #4d4a45;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .pros li::before {
+      content: "";
+      position: absolute;
+      top: 9px;
+      left: 0;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sage) 0%, var(--peach-strong) 100%);
+    }
+
+    .pick {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(95, 111, 98, 0.12);
+      color: var(--sage-dark);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% {
+        box-shadow: 0 10px 24px rgba(40, 44, 42, 0.16), 0 0 0 7px rgba(255, 255, 255, 0.08);
+      }
+
+      50% {
+        box-shadow: 0 14px 28px rgba(40, 44, 42, 0.2), 0 0 0 12px rgba(255, 255, 255, 0.12);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="intro">
+      <h1>Три варианта значка кабинета</h1>
+      <p>Все три варианта сделаны с акцентом на кликабельность: чтобы было видно, что это не просто нейтральная иконка в шапке, а важный переход на отдельную страницу.</p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="card-label">Вариант 1</div>
+        <div class="header-mock">
+          <div class="brand">
+            <div class="brand-mark"></div>
+            <div class="brand-text">ЮЛИЯ ВОРОНОВА</div>
+          </div>
+          <a class="variant variant-1" href="#" aria-label="Личный кабинет">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12c2.67 0 8 1.34 8 4v2H4v-2c0-2.66 5.33-4 8-4zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+          </a>
+        </div>
+        <div class="zoom">
+          <a class="variant variant-1" href="#" aria-label="Личный кабинет">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12c2.67 0 8 1.34 8 4v2H4v-2c0-2.66 5.33-4 8-4zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+          </a>
+        </div>
+        <h2 class="title">Пульсирующая точка входа</h2>
+        <p class="desc">Самый близкий к текущему формату, но заметнее за счёт пульса, теплой точки-акцента и более дорогой стеклянной подложки.</p>
+        <ul class="pros">
+          <li>Не ломает привычный вид шапки.</li>
+          <li>Сразу считывается как важный интерактивный элемент.</li>
+          <li>Хорошо подойдёт, если нужен мягкий акцент без лишнего шума.</li>
+        </ul>
+        <div class="pick">Лучше всего, если хочется оставить формат “иконка без текста”.</div>
+      </article>
+
+      <article class="card">
+        <div class="card-label">Вариант 2</div>
+        <div class="header-mock">
+          <div class="brand">
+            <div class="brand-mark"></div>
+            <div class="brand-text">ЮЛИЯ ВОРОНОВА</div>
+          </div>
+          <a class="variant variant-2" href="#" aria-label="Личный кабинет">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12c2.67 0 8 1.34 8 4v2H4v-2c0-2.66 5.33-4 8-4zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+            Кабинет
+          </a>
+        </div>
+        <div class="zoom">
+          <a class="variant variant-2" href="#" aria-label="Личный кабинет">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12c2.67 0 8 1.34 8 4v2H4v-2c0-2.66 5.33-4 8-4zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+            Кабинет
+          </a>
+        </div>
+        <h2 class="title">Пилюля с прямым призывом</h2>
+        <p class="desc">Самый понятный и “кликабельный” вариант: здесь уже не надо догадываться, что это ссылка на отдельную страницу.</p>
+        <ul class="pros">
+          <li>Максимально ясно, куда ведёт элемент.</li>
+          <li>Хорошо заметен даже без анимации.</li>
+          <li>Подходит, если нужен более конверсионный и прямой стиль.</li>
+        </ul>
+        <div class="pick">Лучше всего, если приоритет — чтобы по нему реально чаще кликали.</div>
+      </article>
+
+      <article class="card">
+        <div class="card-label">Вариант 3</div>
+        <div class="header-mock">
+          <div class="brand">
+            <div class="brand-mark"></div>
+            <div class="brand-text">ЮЛИЯ ВОРОНОВА</div>
+          </div>
+          <a class="variant variant-3" href="#" aria-label="Личный кабинет">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12c2.67 0 8 1.34 8 4v2H4v-2c0-2.66 5.33-4 8-4zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+          </a>
+        </div>
+        <div class="zoom">
+          <a class="variant variant-3" href="#" aria-label="Личный кабинет">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12c2.67 0 8 1.34 8 4v2H4v-2c0-2.66 5.33-4 8-4zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+          </a>
+        </div>
+        <h2 class="title">Акцентная карточка-переход</h2>
+        <p class="desc">Самый смелый вариант. Выглядит как отдельная горячая точка в шапке и явно намекает: здесь что-то новое, сюда стоит зайти.</p>
+        <ul class="pros">
+          <li>Сильнее всего выбивается из окружения.</li>
+          <li>Отлично подойдёт для запуска новой платформы.</li>
+          <li>Считывается как отдельный продукт внутри сайта.</li>
+        </ul>
+        <div class="pick">Лучше всего, если нужен яркий запусковой акцент.</div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
