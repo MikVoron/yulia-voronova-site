@@ -13502,27 +13502,49 @@ button[class*="btn-"]:hover,
 
 .blog-hero-actions {
     display: flex;
-    justify-content: center;
-    gap: 16px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
     position: relative;
     left: 54px;
+}
+
+.blog-action-label {
+    font-family: var(--font-montserrat);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8f8b84;
+}
+
+.blog-action-label-wide {
+    width: 100%;
+    text-align: center;
+}
+
+.blog-platform-links {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 /* Subscribe button */
 .btn-subscribe {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     background-color: var(--cream);
     color: var(--dark-text);
     border: 1px solid var(--beige);
-    padding: 9px 22px;
+    padding: 8px 18px;
     border-radius: 30px;
     font-family: var(--font-playfair);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 400;
-    letter-spacing: 0.6px;
+    letter-spacing: 0.4px;
     text-decoration: none;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -13537,8 +13559,8 @@ button[class*="btn-"]:hover,
 
 .btn-subscribe svg {
     fill: var(--dark-text);
-    width: 16px;
-    height: 16px;
+    width: 15px;
+    height: 15px;
 }
 
 /* Blog Posts Container */
@@ -13788,26 +13810,32 @@ button[class*="btn-"]:hover,
 }
 
 .blog-channel-link {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
     margin-top: 40px;
 }
 
 .btn-open-channel {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 8px;
     background-color: var(--cream);
     color: var(--dark-text);
     border: 1px solid var(--beige);
-    padding: 14px 40px;
+    padding: 12px 28px;
     border-radius: 30px;
     font-family: var(--font-playfair);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing: 0.7px;
     text-decoration: none;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    white-space: nowrap;
 }
 
 .btn-open-channel:hover {
@@ -13818,6 +13846,8 @@ button[class*="btn-"]:hover,
 
 .btn-open-channel svg {
     fill: var(--dark-text);
+    width: 18px;
+    height: 18px;
 }
 
 /* Blog Mobile Styles */
@@ -13844,12 +13874,16 @@ button[class*="btn-"]:hover,
     }
 
     .blog-hero-actions {
-        gap: 12px;
+        gap: 10px;
         left: 0;
     }
 
     .blog-hero-tags {
         left: 0;
+    }
+
+    .blog-platform-links {
+        gap: 10px;
     }
 
     .blog-posts-grid {
@@ -13876,7 +13910,7 @@ button[class*="btn-"]:hover,
     }
 
     .btn-open-channel {
-        padding: 14px 24px;
+        padding: 12px 22px;
         font-size: 14px;
     }
 }
@@ -13901,22 +13935,28 @@ button[class*="btn-"]:hover,
     }
 
     .blog-hero-actions {
-        flex-direction: column;
-        align-items: center;
-        gap: 14px;
+        gap: 10px;
         left: 0;
     }
 
     .btn-subscribe {
         width: auto;
-        min-width: 210px;
+        min-width: 132px;
         max-width: none;
-        padding: 10px 22px;
+        padding: 9px 18px;
         justify-content: center;
     }
 
     .blog-channel-header {
         margin-bottom: 30px;
+    }
+
+    .blog-channel-link {
+        gap: 10px;
+    }
+
+    .blog-platform-links {
+        gap: 10px;
     }
 
     .blog-posts-grid {
