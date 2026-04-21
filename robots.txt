@@ -7,7 +7,6 @@ Disallow: /thanks.html
 Disallow: /questionnaires.html
 Disallow: /health-questionnaire.html
 Disallow: /dream-questionnaire.html
-Disallow: /pdf-content.html
 
 # Sitemap
 Sitemap: https://voronova.online/sitemap.xml
