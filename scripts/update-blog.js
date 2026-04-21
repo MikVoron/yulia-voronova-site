@@ -8,6 +8,12 @@ const SITEMAP_FILE = path.join(__dirname, '..', 'sitemap.xml');
 const BLOG_IMAGES_DIR = path.join(__dirname, '..', 'images', 'blog');
 const VK_LINKS_FILE = path.join(__dirname, '..', 'data', 'blog-vk-links.json');
 const MAX_POSTS = 6;
+const TELEGRAM_SERVICE_POST_PATTERNS = [
+    /^Channel name was changed to\b/i,
+    /^Channel photo updated\b/i,
+    /^Channel description changed\b/i,
+    /^Channel username changed\b/i
+];
 
 function loadVkLinks() {
     try {
@@ -16,6 +22,11 @@ function loadVkLinks() {
         return {};
     }
 }
+
+function isPublishablePost(plainText) {
+    return !TELEGRAM_SERVICE_POST_PATTERNS.some((pattern) => pattern.test(plainText));
+}
+
 const PREVIEW_LENGTH = 200;
 const RANDOM_PICS = [
     'images/blog/random-pic-blog-1.webp',
@@ -134,6 +145,7 @@ async function fetchPostsData() {
         const rawHtml = textMatch ? textMatch[1].trim() : '';
         const plainText = stripHtml(rawHtml);
         if (!plainText) continue;
+        if (!isPublishablePost(plainText)) continue;
 
         // Extract date
         const dateMatch = part.match(/datetime="([^"]+)"/);
