@@ -905,6 +905,19 @@ body {
     transform: scale(1.05);
 }
 
+.page-home .header-user-btn {
+    border-color: rgba(95, 111, 98, 0.22);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--dark-sage);
+    box-shadow: 0 6px 18px rgba(95, 111, 98, 0.12);
+}
+
+.page-home .header-user-btn:hover {
+    border-color: rgba(95, 111, 98, 0.4);
+    background: #f8f3eb;
+    box-shadow: 0 8px 22px rgba(95, 111, 98, 0.18);
+}
+
 /* РЈР±РёСЂР°РµРј РїРѕРґС‡РµСЂРєРёРІР°РЅРёРµ Сѓ Р»РѕРіРѕС‚РёРїР° (РєРѕРіРґР° РѕРЅ СЃСЃС‹Р»РєР°) */
 .header a.logo,
 .header a.logo:hover,

@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ИТОГО · 3 варианта</title>
+  <style>
+    :root {
+      --bg: #f3f3f3;
+      --text: #2f2b27;
+      --muted: #7d756f;
+      --accent: #f24d0d;
+      --line: #ebe4de;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      font-family: Montserrat, Arial, sans-serif;
+      color: var(--text);
+      padding: 20px 14px 40px;
+    }
+
+    .phone {
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .desc {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .label {
+      padding: 9px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #6f6760;
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .v1-wrap {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      background: #fff3ee;
+    }
+
+    .v1-title {
+      margin: 0 0 6px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #8b4a33;
+    }
+
+    .v1-macro {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #6f3f2d;
+      font-weight: 600;
+    }
+
+    .v1-badge {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(242, 77, 13, .28);
+    }
+
+    .v1-kcal {
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .v1-kcal-lbl {
+      margin-top: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      opacity: .92;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .v2-wrap {
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    .v2-head {
+      margin: 0 0 10px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #7d756f;
+    }
+
+    .v2-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      row-gap: 8px;
+      column-gap: 16px;
+    }
+
+    .v2-key {
+      font-size: 14px;
+      color: #69615b;
+      font-weight: 600;
+    }
+
+    .v2-val {
+      font-size: 14px;
+      color: #2f2b27;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .v2-total {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .v2-total span {
+      font-size: 13px;
+      color: #7a736d;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .v2-total b {
+      font-size: 34px;
+      line-height: 1;
+      color: var(--accent);
+    }
+
+    .v3-wrap {
+      padding: 12px 14px 14px;
+      background: linear-gradient(180deg, #fff7f3 0%, #fff 100%);
+    }
+
+    .v3-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .v3-top span {
+      font-size: 12px;
+      color: #7b726c;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .v3-top b {
+      font-size: 34px;
+      line-height: 1;
+      color: var(--accent);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #faf8f5;
+      font-size: 12px;
+      color: #645d57;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <h1>Блок «ИТОГО» · 3 варианта</h1>
+    <p class="desc">Выбери вариант, который меньше «давит» цветом и лучше читается.</p>
+
+    <section class="card">
+      <div class="label">Вариант 1 · Плашка + Бейдж</div>
+      <div class="v1-wrap">
+        <div>
+          <p class="v1-title">Итог</p>
+          <p class="v1-macro">Б 17 г · Ж 6 г · У 51 г · Кл 10 г</p>
+        </div>
+        <div class="v1-badge">
+          <div class="v1-kcal">360</div>
+          <div class="v1-kcal-lbl">Ккал</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="label">Вариант 2 · Таблица</div>
+      <div class="v2-wrap">
+        <p class="v2-head">Итог</p>
+        <div class="v2-grid">
+          <div class="v2-key">Белки</div><div class="v2-val">17 г</div>
+          <div class="v2-key">Жиры</div><div class="v2-val">6 г</div>
+          <div class="v2-key">Углеводы</div><div class="v2-val">51 г</div>
+          <div class="v2-key">Клетчатка</div><div class="v2-val">10 г</div>
+        </div>
+        <div class="v2-total">
+          <span>Калорийность</span>
+          <b>360</b>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="label">Вариант 3 · Чипы + Акцент</div>
+      <div class="v3-wrap">
+        <div class="v3-top">
+          <span>Итог</span>
+          <b>360</b>
+        </div>
+        <div class="chips">
+          <span class="chip">Б 17 г</span>
+          <span class="chip">Ж 6 г</span>
+          <span class="chip">У 51 г</span>
+          <span class="chip">Кл 10 г</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

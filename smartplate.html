@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Умная тарелка скоро откроется | Юлия Воронова</title>
+    <meta name="description" content="Временная страница-анонс проекта «Умная тарелка». Скоро здесь откроется личный кабинет и новый формат бережной поддержки по питанию.">
+    <link rel="icon" type="image/png" href="images/favicons/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="images/favicons/favicon.svg">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon.png">
+    <link rel="manifest" href="/images/favicons/site.webmanifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Baskervville&family=Cormorant+Garamond:wght@400;500;600&family=Playfair+Display:wght@400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Baskervville&family=Cormorant+Garamond:wght@400;500;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    </noscript>
+    <link rel="stylesheet" href="style.min.css">
+    <style>
+        .smartplate-page {
+            background:
+                radial-gradient(circle at top left, rgba(197, 223, 232, 0.55), transparent 28%),
+                radial-gradient(circle at top right, rgba(232, 220, 200, 0.7), transparent 34%),
+                linear-gradient(180deg, #fcfaf6 0%, #ffffff 42%, #f8f5ef 100%);
+        }
+
+        .smartplate-main {
+            padding: 140px 0 88px;
+        }
+
+        .smartplate-shell {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .smartplate-hero {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.86);
+            border: 1px solid rgba(216, 202, 182, 0.58);
+            border-radius: 34px;
+            box-shadow: 0 18px 50px rgba(95, 111, 98, 0.08);
+            padding: 48px;
+        }
+
+        .smartplate-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 12% 16%, rgba(154, 184, 158, 0.15), transparent 22%),
+                radial-gradient(circle at 85% 10%, rgba(197, 223, 232, 0.28), transparent 22%),
+                radial-gradient(circle at 82% 82%, rgba(232, 220, 200, 0.35), transparent 24%);
+            pointer-events: none;
+        }
+
+        .smartplate-grid {
+            position: relative;
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+            gap: 34px;
+            align-items: start;
+        }
+
+        .smartplate-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(245, 240, 232, 0.95);
+            border: 1px solid rgba(212, 201, 181, 0.78);
+            color: #6c675f;
+            font-family: var(--font-montserrat);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .smartplate-title {
+            max-width: 620px;
+            margin: 0 0 18px;
+            font-family: var(--font-cormorant);
+            font-size: clamp(40px, 6vw, 62px);
+            line-height: 0.98;
+            color: #2f3932;
+        }
+
+        .smartplate-lead {
+            max-width: 600px;
+            margin: 0 0 14px;
+            font-size: 19px;
+            line-height: 1.75;
+            color: #57544f;
+        }
+
+        .smartplate-note {
+            max-width: 540px;
+            margin: 0 0 28px;
+            font-family: var(--font-montserrat);
+            font-size: 14px;
+            line-height: 1.7;
+            color: #8b877f;
+        }
+
+        .smartplate-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .smartplate-secondary {
+            display: grid;
+            gap: 16px;
+            margin-top: 10px;
+            max-width: 660px;
+        }
+
+        .smartplate-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 48px;
+            padding: 12px 24px;
+            border-radius: 999px;
+            border: 1px solid #d8c9b5;
+            background: #faf4eb;
+            color: #2f3932;
+            font-family: var(--font-playfair);
+            font-size: 15px;
+            text-decoration: none;
+            box-shadow: 0 10px 22px rgba(95, 111, 98, 0.08);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+        }
+
+        .smartplate-btn:hover {
+            transform: translateY(-2px);
+            background: #f5ecdf;
+            box-shadow: 0 14px 28px rgba(95, 111, 98, 0.12);
+        }
+
+        .smartplate-btn-primary {
+            background: linear-gradient(135deg, #a7c2ad 0%, #6f8676 100%);
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .smartplate-btn-primary:hover {
+            background: linear-gradient(135deg, #97b79f 0%, #62756a 100%);
+        }
+
+        .smartplate-footnote {
+            font-family: var(--font-montserrat);
+            font-size: 13px;
+            color: #8f8a83;
+        }
+
+        .smartplate-panel {
+            position: relative;
+            display: grid;
+            gap: 16px;
+        }
+
+        .smartplate-card {
+            background: rgba(255, 255, 255, 0.84);
+            border: 1px solid rgba(216, 202, 182, 0.6);
+            border-radius: 24px;
+            padding: 22px 22px 20px;
+            box-shadow: 0 10px 30px rgba(95, 111, 98, 0.06);
+        }
+
+        .smartplate-card-label {
+            margin: 0 0 8px;
+            font-family: var(--font-montserrat);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #8f8b84;
+        }
+
+        .smartplate-card-title {
+            margin: 0 0 10px;
+            font-family: var(--font-cormorant);
+            font-size: 28px;
+            line-height: 1.08;
+            color: #324136;
+        }
+
+        .smartplate-card-text {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.75;
+            color: #5e5a54;
+        }
+
+        .smartplate-list {
+            display: grid;
+            gap: 10px;
+            margin: 16px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .smartplate-list li {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #4f4b45;
+        }
+
+        .smartplate-list li::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            margin-top: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9ab89e, #c9a961);
+            flex-shrink: 0;
+        }
+
+        .smartplate-news-list {
+            display: grid;
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .smartplate-news-item {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(216, 202, 182, 0.54);
+            border-radius: 18px;
+            padding: 10px;
+            box-shadow: 0 8px 24px rgba(95, 111, 98, 0.06);
+        }
+
+        .smartplate-news-item p {
+            margin: 12px 6px 2px;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #4f4b45;
+        }
+
+        .smartplate-news-shot {
+            margin: 0;
+        }
+
+        .smartplate-news-shot img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+        }
+
+        .smartplate-news-shot figcaption {
+            margin-top: 10px;
+            font-family: var(--font-montserrat);
+            font-size: 12px;
+            line-height: 1.55;
+            color: #7b756d;
+        }
+
+        @media (max-width: 980px) {
+            .smartplate-main {
+                padding-top: 120px;
+            }
+
+            .smartplate-hero {
+                padding: 34px 24px;
+                border-radius: 28px;
+            }
+
+            .smartplate-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .smartplate-shell {
+                padding: 0 16px;
+            }
+
+            .smartplate-title {
+                font-size: 40px;
+            }
+
+            .smartplate-lead {
+                font-size: 17px;
+            }
+
+            .smartplate-actions {
+                flex-direction: column;
+            }
+
+            .smartplate-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="smartplate-page">
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <img src="images/icons/logo-small.png" alt="Логотип нутрициолога Юлии Вороновой" class="logo-img" width="36" height="36" decoding="async">
+                    <span>ЮЛИЯ ВОРОНОВА</span>
+                </a>
+                <nav class="nav">
+                    <a href="/">Главная</a>
+                    <a href="about.html">Обо мне</a>
+                    <a href="blog.html">Блог</a>
+                    <a href="guides.html">Гайды</a>
+                    <a href="tests.html">Тесты</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="smartplate-main">
+        <div class="smartplate-shell">
+            <section class="smartplate-hero">
+                <div class="smartplate-grid">
+                    <div>
+                        <div class="smartplate-badge">Потихоньку собираю проект</div>
+                        <h1 class="smartplate-title">Умная тарелка скоро откроется ✨</h1>
+                        <p class="smartplate-lead">Я продолжаю делать платформу, которая на основе моих рецептов помогает собрать цельный и сбалансированный рацион без подсчёта граммов, ручной сборки блюд и бесконечных поисков «чего бы ещё добавить» на других сайтах.</p>
+                        <div class="smartplate-actions">
+                            <a href="https://t.me/voronova_nutrition" target="_blank" rel="noopener noreferrer" class="smartplate-btn smartplate-btn-primary">Следить за обновлениями</a>
+                            <a href="/" class="smartplate-btn">Вернуться на главную</a>
+                        </div>
+
+                        <div class="smartplate-secondary">
+                            <article class="smartplate-card">
+                                <p class="smartplate-card-label">Суть проекта</p>
+                                <h2 class="smartplate-card-title">Не просто отдельные рецепты, а готовая система</h2>
+                                <p class="smartplate-card-text">Как показывает практика, полезные рецепты сами по себе ещё не решают задачу. Самое сложное обычно не найти отдельное блюдо, а собрать из него нормальную, сбалансированную тарелку для себя и семьи без перекосов. Поэтому здесь можно не просто смотреть рецепты, а понимать, чего не хватает в конкретной тарелке и чем это закрыть.</p>
+                            </article>
+
+                            <article class="smartplate-card">
+                                <p class="smartplate-card-label">Что делает платформа</p>
+                                <ul class="smartplate-list">
+                                    <li>Подсказывает, как сочетать блюда между собой без лишних расчётов и ручной сборки.</li>
+                                    <li>Показывает, где в тарелке есть перекосы и что можно добавить, чтобы их закрыть.</li>
+                                    <li>Помогает собрать рацион для себя и семьи на основе уже готовых рецептов.</li>
+                                </ul>
+                            </article>
+                        </div>
+                    </div>
+
+                    <aside class="smartplate-panel">
+                        <article class="smartplate-card">
+                            <p class="smartplate-card-label">Новости проекта</p>
+                            <div class="smartplate-news-list">
+                                <article class="smartplate-news-item">
+                                    <figure class="smartplate-news-shot">
+                                        <img src="images/news-smartplate-login.webp" alt="Экран авторизации платформы Умная тарелка" loading="lazy" width="492" height="720">
+                                        <figcaption>Первая новость</figcaption>
+                                    </figure>
+                                    <p>Страница авторизации уже готова, и почти весь бекенд проекта тоже готов.</p>
+                                </article>
+                                <article class="smartplate-news-item">
+                                    <figure class="smartplate-news-shot">
+                                        <img src="images/news-smartplate-feed.webp" alt="Главный экран платформы Умная тарелка с новостями и рецептами" loading="lazy" width="295" height="640">
+                                        <figcaption>Вторая новость</figcaption>
+                                    </figure>
+                                    <p>На скрине показана часть главного экрана платформы. Это входная точка, где будут новые рецепты и новости, ваша текущая сбалансированная тарелка и другая полезная информация.</p>
+                                </article>
+                            </div>
+                        </article>
+                    </aside>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
