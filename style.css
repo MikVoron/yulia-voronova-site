@@ -13441,7 +13441,10 @@ button[class*="btn-"]:hover,
 }
 
 .blog-hero-identity {
-    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 .blog-hero-title {
@@ -13449,7 +13452,7 @@ button[class*="btn-"]:hover,
     font-size: 26px;
     font-weight: 500;
     color: #2c2c2c;
-    margin: 0 0 2px;
+    margin: 0 0 6px;
     line-height: 1.25;
 }
 
@@ -13457,7 +13460,7 @@ button[class*="btn-"]:hover,
     font-family: var(--font-montserrat);
     font-size: 14px;
     color: #888;
-    margin: 0 0 6px;
+    margin: 0 0 4px;
     font-weight: 400;
 }
 
@@ -13480,6 +13483,8 @@ button[class*="btn-"]:hover,
     justify-content: center;
     gap: 10px;
     margin-bottom: 24px;
+    position: relative;
+    left: 54px;
 }
 
 .blog-tag {
@@ -13495,20 +13500,29 @@ button[class*="btn-"]:hover,
     text-transform: uppercase;
 }
 
+.blog-hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    position: relative;
+    left: 54px;
+}
+
 /* Subscribe button */
 .btn-subscribe {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     background-color: var(--cream);
     color: var(--dark-text);
     border: 1px solid var(--beige);
-    padding: 14px 40px;
+    padding: 9px 22px;
     border-radius: 30px;
     font-family: var(--font-playfair);
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing: 0.6px;
     text-decoration: none;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -13523,6 +13537,8 @@ button[class*="btn-"]:hover,
 
 .btn-subscribe svg {
     fill: var(--dark-text);
+    width: 16px;
+    height: 16px;
 }
 
 /* Blog Posts Container */
@@ -13827,6 +13843,15 @@ button[class*="btn-"]:hover,
         font-size: 20px;
     }
 
+    .blog-hero-actions {
+        gap: 12px;
+        left: 0;
+    }
+
+    .blog-hero-tags {
+        left: 0;
+    }
+
     .blog-posts-grid {
         grid-template-columns: repeat(2, 1fr);
         padding: 0 16px;
@@ -13873,6 +13898,21 @@ button[class*="btn-"]:hover,
     .blog-tag {
         font-size: 11px;
         padding: 4px 12px;
+    }
+
+    .blog-hero-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        left: 0;
+    }
+
+    .btn-subscribe {
+        width: auto;
+        min-width: 210px;
+        max-width: none;
+        padding: 10px 22px;
+        justify-content: center;
     }
 
     .blog-channel-header {
