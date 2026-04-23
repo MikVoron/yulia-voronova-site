@@ -1,0 +1,2811 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Рецепт — Конструктор питания</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
+	<style>
+		body {
+			visibility: hidden
+		}
+	</style>
+	<link rel="stylesheet" href="style-v4.css" id="vcss">
+	<script>document.getElementById('vcss').href = 'style-v4.css?v=' + Date.now()</script>
+	<style>
+		.sublist-items {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+		}
+
+		.stars-highlight .r-star {
+			animation: starPulse .4s ease;
+		}
+
+		@keyframes starPulse {
+
+			0%,
+			100% {
+				transform: scale(1)
+			}
+
+			50% {
+				transform: scale(1.3)
+			}
+		}
+
+		/* Video recipe platform selector */
+		.video-recipe-section {
+			margin-top: 24px;
+		}
+
+		.video-platform-tabs {
+			display: flex;
+			gap: 8px;
+			margin-top: 12px;
+			flex-wrap: wrap;
+		}
+
+		.video-tab {
+			display: flex;
+			align-items: center;
+			gap: 7px;
+			padding: 8px 16px;
+			border-radius: 10px;
+			border: 2px solid var(--border);
+			background: var(--bg-alt);
+			font-size: 13px;
+			font-weight: 600;
+			color: var(--text-2);
+			cursor: pointer;
+			transition: all .2s;
+		}
+
+		.video-tab:hover {
+			border-color: var(--tab-color);
+			color: var(--tab-color);
+		}
+
+		.video-tab.active {
+			border-color: var(--tab-color);
+			background: var(--tab-color);
+			color: #fff;
+		}
+
+		.video-tab-icon {
+			display: flex;
+			width: 18px;
+			height: 18px;
+		}
+
+		.video-tab-icon svg {
+			width: 100%;
+			height: 100%;
+		}
+
+		.video-tab-label {
+			white-space: nowrap;
+		}
+
+		.video-player-wrap {
+			margin-top: 12px;
+			border-radius: var(--r-m, 12px);
+			overflow: hidden;
+			aspect-ratio: 16/9;
+			background: linear-gradient(135deg, #1a1a2e, #16213e);
+			position: relative;
+		}
+
+		.video-frame {
+			display: none;
+			position: absolute;
+			inset: 0;
+		}
+
+		.video-frame.active {
+			display: flex;
+		}
+
+		.video-external-link {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
+			height: 100%;
+			text-decoration: none;
+			gap: 14px;
+			transition: opacity .2s;
+		}
+
+		.video-external-link:hover {
+			opacity: .85;
+		}
+
+		.video-play-btn {
+			width: 64px;
+			height: 64px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, .3);
+			transition: transform .2s;
+		}
+
+		.video-external-link:hover .video-play-btn {
+			transform: scale(1.08);
+		}
+
+		.video-open-label {
+			color: rgba(255, 255, 255, .8);
+			font-size: 14px;
+			font-weight: 500;
+		}
+
+		@media (max-width: 480px) {
+			.video-tab {
+				padding: 7px 12px;
+				font-size: 12px;
+			}
+
+			.video-tab-icon {
+				width: 15px;
+				height: 15px;
+			}
+
+			.video-play-btn {
+				width: 52px;
+				height: 52px;
+			}
+
+			.video-open-label {
+				font-size: 13px;
+			}
+		}
+
+		/* ── Balance UX ─────────────────────────────────────── */
+		.bal-banner {
+			padding: 14px 16px;
+			border-radius: 12px;
+			font-size: 13px;
+			line-height: 1.45;
+			margin-bottom: 14px;
+			transition: all .4s ease;
+		}
+
+		.bal-banner-warn {
+			background: #fff7ec;
+			border: 1px solid #f0d8a8;
+			color: #8a5a00;
+		}
+
+		.bal-banner-warn .bal-banner-icon {
+			font-size: 18px;
+		}
+
+		.bal-banner-success {
+			background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+			border: 1px solid #a5d6a7;
+			color: #2e7d32;
+		}
+
+		.bal-banner-title {
+			font-weight: 700;
+			font-size: 14px;
+			margin-bottom: 4px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.bal-banner-sub {
+			font-weight: 500;
+			opacity: .85;
+		}
+
+		/* Category progress pills */
+		.bal-progress {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 6px;
+			margin-top: 10px;
+		}
+
+		.bal-progress-pill {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			padding: 3px 10px;
+			border-radius: 20px;
+			font-size: 11px;
+			font-weight: 600;
+			border: 1.5px solid var(--border);
+			background: #fff;
+			color: var(--text-2);
+			transition: all .3s ease;
+		}
+
+		.bal-progress-pill.done {
+			background: #e8f5e9;
+			border-color: #66bb6a;
+			color: #2e7d32;
+		}
+
+		.bal-progress-pill .pill-check {
+			width: 14px;
+			height: 14px;
+			border-radius: 50%;
+			border: 1.5px solid var(--border);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 9px;
+			transition: all .3s ease;
+		}
+
+		.bal-progress-pill.done .pill-check {
+			background: #66bb6a;
+			border-color: #66bb6a;
+			color: #fff;
+		}
+
+		/* Celebration sparkles */
+		@keyframes balCelebrate {
+			0% {
+				transform: scale(.9);
+				opacity: 0;
+			}
+
+			50% {
+				transform: scale(1.03);
+			}
+
+			100% {
+				transform: scale(1);
+				opacity: 1;
+			}
+		}
+
+		.bal-banner-success {
+			animation: balCelebrate .4s ease-out;
+		}
+
+		@keyframes sparkle {
+			0% {
+				transform: translateY(0) scale(1);
+				opacity: 1;
+			}
+
+			100% {
+				transform: translateY(-60px) scale(0);
+				opacity: 0;
+			}
+		}
+
+		.bal-sparkle-wrap {
+			position: relative;
+			pointer-events: none;
+			height: 0;
+			overflow: visible;
+		}
+
+		.bal-sparkle {
+			position: absolute;
+			font-size: 16px;
+			animation: sparkle .8s ease-out forwards;
+		}
+
+		/* ── Sticky mini balance status ──────────────────── */
+		.bal-mini-status {
+			position: fixed;
+			top: 70px;
+			left: 50%;
+			transform: translateX(-50%) translateY(-10px);
+			display: inline-flex;
+			align-items: center;
+			gap: 10px;
+			padding: 7px 8px 7px 14px;
+			border-radius: 999px;
+			background: #fff;
+			border: 1px solid #f0d8a8;
+			box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+			font-size: 13px;
+			font-weight: 600;
+			color: #8a5a00;
+			cursor: pointer;
+			transition: opacity .25s ease, transform .25s ease, background-color .3s ease, color .3s ease, border-color .3s ease;
+			opacity: 0;
+			pointer-events: none;
+			z-index: 90;
+			max-width: calc(100% - 24px);
+			white-space: nowrap;
+		}
+
+		.bal-mini-status.show {
+			opacity: 1;
+			pointer-events: auto;
+			transform: translateX(-50%) translateY(0);
+		}
+
+		.bal-mini-status.success {
+			background: #e8f5e9;
+			border-color: #a5d6a7;
+			color: #2e7d32;
+		}
+
+		.bal-mini-progress {
+			font-weight: 800;
+			font-size: 13px;
+			letter-spacing: .2px;
+		}
+
+		.bal-mini-sound-btn {
+			width: 28px;
+			height: 28px;
+			border-radius: 50%;
+			border: 1px solid var(--border);
+			background: #fff;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			font-size: 13px;
+			padding: 0;
+			flex-shrink: 0;
+			transition: background-color .2s, border-color .2s;
+		}
+
+		.bal-mini-sound-btn:hover {
+			border-color: var(--accent);
+		}
+
+		.bal-mini-sound-btn.on {
+			background: var(--accent-l);
+			border-color: var(--accent);
+		}
+
+		/* ── Collapsed add-on groups (show-more) ────────── */
+		.bal-group-toggle-wrap {
+			padding: 0 12px 12px;
+		}
+
+		.bal-group-toggle {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 6px 12px;
+			background: rgba(255, 255, 255, .85);
+			border: 1px solid var(--border);
+			border-radius: 999px;
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--text-2);
+			cursor: pointer;
+			transition: background .15s, border-color .15s, color .15s;
+		}
+
+		.bal-group-toggle:hover {
+			background: #fff;
+			border-color: var(--accent);
+			color: var(--accent);
+		}
+
+		.bal-group-toggle-dot {
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background: var(--accent);
+			flex-shrink: 0;
+			box-shadow: 0 0 0 2px rgba(216, 88, 27, .15);
+		}
+
+		@media (max-width: 767px) {
+			.bal-mini-status {
+				top: 66px;
+				font-size: 12.5px;
+				padding: 6px 8px 6px 12px;
+			}
+			.bal-mini-progress {
+				font-size: 12.5px;
+			}
+		}
+
+		/* ── Balance success modal ───────────────────────── */
+		.bal-success-modal-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(24, 24, 27, .55);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 16px;
+			z-index: 10000;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity .2s ease;
+		}
+		.bal-success-modal-overlay.show {
+			opacity: 1;
+			pointer-events: auto;
+		}
+		.bal-success-modal-box {
+			position: relative;
+			background: #fff;
+			border-radius: 18px;
+			box-shadow: 0 24px 60px rgba(0, 0, 0, .25);
+			padding: 28px 24px 22px;
+			max-width: 380px;
+			width: 100%;
+			text-align: center;
+			transform: scale(.92) translateY(10px);
+			transition: transform .22s cubic-bezier(.2, .9, .3, 1.2);
+		}
+		.bal-success-sparkles {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 0;
+			overflow: visible;
+			pointer-events: none;
+		}
+		.bal-success-modal-overlay.show .bal-success-modal-box {
+			transform: scale(1) translateY(0);
+		}
+		.bal-success-modal-title {
+			font-size: 20px;
+			font-weight: 800;
+			color: #2e7d32;
+			margin-bottom: 8px;
+			line-height: 1.25;
+		}
+		.bal-success-modal-text {
+			font-size: 14px;
+			color: #555;
+			line-height: 1.45;
+			margin-bottom: 20px;
+		}
+		.bal-success-modal-actions {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+		.bal-success-modal-primary {
+			background: var(--accent);
+			color: #fff;
+			border: none;
+			padding: 13px 18px;
+			border-radius: 12px;
+			font-size: 15px;
+			font-weight: 700;
+			cursor: pointer;
+			transition: background .2s ease;
+		}
+		.bal-success-modal-primary:hover,
+		.bal-success-modal-primary:focus-visible {
+			background: var(--accent-d);
+			outline: none;
+		}
+		.bal-success-modal-secondary {
+			background: transparent;
+			color: #666;
+			border: none;
+			padding: 10px 18px;
+			border-radius: 10px;
+			font-size: 14px;
+			font-weight: 600;
+			cursor: pointer;
+		}
+		.bal-success-modal-secondary:hover,
+		.bal-success-modal-secondary:focus-visible {
+			color: #222;
+			outline: none;
+		}
+		@media (max-width: 480px) {
+			.bal-success-modal-box {
+				width: calc(100% - 24px);
+				padding: 24px 20px 18px;
+			}
+			.bal-success-modal-title { font-size: 18px; }
+		}
+	</style>
+</head>
+
+<body class="v-page" style="padding-bottom: 90px;">
+
+	<!-- HEADER -->
+	<header class="v-header" id="hdr">
+		<div class="v-wrap">
+			<div class="vh-inner">
+				<button class="vh-back-btn" id="back-btn" aria-label="Назад">
+					<svg viewBox="0 0 24 24">
+						<path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+					</svg>
+					<span id="back-label" style="display:none"></span>
+				</button>
+				<a href="index.html" class="vh-brand">
+					<span class="vh-brand-meta">
+						<span class="vh-brand-name">Юлия Воронова</span>
+						<span class="vh-brand-role">нутрициолог</span>
+					</span>
+					<span class="vh-brand-title">Умная <span class="vh-accent">тарелка</span></span>
+				</a>
+				<div class="vh-slogan-wrap">
+					<span class="vh-slogan">Персональный помощник в сбалансированном питании</span>
+				</div>
+				<div class="v-user-wrap" id="user-wrap">
+					<button class="vh-profile-pill" id="user-badge" onclick="toggleUserMenu(event)" type="button">
+						<div class="v-user-avatar" id="u-ava" style="width:34px;height:34px;overflow:hidden;flex-shrink:0;border-radius:50%">?</div>
+						<span class="vh-profile-name" id="u-name">Войти</span>
+					</button>
+					<div class="user-dropdown" id="user-dropdown">
+						<a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
+						<div class="user-dd-sep"></div>
+						<button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
+					</div>
+				</div>
+				<button class="vh-plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
+					<span class="vh-plate-icon" style="position:relative;width:25px;height:25px;display:inline-block;overflow:hidden;border-radius:50%;flex-shrink:0">
+						<span class="vh-slice vh-slice-g"></span>
+						<span class="vh-slice vh-slice-y"></span>
+						<span class="vh-slice vh-slice-r"></span>
+					</span>
+					<span class="plate-count" style="display:none">0</span>
+				</button>
+			</div>
+		</div>
+	</header>
+
+	<!-- STICKY MINI BALANCE STATUS -->
+	<div id="bal-mini-status" class="bal-mini-status" onclick="scrollToBalanceBanner()" onkeydown="handleMiniStatusKey(event)" role="button" tabindex="0" aria-label="Прогресс баланса — перейти к добавкам">
+		<span class="bal-mini-progress" id="bal-mini-progress">0 / 0</span>
+		<span class="bal-mini-label" id="bal-mini-label">Не сбалансировано</span>
+		<button type="button" class="bal-mini-sound-btn" id="bal-mini-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений">
+			<span id="bal-mini-sound-icon">🔕</span>
+		</button>
+	</div>
+
+	<!-- CONTENT -->
+	<main style="flex:1;">
+		<div class="v-wrap" id="page-content" style="padding-top:24px; padding-bottom:24px;"></div>
+	</main>
+
+	<!-- STICKY ADD BUTTON -->
+	<div class="sticky-add" id="sticky-add" style="display:none">
+		<div class="sticky-add-inner" style="display:flex;justify-content:center">
+			<button class="btn btn-orange btn-lg" id="add-btn" style="width:100%;max-width:400px" onclick="addToPlate()">
+				+ Добавить в тарелку
+			</button>
+		</div>
+	</div>
+
+	<!-- BALANCE SUCCESS MODAL -->
+	<div class="bal-success-modal-overlay" id="bal-success-modal" role="dialog" aria-modal="true"
+		aria-labelledby="bal-success-title" aria-describedby="bal-success-text">
+		<div class="bal-success-modal-box">
+			<div id="bal-sparkle-container" class="bal-sparkle-wrap bal-success-sparkles" aria-hidden="true"></div>
+			<div class="bal-success-modal-title" id="bal-success-title">✅ Блюдо сбалансировано!</div>
+			<div class="bal-success-modal-text" id="bal-success-text">Добавьте его в тарелку — это полноценный приём пищи.</div>
+			<div class="bal-success-modal-actions">
+				<button class="bal-success-modal-primary" id="bal-success-primary" type="button"
+					onclick="confirmBalanceSuccessAdd()">+ Добавить в тарелку</button>
+				<button class="bal-success-modal-secondary" type="button"
+					onclick="hideBalanceSuccessModal('secondary')">Продолжить</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- BALANCE WARN MODAL (unbalanced add confirmation) -->
+	<div class="bal-success-modal-overlay" id="bal-warn-modal" role="dialog" aria-modal="true"
+		aria-labelledby="bal-warn-title" aria-describedby="bal-warn-text">
+		<div class="bal-success-modal-box">
+			<div class="bal-success-modal-title" id="bal-warn-title" style="color:#b45309">⚠️ Тарелка не сбалансирована</div>
+			<div class="bal-success-modal-text" id="bal-warn-text">
+				Чтобы блюдо стало полноценным приёмом пищи, выберите обязательные группы добавок в сайдбаре.
+				<div id="bal-warn-missing" style="margin-top:8px;font-size:13px;color:#666"></div>
+			</div>
+			<div class="bal-success-modal-actions">
+				<button class="bal-success-modal-primary" id="bal-warn-primary" type="button"
+					style="background:#b45309" onclick="confirmBalanceWarnAdd()">Добавить всё равно</button>
+				<button class="bal-success-modal-secondary" id="bal-warn-secondary" type="button"
+					onclick="hideBalanceWarnModal()">Вернуться и сбалансировать</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- MY PLATE MODAL -->
+	<div class="modal-overlay" id="plate-overlay" onclick="closePlateIfOutside(event)">
+		<div class="modal-box">
+			<div class="modal-handle"></div>
+			<div class="modal-header">
+				<div class="modal-title"><span class="modal-plate-icon"><span class="vh-slice vh-slice-g"></span><span class="vh-slice vh-slice-y"></span><span class="vh-slice vh-slice-r"></span></span> Моя тарелка</div>
+				<button class="modal-close" onclick="closePlate()">✕</button>
+			</div>
+			<div class="modal-body" id="plate-body"></div>
+		</div>
+	</div>
+
+	<!-- CHAT FAB -->
+	<button class="chat-fab" id="tawk-fab" onclick="openTawk()" title="Чат с отделом заботы">
+		<svg class="chat-fab-icon" viewBox="0 0 24 24">
+			<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+		</svg>
+	</button>
+
+	<script src="data-v2.js?v=1774941737"></script>
+	<script>
+		Auth.requireAuth();
+		const _accessReady = Auth.checkAccess();
+		updatePlateIcon();
+
+		// User pill init
+		(function () {
+			const user = Auth.getUser();
+			if (!user) return;
+			const customName = Auth.getDisplayName();
+			const displayName = customName || user.email.split('@')[0];
+			const uAva = document.getElementById('u-ava');
+			const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
+			if (savedAva) {
+				uAva.innerHTML = `<img src="${savedAva.replace(/"/g, '&quot;')}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+			} else {
+				uAva.textContent = (customName || user.email || '?').charAt(0).toUpperCase();
+			}
+			document.getElementById('u-name').textContent = displayName;
+		})();
+
+		function toggleUserMenu(e) {
+			e.stopPropagation();
+			document.getElementById('user-dropdown').classList.toggle('open');
+		}
+		document.addEventListener('click', function (e) {
+			const wrap = document.getElementById('user-wrap');
+			if (wrap && !wrap.contains(e.target)) document.getElementById('user-dropdown').classList.remove('open');
+		});
+		function doLogout() {
+			document.getElementById('user-dropdown').classList.remove('open');
+			const overlay = document.createElement('div');
+			overlay.className = 'farewell-overlay';
+			overlay.innerHTML = '<div class="farewell-emoji">👋</div><div class="farewell-text">До встречи!</div><div class="farewell-sub">Возвращайтесь — мы ждём вас</div>';
+			document.body.appendChild(overlay);
+			requestAnimationFrame(() => overlay.classList.add('show'));
+			setTimeout(() => { Auth.logout(); location.href = 'login.html'; }, 1800);
+		}
+
+		// Фото-заглушки по категориям (временно — из блога и гайда)
+		const PHOTO_BY_CAT = {
+			breakfasts: SITE_BASE + '/images/blog/post-290.webp',
+			mains: SITE_BASE + '/images/cook-healthy-food.webp',
+			pancakes: SITE_BASE + '/images/blog/random-pic-blog-2.webp',
+			spreads: SITE_BASE + '/images/blog/random-pic-blog-3.webp',
+			salads: SITE_BASE + '/images/blog/random-pic-blog-4.webp',
+			drinks: SITE_BASE + '/images/blog/random-pic-blog-1.webp',
+			_sides: SITE_BASE + '/images/blog/post-281.webp',
+		};
+		const PHOTO_FALLBACK = SITE_BASE + '/images/background-guide.webp';
+
+		// Prepend voronova.online to relative image paths. Images live in the main site repo,
+		// so editor entries like "images/recipes/foo/bar.webp" must be resolved to the main domain.
+		function photoUrl(p) {
+			if (!p) return p;
+			if (/^(https?:|data:|blob:)/i.test(p)) return p;
+			return SITE_BASE + '/' + p.replace(/^\/+/, '');
+		}
+
+		window.addEventListener('scroll', () =>
+			document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
+
+		const params = new URLSearchParams(location.search);
+		const recipeId = params.get('id');
+		const fromCat = params.get('from') || '';
+		const simpleMode = params.get('simple') === '1';
+		const parentRecipeId = params.get('parentRecipeId') || '';
+		let r, cat;
+
+		// Must be declared before renderRecipe is called (used inside buildGroup)
+		const subItemRegistry = {};
+		const GROUP_CLASS = { p: 'group-protein', f: 'group-fat', c: 'group-carbs', fi: 'group-fiber' };
+
+		// Steps UX state (mobile compact + stepper) — reset per-recipe in initStepsUI
+		let _stepsHtmlArr = [];
+		let _stepsCollapsed = true;
+		let _stepperMode = false;
+		let _stepperIdx = 0;
+		let _stepperDone = [];
+
+		function initStepsUI() {
+			_stepsCollapsed = true;
+			_stepperMode = false;
+			_stepperIdx = 0;
+			_stepperDone = _stepsHtmlArr.map(() => false);
+			applyStepsUI();
+			maybeShowStepsHint();
+		}
+		function applyStepsUI() {
+			const list = document.getElementById('steps-list');
+			const stepper = document.getElementById('steps-stepper');
+			const expandBtn = document.getElementById('steps-expand-btn');
+			const modeBtn = document.getElementById('steps-mode-btn');
+			const modeLabel = document.getElementById('steps-mode-label');
+			const modeIcon = document.getElementById('steps-mode-icon');
+			if (!list) return;
+			if (_stepperMode && stepper) {
+				list.hidden = true;
+				if (expandBtn) expandBtn.hidden = true;
+				stepper.hidden = false;
+				if (modeLabel) modeLabel.textContent = 'Списком';
+				if (modeIcon) modeIcon.textContent = '📋';
+				if (modeBtn) modeBtn.classList.add('on');
+				renderStepperCurrent();
+			} else {
+				list.hidden = false;
+				if (stepper) stepper.hidden = true;
+				list.classList.toggle('is-collapsed', _stepsCollapsed);
+				if (expandBtn) {
+					expandBtn.hidden = false;
+					const label = document.getElementById('steps-expand-label');
+					if (label) {
+						label.textContent = _stepsCollapsed
+							? 'Показать все шаги (' + _stepsHtmlArr.length + ')'
+							: 'Свернуть';
+					}
+					const arrow = document.getElementById('steps-expand-arrow');
+					if (arrow) arrow.textContent = _stepsCollapsed ? '▾' : '▴';
+				}
+				if (modeLabel) modeLabel.textContent = 'Пошагово';
+				if (modeIcon) modeIcon.textContent = '👣';
+				if (modeBtn) modeBtn.classList.remove('on');
+			}
+		}
+		function toggleStepsExpanded() {
+			_stepsCollapsed = !_stepsCollapsed;
+			applyStepsUI();
+		}
+		function toggleStepperMode() {
+			_stepperMode = !_stepperMode;
+			if (_stepperMode) {
+				_stepperIdx = 0;
+				dismissStepsHint();
+			}
+			applyStepsUI();
+		}
+		function dismissStepsHint() {
+			const hint = document.getElementById('steps-hint');
+			if (hint) hint.hidden = true;
+			try { localStorage.setItem('stepsHintDismissed', '1'); } catch (e) { }
+		}
+		function maybeShowStepsHint() {
+			const hint = document.getElementById('steps-hint');
+			if (!hint) return;
+			let dismissed = false;
+			try { dismissed = localStorage.getItem('stepsHintDismissed') === '1'; } catch (e) { }
+			hint.hidden = dismissed;
+		}
+		function renderStepperCurrent() {
+			const wrap = document.getElementById('stepper-current');
+			if (!wrap || !_stepsHtmlArr.length) return;
+			wrap.innerHTML = _stepsHtmlArr[_stepperIdx] || '';
+			const cur = document.getElementById('stepper-current-n');
+			if (cur) cur.textContent = String(_stepperIdx + 1);
+			const fill = document.getElementById('stepper-bar-fill');
+			if (fill) fill.style.width = (((_stepperIdx + 1) / _stepsHtmlArr.length) * 100) + '%';
+			const done = !!_stepperDone[_stepperIdx];
+			const cb = document.getElementById('stepper-done-cb');
+			if (cb) {
+				cb.checked = done;
+				cb.setAttribute('aria-label', 'Шаг ' + (_stepperIdx + 1) + (done ? ' выполнен' : ' не выполнен'));
+			}
+			const item = wrap.querySelector('.step-item');
+			if (item) item.classList.toggle('is-done', done);
+			const prev = document.getElementById('stepper-prev');
+			const next = document.getElementById('stepper-next');
+			if (prev) prev.disabled = _stepperIdx === 0;
+			if (next) next.disabled = _stepperIdx >= _stepsHtmlArr.length - 1;
+		}
+		function stepperPrev() {
+			if (_stepperIdx > 0) { _stepperIdx--; renderStepperCurrent(); }
+		}
+		function stepperNext() {
+			if (_stepperIdx < _stepsHtmlArr.length - 1) { _stepperIdx++; renderStepperCurrent(); }
+		}
+		function toggleStepperDone() {
+			const cb = document.getElementById('stepper-done-cb');
+			if (!cb) return;
+			const done = cb.checked;
+			_stepperDone[_stepperIdx] = done;
+			const wrap = document.getElementById('stepper-current');
+			const item = wrap && wrap.querySelector('.step-item');
+			if (item) item.classList.toggle('is-done', done);
+			cb.setAttribute('aria-label', 'Шаг ' + (_stepperIdx + 1) + (done ? ' выполнен' : ' не выполнен'));
+		}
+
+		// ── SIDEBAR PLACEMENT (mobile ↔ desktop) ────────────────────────
+		function placeSidebarForViewport() {
+			const m = document.getElementById('sidebar-mobile');
+			const d = document.getElementById('sidebar-desktop');
+			if (!m || !d) return;
+			const isMobile = window.innerWidth <= 1024;
+			if (isMobile) {
+				// Move children from desktop → mobile (if not already there)
+				if (d.firstChild) {
+					while (d.firstChild) m.appendChild(d.firstChild);
+				}
+				m.style.display = m.children.length ? 'block' : 'none';
+				d.style.display = 'none';
+			} else {
+				// Move children from mobile → desktop
+				if (m.firstChild) {
+					while (m.firstChild) d.appendChild(m.firstChild);
+				}
+				m.style.display = 'none';
+				d.style.display = '';
+			}
+		}
+
+		// Debounced resize handler
+		let _sidebarResizeTimer = null;
+		window.addEventListener('resize', function () {
+			clearTimeout(_sidebarResizeTimer);
+			_sidebarResizeTimer = setTimeout(placeSidebarForViewport, 150);
+		});
+
+		function initRecipe() {
+			r = RECIPES[recipeId];
+			if (r && !Auth.canViewRecipe(r)) {
+				Auth._showPaywall('trial');
+			}
+			cat = (fromCat && fromCat !== 'plate') ? CATEGORIES[fromCat] : null;
+
+			// Back button
+			const backBtn = document.getElementById('back-btn');
+			const parent = (parentRecipeId && parentRecipeId !== recipeId && RECIPES[parentRecipeId]) ? RECIPES[parentRecipeId] : null;
+			if (parent) {
+				const parentUrl = 'recipe.html?id=' + encodeURIComponent(parentRecipeId)
+					+ (fromCat ? '&from=' + encodeURIComponent(fromCat) : '');
+				backBtn.onclick = () => location.href = parentUrl;
+				document.getElementById('back-label').textContent = parent.name;
+			} else if (fromCat === 'plate') {
+				backBtn.onclick = () => location.href = 'index.html';
+				document.getElementById('back-label').textContent = 'Тарелка';
+			} else {
+				backBtn.onclick = () => fromCat ? location.href = 'category.html?cat=' + fromCat : location.href = 'index.html';
+				if (cat) document.getElementById('back-label').textContent = cat.name;
+			}
+
+			if (!r) {
+				document.getElementById('page-content').innerHTML =
+					'<div style="text-align:center;padding:80px 20px">' +
+					'<div style="font-size:48px">😕</div>' +
+					'<div style="font-size:16px;color:var(--text-2);margin-top:12px">Рецепт не найден</div>' +
+					'<button class="btn btn-green" style="margin-top:20px" onclick="history.back()">← Назад</button>' +
+					'</div>';
+			} else if (r.isSublist) {
+				renderSublist(r);
+			} else {
+				renderRecipe(r);
+				setTimeout(loadReviews, 300);
+			}
+		} // end initRecipe
+
+		Promise.all([loadContent(), _accessReady, Favorites.load(), Plate.load()]).then(function () {
+			if (isContentError()) {
+				showApiError(document.getElementById('page-content'));
+				return;
+			}
+			initRecipe();
+		}).catch(function (err) {
+			console.error('Recipe render error:', err);
+			var pc = document.getElementById('page-content');
+			if (pc) pc.innerHTML = '<div style="text-align:center;padding:40px;color:red">Ошибка: ' + err.message + '</div>';
+		});
+
+		// ── SUBLIST (e.g. Здоровые бутерброды → список намазок) ─────────────
+		function renderSublist(r) {
+			document.title = r.name + ' — Конструктор питания';
+			const items = (r.subItems || []).map(id => RECIPES[id]).filter(Boolean);
+			const html = `
+            <div class="anim">
+                <div style="font-size:40px;margin-bottom:10px">${escHtml(r.emoji)}</div>
+                <h1 class="recipe-title" style="margin-bottom:6px">${escHtml(r.name)}</h1>
+                <div class="sublist-note">Выберите намазку — откроется её рецепт</div>
+                <div class="sublist-items">
+                    ${items.map(item => `
+                        <button class="dish-card anim" onclick="location.href='recipe.html?id=${encodeURIComponent(item.id)}&from=${encodeURIComponent(fromCat)}'">
+                            <div class="dish-emoji-box" style="background:var(--green-l)">${escHtml(item.emoji)}</div>
+                            <div class="dish-info">
+                                <div class="dish-name">${escHtml(item.name)}</div>
+                                <div class="dish-meta">
+                                    <span class="pill">⏱ ${Number(item.time)} мин</span>
+                                    <span class="pill">${escHtml(DIFF_LABELS[item.diff] || item.diff)}</span>
+                                </div>
+                            </div>
+                            <div class="dish-kcal">${Number(item.kcal)}<span>ккал</span></div>
+                            <div class="dish-arrow">›</div>
+                        </button>`).join('')}
+                </div>
+                ${r.tip ? `<div class="julia-tip anim" style="margin-top:20px">
+                    <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
+                    <div class="julia-tip-bubble">
+                        <div class="julia-tip-text">«${escHtml(r.tip)}»</div>
+
+                    </div>
+                </div>` : ''}
+            </div>`;
+			document.getElementById('page-content').innerHTML = html;
+		}
+
+		// ── RECIPE PAGE ───────────────────────────────────────────────────────
+		let checkedItems = {};
+
+		// Balance state
+		let _balRequired = []; // filled during render: [{key,prefix,label}]
+		let _wasBalanced = false;
+		let _celebrationShown = false;
+		let _balBannerObserver = null;
+
+		// Add-on groups: collapse state + per-group config for re-rendering
+		let expandedGroups = { p: false, f: false, c: false, fi: false };
+		const _groupConfig = {}; // { p: {label, items}, ... }
+		const GROUP_COLLAPSE_LIMIT = 3;
+
+		// Sound preference (off by default, persisted)
+		let _soundEnabled = (function () {
+			try { return localStorage.getItem('balanceSoundEnabled') === '1'; } catch (e) { return false; }
+		})();
+		// ── Audio module config + state ─────────────────────────────
+		// MP3 is the primary channel; fallback is a WebAudio polyphony chord.
+		// Add new sounds by extending SOUND_ASSETS — no logic changes required.
+		const SOUND_ASSETS = {
+			balanceReady: ['sounds/plate-is-ready.mp3', 'platform/sounds/plate-is-ready.mp3']
+		};
+		let _balanceAudio = null;
+		let _balanceAudioSrcIndex = 0;
+		let _audioUnlocked = false;
+		let _audioMode = 'mp3'; // 'mp3' | 'fallback'
+		let _audioCtx = null;
+		let _soundToggleBusy = false;
+		let _soundBlockedToastShown = false; // legacy anti-spam; kept for compat
+		const _soundErrorToastShown = { blocked: false, asset: false, unknown: false };
+
+		// Ingredient swaps — per-ingredient metadata + currently-applied replacements.
+		// _swapInfo[i] = { origName, parts: [alt-text...], origAmountG: number|null }
+		// _appliedSwaps[i] stores a KBZHU *delta* (replacement − original) that is added to
+		// the base recipe totals: { kcal, protein, fat, carbs, fiber, label, hasKbzhu }.
+		let _swapInfo = {};
+		let _appliedSwaps = {};
+		// Ingredients marked swap="можно без него" can be toggled off (_excludedIngredients[i] = true)
+		// and hidden from the list, sharing text, and shopping list.
+		let _excludedIngredients = {};
+		function isOptionalSwap(swap) {
+			if (typeof swap !== 'string') return false;
+			// Normalize: trim, lowercase, collapse inner whitespace, strip leading punctuation
+			const norm = swap.trim().toLowerCase().replace(/\s+/g, ' ');
+			if (!norm) return false;
+			// Match "можно без него" exactly, or as a prefix followed by punctuation/space
+			// (e.g. "можно без него.", "можно без него, по желанию")
+			return /^можно без него(?:[\s.,!;:—-].*)?$/.test(norm);
+		}
+
+		function isInPlate() {
+			return Plate.get().some(item => item.recipeId === r.id);
+		}
+
+		function refreshAddButtonStateByPlate() {
+			const btn = document.getElementById('add-btn');
+			if (!btn || !r) return;
+			if (isInPlate()) {
+				btn.textContent = '✓ В тарелке';
+				btn.disabled = true;
+				btn.style.opacity = '0.6';
+				btn.style.cursor = 'default';
+			} else {
+				btn.textContent = '+ Добавить в тарелку';
+				btn.disabled = false;
+				btn.style.opacity = '';
+				btn.style.cursor = '';
+			}
+		}
+
+		// Экранирование HTML — защита от XSS
+		function escHtml(s) {
+			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		}
+		// Сначала escape, потом safe-linkify: [текст](recipeId) → ссылка
+		// recipeId валидируется: только буквы, цифры, дефис
+		// AUTO_LINKS: ключевые слова в тексте автоматически становятся ссылками на рецепт.
+		// Каждая запись — { re: RegExp (с флагом g, без групп захвата), id: 'recipe-id' }.
+		const AUTO_LINKS = [
+			{ re: /овощн(?:ый|ого|ому|ым|ом|ая|ой|ую|ое|ые|ых|ым|ыми)?\s+концентрат(?:а|у|ом|е|ы|ов|ам|ами|ах)?/gi, id: 'veggie-concentrate' },
+			{ re: /соус(?:а|у|ом|е)?\s+из\s+кешью/gi, id: 'cashew-sauce' },
+		];
+		function _parentQs() {
+			const selfId = window.__currentRecipeId;
+			return selfId ? '&parentRecipeId=' + encodeURIComponent(selfId) : '';
+		}
+		function _autoLink(html, selfId) {
+			const anchor = (label, rid) => '<a href="recipe.html?id=' + rid + _parentQs() + '" style="color:var(--accent);text-decoration:underline;cursor:pointer">' + label + '</a>';
+			AUTO_LINKS.forEach(rule => {
+				if (rule.id === selfId) return;
+				html = html.replace(rule.re, m => anchor(m, rule.id));
+			});
+			return html;
+		}
+		function linkify(text) {
+			let html = escHtml(text).replace(/\[([^\]]+)\]\(([a-zA-Z0-9-]+)\)/g, function (_, label, rid) {
+				return '<a href="recipe.html?id=' + rid + _parentQs() + '" style="color:var(--accent);text-decoration:underline;cursor:pointer">' + label + '</a>';
+			});
+			return _autoLink(html, window.__currentRecipeId);
+		}
+
+		// ── INGREDIENT KBZHU DATABASE ─────────────────────────────────────────
+		// Used when an ingredient is NOT a standalone recipe in RECIPES.
+		// Stored per 100 g (fixed convention). Aliases — normalized, case-insensitive
+		// (ё→е, non-letters → spaces).
+		const INGREDIENT_DB = {
+			'yogurt-medium-fat': {
+				aliases: ['йогурт средней жирности', 'йогурт'],
+				per100g: { kcal: 60, protein: 6.67, fat: 6.67, carbs: 6.67, fiber: 0 }
+			}
+		};
+
+		function _normIng(s) {
+			return String(s == null ? '' : s).toLowerCase().replace(/ё/g, 'е').replace(/[^а-яa-z0-9]+/g, ' ').trim();
+		}
+
+		// Find an ingredient entry whose alias matches the start of the normalized text.
+		// Prefers the longest alias when several match (e.g. "йогурт средней жирности" > "йогурт").
+		function matchIngredientKbzhu(text) {
+			const n = _normIng(text);
+			if (!n) return null;
+			let best = null;
+			for (const id in INGREDIENT_DB) {
+				const entry = INGREDIENT_DB[id];
+				for (const alias of entry.aliases) {
+					const an = _normIng(alias);
+					if (!an) continue;
+					const hit = n === an || n.startsWith(an + ' ') || n.indexOf(' ' + an + ' ') !== -1 || n.startsWith(an);
+					if (hit && (!best || an.length > best.aliasLen)) best = { id, entry, aliasLen: an.length };
+				}
+			}
+			return best ? { id: best.id, entry: best.entry } : null;
+		}
+
+		// Resolve swap/ingredient text → nutrition source. Recipe takes priority over DB.
+		function _resolveNutritionSource(text) {
+			const rid = findRecipeForSwapText(text);
+			if (rid && typeof RECIPES !== 'undefined' && RECIPES && RECIPES[rid]) {
+				return { kind: 'recipe', recipe: RECIPES[rid], name: RECIPES[rid].name };
+			}
+			const m = matchIngredientKbzhu(text);
+			if (m) return { kind: 'ingredient', entry: m.entry };
+			return null;
+		}
+
+		// KBZHU contribution of a source for a given mass in grams.
+		// Returns null if the source can't be scaled (missing portionGrams, zero mass, etc).
+		function _contribution(src, amountG) {
+			if (!src || !(amountG > 0)) return null;
+			let base, factor;
+			if (src.kind === 'recipe') {
+				const r = src.recipe;
+				if (!r.portionGrams || r.portionGrams <= 0) return null;
+				base = r;
+				factor = amountG / r.portionGrams;
+			} else {
+				base = src.entry.per100g;
+				factor = amountG / 100;
+			}
+			return {
+				kcal:    (base.kcal    || 0) * factor,
+				protein: (base.protein || 0) * factor,
+				fat:     (base.fat     || 0) * factor,
+				carbs:   (base.carbs   || 0) * factor,
+				fiber:   (base.fiber   || 0) * factor
+			};
+		}
+
+		// ── INGREDIENT SWAPS ──────────────────────────────────────────────────
+		// Split swap text like "Дайкон или зелёная редька" into ["Дайкон", "зелёная редька"].
+		// Respects parentheses (doesn't split inside them).
+		function splitSwapAlternatives(text) {
+			if (!text) return [];
+			const parts = [];
+			let depth = 0, buf = '', i = 0;
+			while (i < text.length) {
+				const ch = text[i];
+				if (ch === '(') { depth++; buf += ch; i++; continue; }
+				if (ch === ')') { depth = Math.max(0, depth - 1); buf += ch; i++; continue; }
+				if (depth === 0) {
+					if (ch === ',' || ch === ';' || ch === '/') {
+						if (buf.trim()) parts.push(buf.trim());
+						buf = ''; i++; continue;
+					}
+					const orMatch = text.substr(i).match(/^\s+или\s+/);
+					if (orMatch) {
+						if (buf.trim()) parts.push(buf.trim());
+						buf = ''; i += orMatch[0].length; continue;
+					}
+				}
+				buf += ch; i++;
+			}
+			if (buf.trim()) parts.push(buf.trim());
+			return parts;
+		}
+
+		// Find a recipe id matching a swap alternative text (e.g. "Соус из кешью" → "cashew-sauce")
+		function findRecipeForSwapText(text) {
+			if (!text) return null;
+			// 1. Explicit markdown link [label](id)
+			const md = text.match(/\[([^\]]+)\]\(([a-zA-Z0-9-]+)\)/);
+			if (md) return md[2];
+			// 2. AUTO_LINKS regex patterns (case-insensitive)
+			for (const rule of AUTO_LINKS) {
+				rule.re.lastIndex = 0;
+				const hit = rule.re.test(text);
+				rule.re.lastIndex = 0;
+				if (hit) return rule.id;
+			}
+			// 3. Fuzzy match against loaded recipe names
+			if (typeof RECIPES === 'undefined' || !RECIPES) return null;
+			const norm = text.toLowerCase().replace(/[.,!?()«»"']/g, '').trim();
+			for (const id in RECIPES) {
+				const rname = (RECIPES[id].name || '').toLowerCase().trim();
+				if (!rname) continue;
+				if (rname === norm || norm.startsWith(rname) || rname.startsWith(norm)) return id;
+			}
+			return null;
+		}
+
+		// Parse amount in grams from an ingredient string, e.g. "Йогурт — 2 ст. л. (~30 г)" → 30
+		function parseAmountGrams(text) {
+			if (!text) return null;
+			const gr = text.match(/(\d+(?:[.,]\d+)?)\s*г\b/);
+			if (gr) return parseFloat(gr[1].replace(',', '.'));
+			const ml = text.match(/(\d+(?:[.,]\d+)?)\s*мл\b/);
+			if (ml) return parseFloat(ml[1].replace(',', '.'));
+			const tb = text.match(/(\d+(?:[.,]\d+)?)(?:\s*[–\-]\s*\d+(?:[.,]\d+)?)?\s*ст\.?\s*л/);
+			if (tb) return parseFloat(tb[1].replace(',', '.')) * 15;
+			const ts = text.match(/(\d+(?:[.,]\d+)?)(?:\s*[–\-]\s*\d+(?:[.,]\d+)?)?\s*ч\.?\s*л/);
+			if (ts) return parseFloat(ts[1].replace(',', '.')) * 5;
+			return null;
+		}
+
+		// Display label for a swap alternative: use linked recipe name if matched,
+		// otherwise capitalize the first letter of the raw text.
+		function swapDisplayLabel(part, rid) {
+			if (rid && typeof RECIPES !== 'undefined' && RECIPES[rid] && RECIPES[rid].name) {
+				return RECIPES[rid].name;
+			}
+			const t = (part || '').trim();
+			if (!t) return t;
+			return t.charAt(0).toUpperCase() + t.slice(1);
+		}
+
+		function renderSwapOptions(swapText, i, origName) {
+			const parts = splitSwapAlternatives(swapText);
+			const origAmountG = parseAmountGrams(origName);
+			_swapInfo[i] = { origName: origName, parts: parts, origAmountG: origAmountG };
+			if (parts.length === 0) {
+				return linkify(swapText);
+			}
+			const btns = parts.map((part, j) => {
+				const rid = findRecipeForSwapText(part);
+				const label = swapDisplayLabel(part, rid);
+				return '<button class="ing-swap-option" onclick="applySwap(' + i + ',' + j + ')">'
+					+ escHtml(label) + '</button>';
+			}).join('');
+			return '<div class="ing-swap-label">Выберите замену:</div>'
+				+ '<div class="ing-swap-grid">' + btns + '</div>';
+		}
+
+		window.applySwap = function(i, j) {
+			const info = _swapInfo[i];
+			if (!info || !info.parts[j]) return;
+			const partText = info.parts[j];
+			const rid = findRecipeForSwapText(partText);
+			const displayPart = swapDisplayLabel(partText, rid);
+
+			// Build new display name, preserving the amount suffix after the first " — "
+			const origText = info.origName || '';
+			const dashMatch = origText.match(/\s[—–\-]\s/);
+			const amountPart = dashMatch ? origText.substring(origText.indexOf(dashMatch[0])) : '';
+			// Skip appending amountPart if the replacement text already carries a measure
+			// (e.g. "Консервированная фасоль — 300 г", "Тофу (50 г)", "Йогурт 100 г").
+			const displayPartHasAmount =
+				/\s[—–\-]\s/.test(displayPart) ||
+				/\([^)]*\d[^)]*\)/.test(displayPart) ||
+				/\d+\s*(г|мл|кг|ст\.?\s*л\.?|ч\.?\s*л\.?)\b/i.test(displayPart);
+			const effectiveAmount = displayPartHasAmount ? '' : amountPart;
+			const newLabel = displayPart + effectiveAmount;
+
+			const nameEl = document.getElementById('ing-name-' + i);
+			if (nameEl) {
+				// If swap points to a linked recipe, render a custom link with asIngredient=1
+				// so the target recipe page knows to hide the "Add to plate" button.
+				let labelHtml;
+				if (rid) {
+					const parentQs = recipeId ? '&parentRecipeId=' + encodeURIComponent(recipeId) : '';
+					labelHtml = '<a href="recipe.html?id=' + encodeURIComponent(rid) + '&asIngredient=1' + parentQs + '" style="color:var(--accent);text-decoration:underline;cursor:pointer">'
+						+ escHtml(displayPart) + '</a>' + escHtml(effectiveAmount);
+				} else {
+					labelHtml = linkify(newLabel);
+				}
+				nameEl.innerHTML = labelHtml
+					+ ' <button class="ing-swap-revert" onclick="revertSwap(' + i + ')" title="Вернуть исходный">↺</button>';
+				nameEl.classList.add('ing-name-swapped');
+			}
+			const tipEl = document.getElementById('swap-' + i);
+			if (tipEl) tipEl.classList.remove('open');
+			const btn = document.getElementById('ing-swap-btn-' + i);
+			if (btn) btn.style.display = 'none';
+
+			// Compute KBZHU delta = replacement − original.
+			// Source priority: RECIPES (linked recipe) → INGREDIENT_DB. If either side
+			// can't be resolved or the amount is unknown, skip delta (rename-only).
+			const origSrc = _resolveNutritionSource(info.origName || '');
+			const replSrc = _resolveNutritionSource(partText);
+			const amountG = info.origAmountG || 0;
+			const replLabel = (replSrc && replSrc.kind === 'recipe') ? replSrc.name : displayPart;
+			let delta = { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0, label: replLabel, hasKbzhu: false };
+			if (origSrc && replSrc && amountG > 0) {
+				const o = _contribution(origSrc, amountG);
+				const n = _contribution(replSrc, amountG);
+				if (o && n) {
+					delta = {
+						kcal:    Math.round(n.kcal    - o.kcal),
+						protein: Math.round(n.protein - o.protein),
+						fat:     Math.round(n.fat     - o.fat),
+						carbs:   Math.round(n.carbs   - o.carbs),
+						fiber:   Math.round(n.fiber   - o.fiber),
+						label:   replLabel,
+						hasKbzhu: true
+					};
+				}
+			}
+			_appliedSwaps[i] = delta;
+			updateAddTotal();
+			if (delta.hasKbzhu) {
+				const sign = delta.kcal >= 0 ? '+' : '';
+				showToast('🔄 Замена учтена: ' + sign + delta.kcal + ' ккал');
+			}
+		};
+
+		window.revertSwap = function(i) {
+			const info = _swapInfo[i];
+			if (!info) return;
+			const nameEl = document.getElementById('ing-name-' + i);
+			if (nameEl) {
+				nameEl.innerHTML = linkify(info.origName);
+				nameEl.classList.remove('ing-name-swapped');
+			}
+			const btn = document.getElementById('ing-swap-btn-' + i);
+			if (btn) btn.style.display = '';
+			delete _appliedSwaps[i];
+			updateAddTotal();
+		};
+
+		window.optOutIngredient = function(i) {
+			_excludedIngredients[i] = true;
+			const row = document.getElementById('ing-row-' + i);
+			const ph = document.getElementById('ing-placeholder-' + i);
+			if (row) row.style.display = 'none';
+			if (ph) ph.style.display = '';
+		};
+
+		window.restoreIngredient = function(i) {
+			delete _excludedIngredients[i];
+			const row = document.getElementById('ing-row-' + i);
+			const ph = document.getElementById('ing-placeholder-' + i);
+			if (row) row.style.display = '';
+			if (ph) ph.style.display = 'none';
+		};
+
+		function renderRecipe(r) {
+			window.__currentRecipeId = r.id;
+			document.title = r.name + ' — Конструктор питания';
+			const _asIngredient = new URLSearchParams(location.search).get('asIngredient') === '1';
+			document.getElementById('sticky-add').style.display = _asIngredient ? 'none' : 'block';
+			const fab = document.getElementById('tawk-fab');
+			if (fab) fab.classList.add('above-sticky');
+
+			// Reset per-recipe balance/collapse state
+			expandedGroups = { p: false, f: false, c: false, fi: false };
+			_wasBalanced = false;
+			_celebrationShown = false;
+
+			const diff = DIFF_LABELS[r.diff] || r.diff;
+			const catObj = r.cat ? CATEGORIES[r.cat] : null;
+			const catColor = catObj ? catObj.color : '#9ab89e';
+
+			const DEFAULT_ADD = {
+				protein: [
+					{ name: 'Нут отварной (3 ст.л.)', kcal: 120, protein: 7, fat: 2, carbs: 18, fiber: 4 },
+					{ name: 'Тофу (50 г)', kcal: 40, protein: 5, fat: 2, carbs: 1, fiber: 0 },
+					{ name: 'Красная чечевица (2 ст.л. сухой)', kcal: 110, protein: 8, fat: 0, carbs: 18, fiber: 3 },
+				],
+				fat: [
+					{ name: 'Тыквенные семечки (1 ст.л.)', kcal: 55, protein: 3, fat: 4, carbs: 1, fiber: 0 },
+					{ name: 'Льняные семечки (1 ч.л.)', kcal: 35, protein: 1, fat: 3, carbs: 2, fiber: 1 },
+					{ name: 'Авокадо (¼ шт.)', kcal: 80, protein: 1, fat: 7, carbs: 4, fiber: 3 },
+				],
+				carbs: [
+					{ name: 'Цельнозерновой хлеб (1 кусок)', kcal: 80, protein: 3, fat: 1, carbs: 15, fiber: 2 },
+					{ name: 'Бурый рис (3 ст.л. готового)', kcal: 75, protein: 2, fat: 0, carbs: 16, fiber: 1 },
+					{ name: 'Гречка отварная (3 ст.л.)', kcal: 80, protein: 3, fat: 1, carbs: 17, fiber: 2 },
+				],
+				fiber: [
+					{ name: 'Свежая зелень — укроп, петрушка (горсть)', kcal: 5, protein: 0, fat: 0, carbs: 1, fiber: 1 },
+					{ name: 'Листья шпината (горсть)', kcal: 15, protein: 2, fat: 0, carbs: 2, fiber: 2 },
+					{ name: 'Огурец свежий (½ шт.)', kcal: 10, protein: 0, fat: 0, carbs: 2, fiber: 1 },
+				],
+			};
+			// Resolve auto-addons (recipe-level overrides category-level per slot)
+			// Rule shape: { fromCategory: "salads" } → pulls all published recipes from that category
+			function _resolveAutoAddons(recipe) {
+				const slots = ['protein', 'fat', 'carbs', 'fiber'];
+				const resolved = { protein: [], fat: [], carbs: [], fiber: [] };
+				const rules = {};
+				// Category-level rules (union across recipe's categories, first-win per slot)
+				const recipeCats = recipe.categories || (recipe.cat ? [recipe.cat] : []);
+				recipeCats.forEach(catId => {
+					const cat = (typeof CATEGORIES !== 'undefined' && CATEGORIES[catId]) || null;
+					const aa = cat && cat.autoAddons || {};
+					slots.forEach(s => { if (!rules[s] && aa[s]) rules[s] = aa[s]; });
+				});
+				// Recipe-level overrides
+				const rAA = recipe.autoAddons || {};
+				slots.forEach(s => { if (rAA[s]) rules[s] = rAA[s]; });
+				// Materialize: find published recipes in target category
+				slots.forEach(s => {
+					const rule = rules[s];
+					if (!rule || !rule.fromCategory) return;
+					const sourceId = rule.fromCategory;
+					if (typeof RECIPES === 'undefined') return;
+					Object.values(RECIPES).forEach(rx => {
+						if (rx.id === recipe.id) return;
+						const rxCats = rx.categories || (rx.cat ? [rx.cat] : []);
+						if (rxCats.indexOf(sourceId) === -1) return;
+						resolved[s].push({
+							name: rx.name,
+							kcal: rx.kcal || 0,
+							protein: rx.protein || 0,
+							fat: rx.fat || 0,
+							carbs: rx.carbs || 0,
+							fiber: rx.fiber || 0,
+							recipeId: rx.id,
+							_auto: true
+						});
+					});
+				});
+				return resolved;
+			}
+			function _mergeAddItems(explicit, auto) {
+				const out = (explicit || []).slice();
+				const seen = new Set();
+				out.forEach(it => {
+					if (it && it.recipeId) seen.add('r:' + it.recipeId);
+					if (it && it.name) seen.add('n:' + it.name.toLowerCase().trim());
+				});
+				(auto || []).forEach(it => {
+					const keyR = it.recipeId ? 'r:' + it.recipeId : null;
+					const keyN = 'n:' + (it.name || '').toLowerCase().trim();
+					if ((keyR && seen.has(keyR)) || seen.has(keyN)) return;
+					out.push(it);
+					if (keyR) seen.add(keyR);
+					seen.add(keyN);
+				});
+				return out;
+			}
+			const _autoAdd = _resolveAutoAddons(r);
+			const addProtein = _mergeAddItems(r.addProtein, _autoAdd.protein);
+			const addFat = _mergeAddItems(r.addFat, _autoAdd.fat);
+			const addCarbs = _mergeAddItems(r.addCarbs, _autoAdd.carbs);
+			const addFiber = _mergeAddItems(r.addFiber, _autoAdd.fiber);
+			// Сайдбар показывается ТОЛЬКО если хотя бы одно add* поле (после резолва) содержит данные
+			const _hasOwn = (arr) => Array.isArray(arr) && arr.length > 0;
+			const _hasAnyAdd = _hasOwn(addProtein) || _hasOwn(addFat) || _hasOwn(addCarbs) || _hasOwn(addFiber);
+			const hasAdditions = !simpleMode && _hasAnyAdd;
+
+			// Reset swap state for this recipe render
+			_swapInfo = {};
+			_appliedSwaps = {};
+			_excludedIngredients = {};
+			const ingHtml = (r.ingredients || []).map((ing, i) => {
+				const name = typeof ing === 'string' ? ing : ing.name;
+				const swap = typeof ing === 'object' ? ing.swap : null;
+				const optional = isOptionalSwap(swap);
+				const actionBtn = optional
+					? `<button class="ing-optout-btn" id="ing-optout-btn-${i}" onclick="optOutIngredient(${i})">можно без него</button>`
+					: (swap ? `<button class="ing-swap-btn" id="ing-swap-btn-${i}" onclick="toggleSwap(${i})">чем заменить?</button>` : '');
+				const swapTip = (swap && !optional)
+					? `<div class="ing-swap-tip" id="swap-${i}">${renderSwapOptions(swap, i, name)}</div>`
+					: '';
+				const placeholder = optional
+					? `<div class="ing-item ing-item-excluded" id="ing-placeholder-${i}" style="display:none">
+                    <div class="ing-dot ing-dot-muted"></div>
+                    <div class="ing-name ing-name-excluded">${linkify(name)}</div>
+                    <button class="ing-restore-btn" onclick="restoreIngredient(${i})">вернуть</button>
+                </div>`
+					: '';
+				return `<div>
+                <div class="ing-item" id="ing-row-${i}">
+                    <div class="ing-dot"></div>
+                    <div class="ing-name" id="ing-name-${i}">${linkify(name)}</div>
+                    ${actionBtn}
+                </div>
+                ${swapTip}
+                ${placeholder}
+            </div>`;
+			}).join('');
+
+			// Контракт step.photo:
+			//   string      → 1 фото
+			//   string[]    → N фото по порядку (галерея)
+			//   true        → плейсхолдер-заглушка
+			//   null/""/нет → без блока фото
+			// Нормализация URL (photoUrl) применяется к каждой строке, не к массиву целиком.
+			const stepsArr = (r.steps || []).map((s, i) => {
+				const text = escHtml(typeof s === 'string' ? s : s.text);
+				const photo = typeof s === 'object' && s.photo ? s.photo : null;
+				let photoHtml = '';
+				if (photo === true) {
+					photoHtml = `<div class="step-photo-placeholder"><span>📷</span><span>Фото шага ${i + 1}</span></div>`;
+				} else if (Array.isArray(photo)) {
+					const imgs = photo.filter(p => typeof p === 'string' && p);
+					if (imgs.length === 1) {
+						photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(imgs[0]))}" alt="Фото шага ${i + 1}" loading="lazy" onerror="this.style.display='none'">`;
+					} else if (imgs.length > 1) {
+						photoHtml = `<div class="step-photo-gallery">` + imgs.map((p, idx) =>
+							`<img class="step-photo-img" src="${escHtml(photoUrl(p))}" alt="Фото шага ${i + 1} (${idx + 1})" loading="lazy" onerror="this.style.display='none'">`
+						).join('') + `</div>`;
+					}
+				} else if (typeof photo === 'string' && photo) {
+					photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i + 1}" loading="lazy" onerror="this.closest('.step-photo-wrap').style.display='none'">`;
+				}
+				return `<div class="step-item">
+                <div class="step-num">${i + 1}</div>
+                <div class="step-body">
+                    <div class="step-text">${text}</div>
+                    ${photoHtml ? `<div class="step-photo-wrap">${photoHtml}</div>` : ''}
+                </div>
+            </div>`;
+			});
+			// Helper: derive start/final photo path from cover photo
+			function derivePhoto(base, suffix) {
+				if (!base) return '';
+				// Replace known suffixes (-cover, -final, -start) or append before extension
+				return base.replace(/-(cover|final|start)(\.[^.]+)$/, '-' + suffix + '$2')
+					|| base.replace(/(\.[^.]+)$/, '-' + suffix + '$1');
+			}
+			// Final step: finished dish photo
+			const finalPhoto = r.photoFinal || (r.photo ? derivePhoto(r.photo, 'final') : '');
+			if (finalPhoto) {
+				const n = stepsArr.length + 1;
+				stepsArr.push(`<div class="step-item step-final">
+                <div class="step-num">${n}</div>
+                <div class="step-body">
+                    <div class="step-text">Наслаждайтесь! Приятного вам аппетита 😋</div>
+                    <div class="step-photo-wrap"><img class="step-photo-img" src="${escHtml(photoUrl(finalPhoto))}" alt="Готовое блюдо" loading="lazy" onerror="this.closest('.step-final').style.display='none'"></div>
+                </div>
+            </div>`);
+			}
+			const stepsHtml = stepsArr.join('');
+			_stepsHtmlArr = stepsArr;
+			const _stepsCount = stepsArr.length;
+
+			// Balance: determine required categories
+			const _balCats = [];
+			if (addProtein.length) _balCats.push({ key: 'p', label: 'Белок', prefix: 'p' });
+			if (addFat.length) _balCats.push({ key: 'f', label: 'Жиры', prefix: 'f' });
+			if (addCarbs.length) _balCats.push({ key: 'c', label: 'Углеводы', prefix: 'c' });
+			if (addFiber.length) _balCats.push({ key: 'fi', label: 'Клетчатка', prefix: 'fi' });
+
+			_balRequired = _balCats; // store for balance checking
+
+			const balProgressHtml = _balCats.map(c =>
+				`<span class="bal-progress-pill" id="bal-pill-${c.key}"><span class="pill-check" id="bal-chk-${c.key}"></span>${c.key === 'p' ? '💪' : c.key === 'f' ? '🥑' : c.key === 'c' ? '🌾' : '🥬'} ${c.label}</span>`
+			).join('');
+
+			const sidebarHtml = hasAdditions ? `
+            <div class="bal-sidebar anim anim-d2">
+                <div id="bal-banner" class="bal-banner bal-banner-warn">
+                    <button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">🔕</span></button>
+                    <div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div>
+                    <div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи — КБЖУ пересчитается</div>
+                    <div class="bal-progress">${balProgressHtml}</div>
+                </div>
+                ${buildGroup('💪 Добавь белка для сытости', 'p', addProtein)}
+                ${buildGroup('🥑 Добавь жиров для баланса', 'f', addFat)}
+                ${buildGroup('🌾 Добавь углеводов для энергии', 'c', addCarbs)}
+                ${buildGroup('🥬 Добавь клетчатки', 'fi', addFiber)}
+                <div class="bal-total" id="bal-total-bar">
+	                    <div class="bal-total-main">
+                        <div class="bal-total-label" id="bal-total-label">ИТОГО · БЛЮДО + ДОБАВКИ</div>
+                        <div class="bal-total-macro" id="add-macro">
+                            <div class="bal-total-metric"><b>${Number(r.protein)} г</b><span>БЕЛКИ</span></div>
+                            <div class="bal-total-metric"><b>${Number(r.fat)} г</b><span>ЖИРЫ</span></div>
+                            <div class="bal-total-metric"><b>${Number(r.carbs)} г</b><span>УГЛЕВОДЫ</span></div>
+                            <div class="bal-total-metric"><b>${Number(r.fiber || 0)} г</b><span>КЛЕТЧАТКА</span></div>
+                        </div>
+                    </div>
+                    <div class="bal-total-val" id="bal-total-kcal">${Number(r.kcal)} ккал</div>
+                </div>
+            </div>` : '';
+
+			const alreadyInPlate = isInPlate();
+			const fiberCell = (r.fiber !== undefined)
+				? `<div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fiber">~${Number(r.fiber)}г</div><div class="kbzhu-lbl">Клетчатка</div></div>`
+				: '';
+
+			const tipHtml = r.tip ? `<div class="julia-tip">
+            <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
+            <div class="julia-tip-bubble">
+                <div class="julia-tip-text">«${r.tip}»</div>
+            </div>
+        </div>` : '';
+
+			// Recipe meta: rating stars + date
+			// Stars and count will be filled from API by loadReviews()
+			const isFav = Favorites.has(r.id);
+			const starsRow = [1, 2, 3, 4, 5].map(i =>
+				`<span class="star r-star${i <= 0 ? ' filled' : ''}" style="cursor:pointer" onclick="scrollToReviews()">★</span>`).join('');
+			const voterCount = 0;
+			const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+			const dateStr = r.added || '';
+
+			document.getElementById('page-content').innerHTML = `
+            <div class="recipe-layout">
+                <div class="recipe-main anim">
+                    <div class="recipe-hero-img">
+                        <img src="${escHtml(photoUrl(r.photo) || PHOTO_BY_CAT[r.cat] || PHOTO_FALLBACK)}"
+                             alt="${escHtml(r.name)}"
+                             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
+                             onerror="this.style.display='none';var e=document.createElement('div');e.className='recipe-hero-emoji';e.style.cssText='position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)';e.textContent='${escHtml(r.emoji)}';this.parentElement.insertBefore(e,this)">
+                        ${!r.photo ? `<div class="recipe-hero-emoji" style="position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)">${escHtml(r.emoji)}</div>` : ''}
+                        <div class="card-fav-btn${isFav ? ' active' : ''}" id="recipe-fav-btn"
+                            onclick="event.stopPropagation();toggleRecipeFav()">
+                            <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+                        </div>
+                        <div class="photo-overlay">
+                            <div class="photo-rating-pill" id="recipe-rpill"
+                                onclick="event.stopPropagation();scrollToStars()">
+                                <span class="pr-star">★</span>
+                                <span class="pr-val" id="recipe-rating-val">—</span>
+                            </div>
+                            <button class="photo-comment-btn" onclick="event.stopPropagation();scrollToReviews()">
+                                <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                                Отзывы
+                            </button>
+                        </div>
+                    </div>
+                    <div class="recipe-badges">
+                        <span class="recipe-badge">⏱ ${Number(r.time)} мин</span>
+                        <span class="recipe-badge">⚡ ${escHtml(diff)}</span>
+                        <span class="recipe-badge">🍽 ${Number(r.servings || 4)} ${(()=>{const n=Number(r.servings||4),m10=n%10,m100=n%100;if(m10===1&&m100!==11)return 'порция';if([2,3,4].includes(m10)&&![12,13,14].includes(m100))return 'порции';return 'порций';})()} <span style="font-weight:500;color:var(--text-2)">(1 порция ≈ ${Number(r.portionGrams || 300)} г)</span></span>
+                        ${dateStr ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">Рецепт добавлен: ${escHtml(dateStr)}</span>` : ''}
+                    </div>
+                    <h1 class="recipe-title">${escHtml(r.name)}</h1>
+                    <div class="recipe-meta-row" id="recipe-stars-row">
+                        <span class="recipe-meta-stars">
+                            ${starsRow}
+                            <span id="recipe-voter-count" style="color:var(--text-3)">(${voterCount})</span>
+                        </span>
+                    </div>
+                    ${r.quote ? `<div class="julia-tip" style="margin-top:0;margin-bottom:18px">
+                        <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
+                        <div class="julia-tip-bubble">
+                            <div class="julia-tip-text">«${escHtml(r.quote)}»</div>
+                        </div>
+                    </div>` : ''}
+                    <div class="v-section-title" style="margin-bottom:8px">В одной порции блюда:</div>
+                    <div class="kbzhu" id="kbzhu-block">
+                        <div class="kbzhu-cell main"><div class="kbzhu-val" id="kbzhu-kcal">~${Number(r.kcal)}</div><div class="kbzhu-lbl">Ккал</div></div>
+                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-protein">~${Number(r.protein)}г</div><div class="kbzhu-lbl">Белки</div></div>
+                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-fat">~${Number(r.fat)}г</div><div class="kbzhu-lbl">Жиры</div></div>
+                        <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-carbs">~${Number(r.carbs)}г</div><div class="kbzhu-lbl">Углеводы</div></div>
+                        ${fiberCell}
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:8px">
+                        <div class="v-section-title">Ингредиенты</div>
+                        <button class="btn btn-ghost btn-sm" onclick="shareRecipeIngredients()" style="padding:6px 10px;font-size:11px">📤 Поделиться</button>
+                    </div>
+                    <div class="ing-list">${ingHtml}</div>
+                    ${r.photo ? `<img class="step-photo-img" src="${escHtml(photoUrl(derivePhoto(r.photo, 'start')))}" alt="Ингредиенты" loading="lazy" onerror="this.style.display='none'" style="margin-top:16px;border-radius:12px;width:100%">` : ''}
+
+                    <div class="steps-head">
+                        <div class="v-section-title">Приготовление</div>
+                        ${_stepsCount > 1 ? `<button class="steps-mode-btn" id="steps-mode-btn" type="button" onclick="toggleStepperMode()">
+                            <span class="steps-mode-icon" id="steps-mode-icon">👣</span>
+                            <span id="steps-mode-label">Пошагово</span>
+                        </button>` : ''}
+                    </div>
+                    ${_stepsCount > 8 ? `<div class="steps-hint" id="steps-hint" hidden>
+                        <span class="steps-hint-icon">💡</span>
+                        <span class="steps-hint-text">Совет: включите <b>«Пошагово»</b> — так удобнее готовить длинный рецепт.</span>
+                        <button class="steps-hint-close" type="button" onclick="dismissStepsHint()" aria-label="Закрыть подсказку">×</button>
+                    </div>` : ''}
+                    <div class="steps-list" id="steps-list">${stepsHtml}</div>
+                    ${_stepsCount > 3 ? `<button class="steps-expand-btn" id="steps-expand-btn" type="button" onclick="toggleStepsExpanded()">
+                        <span id="steps-expand-label">Показать все шаги (${_stepsCount})</span>
+                        <span class="steps-expand-arrow" id="steps-expand-arrow">▾</span>
+                    </button>` : ''}
+                    ${_stepsCount > 1 ? `<div class="steps-stepper" id="steps-stepper" hidden>
+                        <div class="stepper-progress">
+                            <span class="stepper-progress-text">Шаг <span id="stepper-current-n">1</span> из <span id="stepper-total-n">${_stepsCount}</span></span>
+                            <div class="stepper-bar"><div class="stepper-bar-fill" id="stepper-bar-fill"></div></div>
+                        </div>
+                        <div class="stepper-current" id="stepper-current"></div>
+                        <label class="stepper-done">
+                            <input type="checkbox" id="stepper-done-cb" onchange="toggleStepperDone()">
+                            <span>Выполнено</span>
+                        </label>
+                        <div class="stepper-nav">
+                            <button class="stepper-nav-btn" id="stepper-prev" type="button" onclick="stepperPrev()">← Назад</button>
+                            <button class="stepper-nav-btn stepper-nav-next" id="stepper-next" type="button" onclick="stepperNext()">Далее →</button>
+                        </div>
+                    </div>` : ''}
+
+                    ${!simpleMode && (r.ytVideo || r.vkVideo || r.dzenVideo) ? (() => {
+					const vids = [];
+					if (r.ytVideo) vids.push({ key: 'yt', label: 'YouTube', icon: '<svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.4 31.4 0 000 12a31.4 31.4 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.4 31.4 0 0024 12a31.4 31.4 0 00-.5-5.8zM9.5 15.6V8.4l6.3 3.6-6.3 3.6z" fill="currentColor"/></svg>', color: '#FF0000', url: r.ytVideo });
+					if (r.vkVideo) vids.push({ key: 'vk', label: 'VK Видео', icon: '<svg viewBox="0 0 24 24"><path d="M21.6 7.2s.2-1.1-.4-1.6c-.5-.5-1-.5-1.3-.5C17.3 5 12 5 12 5s-5.3 0-7.9.1c-.3 0-.8 0-1.3.5-.6.5-.4 1.6-.4 1.6S2 8.5 2 9.9v1.3c0 1.3.4 2.7.4 2.7s.2 1.1.7 1.6c.7.7 1.6.7 2 .7 1.4.1 6 .2 6 .2s5.3 0 7.9-.2c.3 0 .8 0 1.3-.5.6-.5.4-1.6.4-1.6s.3-1.3.3-2.7V9.9c0-1.3-.4-2.7-.4-2.7zM9.5 15V8.5l6.5 3.3L9.5 15z" fill="currentColor"/></svg>', color: '#0077FF', url: r.vkVideo });
+					if (r.dzenVideo) vids.push({ key: 'dzen', label: 'Дзен', icon: '<svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="currentColor"/><path d="M11 7.5L16 12l-5 4.5V7.5z" fill="currentColor"/></svg>', color: '#000', url: r.dzenVideo });
+					return `
+                        <div class="video-recipe-section">
+                            <div class="v-section-title" style="margin-top:20px">Видеорецепт</div>
+                            <div class="video-platform-tabs" id="video-tabs">
+                                ${vids.map((v, i) => `<button class="video-tab${i === 0 ? ' active' : ''}" data-key="${v.key}" onclick="switchVideo('${v.key}')" style="--tab-color:${v.color}">
+                                    <span class="video-tab-icon">${v.icon}</span>
+                                    <span class="video-tab-label">${escHtml(v.label)}</span>
+                                </button>`).join('')}
+                            </div>
+                            <div class="video-player-wrap" id="video-player">
+                                ${vids.map((v, i) => `<div class="video-frame${i === 0 ? ' active' : ''}" data-key="${v.key}" data-url="${escHtml(v.url)}">
+                                </div>`).join('')}
+                            </div>
+                        </div>`;
+				})() : ''}
+
+                    ${tipHtml}
+
+                    <!-- On mobile: sidebar appears here, after recipe content, before reviews -->
+                    <div id="sidebar-mobile" style="margin-top:20px;display:none"></div>
+
+                    <!-- Reviews section -->
+                    <div class="reviews-section" id="reviews-section">
+                        <div class="v-section-title" style="margin-top:24px">Отзывы</div>
+                        <div id="reviews-list" style="margin-bottom:16px"></div>
+                        <div id="review-form-wrap">
+                            ${Auth.isLoggedIn() ? `
+                            <div class="review-form">
+                                <div class="review-form-stars" id="review-form-stars">
+                                    ${[1, 2, 3, 4, 5].map(i => `<span class="star review-star" data-n="${i}" onclick="setReviewStars(${i})">★</span>`).join('')}
+                                </div>
+                                <textarea id="review-text" class="review-textarea" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." maxlength="1000" rows="3"></textarea>
+                                <div style="display:flex;align-items:center;justify-content:space-between">
+                                    <span class="review-char-count" id="review-char-count">0 / 1000</span>
+                                    <button class="btn btn-green btn-sm" id="review-submit-btn" onclick="submitReview()">Отправить</button>
+                                </div>
+                            </div>` : `<div style="font-size:13px;color:var(--text-3);margin-bottom:12px">Войдите, чтобы оставить отзыв</div>`}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desktop sidebar -->
+                <div class="recipe-sidebar" id="sidebar-desktop">
+                    ${sidebarHtml}
+                </div>
+            </div>`;
+
+			// Place sidebar in correct container for current viewport
+			placeSidebarForViewport();
+
+			// Sticky mini balance status: init observer + initial state
+			updateMiniBalanceStatus();
+			setupBalBannerObserver();
+
+			// Stars: animate when entering viewport
+			const starsRowEl = document.getElementById('recipe-stars-row');
+			if (starsRowEl && 'IntersectionObserver' in window) {
+				const io = new IntersectionObserver(function (entries) {
+					if (entries[0].isIntersecting) {
+						starsRowEl.classList.add('stars-animate');
+						io.disconnect();
+					}
+				}, { threshold: 0.5 });
+				io.observe(starsRowEl);
+			}
+
+			refreshAddButtonStateByPlate();
+
+			// Init steps UI (mobile compact + stepper)
+			initStepsUI();
+
+			// Init first video tab immediately after DOM insert
+			initVideoTabs();
+		}
+
+		// subItemRegistry declared above (before renderRecipe call)
+
+		function _renderBalItem(item, prefix, i) {
+			const key = prefix + '-' + i;
+			const hasRecipe = item.recipeId;
+			const hasCat = item.catLink;
+			const isChecked = !!checkedItems[key];
+			const checkedCls = isChecked ? ' checked' : '';
+			const amountHtml = item.amount ? ` <span class="bal-item-amount">· ${escHtml(item.amount)}</span>` : '';
+			if (hasRecipe) {
+				subItemRegistry[key] = item;
+				const safeRid = encodeURIComponent(item.recipeId);
+				return `<div class="bal-item has-recipe${checkedCls}" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative;cursor:pointer">
+                            <div class="bal-item-check" id="chk-${key}"></div>
+                            <div class="bal-item-text">
+                                ${escHtml(item.name)}${amountHtml}
+                            </div>
+                            <div class="bal-item-meta">
+                                <a class="bal-item-recipe-chip" onclick="event.stopPropagation();location.href='recipe.html?id=${safeRid}&from=${encodeURIComponent(fromCat)}&asIngredient=1&parentRecipeId=${encodeURIComponent(r.id)}'">Рецепт ↗</a>
+                                <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
+                            </div>
+                        </div>`;
+			} else {
+				return `<button class="bal-item${checkedCls}" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative">
+                            <div class="bal-item-check" id="chk-${key}"></div>
+                            <div class="bal-item-text">
+                                ${escHtml(item.name)}${amountHtml}
+                                ${hasCat ? `<a class="bal-item-recipe-link" onclick="event.stopPropagation();location.href='category.html?cat=${encodeURIComponent(item.catLink)}'">→ Выбрать из списка</a>` : ''}
+                            </div>
+                            <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
+                        </button>`;
+			}
+		}
+
+		function _hasHiddenSelected(prefix, items) {
+			return Object.keys(checkedItems).some(k => {
+				if (!k.startsWith(prefix + '-')) return false;
+				const idx = parseInt(k.slice(prefix.length + 1), 10);
+				return idx >= GROUP_COLLAPSE_LIMIT && idx < items.length;
+			});
+		}
+
+		function buildGroup(label, prefix, items) {
+			if (!items || !items.length) return '';
+			_groupConfig[prefix] = { label, items };
+			const cls = GROUP_CLASS[prefix] || '';
+			const shouldCollapse = items.length > GROUP_COLLAPSE_LIMIT;
+			const expanded = !!expandedGroups[prefix];
+			const visible = (shouldCollapse && !expanded) ? items.slice(0, GROUP_COLLAPSE_LIMIT) : items;
+			const toggleHtml = shouldCollapse
+				? `<div class="bal-group-toggle-wrap">
+                    <button type="button" class="bal-group-toggle" onclick="toggleGroupExpand('${prefix}')">
+                        ${expanded ? 'Свернуть' : 'Показать ещё ' + (items.length - GROUP_COLLAPSE_LIMIT)}
+                        ${(!expanded && _hasHiddenSelected(prefix, items)) ? '<span class="bal-group-toggle-dot" title="В скрытой части есть выбранное"></span>' : ''}
+                    </button>
+                </div>`
+				: '';
+			return `<div class="bal-group ${cls}" id="bal-group-${prefix}">
+            <div class="bal-group-title">${label}</div>
+            <div class="bal-group-items" id="bal-group-items-${prefix}">
+                ${visible.map((item, i) => _renderBalItem(item, prefix, i)).join('')}
+            </div>
+            ${toggleHtml}
+        </div>`;
+		}
+
+		function toggleGroupExpand(prefix) {
+			const cfg = _groupConfig[prefix];
+			if (!cfg) return;
+			expandedGroups[prefix] = !expandedGroups[prefix];
+			const oldEl = document.getElementById('bal-group-' + prefix);
+			if (!oldEl) return;
+			const wrap = document.createElement('div');
+			wrap.innerHTML = buildGroup(cfg.label, prefix, cfg.items).trim();
+			const newEl = wrap.firstChild;
+			if (newEl) oldEl.parentNode.replaceChild(newEl, oldEl);
+		}
+
+		function addSubToPlate(key, event) {
+			event.stopPropagation();
+			const btn = document.getElementById('sub-add-' + key);
+			if (btn && btn.disabled) return;
+			const item = subItemRegistry[key];
+			if (!item) return;
+			Plate.add({
+				name: item.name,
+				emoji: item.emoji || '🍴',
+				kcal: item.kcal || 0,
+				protein: item.protein || 0,
+				fat: item.fat || 0,
+				carbs: item.carbs || 0,
+				fiber: item.fiber || 0,
+				recipeId: item.recipeId,
+				ingredients: []
+			});
+			if (btn) {
+				btn.textContent = '✓ В тарелке';
+				btn.disabled = true;
+				btn.className = 'btn btn-sm btn-ghost';
+				btn.style.opacity = '.6';
+				btn.style.cursor = 'default';
+			}
+			updatePlateIcon();
+			showToast((item.emoji || '') + ' Добавлено в тарелку!');
+		}
+
+		function toggleSwap(i) {
+			const el = document.getElementById('swap-' + i);
+			if (el) el.classList.toggle('open');
+		}
+
+		function toggleAddItem(key, kcal, protein, fat, carbs, fiber) {
+			const btn = document.getElementById('ai-' + key);
+			if (!btn) return;
+			if (checkedItems[key]) {
+				delete checkedItems[key];
+				btn.classList.remove('checked');
+			} else {
+				// Only one addon per category (prefix p/f/c/fi): clear siblings first
+				const prefix = key.replace(/-\d+$/, '');
+				Object.keys(checkedItems).forEach(k => {
+					if (k.replace(/-\d+$/, '') === prefix) {
+						delete checkedItems[k];
+						const prev = document.getElementById('ai-' + k);
+						if (prev) prev.classList.remove('checked');
+					}
+				});
+				const nameEl = btn.querySelector('.bal-item-text');
+				let name = key;
+				if (nameEl) {
+					const clone = nameEl.cloneNode(true);
+					const link = clone.querySelector('.bal-item-recipe-link');
+					if (link) link.remove();
+					name = clone.textContent.trim() || key;
+				}
+				const src = subItemRegistry[key] || {};
+				checkedItems[key] = {
+					name,
+					kcal,
+					protein,
+					fat,
+					carbs,
+					fiber: fiber || 0,
+					recipeId: src.recipeId || null,
+					emoji: src.emoji || ''
+				};
+				btn.classList.add('checked');
+			}
+			updateAddTotal();
+		}
+
+		function checkBalance() {
+			if (!_balRequired.length) {
+				updateMiniBalanceStatus();
+				return true; // no sidebar = balanced
+			}
+			const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
+			let allDone = true;
+			_balRequired.forEach(cat => {
+				const done = checkedPrefixes.has(cat.prefix);
+				const pill = document.getElementById('bal-pill-' + cat.key);
+				const chk = document.getElementById('bal-chk-' + cat.key);
+				if (pill) pill.classList.toggle('done', done);
+				if (chk) chk.textContent = done ? '✓' : '';
+				if (!done) allDone = false;
+			});
+			// Update banner
+			const banner = document.getElementById('bal-banner');
+			if (banner) {
+				const soundBtnHtml = `<button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">🔕</span></button>`;
+				if (allDone) {
+					banner.className = 'bal-banner bal-banner-success';
+					banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-title">✅ Блюдо сбалансировано!</div><div class="bal-banner-sub">Добавьте его в тарелку — это полноценный приём пищи</div>`;
+					if (!_celebrationShown) {
+						_celebrationShown = true;
+						showToast('Блюдо сбалансировано ✅');
+						playBalanceSound();
+						showBalanceSuccessModal();
+					}
+				} else {
+					if (_wasBalanced) {
+						// was balanced, now not — reset banner
+						banner.className = 'bal-banner bal-banner-warn';
+						const pills = _balRequired.map(c =>
+							`<span class="bal-progress-pill${new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, ''))).has(c.prefix) ? ' done' : ''}" id="bal-pill-${c.key}"><span class="pill-check" id="bal-chk-${c.key}">${new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, ''))).has(c.prefix) ? '✓' : ''}</span>${c.key === 'p' ? '💪' : c.key === 'f' ? '🥑' : c.key === 'c' ? '🌾' : '🥬'} ${c.label}</span>`
+						).join('');
+						banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div><div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи — КБЖУ пересчитается</div><div class="bal-progress">${pills}</div>`;
+						_celebrationShown = false;
+					}
+				}
+				_wasBalanced = allDone;
+			}
+			updateMiniBalanceStatus(allDone);
+			return allDone;
+		}
+
+		// ── Mini balance status (sticky) ───────────────────────────────
+		function updateMiniBalanceStatus(allDone) {
+			const el = document.getElementById('bal-mini-status');
+			if (!el) return;
+			if (!_balRequired.length) {
+				el.classList.remove('show');
+				return;
+			}
+			const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
+			const done = _balRequired.filter(c => checkedPrefixes.has(c.prefix)).length;
+			const total = _balRequired.length;
+			const balanced = (typeof allDone === 'boolean') ? allDone : done === total;
+			const progressEl = document.getElementById('bal-mini-progress');
+			const labelEl = document.getElementById('bal-mini-label');
+			if (balanced) {
+				el.classList.add('success');
+				if (progressEl) progressEl.textContent = '✅';
+				if (labelEl) labelEl.textContent = 'Сбалансировано';
+			} else {
+				el.classList.remove('success');
+				if (progressEl) progressEl.textContent = done + ' / ' + total;
+				if (labelEl) labelEl.textContent = 'Добавки';
+			}
+			syncSoundButtonsUI();
+		}
+
+		function scrollToBalanceBanner() {
+			const banner = document.getElementById('bal-banner');
+			if (!banner) return;
+			banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		}
+
+		function handleMiniStatusKey(e) {
+			if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+				e.preventDefault();
+				scrollToBalanceBanner();
+			}
+		}
+
+		function syncSoundButtonsUI() {
+			const on = !!_soundEnabled;
+			const miniBtn = document.getElementById('bal-mini-sound-btn');
+			const miniIcon = document.getElementById('bal-mini-sound-icon');
+			const bannerBtn = document.getElementById('bal-banner-sound-btn');
+			const bannerIcon = document.getElementById('bal-banner-sound-icon');
+			if (miniBtn) {
+				miniBtn.classList.toggle('on', on);
+				miniBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+			}
+			if (miniIcon) miniIcon.textContent = on ? '🔔' : '🔕';
+			if (bannerBtn) {
+				bannerBtn.classList.toggle('on', on);
+				bannerBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+			}
+			if (bannerIcon) bannerIcon.textContent = on ? '🔔' : '🔕';
+		}
+
+		// Unlocks BOTH the MP3 element and a WebAudio context inside a user gesture.
+		// Returns {mp3Ok, ctxOk} — if either succeeds, sound can be played going forward.
+		async function unlockBalanceAudioByGesture() {
+			let mp3Ok = false, ctxOk = false;
+			try {
+				ensureBalanceAudio();
+				_balanceAudio.muted = true;
+				_balanceAudio.currentTime = 0;
+				await _balanceAudio.play();
+				_balanceAudio.pause();
+				_balanceAudio.currentTime = 0;
+				_balanceAudio.muted = false;
+				mp3Ok = true;
+			} catch (err) {
+				try { if (_balanceAudio) _balanceAudio.muted = false; } catch (_) { }
+				if (console && console.debug) console.debug('[audio unlock mp3]', err && err.name, err && err.message);
+			}
+			try {
+				const AC = window.AudioContext || window.webkitAudioContext;
+				if (AC) {
+					if (!_audioCtx) _audioCtx = new AC();
+					if (_audioCtx.state === 'suspended') await _audioCtx.resume();
+					ctxOk = _audioCtx.state === 'running';
+				}
+			} catch (err) {
+				if (console && console.debug) console.debug('[audio unlock ctx]', err && err.name, err && err.message);
+			}
+			_audioUnlocked = mp3Ok || ctxOk;
+			if (mp3Ok) _audioMode = 'mp3';
+			else if (ctxOk) _audioMode = 'fallback';
+			return { mp3Ok, ctxOk };
+		}
+
+		async function toggleBalanceSound(e) {
+			if (e && e.stopPropagation) e.stopPropagation();
+			if (_soundToggleBusy) return;
+			if (_soundEnabled) {
+				_soundEnabled = false;
+				try { localStorage.setItem('balanceSoundEnabled', '0'); } catch (_) { }
+				syncSoundButtonsUI();
+				showToast('🔕 Звук выключен');
+				return;
+			}
+			_soundToggleBusy = true;
+			try {
+				const { mp3Ok, ctxOk } = await unlockBalanceAudioByGesture();
+				if (mp3Ok || ctxOk) {
+					_soundEnabled = true;
+					_soundBlockedToastShown = false;
+					_soundErrorToastShown.blocked = false;
+					_soundErrorToastShown.asset = false;
+					_soundErrorToastShown.unknown = false;
+					try { localStorage.setItem('balanceSoundEnabled', '1'); } catch (_) { }
+					syncSoundButtonsUI();
+					showToast(mp3Ok ? '🔔 Звук включён' : '🔔 Звук включён (резервный)');
+				} else {
+					_soundEnabled = false;
+					try { localStorage.setItem('balanceSoundEnabled', '0'); } catch (_) { }
+					syncSoundButtonsUI();
+					showToast('Браузер блокирует звук. Нажмите 🔔 ещё раз после взаимодействия');
+				}
+			} finally {
+				_soundToggleBusy = false;
+			}
+		}
+
+
+		// ── Balance success modal ──────────────────────────────────────────
+		let _balSuccessAutoHideTimer = null;
+		let _balSuccessPrevFocus = null;
+
+		function showBalanceSuccessModal() {
+			const asIng = new URLSearchParams(location.search).get('asIngredient') === '1';
+			if (asIng) return;
+			if (typeof isInPlate === 'function' && isInPlate()) return;
+			const overlay = document.getElementById('bal-success-modal');
+			if (!overlay) return;
+			_balSuccessPrevFocus = document.activeElement;
+			overlay.classList.add('show');
+			overlay.addEventListener('click', _balSuccessBackdropHandler);
+			document.addEventListener('keydown', _balSuccessKeyHandler);
+			spawnSparkles();
+			const primary = document.getElementById('bal-success-primary');
+			if (primary) setTimeout(() => { try { primary.focus(); } catch (e) { } }, 50);
+			clearTimeout(_balSuccessAutoHideTimer);
+			_balSuccessAutoHideTimer = setTimeout(() => hideBalanceSuccessModal('timeout'), 3000);
+		}
+
+		function hideBalanceSuccessModal(reason) {
+			const overlay = document.getElementById('bal-success-modal');
+			if (!overlay) return;
+			if (!overlay.classList.contains('show')) return;
+			overlay.classList.remove('show');
+			overlay.removeEventListener('click', _balSuccessBackdropHandler);
+			document.removeEventListener('keydown', _balSuccessKeyHandler);
+			clearTimeout(_balSuccessAutoHideTimer);
+			_balSuccessAutoHideTimer = null;
+			const sparkleHost = document.getElementById('bal-sparkle-container');
+			if (sparkleHost) sparkleHost.innerHTML = '';
+			if (_balSuccessPrevFocus && typeof _balSuccessPrevFocus.focus === 'function') {
+				try { _balSuccessPrevFocus.focus(); } catch (e) { }
+			}
+			_balSuccessPrevFocus = null;
+		}
+
+		function _balSuccessBackdropHandler(e) {
+			if (e.target && e.target.id === 'bal-success-modal') {
+				hideBalanceSuccessModal('backdrop');
+			}
+		}
+
+		function _balSuccessKeyHandler(e) {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				hideBalanceSuccessModal('esc');
+				return;
+			}
+			if (e.key === 'Tab') {
+				const overlay = document.getElementById('bal-success-modal');
+				if (!overlay) return;
+				const focusable = overlay.querySelectorAll('button');
+				if (!focusable.length) return;
+				const first = focusable[0];
+				const last = focusable[focusable.length - 1];
+				if (e.shiftKey && document.activeElement === first) {
+					e.preventDefault();
+					last.focus();
+				} else if (!e.shiftKey && document.activeElement === last) {
+					e.preventDefault();
+					first.focus();
+				}
+			}
+		}
+
+		function confirmBalanceSuccessAdd() {
+			hideBalanceSuccessModal('primary');
+			addToPlate();
+		}
+
+		function ensureBalanceAudio() {
+			if (_balanceAudio) return;
+			const paths = SOUND_ASSETS.balanceReady;
+			_balanceAudioSrcIndex = 0;
+			_balanceAudio = new Audio(paths[0]);
+			_balanceAudio.preload = 'auto';
+			// Walk through the paths chain on asset errors (file moved, 404, wrong context)
+			_balanceAudio.addEventListener('error', function () {
+				_balanceAudioSrcIndex++;
+				if (_balanceAudioSrcIndex < paths.length && _balanceAudio) {
+					_balanceAudio.src = paths[_balanceAudioSrcIndex];
+				}
+			});
+		}
+
+		function classifyAudioError(err, audioEl) {
+			if (err && err.name === 'NotAllowedError') return 'blocked';
+			if (err && err.name === 'NotSupportedError') return 'asset';
+			const me = audioEl && audioEl.error;
+			if (me) {
+				// 2=NETWORK, 3=DECODE, 4=SRC_NOT_SUPPORTED
+				if (me.code === 2 || me.code === 3 || me.code === 4) return 'asset';
+			}
+			return 'unknown';
+		}
+
+		// Short "magic" chord via WebAudio — no asset dependency, works whenever AudioContext is running.
+		function playBalanceFallbackPolyphony() {
+			try {
+				const AC = window.AudioContext || window.webkitAudioContext;
+				if (!AC) return false;
+				if (!_audioCtx) _audioCtx = new AC();
+				if (_audioCtx.state === 'suspended') _audioCtx.resume();
+				const ctx = _audioCtx;
+				const now = ctx.currentTime;
+				const master = ctx.createGain();
+				master.gain.setValueAtTime(0.0001, now);
+				master.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
+				master.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
+				master.connect(ctx.destination);
+				// C-major triad, staggered attack for a lighter feel (~280ms)
+				[523.25, 659.25, 783.99].forEach(function (f, i) {
+					const osc = ctx.createOscillator();
+					osc.type = 'triangle';
+					osc.frequency.setValueAtTime(f, now + i * 0.015);
+					osc.connect(master);
+					osc.start(now + i * 0.015);
+					osc.stop(now + 0.34);
+				});
+				return true;
+			} catch (err) {
+				if (console && console.debug) console.debug('[audio fallback]', err && err.name, err && err.message);
+				return false;
+			}
+		}
+
+		function playBalanceSound() {
+			if (!_soundEnabled) return;
+			if (_audioMode === 'fallback') {
+				playBalanceFallbackPolyphony();
+				return;
+			}
+			ensureBalanceAudio();
+			_balanceAudio.currentTime = 0;
+			let p;
+			try { p = _balanceAudio.play(); } catch (err) { p = Promise.reject(err); }
+			if (p && p.catch) {
+				p.catch(function (err) {
+					const type = classifyAudioError(err, _balanceAudio);
+					// Switch to fallback and play immediately so the user hears the signal now
+					_audioMode = 'fallback';
+					const fbOk = playBalanceFallbackPolyphony();
+					if (type === 'blocked') {
+						// Autoplay policy — honest rollback so UI reflects reality
+						if (!fbOk) {
+							_soundEnabled = false;
+							try { localStorage.setItem('balanceSoundEnabled', '0'); } catch (_) { }
+							syncSoundButtonsUI();
+						}
+						if (!_soundErrorToastShown.blocked) {
+							_soundErrorToastShown.blocked = true;
+							showToast('Браузер блокирует звук. Нажмите 🔔 ещё раз после взаимодействия');
+						}
+					} else if (type === 'asset') {
+						if (!_soundErrorToastShown.asset) {
+							_soundErrorToastShown.asset = true;
+							showToast('Не удалось загрузить mp3, включён резервный звук');
+						}
+					} else {
+						if (!_soundErrorToastShown.unknown) {
+							_soundErrorToastShown.unknown = true;
+							showToast('Не удалось воспроизвести mp3, включён резервный звук');
+						}
+					}
+					if (console && console.debug) console.debug('[balance-sound play]', type, err && err.name, err && err.message);
+				});
+			}
+		}
+
+		function setupBalBannerObserver() {
+			if (_balBannerObserver) { _balBannerObserver.disconnect(); _balBannerObserver = null; }
+			const mini = document.getElementById('bal-mini-status');
+			const banner = document.getElementById('bal-banner');
+			if (!mini || !banner || !_balRequired.length) {
+				if (mini) mini.classList.remove('show');
+				return;
+			}
+			if (!('IntersectionObserver' in window)) {
+				mini.classList.add('show');
+				return;
+			}
+			_balBannerObserver = new IntersectionObserver(function (entries) {
+				const visible = entries[0] && entries[0].isIntersecting;
+				mini.classList.toggle('show', !visible);
+			}, { threshold: 0.15 });
+			_balBannerObserver.observe(banner);
+		}
+
+		function spawnSparkles() {
+			const container = document.getElementById('bal-sparkle-container');
+			if (!container) return;
+			const emojis = ['✨', '🌟', '⭐', '💚', '🎉', '🌿'];
+			for (let i = 0; i < 8; i++) {
+				const s = document.createElement('span');
+				s.className = 'bal-sparkle';
+				s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+				s.style.left = (Math.random() * 90 + 5) + '%';
+				s.style.animationDelay = (Math.random() * .3) + 's';
+				s.style.animationDuration = (.6 + Math.random() * .4) + 's';
+				container.appendChild(s);
+			}
+			setTimeout(() => { container.innerHTML = ''; }, 1200);
+		}
+
+		function updateAddTotal() {
+			if (!r) return;
+			let total = { kcal: r.kcal, protein: r.protein, fat: r.fat, carbs: r.carbs, fiber: r.fiber || 0 };
+			Object.values(checkedItems).forEach(v => {
+				total.kcal += v.kcal || 0;
+				total.protein += v.protein || 0;
+				total.fat += v.fat || 0;
+				total.carbs += v.carbs || 0;
+				total.fiber += v.fiber || 0;
+			});
+			// Ingredient-swap adjustments: only those with known KBZHU replacements contribute.
+			Object.values(_appliedSwaps).forEach(s => {
+				if (!s || !s.hasKbzhu) return;
+				total.kcal += s.kcal || 0;
+				total.protein += s.protein || 0;
+				total.fat += s.fat || 0;
+				total.carbs += s.carbs || 0;
+				total.fiber += s.fiber || 0;
+			});
+			// Round protein/fat/carbs/fiber to 1 decimal to avoid floating-point drift in display.
+			total.protein = Math.round(total.protein * 10) / 10;
+			total.fat = Math.round(total.fat * 10) / 10;
+			total.carbs = Math.round(total.carbs * 10) / 10;
+			total.fiber = Math.round(total.fiber * 10) / 10;
+			const tEl = document.getElementById('bal-total-kcal');
+			const mEl = document.getElementById('add-macro');
+			const lEl = document.getElementById('bal-total-label');
+				if (tEl) tEl.textContent = total.kcal + ' ккал';
+				if (mEl) mEl.innerHTML = `
+					<div class="bal-total-metric"><b>${total.protein} г</b><span>БЕЛКИ</span></div>
+					<div class="bal-total-metric"><b>${total.fat} г</b><span>ЖИРЫ</span></div>
+					<div class="bal-total-metric"><b>${total.carbs} г</b><span>УГЛЕВОДЫ</span></div>
+					<div class="bal-total-metric"><b>${total.fiber} г</b><span>КЛЕТЧАТКА</span></div>`;
+				if (lEl) lEl.textContent = Object.keys(checkedItems).length ? 'ИТОГО · БЛЮДО + ДОБАВКИ' : 'ИТОГО';
+				// Also update KBZHU block
+			const ke = document.getElementById('kbzhu-kcal');
+			const kp = document.getElementById('kbzhu-protein');
+			const kf = document.getElementById('kbzhu-fat');
+			const kc = document.getElementById('kbzhu-carbs');
+			const kfi = document.getElementById('kbzhu-fiber');
+			if (ke) ke.textContent = '~' + total.kcal;
+			if (kp) kp.textContent = '~' + total.protein + 'г';
+			if (kf) kf.textContent = '~' + total.fat + 'г';
+			if (kc) kc.textContent = '~' + total.carbs + 'г';
+			if (kfi) kfi.textContent = '~' + total.fiber + 'г';
+			// Check balance
+			checkBalance();
+		}
+
+		// ── VIDEO PLATFORM SWITCH ────────────────────────────────────────────
+		function toEmbedUrl(url) {
+			if (!url) return null;
+			var m;
+			// YouTube: youtu.be/ID, youtube.com/watch?v=ID, /shorts/ID, /embed/ID, /live/ID
+			m = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+			if (!m) m = url.match(/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]+)/);
+			if (!m) m = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/);
+			if (!m) m = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/);
+			if (!m) m = url.match(/youtube\.com\/live\/([a-zA-Z0-9_-]+)/);
+			if (m) return 'https://www.youtube.com/embed/' + m[1] + '?rel=0&modestbranding=1';
+			// VK Video: vkvideo.ru/video-OID_VID or vk.com/video-OID_VID (preserve oid sign)
+			m = url.match(/video(-?\d+)_(\d+)/);
+			if (m) return 'https://vk.com/video_ext.php?oid=' + m[1] + '&id=' + m[2] + '&hd=2';
+			// Dzen: embed URL — use as-is; watch URL — fallback link card
+			m = url.match(/dzen\.ru\/embed\/([a-zA-Z0-9_-]+)/);
+			if (m) return url.split('?')[0] + '?from_block=partner&from=zen&mute=0&autoplay=0&tv=0';
+			m = url.match(/dzen\.ru\/video\/watch\//);
+			if (m) return 'dzen:' + url;
+			return url;
+		}
+		function showVideoFallback(frame, url) {
+			frame.innerHTML = '<a class="video-external-link" href="' + escHtml(url) + '" target="_blank" rel="noopener">'
+				+ '<div class="video-play-btn" style="background:rgba(255,255,255,.15)"><svg viewBox="0 0 24 24" width="32" height="32"><path d="M8 5v14l11-7z" fill="#fff"/></svg></div>'
+				+ '<div class="video-open-label">Открыть видео в новой вкладке</div>'
+				+ '</a>';
+		}
+		function loadVideoFrame(frame) {
+			if (frame.querySelector('iframe') || frame.querySelector('.dzen-link-card') || frame.querySelector('.video-external-link')) return;
+			var url = frame.dataset.url;
+			var embed = toEmbedUrl(url);
+			if (!embed) return;
+			if (embed.startsWith('dzen:')) {
+				var realUrl = embed.slice(5);
+				frame.innerHTML = '<a class="dzen-link-card" href="' + realUrl + '" target="_blank" rel="noopener">'
+					+ '<div class="dzen-link-icon"><svg viewBox="0 0 24 24" width="48" height="48"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="#fff"/><path d="M11 7.5L16 12l-5 4.5V7.5z" fill="#fff"/></svg></div>'
+					+ '<div class="dzen-link-text">Смотреть на Дзене</div>'
+					+ '</a>';
+				return;
+			}
+			var iframe = document.createElement('iframe');
+			iframe.src = embed;
+			iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+			iframe.setAttribute('allow', 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen');
+			iframe.allowFullscreen = true;
+			iframe.onerror = function () { showVideoFallback(frame, url); };
+			frame.appendChild(iframe);
+			// Timeout fallback: if iframe doesn't load within 5 seconds, show link
+			var fallbackTimer = setTimeout(function () {
+				try {
+					// Check if iframe loaded something (will throw on cross-origin block)
+					var doc = iframe.contentDocument || iframe.contentWindow.document;
+					if (!doc || !doc.body || doc.body.innerHTML === '') showVideoFallback(frame, url);
+				} catch (e) {
+					// Cross-origin = loaded OK (YouTube/VK serve cross-origin content)
+				}
+			}, 5000);
+			iframe.onload = function () { clearTimeout(fallbackTimer); };
+		}
+		window.switchVideo = function (key) {
+			document.querySelectorAll('.video-tab').forEach(t => t.classList.toggle('active', t.dataset.key === key));
+			document.querySelectorAll('.video-frame').forEach(f => {
+				var isActive = f.dataset.key === key;
+				f.classList.toggle('active', isActive);
+				if (isActive) loadVideoFrame(f);
+			});
+		};
+		// Init first active video tab (called from renderRecipe after DOM insert)
+		function initVideoTabs() {
+			var wrap = document.getElementById('video-player');
+			if (!wrap || wrap.dataset.initialized === '1') return;
+			var active = wrap.querySelector('.video-frame.active');
+			if (!active) {
+				// No active frame — activate the first one
+				var firstFrame = wrap.querySelector('.video-frame');
+				var firstTab = document.querySelector('.video-tab');
+				if (firstFrame) { firstFrame.classList.add('active'); active = firstFrame; }
+				if (firstTab) firstTab.classList.add('active');
+			}
+			if (active) loadVideoFrame(active);
+			wrap.dataset.initialized = '1';
+		}
+
+		// ── ADD TO PLATE ──────────────────────────────────────────────────────
+		function addToPlate() {
+			if (!r) return;
+			if (isInPlate()) return;
+
+			const isBalanced = checkBalance();
+			const hasAdds = _balRequired.length > 0;
+
+			if (hasAdds && !isBalanced) {
+				showBalanceWarnModal();
+				return;
+			}
+
+			_executePlateAdd(false);
+		}
+
+		function _executePlateAdd(unbalanced) {
+			// Main dish: own KBZHU only — selected addons go in as separate Plate entries below.
+			const _plateIngredients = (r.ingredients || []).filter((_, i) => !_excludedIngredients[i]);
+			Plate.add({
+				name: r.name,
+				emoji: r.emoji,
+				photo: r.photo || '',
+				kcal: r.kcal,
+				protein: r.protein,
+				fat: r.fat,
+				carbs: r.carbs,
+				fiber: r.fiber || 0,
+				recipeId: r.id,
+				ingredients: _plateIngredients,
+				additions: []
+			});
+
+			// Deferred addons → separate Plate entries; dedup by recipeId when present.
+			Object.values(checkedItems).forEach(v => {
+				if (v.recipeId && Plate.get().some(p => p.recipeId === v.recipeId)) return;
+				const linked = (v.recipeId && typeof RECIPES !== 'undefined') ? RECIPES[v.recipeId] : null;
+				Plate.add({
+					name: v.name,
+					emoji: (linked && linked.emoji) || v.emoji || '🥗',
+					photo: (linked && linked.photo) || '',
+					kcal: v.kcal || 0,
+					protein: v.protein || 0,
+					fat: v.fat || 0,
+					carbs: v.carbs || 0,
+					fiber: v.fiber || 0,
+					recipeId: v.recipeId || null,
+					ingredients: (linked && linked.ingredients) || []
+				});
+			});
+
+			updatePlateIcon();
+			refreshAddButtonStateByPlate();
+
+			if (unbalanced) {
+				showToast(r.emoji + ' Добавлено без балансировки');
+				// Don't auto-navigate — let user see the result and maybe add supplements
+			} else {
+				showToast(r.emoji + ' Добавлено в тарелку!');
+				setTimeout(() => { history.back(); }, 1000);
+			}
+		}
+
+		// ── Balance warning modal (unbalanced add confirmation) ────────────
+		let _balWarnPrevFocus = null;
+
+		function showBalanceWarnModal() {
+			const overlay = document.getElementById('bal-warn-modal');
+			if (!overlay) return;
+			// Build dynamic missing-groups list from _balRequired vs checkedItems
+			const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
+			const missing = _balRequired.filter(c => !checkedPrefixes.has(c.prefix));
+			const listEl = document.getElementById('bal-warn-missing');
+			if (listEl) {
+				listEl.innerHTML = missing.length
+					? 'Не выбраны группы: ' + missing.map(c => '<b>' + escHtml(c.label) + '</b>').join(', ') + '.'
+					: '';
+			}
+			_balWarnPrevFocus = document.activeElement;
+			overlay.classList.add('show');
+			overlay.addEventListener('click', _balWarnBackdropHandler);
+			document.addEventListener('keydown', _balWarnKeyHandler);
+			const secondary = document.getElementById('bal-warn-secondary');
+			if (secondary) setTimeout(() => { try { secondary.focus(); } catch (e) {} }, 50);
+		}
+
+		function hideBalanceWarnModal() {
+			const overlay = document.getElementById('bal-warn-modal');
+			if (!overlay) return;
+			if (!overlay.classList.contains('show')) return;
+			overlay.classList.remove('show');
+			overlay.removeEventListener('click', _balWarnBackdropHandler);
+			document.removeEventListener('keydown', _balWarnKeyHandler);
+			if (_balWarnPrevFocus && typeof _balWarnPrevFocus.focus === 'function') {
+				try { _balWarnPrevFocus.focus(); } catch (e) {}
+			}
+			_balWarnPrevFocus = null;
+		}
+
+		function _balWarnBackdropHandler(e) {
+			if (e.target && e.target.id === 'bal-warn-modal') hideBalanceWarnModal();
+		}
+
+		function _balWarnKeyHandler(e) {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				hideBalanceWarnModal();
+			} else if (e.key === 'Tab') {
+				const overlay = document.getElementById('bal-warn-modal');
+				if (!overlay) return;
+				const focusable = overlay.querySelectorAll('button');
+				if (!focusable.length) return;
+				const first = focusable[0];
+				const last = focusable[focusable.length - 1];
+				if (e.shiftKey && document.activeElement === first) {
+					e.preventDefault();
+					last.focus();
+				} else if (!e.shiftKey && document.activeElement === last) {
+					e.preventDefault();
+					first.focus();
+				}
+			}
+		}
+
+		function confirmBalanceWarnAdd() {
+			hideBalanceWarnModal();
+			_executePlateAdd(true);
+		}
+
+		// ── MY PLATE MODAL ────────────────────────────────────────────────────
+		function openPlate() {
+			const items = Plate.get();
+			const body = document.getElementById('plate-body');
+			if (!items.length) {
+				body.innerHTML = '<div class="plate-empty"><div class="plate-empty-icon">🍽️</div><div class="plate-empty-text">Тарелка пока пуста</div></div>';
+			} else {
+				const t = Plate.totals();
+				body.innerHTML = '<div class="plate-items">' +
+					items.map((item, i) => {
+						const adds = item.additions || [];
+						const additionsHtml = adds.length
+							? `<div class="plate-additions">${adds.map(a =>
+								`<div class="plate-addition-item">
+                                <span class="plate-addition-dot">+</span>
+                                <span class="plate-addition-name">${escHtml(String(a.name))}</span>
+                                <span class="plate-addition-kcal">${Number(a.kcal) || 0} ккал</span>
+                            </div>`).join('')}</div>`
+							: '';
+						return `<div class="plate-item">
+                        ${item.photo
+								? `<img class="plate-item-photo" src="${escHtml(String(item.photo))}" alt="">`
+								: `<div class="plate-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
+                        <div class="plate-item-info">
+                            ${item.recipeId
+								? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1'">${escHtml(String(item.name))}</div>`
+								: `<div class="plate-item-name">${escHtml(String(item.name))}</div>`}
+                            <div class="plate-item-kcal">${Number(item.kcal) || 0} ккал · Б${Number(item.protein) || 0}г · Ж${Number(item.fat) || 0}г · У${Number(item.carbs) || 0}г</div>
+                            ${additionsHtml}
+                        </div>
+                        <button class="plate-item-del" onclick="removeItemR(${Number(i)})">✕</button>
+                    </div>`;
+					}).join('') + '</div>' +
+					`<div class="plate-total-block" style="margin-top:12px">
+                    <div class="plate-total-title">Итого</div>
+                    <div class="plate-total-val">${Number(t.kcal) || 0} ккал | Б: ${Number(t.protein) || 0}г | Ж: ${Number(t.fat) || 0}г | У: ${Number(t.carbs) || 0}г${t.fiber ? ' | Кл: ' + (Number(t.fiber) || 0) + 'г' : ''}</div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:10px">
+                    <button class="btn btn-orange" style="flex:1" onclick="location.href='index.html'">← Вернуться</button>
+                    <button class="btn btn-ghost" style="flex-shrink:0" onclick="shareShoppingList()">📤 Список продуктов</button>
+                </div>
+                <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="savePlateR()">Сохранить в историю</button>`;
+			}
+			document.getElementById('plate-overlay').classList.add('open');
+			document.body.style.overflow = 'hidden';
+		}
+		function closePlate() {
+			document.getElementById('plate-overlay').classList.remove('open');
+			document.body.style.overflow = '';
+		}
+		function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
+		function removeItemR(i) { Plate.remove(i); updatePlateIcon(); refreshAddButtonStateByPlate(); openPlate(); }
+		function savePlateR() {
+			if (!Plate.count()) return;
+			Plate.saveHistory();
+			updatePlateIcon();
+			refreshAddButtonStateByPlate();
+			closePlate();
+			showToast('Тарелка сохранена в историю 🎉');
+		}
+
+		// ── FAV + RATING ON PHOTO ─────────────────────────────────────────────
+		function toggleRecipeFav() {
+			if (!r) return;
+			const isNow = Favorites.toggle(r.id);
+			document.getElementById('recipe-fav-btn')?.classList.toggle('active', isNow);
+		}
+
+		function scrollToStars() {
+			const el = document.getElementById('reviews-section');
+			if (el) {
+				el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				const starsRow = document.getElementById('recipe-stars-row');
+				if (starsRow) {
+					starsRow.classList.add('stars-highlight');
+					setTimeout(() => starsRow.classList.remove('stars-highlight'), 1500);
+				}
+			}
+		}
+
+		function scrollToReviews() {
+			const el = document.getElementById('reviews-section');
+			if (el) {
+				el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+		}
+
+		// ── INLINE STARS ──────────────────────────────────────────────────────
+		function hoverInlineStar(n) {
+			document.querySelectorAll('.r-star').forEach((s, i) =>
+				s.classList.toggle('filled', i < n));
+		}
+
+		let _inlineAvg = 0;
+
+		function unhoverInlineStar() {
+			document.querySelectorAll('.r-star').forEach((s, i) =>
+				s.classList.toggle('filled', i < Math.round(_inlineAvg)));
+		}
+
+		async function rateInline(n) {
+			if (n < 1) return;
+			// Отправить оценку на сервер
+			try {
+				const res = await Auth.api('/content/reviews', {
+					method: 'POST',
+					body: JSON.stringify({ recipe_id: r.id, stars: n, text: '' })
+				});
+				if (!res.ok) { showToast('Не удалось сохранить оценку'); return; }
+				_inlineAvg = n;
+				document.querySelectorAll('.r-star').forEach((s, i) =>
+					s.classList.toggle('filled', i < n));
+				const valEl = document.getElementById('recipe-rating-val');
+				if (valEl) valEl.textContent = n;
+				const starsWrap = document.querySelector('.recipe-meta-stars');
+				if (starsWrap) starsWrap.classList.add('user-rated');
+				showToast('Оценка сохранена ★');
+				// Обновить список отзывов
+				loadReviews();
+			} catch {
+				showToast('Ошибка сети');
+			}
+		}
+
+		function shareRecipeIngredients() {
+			if (!r) return;
+			let txt = `🛒 ${r.name}\n\n`;
+			(r.ingredients || []).forEach((ing, i) => {
+				if (_excludedIngredients[i]) return;
+				const name = typeof ing === 'string' ? ing : ing.name;
+				txt += `• ${name}\n`;
+			});
+			txt += `\n⏱ ${r.time} мин · ${r.kcal} ккал`;
+			if (navigator.share) { navigator.share({ title: r.name, text: txt }).catch(() => { }); }
+			else { navigator.clipboard.writeText(txt).then(() => showToast('📋 Скопировано!')).catch(() => showToast('Не удалось скопировать')); }
+		}
+
+		// ── REVIEWS ──────────────────────────────────────────────────────────
+		let _reviewStars = 0;
+
+		function setReviewStars(n) {
+			_reviewStars = n;
+			document.querySelectorAll('.review-star').forEach((s, i) =>
+				s.classList.toggle('filled', i < n));
+		}
+
+		async function loadReviews() {
+			if (!r) return;
+			try {
+				const res = await fetch(API_BASE + '/content/reviews/' + encodeURIComponent(r.id));
+				if (!res.ok) return;
+				const reviews = await res.json();
+				const list = document.getElementById('reviews-list');
+				if (!list) return;
+
+				// Update voter count, star fill, and rating pill from API data
+				const cSpan = document.getElementById('recipe-voter-count');
+				if (cSpan) cSpan.textContent = '(' + reviews.length + ')';
+				const ratingVal = document.getElementById('recipe-rating-val');
+				if (reviews.length) {
+					const apiAvg = reviews.reduce((s, rv) => s + rv.stars, 0) / reviews.length;
+					document.querySelectorAll('#recipe-stars-row .r-star').forEach((s, i) =>
+						s.classList.toggle('filled', i < Math.round(apiAvg)));
+					if (ratingVal) ratingVal.textContent = apiAvg.toFixed(1);
+					// Mark as rated so hint animation stops
+					const starsRow = document.getElementById('recipe-stars-row');
+					if (starsRow) starsRow.querySelector('.recipe-meta-stars')?.classList.add('user-rated');
+				}
+
+				if (!reviews.length) {
+					list.innerHTML = '<div style="font-size:13px;color:var(--text-3)">Пока нет отзывов. Будьте первым!</div>';
+					return;
+				}
+
+				const curUser = Auth.getUser();
+				const curUserId = curUser && curUser.id;
+				const isAdmin = curUser && curUser.role === 'admin';
+				const hasOwnReview = reviews.some(rv => curUserId && rv.userId === curUserId);
+				const formWrap = document.getElementById('review-form-wrap');
+				if (formWrap && hasOwnReview) {
+					formWrap.innerHTML = '<div style="font-size:13px;color:var(--text-3);padding:12px 16px;text-align:center">Вы уже оставили отзыв. Удалите его, чтобы написать новый.</div>';
+				}
+				list.innerHTML = reviews.map(rv => {
+					const d = new Date(rv.createdAt);
+					const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+					const starsHtml = [1, 2, 3, 4, 5].map(i => `<span class="star${i <= rv.stars ? ' filled' : ''}" style="font-size:14px">★</span>`).join('');
+					const avatarHtml = rv.avatar
+						? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+						+ `<span class="review-avatar-fallback" style="display:none">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
+						: `<span class="review-avatar-fallback">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
+					const canDelete = isAdmin || (curUserId && rv.userId === curUserId);
+					const deleteBtn = canDelete
+						? `<button class="review-delete-btn" onclick="deleteReview(${rv.id}, ${isAdmin})" title="Удалить отзыв">✕</button>`
+						: '';
+					return `<div class="review-item">
+                    <div class="review-header">
+                        <div class="review-author-wrap">
+                            ${avatarHtml}
+                            <span class="review-author">${escHtml(rv.author)}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="review-date">${escHtml(dateStr)}</span>
+                            ${deleteBtn}
+                        </div>
+                    </div>
+                    <div class="review-stars-row">${starsHtml}</div>
+                    <div class="review-text">${escHtml(rv.text)}</div>
+                </div>`;
+				}).join('');
+			} catch (e) {
+				console.error('Reviews load error:', e);
+				const list = document.getElementById('reviews-list');
+				if (list && !list.innerHTML) list.innerHTML = '<div style="font-size:12px;color:red">Ошибка загрузки отзывов: ' + e.message + '</div>';
+			}
+		}
+
+		async function submitReview() {
+			if (!r || !Auth.isLoggedIn()) return;
+			if (!_reviewStars) { showToast('Выберите оценку'); return; }
+			const textEl = document.getElementById('review-text');
+			const text = (textEl?.value || '').trim();
+
+			const btn = document.getElementById('review-submit-btn');
+			if (btn) { btn.disabled = true; btn.textContent = '...'; }
+			try {
+				const res = await Auth.api('/content/reviews', {
+					method: 'POST',
+					body: JSON.stringify({ recipe_id: r.id, stars: _reviewStars, text: text || null })
+				});
+				if (!res.ok) {
+					const err = await res.json().catch(() => ({}));
+					showToast(err.error || 'Ошибка');
+					return;
+				}
+				showToast('Отзыв сохранён!');
+				if (textEl) textEl.value = '';
+				_reviewStars = 0;
+				document.querySelectorAll('.review-star').forEach(s => s.classList.remove('filled'));
+				const countEl = document.getElementById('review-char-count');
+				if (countEl) countEl.textContent = '0 / 1000';
+				loadReviews();
+			} catch (e) {
+				showToast('Ошибка сети');
+			} finally {
+				if (btn) { btn.disabled = false; btn.textContent = 'Отправить'; }
+			}
+		}
+
+		window.deleteReview = async function (id, isAdmin) {
+			if (!confirm('Удалить отзыв?')) return;
+			try {
+				const endpoint = isAdmin ? '/admin/reviews/' : '/content/reviews/';
+				const res = await Auth.api(endpoint + id, { method: 'DELETE' });
+				if (!res.ok) { showToast('Не удалось удалить'); return; }
+				showToast('Отзыв удалён');
+				loadReviews();
+			} catch (e) { showToast('Ошибка сети'); }
+		};
+
+		// Char counter
+		document.addEventListener('input', function (e) {
+			if (e.target.id === 'review-text') {
+				const cnt = document.getElementById('review-char-count');
+				if (cnt) cnt.textContent = e.target.value.length + ' / 1000';
+			}
+		});
+
+		// loadReviews is now called inside initRecipe() after renderRecipe(r)
+
+	</script>
+
+	<!-- Tawk.to -->
+	<script>
+		var Tawk_API = Tawk_API || {};
+		Tawk_API.onBeforeLoad = function () { Tawk_API.hideWidget(); };
+		Tawk_API.onLoad = function () { Tawk_API.hideWidget(); };
+		Tawk_API.onChatMinimized = function () { Tawk_API.hideWidget(); };
+		function openTawk() {
+			if (typeof Tawk_API !== 'undefined' && typeof Tawk_API.maximize === 'function') { Tawk_API.maximize(); }
+			else { window.open('https://t.me/voronova_support', '_blank'); }
+		}
+		(function () {
+			var s = document.createElement('script'); s.async = true;
+			s.src = 'https://embed.tawk.to/699610c27418241c38dd96b3/1jhp32uj0';
+			s.charset = 'UTF-8'; s.setAttribute('crossorigin', '*');
+			document.head.appendChild(s);
+		})();
+	</script>
+</body>
+
+</html>
