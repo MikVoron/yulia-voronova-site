@@ -539,6 +539,8 @@
     };
 
     window.openRecipeModal = function(r) {
+        // Preserve auto_addons (not editable in this modal — passthrough on save)
+        window._editingRecipeAutoAddons = r ? (r.auto_addons || {}) : {};
         document.getElementById('recipe-modal-title').textContent = r ? 'Редактировать рецепт' : 'Новый рецепт';
         document.getElementById('recipe-edit-id').value = r ? r.id : '';
         document.getElementById('recipe-id').value = r ? r.id : '';
@@ -565,6 +567,7 @@
         document.getElementById('recipe-dzen-video').value = r ? (r.dzen_video || '') : '';
         document.getElementById('recipe-free').checked = r ? r.is_free : false;
         document.getElementById('recipe-published').checked = r ? r.is_published : true;
+        document.getElementById('recipe-is-soup').checked = r ? !!r.is_soup : false;
         // Add-panels (serialize objects to line format: name | kcal | protein | fat | carbs | fiber [| @recipeId])
         function addItemsToText(items) {
             if (!items || !items.length) return '';
@@ -812,12 +815,14 @@
             dzen_video: document.getElementById('recipe-dzen-video').value.trim() || null,
             is_free: document.getElementById('recipe-free').checked,
             is_published: document.getElementById('recipe-published').checked,
+            is_soup: document.getElementById('recipe-is-soup').checked,
             ingredients: ingredients,
             steps: steps,
             add_protein: parseAddItems('recipe-add-protein'),
             add_fat: parseAddItems('recipe-add-fat'),
             add_carbs: parseAddItems('recipe-add-carbs'),
-            add_fiber: parseAddItems('recipe-add-fiber')
+            add_fiber: parseAddItems('recipe-add-fiber'),
+            auto_addons: window._editingRecipeAutoAddons || {}
         };
         var method = editId ? 'PUT' : 'POST';
         var url = editId ? '/admin/recipes/' + editId : '/admin/recipes';

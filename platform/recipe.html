@@ -1372,28 +1372,62 @@
 				// Recipe-level overrides
 				const rAA = recipe.autoAddons || {};
 				slots.forEach(s => { if (rAA[s]) rules[s] = rAA[s]; });
-				// Materialize: find published recipes in target category
+				// Materialize: find published recipes in target category + static items
 				slots.forEach(s => {
 					const rule = rules[s];
-					if (!rule || !rule.fromCategory) return;
-					const sourceId = rule.fromCategory;
-					if (typeof RECIPES === 'undefined') return;
-					Object.values(RECIPES).forEach(rx => {
-						if (rx.id === recipe.id) return;
-						const rxCats = rx.categories || (rx.cat ? [rx.cat] : []);
-						if (rxCats.indexOf(sourceId) === -1) return;
-						resolved[s].push({
-							name: rx.name,
-							kcal: rx.kcal || 0,
-							protein: rx.protein || 0,
-							fat: rx.fat || 0,
-							carbs: rx.carbs || 0,
-							fiber: rx.fiber || 0,
-							recipeId: rx.id,
-							_auto: true
+					if (!rule) return;
+					// fromCategory: pull all recipes from target category
+					if (rule.fromCategory && typeof RECIPES !== 'undefined') {
+						const sourceId = rule.fromCategory;
+						Object.values(RECIPES).forEach(rx => {
+							if (rx.id === recipe.id) return;
+							const rxCats = rx.categories || (rx.cat ? [rx.cat] : []);
+							if (rxCats.indexOf(sourceId) === -1) return;
+							resolved[s].push({
+								name: rx.name,
+								kcal: rx.kcal || 0,
+								protein: rx.protein || 0,
+								fat: rx.fat || 0,
+								carbs: rx.carbs || 0,
+								fiber: rx.fiber || 0,
+								recipeId: rx.id,
+								_auto: true
+							});
 						});
-					});
+					}
+					// items: static add-ons (name/amount/kbju, no recipeId)
+					if (Array.isArray(rule.items)) {
+						rule.items.forEach(it => {
+							if (!it || !it.name) return;
+							resolved[s].push(Object.assign({}, it, { _auto: true }));
+						});
+					}
 				});
+				// Flag-based rule: is_soup → статический хлеб + рецепт oregano-croutons в Углеводы.
+				// Не использует fromCategory (не тянет всю breads), явный точечный набор.
+				if (recipe.isSoup) {
+					resolved.carbs.push({
+						name: 'Цельнозерновой хлеб',
+						amount: '1 ломтик',
+						kcal: 70, protein: 3, fat: 1, carbs: 15, fiber: 3,
+						_auto: true
+					});
+					if (typeof RECIPES !== 'undefined') {
+						const rx = RECIPES['oregano-croutons'];
+						if (rx && rx.id !== recipe.id) {
+							resolved.carbs.push({
+								name: rx.name,
+								kcal: rx.kcal || 0,
+								protein: rx.protein || 0,
+								fat: rx.fat || 0,
+								carbs: rx.carbs || 0,
+								fiber: rx.fiber || 0,
+								recipeId: rx.id,
+								_auto: true
+							});
+						}
+					}
+				}
 				return resolved;
 			}
 			function _mergeAddItems(explicit, auto) {

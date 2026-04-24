@@ -69,9 +69,7 @@ INSERT INTO recipes (
     {"name": "Хумус", "amount": "40 г", "kcal": 120, "protein": 3, "fat": 6, "carbs": 13, "fiber": 2, "recipeId": "hummus"},
     {"name": "Хумус со свёклой", "amount": "40 г", "kcal": 110, "protein": 3, "fat": 6, "carbs": 12, "fiber": 2, "recipeId": "beetroot-hummus"}
   ]'::jsonb,
-  '[
-    {"name": "Цельнозерновой хлеб", "amount": "1 ломтик", "kcal": 70, "protein": 3, "fat": 1, "carbs": 15, "fiber": 3}
-  ]'::jsonb,
+  '[]'::jsonb,  -- add_carbs пуст: хлеб + сухарики прилетают автоматом через флаг is_soup (см. migrate-is-soup-flag.sql)
   400,
   false,
   1
