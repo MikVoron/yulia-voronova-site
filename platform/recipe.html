@@ -170,18 +170,18 @@
 
 		/* ── Balance UX ─────────────────────────────────────── */
 		.bal-banner {
-			padding: 14px 16px;
-			border-radius: 12px;
+			padding: 14px 16px 12px;
 			font-size: 13px;
 			line-height: 1.45;
-			margin-bottom: 14px;
 			transition: all .4s ease;
+			border-bottom: 1px solid #f0d8b0;
 		}
+		.bal-sidebar > .bal-banner { border-radius: 0; margin: 0; }
 
 		.bal-banner-warn {
-			background: #fff7ec;
-			border: 1px solid #f0d8a8;
-			color: #8a5a00;
+			background: #fff8f0;
+			border-bottom-color: #f0d8b0;
+			color: #7a4500;
 		}
 
 		.bal-banner-warn .bal-banner-icon {
@@ -189,8 +189,8 @@
 		}
 
 		.bal-banner-success {
-			background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
-			border: 1px solid #a5d6a7;
+			background: linear-gradient(135deg, #e8f5e9, #f0f9f0);
+			border-bottom-color: #b0d8b2;
 			color: #2e7d32;
 		}
 
@@ -231,9 +231,9 @@
 		}
 
 		.bal-progress-pill.done {
-			background: #e8f5e9;
-			border-color: #66bb6a;
-			color: #2e7d32;
+			background: var(--pill-bg, #e8f5e9);
+			border-color: var(--pill-color, #66bb6a);
+			color: var(--pill-color, #2e7d32);
 		}
 
 		.bal-progress-pill .pill-check {
@@ -249,8 +249,8 @@
 		}
 
 		.bal-progress-pill.done .pill-check {
-			background: #66bb6a;
-			border-color: #66bb6a;
+			background: var(--pill-color, #66bb6a);
+			border-color: var(--pill-color, #66bb6a);
 			color: #fff;
 		}
 
@@ -950,8 +950,20 @@
 
 		// Add-on groups: collapse state + per-group config for re-rendering
 		let expandedGroups = { p: false, f: false, c: false, fi: false };
-		const _groupConfig = {}; // { p: {label, items}, ... }
+		const _groupConfig = {}; // { p: {label, items, icon, title, stepIndex}, ... }
 		const GROUP_COLLAPSE_LIMIT = 3;
+
+		// Balance wizard (mobile ≤1024) — current step index into _balRequired
+		let _wizardStep = 0;
+		// Desktop accordion — per-prefix open/closed. First group open by default.
+		let _accordionOpen = { p: true, f: false, c: false, fi: false };
+		// Static metadata per group (icon, desktop/mobile title, colors)
+		const GROUP_META = {
+			p:  { icon: '💪', title: 'Добавь белка для сытости',   color: '#1a5fa8', bg: '#edf5ff', border: '#b8d4f8', shortLabel: 'Белок' },
+			f:  { icon: '🥑', title: 'Добавь жиров для баланса',   color: '#2d7a2d', bg: '#eef8ee', border: '#90d090', shortLabel: 'Жиры' },
+			c:  { icon: '🌾', title: 'Добавь углеводов для энергии', color: '#b85e00', bg: '#fff7ec', border: '#f0c080', shortLabel: 'Углеводы' },
+			fi: { icon: '🥬', title: 'Добавь клетчатки',           color: '#6a3db8', bg: '#f5f0ff', border: '#c0a0f0', shortLabel: 'Клетчатка' }
+		};
 
 		// Sound preference (off by default, persisted)
 		let _soundEnabled = (function () {
@@ -1498,37 +1510,70 @@
 			_stepsHtmlArr = stepsArr;
 			const _stepsCount = stepsArr.length;
 
-			// Balance: determine required categories
+			// Balance: determine required categories (with filtered step index)
 			const _balCats = [];
-			if (addProtein.length) _balCats.push({ key: 'p', label: 'Белок', prefix: 'p' });
-			if (addFat.length) _balCats.push({ key: 'f', label: 'Жиры', prefix: 'f' });
-			if (addCarbs.length) _balCats.push({ key: 'c', label: 'Углеводы', prefix: 'c' });
-			if (addFiber.length) _balCats.push({ key: 'fi', label: 'Клетчатка', prefix: 'fi' });
+			if (addProtein.length) _balCats.push({ key: 'p', label: 'Белок',    prefix: 'p' });
+			if (addFat.length)     _balCats.push({ key: 'f', label: 'Жиры',     prefix: 'f' });
+			if (addCarbs.length)   _balCats.push({ key: 'c', label: 'Углеводы', prefix: 'c' });
+			if (addFiber.length)   _balCats.push({ key: 'fi', label: 'Клетчатка', prefix: 'fi' });
+			_balCats.forEach((c, i) => { c.stepIndex = i; });
+			_balRequired = _balCats;
+			_wizardStep = 0;
+			_accordionOpen = { p: false, f: false, c: false, fi: false };
+			if (_balCats[0]) _accordionOpen[_balCats[0].prefix] = true;
 
-			_balRequired = _balCats; // store for balance checking
+			const balProgressHtml = _balCats.map(c => {
+				const m = GROUP_META[c.prefix] || {};
+				return `<span class="bal-progress-pill" id="bal-pill-${c.key}" style="--pill-color:${m.color};--pill-bg:${m.bg}"><span class="pill-check" id="bal-chk-${c.key}"></span>${m.icon || ''} ${c.label}</span>`;
+			}).join('');
 
-			const balProgressHtml = _balCats.map(c =>
-				`<span class="bal-progress-pill" id="bal-pill-${c.key}"><span class="pill-check" id="bal-chk-${c.key}"></span>${c.key === 'p' ? '💪' : c.key === 'f' ? '🥑' : c.key === 'c' ? '🌾' : '🥬'} ${c.label}</span>`
-			).join('');
+			// Group lookups for stepIndex
+			const stepOf = {};
+			_balCats.forEach(c => { stepOf[c.prefix] = c.stepIndex; });
 
 			const sidebarHtml = hasAdditions ? `
-            <div class="bal-sidebar anim anim-d2">
+            <div class="bal-sidebar anim anim-d2" id="bal-sidebar" data-wizard-step="0">
                 <div id="bal-banner" class="bal-banner bal-banner-warn">
                     <button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">🔕</span></button>
                     <div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div>
                     <div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи — КБЖУ пересчитается</div>
                     <div class="bal-progress">${balProgressHtml}</div>
                 </div>
-                ${buildGroup('💪 Добавь белка для сытости', 'p', addProtein)}
-                ${buildGroup('🥑 Добавь жиров для баланса', 'f', addFat)}
-                ${buildGroup('🌾 Добавь углеводов для энергии', 'c', addCarbs)}
-                ${buildGroup('🥬 Добавь клетчатки', 'fi', addFiber)}
-                <div class="bal-total" id="bal-total-bar">
-                    <div>
-                        <div class="bal-total-label" id="bal-total-label">Итого:</div>
-                        <div class="bal-total-macro" id="add-macro"><span>Б&nbsp;${Number(r.protein)}&nbsp;г</span><span>·</span><span>Ж&nbsp;${Number(r.fat)}&nbsp;г</span><span>·</span><span>У&nbsp;${Number(r.carbs)}&nbsp;г</span><span>·</span><span>Кл&nbsp;${Number(r.fiber || 0)}&nbsp;г</span></div>
+                <div class="bal-wizard-head" id="bal-wizard-head">
+                    <div class="bal-wizard-step-row">
+                        <span class="bal-wizard-step-counter" id="bal-wizard-counter">Шаг 1 из ${_balCats.length}</span>
+                        <div class="bal-wizard-dots" id="bal-wizard-dots"></div>
                     </div>
-                    <div class="bal-total-val" id="bal-total-kcal">${Number(r.kcal)} ккал</div>
+                    <div class="bal-wizard-title-row">
+                        <span class="bal-wizard-icon" id="bal-wizard-icon">💪</span>
+                        <div>
+                            <div class="bal-wizard-label" id="bal-wizard-label">Белок</div>
+                            <div class="bal-wizard-hint" id="bal-wizard-hint">Добавь белка для сытости</div>
+                        </div>
+                    </div>
+                </div>
+                ${addProtein.length ? buildGroup('p',  addProtein, stepOf.p)  : ''}
+                ${addFat.length     ? buildGroup('f',  addFat,     stepOf.f)  : ''}
+                ${addCarbs.length   ? buildGroup('c',  addCarbs,   stepOf.c)  : ''}
+                ${addFiber.length   ? buildGroup('fi', addFiber,   stepOf.fi) : ''}
+                <div class="bal-wizard-nav">
+                    <button type="button" class="bal-wizard-prev" id="bal-wizard-prev" onclick="balWizardGo(-1)">← Назад</button>
+                    <button type="button" class="bal-wizard-next" id="bal-wizard-next" onclick="balWizardGo(1)">Далее →</button>
+                </div>
+                <div class="bal-total" id="bal-total-bar">
+                    <div class="bal-total-header">
+                        <span class="bal-total-label" id="bal-total-label">ИТОГО · БЛЮДО + ДОБАВКИ</span>
+                        <span class="bal-total-balanced-note">✓ Сбалансировано</span>
+                    </div>
+                    <div class="bal-total-body">
+                        <div class="bal-total-cells">
+                            <div class="bal-total-cell"><b id="add-macro-p">${Number(r.protein)}г</b><span>БЕЛКИ</span></div>
+                            <div class="bal-total-cell"><b id="add-macro-f">${Number(r.fat)}г</b><span>ЖИРЫ</span></div>
+                            <div class="bal-total-cell"><b id="add-macro-c">${Number(r.carbs)}г</b><span>УГЛ</span></div>
+                            <div class="bal-total-cell"><b id="add-macro-fi">${Number(r.fiber || 0)}г</b><span>КЛЧ</span></div>
+                        </div>
+                        <div class="bal-total-kcal" id="bal-total-kcal">${Number(r.kcal)}<span class="bal-total-kcal-unit"> ккал</span></div>
+                    </div>
                 </div>
             </div>` : '';
 
@@ -1701,6 +1746,9 @@
 			// Place sidebar in correct container for current viewport
 			placeSidebarForViewport();
 
+			// Initial wizard UI (fills step counter, dots, icon, label, buttons)
+			if (_balRequired.length) updateWizardUI();
+
 			// Sticky mini balance status: init observer + initial state
 			updateMiniBalanceStatus();
 			setupBalBannerObserver();
@@ -1744,7 +1792,7 @@
                                 ${escHtml(item.name)}${amountHtml}
                                 <a class="bal-item-recipe-link" onclick="event.stopPropagation();location.href='recipe.html?id=${safeRid}&from=${encodeURIComponent(fromCat)}&asIngredient=1&parentRecipeId=${encodeURIComponent(r.id)}'">→ Открыть рецепт</a>
                             </div>
-                            <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
+                            <div class="bal-item-kcal">+${Number(item.kcal)}</div>
                         </div>`;
 			} else {
 				return `<button class="bal-item${checkedCls}" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative">
@@ -1753,7 +1801,7 @@
                                 ${escHtml(item.name)}${amountHtml}
                                 ${hasCat ? `<a class="bal-item-recipe-link" onclick="event.stopPropagation();location.href='category.html?cat=${encodeURIComponent(item.catLink)}'">→ Выбрать из списка</a>` : ''}
                             </div>
-                            <div class="bal-item-kcal">+${Number(item.kcal)} ккал</div>
+                            <div class="bal-item-kcal">+${Number(item.kcal)}</div>
                         </button>`;
 			}
 		}
@@ -1766,27 +1814,37 @@
 			});
 		}
 
-		function buildGroup(label, prefix, items) {
+		function buildGroup(prefix, items, stepIndex) {
 			if (!items || !items.length) return '';
-			_groupConfig[prefix] = { label, items };
+			const meta = GROUP_META[prefix] || {};
+			_groupConfig[prefix] = { items, stepIndex, icon: meta.icon, title: meta.title };
 			const cls = GROUP_CLASS[prefix] || '';
 			const shouldCollapse = items.length > GROUP_COLLAPSE_LIMIT;
 			const expanded = !!expandedGroups[prefix];
 			const visible = (shouldCollapse && !expanded) ? items.slice(0, GROUP_COLLAPSE_LIMIT) : items;
+			const openCls = _accordionOpen[prefix] ? ' open' : '';
 			const toggleHtml = shouldCollapse
 				? `<div class="bal-group-toggle-wrap">
-                    <button type="button" class="bal-group-toggle" onclick="toggleGroupExpand('${prefix}')">
+                    <button type="button" class="bal-group-toggle" onclick="event.stopPropagation();toggleGroupExpand('${prefix}')">
                         ${expanded ? 'Свернуть' : 'Показать ещё ' + (items.length - GROUP_COLLAPSE_LIMIT)}
                         ${(!expanded && _hasHiddenSelected(prefix, items)) ? '<span class="bal-group-toggle-dot" title="В скрытой части есть выбранное"></span>' : ''}
                     </button>
                 </div>`
 				: '';
-			return `<div class="bal-group ${cls}" id="bal-group-${prefix}">
-            <div class="bal-group-title">${label}</div>
-            <div class="bal-group-items" id="bal-group-items-${prefix}">
-                ${visible.map((item, i) => _renderBalItem(item, prefix, i)).join('')}
+			const checkSvg = '<svg class="bal-group-icon-check" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5L5 9L12.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+			return `<div class="bal-group ${cls}${openCls}" id="bal-group-${prefix}" data-prefix="${prefix}" data-step="${stepIndex}">
+            <button type="button" class="bal-group-head" onclick="balToggleAccordion('${prefix}')">
+                <span class="bal-group-icon-box"><span class="bal-group-icon-emoji">${meta.icon || ''}</span>${checkSvg}</span>
+                <span class="bal-group-label">${escHtml(meta.title || '')}</span>
+                <span class="bal-group-done-badge">✓ выбрано</span>
+                <span class="bal-group-chevron">▼</span>
+            </button>
+            <div class="bal-group-body">
+                <div class="bal-group-items" id="bal-group-items-${prefix}">
+                    ${visible.map((item, i) => _renderBalItem(item, prefix, i)).join('')}
+                </div>
+                ${toggleHtml}
             </div>
-            ${toggleHtml}
         </div>`;
 		}
 
@@ -1797,9 +1855,103 @@
 			const oldEl = document.getElementById('bal-group-' + prefix);
 			if (!oldEl) return;
 			const wrap = document.createElement('div');
-			wrap.innerHTML = buildGroup(cfg.label, prefix, cfg.items).trim();
+			wrap.innerHTML = buildGroup(prefix, cfg.items, cfg.stepIndex).trim();
 			const newEl = wrap.firstChild;
-			if (newEl) oldEl.parentNode.replaceChild(newEl, oldEl);
+			if (newEl) {
+				oldEl.parentNode.replaceChild(newEl, oldEl);
+				// Rebuild stripped class state from current selection — .done (group has a checked item)
+				// and .open (desktop accordion state). Otherwise the visual indicator disappears
+				// until the next toggleAddItem → checkBalance.
+				const hasChecked = Object.keys(checkedItems).some(k => k.replace(/-\d+$/, '') === prefix);
+				newEl.classList.toggle('done', hasChecked);
+				newEl.classList.toggle('open', !!_accordionOpen[prefix]);
+			}
+		}
+
+		// Desktop accordion: toggle one group open/closed (multiple can be open at once)
+		function balToggleAccordion(prefix) {
+			// On mobile (wizard), clicking the head is a no-op — groups are controlled by step nav
+			if (window.innerWidth <= 1024) return;
+			_accordionOpen[prefix] = !_accordionOpen[prefix];
+			const el = document.getElementById('bal-group-' + prefix);
+			if (el) el.classList.toggle('open', !!_accordionOpen[prefix]);
+		}
+
+		// Mobile wizard: step navigation
+		function balWizardGo(delta) {
+			const total = _balRequired.length;
+			if (!total) return;
+			const next = _wizardStep + delta;
+			if (next < 0 || next >= total) return;
+			_wizardStep = next;
+			updateWizardUI();
+		}
+		function balWizardSetStep(i) {
+			const total = _balRequired.length;
+			if (!total || i < 0 || i >= total) return;
+			_wizardStep = i;
+			updateWizardUI();
+		}
+		function updateWizardUI() {
+			const root = document.getElementById('bal-sidebar');
+			if (!root) return;
+			const total = _balRequired.length;
+			if (!total) return;
+			const cat = _balRequired[_wizardStep];
+			if (!cat) return;
+			const meta = GROUP_META[cat.prefix] || {};
+			root.dataset.wizardStep = String(_wizardStep);
+
+			const head = document.getElementById('bal-wizard-head');
+			if (head) {
+				head.style.setProperty('--g-bg', meta.bg || '#fff7ec');
+				head.style.setProperty('--g-border', meta.border || '#f0c080');
+				head.style.setProperty('--g-color', meta.color || '#b85e00');
+			}
+			const counterEl = document.getElementById('bal-wizard-counter');
+			if (counterEl) counterEl.textContent = `Шаг ${_wizardStep + 1} из ${total}`;
+			const iconEl = document.getElementById('bal-wizard-icon');
+			if (iconEl) iconEl.textContent = meta.icon || '';
+			const labelEl = document.getElementById('bal-wizard-label');
+			if (labelEl) labelEl.textContent = meta.shortLabel || cat.label;
+			const hintEl = document.getElementById('bal-wizard-hint');
+			if (hintEl) hintEl.textContent = meta.title || '';
+
+			// Dots
+			const dotsEl = document.getElementById('bal-wizard-dots');
+			if (dotsEl) {
+				const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
+				dotsEl.innerHTML = _balRequired.map((c, i) => {
+					const m = GROUP_META[c.prefix] || {};
+					const done = checkedPrefixes.has(c.prefix);
+					const cls = i === _wizardStep ? 'bal-wizard-dot active' : (done ? 'bal-wizard-dot done' : 'bal-wizard-dot');
+					const color = done ? m.color : (i === _wizardStep ? meta.color : '#ddd');
+					return `<div class="${cls}" style="--dot-color:${m.color};background:${color}" onclick="balWizardSetStep(${i})"></div>`;
+				}).join('');
+			}
+
+			// Next / Prev buttons
+			const prevBtn = document.getElementById('bal-wizard-prev');
+			if (prevBtn) prevBtn.disabled = _wizardStep === 0;
+			const nextBtn = document.getElementById('bal-wizard-next');
+			if (nextBtn) {
+				const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
+				const groupDone = checkedPrefixes.has(cat.prefix);
+				const isLast = _wizardStep >= total - 1;
+				const allDone = _balRequired.every(c => checkedPrefixes.has(c.prefix));
+				if (isLast) {
+					nextBtn.textContent = allDone ? '✓ Готово!' : 'Заполни все группы';
+					nextBtn.disabled = !allDone;
+				} else {
+					nextBtn.textContent = 'Далее →';
+					// Блокируем переход пока пользователь не выбрал добавку в текущей группе
+					nextBtn.disabled = !groupDone;
+				}
+				const active = groupDone || (isLast && allDone);
+				nextBtn.style.background = active ? meta.color : '#f0f0f0';
+				nextBtn.style.color = active ? '#fff' : '#bbb';
+				nextBtn.style.cursor = nextBtn.disabled ? 'default' : 'pointer';
+			}
 		}
 
 		function addSubToPlate(key, event) {
@@ -1888,8 +2040,16 @@
 				const chk = document.getElementById('bal-chk-' + cat.key);
 				if (pill) pill.classList.toggle('done', done);
 				if (chk) chk.textContent = done ? '✓' : '';
+				// Paint the group head (desktop accordion) + tint body background
+				const groupEl = document.getElementById('bal-group-' + cat.prefix);
+				if (groupEl) groupEl.classList.toggle('done', done);
 				if (!done) allDone = false;
 			});
+			// Toggle global "balanced" state on the sidebar root (lights up the ИТОГО block)
+			const sidebarRoot = document.getElementById('bal-sidebar');
+			if (sidebarRoot) sidebarRoot.classList.toggle('balanced', allDone);
+			// Refresh mobile wizard UI (step dots + next button)
+			updateWizardUI();
 			// Update banner
 			const banner = document.getElementById('bal-banner');
 			if (banner) {
@@ -1907,9 +2067,12 @@
 					if (_wasBalanced) {
 						// was balanced, now not — reset banner
 						banner.className = 'bal-banner bal-banner-warn';
-						const pills = _balRequired.map(c =>
-							`<span class="bal-progress-pill${new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, ''))).has(c.prefix) ? ' done' : ''}" id="bal-pill-${c.key}"><span class="pill-check" id="bal-chk-${c.key}">${new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, ''))).has(c.prefix) ? '✓' : ''}</span>${c.key === 'p' ? '💪' : c.key === 'f' ? '🥑' : c.key === 'c' ? '🌾' : '🥬'} ${c.label}</span>`
-						).join('');
+						const checkedSet = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
+						const pills = _balRequired.map(c => {
+							const m = GROUP_META[c.prefix] || {};
+							const done = checkedSet.has(c.prefix);
+							return `<span class="bal-progress-pill${done ? ' done' : ''}" id="bal-pill-${c.key}" style="--pill-color:${m.color};--pill-bg:${m.bg}"><span class="pill-check" id="bal-chk-${c.key}">${done ? '✓' : ''}</span>${m.icon || ''} ${c.label}</span>`;
+						}).join('');
 						banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div><div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи — КБЖУ пересчитается</div><div class="bal-progress">${pills}</div>`;
 						_celebrationShown = false;
 					}
@@ -2275,11 +2438,17 @@
 			total.carbs = Math.round(total.carbs * 10) / 10;
 			total.fiber = Math.round(total.fiber * 10) / 10;
 			const tEl = document.getElementById('bal-total-kcal');
-			const mEl = document.getElementById('add-macro');
-			const lEl = document.getElementById('bal-total-label');
-			if (tEl) tEl.textContent = total.kcal + ' ккал';
-			if (mEl) mEl.innerHTML = `<span>Б&nbsp;${total.protein}&nbsp;г</span><span>·</span><span>Ж&nbsp;${total.fat}&nbsp;г</span><span>·</span><span>У&nbsp;${total.carbs}&nbsp;г</span><span>·</span><span>Кл&nbsp;${total.fiber}&nbsp;г</span>`;
-			if (lEl) lEl.textContent = Object.keys(checkedItems).length ? 'Итого (блюдо + добавки):' : 'Итого:';
+			if (tEl) tEl.innerHTML = total.kcal + '<span class="bal-total-kcal-unit"> ккал</span>';
+			const cellP  = document.getElementById('add-macro-p');
+			const cellF  = document.getElementById('add-macro-f');
+			const cellC  = document.getElementById('add-macro-c');
+			const cellFi = document.getElementById('add-macro-fi');
+			if (cellP)  cellP.textContent  = total.protein + 'г';
+			if (cellF)  cellF.textContent  = total.fat + 'г';
+			if (cellC)  cellC.textContent  = total.carbs + 'г';
+			if (cellFi) cellFi.textContent = total.fiber + 'г';
+			// Restart Playfair number flip animation on change
+			if (tEl) { tEl.style.animation = 'none'; void tEl.offsetWidth; tEl.style.animation = ''; }
 			// Also update KBZHU block
 			const ke = document.getElementById('kbzhu-kcal');
 			const kp = document.getElementById('kbzhu-protein');
