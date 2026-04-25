@@ -926,7 +926,7 @@
                             <div class="dish-info">
                                 <div class="dish-name">${escHtml(item.name)}</div>
                                 <div class="dish-meta">
-                                    <span class="pill">⏱ ${Number(item.time)} мин</span>
+                                    <span class="pill">⏱ ${item.timeLabel ? escHtml(item.timeLabel) : Number(item.time) + ' мин'}</span>
                                     <span class="pill">${escHtml(DIFF_LABELS[item.diff] || item.diff)}</span>
                                 </div>
                             </div>
@@ -1436,21 +1436,44 @@
 				}
 				return resolved;
 			}
+			function _normAddonName(s) {
+				if (!s) return '';
+				let out = String(s);
+				// Убираем парный хвост амаунта в скобках: "(1 кусок)", "(½ шт.)"
+				out = out.replace(/\s*\([^)]*\)\s*$/, '');
+				// Убираем хвост через тире: "— 1 ломтик", "- 50 г", "– 100 мл"
+				out = out.replace(/\s*[—–-]\s*[^—–-]+$/, '');
+				return out.toLowerCase().trim();
+			}
+			function _addonKeys(it) {
+				if (!it) return [];
+				const keys = [];
+				// Сильный ключ: recipeId. Если есть — этого достаточно для дедупа.
+				if (it.recipeId) keys.push('r:' + it.recipeId);
+				// Слабый ключ для статических добавок (без recipeId): нормализованное имя + kcal.
+				// Срезаем только хвост амаунта в имени («Хлеб — 1 ломтик» = «Хлеб»).
+				// Добавляем kcal в ключ, чтобы НЕ слить разные сущности с похожим корнем имени:
+				//   «Хлеб ржаной» 70 ккал и «Хлеб ржаной» 110 ккал → разные ключи → обе остаются.
+				//   «Цельнозерновой хлеб — 1 ломтик» 70 ккал (explicit) и «Цельнозерновой хлеб» 70 ккал
+				//   (auto, is_soup) → одинаковый ключ → дедуп.
+				const norm = _normAddonName(it.name);
+				if (norm) {
+					const k = Math.round(it.kcal || 0);
+					keys.push('n:' + norm + '|k' + k);
+				}
+				return keys;
+			}
 			function _mergeAddItems(explicit, auto) {
-				const out = (explicit || []).slice();
+				const all = (explicit || []).concat(auto || []);
 				const seen = new Set();
-				out.forEach(it => {
-					if (it && it.recipeId) seen.add('r:' + it.recipeId);
-					if (it && it.name) seen.add('n:' + it.name.toLowerCase().trim());
-				});
-				(auto || []).forEach(it => {
-					const keyR = it.recipeId ? 'r:' + it.recipeId : null;
-					const keyN = 'n:' + (it.name || '').toLowerCase().trim();
-					if ((keyR && seen.has(keyR)) || seen.has(keyN)) return;
+				const out = [];
+				for (const it of all) {
+					if (!it) continue;
+					const keys = _addonKeys(it);
+					if (keys.some(k => seen.has(k))) continue;
+					keys.forEach(k => seen.add(k));
 					out.push(it);
-					if (keyR) seen.add(keyR);
-					seen.add(keyN);
-				});
+				}
 				return out;
 			}
 			const _autoAdd = _resolveAutoAddons(r);
@@ -1664,7 +1687,7 @@
                         </div>
                     </div>
                     <div class="recipe-badges">
-                        <span class="recipe-badge">⏱ ${Number(r.time)} мин</span>
+                        <span class="recipe-badge">⏱ ${r.timeLabel ? escHtml(r.timeLabel) : Number(r.time) + ' мин'}</span>
                         <span class="recipe-badge">⚡ ${escHtml(diff)}</span>
                         <span class="recipe-badge">🍽 ${Number(r.servings || 4)} ${(()=>{const n=Number(r.servings||4),m10=n%10,m100=n%100;if(m10===1&&m100!==11)return 'порция';if([2,3,4].includes(m10)&&![12,13,14].includes(m100))return 'порции';return 'порций';})()} <span style="font-weight:500;color:var(--text-2)">(1 порция ≈ ${Number(r.portionGrams || 300)} г)</span></span>
                         ${dateStr ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">Рецепт добавлен: ${escHtml(dateStr)}</span>` : ''}
@@ -2848,7 +2871,7 @@
 				const name = typeof ing === 'string' ? ing : ing.name;
 				txt += `• ${name}\n`;
 			});
-			txt += `\n⏱ ${r.time} мин · ${r.kcal} ккал`;
+			txt += `\n⏱ ${r.timeLabel || (r.time + ' мин')} · ${r.kcal} ккал`;
 			if (navigator.share) { navigator.share({ title: r.name, text: txt }).catch(() => { }); }
 			else { navigator.clipboard.writeText(txt).then(() => showToast('📋 Скопировано!')).catch(() => showToast('Не удалось скопировать')); }
 		}

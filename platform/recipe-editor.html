@@ -1164,7 +1164,7 @@
                     <input type="text" class="re-input" id="re-emoji" value="🍴" style="text-align:center;font-size:20px">
                 </div>
                 <div class="re-field">
-                    <label class="re-label">Время (мин)</label>
+                    <label class="re-label">Время, мин <span style="color:var(--text-3);font-weight:400;font-size:11px">(нижняя граница)</span></label>
                     <input type="number" class="re-input" id="re-time" value="30" min="1">
                 </div>
                 <div class="re-field">
@@ -1190,6 +1190,17 @@
                     <label class="re-label">Порядок сортировки</label>
                     <input type="number" class="re-input" id="re-sort-order" value="0">
                     <div class="re-hint">Меньшее число = выше в списке</div>
+                </div>
+            </div>
+
+            <div class="re-row">
+                <div class="re-field">
+                    <label class="re-label">Подпись времени (опц.)</label>
+                    <input type="text" class="re-input" id="re-time-label" placeholder="напр. 45–50 минут, 1 час 20 минут">
+                    <div class="re-hint">Если задано — показывается на карточке как есть. Если пусто — фронт собирает «${Время} мин» из числового поля выше.</div>
+                    <div id="re-time-label-warn" style="display:none;margin-top:6px;padding:8px 10px;border-radius:6px;background:#fff7e6;border:1px solid #ffd591;color:#874d00;font-size:12px;line-height:1.4">
+                        ⚠️ AI попытался выдумать диапазон, но в исходном тексте его не было — поле очищено. Если диапазон всё-таки нужен, заполни вручную.
+                    </div>
                 </div>
             </div>
 
@@ -1738,6 +1749,7 @@
         document.getElementById('re-name').value = r.name;
         document.getElementById('re-emoji').value = r.emoji || '🍴';
         document.getElementById('re-time').value = r.time_min || 30;
+        document.getElementById('re-time-label').value = r.time_label || '';
         document.getElementById('re-diff').value = r.difficulty || 'easy';
         document.getElementById('re-servings').value = r.servings || 4;
         document.getElementById('re-portion-grams').value = r.portion_grams || 300;
@@ -2069,6 +2081,7 @@
             name: document.getElementById('re-name').value.trim(),
             emoji: document.getElementById('re-emoji').value || '🍴',
             time_min: parseInt(document.getElementById('re-time').value) || 30,
+            time_label: document.getElementById('re-time-label').value.trim() || null,
             difficulty: document.getElementById('re-diff').value,
             servings: parseInt(document.getElementById('re-servings').value) || 4,
             portion_grams: parseInt(document.getElementById('re-portion-grams').value) || 300,
@@ -2334,6 +2347,7 @@
             if (r.name) document.getElementById('re-name').value = r.name;
             document.getElementById('re-emoji').value = r.emoji || '🍴';
             document.getElementById('re-time').value = r.time_min || 30;
+            if (r.time_label) document.getElementById('re-time-label').value = r.time_label;
             document.getElementById('re-diff').value = r.difficulty || 'easy';
             document.getElementById('re-servings').value = r.servings || 4;
             document.getElementById('re-portion-grams').value = r.portion_grams || 300;
@@ -2664,7 +2678,7 @@
     };
 
     var FIELD_LABELS = {
-        name: 'Название', cat: 'Категория', emoji: 'Эмодзи', time_min: 'Время',
+        name: 'Название', cat: 'Категория', emoji: 'Эмодзи', time_min: 'Время', time_label: 'Подпись времени',
         difficulty: 'Сложность', servings: 'Порции', portion_grams: 'Грамм/порц.',
         kcal: 'Ккал', protein: 'Белки', fat: 'Жиры', carbs: 'Углеводы', fiber: 'Клетчатка',
         ingredients: 'Ингредиенты', steps: 'Шаги', tags: 'Теги',
@@ -2676,11 +2690,18 @@
         var filled = [];
         var unfilled = [];
 
+        // Reset transient warnings each AI run
+        var _warnEl = document.getElementById('re-time-label-warn');
+        if (_warnEl) _warnEl.style.display = 'none';
+
         // Simple fields
         if (r.name) { document.getElementById('re-name').value = r.name; filled.push('name'); }
         if (r.categories) { setCategories(r.categories); filled.push('cat'); } else if (r.cat) { setCategories([r.cat]); filled.push('cat'); }
         if (r.emoji) { document.getElementById('re-emoji').value = r.emoji; filled.push('emoji'); }
         if (r.time_min) { document.getElementById('re-time').value = r.time_min; filled.push('time_min'); }
+        if (r.time_label) { document.getElementById('re-time-label').value = r.time_label; filled.push('time_label'); }
+        // Серверный пост-фильтр снёс выдуманный диапазон → показываем предупреждение оператору.
+        if (r._stripped_time_label && _warnEl) _warnEl.style.display = 'block';
         if (r.difficulty) { document.getElementById('re-diff').value = r.difficulty; filled.push('difficulty'); }
         if (r.servings) { document.getElementById('re-servings').value = r.servings; filled.push('servings'); }
         if (r.portion_grams) { document.getElementById('re-portion-grams').value = r.portion_grams; filled.push('portion_grams'); }
@@ -2743,7 +2764,7 @@
         }
 
         // Unfilled fields from AI
-        var allFields = ['name', 'cat', 'emoji', 'time_min', 'difficulty', 'servings', 'portion_grams',
+        var allFields = ['name', 'cat', 'emoji', 'time_min', 'time_label', 'difficulty', 'servings', 'portion_grams',
             'kcal', 'protein', 'fat', 'carbs', 'fiber', 'ingredients', 'steps', 'tags',
             'quote', 'note', 'photo', 'yt_video', 'vk_video', 'dzen_video'];
         var aiUnfilled = r._unfilled || [];

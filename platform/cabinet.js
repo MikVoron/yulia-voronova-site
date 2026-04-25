@@ -713,6 +713,7 @@
 			const _imgPos = escHtml(d.imgPosition || '');
 			const _diff = escHtml((typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {})[d.diff] || d.diff || '');
 			const _time = Number(d.time) || 0;
+			const _timeStr = d.timeLabel ? escHtml(d.timeLabel) : (_time + ' мин');
 			const _kcal = Number(d.kcal) || 0;
 			const isFav = Favorites.has(d.id);
 			const photoHtml = _photo
@@ -729,7 +730,7 @@
             <div class="recipe-card-body">
                 <div class="recipe-card-name">${_name}</div>
                 <div class="recipe-card-meta">
-                    <span class="pill">⏱ ${_time} мин</span>
+                    <span class="pill">⏱ ${_timeStr}</span>
                     <span class="pill">${_diff}</span>
                 </div>
                 <div class="recipe-card-kcal" style="margin-top:4px">${_kcal} ккал</div>

@@ -3,6 +3,20 @@ const { authenticate, requireAdmin, optionalAuthenticate, checkActiveSubscriptio
 const email = require('../email');
 const audit = require('../audit');
 
+// Нормализация time_label: принимаем только строку до 60 символов, иначе → null.
+// Колонка в БД — VARCHAR(60). Пустые строки и нестроковые значения всегда дают null.
+function normalizeTimeLabel(v) {
+  if (typeof v !== 'string') return null;
+  const trimmed = v.trim();
+  if (!trimmed) return null;
+  if (trimmed.length > 60) {
+    const err = new Error('time_label слишком длинный (макс. 60 символов)');
+    err.statusCode = 400;
+    throw err;
+  }
+  return trimmed;
+}
+
 async function contentRoutes(fastify) {
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -33,7 +47,7 @@ async function contentRoutes(fastify) {
       }
     }
     const result = await db.query(
-      `SELECT r.id, r.cat, r.name, r.emoji, r.time_min, r.difficulty, r.servings, r.is_free,
+      `SELECT r.id, r.cat, r.name, r.emoji, r.time_min, r.time_label, r.difficulty, r.servings, r.is_free,
               r.kcal, r.protein, r.fat, r.carbs, r.fiber, r.tags, r.photo, r.img_position, r.quote,
               r.ingredients, r.steps, r.note, r.vk_video, r.yt_video, r.dzen_video,
               r.add_protein, r.add_fat, r.add_carbs, r.add_fiber, r.auto_addons, r.is_soup,
@@ -291,19 +305,22 @@ async function contentRoutes(fastify) {
     // Support both: categories[] (new) and cat (legacy)
     const cats = Array.isArray(r.categories) && r.categories.length ? r.categories : (r.cat ? [r.cat] : []);
     if (!r.id || !r.name || !cats.length) return reply.status(400).send({ error: 'id, name и категория обязательны' });
+    let timeLabel;
+    try { timeLabel = normalizeTimeLabel(r.time_label); }
+    catch (e) { return reply.status(400).send({ error: e.message, field: 'time_label' }); }
     // Check id uniqueness
     const exists = await db.query('SELECT id FROM recipes WHERE id=$1', [r.id]);
     if (exists.rows.length) return reply.status(409).send({ error: 'Рецепт с таким id уже существует' });
     const primaryCat = cats[0];
     const result = await db.query(
-      `INSERT INTO recipes (id, cat, name, emoji, time_min, difficulty, servings, is_free,
+      `INSERT INTO recipes (id, cat, name, emoji, time_min, time_label, difficulty, servings, is_free,
           kcal, protein, fat, carbs, fiber, tags, photo, img_position, quote,
           ingredients, steps, note, vk_video, yt_video, dzen_video, add_protein, add_fat, add_carbs, add_fiber,
           portion_grams, sort_order, is_published, auto_addons, is_soup)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33)
        RETURNING *`,
       [
-        r.id, primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, r.difficulty || 'easy',
+        r.id, primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, timeLabel, r.difficulty || 'easy',
         r.servings || 4, r.is_free || false,
         r.kcal || 0, r.protein || 0, r.fat || 0, r.carbs || 0, r.fiber || 0,
         r.tags || [], r.photo || null, r.img_position || null, r.quote || null,
@@ -330,15 +347,18 @@ async function contentRoutes(fastify) {
     // Support both: categories[] (new) and cat (legacy)
     const cats = Array.isArray(r.categories) && r.categories.length ? r.categories : (r.cat ? [r.cat] : []);
     const primaryCat = cats.length ? cats[0] : r.cat;
+    let timeLabel;
+    try { timeLabel = normalizeTimeLabel(r.time_label); }
+    catch (e) { return reply.status(400).send({ error: e.message, field: 'time_label' }); }
     const result = await db.query(
-      `UPDATE recipes SET cat=$1, name=$2, emoji=$3, time_min=$4, difficulty=$5, servings=$6,
-          is_free=$7, kcal=$8, protein=$9, fat=$10, carbs=$11, fiber=$12, tags=$13,
-          photo=$14, img_position=$15, quote=$16, ingredients=$17, steps=$18, note=$19,
-          vk_video=$20, yt_video=$21, dzen_video=$22, add_protein=$23, add_fat=$24, add_carbs=$25, add_fiber=$26,
-          portion_grams=$27, sort_order=$28, is_published=$29, auto_addons=$30, is_soup=$31, updated_at=now()
-       WHERE id=$32 RETURNING *`,
+      `UPDATE recipes SET cat=$1, name=$2, emoji=$3, time_min=$4, time_label=$5, difficulty=$6, servings=$7,
+          is_free=$8, kcal=$9, protein=$10, fat=$11, carbs=$12, fiber=$13, tags=$14,
+          photo=$15, img_position=$16, quote=$17, ingredients=$18, steps=$19, note=$20,
+          vk_video=$21, yt_video=$22, dzen_video=$23, add_protein=$24, add_fat=$25, add_carbs=$26, add_fiber=$27,
+          portion_grams=$28, sort_order=$29, is_published=$30, auto_addons=$31, is_soup=$32, updated_at=now()
+       WHERE id=$33 RETURNING *`,
       [
-        primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, r.difficulty || 'easy',
+        primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, timeLabel, r.difficulty || 'easy',
         r.servings || 4, r.is_free || false,
         r.kcal || 0, r.protein || 0, r.fat || 0, r.carbs || 0, r.fiber || 0,
         r.tags || [], r.photo || null, r.img_position || null, r.quote || null,

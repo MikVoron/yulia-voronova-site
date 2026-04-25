@@ -503,7 +503,7 @@ function _fixPhoto(p) {
 function _mapRecipe(r) {
     return {
         id: r.id, cat: r.cat, categories: r.categories || (r.cat ? [r.cat] : []), name: r.name, emoji: r.emoji || '🍴',
-        time: r.time_min || 30, diff: r.difficulty || 'easy', servings: r.servings || 4, portionGrams: r.portion_grams || 300,
+        time: r.time_min || 30, timeLabel: r.time_label || null, diff: r.difficulty || 'easy', servings: r.servings || 4, portionGrams: r.portion_grams || 300,
         free: !!r.is_free,
         kcal: r.kcal || 0, protein: r.protein || 0, fat: r.fat || 0,
         carbs: r.carbs || 0, fiber: r.fiber || 0,

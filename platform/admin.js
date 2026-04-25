@@ -525,7 +525,7 @@
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:#fff">'
                 + '<div style="flex:1;min-width:0">'
                 + '<div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text)">' + badge + '<span>' + (r.emoji || '') + ' ' + esc(r.name) + '</span></div>'
-                + '<div style="font-size:11px;color:var(--text-3);margin-top:4px">' + (r.categories || [r.cat]).map(function(c) { return CAT_NAMES[c] || c; }).join(', ') + ' · ' + r.time_min + ' мин · ' + r.kcal + ' ккал</div>'
+                + '<div style="font-size:11px;color:var(--text-3);margin-top:4px">' + (r.categories || [r.cat]).map(function(c) { return CAT_NAMES[c] || c; }).join(', ') + ' · ' + (r.time_label || (r.time_min + ' мин')) + ' · ' + r.kcal + ' ккал</div>'
                 + '</div>'
                 + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">'
                 + '<button class="adm-btn" onclick="openRecipeEditor(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px" title="Открыть в редакторе">✏️</button>'
@@ -550,6 +550,7 @@
         document.getElementById('recipe-name').value = r ? r.name : '';
         document.getElementById('recipe-emoji').value = r ? (r.emoji || '🍴') : '🍴';
         document.getElementById('recipe-time').value = r ? r.time_min : 30;
+        document.getElementById('recipe-time-label').value = r ? (r.time_label || '') : '';
         document.getElementById('recipe-diff').value = r ? r.difficulty : 'easy';
         document.getElementById('recipe-servings').value = r ? r.servings : 4;
         document.getElementById('recipe-portion-grams').value = r ? (r.portion_grams || 300) : 300;
@@ -798,6 +799,7 @@
             name: document.getElementById('recipe-name').value.trim(),
             emoji: document.getElementById('recipe-emoji').value || '🍴',
             time_min: parseInt(document.getElementById('recipe-time').value) || 30,
+            time_label: document.getElementById('recipe-time-label').value.trim() || null,
             difficulty: document.getElementById('recipe-diff').value,
             servings: parseInt(document.getElementById('recipe-servings').value) || 4,
             portion_grams: parseInt(document.getElementById('recipe-portion-grams').value) || 300,

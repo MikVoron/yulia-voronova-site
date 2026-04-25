@@ -838,14 +838,18 @@
             <label class="adm-modal-label">Название</label>
             <input type="text" class="adm-modal-input" id="recipe-name" placeholder="Название рецепта">
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
             <div class="adm-modal-field">
                 <label class="adm-modal-label">Эмодзи</label>
                 <input type="text" class="adm-modal-input" id="recipe-emoji" value="🍴">
             </div>
             <div class="adm-modal-field">
-                <label class="adm-modal-label">Время (мин)</label>
+                <label class="adm-modal-label">Время, мин <span style="color:var(--text-3);font-weight:400;font-size:11px">(нижн. граница)</span></label>
                 <input type="number" class="adm-modal-input" id="recipe-time" value="30">
+            </div>
+            <div class="adm-modal-field" style="grid-column:span 2;min-width:200px">
+                <label class="adm-modal-label">Подпись времени <span style="color:var(--text-3);font-weight:400;font-size:11px">(опц., напр. 45–50 минут)</span></label>
+                <input type="text" class="adm-modal-input" id="recipe-time-label" placeholder="оставьте пустым, если время одиночное">
             </div>
             <div class="adm-modal-field">
                 <label class="adm-modal-label">Сложность</label>
