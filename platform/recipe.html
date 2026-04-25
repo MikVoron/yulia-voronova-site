@@ -705,6 +705,8 @@
 		const fromCat = params.get('from') || '';
 		const simpleMode = params.get('simple') === '1';
 		const parentRecipeId = params.get('parentRecipeId') || '';
+		const sourceParam = params.get('source') || '';
+		const isAdminPreview = sourceParam === 'admin-preview';
 		let r, cat;
 
 		// Must be declared before renderRecipe is called (used inside buildGroup)
@@ -864,7 +866,11 @@
 			// Back button
 			const backBtn = document.getElementById('back-btn');
 			const parent = (parentRecipeId && parentRecipeId !== recipeId && RECIPES[parentRecipeId]) ? RECIPES[parentRecipeId] : null;
-			if (parent) {
+			if (isAdminPreview && recipeId) {
+				const editorUrl = 'recipe-editor.html?id=' + encodeURIComponent(recipeId);
+				backBtn.onclick = () => location.href = editorUrl;
+				document.getElementById('back-label').textContent = 'Редактор';
+			} else if (parent) {
 				const parentUrl = 'recipe.html?id=' + encodeURIComponent(parentRecipeId)
 					+ (fromCat ? '&from=' + encodeURIComponent(fromCat) : '');
 				backBtn.onclick = () => location.href = parentUrl;
