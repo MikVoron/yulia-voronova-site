@@ -513,6 +513,24 @@
 			}
 			.bal-success-modal-title { font-size: 18px; }
 		}
+		.kbzhu-disclaimer {
+			margin-top: 8px;
+			font-size: 11px;
+			line-height: 1.45;
+			color: var(--text-3);
+			font-weight: 400;
+		}
+		.bal-total-disclaimer {
+			margin-top: 8px;
+			font-size: 11px;
+			line-height: 1.45;
+			color: var(--text-3);
+			font-weight: 400;
+		}
+		@media (max-width: 480px) {
+			.kbzhu-disclaimer,
+			.bal-total-disclaimer { font-size: 10.5px; }
+		}
 	</style>
 </head>
 
@@ -1637,6 +1655,7 @@
                         </div>
                         <div class="bal-total-kcal" id="bal-total-kcal">${Number(r.kcal)}<span class="bal-total-kcal-unit"> ккал</span></div>
                     </div>
+                    <div class="bal-total-disclaimer">Расчёт примерный: значения могут немного отличаться в зависимости от продукта, бренда и жирности</div>
                 </div>
             </div>` : '';
 
@@ -1713,6 +1732,7 @@
                         <div class="kbzhu-cell"><div class="kbzhu-val" id="kbzhu-carbs">~${Number(r.carbs)}г</div><div class="kbzhu-lbl">Углеводы</div></div>
                         ${fiberCell}
                     </div>
+                    <div class="kbzhu-disclaimer">Расчёт примерный: значения могут немного отличаться в зависимости от продукта, бренда и жирности</div>
 
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:8px">
                         <div class="v-section-title">Ингредиенты</div>
