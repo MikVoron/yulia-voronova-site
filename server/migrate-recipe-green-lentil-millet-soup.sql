@@ -49,8 +49,8 @@ INSERT INTO recipes (
     {"text": "Добавьте чеснок и лавровый лист. Поварите 1 минуту.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-final.webp"}
   ]'::jsonb,
   '[
-    {"name": "Белое мясо — 50 г", "kcal": 80, "protein": 16, "fat": 0, "carbs": 0, "fiber": 0},
-    {"name": "Тофу — 100 г", "kcal": 70, "protein": 10, "fat": 0, "carbs": 0, "fiber": 0},
+    {"name": "Белое мясо — 50 г", "kcal": 80, "protein": 16, "fat": 2, "carbs": 0, "fiber": 0},
+    {"name": "Тофу — 100 г", "kcal": 70, "protein": 10, "fat": 4, "carbs": 2, "fiber": 0},
     {"name": "Соевые бобы эдамаме — 100 г", "kcal": 109, "protein": 12, "fat": 5, "carbs": 3, "fiber": 5},
     {"name": "Хумус — 40 г", "kcal": 80, "protein": 3.2, "fat": 4.8, "carbs": 6, "fiber": 2, "recipeId": "hummus"},
     {"name": "Свекольный хумус — 40 г", "kcal": 60, "protein": 2.8, "fat": 2.8, "carbs": 7.2, "fiber": 2.4, "recipeId": "beetroot-hummus"}

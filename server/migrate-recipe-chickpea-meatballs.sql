@@ -16,7 +16,7 @@ INSERT INTO recipes (
   portion_grams, is_published, sort_order
 ) VALUES (
   'chickpea-meatballs',
-  'mains',
+  'cutlets',
   'Тефтели из нута с овощами',
   '🫛',
   45,
@@ -90,5 +90,5 @@ ON CONFLICT (id) DO UPDATE SET
   updated_at = now();
 
 INSERT INTO recipe_categories (recipe_id, category_id)
-VALUES ('chickpea-meatballs', 'mains')
+VALUES ('chickpea-meatballs', 'cutlets')
 ON CONFLICT DO NOTHING;

@@ -3,8 +3,7 @@
 -- Применить: ssh root@5.42.119.198 "cat | sudo -u postgres psql smartplate_db" < server/migrate-recipe-mung-bean-soup.sql
 --
 -- TODO: фото нет — папка images/recipes/mung-bean-soup/ отсутствует, photo=null.
--- ВНИМАНИЕ: для add_protein «Белое мясо 70 г» и «Тофу 130 г» пользователь дал только ккал и белок —
--- fat/carbs/fiber поставлены 0 (нужно подтверждение). Эдамаме 100 г — данные полные.
+-- add_protein: полные КБЖУ для «Готовое белое мясо 70 г» и «Тофу 130 г» подтверждены пользователем 2026-04-27.
 -- add_carbs пуст: хлеб + сухарики прилетают автоматом через флаг is_soup (как в borsch).
 
 INSERT INTO recipes (
@@ -52,8 +51,8 @@ INSERT INTO recipes (
     {"text": "Накройте крышкой и варите суп до готовности маша, примерно 25 минут после закипания.", "photo": null}
   ]'::jsonb,
   '[
-    {"name": "Готовое белое мясо", "amount": "70 г", "kcal": 115, "protein": 22, "fat": 0, "carbs": 0, "fiber": 0},
-    {"name": "Тофу", "amount": "130 г", "kcal": 100, "protein": 12, "fat": 0, "carbs": 0, "fiber": 0},
+    {"name": "Готовое белое мясо", "amount": "70 г", "kcal": 112, "protein": 22, "fat": 3, "carbs": 0, "fiber": 0},
+    {"name": "Тофу", "amount": "130 г", "kcal": 91, "protein": 13, "fat": 5, "carbs": 3, "fiber": 0},
     {"name": "Эдамаме", "amount": "100 г", "kcal": 109, "protein": 12, "fat": 5, "carbs": 3, "fiber": 5}
   ]'::jsonb,
   '[]'::jsonb,
@@ -61,7 +60,7 @@ INSERT INTO recipes (
   '[]'::jsonb,
   true,
   400,
-  false,
+  true,
   0
 )
 ON CONFLICT (id) DO UPDATE SET
