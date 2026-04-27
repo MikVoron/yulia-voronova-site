@@ -3,6 +3,10 @@
 -- ингредиентов (овощной концентрат отдельной строкой), добавление add_protein (пармезан).
 -- ВНИМАНИЕ: дрожжи (15 г, 78 г белка) из ТЗ не добавлены — белок 78 г при весе 15 г это опечатка
 -- (реальное значение пищ. дрожжей ≈ 7-8 г белка/15 г). Нужно подтверждение пользователя.
+--
+-- ВАЖНО: steps[].photo синхронизированы с server/migrate-recipe-photos-convention.sql
+-- (start/N/final convention). Не расходиться с этим файлом по фото-путям.
+--
 -- Применить: ssh root@5.42.119.198 "cat | sudo -u postgres psql smartplate_db" < server/migrate-recipe-grechotto.sql
 
 INSERT INTO recipes (
@@ -39,15 +43,15 @@ INSERT INTO recipes (
     {"name": "Соль — 1 ч. л.", "swap": null}
   ]'::jsonb,
   '[
-    {"text": "Лук мелко нарежьте, морковь натрите на тёрке, грибы нарежьте средними кусочками.", "photo": "images/recipes/grechotto/grechotto-start.webp"},
-    {"text": "Обжарьте лук на оливковом масле около 1 минуты.", "photo": "images/recipes/grechotto/grechotto-1.webp"},
-    {"text": "Добавьте морковь и обжаривайте ещё 1–2 минуты.", "photo": "images/recipes/grechotto/grechotto-2.webp"},
-    {"text": "Добавьте грибы и специи, перемешайте и готовьте около 1 минуты.", "photo": "images/recipes/grechotto/grechotto-3.webp"},
-    {"text": "Гречку промойте и добавьте к овощам, перемешайте.", "photo": "images/recipes/grechotto/grechotto-4.webp"},
+    {"text": "Лук мелко нарежьте, морковь натрите на тёрке, грибы нарежьте средними кусочками.", "photo": null},
+    {"text": "Обжарьте лук на оливковом масле около 1 минуты.", "photo": "images/recipes/grechotto/grechotto-2.webp"},
+    {"text": "Добавьте морковь и обжаривайте ещё 1–2 минуты.", "photo": "images/recipes/grechotto/grechotto-3.webp"},
+    {"text": "Добавьте грибы и специи, перемешайте и готовьте около 1 минуты.", "photo": "images/recipes/grechotto/grechotto-4.webp"},
+    {"text": "Гречку промойте и добавьте к овощам, перемешайте.", "photo": "images/recipes/grechotto/grechotto-5.webp"},
     {"text": "Влейте воду, добавьте овощной концентрат (можно без него) и соль.", "photo": null},
-    {"text": "Доведите до кипения, накройте крышкой и готовьте на слабом огне 15–20 минут.", "photo": "images/recipes/grechotto/grechotto-5.webp"},
-    {"text": "Фасоль пробейте блендером с 100 мл воды до кремовой консистенции.", "photo": "images/recipes/grechotto/grechotto-6.webp"},
-    {"text": "Когда гречка готова, добавьте пюре из фасоли и перемешайте.", "photo": "images/recipes/grechotto/grechotto-7.webp"},
+    {"text": "Доведите до кипения, накройте крышкой и готовьте на слабом огне 15–20 минут.", "photo": "images/recipes/grechotto/grechotto-7.webp"},
+    {"text": "Фасоль пробейте блендером с 100 мл воды до кремовой консистенции.", "photo": "images/recipes/grechotto/grechotto-8.webp"},
+    {"text": "Когда гречка готова, добавьте пюре из фасоли и перемешайте.", "photo": "images/recipes/grechotto/grechotto-9.webp"},
     {"text": "Дайте постоять под крышкой 5–10 минут. Можно посыпать тёртым пармезаном или неактивными пищевыми дрожжами.", "photo": null}
   ]'::jsonb,
   '[

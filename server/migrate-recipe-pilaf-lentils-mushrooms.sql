@@ -1,6 +1,11 @@
 -- Рецепт: Плов с чечевицей и грибами
 -- Сверка с ТЗ от 2026-04-25 (пользователь): обновление КБЖУ, веса порции, тегов,
 -- ингредиентов (овощной концентрат отдельной строкой), шагов, цитаты, add_fiber.
+--
+-- ВАЖНО: steps[].photo синхронизированы с server/migrate-recipe-photos-convention.sql
+-- (start/N/final convention). Не расходиться с этим файлом по фото-путям.
+-- Cover (recipes.photo) осознанно указывает на -final.webp — на диске нет -cover.webp.
+--
 -- Применить: ssh root@5.42.119.198 "cat | sudo -u postgres psql smartplate_db" < server/migrate-recipe-pilaf-lentils-mushrooms.sql
 
 INSERT INTO recipes (
@@ -40,13 +45,13 @@ INSERT INTO recipes (
     {"name": "Оливковое масло — 1 ст. л.", "swap": null}
   ]'::jsonb,
   '[
-    {"text": "Лук нарежьте и обжарьте на оливковом масле 1 минуту.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-start.webp"},
+    {"text": "Лук нарежьте и обжарьте на оливковом масле 1 минуту.", "photo": null},
     {"text": "Добавьте тёртую морковь и жарьте ещё 2 минуты.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-2.webp"},
     {"text": "Добавьте чеснок и специи, перемешайте.", "photo": null},
-    {"text": "Добавьте грибы и готовьте 1 минуту.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-3.webp"},
+    {"text": "Добавьте грибы и готовьте 1 минуту.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-4.webp"},
     {"text": "Добавьте томатную пасту, перемешайте.", "photo": null},
-    {"text": "Всыпьте рис и чечевицу, перемешайте.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-4.webp"},
-    {"text": "Влейте воду, добавьте овощной концентрат (можно без него), посолите.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-5.webp"},
+    {"text": "Всыпьте рис и чечевицу, перемешайте.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-6.webp"},
+    {"text": "Влейте воду, добавьте овощной концентрат (можно без него), посолите.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-7.webp"},
     {"text": "Доведите до кипения, накройте крышкой и готовьте на слабом огне 25 минут.", "photo": null},
     {"text": "В конце попробуйте и при необходимости досолите.", "photo": null},
     {"text": "Выключите огонь и дайте настояться под крышкой 10 минут.", "photo": null}

@@ -1,6 +1,10 @@
 -- Рецепт: Суп из зелёной чечевицы с пшеном
 -- Идемпотентно: точечный INSERT по id, на конфликте — детерминированный UPDATE тех же полей.
 -- Повторный запуск даёт тот же итог (без задвоения шагов/ингредиентов, не трогает другие рецепты).
+--
+-- ВАЖНО: steps[].photo синхронизированы с server/migrate-recipe-photos-convention.sql
+-- (start/N/final convention). Не расходиться с этим файлом по фото-путям.
+-- Папка soup-green-lentil-milletsoup/ оставлена как есть (slug ≠ recipe.id, вне scope).
 
 INSERT INTO recipes (
   id, cat, name, emoji,
@@ -40,11 +44,11 @@ INSERT INTO recipes (
   ]'::jsonb,
   '[
     {"text": "Предварительно замочите зелёную чечевицу на ночь или от 3 часов."},
-    {"text": "Нарежьте лук, морковь и сельдерей на мелкие кубики. Мелко порежьте чеснок.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-start.webp"},
-    {"text": "Обжарьте лук около 1 минуты. Добавьте чеснок, специи и перемешайте.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-2.webp"},
-    {"text": "Добавьте морковь и сельдерей. Обжарьте овощи в течение 7 минут.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-3.webp"},
-    {"text": "Всыпьте промытую чечевицу, залейте водой и доведите до кипения.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-4.webp"},
-    {"text": "Добавьте овощной концентрат (можно без него) и варите около 15 минут.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-5.webp"},
+    {"text": "Нарежьте лук, морковь и сельдерей на мелкие кубики. Мелко порежьте чеснок.", "photo": null},
+    {"text": "Обжарьте лук около 1 минуты. Добавьте чеснок, специи и перемешайте.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-3.webp"},
+    {"text": "Добавьте морковь и сельдерей. Обжарьте овощи в течение 7 минут.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-4.webp"},
+    {"text": "Всыпьте промытую чечевицу, залейте водой и доведите до кипения.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-5.webp"},
+    {"text": "Добавьте овощной концентрат (можно без него) и варите около 15 минут.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-6.webp"},
     {"text": "Добавьте картофель и промытое пшено. Варите ещё около 15 минут до готовности пшена.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-7.webp"},
     {"text": "Добавьте чеснок и лавровый лист. Поварите 1 минуту.", "photo": null}
   ]'::jsonb,
