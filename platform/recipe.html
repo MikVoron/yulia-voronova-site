@@ -655,7 +655,7 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=1774941737"></script>
+	<script src="data-v2.js?v=1779840000"></script>
 	<script>
 		Auth.requireAuth();
 		const _accessReady = Auth.checkAccess();
@@ -944,8 +944,8 @@
                             <div class="dish-info">
                                 <div class="dish-name">${escHtml(item.name)}</div>
                                 <div class="dish-meta">
-                                    <span class="pill">⏱ ${item.timeLabel ? escHtml(item.timeLabel) : Number(item.time) + ' мин'}</span>
-                                    <span class="pill">${escHtml(DIFF_LABELS[item.diff] || item.diff)}</span>
+                                    <span class="pill">${typeof timeIcon === 'function' ? timeIcon() : ''}${item.timeLabel ? escHtml(item.timeLabel) : Number(item.time) + ' мин'}</span>
+                                    <span class="pill">${typeof diffIcon === 'function' ? diffIcon(item.diff) : ''}${escHtml(DIFF_LABELS[item.diff] || item.diff)}</span>
                                 </div>
                             </div>
                             <div class="dish-kcal">${Number(item.kcal)}<span>ккал</span></div>
@@ -1706,8 +1706,8 @@
                         </div>
                     </div>
                     <div class="recipe-badges">
-                        <span class="recipe-badge">⏱ ${r.timeLabel ? escHtml(r.timeLabel) : Number(r.time) + ' мин'}</span>
-                        <span class="recipe-badge">⚡ ${escHtml(diff)}</span>
+                        <span class="recipe-badge">${typeof timeIcon === 'function' ? timeIcon() : ''}${r.timeLabel ? escHtml(r.timeLabel) : Number(r.time) + ' мин'}</span>
+                        <span class="recipe-badge">${typeof diffIcon === 'function' ? diffIcon(r.diff) : ''}${escHtml(diff)}</span>
                         <span class="recipe-badge">🍽 ${Number(r.servings || 4)} ${(()=>{const n=Number(r.servings||4),m10=n%10,m100=n%100;if(m10===1&&m100!==11)return 'порция';if([2,3,4].includes(m10)&&![12,13,14].includes(m100))return 'порции';return 'порций';})()} <span style="font-weight:500;color:var(--text-2)">(1 порция ≈ ${Number(r.portionGrams || 300)} г)</span></span>
                         ${dateStr ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">Рецепт добавлен: ${escHtml(dateStr)}</span>` : ''}
                     </div>

@@ -806,7 +806,7 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=1774941737"></script>
+	<script src="data-v2.js?v=1779840000"></script>
 	<script>
 		function escHtml(s) {
 			return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -985,6 +985,7 @@
 				const _photo = escHtml(String(d.photo || ''));
 				const _emoji = escHtml(String(d.emoji || '🍴'));
 				const _diff = escHtml(String(diff_labels[d.diff] || d.diff || ''));
+				const _diffIcon = typeof diffIcon === 'function' ? diffIcon(d.diff) : '';
 				const _time = Number(d.time) || 0;
 				const _timeStr = d.timeLabel ? escHtml(d.timeLabel) : (_time + ' мин');
 				const _kcal = Number(d.kcal) || 0;
@@ -1015,8 +1016,8 @@
                         ${item.date ? '<div class="news-item-date">' + escHtml(item.date) + '</div>' : ''}
                         <div class="featured-card-name">${_name}</div>
                         <div class="featured-card-meta">
-                            <span class="pill">⏱ ${_timeStr}</span>
-                            <span class="pill">${_diff}</span>
+                            <span class="pill">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
+                            <span class="pill">${_diffIcon}${_diff}</span>
                         </div>
                         ${_desc ? `<div class="featured-card-desc">${_desc}</div>` : ''}
                         <div class="featured-card-macros">
@@ -1115,7 +1116,7 @@
 						${thumb}
 						<div class="hero-search-text">
 							<div class="hero-search-name">${_name}</div>
-							<div class="hero-search-meta">⏱ ${_timeStr} · ${_kcal} ккал</div>
+							<div class="hero-search-meta">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr} · ${_kcal} ккал</div>
 						</div>
 					</a>`;
 				}).join('');

@@ -178,7 +178,7 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=1774941737"></script>
+<script src="data-v2.js?v=1779840000"></script>
 <script>
     Auth.requireAuth();
     loadContent().then(function() {
@@ -326,6 +326,7 @@
             const _photo = escHtml(String(d.photo || photo || ''));
             const _imgPos = escHtml(String(d.imgPosition || ''));
             const _diff = escHtml(String(diff_labels[d.diff] || d.diff || ''));
+            const _diffIcon = typeof diffIcon === 'function' ? diffIcon(d.diff) : '';
             const _time = Number(d.time) || 0;
             const _timeStr = d.timeLabel ? escHtml(d.timeLabel) : (_time + ' мин');
             const _kcal = Number(d.kcal) || 0;
@@ -359,8 +360,8 @@
                 <div class="recipe-card-body">
                     <div class="recipe-card-name">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</div>
                     <div class="recipe-card-meta">
-                        <span class="pill">⏱ ${_timeStr}</span>
-                        <span class="pill">${_diff}</span>
+                        <span class="pill">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
+                        <span class="pill">${_diffIcon}${_diff}</span>
                     </div>
                     <div class="recipe-card-kcal" style="margin-top:4px">${_kcal} ккал</div>
                 </div>
@@ -424,6 +425,7 @@
                 const _photo = escHtml(String(d.photo || photo || ''));
                 const _imgPos = escHtml(String(d.imgPosition || ''));
                 const _diff = escHtml(String(diff_labels[d.diff] || d.diff || ''));
+                const _diffIcon = typeof diffIcon === 'function' ? diffIcon(d.diff) : '';
                 const _time = Number(d.time) || 0;
                 const _timeStr = d.timeLabel ? escHtml(d.timeLabel) : (_time + ' мин');
                 const _kcal = Number(d.kcal) || 0;
@@ -457,8 +459,8 @@
                     <div class="recipe-card-body">
                         <div class="recipe-card-name">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</div>
                         <div class="recipe-card-meta">
-                            <span class="pill">⏱ ${_timeStr}</span>
-                            <span class="pill">${_diff}</span>
+                            <span class="pill">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
+                            <span class="pill">${_diffIcon}${_diff}</span>
                         </div>
                         <div class="recipe-card-kcal" style="margin-top:4px">${_kcal} ккал</div>
                     </div>

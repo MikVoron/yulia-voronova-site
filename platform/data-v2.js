@@ -612,6 +612,16 @@ function getCategoryDishes(catId, filters = {}) {
 
 const DIFF_LABELS = { easy: 'Легкая', medium: 'Средняя', hard: 'Сложная' };
 
+function diffIcon(diff) {
+    const lvl = diff === 'hard' ? 3 : diff === 'medium' ? 2 : 1;
+    const bar = (i, h) => `<rect x="${i*4}" y="${10-h}" width="3" height="${h}" rx="0.5" fill="currentColor" opacity="${i+1<=lvl?1:0.28}"/>`;
+    return `<svg viewBox="0 0 11 10" width="11" height="10" style="vertical-align:-1px;flex-shrink:0;margin-right:4px" aria-hidden="true">${bar(0,4)}${bar(1,7)}${bar(2,10)}</svg>`;
+}
+
+function timeIcon() {
+    return `<svg viewBox="0 0 12 12" width="12" height="12" style="vertical-align:-2px;flex-shrink:0;margin-right:4px" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="6" y1="6" x2="6" y2="3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="6" y1="6" x2="8.2" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
+}
+
 // ─── TOAST ───────────────────────────────────────────────────────────────────
 function showToast(msg, ms = 2800) {
     let el = document.getElementById('v2-toast');
