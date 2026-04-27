@@ -48,7 +48,7 @@ INSERT INTO recipes (
     {"text": "Доведите до кипения, накройте крышкой и готовьте на слабом огне 15–20 минут.", "photo": "images/recipes/grechotto/grechotto-5.webp"},
     {"text": "Фасоль пробейте блендером с 100 мл воды до кремовой консистенции.", "photo": "images/recipes/grechotto/grechotto-6.webp"},
     {"text": "Когда гречка готова, добавьте пюре из фасоли и перемешайте.", "photo": "images/recipes/grechotto/grechotto-7.webp"},
-    {"text": "Дайте постоять под крышкой 5–10 минут. Можно посыпать тёртым пармезаном или неактивными пищевыми дрожжами.", "photo": "images/recipes/grechotto/grechotto-final.webp"}
+    {"text": "Дайте постоять под крышкой 5–10 минут. Можно посыпать тёртым пармезаном или неактивными пищевыми дрожжами.", "photo": null}
   ]'::jsonb,
   '[
     {"name": "Пармезан", "amount": "10 г", "kcal": 43, "protein": 4, "fat": 3, "carbs": 0, "fiber": 0}

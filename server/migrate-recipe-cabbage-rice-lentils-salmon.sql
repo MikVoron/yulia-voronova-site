@@ -57,7 +57,7 @@ INSERT INTO recipes (
     {"text": "Аккуратно вмешайте запечённую капусту.", "photo": null},
     {"text": "Разделите рыбу на крупные куски, выложите сверху и аккуратно перемешайте.", "photo": null},
     {"text": "Добавьте соевый соус или соль.", "photo": "images/recipes/cabbage-rice-lentils-salmon/cabbage-rice-lentils-salmon-15.webp"},
-    {"text": "Посыпьте укропом готовое блюдо.", "photo": "images/recipes/cabbage-rice-lentils-salmon/cabbage-rice-lentils-salmon-final.webp"}
+    {"text": "Посыпьте укропом готовое блюдо.", "photo": null}
   ]'::jsonb,
   '[]'::jsonb,
   '[]'::jsonb,

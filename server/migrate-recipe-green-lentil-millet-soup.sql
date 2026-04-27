@@ -46,7 +46,7 @@ INSERT INTO recipes (
     {"text": "Всыпьте промытую чечевицу, залейте водой и доведите до кипения.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-4.webp"},
     {"text": "Добавьте овощной концентрат (можно без него) и варите около 15 минут.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-5.webp"},
     {"text": "Добавьте картофель и промытое пшено. Варите ещё около 15 минут до готовности пшена.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-7.webp"},
-    {"text": "Добавьте чеснок и лавровый лист. Поварите 1 минуту.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-final.webp"}
+    {"text": "Добавьте чеснок и лавровый лист. Поварите 1 минуту.", "photo": null}
   ]'::jsonb,
   '[
     {"name": "Белое мясо — 50 г", "kcal": 80, "protein": 16, "fat": 2, "carbs": 0, "fiber": 0},

@@ -47,7 +47,7 @@ INSERT INTO recipes (
     {"text": "Накройте и уберите в холодильник на 15–30 минут.", "photo": null},
     {"text": "Сформируйте котлеты.", "photo": "images/recipes/cutlets-chickpea-mushroom-dill/cutlets-chickpea-mushroom-dill-10.webp"},
     {"text": "При желании обваляйте в панировке или готовьте сразу.", "photo": null},
-    {"text": "Обжарьте на небольшом количестве оливкового масла до румяной корочки.", "photo": "images/recipes/cutlets-chickpea-mushroom-dill/cutlets-chickpea-mushroom-dill-final.webp"}
+    {"text": "Обжарьте на небольшом количестве оливкового масла до румяной корочки.", "photo": null}
   ]'::jsonb,
   '[]'::jsonb,
   '[]'::jsonb,

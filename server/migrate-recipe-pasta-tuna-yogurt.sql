@@ -40,7 +40,7 @@ INSERT INTO recipes (
     {"text": "Добавьте тунец и каперсы, перемешайте и прогрейте.", "photo": "images/recipes/pasta-tuna-yogurt/pasta-tuna-yogurt-5.webp"},
     {"text": "Влейте йогурт (или соус из кешью) и добавьте немного воды от пасты для кремовой текстуры.", "photo": "images/recipes/pasta-tuna-yogurt/pasta-tuna-yogurt-6.webp"},
     {"text": "Перемешайте и сразу выключите огонь.", "photo": null},
-    {"text": "Введите пасту, аккуратно перемешайте и сразу подавайте.", "photo": "images/recipes/pasta-tuna-yogurt/pasta-tuna-yogurt-final.webp"}
+    {"text": "Введите пасту, аккуратно перемешайте и сразу подавайте.", "photo": null}
   ]'::jsonb,
   '[]'::jsonb,
   '[]'::jsonb,

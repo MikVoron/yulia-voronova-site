@@ -49,7 +49,7 @@ INSERT INTO recipes (
     {"text": "Влейте воду, добавьте овощной концентрат (можно без него), посолите.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-5.webp"},
     {"text": "Доведите до кипения, накройте крышкой и готовьте на слабом огне 25 минут.", "photo": null},
     {"text": "В конце попробуйте и при необходимости досолите.", "photo": null},
-    {"text": "Выключите огонь и дайте настояться под крышкой 10 минут.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-final.webp"}
+    {"text": "Выключите огонь и дайте настояться под крышкой 10 минут.", "photo": null}
   ]'::jsonb,
   '[]'::jsonb,
   '[]'::jsonb,
