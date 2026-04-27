@@ -1,78 +1,33 @@
--- Миграция: добавить колонку portion_grams + обновить/добавить рецепты
+-- ============================================================================
+-- LEGACY / PARTIALLY DEPRECATED — безопасно для повторного запуска
+-- ============================================================================
+-- Этот файл изначально содержал bundled-обновление двух рецептов + ALTER колонки.
+-- Сейчас источники истины разнесены:
+--
+--   • lentil-mushroom-pilaf      → server/migrate-recipe-pilaf-lentils-mushrooms.sql
+--                                  (оттуда же актуальные шаги/фото; см. ниже)
+--   • beetroot-bean-arugula      → ОСТАЁТСЯ в этом файле (других миграций нет;
+--                                  актуализирован в commits 29d0cc4 + a629267)
+--
+-- Стейл-инсерт для lentil-mushroom-pilaf удалён: его повторный запуск возвращал
+-- на прод устаревшие KBЖУ/теги/ингредиенты, ломал путь к фото шага 1
+-- (pilaf-lentils-mushrooms-1.webp — файла не существует, в каноне -start.webp)
+-- и дублировал -final.webp на последнем user-step (фронт сам добавляет финал).
+-- Если потребуется обновить плов — править ДЕДИКАТЕД-миграцию, не этот файл.
+--
 -- Запустить на VPS: psql $DATABASE_URL < migrate-recipes-update.sql
+-- ============================================================================
 
 BEGIN;
 
--- Добавить колонку portion_grams если её нет
+-- Добавить колонку portion_grams если её нет (идемпотентно)
 ALTER TABLE recipes ADD COLUMN IF NOT EXISTS portion_grams INT DEFAULT 300;
 
--- ─── Плов с чечевицей и грибами (обновление) ─────────────────────────────────
-INSERT INTO recipes (id, cat, name, emoji, time_min, difficulty, servings, is_free,
-    kcal, protein, fat, carbs, fiber, tags, photo, img_position, quote,
-    ingredients, steps, note, vk_video,
-    add_protein, add_fat, add_carbs, add_fiber, portion_grams, sort_order)
-VALUES (
-    'lentil-mushroom-pilaf',
-    'mains',
-    'Плов с чечевицей и грибами',
-    '🍚',
-    45,
-    'easy',
-    4,
-    false,
-    350, 14, 5, 57, 9,
-    ARRAY['простой', 'бобовые'],
-    'images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-final.webp',
-    NULL,
-    'Не выпаривайте воду полностью. Оставьте немного жидкости, выключите огонь и дайте плову настояться под крышкой около 30–60 минут (если есть время). За это время он впитает остатки влаги и не будет сухим.',
-    '[
-        {"name": "Рис басмати — 250 г", "swap": "Рис жасмин"},
-        {"name": "Красная чечевица — 130 г", "swap": null},
-        {"name": "Шампиньоны — 2 небольшие", "swap": null},
-        {"name": "Морковь — 2 шт.", "swap": null},
-        {"name": "Лук — 1 шт.", "swap": null},
-        {"name": "Чеснок — 2 зубчика", "swap": null},
-        {"name": "Томатная паста — 2 ч. л.", "swap": null},
-        {"name": "Тимьян — 1 ч. л.", "swap": null},
-        {"name": "Кумин — ½ ч. л.", "swap": null},
-        {"name": "Куркума — ¼ ч. л.", "swap": null},
-        {"name": "Вода — 900 мл", "swap": "[Овощной бульон](veggie-concentrate) (добавить 1 ч. л. [овощного концентрата](veggie-concentrate))"},
-        {"name": "Соль — 1 ч. л. (по вкусу)", "swap": null},
-        {"name": "Оливковое масло — 1 ст. л.", "swap": null}
-    ]'::jsonb,
-    '[
-        {"text": "Лук нарезать и обжарить на оливковом масле около 1 минуты.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-1.webp"},
-        {"text": "Добавить морковь и жарить ещё 2–3 минуты.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-2.webp"},
-        {"text": "Добавить чеснок и специи, перемешать.", "photo": null},
-        {"text": "Добавить грибы, готовить около 1 минуты.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-3.webp"},
-        {"text": "Добавить томатную пасту, перемешать.", "photo": null},
-        {"text": "Всыпать рис, перемешать.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-4.webp"},
-        {"text": "Добавить чечевицу и соль.", "photo": null},
-        {"text": "Влить воду или овощной бульон, довести до кипения, накрыть крышкой и готовить на слабом огне 20–30 минут.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-5.webp"},
-        {"text": "В конце попробовать и при необходимости досолить.", "photo": null},
-        {"text": "Выключить огонь и дать настояться под крышкой 10–15 минут.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-final.webp"}
-    ]'::jsonb,
-    NULL,
-    NULL,
-    '[]'::jsonb,
-    '[]'::jsonb,
-    '[]'::jsonb,
-    '[{"name": "Салат из запечённой свёклы, белой фасоли и рукколы", "kcal": 280, "protein": 9, "fat": 16, "carbs": 27, "fiber": 8, "recipeId": "beetroot-bean-arugula"}]'::jsonb,
-    380,
-    18
-)
-ON CONFLICT (id) DO UPDATE SET
-    cat=EXCLUDED.cat, name=EXCLUDED.name, emoji=EXCLUDED.emoji,
-    time_min=EXCLUDED.time_min, difficulty=EXCLUDED.difficulty,
-    servings=EXCLUDED.servings, is_free=EXCLUDED.is_free,
-    kcal=EXCLUDED.kcal, protein=EXCLUDED.protein, fat=EXCLUDED.fat,
-    carbs=EXCLUDED.carbs, fiber=EXCLUDED.fiber, tags=EXCLUDED.tags,
-    photo=EXCLUDED.photo, img_position=EXCLUDED.img_position,
-    quote=EXCLUDED.quote, ingredients=EXCLUDED.ingredients,
-    steps=EXCLUDED.steps, note=EXCLUDED.note, vk_video=EXCLUDED.vk_video,
-    add_protein=EXCLUDED.add_protein, add_fat=EXCLUDED.add_fat,
-    add_carbs=EXCLUDED.add_carbs, add_fiber=EXCLUDED.add_fiber,
-    portion_grams=EXCLUDED.portion_grams, updated_at=now();
+-- ─── Плов с чечевицей и грибами ─────────────────────────────────────────────
+-- УДАЛЕНО: см. server/migrate-recipe-pilaf-lentils-mushrooms.sql (источник истины).
+-- Здесь раньше был INSERT … ON CONFLICT DO UPDATE для 'lentil-mushroom-pilaf'
+-- со стейл-данными (некорректный путь -1.webp на step 1 и продублированный
+-- -final.webp на step 10). Не возвращать.
 
 -- ─── Салат из свёклы, фасоли и рукколы (новый) ──────────────────────────────
 INSERT INTO recipes (id, cat, name, emoji, time_min, difficulty, servings, is_free,
