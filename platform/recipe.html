@@ -2558,9 +2558,10 @@
 			if (!m) m = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/);
 			if (!m) m = url.match(/youtube\.com\/live\/([a-zA-Z0-9_-]+)/);
 			if (m) return 'https://www.youtube.com/embed/' + m[1] + '?rel=0&modestbranding=1';
-			// VK Video: vkvideo.ru/video-OID_VID or vk.com/video-OID_VID (preserve oid sign)
-			m = url.match(/video(-?\d+)_(\d+)/);
-			if (m) return 'https://vk.com/video_ext.php?oid=' + m[1] + '&id=' + m[2] + '&hd=2';
+			// VK Video: embed URL (video_ext.php) — use as-is
+			if (/vk\.com\/video_ext\.php/.test(url)) return url;
+			// Old watch URLs (vkvideo.ru or vk.com/video) — show fallback link card
+			if (/video-?\d+_\d+/.test(url)) return 'vk-fallback:' + url;
 			// Dzen: embed URL — use as-is; watch URL — fallback link card
 			m = url.match(/dzen\.ru\/embed\/([a-zA-Z0-9_-]+)/);
 			if (m) return url.split('?')[0] + '?from_block=partner&from=zen&mute=0&autoplay=0&tv=0';
@@ -2579,6 +2580,10 @@
 			var url = frame.dataset.url;
 			var embed = toEmbedUrl(url);
 			if (!embed) return;
+			if (embed.startsWith('vk-fallback:')) {
+				showVideoFallback(frame, embed.slice(12));
+				return;
+			}
 			if (embed.startsWith('dzen:')) {
 				var realUrl = embed.slice(5);
 				frame.innerHTML = '<a class="dzen-link-card" href="' + realUrl + '" target="_blank" rel="noopener">'
