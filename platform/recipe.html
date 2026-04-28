@@ -1789,7 +1789,7 @@
                                 </button>`).join('')}
                             </div>
                             <div class="video-player-wrap" id="video-player">
-                                ${vids.map((v, i) => `<div class="video-frame${i === 0 ? ' active' : ''}" data-key="${v.key}" data-url="${escHtml(v.url)}">
+                                ${vids.map((v, i) => `<div class="video-frame${i === 0 ? ' active' : ''}" data-key="${v.key}" data-url="${escHtml(v.url)}" data-poster="${escHtml(photoUrl(r.photo) || '')}">
                                 </div>`).join('')}
                             </div>
                         </div>`;
@@ -2582,6 +2582,20 @@
 				+ '<div class="video-open-label">Открыть видео в новой вкладке</div>'
 				+ '</a>';
 		}
+		function showDzenFallback(frame, url) {
+			var poster = frame.dataset.poster || '';
+			var posterHtml = poster
+				? '<div class="dzen-link-poster" style="background-image:url(&quot;' + escHtml(poster) + '&quot;)"></div>'
+				: '';
+			frame.innerHTML = '<a class="dzen-link-card" href="' + escHtml(url) + '" target="_blank" rel="noopener">'
+				+ posterHtml
+				+ '<div class="dzen-link-overlay"></div>'
+				+ '<div class="dzen-link-content">'
+				+ '<div class="dzen-link-icon"><svg viewBox="0 0 24 24" width="48" height="48"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="#fff"/><path d="M11 7.5L16 12l-5 4.5V7.5z" fill="#fff"/></svg></div>'
+				+ '<div class="dzen-link-text">РЎРјРѕС‚СЂРµС‚СЊ РЅР° Р”Р·РµРЅРµ</div>'
+				+ '</div>'
+				+ '</a>';
+		}
 		function loadVideoFrame(frame) {
 			if (frame.querySelector('iframe') || frame.querySelector('.dzen-link-card') || frame.querySelector('.video-external-link')) return;
 			var url = frame.dataset.url;
@@ -2593,6 +2607,8 @@
 			}
 			if (embed.startsWith('dzen:')) {
 				var realUrl = embed.slice(5);
+				showDzenFallback(frame, realUrl);
+				return;
 				frame.innerHTML = '<a class="dzen-link-card" href="' + realUrl + '" target="_blank" rel="noopener">'
 					+ '<div class="dzen-link-icon"><svg viewBox="0 0 24 24" width="48" height="48"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="#fff"/><path d="M11 7.5L16 12l-5 4.5V7.5z" fill="#fff"/></svg></div>'
 					+ '<div class="dzen-link-text">Смотреть на Дзене</div>'
