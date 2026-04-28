@@ -2595,6 +2595,10 @@
 				+ '<div class="dzen-link-text">РЎРјРѕС‚СЂРµС‚СЊ РЅР° Р”Р·РµРЅРµ</div>'
 				+ '</div>'
 				+ '</a>';
+			frame.innerHTML = frame.innerHTML.replace(
+				/<div class="dzen-link-text">[\s\S]*?<\/div>/,
+				'<div class="dzen-link-text">\u0421\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u043d\u0430 \u0414\u0437\u0435\u043d\u0435</div>'
+			);
 		}
 		function loadVideoFrame(frame) {
 			if (frame.querySelector('iframe') || frame.querySelector('.dzen-link-card') || frame.querySelector('.video-external-link')) return;
