@@ -2025,6 +2025,13 @@
     // COLLECT FORM DATA
     // ══════════════════════════════════════════════════════════════════════
 
+    function normalizeVideoInput(raw) {
+        if (!raw) return null;
+        var text = String(raw).trim();
+        var m = text.match(/<iframe[^>]*\s+src=(["'])(.*?)\1/i);
+        return (m ? m[2] : text).trim() || null;
+    }
+
     function collectFormData() {
         // Ingredients
         var ingredients = [];
@@ -2096,9 +2103,9 @@
             quote: document.getElementById('re-quote').value.trim() || null,
             note: document.getElementById('re-note').value.trim() || null,
             tags: tags,
-            yt_video: document.getElementById('re-yt-video').value.trim() || null,
-            vk_video: document.getElementById('re-vk-video').value.trim() || null,
-            dzen_video: document.getElementById('re-dzen-video').value.trim() || null,
+            yt_video: normalizeVideoInput(document.getElementById('re-yt-video').value),
+            vk_video: normalizeVideoInput(document.getElementById('re-vk-video').value),
+            dzen_video: normalizeVideoInput(document.getElementById('re-dzen-video').value),
             is_free: document.getElementById('re-free').checked,
             is_published: document.getElementById('re-published').checked,
             is_soup: document.getElementById('re-is-soup').checked,

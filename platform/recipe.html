@@ -2548,7 +2548,14 @@
 		}
 
 		// ── VIDEO PLATFORM SWITCH ────────────────────────────────────────────
+		function extractEmbedSrc(raw) {
+			if (!raw) return null;
+			var text = String(raw).trim();
+			var m = text.match(/<iframe[^>]*\s+src=(["'])(.*?)\1/i);
+			return m ? m[2] : text;
+		}
 		function toEmbedUrl(url) {
+			url = extractEmbedSrc(url);
 			if (!url) return null;
 			var m;
 			// YouTube: youtu.be/ID, youtube.com/watch?v=ID, /shorts/ID, /embed/ID, /live/ID
