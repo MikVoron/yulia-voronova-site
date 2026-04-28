@@ -2,11 +2,14 @@
 -- Сверка с ТЗ от 2026-04-25 (пользователь): обновление КБЖУ, веса порции, тегов,
 -- ингредиентов (овощной концентрат отдельной строкой), шагов, цитаты, add_fiber.
 --
--- ВАЖНО: steps[].photo синхронизированы с server/migrate-recipe-photos-convention.sql
--- (start/N/final convention). Не расходиться с этим файлом по фото-путям.
+-- ВАЖНО: steps[].photo по конвенции start/N/final (см.
+-- server/migrate-recipe-photos-convention.sql). В steps[] не должно быть
+-- -start.webp/-final.webp — фронт авто-рендерит их.
 -- Cover (recipes.photo) осознанно указывает на -final.webp — на диске нет -cover.webp.
+-- Папка/файлы выровнены под recipe id (legacy pilaf-lentils-mushrooms/* удалён,
+-- DB-апдейт пути сделан в server/migrate-recipe-paths-cleanup.sql).
 --
--- Применить: ssh root@5.42.119.198 "cat | sudo -u postgres psql smartplate_db" < server/migrate-recipe-pilaf-lentils-mushrooms.sql
+-- Применить: ssh root@5.42.119.198 "cat | sudo -u postgres psql smartplate_db" < server/migrate-recipe-lentil-mushroom-pilaf.sql
 
 INSERT INTO recipes (
   id, cat, name, emoji,
@@ -26,7 +29,7 @@ INSERT INTO recipes (
   false,
   417, 16, 4, 77, 7,
   ARRAY['растительное', 'без сои', 'бобовые'],
-  'images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-final.webp',
+  'images/recipes/lentil-mushroom-pilaf/lentil-mushroom-pilaf-final.webp',
   'Не выпаривайте воду полностью. Оставьте немного жидкости, выключите огонь и дайте плову настояться под крышкой около 30 минут. За это время он впитает остатки влаги и не будет сухим.',
   '[
     {"name": "Рис басмати — 250 г", "swap": "Рис жасмин"},
@@ -46,12 +49,12 @@ INSERT INTO recipes (
   ]'::jsonb,
   '[
     {"text": "Лук нарежьте и обжарьте на оливковом масле 1 минуту.", "photo": null},
-    {"text": "Добавьте тёртую морковь и жарьте ещё 2 минуты.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-2.webp"},
+    {"text": "Добавьте тёртую морковь и жарьте ещё 2 минуты.", "photo": "images/recipes/lentil-mushroom-pilaf/lentil-mushroom-pilaf-2.webp"},
     {"text": "Добавьте чеснок и специи, перемешайте.", "photo": null},
-    {"text": "Добавьте грибы и готовьте 1 минуту.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-4.webp"},
+    {"text": "Добавьте грибы и готовьте 1 минуту.", "photo": "images/recipes/lentil-mushroom-pilaf/lentil-mushroom-pilaf-4.webp"},
     {"text": "Добавьте томатную пасту, перемешайте.", "photo": null},
-    {"text": "Всыпьте рис и чечевицу, перемешайте.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-6.webp"},
-    {"text": "Влейте воду, добавьте овощной концентрат (можно без него), посолите.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-7.webp"},
+    {"text": "Всыпьте рис и чечевицу, перемешайте.", "photo": "images/recipes/lentil-mushroom-pilaf/lentil-mushroom-pilaf-6.webp"},
+    {"text": "Влейте воду, добавьте овощной концентрат (можно без него), посолите.", "photo": "images/recipes/lentil-mushroom-pilaf/lentil-mushroom-pilaf-7.webp"},
     {"text": "Доведите до кипения, накройте крышкой и готовьте на слабом огне 25 минут.", "photo": null},
     {"text": "В конце попробуйте и при необходимости досолите.", "photo": null},
     {"text": "Выключите огонь и дайте настояться под крышкой 10 минут.", "photo": null}
