@@ -2558,8 +2558,8 @@
 			if (!m) m = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/);
 			if (!m) m = url.match(/youtube\.com\/live\/([a-zA-Z0-9_-]+)/);
 			if (m) return 'https://www.youtube.com/embed/' + m[1] + '?rel=0&modestbranding=1';
-			// VK Video: embed URL (video_ext.php) — use as-is
-			if (/vk\.com\/video_ext\.php/.test(url)) return url;
+			// VK Video: embed URL (video_ext.php on vk.com or vkvideo.ru) — use as-is
+			if (/(?:vk\.com|vkvideo\.ru)\/video_ext\.php/.test(url)) return url;
 			// Old watch URLs (vkvideo.ru or vk.com/video) — show fallback link card
 			if (/video-?\d+_\d+/.test(url)) return 'vk-fallback:' + url;
 			// Dzen: embed URL — use as-is; watch URL — fallback link card
