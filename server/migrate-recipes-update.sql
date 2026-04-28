@@ -4,14 +4,14 @@
 -- Этот файл изначально содержал bundled-обновление двух рецептов + ALTER колонки.
 -- Сейчас источники истины разнесены:
 --
---   • lentil-mushroom-pilaf      → server/migrate-recipe-pilaf-lentils-mushrooms.sql
+--   • lentil-mushroom-pilaf      → server/migrate-recipe-lentil-mushroom-pilaf.sql
 --                                  (оттуда же актуальные шаги/фото; см. ниже)
 --   • beetroot-bean-arugula      → ОСТАЁТСЯ в этом файле (других миграций нет;
 --                                  актуализирован в commits 29d0cc4 + a629267)
 --
 -- Стейл-инсерт для lentil-mushroom-pilaf удалён: его повторный запуск возвращал
 -- на прод устаревшие KBЖУ/теги/ингредиенты, ломал путь к фото шага 1
--- (pilaf-lentils-mushrooms-1.webp — файла не существует, в каноне -start.webp)
+-- (lentil-mushroom-pilaf-1.webp — файла не существует, в каноне -start.webp)
 -- и дублировал -final.webp на последнем user-step (фронт сам добавляет финал).
 -- Если потребуется обновить плов — править ДЕДИКАТЕД-миграцию, не этот файл.
 --
@@ -24,7 +24,7 @@ BEGIN;
 ALTER TABLE recipes ADD COLUMN IF NOT EXISTS portion_grams INT DEFAULT 300;
 
 -- ─── Плов с чечевицей и грибами ─────────────────────────────────────────────
--- УДАЛЕНО: см. server/migrate-recipe-pilaf-lentils-mushrooms.sql (источник истины).
+-- УДАЛЕНО: см. server/migrate-recipe-lentil-mushroom-pilaf.sql (источник истины).
 -- Здесь раньше был INSERT … ON CONFLICT DO UPDATE для 'lentil-mushroom-pilaf'
 -- со стейл-данными (некорректный путь -1.webp на step 1 и продублированный
 -- -final.webp на step 10). Не возвращать.

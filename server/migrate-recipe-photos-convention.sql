@@ -8,10 +8,12 @@
 -- Затронуто 7 рецептов:
 --   • side-buckwheat-quinoa, cabbage-rice-lentils-salmon, pasta-tuna-yogurt,
 --     cutlets-chickpea-mushroom-dill — только убрали -start.webp с шага 1.
---   • pilaf-lentils-mushrooms, grechotto, green-lentil-millet-soup — убрали -start
+--   • lentil-mushroom-pilaf, grechotto, green-lentil-millet-soup — убрали -start
 --     и сдвинули -N под номера шагов (физический rename файлов уже в main).
 --
 -- Cover для pilaf не трогаем.
+-- Папка/файлы plov позже выровнены под recipe id (lentil-mushroom-pilaf/);
+-- пути в этом файле уже на пост-rename состоянии — см. migrate-recipe-paths-cleanup.sql.
 --
 -- Применить: ssh root@5.42.119.198 "cat | sudo -u postgres psql smartplate_db" \
 --           < server/migrate-recipe-photos-convention.sql
@@ -95,16 +97,17 @@ UPDATE recipes SET steps = '[
 ]'::jsonb, updated_at = now()
 WHERE id = 'green-lentil-millet-soup';
 
--- ─── pilaf-lentils-mushrooms ────────────────────────────────────────────────
+-- ─── lentil-mushroom-pilaf ──────────────────────────────────────────────────
 -- Cover (r.photo) указывает на -final.webp и в этой задаче не меняется.
+-- Пути выровнены под recipe id (см. server/migrate-recipe-paths-cleanup.sql).
 UPDATE recipes SET steps = '[
   {"text": "Лук нарежьте и обжарьте на оливковом масле 1 минуту.", "photo": null},
-  {"text": "Добавьте тёртую морковь и жарьте ещё 2 минуты.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-2.webp"},
+  {"text": "Добавьте тёртую морковь и жарьте ещё 2 минуты.", "photo": "images/recipes/lentil-mushroom-pilaf/lentil-mushroom-pilaf-2.webp"},
   {"text": "Добавьте чеснок и специи, перемешайте.", "photo": null},
-  {"text": "Добавьте грибы и готовьте 1 минуту.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-4.webp"},
+  {"text": "Добавьте грибы и готовьте 1 минуту.", "photo": "images/recipes/lentil-mushroom-pilaf/lentil-mushroom-pilaf-4.webp"},
   {"text": "Добавьте томатную пасту, перемешайте.", "photo": null},
-  {"text": "Всыпьте рис и чечевицу, перемешайте.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-6.webp"},
-  {"text": "Влейте воду, добавьте овощной концентрат (можно без него), посолите.", "photo": "images/recipes/pilaf-lentils-mushrooms/pilaf-lentils-mushrooms-7.webp"},
+  {"text": "Всыпьте рис и чечевицу, перемешайте.", "photo": "images/recipes/lentil-mushroom-pilaf/lentil-mushroom-pilaf-6.webp"},
+  {"text": "Влейте воду, добавьте овощной концентрат (можно без него), посолите.", "photo": "images/recipes/lentil-mushroom-pilaf/lentil-mushroom-pilaf-7.webp"},
   {"text": "Доведите до кипения, накройте крышкой и готовьте на слабом огне 25 минут.", "photo": null},
   {"text": "В конце попробуйте и при необходимости досолите.", "photo": null},
   {"text": "Выключите огонь и дайте настояться под крышкой 10 минут.", "photo": null}

@@ -4,4 +4,4 @@
 
 ## Legacy / partially deprecated
 
-- **`migrate-recipes-update.sql`** — legacy. Pilaf брать только из `migrate-recipe-pilaf-lentils-mushrooms.sql`; стейл-INSERT для `lentil-mushroom-pilaf` в bundled-файле удалён. В файле остались только идемпотентные операции (`ALTER TABLE … ADD COLUMN IF NOT EXISTS`, `INSERT … ON CONFLICT` для `beetroot-bean-arugula`, `UPDATE categories` с guard) — повторный запуск безопасен.
+- **`migrate-recipes-update.sql`** — legacy. Pilaf брать только из `migrate-recipe-lentil-mushroom-pilaf.sql`; стейл-INSERT для `lentil-mushroom-pilaf` в bundled-файле удалён. В файле остались только идемпотентные операции (`ALTER TABLE … ADD COLUMN IF NOT EXISTS`, `INSERT … ON CONFLICT` для `beetroot-bean-arugula`, `UPDATE categories` с guard) — повторный запуск безопасен.
