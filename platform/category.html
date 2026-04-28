@@ -6,7 +6,7 @@
     <title>Категория — Конструктор питания</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
     <style>body{visibility:hidden}</style>
     <link rel="stylesheet" href="style-v4.css" id="vcss"><script>document.getElementById('vcss').href='style-v4.css?v='+Date.now()</script>
     <style>
@@ -309,6 +309,80 @@
         return n + ' рецептов';
     }
 
+    function buildDishCard(d, photo, diff_labels) {
+        const _id = encodeURIComponent(d.id);
+        const _name = escHtml(String(d.name || ''));
+        const _emoji = escHtml(String(d.emoji || '🍴'));
+        const _photo = escHtml(String(d.photo || photo || ''));
+        const _imgPos = escHtml(String(d.imgPosition || ''));
+        const _diff = escHtml(String(diff_labels[d.diff] || d.diff || ''));
+        const _timeMeta = formatTimeMeta(d.time, d.timeLabel);
+        const _timeStr = escHtml(_timeMeta.short);
+        const _timeNote = _timeMeta.note ? escHtml(_timeMeta.note) : '';
+        const _kcal = Number(d.kcal) || 0;
+        const isSublist = d.isSublist;
+        const locked = Auth.isTrial() && !d.free;
+        const photoHtml = _photo
+            ? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
+            : `<div class="recipe-card-emoji">${_emoji}</div>`;
+        const isFav = Favorites.has(d.id);
+        const lockBadge = locked ? '<div class="locked-badge"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>Pro</div>' : '';
+        const trialBadge = !locked && d.free && Auth.isTrial() ? '<div class="trial-badge">Trial</div>' : '';
+        const _emptyStars = Array.from({length: 5}, () =>
+            '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#e8400a" stroke-width="2"><polygon points="12 2 15 9 22 10 17 15 18 22 12 18 6 22 7 15 2 10 9 9 12 2"/></svg>'
+        ).join('');
+        return `<article class="recipe-card${locked ? ' locked' : ''}" role="button" tabindex="0" onclick="${locked ? 'showLockedMsg()' : "goToRecipe('" + _id + "')"}" onkeydown="if((event.key==='Enter'||event.key===' ')&&event.target===event.currentTarget){event.preventDefault();${locked ? 'showLockedMsg()' : "goToRecipe('" + _id + "')"}}">
+            <div class="recipe-card__media">
+                ${photoHtml}
+                ${lockBadge}${trialBadge}
+                ${locked ? '' : `<button class="recipe-card__bookmark${isFav ? ' active' : ''}" id="fav-${_id}" aria-label="В избранное" onclick="event.stopPropagation();toggleFav('${_id}')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                </button>`}
+            </div>
+            <div class="recipe-card__body">
+                <h3 class="recipe-card__title">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</h3>
+                ${!locked ? `<div class="recipe-card__rating" id="rrow-${_id}">
+                    <div class="rating-popup" id="rpop-${_id}">
+                        ${[1,2,3,4,5].map(i => `<span class="rp-star" data-n="${i}" onmouseenter="hoverPopStar('${_id}',${i})" onmouseleave="unhoverPopStar('${_id}')" onclick="event.stopPropagation();rateFromPop('${_id}',${i})">★</span>`).join('')}
+                    </div>
+                    <span class="recipe-card__rating-stars" id="rstars-${_id}" onclick="event.stopPropagation();openRatingPopup('${_id}',this)">${_emptyStars}</span>
+                    <span class="recipe-card__rating-text" id="rtext-${_id}"></span>
+                </div>` : ''}
+                <div class="recipe-card__meta">
+                    <span class="recipe-card__meta-item">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
+                    <span class="recipe-card__meta-dot"></span>
+                    <span>${_diff}</span>
+                </div>
+                ${_timeNote ? `<div class="recipe-card-time-note"><span class="rcn-arr" aria-hidden="true">↳</span>${_timeNote}</div>` : ''}
+                <div class="recipe-card__footer">
+                    <span class="recipe-card__kcal-label">калорийность</span>
+                    <span class="recipe-card__kcal-value">${_kcal} <small>ккал</small></span>
+                </div>
+            </div>
+        </article>`;
+    }
+
+    function updateRatingRow(recipeId) {
+        const ar = _apiRatings[recipeId];
+        const starsEl = document.getElementById('rstars-' + recipeId);
+        const textEl  = document.getElementById('rtext-' + recipeId);
+        if (!starsEl) return;
+        const filled = ar ? Math.round(ar.avg) : 0;
+        starsEl.innerHTML = Array.from({length: 5}, (_, i) =>
+            `<svg width="11" height="11" viewBox="0 0 24 24" fill="${i < filled ? '#e8400a' : 'none'}" stroke="#e8400a" stroke-width="2"><polygon points="12 2 15 9 22 10 17 15 18 22 12 18 6 22 7 15 2 10 9 9 12 2"/></svg>`
+        ).join('');
+        if (textEl) {
+            if (ar && ar.avg > 0) {
+                textEl.textContent = ar.avg + (ar.count > 0 ? ' (' + ar.count + ')' : '');
+                textEl.style.cursor = 'pointer';
+                textEl.onclick = function(e) { e.stopPropagation(); openComments(recipeId); };
+            } else {
+                textEl.textContent = '';
+                textEl.onclick = null;
+            }
+        }
+    }
+
     function renderDishes() {
         const dishes = getCategoryDishes(catId, activeFilters);
         document.getElementById('count-label').textContent = pluralR(dishes.length);
@@ -319,58 +393,8 @@
         }
         const photo = CAT_PHOTOS[catId] || '';
         const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
-        document.getElementById('dish-list').innerHTML = dishes.map(d => {
-            const _id = encodeURIComponent(d.id);
-            const _name = escHtml(String(d.name || ''));
-            const _emoji = escHtml(String(d.emoji || '🍴'));
-            const _photo = escHtml(String(d.photo || photo || ''));
-            const _imgPos = escHtml(String(d.imgPosition || ''));
-            const _diff = escHtml(String(diff_labels[d.diff] || d.diff || ''));
-            const _diffIcon = typeof diffIcon === 'function' ? diffIcon(d.diff) : '';
-            const _timeMeta = formatTimeMeta(d.time, d.timeLabel);
-            const _timeStr = escHtml(_timeMeta.short);
-            const _timeNote = _timeMeta.note ? escHtml(_timeMeta.note) : '';
-            const _kcal = Number(d.kcal) || 0;
-            const isSublist = d.isSublist;
-            const locked = Auth.isTrial() && !d.free;
-            const photoHtml = _photo
-                ? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
-                : `<div class="recipe-card-emoji">${_emoji}</div>`;
-            const isFav = Favorites.has(d.id);
-            const lockBadge = locked ? '<div class="locked-badge"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>Pro</div>' : '';
-            const trialBadge = !locked && d.free && Auth.isTrial() ? '<div class="trial-badge">Trial</div>' : '';
-            return `<button class="recipe-card${locked ? ' locked' : ''}" onclick="${locked ? 'showLockedMsg()' : "goToRecipe('" + _id + "')"}">
-                <div class="recipe-card-photo" style="position:relative">
-                    ${photoHtml}
-                    ${lockBadge}${trialBadge}
-                    ${locked ? '' : `<div class="card-fav-btn${isFav ? ' active' : ''}" id="fav-${_id}"
-                        onclick="event.stopPropagation();toggleFav('${_id}')">
-                        <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
-                    </div>`}
-                    <div class="photo-overlay">
-                        ${ratingPillHtml(d.id)}
-                        ${commentBtnHtml(d.id)}
-                    </div>
-                    <div class="rating-popup" id="rpop-${_id}">
-                        ${[1,2,3,4,5].map(i => `<span class="rp-star" data-n="${i}"
-                            onmouseenter="hoverPopStar('${_id}',${i})"
-                            onmouseleave="unhoverPopStar('${_id}')"
-                            onclick="event.stopPropagation();rateFromPop('${_id}',${i})">★</span>`).join('')}
-                    </div>
-                </div>
-                <div class="recipe-card-body">
-                    <div class="recipe-card-name">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</div>
-                    <div class="recipe-card-meta">
-                        <span class="pill">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
-                        <span class="pill">${_diffIcon}${_diff}</span>
-                    </div>
-                    ${_timeNote ? `<div class="recipe-card-time-note"><span class="rcn-arr" aria-hidden="true">↳</span>${_timeNote}</div>` : ''}
-                    <div class="recipe-card-kcal" style="margin-top:4px">${_kcal} ккал</div>
-                </div>
-            </button>`;
-        }).join('');
-        // restore filled stars in popups
-        dishes.forEach(d => updatePopStars(d.id));
+        document.getElementById('dish-list').innerHTML = dishes.map(d => buildDishCard(d, photo, diff_labels)).join('');
+        dishes.forEach(d => { updatePopStars(d.id); updateRatingRow(d.id); });
     }
     // Initial render deferred to loadContent().then() — show loader until data is ready
     document.getElementById('dish-list').innerHTML =
@@ -386,10 +410,9 @@
             if (!res.ok) return;
             const data = await res.json();
             Object.assign(_apiRatings, data);
-            // Update rating pills with server data
-            Object.entries(_apiRatings).forEach(([rid, r]) => {
-                const pill = document.getElementById('rpill-' + rid);
-                if (pill) pill.querySelector('.pr-val').textContent = r.avg > 0 ? r.avg : '—';
+            Object.entries(_apiRatings).forEach(([rid]) => {
+                updatePopStars(rid);
+                updateRatingRow(rid);
             });
         } catch(e) { console.error('Ratings load error:', e); }
     })();
@@ -420,57 +443,8 @@
             }
             const photo = CAT_PHOTOS[catId] || '';
             const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
-            document.getElementById('dish-list').innerHTML = dishes.map(d => {
-                const _id = encodeURIComponent(d.id);
-                const _name = escHtml(String(d.name || ''));
-                const _emoji = escHtml(String(d.emoji || '🍴'));
-                const _photo = escHtml(String(d.photo || photo || ''));
-                const _imgPos = escHtml(String(d.imgPosition || ''));
-                const _diff = escHtml(String(diff_labels[d.diff] || d.diff || ''));
-                const _diffIcon = typeof diffIcon === 'function' ? diffIcon(d.diff) : '';
-                const _timeMeta = formatTimeMeta(d.time, d.timeLabel);
-                const _timeStr = escHtml(_timeMeta.short);
-                const _timeNote = _timeMeta.note ? escHtml(_timeMeta.note) : '';
-                const _kcal = Number(d.kcal) || 0;
-                const isSublist = d.isSublist;
-                const locked = Auth.isTrial() && !d.free;
-                const photoHtml = _photo
-                    ? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
-                    : `<div class="recipe-card-emoji">${_emoji}</div>`;
-                const isFav = Favorites.has(d.id);
-                const lockBadge = locked ? '<div class="locked-badge"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>Pro</div>' : '';
-                const trialBadge = !locked && d.free && Auth.isTrial() ? '<div class="trial-badge">Trial</div>' : '';
-                return `<button class="recipe-card${locked ? ' locked' : ''}" onclick="${locked ? 'showLockedMsg()' : "goToRecipe('" + _id + "')"}">
-                    <div class="recipe-card-photo" style="position:relative">
-                        ${photoHtml}
-                        ${lockBadge}${trialBadge}
-                        ${locked ? '' : `<div class="card-fav-btn${isFav ? ' active' : ''}" id="fav-${_id}"
-                            onclick="event.stopPropagation();toggleFav('${_id}')">
-                            <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
-                        </div>`}
-                        <div class="photo-overlay">
-                            ${ratingPillHtml(d.id)}
-                            ${commentBtnHtml(d.id)}
-                        </div>
-                        <div class="rating-popup" id="rpop-${_id}">
-                            ${[1,2,3,4,5].map(i => `<span class="rp-star" data-n="${i}"
-                                onmouseenter="hoverPopStar('${_id}',${i})"
-                                onmouseleave="unhoverPopStar('${_id}')"
-                                onclick="event.stopPropagation();rateFromPop('${_id}',${i})">★</span>`).join('')}
-                        </div>
-                    </div>
-                    <div class="recipe-card-body">
-                        <div class="recipe-card-name">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</div>
-                        <div class="recipe-card-meta">
-                            <span class="pill">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
-                            <span class="pill">${_diffIcon}${_diff}</span>
-                        </div>
-                        ${_timeNote ? `<div class="recipe-card-time-note"><span class="rcn-arr" aria-hidden="true">↳</span>${_timeNote}</div>` : ''}
-                        <div class="recipe-card-kcal" style="margin-top:4px">${_kcal} ккал</div>
-                    </div>
-                </button>`;
-            }).join('');
-            dishes.forEach(d => updatePopStars(d.id));
+            document.getElementById('dish-list').innerHTML = dishes.map(d => buildDishCard(d, photo, diff_labels)).join('');
+            dishes.forEach(d => { updatePopStars(d.id); updateRatingRow(d.id); });
         } else {
             _origRenderDishes();
         }
@@ -562,18 +536,13 @@
             });
             if (res.ok) {
                 showToast('Оценка сохранена ★');
-                // Обновить рейтинги с сервера (источник истины)
                 try {
                     const rr = await fetch(API_BASE + '/content/ratings');
                     if (rr.ok) {
                         const data = await rr.json();
                         Object.assign(_apiRatings, data);
                         updatePopStars(recipeId);
-                        const pill = document.getElementById('rpill-' + recipeId);
-                        if (pill) {
-                            const ar = _apiRatings[recipeId];
-                            pill.querySelector('.pr-val').textContent = ar && ar.avg > 0 ? ar.avg : '—';
-                        }
+                        updateRatingRow(recipeId);
                     }
                 } catch {}
 

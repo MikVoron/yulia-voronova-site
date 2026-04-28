@@ -387,33 +387,79 @@ img { display: block; max-width: 100%; }
 .recipe-card-grid {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
 }
+/* ── RECIPE CARD V1 (NYT-style) ──────────────────────── */
 .recipe-card {
-    display: flex; flex-direction: column; width: 100%;
-    background: transparent; border: none;
-    cursor: pointer; text-align: left; padding: 0;
-    transition: var(--tr);
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 24px rgba(26,26,26,.06);
+    transition: all .2s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
 }
-.recipe-card:active { transform: scale(.99); }
-.recipe-card-photo {
-    width: 100%; aspect-ratio: 3/4;
+.recipe-card:hover {
+    box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 12px 32px rgba(26,26,26,.1);
+    transform: translateY(-2px);
+}
+.recipe-card__media {
+    position: relative; aspect-ratio: 4/3;
     background: var(--bg-alt); overflow: hidden;
     display: flex; align-items: center; justify-content: center;
     font-size: 44px;
 }
-.recipe-card-photo img {
+.recipe-card__media img {
     width: 100%; height: 100%; object-fit: cover; display: block;
     transition: transform .4s ease;
 }
-.recipe-card:hover .recipe-card-photo img { transform: scale(1.04); }
-.recipe-card-body {
-    padding: 12px 0 4px; display: flex; flex-direction: column; flex: 1;
+.recipe-card:hover .recipe-card__media img { transform: scale(1.04); }
+.recipe-card__bookmark {
+    position: absolute; top: 10px; right: 10px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255,255,255,.95);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    border: none; cursor: pointer; z-index: 2; padding: 0;
+    pointer-events: all;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .15s;
 }
-.recipe-card-name {
-    font-size: 14px; font-weight: 800; color: var(--text);
-    line-height: 1.35; margin-bottom: 7px; flex: 1;
+.recipe-card__bookmark:active { transform: scale(.88); }
+.recipe-card__bookmark svg { width: 15px; height: 15px; }
+.recipe-card__bookmark.active svg { fill: #1a1a1a; stroke: #1a1a1a; }
+.recipe-card__bookmark:not(.active) svg { fill: none; stroke: #1a1a1a; }
+.recipe-card__body { padding: 16px 16px 18px; display: flex; flex-direction: column; flex: 1; }
+.recipe-card__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px; font-weight: 600; line-height: 1.15;
+    color: #1a1a1a; letter-spacing: -.005em;
+    margin: 0 0 8px;
 }
-.recipe-card-meta { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
-.recipe-card-meta .pill { font-size: 10px; padding: 2px 7px; display: inline-flex; align-items: center; line-height: 1.4; min-height: 18px; }
+.recipe-card__rating {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 10px; position: relative;
+}
+.recipe-card__rating .rating-popup { bottom: auto; top: calc(100% + 6px); left: 0; }
+.recipe-card__rating-stars { display: inline-flex; gap: 1px; cursor: pointer; }
+.recipe-card__rating-text { font-size: 11px; color: #8a7d6f; font-weight: 500; }
+.recipe-card__meta {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; color: #3a3a3a; font-weight: 500;
+    margin-bottom: 12px;
+}
+.recipe-card__meta-item { display: inline-flex; align-items: center; gap: 4px; }
+.recipe-card__meta-dot { width: 3px; height: 3px; border-radius: 50%; background: #8a7d6f; }
+.recipe-card__footer {
+    margin-top: auto; padding-top: 10px;
+    border-top: 1px solid #e8dfd0;
+    display: flex; align-items: baseline; justify-content: space-between;
+}
+.recipe-card__kcal-label {
+    font-size: 11px; color: #8a7d6f; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+}
+.recipe-card__kcal-value { font-size: 18px; font-weight: 700; color: var(--accent); }
+.recipe-card__kcal-value small { font-size: 11px; font-weight: 600; color: #3a3a3a; }
 .featured-card-meta .pill { display: inline-flex; align-items: center; line-height: 1.4; min-height: 20px; }
 
 /* Уточнение времени под бейджами (например: «↳ без варки пшёнки») */
@@ -429,7 +475,7 @@ img { display: block; max-width: 100%; }
 
 /* Locked recipe cards (trial) */
 .recipe-card.locked, .featured-card.locked { opacity: .55; }
-.recipe-card.locked .recipe-card-photo img,
+.recipe-card.locked .recipe-card__media img,
 .featured-card.locked .featured-card-photo img { filter: grayscale(.4); }
 .recipe-card.locked:hover, .featured-card.locked:hover { opacity: .7; }
 .locked-badge {
@@ -447,21 +493,7 @@ img { display: block; max-width: 100%; }
     backdrop-filter: blur(4px);
 }
 
-/* Bottom row: kcal + rating */
-.recipe-card-bottom {
-    display: flex; align-items: center; justify-content: space-between; gap: 6px;
-}
-.recipe-card-kcal { font-size: 12px; font-weight: 700; color: var(--accent); }
-.recipe-card-quote {
-    font-size: 11px; color: var(--text-3); font-style: italic;
-    line-height: 1.45; margin-top: 8px;
-    border-left: 2px solid var(--accent-l); padding-left: 8px;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
 /* ── PHOTO OVERLAY (rating + comments) ──────────────── */
-.recipe-card-photo { position: relative; }
 .photo-overlay {
     position: absolute; bottom: 0; left: 0; right: 0;
     display: flex; align-items: flex-end; justify-content: space-between;
