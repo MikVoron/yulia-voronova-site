@@ -453,13 +453,20 @@ img { display: block; max-width: 100%; }
     margin-top: auto; padding-top: 10px;
     border-top: 1px solid #e8dfd0;
     display: flex; align-items: baseline; justify-content: space-between;
+    gap: 8px; flex-wrap: nowrap;
 }
 .recipe-card__kcal-label {
     font-size: 11px; color: #8a7d6f; font-weight: 600;
     letter-spacing: .08em; text-transform: uppercase;
+    white-space: nowrap; flex-shrink: 1; min-width: 0;
 }
-.recipe-card__kcal-value { font-size: 18px; font-weight: 700; color: var(--accent); }
-.recipe-card__kcal-value small { font-size: 11px; font-weight: 600; color: #3a3a3a; }
+.recipe-card__kcal-value { font-size: 18px; font-weight: 700; color: var(--accent); white-space: nowrap; flex-shrink: 0; }
+.recipe-card__kcal-value small { font-size: 11px; font-weight: 600; color: #3a3a3a; margin-left: 2px; }
+@media (max-width: 768px) {
+    .recipe-card__footer { flex-direction: column; align-items: flex-start; gap: 2px; }
+    .recipe-card__kcal-label { font-size: 10px; letter-spacing: .06em; }
+    .recipe-card__kcal-value { font-size: 20px; }
+}
 .featured-card-meta .pill { display: inline-flex; align-items: center; line-height: 1.4; min-height: 20px; }
 
 /* Уточнение времени под бейджами (например: «↳ без варки пшёнки») */
