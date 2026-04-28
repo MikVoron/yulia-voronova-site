@@ -713,8 +713,9 @@
 			const _imgPos = escHtml(d.imgPosition || '');
 			const _diff = escHtml((typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {})[d.diff] || d.diff || '');
 			const _diffIcon = typeof diffIcon === 'function' ? diffIcon(d.diff) : '';
-			const _time = Number(d.time) || 0;
-			const _timeStr = d.timeLabel ? escHtml(d.timeLabel) : (_time + ' мин');
+			const _timeMeta = formatTimeMeta(d.time, d.timeLabel);
+			const _timeStr = escHtml(_timeMeta.short);
+			const _timeNote = _timeMeta.note ? escHtml(_timeMeta.note) : '';
 			const _kcal = Number(d.kcal) || 0;
 			const isFav = Favorites.has(d.id);
 			const photoHtml = _photo
@@ -734,6 +735,7 @@
                     <span class="pill">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
                     <span class="pill">${_diffIcon}${_diff}</span>
                 </div>
+                ${_timeNote ? `<div class="recipe-card-time-note"><span class="rcn-arr" aria-hidden="true">↳</span>${_timeNote}</div>` : ''}
                 <div class="recipe-card-kcal" style="margin-top:4px">${_kcal} ккал</div>
             </div>
         </button>`;

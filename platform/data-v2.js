@@ -622,6 +622,22 @@ function timeIcon() {
     return `<svg viewBox="0 0 12 12" width="12" height="12" style="vertical-align:-2px;flex-shrink:0;margin-right:4px" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="6" y1="6" x2="6" y2="3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="6" y1="6" x2="8.2" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
 }
 
+// Раскладывает time/timeLabel на короткий бейдж и уточнение.
+// "20 минут (без варки пшёнки)" → { short: "20 мин", note: "без варки пшёнки" }
+// "25–30 минут"                 → { short: "25–30 мин", note: "" }
+// (timeLabel пуст, time=15)     → { short: "15 мин", note: "" }
+function formatTimeMeta(time, timeLabel) {
+    const label = (typeof timeLabel === 'string') ? timeLabel.trim() : '';
+    if (label) {
+        let base = label, note = '';
+        const m = label.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+        if (m) { base = m[1].trim(); note = m[2].trim(); }
+        const short = base.replace(/минут[ауы]?/gi, 'мин').replace(/\s+/g, ' ').trim();
+        return { short: short || ((Number(time) || 0) + ' мин'), note: note };
+    }
+    return { short: (Number(time) || 0) + ' мин', note: '' };
+}
+
 // ─── TOAST ───────────────────────────────────────────────────────────────────
 function showToast(msg, ms = 2800) {
     let el = document.getElementById('v2-toast');
