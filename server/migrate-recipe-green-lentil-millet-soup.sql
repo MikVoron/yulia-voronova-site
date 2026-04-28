@@ -4,7 +4,6 @@
 --
 -- ВАЖНО: steps[].photo синхронизированы с server/migrate-recipe-photos-convention.sql
 -- (start/N/final convention). Не расходиться с этим файлом по фото-путям.
--- Папка soup-green-lentil-milletsoup/ оставлена как есть (slug ≠ recipe.id, вне scope).
 
 INSERT INTO recipes (
   id, cat, name, emoji,
@@ -15,14 +14,14 @@ INSERT INTO recipes (
   add_protein, add_carbs,
   is_published, sort_order, is_soup
 ) VALUES (
-  'soup-green-lentil-milletsoup',
+  'green-lentil-millet-soup',
   'mains',
   'Суп из зелёной чечевицы с пшеном',
   '🍲',
   45, '45–50 минут', 'medium', 8, false,
   235, 11, 4.5, 37, 8, 400,
   ARRAY['растительный', 'без сои', 'бобовые'],
-  'images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-cover.webp',
+  'images/recipes/green-lentil-millet-soup/green-lentil-millet-soup-cover.webp',
   'Чтобы суп получился ароматным и насыщенным, дайте ему настояться после выключения огня — так чечевица и пшено лучше раскрывают вкус.',
   '[
     {"name": "Зелёная чечевица (сухая) — 200 г", "swap": null},
@@ -45,11 +44,11 @@ INSERT INTO recipes (
   '[
     {"text": "Предварительно замочите зелёную чечевицу на ночь или от 3 часов."},
     {"text": "Нарежьте лук, морковь и сельдерей на мелкие кубики. Мелко порежьте чеснок.", "photo": null},
-    {"text": "Обжарьте лук около 1 минуты. Добавьте чеснок, специи и перемешайте.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-3.webp"},
-    {"text": "Добавьте морковь и сельдерей. Обжарьте овощи в течение 7 минут.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-4.webp"},
-    {"text": "Всыпьте промытую чечевицу, залейте водой и доведите до кипения.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-5.webp"},
-    {"text": "Добавьте овощной концентрат (можно без него) и варите около 15 минут.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-6.webp"},
-    {"text": "Добавьте картофель и промытое пшено. Варите ещё около 15 минут до готовности пшена.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-7.webp"},
+    {"text": "Обжарьте лук около 1 минуты. Добавьте чеснок, специи и перемешайте.", "photo": "images/recipes/green-lentil-millet-soup/green-lentil-millet-soup-3.webp"},
+    {"text": "Добавьте морковь и сельдерей. Обжарьте овощи в течение 7 минут.", "photo": "images/recipes/green-lentil-millet-soup/green-lentil-millet-soup-4.webp"},
+    {"text": "Всыпьте промытую чечевицу, залейте водой и доведите до кипения.", "photo": "images/recipes/green-lentil-millet-soup/green-lentil-millet-soup-5.webp"},
+    {"text": "Добавьте овощной концентрат (можно без него) и варите около 15 минут.", "photo": "images/recipes/green-lentil-millet-soup/green-lentil-millet-soup-6.webp"},
+    {"text": "Добавьте картофель и промытое пшено. Варите ещё около 15 минут до готовности пшена.", "photo": "images/recipes/green-lentil-millet-soup/green-lentil-millet-soup-7.webp"},
     {"text": "Добавьте чеснок и лавровый лист. Поварите 1 минуту.", "photo": null}
   ]'::jsonb,
   '[
@@ -92,5 +91,5 @@ ON CONFLICT (id) DO UPDATE SET
   updated_at = now();
 
 INSERT INTO recipe_categories (recipe_id, category_id)
-VALUES ('soup-green-lentil-milletsoup', 'mains')
+VALUES ('green-lentil-millet-soup', 'mains')
 ON CONFLICT DO NOTHING;

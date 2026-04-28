@@ -17,7 +17,7 @@ WHERE id IN (
   'rassolnik',
   'chickpea-noodle-soup',
   'roasted-veg-soup',
-  'soup-green-lentil-milletsoup',
+  'green-lentil-millet-soup',
   'lentil-soup'
 );
 
@@ -30,6 +30,6 @@ WHERE id IN (
   'rassolnik',
   'chickpea-noodle-soup',
   'roasted-veg-soup',
-  'soup-green-lentil-milletsoup',
+  'green-lentil-millet-soup',
   'lentil-soup'
 );

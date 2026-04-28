@@ -11,8 +11,7 @@
 --   • pilaf-lentils-mushrooms, grechotto, green-lentil-millet-soup — убрали -start
 --     и сдвинули -N под номера шагов (физический rename файлов уже в main).
 --
--- Папка soup-green-lentil-milletsoup/ и basename файлов оставлены как есть
--- (rename папки — за рамками этой задачи). Cover для pilaf тоже не трогаем.
+-- Cover для pilaf не трогаем.
 --
 -- Применить: ssh root@5.42.119.198 "cat | sudo -u postgres psql smartplate_db" \
 --           < server/migrate-recipe-photos-convention.sql
@@ -84,18 +83,17 @@ UPDATE recipes SET steps = '[
 WHERE id = 'cutlets-chickpea-mushroom-dill';
 
 -- ─── green-lentil-millet-soup ───────────────────────────────────────────────
--- Файлы по-прежнему в папке soup-green-lentil-milletsoup/ (rename папки вне scope).
 UPDATE recipes SET steps = '[
   {"text": "Предварительно замочите зелёную чечевицу на ночь или от 3 часов."},
   {"text": "Нарежьте лук, морковь и сельдерей на мелкие кубики. Мелко порежьте чеснок.", "photo": null},
-  {"text": "Обжарьте лук около 1 минуты. Добавьте чеснок, специи и перемешайте.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-3.webp"},
-  {"text": "Добавьте морковь и сельдерей. Обжарьте овощи в течение 7 минут.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-4.webp"},
-  {"text": "Всыпьте промытую чечевицу, залейте водой и доведите до кипения.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-5.webp"},
-  {"text": "Добавьте овощной концентрат (можно без него) и варите около 15 минут.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-6.webp"},
-  {"text": "Добавьте картофель и промытое пшено. Варите ещё около 15 минут до готовности пшена.", "photo": "images/recipes/soup-green-lentil-milletsoup/soup-green-lentil-milletsoup-7.webp"},
+  {"text": "Обжарьте лук около 1 минуты. Добавьте чеснок, специи и перемешайте.", "photo": "images/recipes/green-lentil-millet-soup/green-lentil-millet-soup-3.webp"},
+  {"text": "Добавьте морковь и сельдерей. Обжарьте овощи в течение 7 минут.", "photo": "images/recipes/green-lentil-millet-soup/green-lentil-millet-soup-4.webp"},
+  {"text": "Всыпьте промытую чечевицу, залейте водой и доведите до кипения.", "photo": "images/recipes/green-lentil-millet-soup/green-lentil-millet-soup-5.webp"},
+  {"text": "Добавьте овощной концентрат (можно без него) и варите около 15 минут.", "photo": "images/recipes/green-lentil-millet-soup/green-lentil-millet-soup-6.webp"},
+  {"text": "Добавьте картофель и промытое пшено. Варите ещё около 15 минут до готовности пшена.", "photo": "images/recipes/green-lentil-millet-soup/green-lentil-millet-soup-7.webp"},
   {"text": "Добавьте чеснок и лавровый лист. Поварите 1 минуту.", "photo": null}
 ]'::jsonb, updated_at = now()
-WHERE id = 'soup-green-lentil-milletsoup';
+WHERE id = 'green-lentil-millet-soup';
 
 -- ─── pilaf-lentils-mushrooms ────────────────────────────────────────────────
 -- Cover (r.photo) указывает на -final.webp и в этой задаче не меняется.
