@@ -341,7 +341,6 @@
             </div>
             <div class="recipe-card__body">
                 <h3 class="recipe-card__title">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</h3>
-                <div class="recipe-card__meta-row">
                 ${!locked ? `<div class="recipe-card__rating" id="rrow-${_id}">
                     <div class="rating-popup" id="rpop-${_id}">
                         ${[1,2,3,4,5].map(i => `<span class="rp-star" data-n="${i}" onmouseenter="hoverPopStar('${_id}',${i})" onmouseleave="unhoverPopStar('${_id}')" onclick="event.stopPropagation();rateFromPop('${_id}',${i})">★</span>`).join('')}
@@ -353,7 +352,6 @@
                     <span class="recipe-card__meta-item">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
                     <span class="recipe-card__meta-dot"></span>
                     <span>${_diff}</span>
-                </div>
                 </div>
                 ${_timeNote ? `<div class="recipe-card-time-note"><span class="rcn-arr" aria-hidden="true">↳</span>${_timeNote}</div>` : ''}
                 <div class="recipe-card__footer">
