@@ -434,6 +434,7 @@ img { display: block; max-width: 100%; }
     font-size: 22px; font-weight: 600; line-height: 1.15;
     color: #1a1a1a; letter-spacing: -.005em;
     margin: 0 0 8px;
+    min-height: calc(1.15em * 3);
 }
 .recipe-card__rating {
     display: flex; align-items: center; gap: 6px;
@@ -463,6 +464,7 @@ img { display: block; max-width: 100%; }
 .recipe-card__kcal-value { font-size: 18px; font-weight: 700; color: var(--accent); white-space: nowrap; flex-shrink: 0; }
 .recipe-card__kcal-value small { font-size: 11px; font-weight: 600; color: #3a3a3a; margin-left: 2px; }
 @media (max-width: 768px) {
+    .recipe-card__title { min-height: 0; }
     .recipe-card__footer { flex-direction: column; align-items: flex-start; gap: 2px; }
     .recipe-card__kcal-label { font-size: 10px; letter-spacing: .06em; }
     .recipe-card__kcal-value { font-size: 20px; }
