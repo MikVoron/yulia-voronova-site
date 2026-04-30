@@ -458,14 +458,6 @@
             allCategories = cats || [];
             CAT_NAMES = {};
             allCategories.forEach(function(c) { CAT_NAMES[c.id] = c.name; });
-            // Populate recipe-cat checkboxes (used by quick-add modal)
-            var box = document.getElementById('recipe-cat');
-            if (box) {
-                box.innerHTML = allCategories.map(function(c) {
-                    return '<label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px">' +
-                        '<input type="checkbox" value="' + c.id + '"> ' + esc(c.name) + '</label>';
-                }).join('');
-            }
         }).catch(function() {});
     }
     window.loadCategoriesMeta = loadCategoriesMeta;
@@ -536,72 +528,6 @@
 
     window.filterRecipes = function() {
         applyRecipeFilters();
-    };
-
-    window.openRecipeModal = function(r) {
-        // Preserve auto_addons (not editable in this modal — passthrough on save)
-        window._editingRecipeAutoAddons = r ? (r.auto_addons || {}) : {};
-        document.getElementById('recipe-modal-title').textContent = r ? 'Редактировать рецепт' : 'Новый рецепт';
-        document.getElementById('recipe-edit-id').value = r ? r.id : '';
-        document.getElementById('recipe-id').value = r ? r.id : '';
-        document.getElementById('recipe-id').disabled = !!r;
-        var cats = r ? (r.categories || (r.cat ? [r.cat] : ['breakfasts'])) : ['breakfasts'];
-        document.querySelectorAll('#recipe-cat input[type=checkbox]').forEach(function(c) { c.checked = cats.indexOf(c.value) !== -1; });
-        document.getElementById('recipe-name').value = r ? r.name : '';
-        document.getElementById('recipe-emoji').value = r ? (r.emoji || '🍴') : '🍴';
-        document.getElementById('recipe-time').value = r ? r.time_min : 30;
-        document.getElementById('recipe-time-label').value = r ? (r.time_label || '') : '';
-        document.getElementById('recipe-diff').value = r ? r.difficulty : 'easy';
-        document.getElementById('recipe-servings').value = r ? r.servings : 4;
-        document.getElementById('recipe-portion-grams').value = r ? (r.portion_grams || 300) : 300;
-        document.getElementById('recipe-kcal').value = r ? r.kcal : 0;
-        document.getElementById('recipe-protein').value = r ? r.protein : 0;
-        document.getElementById('recipe-fat').value = r ? r.fat : 0;
-        document.getElementById('recipe-carbs').value = r ? r.carbs : 0;
-        document.getElementById('recipe-fiber').value = r ? r.fiber : 0;
-        document.getElementById('recipe-photo').value = r ? (r.photo || '') : '';
-        document.getElementById('recipe-quote').value = r ? (r.quote || '') : '';
-        document.getElementById('recipe-note').value = r ? (r.note || '') : '';
-        document.getElementById('recipe-tags').value = r ? (r.tags || []).join(', ') : '';
-        document.getElementById('recipe-yt-video').value = r ? (r.yt_video || '') : '';
-        document.getElementById('recipe-vk-video').value = r ? (r.vk_video || '') : '';
-        document.getElementById('recipe-dzen-video').value = r ? (r.dzen_video || '') : '';
-        document.getElementById('recipe-free').checked = r ? r.is_free : false;
-        document.getElementById('recipe-published').checked = r ? r.is_published : true;
-        document.getElementById('recipe-is-soup').checked = r ? !!r.is_soup : false;
-        // Add-panels (serialize objects to line format: name | kcal | protein | fat | carbs | fiber [| @recipeId])
-        function addItemsToText(items) {
-            if (!items || !items.length) return '';
-            return items.map(function(it) {
-                if (typeof it === 'string') return it;
-                var line = (it.name||'') + ' | ' + (it.amount||'') + ' | ' + (it.kcal||0) + ' | ' + (it.protein||0) + ' | ' + (it.fat||0) + ' | ' + (it.carbs||0) + ' | ' + (it.fiber||0);
-                if (it.recipeId) line += ' | @' + it.recipeId;
-                return line;
-            }).join('\n');
-        }
-        document.getElementById('recipe-add-protein').value = addItemsToText(r ? r.add_protein : []);
-        document.getElementById('recipe-add-fat').value = addItemsToText(r ? r.add_fat : []);
-        document.getElementById('recipe-add-carbs').value = addItemsToText(r ? r.add_carbs : []);
-        document.getElementById('recipe-add-fiber').value = addItemsToText(r ? r.add_fiber : []);
-        // Ingredients
-        var ingr = r ? (r.ingredients || []) : [];
-        document.getElementById('recipe-ingredients').value = ingr.map(function(i) {
-            return typeof i === 'string' ? i : (i.name || '') + (i.swap ? ' | ' + i.swap : '');
-        }).join('\n');
-        // Steps: объектные шаги сериализуем как JSON-строки, простые — как есть
-        var steps = r ? (r.steps || []) : [];
-        document.getElementById('recipe-steps').value = steps.map(function(s) {
-            if (typeof s === 'string') return s;
-            return JSON.stringify(s);
-        }).join('\n');
-        document.getElementById('recipe-modal').classList.add('open');
-    };
-
-    window.closeRecipeModal = function() { document.getElementById('recipe-modal').classList.remove('open'); };
-
-    window.editRecipe = function(id) {
-        var r = allRecipes.find(function(x) { return x.id === id; });
-        if (r) openRecipeModal(r);
     };
 
     window.openRecipeEditor = function(id) {
@@ -743,97 +669,6 @@
             loadCategoriesList();
             loadCategoriesMeta();
         }).catch(function(e) { showToast(e.message || 'Ошибка'); });
-    };
-
-    // Parse add-panel textarea: "name | kcal | protein | fat | carbs | fiber [| @recipeId]"
-    function parseAddItems(elId) {
-        return document.getElementById(elId).value.split('\n').filter(function(l) { return l.trim(); }).map(function(line) {
-            var parts = line.split('|').map(function(s) { return s.trim(); });
-            // Strip trailing @recipeId first so it doesn't confuse length-based format detection.
-            var recipeId = null;
-            if (parts.length && parts[parts.length - 1].charAt(0) === '@') {
-                recipeId = parts.pop().substring(1);
-            }
-            var obj = { name: parts[0] || '' };
-            if (parts.length >= 7) {
-                // Format: name | amount | kcal | protein | fat | carbs | fiber
-                obj.amount = parts[1] || null;
-                obj.kcal = parseFloat(parts[2]) || 0;
-                obj.protein = parseFloat(parts[3]) || 0;
-                obj.fat = parseFloat(parts[4]) || 0;
-                obj.carbs = parseFloat(parts[5]) || 0;
-                obj.fiber = parseFloat(parts[6]) || 0;
-            } else if (parts.length >= 6) {
-                // Legacy format without amount: name | kcal | protein | fat | carbs | fiber
-                obj.kcal = parseFloat(parts[1]) || 0;
-                obj.protein = parseFloat(parts[2]) || 0;
-                obj.fat = parseFloat(parts[3]) || 0;
-                obj.carbs = parseFloat(parts[4]) || 0;
-                obj.fiber = parseFloat(parts[5]) || 0;
-            }
-            if (recipeId) obj.recipeId = recipeId;
-            return obj;
-        });
-    }
-
-    window.saveRecipe = function() {
-        var editId = document.getElementById('recipe-edit-id').value;
-        var ingrLines = document.getElementById('recipe-ingredients').value.split('\n').filter(function(l) { return l.trim(); });
-        var ingredients = ingrLines.map(function(l) {
-            var parts = l.split('|');
-            return { name: parts[0].trim(), swap: parts[1] ? parts[1].trim() : null };
-        });
-        var steps = document.getElementById('recipe-steps').value.split('\n').filter(function(l) { return l.trim(); }).map(function(l) {
-            var trimmed = l.trim();
-            // Если строка начинается с { — пробуем распарсить как JSON (объектный шаг с фото)
-            if (trimmed.charAt(0) === '{') {
-                try { return JSON.parse(trimmed); } catch(e) { /* не JSON — оставляем строкой */ }
-            }
-            return trimmed;
-        });
-        var tags = document.getElementById('recipe-tags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
-        var body = {
-            id: document.getElementById('recipe-id').value.trim(),
-            categories: Array.prototype.map.call(document.querySelectorAll('#recipe-cat input[type=checkbox]:checked'), function(c) { return c.value; }),
-            cat: (document.querySelector('#recipe-cat input[type=checkbox]:checked') || {}).value || 'breakfasts',
-            name: document.getElementById('recipe-name').value.trim(),
-            emoji: document.getElementById('recipe-emoji').value || '🍴',
-            time_min: parseInt(document.getElementById('recipe-time').value) || 30,
-            time_label: document.getElementById('recipe-time-label').value.trim() || null,
-            difficulty: document.getElementById('recipe-diff').value,
-            servings: parseInt(document.getElementById('recipe-servings').value) || 4,
-            portion_grams: parseInt(document.getElementById('recipe-portion-grams').value) || 300,
-            kcal: parseInt(document.getElementById('recipe-kcal').value) || 0,
-            protein: parseFloat(document.getElementById('recipe-protein').value) || 0,
-            fat: parseFloat(document.getElementById('recipe-fat').value) || 0,
-            carbs: parseFloat(document.getElementById('recipe-carbs').value) || 0,
-            fiber: parseFloat(document.getElementById('recipe-fiber').value) || 0,
-            photo: document.getElementById('recipe-photo').value.trim() || null,
-            quote: document.getElementById('recipe-quote').value.trim() || null,
-            note: document.getElementById('recipe-note').value.trim() || null,
-            tags: tags,
-            yt_video: document.getElementById('recipe-yt-video').value.trim() || null,
-            vk_video: document.getElementById('recipe-vk-video').value.trim() || null,
-            dzen_video: document.getElementById('recipe-dzen-video').value.trim() || null,
-            is_free: document.getElementById('recipe-free').checked,
-            is_published: document.getElementById('recipe-published').checked,
-            is_soup: document.getElementById('recipe-is-soup').checked,
-            ingredients: ingredients,
-            steps: steps,
-            add_protein: parseAddItems('recipe-add-protein'),
-            add_fat: parseAddItems('recipe-add-fat'),
-            add_carbs: parseAddItems('recipe-add-carbs'),
-            add_fiber: parseAddItems('recipe-add-fiber'),
-            auto_addons: window._editingRecipeAutoAddons || {}
-        };
-        var method = editId ? 'PUT' : 'POST';
-        var url = editId ? '/admin/recipes/' + editId : '/admin/recipes';
-        api(url, { method: method, body: body }).then(function(res) {
-            if (res.error) { showToast(res.error); return; }
-            closeRecipeModal();
-            showToast('Сохранено');
-            loadRecipesList();
-        }).catch(function() { showToast('Ошибка'); });
     };
 
     function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }

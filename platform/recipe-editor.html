@@ -1547,11 +1547,15 @@
 
     var allCategoriesEditor = [];
     function populateCategoryUI() {
-        // Checkboxes
+        // Checkboxes (membership) + radios (primary). Primary radio is enabled only when the row's checkbox is checked.
+        // Save semantics: categories = [primary, ...otherChecked] → server mirrors recipes.cat = categories[0].
         var catBox = document.getElementById('re-cat');
         catBox.innerHTML = allCategoriesEditor.map(function(c) {
-            return '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px">' +
-                '<input type="checkbox" value="' + c.id + '"> ' + esc(c.name) + '</label>';
+            return '<label class="re-cat-row" data-cat="' + c.id + '" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;padding:2px 8px;border-radius:6px;border:1px solid transparent">' +
+                '<input type="checkbox" value="' + c.id + '" data-role="member"> ' +
+                '<input type="radio" name="re-cat-primary" value="' + c.id + '" data-role="primary" disabled title="Сделать главной категорией"> ' +
+                '<span>' + esc(c.name) + '</span>' +
+            '</label>';
         }).join('');
         // Auto-addons selects
         ['protein', 'fat', 'carbs', 'fiber'].forEach(function(s) {
@@ -1562,6 +1566,39 @@
                 opts += '<option value="' + c.id + '">' + esc(c.name) + '</option>';
             });
             el.innerHTML = opts;
+        });
+        refreshCategoryRowState();
+    }
+
+    // Keep visual highlight for the primary row + ensure invariant:
+    // primary radio is only enabled/checked among currently-checked categories.
+    function refreshCategoryRowState() {
+        var rows = document.querySelectorAll('#re-cat .re-cat-row');
+        var hasPrimary = !!document.querySelector('#re-cat input[data-role=primary]:checked');
+        var firstChecked = null;
+        rows.forEach(function(row) {
+            var chk = row.querySelector('input[data-role=member]');
+            var rad = row.querySelector('input[data-role=primary]');
+            if (chk.checked) {
+                rad.disabled = false;
+                if (!firstChecked) firstChecked = rad;
+            } else {
+                rad.checked = false;
+                rad.disabled = true;
+            }
+        });
+        // If at least one is checked but no primary picked, promote the first checked one.
+        if (!hasPrimary && firstChecked) firstChecked.checked = true;
+        // Visual highlight for the primary row
+        rows.forEach(function(row) {
+            var rad = row.querySelector('input[data-role=primary]');
+            if (rad.checked) {
+                row.style.background = 'rgba(232, 64, 10, 0.08)';
+                row.style.borderColor = 'var(--accent, #e8400a)';
+            } else {
+                row.style.background = '';
+                row.style.borderColor = 'transparent';
+            }
         });
     }
 
@@ -1660,12 +1697,26 @@
     // ══════════════════════════════════════════════════════════════════════
 
     function getCategories() {
-        var checks = document.querySelectorAll('#re-cat input[type=checkbox]:checked');
-        return Array.prototype.map.call(checks, function(c) { return c.value; });
+        // Returns [primary, ...others]. If no explicit primary picked but some categories checked, primary = first checked.
+        var checks = document.querySelectorAll('#re-cat input[data-role=member]:checked');
+        var checked = Array.prototype.map.call(checks, function(c) { return c.value; });
+        if (!checked.length) return [];
+        var primaryEl = document.querySelector('#re-cat input[data-role=primary]:checked');
+        var primary = (primaryEl && checked.indexOf(primaryEl.value) !== -1) ? primaryEl.value : checked[0];
+        return [primary].concat(checked.filter(function(v) { return v !== primary; }));
     }
     function setCategories(arr) {
-        var checks = document.querySelectorAll('#re-cat input[type=checkbox]');
-        checks.forEach(function(c) { c.checked = arr.indexOf(c.value) !== -1; });
+        var primary = (arr && arr.length) ? arr[0] : null;
+        var rows = document.querySelectorAll('#re-cat .re-cat-row');
+        rows.forEach(function(row) {
+            var chk = row.querySelector('input[data-role=member]');
+            var rad = row.querySelector('input[data-role=primary]');
+            var isMember = arr && arr.indexOf(chk.value) !== -1;
+            chk.checked = isMember;
+            rad.checked = isMember && (chk.value === primary);
+            rad.disabled = !isMember;
+        });
+        refreshCategoryRowState();
     }
 
     function clearError(id) {
@@ -2820,7 +2871,21 @@
     ['re-id', 're-name'].forEach(function(id) {
         document.getElementById(id).addEventListener('input', function() { clearError(id); });
     });
-    document.getElementById('re-cat').addEventListener('change', function() { clearError('re-cat'); });
+    document.getElementById('re-cat').addEventListener('change', function(ev) {
+        var t = ev.target;
+        if (!t || !t.dataset) return;
+        if (t.dataset.role === 'member' && !t.checked) {
+            // Если сняли главную — промоутим первую оставшуюся.
+            var row = t.closest('.re-cat-row');
+            var rad = row && row.querySelector('input[data-role=primary]');
+            if (rad && rad.checked) rad.checked = false;
+        }
+        if (t.dataset.role === 'member' && t.checked) {
+            // Если первая выбранная категория — она же станет главной (через refreshCategoryRowState).
+        }
+        refreshCategoryRowState();
+        clearError('re-cat');
+    });
 
     function esc(s) {
         return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

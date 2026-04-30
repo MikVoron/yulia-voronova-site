@@ -53,7 +53,8 @@ async function contentRoutes(fastify) {
               r.add_protein, r.add_fat, r.add_carbs, r.add_fiber, r.auto_addons, r.is_soup,
               r.portion_grams, r.sort_order, r.created_at,
               COALESCE(
-                (SELECT array_agg(rc.category_id) FROM recipe_categories rc WHERE rc.recipe_id = r.id),
+                (SELECT array_agg(rc.category_id ORDER BY (rc.category_id = r.cat) DESC, rc.category_id)
+                 FROM recipe_categories rc WHERE rc.recipe_id = r.id),
                 ARRAY[r.cat]
               ) AS categories
        FROM recipes r WHERE r.is_published = true ORDER BY r.sort_order, r.created_at`
@@ -291,7 +292,8 @@ async function contentRoutes(fastify) {
     const result = await db.query(
       `SELECT r.*,
               COALESCE(
-                (SELECT array_agg(rc.category_id) FROM recipe_categories rc WHERE rc.recipe_id = r.id),
+                (SELECT array_agg(rc.category_id ORDER BY (rc.category_id = r.cat) DESC, rc.category_id)
+                 FROM recipe_categories rc WHERE rc.recipe_id = r.id),
                 ARRAY[r.cat]
               ) AS categories
        FROM recipes r ORDER BY r.sort_order, r.created_at`
@@ -344,9 +346,11 @@ async function contentRoutes(fastify) {
   // PUT /admin/recipes/:id — update recipe
   fastify.put('/admin/recipes/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
     const r = req.body || {};
-    // Support both: categories[] (new) and cat (legacy)
+    // Support both: categories[] (new) and cat (legacy). Empty list = 400.
+    // categories[0] is the primary category and is mirrored into recipes.cat.
     const cats = Array.isArray(r.categories) && r.categories.length ? r.categories : (r.cat ? [r.cat] : []);
-    const primaryCat = cats.length ? cats[0] : r.cat;
+    if (!cats.length) return reply.status(400).send({ error: 'Минимум одна категория обязательна', field: 'categories' });
+    const primaryCat = cats[0];
     let timeLabel;
     try { timeLabel = normalizeTimeLabel(r.time_label); }
     catch (e) { return reply.status(400).send({ error: e.message, field: 'time_label' }); }
@@ -371,12 +375,10 @@ async function contentRoutes(fastify) {
       ]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
-    // Update recipe_categories
-    if (cats.length) {
-      await db.query('DELETE FROM recipe_categories WHERE recipe_id = $1', [req.params.id]);
-      for (const catId of cats) {
-        await db.query('INSERT INTO recipe_categories (recipe_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [req.params.id, catId]);
-      }
+    // Sync recipe_categories: full replace (no dangling rows, no orphan primary)
+    await db.query('DELETE FROM recipe_categories WHERE recipe_id = $1', [req.params.id]);
+    for (const catId of cats) {
+      await db.query('INSERT INTO recipe_categories (recipe_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [req.params.id, catId]);
     }
     audit.log('recipe_update', { userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip });
     result.rows[0].categories = cats;
