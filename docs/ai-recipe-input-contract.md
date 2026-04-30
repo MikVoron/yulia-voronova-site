@@ -80,7 +80,7 @@ AI **ничего не просит в формате JSON**: парсит вс�
 | Поле | Тип | Правило |
 |---|---|---|
 | `id` | string | kebab-case slug, напр. `borscht-red-beans`. Если не дан — вывести из названия. |
-| `cat` | string | Одна из `breakfasts`, `mains`, `pancakes`, `spreads`, `salads`, `drinks`. По смыслу блюда. |
+| `cat` | string | Одна из `breakfasts`, `mains`, `pancakes`, `spreads`, `sauces`, `salads`, `drinks`. По смыслу блюда. `spreads` — намазки (хумус, паштет), `sauces` — соусы и заправки. |
 | `name` | string | Обязательно. |
 | `emoji` | string \| null | Один emoji. |
 | `time_min` | int \| null | Целое число минут — **нижняя граница** диапазона (для фильтров и сортировки). «45–50 мин» → `45`. «1–1,5 часа» → `60`. Не округлять и не усреднять. То же — `servings`, `portion_grams`. |

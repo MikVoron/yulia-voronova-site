@@ -31,7 +31,7 @@ async function aiRoutes(fastify) {
   - Запрещено: округлять, усреднять, расширять до диапазона, добавлять "около" по красоте.
   - Если сомневаешься — НЕ включай time_label.
 - Сложность: "easy", "medium" или "hard".
-- Категория (cat): одна из "breakfasts", "mains", "pancakes", "spreads", "salads", "drinks". Определи по типу блюда.
+- Категория (cat): одна из "breakfasts", "mains", "pancakes", "spreads", "sauces", "salads", "drinks". Определи по типу блюда. "spreads" — намазки (хумус, паштет); "sauces" — соусы и заправки.
 - Порции (servings): число порций, если указано.
 - Граммы на порцию (portion_grams): если указано.
 
