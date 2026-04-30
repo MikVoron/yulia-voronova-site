@@ -594,6 +594,39 @@
             flex-shrink: 0;
             width: 54px;
         }
+        .re-ingredient-omit-box {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 12px;
+            border: 1px dashed #f2c2b0;
+            border-radius: 10px;
+            background: #fff8f4;
+        }
+        .re-ingredient-omit-box.open { display: block; }
+        .re-ingredient-omit-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-2);
+            cursor: pointer;
+        }
+        .re-ingredient-omit-toggle input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+        }
+        .re-ingredient-omit-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .re-ingredient-omit-grid .re-input {
+            padding: 8px 10px;
+            font-size: 12px;
+        }
 
         /* Step number badge */
         .re-step-num {
@@ -1070,6 +1103,7 @@
             .re-topbar { padding: 10px 16px; }
             .re-list-item .re-item-row { flex-wrap: wrap; }
             .re-list-item .re-item-input.re-input-sm { max-width: 55px; }
+            .re-ingredient-omit-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -1546,14 +1580,13 @@
     editId = params.get('id') || null;
 
     var allCategoriesEditor = [];
+    var selectedCategoryOrder = [];
     function populateCategoryUI() {
-        // Checkboxes (membership) + radios (primary). Primary radio is enabled only when the row's checkbox is checked.
-        // Save semantics: categories = [primary, ...otherChecked] → server mirrors recipes.cat = categories[0].
+        // Categories stay checkbox-only in UI; we preserve the primary category via selectedCategoryOrder[0].
         var catBox = document.getElementById('re-cat');
         catBox.innerHTML = allCategoriesEditor.map(function(c) {
             return '<label class="re-cat-row" data-cat="' + c.id + '" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;padding:2px 8px;border-radius:6px;border:1px solid transparent">' +
                 '<input type="checkbox" value="' + c.id + '" data-role="member"> ' +
-                '<input type="radio" name="re-cat-primary" value="' + c.id + '" data-role="primary" disabled title="Сделать главной категорией"> ' +
                 '<span>' + esc(c.name) + '</span>' +
             '</label>';
         }).join('');
@@ -1570,29 +1603,23 @@
         refreshCategoryRowState();
     }
 
-    // Keep visual highlight for the primary row + ensure invariant:
-    // primary radio is only enabled/checked among currently-checked categories.
+    // Highlight the category that will stay primary on save.
     function refreshCategoryRowState() {
         var rows = document.querySelectorAll('#re-cat .re-cat-row');
-        var hasPrimary = !!document.querySelector('#re-cat input[data-role=primary]:checked');
-        var firstChecked = null;
+        var checked = Array.prototype.map.call(
+            document.querySelectorAll('#re-cat input[data-role=member]:checked'),
+            function(chk) { return chk.value; }
+        );
+        selectedCategoryOrder = selectedCategoryOrder.filter(function(id) {
+            return checked.indexOf(id) !== -1;
+        });
+        checked.forEach(function(id) {
+            if (selectedCategoryOrder.indexOf(id) === -1) selectedCategoryOrder.push(id);
+        });
+        var primary = selectedCategoryOrder[0] || null;
         rows.forEach(function(row) {
             var chk = row.querySelector('input[data-role=member]');
-            var rad = row.querySelector('input[data-role=primary]');
-            if (chk.checked) {
-                rad.disabled = false;
-                if (!firstChecked) firstChecked = rad;
-            } else {
-                rad.checked = false;
-                rad.disabled = true;
-            }
-        });
-        // If at least one is checked but no primary picked, promote the first checked one.
-        if (!hasPrimary && firstChecked) firstChecked.checked = true;
-        // Visual highlight for the primary row
-        rows.forEach(function(row) {
-            var rad = row.querySelector('input[data-role=primary]');
-            if (rad.checked) {
+            if (chk.checked && chk.value === primary) {
                 row.style.background = 'rgba(232, 64, 10, 0.08)';
                 row.style.borderColor = 'var(--accent, #e8400a)';
             } else {
@@ -1697,24 +1724,17 @@
     // ══════════════════════════════════════════════════════════════════════
 
     function getCategories() {
-        // Returns [primary, ...others]. If no explicit primary picked but some categories checked, primary = first checked.
-        var checks = document.querySelectorAll('#re-cat input[data-role=member]:checked');
-        var checked = Array.prototype.map.call(checks, function(c) { return c.value; });
-        if (!checked.length) return [];
-        var primaryEl = document.querySelector('#re-cat input[data-role=primary]:checked');
-        var primary = (primaryEl && checked.indexOf(primaryEl.value) !== -1) ? primaryEl.value : checked[0];
-        return [primary].concat(checked.filter(function(v) { return v !== primary; }));
+        // Returns [primary, ...others] while UI stays checkbox-only.
+        refreshCategoryRowState();
+        return selectedCategoryOrder.slice();
     }
     function setCategories(arr) {
-        var primary = (arr && arr.length) ? arr[0] : null;
+        selectedCategoryOrder = Array.isArray(arr) ? arr.slice() : [];
         var rows = document.querySelectorAll('#re-cat .re-cat-row');
         rows.forEach(function(row) {
             var chk = row.querySelector('input[data-role=member]');
-            var rad = row.querySelector('input[data-role=primary]');
             var isMember = arr && arr.indexOf(chk.value) !== -1;
             chk.checked = isMember;
-            rad.checked = isMember && (chk.value === primary);
-            rad.disabled = !isMember;
         });
         refreshCategoryRowState();
     }
@@ -1828,7 +1848,7 @@
         var ingr = r.ingredients || [];
         ingr.forEach(function(item) {
             if (typeof item === 'string') item = { name: item, swap: null };
-            addIngredient(item.name || '', item.swap || '');
+            addIngredient(item.name || '', item.swap || '', item.omit_delta || null);
         });
 
         // Steps
@@ -1897,6 +1917,81 @@
             '<button class="re-item-remove" onclick="removeItem(this)" title="Удалить">&times;</button>';
         list.appendChild(item);
         initDrag(item, list);
+        updateCounts();
+    };
+
+    function normalizeOmitDeltaForEditor(raw) {
+        if (!raw || typeof raw !== 'object') return null;
+        return {
+            kcal: Number(raw.kcal) || 0,
+            protein: Number(raw.protein) || 0,
+            fat: Number(raw.fat) || 0,
+            carbs: Number(raw.carbs) || 0,
+            fiber: Number(raw.fiber) || 0
+        };
+    }
+
+    function isOptionalSwapText(text) {
+        if (typeof text !== 'string') return false;
+        var norm = text.trim().toLowerCase().replace(/\s+/g, ' ');
+        if (!norm) return false;
+        return /^можно без него(?:[\s.,!;:—-].*)?$/.test(norm);
+    }
+
+    function refreshIngredientOptionalUi(item) {
+        if (!item) return;
+        var swapInput = item.querySelector('[data-field="swap"]');
+        var omitBox = item.querySelector('[data-role="omit-box"]');
+        var omitToggle = item.querySelector('[data-role="omit-toggle"]');
+        if (!swapInput || !omitBox || !omitToggle) return;
+        var enabled = isOptionalSwapText(swapInput.value || '');
+        omitBox.classList.toggle('open', enabled);
+        omitToggle.disabled = !enabled;
+        if (!enabled) omitToggle.checked = false;
+    }
+
+    window.addIngredient = function(name, swap, omitDelta) {
+        name = name || '';
+        swap = swap || '';
+        omitDelta = normalizeOmitDeltaForEditor(omitDelta);
+        var list = document.getElementById('re-ingredients-list');
+        var item = document.createElement('div');
+        item.className = 're-list-item';
+        item.draggable = true;
+        item.innerHTML =
+            '<span class="re-drag" title="Перетащить">⠿</span>' +
+            '<div class="re-item-fields">' +
+                '<div class="re-item-row">' +
+                    '<input class="re-item-input" data-field="name" placeholder="Название ингредиента" value="' + escAttr(name) + '">' +
+                '</div>' +
+                '<div class="re-item-row">' +
+                    '<span class="re-item-label-inline">Замена</span>' +
+                    '<input class="re-item-input" data-field="swap" placeholder="Чем заменить (необязательно)" value="' + escAttr(swap) + '">' +
+                '</div>' +
+                '<div class="re-ingredient-omit-box" data-role="omit-box">' +
+                    '<label class="re-ingredient-omit-toggle">' +
+                        '<input type="checkbox" data-role="omit-toggle"' + (omitDelta ? ' checked' : '') + '>' +
+                        '<span>Меняет КБЖУ при исключении</span>' +
+                    '</label>' +
+                    '<div class="re-ingredient-omit-grid">' +
+                        '<input class="re-input" data-role="omit-kcal" type="number" step="1" placeholder="ккал" value="' + (omitDelta ? omitDelta.kcal : '') + '">' +
+                        '<input class="re-input" data-role="omit-protein" type="number" step="0.1" placeholder="Б" value="' + (omitDelta ? omitDelta.protein : '') + '">' +
+                        '<input class="re-input" data-role="omit-fat" type="number" step="0.1" placeholder="Ж" value="' + (omitDelta ? omitDelta.fat : '') + '">' +
+                        '<input class="re-input" data-role="omit-carbs" type="number" step="0.1" placeholder="У" value="' + (omitDelta ? omitDelta.carbs : '') + '">' +
+                        '<input class="re-input" data-role="omit-fiber" type="number" step="0.1" placeholder="Кл" value="' + (omitDelta ? omitDelta.fiber : '') + '">' +
+                    '</div>' +
+                    '<div class="re-hint">Дельта применяется при исключении ингредиента. Для масла это обычно отрицательные значения.</div>' +
+                '</div>' +
+            '</div>' +
+            '<button class="re-item-remove" onclick="removeItem(this)" title="Удалить">&times;</button>';
+        list.appendChild(item);
+        var swapInput = item.querySelector('[data-field="swap"]');
+        if (swapInput) {
+            swapInput.addEventListener('input', function() { refreshIngredientOptionalUi(item); });
+            swapInput.addEventListener('change', function() { refreshIngredientOptionalUi(item); });
+        }
+        initDrag(item, list);
+        refreshIngredientOptionalUi(item);
         updateCounts();
     };
 
@@ -2091,7 +2186,18 @@
             var name = ingrItems[i].querySelector('[data-field="name"]').value.trim();
             if (!name) continue;
             var swap = ingrItems[i].querySelector('[data-field="swap"]').value.trim();
-            ingredients.push({ name: name, swap: swap || null });
+            var ingredient = { name: name, swap: swap || null };
+            var omitToggle = ingrItems[i].querySelector('[data-role="omit-toggle"]');
+            if (swap && isOptionalSwapText(swap) && omitToggle && omitToggle.checked) {
+                ingredient.omit_delta = {
+                    kcal: parseFloat(ingrItems[i].querySelector('[data-role="omit-kcal"]').value) || 0,
+                    protein: parseFloat(ingrItems[i].querySelector('[data-role="omit-protein"]').value) || 0,
+                    fat: parseFloat(ingrItems[i].querySelector('[data-role="omit-fat"]').value) || 0,
+                    carbs: parseFloat(ingrItems[i].querySelector('[data-role="omit-carbs"]').value) || 0,
+                    fiber: parseFloat(ingrItems[i].querySelector('[data-role="omit-fiber"]').value) || 0
+                };
+            }
+            ingredients.push(ingredient);
         }
 
         // Steps
@@ -2305,6 +2411,7 @@
             preview.onerror = function() { preview.classList.remove('visible'); };
         } else {
             preview.classList.remove('visible');
+            preview.removeAttribute('src');
         }
     }
 
@@ -2431,7 +2538,7 @@
             // Ingredients
             (r.ingredients || []).forEach(function(item) {
                 if (typeof item === 'string') item = { name: item };
-                addIngredient(item.name || '', item.swap || '');
+                addIngredient(item.name || '', item.swap || '', item.omit_delta || null);
             });
 
             // Steps
@@ -2787,7 +2894,7 @@
             document.getElementById('re-ingredients-list').innerHTML = '';
             r.ingredients.forEach(function(item) {
                 if (typeof item === 'string') item = { name: item };
-                addIngredient(item.name || '', item.swap || '');
+                addIngredient(item.name || '', item.swap || '', item.omit_delta || null);
             });
             filled.push('ingredients');
         }
@@ -2874,15 +2981,7 @@
     document.getElementById('re-cat').addEventListener('change', function(ev) {
         var t = ev.target;
         if (!t || !t.dataset) return;
-        if (t.dataset.role === 'member' && !t.checked) {
-            // Если сняли главную — промоутим первую оставшуюся.
-            var row = t.closest('.re-cat-row');
-            var rad = row && row.querySelector('input[data-role=primary]');
-            if (rad && rad.checked) rad.checked = false;
-        }
-        if (t.dataset.role === 'member' && t.checked) {
-            // Если первая выбранная категория — она же станет главной (через refreshCategoryRowState).
-        }
+        if (t.dataset.role !== 'member') return;
         refreshCategoryRowState();
         clearError('re-cat');
     });
