@@ -1018,6 +1018,9 @@
 		// Ingredients marked swap="можно без него" can be toggled off (_excludedIngredients[i] = true)
 		// and hidden from the list, sharing text, and shopping list.
 		let _excludedIngredients = {};
+		// Optional ingredients may optionally change KBZHU when omitted.
+		let _optionalIngredientInfo = {};
+		let _excludedIngredientDeltas = {};
 		function isOptionalSwap(swap) {
 			if (typeof swap !== 'string') return false;
 			// Normalize: trim, lowercase, collapse inner whitespace, strip leading punctuation
@@ -1026,6 +1029,18 @@
 			// Match "можно без него" exactly, or as a prefix followed by punctuation/space
 			// (e.g. "можно без него.", "можно без него, по желанию")
 			return /^можно без него(?:[\s.,!;:—-].*)?$/.test(norm);
+		}
+		function normalizeNutritionDelta(raw) {
+			if (!raw || typeof raw !== 'object') return null;
+			const delta = {
+				kcal: Number(raw.kcal) || 0,
+				protein: Number(raw.protein) || 0,
+				fat: Number(raw.fat) || 0,
+				carbs: Number(raw.carbs) || 0,
+				fiber: Number(raw.fiber) || 0
+			};
+			const hasKbzhu = delta.kcal !== 0 || delta.protein !== 0 || delta.fat !== 0 || delta.carbs !== 0 || delta.fiber !== 0;
+			return { ...delta, hasKbzhu };
 		}
 
 		function isInPlate() {
@@ -1328,19 +1343,53 @@
 
 		window.optOutIngredient = function(i) {
 			_excludedIngredients[i] = true;
+			const info = _optionalIngredientInfo[i];
+			if (info && info.omitDelta && info.omitDelta.hasKbzhu) {
+				_excludedIngredientDeltas[i] = info.omitDelta;
+			}
 			const row = document.getElementById('ing-row-' + i);
 			const ph = document.getElementById('ing-placeholder-' + i);
 			if (row) row.style.display = 'none';
 			if (ph) ph.style.display = '';
+			updateAddTotal();
+			renderStepsOmitHints();
 		};
 
 		window.restoreIngredient = function(i) {
 			delete _excludedIngredients[i];
+			delete _excludedIngredientDeltas[i];
 			const row = document.getElementById('ing-row-' + i);
 			const ph = document.getElementById('ing-placeholder-' + i);
 			if (row) row.style.display = '';
 			if (ph) ph.style.display = 'none';
+			updateAddTotal();
+			renderStepsOmitHints();
 		};
+
+		function renderStepsOmitHints() {
+			const wrap = document.getElementById('steps-omit-hints');
+			if (!wrap) return;
+			const seen = new Set();
+			const hints = [];
+			Object.keys(_excludedIngredients).forEach(idx => {
+				const info = _optionalIngredientInfo[idx];
+				if (!info || !info.omitHint) return;
+				const key = info.omitHint;
+				if (seen.has(key)) return;
+				seen.add(key);
+				hints.push(key);
+			});
+			if (!hints.length) {
+				wrap.hidden = true;
+				wrap.innerHTML = '';
+				return;
+			}
+			const body = hints.length === 1
+				? `<div class="steps-omit-hints-text">${escHtml(hints[0])}</div>`
+				: `<ul class="steps-omit-hints-list">${hints.map(h => `<li>${escHtml(h)}</li>`).join('')}</ul>`;
+			wrap.innerHTML = `<span class="steps-omit-hints-icon" aria-hidden="true">💡</span><div class="steps-omit-hints-body">${body}</div>`;
+			wrap.hidden = false;
+		}
 
 		function renderRecipe(r) {
 			window.__currentRecipeId = r.id;
@@ -1509,10 +1558,19 @@
 			_swapInfo = {};
 			_appliedSwaps = {};
 			_excludedIngredients = {};
+			_optionalIngredientInfo = {};
+			_excludedIngredientDeltas = {};
 			const ingHtml = (r.ingredients || []).map((ing, i) => {
 				const name = typeof ing === 'string' ? ing : ing.name;
 				const swap = typeof ing === 'object' ? ing.swap : null;
 				const optional = isOptionalSwap(swap);
+				if (optional) {
+					const rawHint = ing && typeof ing === 'object' && typeof ing.omit_hint === 'string' ? ing.omit_hint.trim() : '';
+					_optionalIngredientInfo[i] = {
+						omitDelta: normalizeNutritionDelta(ing && typeof ing === 'object' ? ing.omit_delta : null),
+						omitHint: rawHint || null
+					};
+				}
 				const actionBtn = optional
 					? `<button class="ing-optout-btn" id="ing-optout-btn-${i}" onclick="optOutIngredient(${i})">можно без него</button>`
 					: (swap ? `<button class="ing-swap-btn" id="ing-swap-btn-${i}" onclick="toggleSwap(${i})">чем заменить?</button>` : '');
@@ -1754,6 +1812,7 @@
                         <span class="steps-hint-text">Совет: включите <b>«Пошагово»</b> — так удобнее готовить длинный рецепт.</span>
                         <button class="steps-hint-close" type="button" onclick="dismissStepsHint()" aria-label="Закрыть подсказку">×</button>
                     </div>` : ''}
+                    <div class="steps-omit-hints" id="steps-omit-hints" hidden></div>
                     <div class="steps-list" id="steps-list">${stepsHtml}</div>
                     ${_stepsCount > 3 ? `<button class="steps-expand-btn" id="steps-expand-btn" type="button" onclick="toggleStepsExpanded()">
                         <span id="steps-expand-label">Показать все шаги (${_stepsCount})</span>
@@ -2516,6 +2575,14 @@
 				total.carbs += s.carbs || 0;
 				total.fiber += s.fiber || 0;
 			});
+			Object.values(_excludedIngredientDeltas).forEach(d => {
+				if (!d || !d.hasKbzhu) return;
+				total.kcal += d.kcal || 0;
+				total.protein += d.protein || 0;
+				total.fat += d.fat || 0;
+				total.carbs += d.carbs || 0;
+				total.fiber += d.fiber || 0;
+			});
 			// Round protein/fat/carbs/fiber to 1 decimal to avoid floating-point drift in display.
 			total.protein = Math.round(total.protein * 10) / 10;
 			total.fat = Math.round(total.fat * 10) / 10;
@@ -2682,15 +2749,42 @@
 		function _executePlateAdd(unbalanced) {
 			// Main dish: own KBZHU only — selected addons go in as separate Plate entries below.
 			const _plateIngredients = (r.ingredients || []).filter((_, i) => !_excludedIngredients[i]);
-			Plate.add({
-				name: r.name,
-				emoji: r.emoji,
-				photo: r.photo || '',
+			const plateTotals = {
 				kcal: r.kcal,
 				protein: r.protein,
 				fat: r.fat,
 				carbs: r.carbs,
-				fiber: r.fiber || 0,
+				fiber: r.fiber || 0
+			};
+			Object.values(_appliedSwaps).forEach(s => {
+				if (!s || !s.hasKbzhu) return;
+				plateTotals.kcal += s.kcal || 0;
+				plateTotals.protein += s.protein || 0;
+				plateTotals.fat += s.fat || 0;
+				plateTotals.carbs += s.carbs || 0;
+				plateTotals.fiber += s.fiber || 0;
+			});
+			Object.values(_excludedIngredientDeltas).forEach(d => {
+				if (!d || !d.hasKbzhu) return;
+				plateTotals.kcal += d.kcal || 0;
+				plateTotals.protein += d.protein || 0;
+				plateTotals.fat += d.fat || 0;
+				plateTotals.carbs += d.carbs || 0;
+				plateTotals.fiber += d.fiber || 0;
+			});
+			plateTotals.protein = Math.round(plateTotals.protein * 10) / 10;
+			plateTotals.fat = Math.round(plateTotals.fat * 10) / 10;
+			plateTotals.carbs = Math.round(plateTotals.carbs * 10) / 10;
+			plateTotals.fiber = Math.round(plateTotals.fiber * 10) / 10;
+			Plate.add({
+				name: r.name,
+				emoji: r.emoji,
+				photo: r.photo || '',
+				kcal: plateTotals.kcal,
+				protein: plateTotals.protein,
+				fat: plateTotals.fat,
+				carbs: plateTotals.carbs,
+				fiber: plateTotals.fiber,
 				recipeId: r.id,
 				ingredients: _plateIngredients,
 				additions: []

@@ -1848,7 +1848,7 @@
         var ingr = r.ingredients || [];
         ingr.forEach(function(item) {
             if (typeof item === 'string') item = { name: item, swap: null };
-            addIngredient(item.name || '', item.swap || '', item.omit_delta || null);
+            addIngredient(item.name || '', item.swap || '', item.omit_delta || null, item.omit_hint || '');
         });
 
         // Steps
@@ -1896,30 +1896,6 @@
     // INGREDIENTS — repeatable rows
     // ══════════════════════════════════════════════════════════════════════
 
-    window.addIngredient = function(name, swap) {
-        name = name || '';
-        swap = swap || '';
-        var list = document.getElementById('re-ingredients-list');
-        var item = document.createElement('div');
-        item.className = 're-list-item';
-        item.draggable = true;
-        item.innerHTML =
-            '<span class="re-drag" title="Перетащить">⠿</span>' +
-            '<div class="re-item-fields">' +
-                '<div class="re-item-row">' +
-                    '<input class="re-item-input" data-field="name" placeholder="Название ингредиента" value="' + escAttr(name) + '">' +
-                '</div>' +
-                '<div class="re-item-row">' +
-                    '<span class="re-item-label-inline">Замена</span>' +
-                    '<input class="re-item-input" data-field="swap" placeholder="Чем заменить (необязательно)" value="' + escAttr(swap) + '">' +
-                '</div>' +
-            '</div>' +
-            '<button class="re-item-remove" onclick="removeItem(this)" title="Удалить">&times;</button>';
-        list.appendChild(item);
-        initDrag(item, list);
-        updateCounts();
-    };
-
     function normalizeOmitDeltaForEditor(raw) {
         if (!raw || typeof raw !== 'object') return null;
         return {
@@ -1943,17 +1919,22 @@
         var swapInput = item.querySelector('[data-field="swap"]');
         var omitBox = item.querySelector('[data-role="omit-box"]');
         var omitToggle = item.querySelector('[data-role="omit-toggle"]');
+        var hintBox = item.querySelector('[data-role="omit-hint-box"]');
         if (!swapInput || !omitBox || !omitToggle) return;
         var enabled = isOptionalSwapText(swapInput.value || '');
         omitBox.classList.toggle('open', enabled);
         omitToggle.disabled = !enabled;
         if (!enabled) omitToggle.checked = false;
+        if (hintBox) {
+            hintBox.classList.toggle('open', enabled);
+        }
     }
 
-    window.addIngredient = function(name, swap, omitDelta) {
+    window.addIngredient = function(name, swap, omitDelta, omitHint) {
         name = name || '';
         swap = swap || '';
         omitDelta = normalizeOmitDeltaForEditor(omitDelta);
+        omitHint = (typeof omitHint === 'string' ? omitHint : '').trim();
         var list = document.getElementById('re-ingredients-list');
         var item = document.createElement('div');
         item.className = 're-list-item';
@@ -1981,6 +1962,13 @@
                         '<input class="re-input" data-role="omit-fiber" type="number" step="0.1" placeholder="Кл" value="' + (omitDelta ? omitDelta.fiber : '') + '">' +
                     '</div>' +
                     '<div class="re-hint">Дельта применяется при исключении ингредиента. Для масла это обычно отрицательные значения.</div>' +
+                '</div>' +
+                '<div class="re-ingredient-omit-box" data-role="omit-hint-box">' +
+                    '<div class="re-item-row">' +
+                        '<span class="re-item-label-inline">Подсказка по шагам при исключении</span>' +
+                        '<input class="re-item-input" data-field="omit_hint" placeholder="Напр.: Если без лука и масла, пропустите шаги 2–3" value="' + escAttr(omitHint) + '">' +
+                    '</div>' +
+                    '<div class="re-hint">Текст увидит пользователь над блоком шагов, если исключит этот ингредиент. Шаги автоматически не переписываются.</div>' +
                 '</div>' +
             '</div>' +
             '<button class="re-item-remove" onclick="removeItem(this)" title="Удалить">&times;</button>';
@@ -2187,8 +2175,9 @@
             if (!name) continue;
             var swap = ingrItems[i].querySelector('[data-field="swap"]').value.trim();
             var ingredient = { name: name, swap: swap || null };
+            var isOptional = swap && isOptionalSwapText(swap);
             var omitToggle = ingrItems[i].querySelector('[data-role="omit-toggle"]');
-            if (swap && isOptionalSwapText(swap) && omitToggle && omitToggle.checked) {
+            if (isOptional && omitToggle && omitToggle.checked) {
                 ingredient.omit_delta = {
                     kcal: parseFloat(ingrItems[i].querySelector('[data-role="omit-kcal"]').value) || 0,
                     protein: parseFloat(ingrItems[i].querySelector('[data-role="omit-protein"]').value) || 0,
@@ -2196,6 +2185,11 @@
                     carbs: parseFloat(ingrItems[i].querySelector('[data-role="omit-carbs"]').value) || 0,
                     fiber: parseFloat(ingrItems[i].querySelector('[data-role="omit-fiber"]').value) || 0
                 };
+            }
+            if (isOptional) {
+                var hintInput = ingrItems[i].querySelector('[data-field="omit_hint"]');
+                var hintVal = hintInput ? hintInput.value.trim() : '';
+                if (hintVal) ingredient.omit_hint = hintVal;
             }
             ingredients.push(ingredient);
         }
@@ -2538,7 +2532,7 @@
             // Ingredients
             (r.ingredients || []).forEach(function(item) {
                 if (typeof item === 'string') item = { name: item };
-                addIngredient(item.name || '', item.swap || '', item.omit_delta || null);
+                addIngredient(item.name || '', item.swap || '', item.omit_delta || null, item.omit_hint || '');
             });
 
             // Steps
@@ -2894,7 +2888,7 @@
             document.getElementById('re-ingredients-list').innerHTML = '';
             r.ingredients.forEach(function(item) {
                 if (typeof item === 'string') item = { name: item };
-                addIngredient(item.name || '', item.swap || '', item.omit_delta || null);
+                addIngredient(item.name || '', item.swap || '', item.omit_delta || null, item.omit_hint || '');
             });
             filled.push('ingredients');
         }
