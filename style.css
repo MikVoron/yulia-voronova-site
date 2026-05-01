@@ -12847,6 +12847,7 @@ button[class*="btn-"]:hover,
         left: auto;
         top: auto;
         transform: none;
+        transition: opacity 0.4s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         width: 100%;
         max-width: 100%;
         margin: 0 auto;

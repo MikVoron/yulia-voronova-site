@@ -729,6 +729,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Функция закрытия всех карточек
     function closeAllCards() {
+        const cardsToRestoreTransition = [];
+
         document.querySelectorAll('.tariff-card-collapsible').forEach((card) => {
             const details = card.querySelector('.tariff-details');
             const btn = card.querySelector('.expand-indicator-line');
@@ -740,6 +742,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const wasOpen = card.classList.contains('is-open');
             if (wasOpen) {
                 card.style.transition = 'none';
+                cardsToRestoreTransition.push(card);
             }
 
             card.classList.remove('is-open');
@@ -755,13 +758,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (wasOpen) {
                 void card.offsetHeight; // форсируем reflow
-                card.style.transition = '';
             }
         });
 
         // Убираем класс с grid
         if (tariffsGrid) {
             tariffsGrid.classList.remove('has-open-card');
+        }
+
+        if (cardsToRestoreTransition.length) {
+            requestAnimationFrame(() => {
+                cardsToRestoreTransition.forEach((card) => {
+                    card.style.transition = '';
+                });
+            });
         }
 
         currentlyOpenCardId = null;
