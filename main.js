@@ -164,11 +164,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (tariffsGrid && cards.length > 0) {
             let currentIndex = 0; // Start with the first tariff card on mobile
+            let suppressCardClickUntil = 0;
 
             // Функция обновления стопки карточек
             const updateStack = (index) => {
                 if (index < 0) index = 0;
                 if (index >= cards.length) index = cards.length - 1;
+
+                const isAlreadyActive = cards[index] && cards[index].classList.contains('active');
+                if (index === currentIndex && isAlreadyActive) {
+                    updateArrowsState();
+                    return;
+                }
+
                 currentIndex = index;
 
                 // Закрываем все открытые карточки при смене
@@ -251,6 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dy = e.changedTouches[0].clientY - touchStartY;
                 // Срабатывает только если свайп горизонтальный (>40px) и не вертикальный
                 if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+                    suppressCardClickUntil = Date.now() + 350;
                     if (dx < 0) updateStack(currentIndex + 1); // свайп влево — следующая
                     else updateStack(currentIndex - 1);         // свайп вправо — предыдущая
                 }
@@ -258,6 +267,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Показываем/скрываем стрелки при видимости секции тарифов
             // Стрелки появляются когда карточки видны на экране
+            tariffsGrid.addEventListener('click', (e) => {
+                if (Date.now() <= suppressCardClickUntil) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true);
+
             const tariffsSection = document.querySelector('.tariffs');
             if (tariffsSection && 'IntersectionObserver' in window) {
                 const arrowsObserver = new IntersectionObserver((entries) => {
