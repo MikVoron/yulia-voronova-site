@@ -152,8 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Tariffs carousel - scroll to middle card (КОНСУЛЬТАЦИЯ 1+1) on mobile
-// Tariffs Stack Carousel - стопка карточек
+// Tariffs Stack Carousel - стопка карточек, старт с первой (РАЗОВАЯ КОНСУЛЬТАЦИЯ)
 document.addEventListener('DOMContentLoaded', () => {
     if (window.innerWidth <= 768) {
         const tariffsGrid = document.querySelector('.tariffs-grid');
@@ -163,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dots = document.querySelectorAll('.tariff-dot');
 
         if (tariffsGrid && cards.length > 0) {
-            let currentIndex = 1; // Начинаем с карточки 1+1 (средняя)
+            let currentIndex = 0; // Start with the first tariff card on mobile
 
             // Функция обновления стопки карточек
             const updateStack = (index) => {
