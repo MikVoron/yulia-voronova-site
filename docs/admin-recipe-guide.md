@@ -110,7 +110,7 @@
 {"text": "Добавьте чеснок и лимонный сок.", "photo": ["images/recipes/borscht-red-beans/borsch-10.1.webp", "images/recipes/borscht-red-beans/borsch-10.2.webp"]}
 ```
 
-Фронт отрендерит как галерею (grid, стек на мобильном).
+Фронт отрендерит как карусель: одно фото обычного размера, переключение стрелками.
 
 ### Контракт `step.photo`
 

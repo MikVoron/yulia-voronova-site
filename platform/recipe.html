@@ -844,6 +844,19 @@
 			if (item) item.classList.toggle('is-done', done);
 			cb.setAttribute('aria-label', 'Шаг ' + (_stepperIdx + 1) + (done ? ' выполнен' : ' не выполнен'));
 		}
+		function stepPhotoCarouselMove(btn, dir) {
+			const carousel = btn && btn.closest('.step-photo-carousel');
+			if (!carousel) return;
+			const imgs = Array.from(carousel.querySelectorAll('.step-photo-img'));
+			if (imgs.length < 2) return;
+			let idx = parseInt(carousel.getAttribute('data-index') || '0', 10);
+			if (!Number.isFinite(idx)) idx = 0;
+			idx = (idx + dir + imgs.length) % imgs.length;
+			carousel.setAttribute('data-index', String(idx));
+			imgs.forEach((img, i) => img.classList.toggle('is-active', i === idx));
+			const current = carousel.querySelector('[data-carousel-current]');
+			if (current) current.textContent = String(idx + 1);
+		}
 
 		// ── SIDEBAR PLACEMENT (mobile ↔ desktop) ────────────────────────
 		function placeSidebarForViewport() {
@@ -1597,7 +1610,7 @@
 
 			// Контракт step.photo:
 			//   string      → 1 фото
-			//   string[]    → N фото по порядку (галерея)
+			//   string[]    → N фото по порядку (карусель)
 			//   true        → плейсхолдер-заглушка
 			//   null/""/нет → без блока фото
 			// Нормализация URL (photoUrl) применяется к каждой строке, не к массиву целиком.
@@ -1612,9 +1625,14 @@
 					if (imgs.length === 1) {
 						photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(imgs[0]))}" alt="Фото шага ${i + 1}" loading="lazy" onerror="this.style.display='none'">`;
 					} else if (imgs.length > 1) {
-						photoHtml = `<div class="step-photo-gallery">` + imgs.map((p, idx) =>
-							`<img class="step-photo-img" src="${escHtml(photoUrl(p))}" alt="Фото шага ${i + 1} (${idx + 1})" loading="lazy" onerror="this.style.display='none'">`
-						).join('') + `</div>`;
+						photoHtml = `<div class="step-photo-carousel" data-index="0">` +
+							imgs.map((p, idx) =>
+								`<img class="step-photo-img${idx === 0 ? ' is-active' : ''}" src="${escHtml(photoUrl(p))}" alt="Фото шага ${i + 1} (${idx + 1})" loading="lazy" onerror="this.style.display='none'">`
+							).join('') +
+							`<button type="button" class="step-photo-nav step-photo-prev" onclick="stepPhotoCarouselMove(this,-1)" aria-label="Предыдущее фото">‹</button>` +
+							`<button type="button" class="step-photo-nav step-photo-next" onclick="stepPhotoCarouselMove(this,1)" aria-label="Следующее фото">›</button>` +
+							`<div class="step-photo-counter"><span data-carousel-current>1</span> / ${imgs.length}</div>` +
+							`</div>`;
 					}
 				} else if (typeof photo === 'string' && photo) {
 					photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i + 1}" loading="lazy" onerror="this.closest('.step-photo-wrap').style.display='none'">`;
