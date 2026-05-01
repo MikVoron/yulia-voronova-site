@@ -727,6 +727,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Переменная для отслеживания открытой карточки
     let currentlyOpenCardId = null;
 
+    function resetTariffHorizontalScroll() {
+        document.documentElement.scrollLeft = 0;
+        document.body.scrollLeft = 0;
+    }
+
     // Функция закрытия всех карточек
     function closeAllCards() {
         const cardsToRestoreTransition = [];
@@ -771,6 +776,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 cardsToRestoreTransition.forEach((card) => {
                     card.style.transition = '';
                 });
+                resetTariffHorizontalScroll();
             });
         }
 
@@ -800,7 +806,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const tariffsSection = document.querySelector('.tariffs') || document.getElementById('tariffs');
             if (tariffsSection) {
                 setTimeout(() => {
-                    tariffsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    tariffsSection.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                    resetTariffHorizontalScroll();
                 }, 100);
             }
         }
@@ -827,7 +834,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Прокручиваем к карточке на мобильном
             if (window.innerWidth <= 768) {
                 setTimeout(() => {
-                    clickedCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    clickedCard.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+                    resetTariffHorizontalScroll();
                 }, 100);
             }
         }
