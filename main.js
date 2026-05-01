@@ -164,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (tariffsGrid && cards.length > 0) {
             let currentIndex = 0; // Start with the first tariff card on mobile
-            let suppressCardClickUntil = 0;
 
             // Функция обновления стопки карточек
             const updateStack = (index) => {
@@ -246,34 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Свайп по карточкам тарифов
-            let touchStartX = 0;
-            let touchStartY = 0;
-
-            tariffsGrid.addEventListener('touchstart', (e) => {
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
-            }, { passive: true });
-
-            tariffsGrid.addEventListener('touchend', (e) => {
-                const dx = e.changedTouches[0].clientX - touchStartX;
-                const dy = e.changedTouches[0].clientY - touchStartY;
-                // Срабатывает только если свайп горизонтальный (>40px) и не вертикальный
-                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
-                    suppressCardClickUntil = Date.now() + 350;
-                    if (dx < 0) updateStack(currentIndex + 1); // свайп влево — следующая
-                    else updateStack(currentIndex - 1);         // свайп вправо — предыдущая
-                }
-            }, { passive: true });
-
             // Показываем/скрываем стрелки при видимости секции тарифов
             // Стрелки появляются когда карточки видны на экране
-            tariffsGrid.addEventListener('click', (e) => {
-                if (Date.now() <= suppressCardClickUntil) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }, true);
-
             const tariffsSection = document.querySelector('.tariffs');
             if (tariffsSection && 'IntersectionObserver' in window) {
                 const arrowsObserver = new IntersectionObserver((entries) => {
