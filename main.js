@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dots = document.querySelectorAll('.tariff-dot');
 
         if (tariffsGrid && cards.length > 0) {
-            let currentIndex = 1; // Начинаем с карточки 1+1 (средняя)
+            let currentIndex = 0; // Start with the first tariff card on mobile
 
             // Функция обновления стопки карточек
             const updateStack = (index) => {
