@@ -854,6 +854,9 @@
 			idx = (idx + dir + imgs.length) % imgs.length;
 			carousel.setAttribute('data-index', String(idx));
 			imgs.forEach((img, i) => img.classList.toggle('is-active', i === idx));
+			carousel.querySelectorAll('.step-photo-dot').forEach((dot, i) => {
+				dot.classList.toggle('is-active', i === idx);
+			});
 			const current = carousel.querySelector('[data-carousel-current]');
 			if (current) current.textContent = String(idx + 1);
 		}
@@ -1631,6 +1634,8 @@
 							).join('') +
 							`<button type="button" class="step-photo-nav step-photo-prev" onclick="stepPhotoCarouselMove(this,-1)" aria-label="Предыдущее фото">‹</button>` +
 							`<button type="button" class="step-photo-nav step-photo-next" onclick="stepPhotoCarouselMove(this,1)" aria-label="Следующее фото">›</button>` +
+							`<div class="step-photo-hint">Листайте фото</div>` +
+							`<div class="step-photo-dots">` + imgs.map((_, idx) => `<span class="step-photo-dot${idx === 0 ? ' is-active' : ''}"></span>`).join('') + `</div>` +
 							`<div class="step-photo-counter"><span data-carousel-current>1</span> / ${imgs.length}</div>` +
 							`</div>`;
 					}
