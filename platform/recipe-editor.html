@@ -1987,9 +1987,42 @@
     // STEPS — repeatable rows
     // ══════════════════════════════════════════════════════════════════════
 
+    function formatStepPhotoForEditor(photo) {
+        if (photo === true) return 'true';
+        if (Array.isArray(photo)) {
+            return photo.filter(function(p) {
+                return typeof p === 'string' && p.trim();
+            }).join('\n');
+        }
+        return photo || '';
+    }
+
+    function normalizeStepPhotoForSave(raw) {
+        var text = String(raw || '').trim();
+        if (!text) return null;
+        if (text === 'true') return true;
+        if (text.charAt(0) === '[') {
+            try {
+                var parsed = JSON.parse(text);
+                if (Array.isArray(parsed)) {
+                    var arr = parsed.filter(function(p) {
+                        return typeof p === 'string' && p.trim();
+                    }).map(function(p) { return p.trim(); });
+                    if (arr.length > 1) return arr;
+                    if (arr.length === 1) return arr[0];
+                }
+            } catch (e) {}
+        }
+        var lines = text.split(/\r?\n/).map(function(p) {
+            return p.trim();
+        }).filter(Boolean);
+        if (lines.length > 1) return lines;
+        return lines[0] || null;
+    }
+
     window.addStep = function(text, photo) {
         text = text || '';
-        photo = photo || '';
+        photo = formatStepPhotoForEditor(photo);
         var list = document.getElementById('re-steps-list');
         var num = list.children.length + 1;
         var item = document.createElement('div');
@@ -2002,7 +2035,7 @@
                 '<textarea class="re-item-textarea" data-field="text" rows="2" placeholder="Описание шага">' + esc(text) + '</textarea>' +
                 '<div class="re-item-row">' +
                     '<span class="re-item-label-inline">Фото</span>' +
-                    '<input class="re-item-input" data-field="photo" placeholder="URL фото шага (необязательно)" value="' + escAttr(photo) + '">' +
+                    '<textarea class="re-item-textarea" data-field="photo" rows="2" placeholder="Один URL или несколько URL по одному в строке">' + esc(photo) + '</textarea>' +
                 '</div>' +
             '</div>' +
             '<button class="re-item-remove" onclick="removeItem(this)" title="Удалить">&times;</button>';
@@ -2200,7 +2233,7 @@
         for (var i = 0; i < stepItems.length; i++) {
             var text = stepItems[i].querySelector('[data-field="text"]').value.trim();
             if (!text) continue;
-            var photo = stepItems[i].querySelector('[data-field="photo"]').value.trim();
+            var photo = normalizeStepPhotoForSave(stepItems[i].querySelector('[data-field="photo"]').value);
             if (photo) {
                 steps.push({ text: text, photo: photo });
             } else {
