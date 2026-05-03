@@ -610,6 +610,31 @@ function getCategoryDishes(catId, filters = {}) {
     return dishes;
 }
 
+// Shared search helper — used by both hero dropdown (index.html) and full
+// search results (category.html?q=...). Keep relevance and normalization in
+// one place so the two views never diverge.
+function _searchNorm(s) { return String(s || '').toLowerCase().replace(/ё/g, 'е').trim(); }
+
+function searchRecipes(query) {
+    const nq = _searchNorm(query);
+    if (!nq) return [];
+    const all = Object.values(RECIPES || {});
+    const scored = [];
+    for (const r of all) {
+        const name = _searchNorm(r.name);
+        const desc = _searchNorm(r.description || r.desc || '');
+        const tags = _searchNorm((r.tags || []).join(' '));
+        let score = 0;
+        if (name.startsWith(nq)) score = 100;
+        else if (name.includes(nq)) score = 60;
+        else if (tags.includes(nq)) score = 30;
+        else if (desc.includes(nq)) score = 15;
+        if (score) scored.push({ r, score });
+    }
+    scored.sort((a, b) => b.score - a.score);
+    return scored.map(x => x.r);
+}
+
 const DIFF_LABELS = { easy: 'Легкая', medium: 'Средняя', hard: 'Сложная' };
 
 function diffIcon(diff) {

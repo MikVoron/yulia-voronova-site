@@ -187,17 +187,27 @@
             showApiError(document.getElementById('dish-list'));
             return;
         }
-        cat = getCategory(catId);
-        if (cat) {
-            document.title = cat.name + ' — Конструктор питания';
-            var catAvatars = typeof CAT_AVATARS !== 'undefined' ? CAT_AVATARS : {};
-            var avaImg = catAvatars[catId]
-                ? '<div class="cat-hero-ava"><img src="' + escHtml(String(catAvatars[catId])) + '" alt="' + escHtml(String(cat.name)) + '" onerror="this.parentElement.textContent=\'' + escHtml(String(cat.emoji)) + '\'"></div>'
-                : '<div class="cat-hero-ava">' + escHtml(String(cat.emoji)) + '</div>';
+        if (searchQuery) {
+            document.title = 'Поиск «' + searchQuery + '» — Конструктор питания';
+            var total = (typeof searchRecipes === 'function') ? searchRecipes(searchQuery).length : 0;
             document.getElementById('cat-hero').innerHTML =
-                '<div class="cat-hero-row">' + avaImg +
-                '<div><div class="cat-hero-name">' + escHtml(String(cat.name)) + '</div>' +
-                '<div class="cat-hero-desc">' + escHtml(String(cat.desc)) + '</div></div></div>';
+                '<div class="cat-hero-row">' +
+                '<div class="cat-hero-ava">🔍</div>' +
+                '<div><div class="cat-hero-name">Поиск: «' + escHtml(searchQuery) + '»</div>' +
+                '<div class="cat-hero-desc">Всего найдено: ' + pluralR(total) + '</div></div></div>';
+        } else {
+            cat = getCategory(catId);
+            if (cat) {
+                document.title = cat.name + ' — Конструктор питания';
+                var catAvatars = typeof CAT_AVATARS !== 'undefined' ? CAT_AVATARS : {};
+                var avaImg = catAvatars[catId]
+                    ? '<div class="cat-hero-ava"><img src="' + escHtml(String(catAvatars[catId])) + '" alt="' + escHtml(String(cat.name)) + '" onerror="this.parentElement.textContent=\'' + escHtml(String(cat.emoji)) + '\'"></div>'
+                    : '<div class="cat-hero-ava">' + escHtml(String(cat.emoji)) + '</div>';
+                document.getElementById('cat-hero').innerHTML =
+                    '<div class="cat-hero-row">' + avaImg +
+                    '<div><div class="cat-hero-name">' + escHtml(String(cat.name)) + '</div>' +
+                    '<div class="cat-hero-desc">' + escHtml(String(cat.desc)) + '</div></div></div>';
+            }
         }
         Auth.checkAccess().then(function() { Favorites.load().then(function() { if (typeof renderDishes === 'function') renderDishes(); }); Plate.load(); });
     });
@@ -238,9 +248,32 @@
     }
 
     const params = new URLSearchParams(location.search);
-    const catId = params.get('cat') || 'breakfasts';
+    const searchQuery = (params.get('q') || '').trim();
+    const catId = params.get('cat') || (searchQuery ? '' : 'breakfasts');
     let cat = null;
     const activeFilters = {};
+
+    function applyFilters(dishes, filters) {
+        let list = dishes;
+        if (filters.time) {
+            if (filters.time === 'over60') list = list.filter(d => d.time > 60);
+            else list = list.filter(d => d.time <= filters.time);
+        }
+        if (filters.difficulty) list = list.filter(d => d.diff === filters.difficulty);
+        if (filters.gluten)  list = list.filter(d => (d.tags||[]).includes('без глютена'));
+        if (filters.plant)   list = list.filter(d => (d.tags||[]).includes('растительный'));
+        if (filters.fish)    list = list.filter(d => (d.tags||[]).includes('рыбное'));
+        if (filters.noSoy)   list = list.filter(d => (d.tags||[]).includes('без сои'));
+        if (filters.legumes) list = list.filter(d => (d.tags||[]).includes('бобовые'));
+        return list;
+    }
+    function getDishesForView() {
+        if (searchQuery) {
+            const matched = (typeof searchRecipes === 'function') ? searchRecipes(searchQuery) : [];
+            return applyFilters(matched, activeFilters);
+        }
+        return getCategoryDishes(catId, activeFilters);
+    }
 
     // Restore filters from index.html navigation
     (function restoreFilters() {
@@ -313,7 +346,7 @@
     }
 
     function buildDishCard(d, photo, diff_labels) {
-        const _id = encodeURIComponent(d.id);
+        const _id = String(d.id || '');
         const _name = escHtml(String(d.name || ''));
         const _emoji = escHtml(String(d.emoji || '🍴'));
         const _photo = escHtml(String(d.photo || photo || ''));
@@ -387,11 +420,14 @@
     }
 
     function renderDishes() {
-        const dishes = getCategoryDishes(catId, activeFilters);
+        const dishes = getDishesForView();
         document.getElementById('count-label').textContent = pluralR(dishes.length);
         if (!dishes.length) {
+            const emptyMsg = searchQuery
+                ? 'По запросу «' + escHtml(searchQuery) + '» ничего не найдено.'
+                : 'Ничего не найдено. Измените фильтры.';
             document.getElementById('dish-list').innerHTML =
-                '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">Ничего не найдено. Измените фильтры.</div>';
+                '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">' + emptyMsg + '</div>';
             return;
         }
         const photo = CAT_PHOTOS[catId] || '';
@@ -430,7 +466,7 @@
     const _origRenderDishes = renderDishes;
     renderDishes = function() {
         if (_popularActive) {
-            const dishes = getCategoryDishes(catId, activeFilters);
+            const dishes = getDishesForView();
             dishes.sort((a, b) => {
                 const ra = _apiRatings[a.id] || { avg: 0, count: 0 };
                 const rb = _apiRatings[b.id] || { avg: 0, count: 0 };
@@ -440,8 +476,11 @@
             // Render sorted list (copy logic from original but with pre-sorted dishes)
             document.getElementById('count-label').textContent = pluralR(dishes.length);
             if (!dishes.length) {
+                const emptyMsg = searchQuery
+                    ? 'По запросу «' + escHtml(searchQuery) + '» ничего не найдено.'
+                    : 'Ничего не найдено. Измените фильтры.';
                 document.getElementById('dish-list').innerHTML =
-                    '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">Ничего не найдено. Измените фильтры.</div>';
+                    '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">' + emptyMsg + '</div>';
                 return;
             }
             const photo = CAT_PHOTOS[catId] || '';
@@ -479,7 +518,11 @@
     })();
 
     function goToRecipe(id) {
-        location.href = `recipe.html?id=${id}&from=${catId}`;
+        if (searchQuery) {
+            location.href = `recipe.html?id=${encodeURIComponent(id)}&from=search&q=${encodeURIComponent(searchQuery)}`;
+        } else {
+            location.href = `recipe.html?id=${encodeURIComponent(id)}&from=${encodeURIComponent(catId)}`;
+        }
     }
 
     function showLockedMsg() {

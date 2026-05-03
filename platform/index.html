@@ -578,6 +578,35 @@
 			font-size: 13px;
 		}
 
+		.hero-search-show-all {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			padding: 14px;
+			text-decoration: none;
+			font: 700 13px/1 var(--sans);
+			color: var(--accent);
+			background: #fff7f3;
+			border-top: 1px solid var(--border);
+			letter-spacing: .02em;
+			position: sticky;
+			bottom: 0;
+		}
+
+		.hero-search-show-all:hover {
+			background: #ffe8de;
+		}
+
+		.hero-search-show-all .arr {
+			transition: transform .2s ease;
+			display: inline-block;
+		}
+
+		.hero-search-show-all:hover .arr {
+			transform: translateX(3px);
+		}
+
 		.recipes-total-count .rtc-label {
 			font-family: var(--sans);
 			font-size: clamp(11px, 1.2vw, 13px);
@@ -1075,39 +1104,36 @@
 			const box = document.getElementById('hero-search-results');
 			if (!input || !box) return;
 
-			function norm(s) { return String(s || '').toLowerCase().replace(/ё/g, 'е').trim(); }
+			const DROPDOWN_LIMIT = 6;
 
-			function match(q) {
-				const nq = norm(q);
-				if (!nq) return [];
-				const all = Object.values(RECIPES || {});
-				const scored = [];
-				for (const r of all) {
-					const name = norm(r.name);
-					const desc = norm(r.description || r.desc || '');
-					const tags = norm((r.tags || []).join(' '));
-					let score = 0;
-					if (name.startsWith(nq)) score = 100;
-					else if (name.includes(nq)) score = 60;
-					else if (tags.includes(nq)) score = 30;
-					else if (desc.includes(nq)) score = 15;
-					if (score) scored.push({ r, score });
-				}
-				scored.sort(function (a, b) { return b.score - a.score; });
-				return scored.slice(0, 6).map(function (x) { return x.r; });
+			function pluralResults(n) {
+				const m10 = n % 10, m100 = n % 100;
+				if (m100 >= 11 && m100 <= 14) return n + ' результатов';
+				if (m10 === 1) return n + ' результат';
+				if (m10 >= 2 && m10 <= 4) return n + ' результата';
+				return n + ' результатов';
+			}
+
+			function searchUrl(q) {
+				return 'category.html?q=' + encodeURIComponent(q.trim());
+			}
+
+			function searchRecipeUrl(id, q) {
+				return 'recipe.html?id=' + encodeURIComponent(id) +
+					'&from=search&q=' + encodeURIComponent(q.trim());
 			}
 
 			function render(q) {
-				const res = match(q);
+				const all = (typeof searchRecipes === 'function') ? searchRecipes(q) : [];
 				if (!q.trim()) { box.classList.remove('open'); box.innerHTML = ''; return; }
-				if (!res.length) {
+				if (!all.length) {
 					box.innerHTML = '<div class="hero-search-empty">Ничего не найдено</div>';
 					box.classList.add('open');
 					return;
 				}
-				box.innerHTML = res.map(function (d) {
-					const _id = encodeURIComponent(d.id);
-					const _cat = encodeURIComponent(d.cat || '');
+				const visible = all.slice(0, DROPDOWN_LIMIT);
+				const itemsHtml = visible.map(function (d) {
+					const _href = searchRecipeUrl(d.id, q);
 					const _name = escHtml(String(d.name || ''));
 					const _photo = escHtml(String(d.photo || ''));
 					const _time = Number(d.time) || 0;
@@ -1116,7 +1142,7 @@
 					const thumb = _photo
 						? `<img class="hero-search-thumb" src="${_photo}" alt="" onerror="this.style.display='none'">`
 						: `<div class="hero-search-thumb"></div>`;
-					return `<a class="hero-search-item" href="recipe.html?id=${_id}&from=${_cat}">
+					return `<a class="hero-search-item" href="${_href}">
 						${thumb}
 						<div class="hero-search-text">
 							<div class="hero-search-name">${_name}</div>
@@ -1124,6 +1150,10 @@
 						</div>
 					</a>`;
 				}).join('');
+				const showAllHtml = all.length > DROPDOWN_LIMIT
+					? `<a class="hero-search-show-all" href="${searchUrl(q)}">Показать все ${pluralResults(all.length)} <span class="arr">→</span></a>`
+					: '';
+				box.innerHTML = itemsHtml + showAllHtml;
 				box.classList.add('open');
 			}
 
@@ -1135,8 +1165,9 @@
 			input.addEventListener('keydown', function (e) {
 				if (e.key === 'Escape') { input.value = ''; box.classList.remove('open'); }
 				if (e.key === 'Enter') {
-					const first = box.querySelector('.hero-search-item');
-					if (first) location.href = first.getAttribute('href');
+					e.preventDefault();
+					const q = input.value.trim();
+					if (q) location.href = searchUrl(q);
 				}
 			});
 		})();
