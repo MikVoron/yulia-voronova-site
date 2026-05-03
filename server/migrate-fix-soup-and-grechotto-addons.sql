@@ -7,8 +7,8 @@
 UPDATE recipes
 SET
   add_protein = '[
-    {"name": "Белое мясо готовое", "amount": "70 г", "kcal": 115, "protein": 22, "fat": 3, "carbs": 0, "fiber": 0},
-    {"name": "Тофу", "amount": "130 г", "kcal": 100, "protein": 12, "fat": 5, "carbs": 3, "fiber": 0},
+    {"name": "Белое мясо готовое", "amount": "70 г", "kcal": 112, "protein": 22, "fat": 3, "carbs": 0, "fiber": 0},
+    {"name": "Тофу", "amount": "130 г", "kcal": 91, "protein": 13, "fat": 5, "carbs": 3, "fiber": 0},
     {"name": "Соевые бобы эдамаме", "amount": "100 г", "kcal": 109, "protein": 12, "fat": 5, "carbs": 3, "fiber": 5}
   ]'::jsonb,
   updated_at = now()

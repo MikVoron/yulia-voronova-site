@@ -63,11 +63,11 @@ INSERT INTO recipes (
     {"text": "Попробуйте и посолите."}
   ]'::jsonb,
   '[
-    {"name": "Белое мясо", "amount": "50 г", "kcal": 80, "protein": 16, "fat": 2, "carbs": 0, "fiber": 0},
-    {"name": "Тофу", "amount": "100 г", "kcal": 70, "protein": 10, "fat": 4, "carbs": 2, "fiber": 0},
+    {"name": "Белое мясо", "amount": "50 г", "kcal": 80, "protein": 16, "fat": 3, "carbs": 0, "fiber": 0},
+    {"name": "Твердый тофу", "amount": "100 г", "kcal": 78, "protein": 9, "fat": 5, "carbs": 2, "fiber": 1},
     {"name": "Соевые бобы эдамаме", "amount": "100 г", "kcal": 109, "protein": 12, "fat": 5, "carbs": 3, "fiber": 5},
-    {"name": "Хумус", "amount": "40 г", "kcal": 120, "protein": 3, "fat": 6, "carbs": 13, "fiber": 2, "recipeId": "hummus"},
-    {"name": "Хумус со свёклой", "amount": "40 г", "kcal": 110, "protein": 3, "fat": 6, "carbs": 12, "fiber": 2, "recipeId": "beetroot-hummus"}
+    {"name": "Хумус", "amount": "40 г", "kcal": 75, "protein": 3, "fat": 3, "carbs": 10, "fiber": 3, "recipeId": "hummus"},
+    {"name": "Хумус со свёклой", "amount": "40 г", "kcal": 52, "protein": 2, "fat": 2, "carbs": 8, "fiber": 2, "recipeId": "beetroot-hummus"}
   ]'::jsonb,
   '[]'::jsonb,  -- add_carbs пуст: хлеб + сухарики прилетают автоматом через флаг is_soup (см. migrate-is-soup-flag.sql)
   400,

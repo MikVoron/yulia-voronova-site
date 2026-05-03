@@ -18,7 +18,7 @@ BEGIN;
 -- ════════════════════════════════════════════════════════════════════════════
 INSERT INTO recipes (
   id, cat, name, emoji,
-  time_min, difficulty, servings, is_free,
+  time_min, time_label, difficulty, servings, is_free,
   kcal, protein, fat, carbs, fiber, tags, photo, quote, note,
   ingredients, steps,
   add_protein, add_fat, add_carbs, add_fiber, auto_addons,
@@ -28,7 +28,8 @@ INSERT INTO recipes (
   'cutlets',
   'Котлеты из нута и батата',
   '🍠',
-  45,
+  40,
+  '40–50 минут',
   'medium',
   8,
   false,
@@ -72,7 +73,7 @@ INSERT INTO recipes (
 )
 ON CONFLICT (id) DO UPDATE SET
   cat = EXCLUDED.cat, name = EXCLUDED.name, emoji = EXCLUDED.emoji,
-  time_min = EXCLUDED.time_min, difficulty = EXCLUDED.difficulty,
+  time_min = EXCLUDED.time_min, time_label = EXCLUDED.time_label, difficulty = EXCLUDED.difficulty,
   servings = EXCLUDED.servings,
   kcal = EXCLUDED.kcal, protein = EXCLUDED.protein, fat = EXCLUDED.fat,
   carbs = EXCLUDED.carbs, fiber = EXCLUDED.fiber,
@@ -96,7 +97,7 @@ ON CONFLICT DO NOTHING;
 -- ════════════════════════════════════════════════════════════════════════════
 INSERT INTO recipes (
   id, cat, name, emoji,
-  time_min, difficulty, servings, is_free,
+  time_min, time_label, difficulty, servings, is_free,
   kcal, protein, fat, carbs, fiber, tags, photo, quote,
   ingredients, steps,
   add_protein, add_fat, add_carbs, add_fiber,
@@ -107,6 +108,7 @@ INSERT INTO recipes (
   'Булгур',
   '🌾',
   20,
+  '20 минут',
   'easy',
   4,
   false,
@@ -137,7 +139,7 @@ INSERT INTO recipes (
 )
 ON CONFLICT (id) DO UPDATE SET
   cat = EXCLUDED.cat, name = EXCLUDED.name, emoji = EXCLUDED.emoji,
-  time_min = EXCLUDED.time_min, difficulty = EXCLUDED.difficulty,
+  time_min = EXCLUDED.time_min, time_label = EXCLUDED.time_label, difficulty = EXCLUDED.difficulty,
   servings = EXCLUDED.servings,
   kcal = EXCLUDED.kcal, protein = EXCLUDED.protein, fat = EXCLUDED.fat,
   carbs = EXCLUDED.carbs, fiber = EXCLUDED.fiber,
@@ -157,7 +159,7 @@ ON CONFLICT DO NOTHING;
 -- ════════════════════════════════════════════════════════════════════════════
 INSERT INTO recipes (
   id, cat, name, emoji,
-  time_min, difficulty, servings, is_free,
+  time_min, time_label, difficulty, servings, is_free,
   kcal, protein, fat, carbs, fiber, tags, photo, quote,
   ingredients, steps,
   add_protein, add_fat, add_carbs, add_fiber,
@@ -168,6 +170,7 @@ INSERT INTO recipes (
   'Салат с корнем сельдерея и яблоком',
   '🥗',
   10,
+  '10 минут',
   'easy',
   3,
   false,
@@ -179,7 +182,7 @@ INSERT INTO recipes (
     {"name": "Корень сельдерея — 300 г", "swap": null},
     {"name": "Яблоко кисло-сладкое — 2 шт.", "swap": null},
     {"name": "Укроп — 30 г", "swap": null},
-    {"name": "Йогурт 2–5% — 3 ст. л.", "swap": "Растительный йогурт"},
+    {"name": "Йогурт 2–5% — 3 ст. л.", "swap": null},
     {"name": "Горчица — 1 ч. л.", "swap": null},
     {"name": "Лимонный сок — 1 ч. л.", "swap": null},
     {"name": "Соль и перец — по вкусу", "swap": null}
@@ -201,7 +204,7 @@ INSERT INTO recipes (
 )
 ON CONFLICT (id) DO UPDATE SET
   cat = EXCLUDED.cat, name = EXCLUDED.name, emoji = EXCLUDED.emoji,
-  time_min = EXCLUDED.time_min, difficulty = EXCLUDED.difficulty,
+  time_min = EXCLUDED.time_min, time_label = EXCLUDED.time_label, difficulty = EXCLUDED.difficulty,
   servings = EXCLUDED.servings,
   kcal = EXCLUDED.kcal, protein = EXCLUDED.protein, fat = EXCLUDED.fat,
   carbs = EXCLUDED.carbs, fiber = EXCLUDED.fiber,
@@ -221,7 +224,7 @@ ON CONFLICT DO NOTHING;
 -- ════════════════════════════════════════════════════════════════════════════
 INSERT INTO recipes (
   id, cat, name, emoji,
-  time_min, difficulty, servings, is_free,
+  time_min, time_label, difficulty, servings, is_free,
   kcal, protein, fat, carbs, fiber, tags, photo, quote,
   ingredients, steps,
   add_protein, add_fat, add_carbs, add_fiber,
@@ -232,6 +235,7 @@ INSERT INTO recipes (
   'Уха из лосося',
   '🍲',
   40,
+  '40 минут',
   'easy',
   8,
   false,
@@ -274,7 +278,7 @@ INSERT INTO recipes (
 )
 ON CONFLICT (id) DO UPDATE SET
   cat = EXCLUDED.cat, name = EXCLUDED.name, emoji = EXCLUDED.emoji,
-  time_min = EXCLUDED.time_min, difficulty = EXCLUDED.difficulty,
+  time_min = EXCLUDED.time_min, time_label = EXCLUDED.time_label, difficulty = EXCLUDED.difficulty,
   servings = EXCLUDED.servings,
   kcal = EXCLUDED.kcal, protein = EXCLUDED.protein, fat = EXCLUDED.fat,
   carbs = EXCLUDED.carbs, fiber = EXCLUDED.fiber,
@@ -298,7 +302,7 @@ ON CONFLICT DO NOTHING;
 -- ════════════════════════════════════════════════════════════════════════════
 INSERT INTO recipes (
   id, cat, name, emoji,
-  time_min, difficulty, servings, is_free,
+  time_min, time_label, difficulty, servings, is_free,
   kcal, protein, fat, carbs, fiber, tags, photo, quote,
   ingredients, steps,
   add_protein, add_fat, add_carbs, add_fiber, auto_addons,
@@ -309,6 +313,7 @@ INSERT INTO recipes (
   'Котлеты из красной чечевицы',
   '🫘',
   40,
+  '40 минут',
   'medium',
   8,
   false,
@@ -349,7 +354,7 @@ INSERT INTO recipes (
 )
 ON CONFLICT (id) DO UPDATE SET
   cat = EXCLUDED.cat, name = EXCLUDED.name, emoji = EXCLUDED.emoji,
-  time_min = EXCLUDED.time_min, difficulty = EXCLUDED.difficulty,
+  time_min = EXCLUDED.time_min, time_label = EXCLUDED.time_label, difficulty = EXCLUDED.difficulty,
   servings = EXCLUDED.servings,
   kcal = EXCLUDED.kcal, protein = EXCLUDED.protein, fat = EXCLUDED.fat,
   carbs = EXCLUDED.carbs, fiber = EXCLUDED.fiber,

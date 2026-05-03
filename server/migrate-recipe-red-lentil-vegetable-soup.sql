@@ -6,7 +6,7 @@
 --   * emoji='🥣' (подтверждено пользователем 2026-04-26).
 --   * time_label не задан: «40 минут» — одиночное значение, time_label=null,
 --     фронт сам соберёт «40 мин» из time_min.
---   * add_protein: полные КБЖУ для «Белое мясо 50 г» (80/16/2/0/0) и «Тофу 100 г» (70/10/4/2/0)
+--   * add_protein: полные КБЖУ для «Белое мясо 50 г» (80/16/3/0/0) и «Тофу 100 г» (78/9/5/2/1)
 --     подтверждены пользователем 2026-04-27.
 --   * add_carbs пуст: хлеб + сухарики прилетают автоматом через is_soup=true (как в borscht / mung-bean-soup).
 --   * Фото нет — папка images/recipes/red-lentil-vegetable-soup/ отсутствует, photo=null.
@@ -58,8 +58,8 @@ INSERT INTO recipes (
     {"text": "В конце посолите и добавьте лимонный сок."}
   ]'::jsonb,
   '[
-    {"name": "Белое мясо", "amount": "50 г", "kcal": 80, "protein": 16, "fat": 2, "carbs": 0, "fiber": 0},
-    {"name": "Тофу", "amount": "100 г", "kcal": 70, "protein": 10, "fat": 4, "carbs": 2, "fiber": 0},
+    {"name": "Белое мясо", "amount": "50 г", "kcal": 80, "protein": 16, "fat": 3, "carbs": 0, "fiber": 0},
+    {"name": "Твердый тофу", "amount": "100 г", "kcal": 78, "protein": 9, "fat": 5, "carbs": 2, "fiber": 1},
     {"name": "Соевые бобы эдамаме", "amount": "100 г", "kcal": 109, "protein": 12, "fat": 5, "carbs": 3, "fiber": 5}
   ]'::jsonb,
   '[]'::jsonb,

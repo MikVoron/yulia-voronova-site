@@ -52,11 +52,11 @@ INSERT INTO recipes (
     {"text": "Добавьте чеснок и лавровый лист. Поварите 1 минуту.", "photo": null}
   ]'::jsonb,
   '[
-    {"name": "Белое мясо — 50 г", "kcal": 80, "protein": 16, "fat": 2, "carbs": 0, "fiber": 0},
-    {"name": "Тофу — 100 г", "kcal": 70, "protein": 10, "fat": 4, "carbs": 2, "fiber": 0},
-    {"name": "Соевые бобы эдамаме — 100 г", "kcal": 109, "protein": 12, "fat": 5, "carbs": 3, "fiber": 5},
-    {"name": "Хумус — 40 г", "kcal": 80, "protein": 3.2, "fat": 4.8, "carbs": 6, "fiber": 2, "recipeId": "hummus"},
-    {"name": "Свекольный хумус — 40 г", "kcal": 60, "protein": 2.8, "fat": 2.8, "carbs": 7.2, "fiber": 2.4, "recipeId": "beetroot-hummus"}
+    {"name": "Белое мясо", "amount": "50 г", "kcal": 80, "protein": 16, "fat": 3, "carbs": 0, "fiber": 0},
+    {"name": "Твердый тофу", "amount": "100 г", "kcal": 78, "protein": 9, "fat": 5, "carbs": 2, "fiber": 1},
+    {"name": "Соевые бобы эдамаме", "amount": "100 г", "kcal": 109, "protein": 12, "fat": 5, "carbs": 3, "fiber": 5},
+    {"name": "Хумус", "amount": "40 г", "kcal": 75, "protein": 3, "fat": 3, "carbs": 10, "fiber": 3, "recipeId": "hummus"},
+    {"name": "Свекольный хумус", "amount": "40 г", "kcal": 52, "protein": 2, "fat": 2, "carbs": 8, "fiber": 2, "recipeId": "beetroot-hummus"}
   ]'::jsonb,
   '[
     {"name": "Цельнозерновой хлеб — 1 ломтик", "kcal": 70, "protein": 3, "fat": 0, "carbs": 15, "fiber": 3}

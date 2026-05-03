@@ -31,6 +31,8 @@ const MEASURE_GRAMS = {
 // Common Russian → English food name translations for better USDA matching
 const FOOD_TRANSLATIONS = {
   'тофу': 'tofu',
+  'твердый тофу': 'tofu',
+  'твёрдый тофу': 'tofu',
   'рис': 'rice',
   'гречка': 'buckwheat',
   'овсянка': 'oats',
@@ -78,6 +80,10 @@ const FOOD_TRANSLATIONS = {
   'яблоко': 'apple raw',
   'лимон': 'lemon raw',
   'нут': 'chickpeas',
+  'хумус': 'hummus',
+  'свекольный хумус': 'beetroot hummus',
+  'хумус со свёклой': 'beetroot hummus',
+  'хумус со свеклой': 'beetroot hummus',
   'фасоль': 'kidney beans',
   'чечевица': 'lentils',
   'макароны': 'pasta dry',
@@ -180,7 +186,7 @@ const FOOD_TRANSLATIONS = {
 // Used as offline fallback when USDA API is unavailable
 const BUILTIN_NUTRITION = {
   // --- Крупы и зерновые ---
-  'tofu':                { kcal: 76,  protein: 8.1,  fat: 4.8,  carbs: 1.9,  fiber: 0.3 },
+  'tofu':                { kcal: 78,  protein: 9,    fat: 5,    carbs: 2,    fiber: 1 },
   'rice':                { kcal: 365, protein: 7.1,  fat: 0.7,  carbs: 80,   fiber: 1.3 },
   'buckwheat':           { kcal: 343, protein: 13.3, fat: 3.4,  carbs: 71.5, fiber: 10 },
   'oats':                { kcal: 389, protein: 16.9, fat: 6.9,  carbs: 66.3, fiber: 10.6 },
@@ -307,6 +313,8 @@ const BUILTIN_NUTRITION = {
   'capers':              { kcal: 23,  protein: 2.4,  fat: 0.9,  carbs: 1.7,  fiber: 3.2 },
   'tamari':              { kcal: 60,  protein: 10.5, fat: 0.1,  carbs: 5.6,  fiber: 0.8 },
   'nutritional yeast':   { kcal: 325, protein: 50,   fat: 4,    carbs: 36,   fiber: 26 },
+  'hummus':              { kcal: 200, protein: 9,    fat: 7,    carbs: 25,   fiber: 7 },
+  'beetroot hummus':     { kcal: 130, protein: 7,    fat: 4,    carbs: 18,   fiber: 6 },
   // --- Фрукты (расширение) ---
   'pear raw':            { kcal: 57,  protein: 0.4,  fat: 0.1,  carbs: 15.2, fiber: 3.1 },
   'dates medjool':       { kcal: 277, protein: 1.8,  fat: 0.2,  carbs: 75,   fiber: 6.7 },
