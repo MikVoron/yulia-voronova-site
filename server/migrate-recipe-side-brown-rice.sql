@@ -2,11 +2,9 @@
 -- Новый рецепт, ТЗ от 2026-04-25 (пользователь). Категория sides.
 -- Применить: ssh root@5.42.119.198 "cat | sudo -u postgres psql smartplate_db" < server/migrate-recipe-side-brown-rice.sql
 --
--- TODO: portion_grams не указан в ТЗ. Поставлен NULL — нужно подтверждение пользователя.
-
 INSERT INTO recipes (
   id, cat, name, emoji,
-  time_min, difficulty, servings, is_free,
+  time_min, time_label, difficulty, servings, is_free,
   kcal, protein, fat, carbs, fiber, tags, photo, quote,
   ingredients, steps,
   add_protein, add_fat, add_carbs, add_fiber,
@@ -17,6 +15,7 @@ INSERT INTO recipes (
   'Бурый рис',
   '🍚',
   25,
+  '25 минут, без учета замачивания',
   'easy',
   4,
   false,
@@ -27,6 +26,7 @@ INSERT INTO recipes (
   '[
     {"name": "Бурый рис — 240 г", "swap": null},
     {"name": "Вода для варки — 600 мл", "swap": null},
+    {"name": "Овощной концентрат — 1 ч.л.", "swap": null},
     {"name": "Соль — по вкусу", "swap": null}
   ]'::jsonb,
   '[
@@ -40,7 +40,7 @@ INSERT INTO recipes (
   '[]'::jsonb,
   '[]'::jsonb,
   '[]'::jsonb,
-  NULL,
+  170,
   false,
   0
 )
@@ -49,6 +49,7 @@ ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   emoji = EXCLUDED.emoji,
   time_min = EXCLUDED.time_min,
+  time_label = EXCLUDED.time_label,
   difficulty = EXCLUDED.difficulty,
   servings = EXCLUDED.servings,
   kcal = EXCLUDED.kcal,

@@ -34,7 +34,7 @@ SET
     {"text": "Если используете банан, просто разомните его вилкой и добавьте к другим ингредиентам.", "photo": null},
     {"text": "Добавьте рисовую муку.", "photo": "images/recipes/millet-pancakes-apple/millet-pancakes-apple-6.webp"},
     {"text": "Тщательно перемешайте и оставьте на 10 минут.", "photo": "images/recipes/millet-pancakes-apple/millet-pancakes-apple-7.webp"},
-    {"text": "Сформируйте влажными руками оладьи.", "photo": "images/recipes/millet-pancakes-apple/millet-pancakes-apple-8.webp"},
+    {"text": "Сформируйте влажными руками сырники.", "photo": "images/recipes/millet-pancakes-apple/millet-pancakes-apple-8.webp"},
     {"text": "Обваляйте в рисовой муке.", "photo": null},
     {"text": "Разогрейте сковороду с небольшим количеством масла.", "photo": null},
     {"text": "Жарьте под крышкой на огне чуть ниже среднего по 5 минут с каждой стороны до золотистой корочки.", "photo": "images/recipes/millet-pancakes-apple/millet-pancakes-apple-11.webp"}

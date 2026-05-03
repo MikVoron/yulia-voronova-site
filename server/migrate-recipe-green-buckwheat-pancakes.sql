@@ -47,14 +47,14 @@ INSERT INTO recipes (
     {"name": "Творог 5%", "amount": "100 г", "kcal": 121, "protein": 17, "fat": 5, "carbs": 2, "fiber": 0},
     {"name": "Белое мясо", "amount": "100 г", "kcal": 165, "protein": 31, "fat": 4, "carbs": 0, "fiber": 0},
     {"name": "Слабосолёная жирная рыба", "amount": "80 г", "kcal": 160, "protein": 18, "fat": 10, "carbs": 0, "fiber": 0},
-    {"name": "Тунец консервированный", "amount": "80 г", "kcal": 95, "protein": 21, "fat": 1, "carbs": 0, "fiber": 0}
+    {"name": "Тунец/рыбные консервы", "amount": "80 г", "kcal": 110, "protein": 18, "fat": 3, "carbs": 0, "fiber": 0}
   ]'::jsonb,
   '[]'::jsonb,
   '[]'::jsonb,
   '[
-    {"name": "Горсть ягод", "amount": "80 г", "kcal": 40, "protein": 1, "fat": 0, "carbs": 8, "fiber": 4},
-    {"name": "Зелень", "amount": "20–30 г", "kcal": 10, "protein": 1, "fat": 0, "carbs": 2, "fiber": 1},
-    {"name": "Свежие овощи", "amount": "100–150 г", "kcal": 30, "protein": 1, "fat": 0, "carbs": 6, "fiber": 2}
+    {"name": "Ягоды", "amount": "80 г", "kcal": 32, "protein": 1, "fat": 0, "carbs": 7, "fiber": 3},
+    {"name": "Зелень", "amount": "25 г", "kcal": 6, "protein": 1, "fat": 0, "carbs": 1, "fiber": 1},
+    {"name": "Свежие овощи", "amount": "125 г", "kcal": 25, "protein": 1, "fat": 0, "carbs": 5, "fiber": 3}
   ]'::jsonb,
   NULL,
   false,

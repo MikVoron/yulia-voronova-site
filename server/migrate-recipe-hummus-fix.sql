@@ -5,6 +5,7 @@
 
 UPDATE recipes
 SET photo = NULL,
+    time_label = '5 минут',
     updated_at = now()
 WHERE id = 'beetroot-hummus';
 
@@ -18,6 +19,7 @@ SET ingredients = '[
   {"name": "Кумин — 0,5 ч. л.", "swap": null},
   {"name": "Вода — 90 мл", "swap": null}
 ]'::jsonb,
+    time_label = '5 минут',
     photo = 'images/recipes/hummus/hummus-cover.webp',
     updated_at = now()
 WHERE id = 'hummus';

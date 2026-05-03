@@ -35,7 +35,7 @@ WHERE category_id = 'mains'
 
 INSERT INTO recipes (
   id, cat, name, emoji,
-  time_min, difficulty, servings, is_free,
+  time_min, time_label, difficulty, servings, is_free,
   kcal, protein, fat, carbs, fiber, portion_grams,
   tags, photo, quote,
   ingredients, steps,
@@ -45,7 +45,7 @@ INSERT INTO recipes (
   'spreads',
   'Свекольный хумус',
   '🫙',
-  5, 'easy', 5, false,
+  5, '5 минут', 'easy', 5, false,
   150, 7, 7, 18, 6, 100,
   ARRAY['растительное', 'без сои', 'бобовые', 'до 15 мин', 'без глютена'],
   'images/recipes/beetroot-hummus/beetroot-hummus-cover.webp',
@@ -78,6 +78,7 @@ ON CONFLICT DO NOTHING;
 UPDATE recipes
 SET
   time_min = 5,
+  time_label = '5 минут',
   difficulty = 'easy',
   servings = 5,
   portion_grams = 100,
@@ -110,6 +111,7 @@ WHERE id = 'hummus';
 UPDATE recipes
 SET
   time_min = 5,
+  time_label = '5 минут (без учёта замачивания)',
   difficulty = 'easy',
   servings = 25,
   portion_grams = 15,
@@ -117,7 +119,7 @@ SET
   protein = 2,
   fat = 5,
   carbs = 5,
-  fiber = 0.5,
+  fiber = 0,
   tags = ARRAY['растительное', 'без сои', 'до 15 мин', 'без глютена'],
   quote = 'Для густого соуса используйте около 100 мл воды, для более жидкого — 150–200 мл. Храните в холодильнике до 4–5 дней.',
   ingredients = '[

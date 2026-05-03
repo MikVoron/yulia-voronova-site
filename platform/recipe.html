@@ -1452,6 +1452,24 @@
 				const slots = ['protein', 'fat', 'carbs', 'fiber'];
 				const resolved = { protein: [], fat: [], carbs: [], fiber: [] };
 				const rules = {};
+				function pushCategoryAddons(slot, sourceId) {
+					if (!sourceId || typeof RECIPES === 'undefined') return;
+					Object.values(RECIPES).forEach(rx => {
+						if (rx.id === recipe.id) return;
+						const rxCats = rx.categories || (rx.cat ? [rx.cat] : []);
+						if (rxCats.indexOf(sourceId) === -1) return;
+						resolved[slot].push({
+							name: rx.name,
+							kcal: rx.kcal || 0,
+							protein: rx.protein || 0,
+							fat: rx.fat || 0,
+							carbs: rx.carbs || 0,
+							fiber: rx.fiber || 0,
+							recipeId: rx.id,
+							_auto: true
+						});
+					});
+				}
 				// Category-level rules (union across recipe's categories, first-win per slot)
 				const recipeCats = recipe.categories || (recipe.cat ? [recipe.cat] : []);
 				recipeCats.forEach(catId => {
@@ -1467,24 +1485,7 @@
 					const rule = rules[s];
 					if (!rule) return;
 					// fromCategory: pull all recipes from target category
-					if (rule.fromCategory && typeof RECIPES !== 'undefined') {
-						const sourceId = rule.fromCategory;
-						Object.values(RECIPES).forEach(rx => {
-							if (rx.id === recipe.id) return;
-							const rxCats = rx.categories || (rx.cat ? [rx.cat] : []);
-							if (rxCats.indexOf(sourceId) === -1) return;
-							resolved[s].push({
-								name: rx.name,
-								kcal: rx.kcal || 0,
-								protein: rx.protein || 0,
-								fat: rx.fat || 0,
-								carbs: rx.carbs || 0,
-								fiber: rx.fiber || 0,
-								recipeId: rx.id,
-								_auto: true
-							});
-						});
-					}
+					if (rule.fromCategory) pushCategoryAddons(s, rule.fromCategory);
 					// items: static add-ons (name/amount/kbju, no recipeId)
 					if (Array.isArray(rule.items)) {
 						rule.items.forEach(it => {
@@ -1493,6 +1494,8 @@
 						});
 					}
 				});
+				// Name-based rule: every recipe with "Плов" gets salads as Fiber add-ons.
+				if (/\bплов\b/i.test(recipe.name || '')) pushCategoryAddons('fiber', 'salads');
 				// Flag-based rule: is_soup → статический хлеб + рецепт oregano-croutons в Углеводы.
 				// Не использует fromCategory (не тянет всю breads), явный точечный набор.
 				if (recipe.isSoup) {

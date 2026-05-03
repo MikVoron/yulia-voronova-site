@@ -4,7 +4,7 @@
 
 UPDATE recipes
 SET add_fiber = '[
-      {"name": "Горсть ягод", "amount": "80 г", "kcal": 32, "protein": 1, "fat": 0, "carbs": 7, "fiber": 3},
+      {"name": "Ягоды", "amount": "80 г", "kcal": 32, "protein": 1, "fat": 0, "carbs": 7, "fiber": 3},
       {"name": "Зелень", "amount": "25 г", "kcal": 6, "protein": 1, "fat": 0, "carbs": 1, "fiber": 1},
       {"name": "Свежие овощи", "amount": "125 г", "kcal": 25, "protein": 1, "fat": 0, "carbs": 5, "fiber": 3}
     ]'::jsonb,
@@ -13,7 +13,7 @@ WHERE id = 'green-buckwheat-pancakes';
 
 UPDATE recipes
 SET add_fiber = '[
-      {"name": "Горсть ягод", "amount": "80 г", "kcal": 32, "protein": 1, "fat": 0, "carbs": 7, "fiber": 3}
+      {"name": "Ягоды", "amount": "80 г", "kcal": 32, "protein": 1, "fat": 0, "carbs": 7, "fiber": 3}
     ]'::jsonb,
     updated_at = now()
 WHERE id IN ('lentil-pancakes-gf', 'millet-pancakes-apple');

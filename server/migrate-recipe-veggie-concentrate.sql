@@ -3,7 +3,10 @@
 -- without touching unrelated recipes or fields not specified in the user brief.
 --
 -- Apply on VPS:
---   ssh root@5.42.119.198 "cat | sudo -u postgres psql smartplate_db" < server/migrate-recipe-veggie-concentrate.sql
+--   scp server/migrate-recipe-veggie-concentrate.sql root@5.42.119.198:/tmp/
+--   ssh root@5.42.119.198 "sudo -u postgres psql smartplate_db -f /tmp/migrate-recipe-veggie-concentrate.sql"
+
+SET client_encoding = 'UTF8';
 
 BEGIN;
 

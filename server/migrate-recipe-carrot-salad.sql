@@ -2,7 +2,7 @@
 
 INSERT INTO recipes (
   id, cat, name, emoji,
-  time_min, difficulty, servings, is_free,
+  time_min, time_label, difficulty, servings, is_free,
   kcal, protein, fat, carbs, fiber, portion_grams,
   tags, photo, quote,
   ingredients, steps,
@@ -12,7 +12,7 @@ INSERT INTO recipes (
   'salads',
   'Салат с морковью, огурцом и красным перцем',
   '🥗',
-  12, 'easy', 2, false,
+  10, '10–15 минут', 'easy', 2, false,
   195, 7, 4, 21, 6, 250,
   ARRAY['растительный', 'без сои', 'без глютена'],
   'images/recipes/salad-carrot-cucumber-pepper/salad-carrot-cucumber-pepper-cover.webp',

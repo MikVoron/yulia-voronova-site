@@ -5,10 +5,10 @@ BEGIN;
 
 UPDATE recipes
 SET
-  kcal    = 43,
-  protein = 1,
-  fat     = 3,
-  carbs   = 2,
+  kcal    = 70,
+  protein = 2,
+  fat     = 5,
+  carbs   = 5,
   fiber   = 0
 WHERE id = 'cashew-sauce';
 

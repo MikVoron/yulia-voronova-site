@@ -51,7 +51,7 @@ INSERT INTO recipes (
   '[]'::jsonb,
   '[]'::jsonb,
   '[
-    {"name": "Горсть ягод", "amount": "80 г", "kcal": 40, "protein": 1, "fat": 0, "carbs": 8, "fiber": 4}
+    {"name": "Ягоды", "amount": "80 г", "kcal": 32, "protein": 1, "fat": 0, "carbs": 7, "fiber": 3}
   ]'::jsonb,
   300,
   false,
