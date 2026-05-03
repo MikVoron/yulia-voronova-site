@@ -200,8 +200,9 @@
             if (cat) {
                 document.title = cat.name + ' — Конструктор питания';
                 var catAvatars = typeof CAT_AVATARS !== 'undefined' ? CAT_AVATARS : {};
-                var avaImg = catAvatars[catId]
-                    ? '<div class="cat-hero-ava"><img src="' + escHtml(String(catAvatars[catId])) + '" alt="' + escHtml(String(cat.name)) + '" onerror="this.parentElement.textContent=\'' + escHtml(String(cat.emoji)) + '\'"></div>'
+                var avaUrl = (typeof getCategoryPhoto === 'function' ? getCategoryPhoto(catId, catAvatars[catId]) : catAvatars[catId]) || '';
+                var avaImg = avaUrl
+                    ? '<div class="cat-hero-ava"><img src="' + escHtml(String(avaUrl)) + '" alt="' + escHtml(String(cat.name)) + '" onerror="this.parentElement.textContent=\'' + escHtml(String(cat.emoji)) + '\'"></div>'
                     : '<div class="cat-hero-ava">' + escHtml(String(cat.emoji)) + '</div>';
                 document.getElementById('cat-hero').innerHTML =
                     '<div class="cat-hero-row">' + avaImg +
@@ -430,7 +431,7 @@
                 '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">' + emptyMsg + '</div>';
             return;
         }
-        const photo = CAT_PHOTOS[catId] || '';
+        const photo = (typeof getCategoryPhoto === 'function' ? getCategoryPhoto(catId, CAT_PHOTOS[catId]) : CAT_PHOTOS[catId]) || '';
         const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
         document.getElementById('dish-list').innerHTML = dishes.map(d => buildDishCard(d, photo, diff_labels)).join('');
         dishes.forEach(d => { updatePopStars(d.id); updateRatingRow(d.id); });
@@ -483,7 +484,7 @@
                     '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">' + emptyMsg + '</div>';
                 return;
             }
-            const photo = CAT_PHOTOS[catId] || '';
+            const photo = (typeof getCategoryPhoto === 'function' ? getCategoryPhoto(catId, CAT_PHOTOS[catId]) : CAT_PHOTOS[catId]) || '';
             const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
             document.getElementById('dish-list').innerHTML = dishes.map(d => buildDishCard(d, photo, diff_labels)).join('');
             dishes.forEach(d => { updatePopStars(d.id); updateRatingRow(d.id); });

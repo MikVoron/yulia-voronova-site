@@ -944,7 +944,7 @@
 				const _emoji = escHtml(cat.emoji);
 				const count = getCategoryDishes(cat.id, activeFilters).length;
 				const total = getCategoryDishes(cat.id, {}).length;
-				const photo = CAT_PHOTOS[cat.id] || '';
+				const photo = getCategoryPhoto(cat.id, CAT_PHOTOS[cat.id]);
 				const photoHtml = photo
 					? `<img src="${escHtml(photo)}" alt="${_name}" loading="lazy">`
 					: `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:48px">${_emoji}</div>`;

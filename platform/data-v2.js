@@ -610,6 +610,28 @@ function getCategoryDishes(catId, filters = {}) {
     return dishes;
 }
 
+function _categoryPhotoValue(photo) {
+    if (typeof photo === 'string' && photo.trim()) return photo;
+    if (Array.isArray(photo)) {
+        const first = photo.find(p => typeof p === 'string' && p.trim());
+        return first || '';
+    }
+    return '';
+}
+
+function getLatestCategoryRecipe(catId) {
+    const dishes = getCategoryDishes(catId, {});
+    return dishes
+        .filter(r => r && _categoryPhotoValue(r.photo))
+        .sort((a, b) => (b.addedTs || 0) - (a.addedTs || 0))[0] || null;
+}
+
+function getCategoryPhoto(catId, fallback) {
+    const latest = getLatestCategoryRecipe(catId);
+    if (!latest) return fallback || '';
+    return _categoryPhotoValue(latest.photo) || fallback || '';
+}
+
 // Shared search helper — used by both hero dropdown (index.html) and full
 // search results (category.html?q=...). Keep relevance and normalization in
 // one place so the two views never diverge.
