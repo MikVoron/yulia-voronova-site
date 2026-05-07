@@ -15,7 +15,7 @@ INSERT INTO recipes (
   10, '10–15 минут', 'easy', 2, false,
   195, 7, 4, 21, 6, 250,
   ARRAY['растительный', 'без сои', 'без глютена'],
-  'images/recipes/salad-carrot-cucumber-pepper/salad-carrot-cucumber-pepper-cover.webp',
+  'images/recipes/carrot-cucumber-pepper-salad/carrot-cucumber-pepper-salad-cover.webp',
   'Чтобы салат был свежим и ароматным, аккуратно смешивайте овощи с соусом непосредственно перед подачей.',
   '[
     {"name": "Морковь", "amount": "2 шт."},
