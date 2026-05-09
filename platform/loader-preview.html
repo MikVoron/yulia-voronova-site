@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview Loader Recipes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fbf7f1;
+            --card: rgba(255, 255, 255, 0.9);
+            --line: rgba(83, 61, 42, 0.12);
+            --text: #23170f;
+            --muted: #6f6257;
+            --accent: #e56d2f;
+            --accent-soft: #fff2e8;
+            --green: #88b04b;
+            --green-deep: #567a27;
+            --shadow: 0 20px 60px rgba(77, 47, 18, 0.12);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Montserrat", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(229, 109, 47, 0.18), transparent 28%),
+                radial-gradient(circle at right 15%, rgba(136, 176, 75, 0.18), transparent 24%),
+                linear-gradient(180deg, #fffaf5 0%, var(--bg) 100%);
+        }
+
+        .preview-shell {
+            width: min(1200px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 48px 0 64px;
+        }
+
+        .preview-head {
+            max-width: 720px;
+            margin-bottom: 28px;
+        }
+
+        .preview-kicker {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 14px 0 10px;
+            font-family: "Playfair Display", serif;
+            font-size: clamp(32px, 5vw, 58px);
+            line-height: 1.02;
+            letter-spacing: -0.03em;
+        }
+
+        .preview-sub {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--muted);
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .preview-card {
+            position: relative;
+            overflow: hidden;
+            min-height: 520px;
+            padding: 26px;
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            background: var(--card);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-card::before {
+            content: "";
+            position: absolute;
+            inset: auto -10% -30% auto;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(229, 109, 47, 0.14), transparent 70%);
+            pointer-events: none;
+        }
+
+        .preview-card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .preview-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .preview-badge {
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: rgba(35, 23, 15, 0.05);
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+        }
+
+        .preview-loader {
+            flex: 1;
+            min-height: 320px;
+            display: grid;
+            place-items: center;
+            padding: 28px 20px;
+            border-radius: 22px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(247, 240, 233, 0.9)),
+                repeating-linear-gradient(
+                    -45deg,
+                    rgba(136, 176, 75, 0.04) 0 12px,
+                    rgba(255, 255, 255, 0.04) 12px 24px
+                );
+            border: 1px solid rgba(83, 61, 42, 0.08);
+        }
+
+        .preview-loader-inner {
+            display: grid;
+            justify-items: center;
+            gap: 14px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .loader-text {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .loader-sub {
+            max-width: 260px;
+            font-size: 12.5px;
+            line-height: 1.5;
+            color: var(--muted);
+        }
+
+        /* === Вариант 1. Лист (как было) === */
+        .loader-leaf-svg {
+            width: 120px;
+            height: 120px;
+        }
+
+        .leaf-outline {
+            fill: rgba(255, 255, 255, 0.72);
+            stroke: var(--green-deep);
+            stroke-width: 4;
+            stroke-linejoin: round;
+        }
+
+        .leaf-vein {
+            fill: none;
+            stroke: rgba(86, 122, 39, 0.82);
+            stroke-width: 3.6;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .leaf-fill {
+            fill: url(#leafGradient);
+            animation: leafRise 1.9s ease-in-out infinite alternate;
+        }
+
+        .leaf-glow {
+            animation: leafPulse 1.9s ease-in-out infinite alternate;
+            transform-origin: center;
+        }
+
+        /* === Вариант 2. Монограмма с реальным лого === */
+        .monogram-frame {
+            width: 124px;
+            height: 124px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            position: relative;
+            background: radial-gradient(circle at 50% 40%, #fff6ee 0%, #f5e2d2 75%, #f0d5c1 100%);
+            box-shadow:
+                inset 0 0 0 1px rgba(111, 98, 87, 0.12),
+                0 18px 34px rgba(119, 80, 36, 0.12);
+            overflow: hidden;
+        }
+
+        .monogram-frame::after {
+            content: "";
+            position: absolute;
+            inset: 14px;
+            border-radius: 50%;
+            border: 1px solid rgba(229, 109, 47, 0.14);
+            z-index: 2;
+        }
+
+        .monogram-fill {
+            position: absolute;
+            inset: auto 0 0;
+            height: 100%;
+            background: linear-gradient(180deg, #f0b370 0%, #e56d2f 100%);
+            transform: translateY(82%);
+            animation: monogramRise 1.7s ease-in-out infinite alternate;
+        }
+
+        .monogram-logo {
+            position: relative;
+            z-index: 3;
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 6px rgba(80, 50, 20, 0.18));
+        }
+
+        /* === Вариант 3. Гарвардская тарелка === */
+        .loader-plate-wrap {
+            position: relative;
+            width: 150px;
+            height: 150px;
+        }
+
+        .loader-plate-svg {
+            width: 150px;
+            height: 150px;
+        }
+
+        .plate-rim {
+            fill: #ffffff;
+            stroke: rgba(83, 61, 42, 0.14);
+            stroke-width: 1.6;
+        }
+
+        .plate-bg {
+            fill: #fdf6ee;
+        }
+
+        .plate-sector {
+            transform-origin: 70px 70px;
+            opacity: 0.18;
+        }
+
+        .plate-veg     { fill: #9ec866; animation: plateBeat 2.2s ease-in-out 0s    infinite; }
+        .plate-fruit   { fill: #cf6f5e; animation: plateBeat 2.2s ease-in-out 0.25s infinite; }
+        .plate-grain   { fill: #e3b96b; animation: plateBeat 2.2s ease-in-out 0.5s  infinite; }
+        .plate-protein { fill: #b78a5e; animation: plateBeat 2.2s ease-in-out 0.75s infinite; }
+
+        .plate-center {
+            fill: #ffffff;
+            stroke: rgba(83, 61, 42, 0.10);
+            stroke-width: 1;
+        }
+
+        .plate-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 44px;
+            height: 44px;
+            transform: translate(-50%, -50%);
+            object-fit: contain;
+        }
+
+        /* === Вариант 4. Чашка с паром === */
+        .loader-cup-wrap {
+            display: grid;
+            justify-items: center;
+            gap: 6px;
+        }
+
+        .cup-logo {
+            width: 56px;
+            height: 56px;
+            object-fit: contain;
+            opacity: 0.95;
+        }
+
+        .loader-cup-svg {
+            width: 130px;
+            height: 110px;
+        }
+
+        .cup-body {
+            fill: #ffffff;
+            stroke: var(--accent);
+            stroke-width: 3;
+            stroke-linejoin: round;
+        }
+
+        .cup-handle {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 3;
+            stroke-linecap: round;
+        }
+
+        .cup-saucer {
+            fill: rgba(229, 109, 47, 0.12);
+            stroke: var(--accent);
+            stroke-width: 2;
+        }
+
+        .cup-liquid {
+            fill: rgba(229, 109, 47, 0.18);
+        }
+
+        .steam {
+            fill: none;
+            stroke: rgba(229, 109, 47, 0.55);
+            stroke-width: 3;
+            stroke-linecap: round;
+            opacity: 0;
+            transform-origin: center bottom;
+        }
+
+        .steam-1 { animation: steamRise 2.4s ease-in-out 0s    infinite; }
+        .steam-2 { animation: steamRise 2.4s ease-in-out 0.4s  infinite; }
+        .steam-3 { animation: steamRise 2.4s ease-in-out 0.8s  infinite; }
+
+        /* === Вариант 6. Миска с паром (без лого) === */
+        .loader-bowl-svg {
+            width: 160px;
+            height: 130px;
+        }
+
+        .bowl-body {
+            fill: #ffffff;
+            stroke: var(--accent);
+            stroke-width: 3;
+            stroke-linejoin: round;
+        }
+
+        .bowl-rim {
+            fill: rgba(229, 109, 47, 0.10);
+            stroke: var(--accent);
+            stroke-width: 3;
+        }
+
+        .bowl-liquid {
+            fill: rgba(229, 109, 47, 0.22);
+        }
+
+        .bowl-saucer {
+            fill: rgba(229, 109, 47, 0.10);
+            stroke: var(--accent);
+            stroke-width: 2;
+        }
+
+        /* === Вариант 7. Радар по тарелке === */
+        .loader-radar-svg {
+            width: 150px;
+            height: 150px;
+        }
+
+        .radar-sectors {
+            opacity: 0.55;
+        }
+
+        .radar-sweep {
+            transform-origin: 70px 70px;
+            animation: radarSpin 1.6s linear infinite;
+        }
+
+        /* === Вариант 8. Концентрические кольца === */
+        .loader-rings-svg {
+            width: 150px;
+            height: 150px;
+        }
+
+        .ring {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
+
+        .ring-1 { stroke: #9ec866; animation: ringPulse 2s ease-in-out 0s    infinite; }
+        .ring-2 { stroke: #e3b96b; animation: ringPulse 2s ease-in-out 0.2s  infinite; }
+        .ring-3 { stroke: #cf6f5e; animation: ringPulse 2s ease-in-out 0.4s  infinite; }
+        .ring-4 { stroke: #b78a5e; animation: ringPulse 2s ease-in-out 0.6s  infinite; }
+
+        /* === Вариант 9. Тарелка с ингредиентами === */
+        .loader-ingr-svg {
+            width: 150px;
+            height: 150px;
+        }
+
+        .ingr {
+            transform-origin: center;
+            animation: ingrPulse 2.4s ease-in-out infinite;
+        }
+
+        .ingr-1 { animation-delay: 0s;   }
+        .ingr-2 { animation-delay: 0.2s; }
+        .ingr-3 { animation-delay: 0.4s; }
+        .ingr-4 { animation-delay: 0.6s; }
+        .ingr-5 { animation-delay: 0.8s; }
+        .ingr-6 { animation-delay: 1s;   }
+        .ingr-7 { animation-delay: 1.2s; }
+
+        /* === Вариант 5. Скелетоны рецептов === */
+        .loader-skel-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .skel-logo {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(80, 50, 20, 0.10);
+            padding: 4px;
+        }
+
+        .loader-skel-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .skel-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 8px;
+            box-shadow: 0 6px 18px rgba(80, 50, 20, 0.06);
+            border: 1px solid rgba(83, 61, 42, 0.06);
+        }
+
+        .skel-img,
+        .skel-line {
+            background: linear-gradient(
+                90deg,
+                rgba(229, 109, 47, 0.08) 0%,
+                rgba(229, 109, 47, 0.18) 50%,
+                rgba(229, 109, 47, 0.08) 100%
+            );
+            background-size: 200% 100%;
+            animation: skelShimmer 1.6s ease-in-out infinite;
+            border-radius: 8px;
+        }
+
+        .skel-img {
+            height: 64px;
+            margin-bottom: 8px;
+        }
+
+        .skel-line {
+            height: 9px;
+            margin-top: 6px;
+        }
+
+        .skel-line.short { width: 60%; }
+
+        .preview-note {
+            margin-top: 18px;
+            font-size: 12.5px;
+            line-height: 1.55;
+            color: var(--muted);
+        }
+
+        .preview-note strong {
+            color: var(--text);
+        }
+
+        @keyframes leafRise {
+            from { transform: translateY(92px); }
+            to { transform: translateY(16px); }
+        }
+
+        @keyframes leafPulse {
+            from { transform: scale(0.98); opacity: 0.9; }
+            to { transform: scale(1.03); opacity: 1; }
+        }
+
+        @keyframes monogramRise {
+            from { transform: translateY(82%); }
+            to { transform: translateY(18%); }
+        }
+
+        @keyframes plateBeat {
+            0%, 100% { opacity: 0.22; transform: scale(0.985); }
+            40%      { opacity: 1;    transform: scale(1.01); }
+            70%      { opacity: 0.55; transform: scale(1); }
+        }
+
+        @keyframes steamRise {
+            0%   { opacity: 0; transform: translateY(0)    scale(1); }
+            30%  { opacity: 0.9; }
+            100% { opacity: 0; transform: translateY(-26px) scale(1.05); }
+        }
+
+        @keyframes skelShimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        @keyframes radarSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes ringPulse {
+            0%, 100% { opacity: 0.22; }
+            40%      { opacity: 1; }
+        }
+
+        @keyframes ingrPulse {
+            0%, 100% { opacity: 0.35; transform: scale(0.9); }
+            40%      { opacity: 1;    transform: scale(1.15); }
+        }
+
+        @media (max-width: 1080px) {
+            .preview-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 700px) {
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-card {
+                min-height: 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .leaf-fill,
+            .leaf-glow,
+            .monogram-fill,
+            .plate-sector,
+            .steam,
+            .bowl-body,
+            .skel-img,
+            .skel-line,
+            .radar-sweep,
+            .ring,
+            .ingr {
+                animation: none;
+            }
+
+            .leaf-fill   { transform: translateY(28px); }
+            .monogram-fill { transform: translateY(28%); }
+            .plate-sector  { opacity: 0.85; }
+            .steam         { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body>
+    <main class="preview-shell">
+        <section class="preview-head">
+            <div class="preview-kicker">Loader Preview</div>
+            <h1>Варианты загрузки рецептов вместо обычного текста</h1>
+            <p class="preview-sub">
+                Демо-страница с пятью вариантами. Сначала выбираем стиль, потом встраиваем выбранный
+                в страницу категорий или рецептов. В вариантах 2–5 используется реальный логотип Юлии.
+            </p>
+        </section>
+
+        <section class="preview-grid">
+
+            <!-- ============== Вариант 1 ============== -->
+            <article class="preview-card">
+                <div class="preview-card-head">
+                    <div class="preview-title">1. Лист / шпинат</div>
+                    <div class="preview-badge">SVG</div>
+                </div>
+
+                <div class="preview-loader">
+                    <div class="preview-loader-inner">
+                        <svg class="loader-leaf-svg" viewBox="0 0 120 120" aria-hidden="true">
+                            <defs>
+                                <clipPath id="leafClip">
+                                    <path d="M60 11C86 18 102 39 102 62c0 28-19 47-42 47S18 90 18 62c0-23 16-44 42-51z"></path>
+                                </clipPath>
+                                <linearGradient id="leafGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#b9db78"></stop>
+                                    <stop offset="100%" stop-color="#6ea537"></stop>
+                                </linearGradient>
+                            </defs>
+                            <ellipse class="leaf-glow" cx="60" cy="66" rx="44" ry="42" fill="rgba(136,176,75,0.12)"></ellipse>
+                            <path class="leaf-outline" d="M60 11C86 18 102 39 102 62c0 28-19 47-42 47S18 90 18 62c0-23 16-44 42-51z"></path>
+                            <g clip-path="url(#leafClip)">
+                                <rect class="leaf-fill" x="0" y="0" width="120" height="120"></rect>
+                            </g>
+                            <path class="leaf-vein" d="M61 24c1 18 1 36-3 53-3 14-9 23-17 33"></path>
+                            <path class="leaf-vein" d="M58 46c11-4 21-12 28-22"></path>
+                            <path class="leaf-vein" d="M58 63c13-3 24-8 33-17"></path>
+                        </svg>
+                        <div class="loader-text">Подбираем рецепты для вас</div>
+                        <div class="loader-sub">Текущий вариант — лист постепенно заполняется цветом.</div>
+                    </div>
+                </div>
+
+                <p class="preview-note">
+                    <strong>Минус по фидбеку:</strong> сам лист нарисован неубедительно (это и не дуб, и не шпинат).
+                    Ниже три альтернативы без листа.
+                </p>
+            </article>
+
+            <!-- ============== Вариант 2 ============== -->
+            <article class="preview-card">
+                <div class="preview-card-head">
+                    <div class="preview-title">2. Монограмма с лого</div>
+                    <div class="preview-badge">Brand</div>
+                </div>
+
+                <div class="preview-loader">
+                    <div class="preview-loader-inner">
+                        <div class="monogram-frame" aria-hidden="true">
+                            <div class="monogram-fill"></div>
+                            <img class="monogram-logo" src="images/icons/logo-small.png" alt="Логотип Юлии Вороновой">
+                        </div>
+                        <div class="loader-text">Собираем подборку рецептов</div>
+                        <div class="loader-sub">Реальный логотип Юли в круглой рамке, оранжевая «волна» снизу.</div>
+                    </div>
+                </div>
+
+                <p class="preview-note">
+                    <strong>Плюс:</strong> работает как брендовый loader — узнаваемость, а не просто food-настроение.
+                </p>
+            </article>
+
+            <!-- ============== Вариант 3. Гарвардская тарелка ============== -->
+            <article class="preview-card">
+                <div class="preview-card-head">
+                    <div class="preview-title">3. Умная тарелка</div>
+                    <div class="preview-badge">On-brand</div>
+                </div>
+
+                <div class="preview-loader">
+                    <div class="preview-loader-inner">
+                        <div class="loader-plate-wrap" aria-hidden="true">
+                            <svg class="loader-plate-svg" viewBox="0 0 140 140">
+                                <defs>
+                                    <clipPath id="plateClip"><circle cx="70" cy="70" r="58"/></clipPath>
+                                </defs>
+                                <circle class="plate-rim" cx="70" cy="70" r="62"/>
+                                <circle class="plate-bg"  cx="70" cy="70" r="58"/>
+                                <g clip-path="url(#plateClip)">
+                                    <!-- top half: овощи 50% -->
+                                    <path class="plate-sector plate-veg"     d="M70 70 L70 8 A62 62 0 0 1 132 70 Z"/>
+                                    <path class="plate-sector plate-fruit"   d="M70 70 L132 70 A62 62 0 0 1 70 132 Z"/>
+                                    <!-- bottom half: злаки + белок -->
+                                    <path class="plate-sector plate-grain"   d="M70 70 L70 132 A62 62 0 0 1 8 70 Z"/>
+                                    <path class="plate-sector plate-protein" d="M70 70 L8 70 A62 62 0 0 1 70 8 Z"/>
+                                </g>
+                                <circle class="plate-center" cx="70" cy="70" r="22"/>
+                            </svg>
+                        </div>
+                        <div class="loader-text">Собираем вашу тарелку</div>
+                        <div class="loader-sub">Сектора пульсируют по очереди — овощи, фрукты, злаки, белок. Без лого.</div>
+                    </div>
+                </div>
+
+                <p class="preview-note">
+                    <strong>Плюс:</strong> прямая отсылка к концепции «Умной тарелки» — Гарвардская методика и есть продукт. Самый «свой» вариант.
+                </p>
+            </article>
+
+            <!-- ============== Вариант 4. Чашка с паром ============== -->
+            <article class="preview-card">
+                <div class="preview-card-head">
+                    <div class="preview-title">4. Тёплая чашка</div>
+                    <div class="preview-badge">Cozy</div>
+                </div>
+
+                <div class="preview-loader">
+                    <div class="preview-loader-inner">
+                        <div class="loader-cup-wrap" aria-hidden="true">
+                            <img class="cup-logo" src="images/icons/logo-small.png" alt="Логотип Юлии Вороновой">
+                            <svg class="loader-cup-svg" viewBox="0 0 130 110">
+                                <!-- пар -->
+                                <path class="steam steam-1" d="M48 38 Q42 30 48 22 Q54 14 48 6"/>
+                                <path class="steam steam-2" d="M65 38 Q59 30 65 22 Q71 14 65 6"/>
+                                <path class="steam steam-3" d="M82 38 Q76 30 82 22 Q88 14 82 6"/>
+                                <!-- ручка -->
+                                <path class="cup-handle" d="M96 58 Q116 58 116 76 Q116 92 96 92"/>
+                                <!-- тело -->
+                                <path class="cup-body" d="M30 50 L100 50 L96 96 Q92 104 80 104 L50 104 Q38 104 34 96 Z"/>
+                                <!-- жидкость -->
+                                <ellipse class="cup-liquid" cx="65" cy="52" rx="33" ry="4"/>
+                                <!-- блюдце -->
+                                <ellipse class="cup-saucer" cx="65" cy="106" rx="40" ry="4"/>
+                            </svg>
+                        </div>
+                        <div class="loader-text">Греем рецепты</div>
+                        <div class="loader-sub">Три струйки пара поднимаются по очереди. Тёплый, домашний loader.</div>
+                    </div>
+                </div>
+
+                <p class="preview-note">
+                    <strong>Плюс:</strong> мягкое настроение «уютной кухни», без отсылок к конкретному продукту — универсально.
+                </p>
+            </article>
+
+            <!-- ============== Вариант 5. Скелетоны ============== -->
+            <article class="preview-card">
+                <div class="preview-card-head">
+                    <div class="preview-title">5. Скелетоны рецептов</div>
+                    <div class="preview-badge">Content</div>
+                </div>
+
+                <div class="preview-loader">
+                    <div class="preview-loader-inner">
+                        <div class="loader-skel-head">
+                            <img class="skel-logo" src="images/icons/logo-small.png" alt="Логотип Юлии Вороновой">
+                            <div class="loader-text" style="text-align:left">Готовим подборку…</div>
+                        </div>
+                        <div class="loader-skel-grid" aria-hidden="true">
+                            <div class="skel-card">
+                                <div class="skel-img"></div>
+                                <div class="skel-line"></div>
+                                <div class="skel-line short"></div>
+                            </div>
+                            <div class="skel-card">
+                                <div class="skel-img"></div>
+                                <div class="skel-line"></div>
+                                <div class="skel-line short"></div>
+                            </div>
+                        </div>
+                        <div class="loader-sub" style="margin-top:6px">Карточки-плейсхолдеры с shimmer — пользователь сразу видит, что грузится именно лента рецептов.</div>
+                    </div>
+                </div>
+
+                <p class="preview-note">
+                    <strong>Плюс:</strong> функциональный loader. Пользователь визуально ожидает именно тот тип контента, который подгружается.
+                </p>
+            </article>
+
+            <!-- ============== Вариант 6. Миска с паром, без лого ============== -->
+            <article class="preview-card">
+                <div class="preview-card-head">
+                    <div class="preview-title">6. Тёплая миска</div>
+                    <div class="preview-badge">Cozy</div>
+                </div>
+
+                <div class="preview-loader">
+                    <div class="preview-loader-inner">
+                        <svg class="loader-bowl-svg" viewBox="0 0 160 130" aria-hidden="true">
+                            <!-- пар -->
+                            <path class="steam steam-1" d="M58 50 Q52 42 58 34 Q64 26 58 18"/>
+                            <path class="steam steam-2" d="M80 50 Q74 42 80 34 Q86 26 80 18"/>
+                            <path class="steam steam-3" d="M102 50 Q96 42 102 34 Q108 26 102 18"/>
+                            <!-- тело миски: широкое сверху, скруглённое дно -->
+                            <path class="bowl-body" d="M18 62 Q80 132 142 62 Z"/>
+                            <!-- ободок (вид сверху чуть видно) -->
+                            <ellipse class="bowl-rim" cx="80" cy="62" rx="62" ry="9"/>
+                            <!-- жидкость внутри -->
+                            <ellipse class="bowl-liquid" cx="80" cy="62" rx="54" ry="6"/>
+                            <!-- блюдце снизу -->
+                            <ellipse class="bowl-saucer" cx="80" cy="124" rx="36" ry="4"/>
+                        </svg>
+                        <div class="loader-text">Греем рецепты</div>
+                        <div class="loader-sub">Миска с поднимающимся паром, без логотипа. Минималистичный, тихий вариант.</div>
+                    </div>
+                </div>
+
+                <p class="preview-note">
+                    <strong>Плюс:</strong> по форме сразу читается как «еда» — миска ассоциируется с супом, кашей, боулом. Без бренд-нагрузки.
+                </p>
+            </article>
+
+            <!-- ============== Вариант 7. Радар по тарелке ============== -->
+            <article class="preview-card">
+                <div class="preview-card-head">
+                    <div class="preview-title">7. Радар по тарелке</div>
+                    <div class="preview-badge">Plate</div>
+                </div>
+
+                <div class="preview-loader">
+                    <div class="preview-loader-inner">
+                        <svg class="loader-radar-svg" viewBox="0 0 140 140" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="sweepGrad" x1="0" y1="0" x2="1" y2="0.4">
+                                    <stop offset="0%"   stop-color="rgba(229,109,47,0)"></stop>
+                                    <stop offset="100%" stop-color="rgba(229,109,47,0.55)"></stop>
+                                </linearGradient>
+                                <clipPath id="radarClip"><circle cx="70" cy="70" r="58"/></clipPath>
+                            </defs>
+                            <circle class="plate-rim" cx="70" cy="70" r="62"/>
+                            <circle class="plate-bg"  cx="70" cy="70" r="58"/>
+                            <g class="radar-sectors" clip-path="url(#radarClip)">
+                                <path d="M70 70 L70 8 A62 62 0 0 1 132 70 Z" fill="rgba(158,200,102,0.45)"/>
+                                <path d="M70 70 L132 70 A62 62 0 0 1 70 132 Z" fill="rgba(207,111,94,0.32)"/>
+                                <path d="M70 70 L70 132 A62 62 0 0 1 8 70 Z" fill="rgba(227,185,107,0.45)"/>
+                                <path d="M70 70 L8 70 A62 62 0 0 1 70 8 Z" fill="rgba(183,138,94,0.30)"/>
+                            </g>
+                            <g class="radar-sweep" clip-path="url(#radarClip)">
+                                <path d="M70 70 L70 8 A62 62 0 0 1 122 36 Z" fill="url(#sweepGrad)"/>
+                            </g>
+                            <circle cx="70" cy="70" r="3.5" fill="rgba(229,109,47,0.7)"/>
+                        </svg>
+                        <div class="loader-text">Подбираем рецепты</div>
+                        <div class="loader-sub">Сектор-«стрелка» обходит тарелку по кругу. Сразу читается как «loading».</div>
+                    </div>
+                </div>
+
+                <p class="preview-note">
+                    <strong>Плюс:</strong> сохраняет идею тарелки, но движение более явное — не статичная пульсация, а вращение.
+                </p>
+            </article>
+
+            <!-- ============== Вариант 8. Кольца ============== -->
+            <article class="preview-card">
+                <div class="preview-card-head">
+                    <div class="preview-title">8. Кольца тарелки</div>
+                    <div class="preview-badge">Minimal</div>
+                </div>
+
+                <div class="preview-loader">
+                    <div class="preview-loader-inner">
+                        <svg class="loader-rings-svg" viewBox="0 0 140 140" aria-hidden="true">
+                            <circle class="ring ring-1" cx="70" cy="70" r="14"/>
+                            <circle class="ring ring-2" cx="70" cy="70" r="28"/>
+                            <circle class="ring ring-3" cx="70" cy="70" r="44"/>
+                            <circle class="ring ring-4" cx="70" cy="70" r="60"/>
+                        </svg>
+                        <div class="loader-text">Подбираем рецепты</div>
+                        <div class="loader-sub">Кольца в палитре тарелки (зелёный, охра, тёплый красный, орех) пульсируют от центра к краю.</div>
+                    </div>
+                </div>
+
+                <p class="preview-note">
+                    <strong>Плюс:</strong> минимализм. Никакой иллюстрации — только круги и фирменная палитра.
+                </p>
+            </article>
+
+            <!-- ============== Вариант 9. Тарелка с ингредиентами ============== -->
+            <article class="preview-card">
+                <div class="preview-card-head">
+                    <div class="preview-title">9. Тарелка с ингредиентами</div>
+                    <div class="preview-badge">Plate</div>
+                </div>
+
+                <div class="preview-loader">
+                    <div class="preview-loader-inner">
+                        <svg class="loader-ingr-svg" viewBox="0 0 140 140" aria-hidden="true">
+                            <circle class="plate-rim" cx="70" cy="70" r="62"/>
+                            <circle class="plate-bg"  cx="70" cy="70" r="58"/>
+                            <!-- ингредиенты-точки -->
+                            <circle class="ingr ingr-1" cx="48" cy="50" r="7" fill="#9ec866"/>
+                            <circle class="ingr ingr-2" cx="92" cy="48" r="6" fill="#cf6f5e"/>
+                            <circle class="ingr ingr-3" cx="56" cy="92" r="8" fill="#e3b96b"/>
+                            <circle class="ingr ingr-4" cx="98" cy="88" r="6" fill="#b78a5e"/>
+                            <circle class="ingr ingr-5" cx="74" cy="68" r="5" fill="#9ec866"/>
+                            <circle class="ingr ingr-6" cx="78" cy="100" r="5" fill="#cf6f5e"/>
+                            <circle class="ingr ingr-7" cx="40" cy="74" r="5" fill="#e3b96b"/>
+                        </svg>
+                        <div class="loader-text">Раскладываем по тарелке</div>
+                        <div class="loader-sub">Точки-ингредиенты пульсируют по очереди — будто тарелка наполняется едой.</div>
+                    </div>
+                </div>
+
+                <p class="preview-note">
+                    <strong>Плюс:</strong> образ «тарелка с едой» вместо абстрактных секторов. Чуть теплее и нагляднее.
+                </p>
+            </article>
+
+        </section>
+    </main>
+</body>
+</html>
