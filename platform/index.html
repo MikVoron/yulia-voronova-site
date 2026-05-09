@@ -836,7 +836,7 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=1779840000"></script>
+	<script src="data-v2.js?v=1779940200"></script>
 	<script>
 		function escHtml(s) {
 			return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -937,13 +937,22 @@
 
 		function renderCats() {
 			const grid = document.getElementById('cat-grid');
-			grid.innerHTML = Object.values(CATEGORIES).map(cat => {
+			const hasFilters = Object.values(activeFilters).some(v => v);
+			const items = Object.values(CATEGORIES)
+				.map(cat => ({ cat, count: getCategoryDishes(cat.id, activeFilters).length }));
+			const visible = hasFilters ? items.filter(x => x.count > 0) : items;
+
+			if (hasFilters && visible.length === 0) {
+				grid.innerHTML =
+					'<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">По выбранным фильтрам рецепты не найдены.</div>';
+				return;
+			}
+
+			grid.innerHTML = visible.map(({ cat, count }) => {
 				const _id = encodeURIComponent(cat.id);
 				const _name = escHtml(cat.name);
 				const _desc = escHtml(cat.desc);
 				const _emoji = escHtml(cat.emoji);
-				const count = getCategoryDishes(cat.id, activeFilters).length;
-				const total = getCategoryDishes(cat.id, {}).length;
 				const photo = getCategoryPhoto(cat.id, CAT_PHOTOS[cat.id]);
 				const photoHtml = photo
 					? `<img src="${escHtml(photo)}" alt="${_name}" loading="lazy">`
@@ -1206,7 +1215,7 @@
 		}
 
 		function goToCategory(catId) {
-			const hasFilters = Object.keys(activeFilters).length > 0;
+			const hasFilters = Object.values(activeFilters).some(v => v);
 			if (hasFilters) sessionStorage.setItem('platform_filters', JSON.stringify(activeFilters));
 			else sessionStorage.removeItem('platform_filters');
 			location.href = 'category.html?cat=' + catId;
