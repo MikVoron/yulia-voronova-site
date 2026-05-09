@@ -655,7 +655,7 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=1779840000"></script>
+	<script src="data-v2.js?v=1779940200"></script>
 	<script>
 		Auth.requireAuth();
 		const _accessReady = Auth.checkAccess();
@@ -713,7 +713,9 @@
 		function photoUrl(p) {
 			if (!p) return p;
 			if (/^(https?:|data:|blob:)/i.test(p)) return p;
-			return SITE_BASE + '/' + p.replace(/^\/+/, '');
+			const url = SITE_BASE + '/' + p.replace(/^\/+/, '');
+			if (!/\/images\/recipes\//.test(url)) return url;
+			return url + (url.includes('?') ? '&' : '?') + 'v=' + RECIPE_IMAGE_VERSION;
 		}
 
 		window.addEventListener('scroll', () =>

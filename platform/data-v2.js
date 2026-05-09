@@ -7,6 +7,7 @@
 // ─── CONFIG ─────────────────────────────────────────────────────────────────
 const API_BASE  = 'https://api.voronova.online';
 const SITE_BASE = 'https://voronova.online';
+const RECIPE_IMAGE_VERSION = '20260509-1';
 
 // ─── AUTH ───────────────────────────────────────────────────────────────────
 const Auth = {
@@ -485,10 +486,15 @@ let _contentLoaded = false;
 //   null / undefined / "" / что-то иное → null (блок фото не рендерится)
 function _fixPhotoStr(p) {
     if (typeof p !== 'string' || !p) return null;
-    if (p.startsWith('../images/')) return SITE_BASE + '/' + p.slice(3);
-    if (p.startsWith('/images/')) return SITE_BASE + p;
-    if (p.startsWith('images/')) return SITE_BASE + '/' + p;
+    if (p.startsWith('../images/')) return _withRecipeImageVersion(SITE_BASE + '/' + p.slice(3));
+    if (p.startsWith('/images/')) return _withRecipeImageVersion(SITE_BASE + p);
+    if (p.startsWith('images/')) return _withRecipeImageVersion(SITE_BASE + '/' + p);
     return p;
+}
+function _withRecipeImageVersion(url) {
+    if (typeof url !== 'string' || !url) return url;
+    if (!/\/images\/recipes\//.test(url)) return url;
+    return url + (url.includes('?') ? '&' : '?') + 'v=' + RECIPE_IMAGE_VERSION;
 }
 function _fixPhoto(p) {
     if (p === true) return true;
