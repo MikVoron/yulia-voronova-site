@@ -118,8 +118,8 @@ const Auth = {
         if (!this.getToken()) {
             const ok = await this.refreshToken();
             if (!ok) {
-                if (this._isAdmin()) { this._subStatus = 'active'; this.startAutoRefresh(); return true; }
-                // Session expired — redirect to login
+                // Session expired — redirect to login. Admin role from
+                // localStorage is not trusted: the server is the gate.
                 this.logout();
                 location.href = 'login.html';
                 return false;
@@ -128,8 +128,7 @@ const Auth = {
         try {
             const res = await this.api('/auth/me');
             if (!res.ok) {
-                if (this._isAdmin()) { this._subStatus = 'active'; this.startAutoRefresh(); return true; }
-                // Auth failed — redirect to login
+                // Auth failed — redirect to login. No client-side admin shortcut.
                 this.logout();
                 location.href = 'login.html';
                 return false;
@@ -159,8 +158,8 @@ const Auth = {
             if (sub.status === 'active' && new Date(sub.activeUntil) > now) { this.startAutoRefresh(); return true; }
             this._showPaywall(sub.status); return false;
         } catch {
-            if (this._isAdmin()) { this._subStatus = 'active'; this.startAutoRefresh(); return true; }
-            // Fail-close: при ошибке сети не давать доступ
+            // Fail-close: на сетевой ошибке не давать доступ. localStorage-роль
+            // не источник истины — реальный admin переавторизуется и пройдёт.
             this._subStatus = 'error';
             this._showPaywall('error');
             return false;

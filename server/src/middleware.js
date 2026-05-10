@@ -38,9 +38,15 @@ async function requireActiveSubscription(req, reply) {
 async function optionalAuthenticate(req) {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith('Bearer ')) return;
+  let payload;
   try {
-    req.user = verifyAccessToken(auth.slice(7));
-  } catch {}
+    payload = verifyAccessToken(auth.slice(7));
+  } catch { return; }
+  // Treat blocked/missing users as unauthenticated so public endpoints
+  // (e.g. /content/recipes) don't leak paid fields to them.
+  const u = await db.query('SELECT is_blocked FROM users WHERE id=$1', [payload.sub]);
+  if (!u.rows.length || u.rows[0].is_blocked) return;
+  req.user = payload;
 }
 
 async function checkActiveSubscription(userId) {

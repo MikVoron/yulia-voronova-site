@@ -75,6 +75,51 @@ check "GET /content/categories → 200" "200" "$code"
 code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/content/ratings")
 check "GET /content/ratings → 200" "200" "$code"
 
+# ─── 4b. Paywall stripping — paid recipe must lose ingredients/steps/note without token ───
+echo "[Paywall stripping]"
+# Pick whichever Python is on PATH (Linux/Mac usually python3, Git Bash on
+# Windows often only python). Required for JSON parsing of /content/recipes.
+if command -v python3 >/dev/null 2>&1; then PY=python3
+elif command -v python  >/dev/null 2>&1; then PY=python
+else PY=""
+fi
+if [ -z "$PY" ]; then
+  echo "  ⚠ Skipped: no python on PATH (need python3 or python for JSON parse)"
+  TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+else
+  recipes_json=$(curl -s "$BASE/content/recipes")
+  paywall_result=$(printf '%s' "$recipes_json" | "$PY" -c '
+import json, sys
+try:
+  data = json.load(sys.stdin)
+except Exception as e:
+  print("PARSE_ERROR:" + str(e)); sys.exit(0)
+if not isinstance(data, list):
+  print("NOT_ARRAY"); sys.exit(0)
+paid = [r for r in data if isinstance(r, dict) and not r.get("is_free")]
+if not paid:
+  print("NO_PAID"); sys.exit(0)
+leaks = []
+for r in paid:
+  for f in ("ingredients", "steps", "note"):
+    if f in r:
+      leaks.append(r.get("id", "?") + "." + f)
+      break
+if leaks:
+  print("LEAK:" + ",".join(leaks[:3]))
+else:
+  print("OK")
+' 2>/dev/null)
+  TOTAL=$((TOTAL + 1))
+  case "$paywall_result" in
+    OK)           echo "  ✓ Paid recipe stripped of ingredients/steps/note without token"; PASS=$((PASS + 1));;
+    NO_PAID)      echo "  ⚠ No paid recipes published — cannot verify paywall"; PASS=$((PASS + 1));;
+    LEAK*)        echo "  ✗ Paid fields LEAKED to anon: $paywall_result"; FAIL=$((FAIL + 1));;
+    PARSE_ERROR*) echo "  ✗ /content/recipes returned non-JSON: $paywall_result"; FAIL=$((FAIL + 1));;
+    *)            echo "  ✗ Paywall check inconclusive: $paywall_result"; FAIL=$((FAIL + 1));;
+  esac
+fi
+
 # ─── 5. Auth — unauthenticated ───
 echo "[Auth — no token]"
 code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/auth/me")
