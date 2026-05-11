@@ -593,6 +593,20 @@
 				parent.parentNode.insertBefore(note, parent.nextSibling);
 			}
 			note.innerHTML = supportContactHtml();
+			_injectLegalLinks(note);
+		}
+
+		function _injectLegalLinks(after) {
+			var legal = document.getElementById('pay-legal-links');
+			if (!legal) {
+				legal = document.createElement('div');
+				legal.id = 'pay-legal-links';
+				legal.style.cssText = 'margin-top:8px;font-size:11px;color:#aaa;line-height:1.5;text-align:center';
+				legal.innerHTML = '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Оферта</a>'
+					+ ' · '
+					+ '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Политика обработки персональных данных</a>';
+				after.parentNode.insertBefore(legal, after.nextSibling);
+			}
 		}
 
 		function _injectSuccessSupportNote() {

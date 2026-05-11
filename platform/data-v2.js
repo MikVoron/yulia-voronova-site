@@ -219,12 +219,19 @@ const Auth = {
             actionHtml = '<a href="' + subHref + '" style="display:inline-block;background:var(--accent,#e8734a);color:#fff;padding:14px 32px;border-radius:12px;font-weight:600;text-decoration:none;font-size:16px">Оформить подписку</a>'
                 + '<br><a href="cabinet.html" style="display:inline-block;margin-top:12px;color:#888;font-size:13px;text-decoration:underline">Личный кабинет</a>';
         }
+        var legalHtml = isNetworkError ? '' :
+            '<div style="margin-top:24px;font-size:11px;color:#aaa;line-height:1.5">'
+            + '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Оферта</a>'
+            + ' · '
+            + '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Политика обработки персональных данных</a>'
+            + '</div>';
         overlay.innerHTML = '<div style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.85);padding:20px">'
             + '<div style="text-align:center;max-width:400px">'
             + '<div style="font-size:48px;margin-bottom:16px">' + icon + '</div>'
             + '<h2 style="font-family:Playfair Display,serif;font-size:28px;color:#1a1a1a;margin-bottom:12px">' + title + '</h2>'
             + '<p style="color:#666;font-size:15px;line-height:1.5;margin-bottom:24px">' + text + '</p>'
             + actionHtml
+            + legalHtml
             + '</div></div>';
         document.body.appendChild(overlay);
     },
