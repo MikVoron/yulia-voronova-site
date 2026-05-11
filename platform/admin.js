@@ -132,8 +132,8 @@
             if (u.is_blocked) {
                 actions = '<button class="adm-btn adm-btn-unblock" onclick="unblockUser(\'' + u.id + '\')">Разблокировать</button>';
             } else if (u.role !== 'admin') {
-                actions = '<button class="adm-btn adm-btn-extend" onclick="openExtendModal(\'' + u.id + '\',\'' + esc(u.email) + '\',\'' + (u.active_until || '') + '\')">Продлить</button>' +
-                    '<button class="adm-btn adm-btn-block" onclick="blockUser(\'' + u.id + '\',\'' + esc(u.email) + '\')">Блок</button>';
+                actions = '<button class="adm-btn adm-btn-extend" onclick="openExtendModalById(\'' + u.id + '\')">Продлить</button>' +
+                    '<button class="adm-btn adm-btn-block" onclick="blockUserById(\'' + u.id + '\')">Блок</button>';
             } else {
                 actions = '<span style="color:var(--text-3);font-size:12px">admin</span>';
             }
@@ -163,8 +163,15 @@
         renderUsers(filtered);
     };
 
-    window.blockUser = function(id, email) {
-        if (!confirm('Заблокировать ' + email + '?')) return;
+    function findUserById(id) {
+        // id из onclick всегда строка, allUsers.id может быть числом/UUID
+        return allUsers.find(function(u) { return String(u.id) === String(id); });
+    }
+
+    window.blockUserById = function(id) {
+        var u = findUserById(id);
+        if (!u) { showToast('Пользователь не найден'); return; }
+        if (!confirm('Заблокировать ' + (u.email || '') + '?')) return;
         api('/admin/users/' + id + '/block', { method: 'POST' }).then(function() {
             showToast('Пользователь заблокирован');
             loadUsers();
@@ -181,16 +188,18 @@
     };
 
     var extendUserId = null;
-    window.openExtendModal = function(id, email, activeUntil) {
+    window.openExtendModalById = function(id) {
+        var u = findUserById(id);
+        if (!u) { showToast('Пользователь не найден'); return; }
         extendUserId = id;
-        document.getElementById('extend-user-email').textContent = email || '';
+        document.getElementById('extend-user-email').textContent = u.email || '';
         var untilEl = document.getElementById('extend-current-until');
-        if (activeUntil) {
-            var until = new Date(activeUntil);
+        if (u.active_until) {
+            var until = new Date(u.active_until);
             var now = new Date();
             untilEl.textContent = until > now
-                ? 'Активна до: ' + fmtDate(activeUntil)
-                : 'Истекла: ' + fmtDate(activeUntil);
+                ? 'Активна до: ' + fmtDate(u.active_until)
+                : 'Истекла: ' + fmtDate(u.active_until);
         } else {
             untilEl.textContent = 'Активной подписки нет';
         }
@@ -673,8 +682,6 @@
             loadCategoriesMeta();
         }).catch(function(e) { showToast(e.message || 'Ошибка'); });
     };
-
-    function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     // ── Feedback ──────────────────────────────────────────────────────────────
     var allFeedback = [];
