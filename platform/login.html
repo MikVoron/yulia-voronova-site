@@ -440,10 +440,8 @@
             <!-- OAuth кнопки (VK/Yandex) — код готов, включить после регистрации приложений -->
 
             <div class="lp-footer">
-                <p class="lp-footer-text">
+                <p class="lp-footer-text" id="lp-footer-legal">
                     Продолжая, вы соглашаетесь с
-                    <a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener">офертой</a>
-                    и
                     <a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener">политикой обработки данных</a>
                 </p>
             </div>
@@ -504,6 +502,15 @@
     var _returnUrl = _safeReturn(_rawReturn) || 'index.html';
     var _isAdminLogin = _returnUrl.indexOf('admin.html') !== -1 || _returnUrl.indexOf('recipe-editor.html') !== -1;
     var _hasReturn = !!_safeReturn(_rawReturn);
+    // Дописываем оферту, только если она опубликована (флаг в data-v2.js)
+    if (typeof LEGAL_OFFER_ENABLED !== 'undefined' && LEGAL_OFFER_ENABLED) {
+        var _legalEl = document.getElementById('lp-footer-legal');
+        if (_legalEl) {
+            _legalEl.innerHTML = 'Продолжая, вы соглашаетесь с '
+                + '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener">офертой</a> и '
+                + '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener">политикой обработки данных</a>';
+        }
+    }
     if (Auth.isLoggedIn()) {
         if (_hasReturn) {
             // Originating page redirected us here because its API calls failed despite localStorage flag.

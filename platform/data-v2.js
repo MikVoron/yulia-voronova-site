@@ -6,6 +6,9 @@
 
 // ─── CONFIG ─────────────────────────────────────────────────────────────────
 const API_BASE  = 'https://api.voronova.online';
+// Включить когда public-offer.html опубликован на voronova.online (после мержа feature → main + GitHub Pages).
+// До этого ссылки на оферту в UI скрыты, чтобы не вести пользователя на 404.
+const LEGAL_OFFER_ENABLED = false;
 const SITE_BASE = 'https://voronova.online';
 const RECIPE_IMAGE_VERSION = '20260509-1';
 
@@ -219,12 +222,11 @@ const Auth = {
             actionHtml = '<a href="' + subHref + '" style="display:inline-block;background:var(--accent,#e8734a);color:#fff;padding:14px 32px;border-radius:12px;font-weight:600;text-decoration:none;font-size:16px">Оформить подписку</a>'
                 + '<br><a href="cabinet.html" style="display:inline-block;margin-top:12px;color:#888;font-size:13px;text-decoration:underline">Личный кабинет</a>';
         }
+        var policyLink = '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Политика обработки персональных данных</a>';
+        var offerLink = '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Оферта</a>';
+        var legalLinks = LEGAL_OFFER_ENABLED ? (offerLink + ' · ' + policyLink) : policyLink;
         var legalHtml = isNetworkError ? '' :
-            '<div style="margin-top:24px;font-size:11px;color:#aaa;line-height:1.5">'
-            + '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Оферта</a>'
-            + ' · '
-            + '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Политика обработки персональных данных</a>'
-            + '</div>';
+            '<div style="margin-top:24px;font-size:11px;color:#aaa;line-height:1.5">' + legalLinks + '</div>';
         overlay.innerHTML = '<div style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.85);padding:20px">'
             + '<div style="text-align:center;max-width:400px">'
             + '<div style="font-size:48px;margin-bottom:16px">' + icon + '</div>'

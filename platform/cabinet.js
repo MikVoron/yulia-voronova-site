@@ -602,12 +602,26 @@
 				legal = document.createElement('div');
 				legal.id = 'pay-legal-links';
 				legal.style.cssText = 'margin-top:8px;font-size:11px;color:#aaa;line-height:1.5;text-align:center';
-				legal.innerHTML = '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Оферта</a>'
-					+ ' · '
-					+ '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Политика обработки персональных данных</a>';
+				var policyLink = '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Политика обработки персональных данных</a>';
+				var offerLink = '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Оферта</a>';
+				legal.innerHTML = (typeof LEGAL_OFFER_ENABLED !== 'undefined' && LEGAL_OFFER_ENABLED)
+					? (offerLink + ' · ' + policyLink)
+					: policyLink;
 				after.parentNode.insertBefore(legal, after.nextSibling);
 			}
 		}
+
+		(function _renderWizardLegal() {
+			var el = document.getElementById('pay-wizard-legal');
+			if (!el) return;
+			var policy = '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">политикой обработки персональных данных</a>';
+			if (typeof LEGAL_OFFER_ENABLED !== 'undefined' && LEGAL_OFFER_ENABLED) {
+				var offer = '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">условиями оферты</a>';
+				el.innerHTML = 'Отправляя заявку на оплату, вы соглашаетесь с ' + offer + ' и ' + policy + '.';
+			} else {
+				el.innerHTML = 'Отправляя заявку на оплату, вы соглашаетесь с ' + policy + '.';
+			}
+		})();
 
 		function _injectSuccessSupportNote() {
 			var card = document.getElementById('pay-success');
