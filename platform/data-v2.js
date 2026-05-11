@@ -48,7 +48,28 @@ const Auth = {
     isLoggedIn() { return !!localStorage.getItem(this.KEY); },
     getUser() { try { return JSON.parse(localStorage.getItem(this.KEY)); } catch { return null; } },
     getToken() { return this._token || sessionStorage.getItem(this._ST); },
-    requireAuth() { if (!this.isLoggedIn()) location.href = 'login.html'; },
+    // Защита от open-redirect: разрешаем только относительные пути на нашем поддомене
+    _safeReturn(url) {
+        if (!url || typeof url !== 'string') return null;
+        var v = url.trim();
+        if (!v || v !== url) return null;
+        if (/[\x00-\x1F\x7F]/.test(v)) return null;
+        if (/^[a-z][a-z0-9+.\-]*:/i.test(v)) return null;
+        if (v.indexOf('//') === 0) return null;
+        if (v.indexOf('\\') !== -1) return null;
+        return v;
+    },
+    _currentReturnUrl() {
+        // path+search текущей страницы для login.html?return=...
+        var path = location.pathname.split('/').pop() || 'index.html';
+        if (path === 'login.html') return null;
+        return path + location.search;
+    },
+    _loginUrl() {
+        var ret = this._currentReturnUrl();
+        return ret ? 'login.html?return=' + encodeURIComponent(ret) : 'login.html';
+    },
+    requireAuth() { if (!this.isLoggedIn()) location.href = this._loginUrl(); },
     _userKey(key) {
         const u = this.getUser();
         if (!u || !u.email) return key;
@@ -114,14 +135,14 @@ const Auth = {
         if (user) { user.role = role; localStorage.setItem(this.KEY, JSON.stringify(user)); }
     },
     async checkAccess() {
-        if (!this.isLoggedIn()) { location.href = 'login.html'; return false; }
+        if (!this.isLoggedIn()) { location.href = this._loginUrl(); return false; }
         if (!this.getToken()) {
             const ok = await this.refreshToken();
             if (!ok) {
                 // Session expired — redirect to login. Admin role from
                 // localStorage is not trusted: the server is the gate.
                 this.logout();
-                location.href = 'login.html';
+                location.href = this._loginUrl();
                 return false;
             }
         }
@@ -130,7 +151,7 @@ const Auth = {
             if (!res.ok) {
                 // Auth failed — redirect to login. No client-side admin shortcut.
                 this.logout();
-                location.href = 'login.html';
+                location.href = this._loginUrl();
                 return false;
             }
             const data = await res.json();
@@ -193,7 +214,9 @@ const Auth = {
             text = isExpired
                 ? 'Продлите подписку, чтобы продолжить пользоваться рецептами и конструктором тарелки.'
                 : 'Оформите подписку, чтобы получить доступ к рецептам и конструктору тарелки.';
-            actionHtml = '<a href="cabinet.html?tab=subscription" style="display:inline-block;background:var(--accent,#e8734a);color:#fff;padding:14px 32px;border-radius:12px;font-weight:600;text-decoration:none;font-size:16px">Оформить подписку</a>'
+            var ret = this._currentReturnUrl();
+            var subHref = 'cabinet.html?tab=subscription' + (ret ? '&return=' + encodeURIComponent(ret) : '');
+            actionHtml = '<a href="' + subHref + '" style="display:inline-block;background:var(--accent,#e8734a);color:#fff;padding:14px 32px;border-radius:12px;font-weight:600;text-decoration:none;font-size:16px">Оформить подписку</a>'
                 + '<br><a href="cabinet.html" style="display:inline-block;margin-top:12px;color:#888;font-size:13px;text-decoration:underline">Личный кабинет</a>';
         }
         overlay.innerHTML = '<div style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.85);padding:20px">'

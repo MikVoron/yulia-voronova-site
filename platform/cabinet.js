@@ -3,6 +3,39 @@
 		loadContent();
 		updatePlateIcon();
 
+		// Return-to-context: пользователь пришёл с рецепта через paywall.
+		// Сохраняем return URL в sessionStorage (переживает навигацию внутри кабинета).
+		(function () {
+			const raw = new URLSearchParams(location.search).get('return');
+			const safe = Auth._safeReturn(raw);
+			if (safe) sessionStorage.setItem('_cab_return_url', safe);
+		})();
+		function _getCabReturn() {
+			const v = sessionStorage.getItem('_cab_return_url');
+			return Auth._safeReturn(v);
+		}
+		function _renderReturnBanner() {
+			const ret = _getCabReturn();
+			const panel = document.getElementById('panel-subscription');
+			if (!panel) return;
+			let banner = document.getElementById('cab-return-banner');
+			if (!ret) { if (banner) banner.remove(); return; }
+			if (banner) return;
+			banner = document.createElement('div');
+			banner.id = 'cab-return-banner';
+			banner.style.cssText = 'margin:0 0 16px;padding:12px 14px;border-radius:10px;background:#fff8f0;border:1px solid #f0d8b8;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap';
+			const text = document.createElement('div');
+			text.style.cssText = 'font-size:13px;color:var(--text-2);line-height:1.4';
+			text.textContent = 'Вы пришли с рецепта. После оформления доступа сможете вернуться.';
+			const link = document.createElement('a');
+			link.href = ret;
+			link.textContent = 'Вернуться к рецепту →';
+			link.style.cssText = 'font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap';
+			banner.appendChild(text);
+			banner.appendChild(link);
+			panel.insertBefore(banner, panel.firstChild);
+		}
+
 		// User pill init
 		(function () {
 			const user = Auth.getUser();
@@ -467,6 +500,17 @@
 					loadPaymentHistory();
 					if (!hasPending) {
 						stopPaymentPolling();
+						// Если платёж подтверждён и пользователь пришёл с рецепта — возвращаем туда
+						var lastPayment = payments[0];
+						if (lastPayment && lastPayment.status === 'confirmed') {
+							var ret = _getCabReturn();
+							if (ret) {
+								sessionStorage.removeItem('_cab_return_url');
+								if (typeof showToast === 'function') showToast('Доступ открыт — возвращаемся к рецепту', 1800);
+								setTimeout(function() { location.href = ret; }, 1500);
+								return;
+							}
+						}
 						// Refresh subscription status — payment was confirmed or rejected
 						Auth.checkAccess();
 					}
@@ -556,6 +600,7 @@
 		_cabAccess.then(function() {
 			loadSubscription().then(function(isActive) {
 				if (!isActive) {
+					_renderReturnBanner();
 					loadEarlyBird().then(function() {
 						// Auto-open payment section if arrived via ?tab=subscription
 						if (new URLSearchParams(location.search).get('tab') === 'subscription') {
@@ -565,6 +610,13 @@
 							}
 						}
 					});
+				} else {
+					// Подписка уже активна — если есть сохранённый return, сразу предлагаем вернуться
+					const ret = _getCabReturn();
+					if (ret) {
+						sessionStorage.removeItem('_cab_return_url');
+						location.href = ret;
+					}
 				}
 			});
 		});
