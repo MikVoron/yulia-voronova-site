@@ -13,7 +13,8 @@
 			const uAva = document.getElementById('u-ava');
 			const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
 			if (savedAva) {
-				uAva.innerHTML = `<img src="${savedAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+				const safeAva = String(savedAva).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+				uAva.innerHTML = `<img src="${safeAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
 			} else {
 				uAva.textContent = displayName.charAt(0).toUpperCase();
 			}
@@ -64,7 +65,8 @@
 			const avaEl = document.getElementById('cab-ava');
 			const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
 			if (savedAva) {
-				avaEl.innerHTML = `<img src="${savedAva}" alt="avatar">`;
+				const safeAva = String(savedAva).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+				avaEl.innerHTML = `<img src="${safeAva}" alt="avatar">`;
 			} else {
 				avaEl.textContent = profileName.charAt(0).toUpperCase();
 			}
@@ -694,7 +696,7 @@
 			if (editingNoteId === id) { editingNoteId = null; document.getElementById('notes-ta').value = ''; }
 			renderNotesList();
 		}
-		function escHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+		function escHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
 		function imgFallback(img, emoji) {
 			img.onerror = null;

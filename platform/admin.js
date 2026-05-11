@@ -345,10 +345,13 @@
     }
 
     function esc(s) {
-        if (!s) return '';
-        var el = document.createElement('span');
-        el.textContent = s;
-        return el.innerHTML;
+        if (s == null) return '';
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     function showToast(msg) {
