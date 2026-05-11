@@ -3,6 +3,27 @@
 		loadContent();
 		updatePlateIcon();
 
+		// Источник контактов поддержки — единая точка правки.
+		// TODO: при росте проекта заменить fallbackEmail на support@voronova.online
+		// или подключить Tawk.to (заполнить url).
+		const SUPPORT_CONTACT = {
+			label: 'чат поддержки',
+			text: 'Написать в чат поддержки',
+			url: '#',
+			fallbackEmail: 'hello@voronova.online'
+		};
+		function _supportEmailHref() { return 'mailto:' + SUPPORT_CONTACT.fallbackEmail; }
+		function supportContactHtml() {
+			const hasChat = SUPPORT_CONTACT.url && SUPPORT_CONTACT.url !== '#';
+			const email = SUPPORT_CONTACT.fallbackEmail;
+			const emailLink = '<a href="' + _supportEmailHref() + '" style="color:var(--accent);text-decoration:underline">' + email + '</a>';
+			if (hasChat) {
+				const chatLink = '<a href="' + SUPPORT_CONTACT.url + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">' + SUPPORT_CONTACT.text + '</a>';
+				return 'Если оплата не подтвердилась или возник вопрос — ' + chatLink + '. Если чат недоступен, напишите на ' + emailLink + '.';
+			}
+			return 'Если оплата не подтвердилась или возник вопрос — напишите на ' + emailLink + '.';
+		}
+
 		// Return-to-context: пользователь пришёл с рецепта через paywall.
 		// Сохраняем return URL в sessionStorage (переживает навигацию внутри кабинета).
 		(function () {
@@ -471,10 +492,24 @@
 					body: JSON.stringify(body)
 				});
 				var data = await res.json();
-				if (!res.ok) { errEl.textContent = data.error || 'Ошибка'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Отправить на проверку'; return; }
+				if (!res.ok) {
+					if (res.status === 409) {
+						// Дубль pending: добавляем контакт поддержки прямо в ошибку
+						errEl.innerHTML = escHtml(data.error || 'У вас уже есть платёж на проверке.') + '<br>' + supportContactHtml();
+					} else {
+						errEl.textContent = data.error || 'Ошибка';
+					}
+					errEl.style.display = 'block';
+					btn.disabled = false;
+					btn.textContent = 'Отправить на проверку';
+					// Подтягиваем историю, чтобы пользователь увидел существующий pending
+					if (res.status === 409) loadPaymentHistory();
+					return;
+				}
 				// Hide all wizard steps, show success
 				for (var i = 1; i <= 3; i++) document.getElementById('pay-step-' + i).style.display = 'none';
 				document.querySelector('.pay-steps').style.display = 'none';
+				_injectSuccessSupportNote();
 				document.getElementById('pay-success').style.display = 'block';
 				clearScreenshot();
 				loadPaymentHistory();
@@ -521,17 +556,69 @@
 			if (_payPollTimer) { clearInterval(_payPollTimer); _payPollTimer = null; }
 		}
 
+		function _renderPendingBlock(pending) {
+			var section = document.querySelector('.pay-section');
+			var toggleBtn = document.getElementById('pay-toggle-btn');
+			var details = document.getElementById('pay-details');
+			var block = document.getElementById('pay-pending-block');
+			if (!pending) {
+				if (block) block.remove();
+				if (toggleBtn) toggleBtn.style.display = '';
+				return;
+			}
+			if (toggleBtn) toggleBtn.style.display = 'none';
+			if (details) details.style.display = 'none';
+			if (!section) return;
+			if (!block) {
+				block = document.createElement('div');
+				block.id = 'pay-pending-block';
+				section.insertBefore(block, toggleBtn || section.firstChild);
+			}
+			var d = pending.created_at ? new Date(pending.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : '';
+			block.innerHTML = '<div style="padding:14px 16px;border-radius:12px;background:#fff8e1;border:1px solid #ffe082;">'
+				+ '<div style="font-size:14px;font-weight:700;color:#7a5a00;margin-bottom:6px">У вас есть платёж на проверке</div>'
+				+ '<div style="font-size:13px;color:var(--text-2);line-height:1.5;margin-bottom:10px">'
+				+ 'Платёж от ' + escHtml(d) + ' на ' + escHtml(String(pending.amount || '')) + ' ₽ ожидает подтверждения. '
+				+ 'Обычно подтверждаем в течение 30 минут.</div>'
+				+ '<div style="font-size:13px;color:var(--text-3);line-height:1.5">' + supportContactHtml() + '</div>'
+				+ '</div>';
+		}
+
+		function _injectHistorySupportNote(parent) {
+			var note = document.getElementById('pay-history-support');
+			if (!note) {
+				note = document.createElement('div');
+				note.id = 'pay-history-support';
+				note.style.cssText = 'margin-top:14px;font-size:12px;color:var(--text-3);line-height:1.5;text-align:center';
+				parent.parentNode.insertBefore(note, parent.nextSibling);
+			}
+			note.innerHTML = supportContactHtml();
+		}
+
+		function _injectSuccessSupportNote() {
+			var card = document.getElementById('pay-success');
+			if (!card || document.getElementById('pay-success-support')) return;
+			var note = document.createElement('div');
+			note.id = 'pay-success-support';
+			note.style.cssText = 'margin-top:14px;font-size:12px;color:var(--text-3);line-height:1.5;text-align:center';
+			note.innerHTML = supportContactHtml();
+			var btn = card.querySelector('button');
+			if (btn) card.insertBefore(note, btn);
+			else card.appendChild(note);
+		}
+
 		async function loadPaymentHistory() {
 			try {
 				var res = await Auth.api('/subscription/payments');
 				if (!res.ok) return;
 				var payments = await res.json();
+				var pending = payments.find(function(p) { return p.status === 'pending'; });
 				// Auto-start polling if there are pending payments
-				if (payments.some(function(p) { return p.status === 'pending'; })) {
-					if (!_payPollTimer) startPaymentPolling();
-				}
+				if (pending && !_payPollTimer) startPaymentPolling();
+				// Pending-блокировка wizard (либо снятие блокировки)
+				_renderPendingBlock(pending);
 				var el = document.getElementById('pay-history');
-				if (!payments.length) { el.innerHTML = ''; return; }
+				if (!payments.length) { el.innerHTML = ''; _injectHistorySupportNote(el); return; }
 				el.innerHTML = '<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px">История платежей</div>'
 					+ payments.map(function (p) {
 						var d = new Date(p.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -548,6 +635,7 @@
 							+ '<span class="pay-hist-status ' + statusClass + '">' + (PAY_STATUS_LABELS[p.status] || p.status) + '</span>'
 							+ '</div>';
 					}).join('');
+				_injectHistorySupportNote(el);
 			} catch (e) { /* ignore */ }
 		}
 

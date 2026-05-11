@@ -54,6 +54,16 @@ async function subscriptionRoutes(fastify) {
     if (!amount || !paymentDate) return reply.status(400).send({ error: 'amount и paymentDate обязательны' });
     // Validate screenshot if present (max ~5MB base64)
     if (screenshot && screenshot.length > 7 * 1024 * 1024) return reply.status(400).send({ error: 'Скриншот слишком большой' });
+    // Защита от обычного повторного submit и прямого одиночного API-запроса.
+    // Полноценная DB-защита от параллельных POST (например через partial unique index
+    // на status='pending') — post-MVP.
+    const existingPending = await db.query(
+      "SELECT id FROM payments WHERE user_id=$1 AND status='pending' LIMIT 1",
+      [req.user.sub]
+    );
+    if (existingPending.rows.length) {
+      return reply.status(409).send({ error: 'У вас уже есть платёж на проверке. Дождитесь подтверждения или напишите в поддержку.' });
+    }
     // email берём из JWT — надёжнее чем из формы
     const emailRow = await db.query('SELECT email FROM users WHERE id=$1', [req.user.sub]);
     const senderEmail = emailRow.rows[0]?.email || '';
