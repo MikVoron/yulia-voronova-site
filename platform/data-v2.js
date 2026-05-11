@@ -179,18 +179,29 @@ const Auth = {
         if (main) { main.style.filter = 'blur(8px)'; main.style.pointerEvents = 'none'; main.style.userSelect = 'none'; }
         const overlay = document.createElement('div');
         overlay.id = 'paywall-overlay';
+        const isNetworkError = reason === 'error';
         const isExpired = reason === 'expired' || reason === 'cancelled';
-        const title = isExpired ? 'Подписка истекла' : 'Нужна подписка';
-        const text = isExpired
-            ? 'Продлите подписку, чтобы продолжить пользоваться рецептами и конструктором тарелки.'
-            : 'Оформите подписку, чтобы получить доступ к рецептам и конструктору тарелки.';
+        let icon, title, text, actionHtml;
+        if (isNetworkError) {
+            icon = '📡';
+            title = 'Не удалось связаться с сервером';
+            text = 'Проверьте подключение к интернету и попробуйте снова. Если проблема не исчезнет — напишите нам.';
+            actionHtml = '<button onclick="location.reload()" style="display:inline-block;background:var(--accent,#e8734a);color:#fff;border:none;padding:14px 32px;border-radius:12px;font-weight:600;font-size:16px;cursor:pointer">Повторить</button>';
+        } else {
+            icon = '🔒';
+            title = isExpired ? 'Подписка истекла' : 'Нужна подписка';
+            text = isExpired
+                ? 'Продлите подписку, чтобы продолжить пользоваться рецептами и конструктором тарелки.'
+                : 'Оформите подписку, чтобы получить доступ к рецептам и конструктору тарелки.';
+            actionHtml = '<a href="cabinet.html?tab=subscription" style="display:inline-block;background:var(--accent,#e8734a);color:#fff;padding:14px 32px;border-radius:12px;font-weight:600;text-decoration:none;font-size:16px">Оформить подписку</a>'
+                + '<br><a href="cabinet.html" style="display:inline-block;margin-top:12px;color:#888;font-size:13px;text-decoration:underline">Личный кабинет</a>';
+        }
         overlay.innerHTML = '<div style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.85);padding:20px">'
             + '<div style="text-align:center;max-width:400px">'
-            + '<div style="font-size:48px;margin-bottom:16px">🔒</div>'
+            + '<div style="font-size:48px;margin-bottom:16px">' + icon + '</div>'
             + '<h2 style="font-family:Playfair Display,serif;font-size:28px;color:#1a1a1a;margin-bottom:12px">' + title + '</h2>'
             + '<p style="color:#666;font-size:15px;line-height:1.5;margin-bottom:24px">' + text + '</p>'
-            + '<a href="cabinet.html?tab=subscription" style="display:inline-block;background:var(--accent,#e8734a);color:#fff;padding:14px 32px;border-radius:12px;font-weight:600;text-decoration:none;font-size:16px">Оформить подписку</a>'
-            + '<br><a href="cabinet.html" style="display:inline-block;margin-top:12px;color:#888;font-size:13px;text-decoration:underline">Личный кабинет</a>'
+            + actionHtml
             + '</div></div>';
         document.body.appendChild(overlay);
     },
@@ -589,8 +600,8 @@ function showApiError(container) {
     container.innerHTML =
         '<div style="text-align:center;padding:60px 20px;max-width:440px;margin:0 auto">' +
             '<div style="font-size:56px;margin-bottom:16px">📡</div>' +
-            '<h2 style="font-family:Playfair Display,serif;font-size:24px;color:#1a1a1a;margin-bottom:12px">Сервер рецептов временно недоступен</h2>' +
-            '<p style="color:#666;font-size:15px;line-height:1.5;margin-bottom:24px">Попробуйте обновить страницу позже</p>' +
+            '<h2 style="font-family:Playfair Display,serif;font-size:24px;color:#1a1a1a;margin-bottom:12px">Не удалось загрузить рецепты</h2>' +
+            '<p style="color:#666;font-size:15px;line-height:1.5;margin-bottom:24px">Проверьте подключение к интернету или попробуйте позже.</p>' +
             '<button onclick="location.reload()" style="background:var(--accent,#e8734a);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer">Повторить</button>' +
         '</div>';
 }
