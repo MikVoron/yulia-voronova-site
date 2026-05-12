@@ -552,9 +552,11 @@
 			text-transform: none;
 		}
 		.recipe-crumbs .crumb-current {
-			color: var(--text-3); font-weight: 500;
+			color: var(--text); font-weight: 700;
 			text-transform: none; letter-spacing: 0;
 			max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+			border-bottom: 1.5px solid var(--accent);
+			padding-bottom: 1px;
 		}
 		@media (max-width: 767px) {
 			.recipe-crumbs .crumb-current { max-width: 140px; }
@@ -659,8 +661,8 @@
 		/* SECTION TITLES: uppercase label + rule (only inside .recipe-main) */
 		.recipe-main .v-section-title {
 			font-family: var(--font) !important;
-			font-size: 11px !important; font-weight: 800 !important;
-			letter-spacing: .1em !important; text-transform: uppercase !important;
+			font-size: 13px !important; font-weight: 800 !important;
+			letter-spacing: .12em !important; text-transform: uppercase !important;
 			color: var(--text) !important;
 			padding-bottom: 8px !important;
 			border-bottom: 2px solid var(--text) !important;
@@ -718,6 +720,9 @@
 		.bal-item { border-radius: 6px !important; }
 		.bal-total { border-top: 2px solid var(--text) !important; }
 		.bal-total-kcal { font-family: var(--serif) !important; }
+		/* style-v4.css lacks @charset so `content: 'ккал'` renders garbled.
+		   Override here — recipe.html is explicit UTF-8, Cyrillic in inline style is safe. */
+		.bal-item-kcal::after { content: 'ккал'; }
 
 		/* STICKY ADD BUTTON */
 		.sticky-add { border-top: 1px solid var(--border) !important; box-shadow: 0 -2px 12px rgba(0,0,0,.06) !important; }
