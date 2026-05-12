@@ -526,17 +526,46 @@
             } else {
                 badge = '<span class="rbadge rbadge-pro">Pro</span>';
             }
+            var seasonalMark = r.is_seasonal
+                ? '<span class="rbadge" style="background:#fff2ed;color:var(--accent);border:1px solid var(--accent);font-weight:700">★ Сезонный</span>'
+                : '';
+            var seasonalBtn = r.is_seasonal
+                ? '<button class="adm-btn" onclick="clearSeasonal()" style="font-size:12px;padding:6px 10px;background:var(--accent);color:#fff;border-color:var(--accent)" title="Снять признак сезонного">★ Снять</button>'
+                : (r.is_published
+                    ? '<button class="adm-btn" onclick="setSeasonal(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px" title="Назначить сезонным рецептом на главной">☆ Сезонный</button>'
+                    : '');
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:#fff">'
                 + '<div style="flex:1;min-width:0">'
-                + '<div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text)">' + badge + '<span>' + (r.emoji || '') + ' ' + esc(r.name) + '</span></div>'
+                + '<div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text);flex-wrap:wrap">' + badge + seasonalMark + '<span>' + (r.emoji || '') + ' ' + esc(r.name) + '</span></div>'
                 + '<div style="font-size:11px;color:var(--text-3);margin-top:4px">' + (r.categories || [r.cat]).map(function(c) { return CAT_NAMES[c] || c; }).join(', ') + ' · ' + (r.time_label || (r.time_min + ' мин')) + ' · ' + r.kcal + ' ккал</div>'
                 + '</div>'
-                + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">'
+                + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px;flex-wrap:wrap;justify-content:flex-end">'
+                + seasonalBtn
                 + '<button class="adm-btn" onclick="openRecipeEditor(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px" title="Открыть в редакторе">✏️</button>'
                 + '<button class="adm-btn adm-btn-reject" onclick="deleteRecipe(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px">✕</button>'
                 + '</div></div>';
         }).join('');
     }
+
+    window.setSeasonal = function(id) {
+        var cur = allRecipes.find(function(x) { return x.is_seasonal; });
+        var msg = cur && cur.id !== id
+            ? 'Назначить «' + id + '» сезонным? «' + cur.name + '» перестанет быть сезонным.'
+            : 'Назначить «' + id + '» сезонным рецептом?';
+        if (!confirm(msg)) return;
+        api('/admin/recipes/' + encodeURIComponent(id) + '/seasonal', { method: 'POST' }).then(function() {
+            showToast('Сезонный рецепт назначен');
+            loadRecipesList();
+        });
+    };
+
+    window.clearSeasonal = function() {
+        if (!confirm('Снять признак сезонного со всех рецептов?')) return;
+        api('/admin/recipes/seasonal', { method: 'DELETE' }).then(function() {
+            showToast('Сезонный рецепт сброшен');
+            loadRecipesList();
+        });
+    };
 
     window.filterRecipes = function() {
         applyRecipeFilters();

@@ -76,7 +76,7 @@ async function contentRoutes(fastify) {
     const tier = req.user ? await getUserTier(req.user.sub) : 'guest';
     const result = await db.query(
       `SELECT r.id, r.cat, r.name, r.emoji, r.time_min, r.time_label, r.difficulty, r.servings,
-              r.is_free, r.access_level,
+              r.is_free, r.access_level, r.is_seasonal,
               r.kcal, r.protein, r.fat, r.carbs, r.fiber, r.tags, r.photo, r.img_position, r.quote,
               r.ingredients, r.steps, r.note, r.vk_video, r.yt_video, r.dzen_video,
               r.add_protein, r.add_fat, r.add_carbs, r.add_fiber, r.auto_addons, r.is_soup,
@@ -101,6 +101,16 @@ async function contentRoutes(fastify) {
   fastify.get('/content/stats', async () => {
     const result = await db.query('SELECT COUNT(*)::int AS count FROM recipes WHERE is_published = true');
     return { recipes: result.rows[0].count };
+  });
+
+  // GET /content/seasonal — id текущего сезонного рецепта (или null, если не назначен или не опубликован).
+  // Сам рецепт уже отдаётся через /content/recipes; здесь возвращаем только указатель,
+  // чтобы фронт не парсил весь список.
+  fastify.get('/content/seasonal', async () => {
+    const result = await db.query(
+      'SELECT id FROM recipes WHERE is_seasonal = TRUE AND is_published = TRUE LIMIT 1'
+    );
+    return { id: result.rows[0] ? result.rows[0].id : null };
   });
 
   // GET /content/categories — all categories (includes auto_addons rules)
@@ -429,6 +439,43 @@ async function contentRoutes(fastify) {
     const result = await db.query('DELETE FROM recipes WHERE id=$1 RETURNING id', [req.params.id]);
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
     audit.log('recipe_delete', { userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip });
+    return { ok: true };
+  });
+
+  // POST /admin/recipes/:id/seasonal — пометить рецепт как «Сезонный».
+  // Атомарно: снимаем флаг с любого предыдущего сезонного и ставим на указанный.
+  // Только опубликованный рецепт может стать сезонным.
+  fastify.post('/admin/recipes/:id/seasonal', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+    const id = req.params.id;
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const exists = await client.query('SELECT id, is_published FROM recipes WHERE id=$1', [id]);
+      if (!exists.rows.length) {
+        await client.query('ROLLBACK');
+        return reply.status(404).send({ error: 'Рецепт не найден' });
+      }
+      if (!exists.rows[0].is_published) {
+        await client.query('ROLLBACK');
+        return reply.status(409).send({ error: 'Сезонным можно сделать только опубликованный рецепт' });
+      }
+      await client.query('UPDATE recipes SET is_seasonal = FALSE WHERE is_seasonal = TRUE AND id <> $1', [id]);
+      await client.query('UPDATE recipes SET is_seasonal = TRUE WHERE id = $1', [id]);
+      await client.query('COMMIT');
+      audit.log('recipe_seasonal_set', { userId: req.user.sub, detail: 'recipe:' + id, ip: req.ip });
+      return { ok: true, id };
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+  });
+
+  // DELETE /admin/recipes/seasonal — снять признак сезонного со всех рецептов.
+  fastify.delete('/admin/recipes/seasonal', { preHandler: [authenticate, requireAdmin] }, async (req) => {
+    await db.query('UPDATE recipes SET is_seasonal = FALSE WHERE is_seasonal = TRUE');
+    audit.log('recipe_seasonal_clear', { userId: req.user.sub, detail: 'all', ip: req.ip });
     return { ok: true };
   });
 

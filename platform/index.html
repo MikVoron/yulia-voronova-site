@@ -618,6 +618,256 @@
 			border-radius: 4px;
 			vertical-align: middle;
 		}
+
+		/* ── EDITORIAL HOMEPAGE BLOCKS ───────────────────────────────────────
+		   Новые блоки главной (Сезонный рецепт, Рекомендуем, CTA-полоса)
+		   в стиле NYT Cooking / Times Cooking. Префикс sp-* чтобы не пересечься
+		   с существующими стилями платформы. */
+		.sp-block { margin-top: 56px; }
+
+		.sp-sec-head {
+			display: flex; align-items: baseline; justify-content: space-between;
+			gap: 16px; margin-bottom: 24px; padding-bottom: 10px;
+			border-bottom: 2px solid var(--text);
+		}
+		.sp-sec-title {
+			font-family: var(--sans);
+			font-size: 13px; font-weight: 800; letter-spacing: .14em;
+			text-transform: uppercase; color: var(--text); margin: 0;
+		}
+		.sp-sec-link {
+			font-size: 12px; font-weight: 700; letter-spacing: .08em;
+			text-transform: uppercase; color: var(--text-2); text-decoration: none;
+			white-space: nowrap;
+		}
+		.sp-sec-link:hover { color: var(--accent); }
+
+		/* Сезонный рецепт — большая editorial-карточка */
+		.sp-seasonal {
+			display: grid; grid-template-columns: 1.15fr 1fr; gap: 36px;
+			align-items: stretch;
+			background: none; border: none; padding: 0; margin: 0;
+			color: inherit; cursor: pointer; text-align: left; width: 100%;
+			font: inherit;
+		}
+		.sp-seasonal.locked { cursor: pointer; opacity: .92; }
+		.sp-seasonal-media {
+			position: relative; aspect-ratio: 4/3; overflow: hidden;
+			background: var(--bg-alt);
+		}
+		.sp-seasonal-media img {
+			width: 100%; height: 100%; object-fit: cover; display: block;
+			transition: transform .5s ease;
+		}
+		.sp-seasonal:hover .sp-seasonal-media img { transform: scale(1.02); }
+		.sp-seasonal.locked .sp-seasonal-media::after {
+			content: ''; position: absolute; inset: 0;
+			background: rgba(0, 0, 0, .18); z-index: 1;
+		}
+		.sp-seasonal.locked .sp-seasonal-media::before {
+			content: '🔒'; position: absolute; left: 50%; top: 50%;
+			transform: translate(-50%, -50%); font-size: 28px; z-index: 2;
+			filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .35));
+		}
+		.sp-seasonal-body {
+			display: flex; flex-direction: column; justify-content: center;
+			padding: 4px 0;
+		}
+		.sp-eyebrow {
+			font-size: 11px; font-weight: 800; letter-spacing: .14em;
+			text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+		}
+		.sp-seasonal-title {
+			font-family: var(--serif); font-size: clamp(26px, 3.4vw, 38px);
+			font-weight: 700; line-height: 1.08; letter-spacing: -.01em;
+			margin: 0 0 14px; color: var(--text);
+		}
+		.sp-seasonal-desc {
+			font-size: 15px; line-height: 1.55; color: var(--text-2);
+			margin: 0 0 18px; max-width: 56ch;
+			display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
+			-webkit-box-orient: vertical; overflow: hidden;
+		}
+		.sp-seasonal-meta {
+			display: flex; flex-wrap: wrap; align-items: center;
+			gap: 6px 0; font-size: 12px; font-weight: 500; color: var(--text-2);
+			padding-bottom: 16px; border-bottom: 1px solid var(--border);
+			margin-bottom: 16px;
+		}
+		.sp-seasonal-meta > * + *::before {
+			content: '·'; margin: 0 10px; color: var(--text-3); font-weight: 700;
+		}
+		.sp-seasonal-meta .kcal { color: var(--accent); font-weight: 700; }
+		.sp-cta-inline {
+			align-self: flex-start;
+			display: inline-flex; align-items: center; gap: 6px;
+			font-size: 13px; font-weight: 700; letter-spacing: .06em;
+			text-transform: uppercase; color: var(--text);
+			text-decoration: none;
+		}
+		.sp-cta-inline::after {
+			content: '→'; transition: transform .2s ease;
+			display: inline-block;
+		}
+		.sp-seasonal:hover .sp-cta-inline { color: var(--accent); }
+		.sp-seasonal:hover .sp-cta-inline::after { transform: translateX(4px); }
+
+		/* Recommended grid */
+		.sp-grid {
+			display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+		}
+		.sp-card {
+			display: flex; flex-direction: column;
+			background: #fff; cursor: pointer; text-align: left;
+			border: none; padding: 0; margin: 0; font: inherit;
+			color: inherit;
+		}
+		.sp-card.locked { opacity: .72; }
+		.sp-card.locked .sp-card-media::after {
+			content: ''; position: absolute; inset: 0;
+			background: rgba(0, 0, 0, .18); z-index: 1;
+		}
+		.sp-card.locked .sp-card-media::before {
+			content: '🔒'; position: absolute; left: 50%; top: 50%;
+			transform: translate(-50%, -50%); font-size: 22px; z-index: 2;
+			filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .35));
+		}
+		.sp-card-media {
+			position: relative; aspect-ratio: 4/3; overflow: hidden;
+			background: var(--bg-alt);
+		}
+		.sp-card-media img {
+			width: 100%; height: 100%; object-fit: cover; display: block;
+			transition: transform .35s ease;
+		}
+		.sp-card:hover .sp-card-media img { transform: scale(1.04); }
+		.sp-card-body {
+			display: flex; flex-direction: column; flex: 1;
+			padding: 16px 0 0;
+		}
+		.sp-card-title {
+			font-family: var(--serif); font-size: 20px; font-weight: 700;
+			line-height: 1.18; margin: 0 0 10px; color: var(--text);
+			display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
+			-webkit-box-orient: vertical; overflow: hidden;
+		}
+		.sp-card-meta {
+			font-size: 12px; color: var(--text-2); font-weight: 500;
+			display: flex; align-items: center; gap: 0; margin-bottom: 12px;
+			flex-wrap: wrap;
+		}
+		.sp-card-meta > * + *::before {
+			content: '·'; margin: 0 8px; color: var(--text-3); font-weight: 700;
+		}
+		.sp-card-foot {
+			margin-top: auto; padding-top: 12px;
+			border-top: 1px solid var(--border);
+			display: flex; align-items: baseline; justify-content: space-between;
+			gap: 8px;
+		}
+		.sp-card-foot .lbl {
+			font-size: 10px; font-weight: 700; letter-spacing: .1em;
+			text-transform: uppercase; color: var(--text-3);
+		}
+		.sp-card-foot .val {
+			font-family: var(--serif); font-size: 22px; font-weight: 700;
+			color: var(--accent); white-space: nowrap;
+		}
+		.sp-card-foot .val small {
+			font-family: var(--sans); font-size: 11px; font-weight: 600;
+			color: var(--text-2); margin-left: 3px;
+		}
+
+		/* Бейджи карточек — стек в левом-верхнем углу медиа.
+		   Семантику сохраняем (Бесплатно / Пробная / Подписка / Новинка),
+		   только унифицируем форму, размер и blur. */
+		.sp-badges {
+			position: absolute; top: 10px; left: 10px; z-index: 3;
+			display: flex; flex-direction: column; align-items: flex-start;
+			gap: 4px; pointer-events: none;
+		}
+		.sp-bd {
+			height: 22px; padding: 0 10px;
+			display: inline-flex; align-items: center; gap: 5px;
+			font-family: var(--sans); font-size: 10px; font-weight: 800;
+			letter-spacing: .08em; text-transform: uppercase;
+			backdrop-filter: blur(8px); border-radius: 2px;
+			white-space: nowrap;
+		}
+		.sp-bd svg { width: 10px; height: 10px; fill: currentColor; }
+		.sp-bd--new   { background: var(--accent); color: #fff; }
+		.sp-bd--pro   { background: rgba(217, 119, 6, .94); color: #fff; }
+		.sp-bd--trial { background: rgba(91, 158, 201, .94); color: #fff; }
+		.sp-bd--free  { background: rgba(74, 156, 87, .94); color: #fff; }
+
+		/* CTA strip */
+		.sp-cta-strip {
+			display: flex; align-items: center; justify-content: space-between;
+			gap: 24px; padding: 28px 32px;
+			background: var(--bg-alt); border: 1px solid var(--border);
+		}
+		.sp-cta-strip h3 {
+			font-family: var(--serif); font-size: clamp(22px, 2.4vw, 28px);
+			font-weight: 700; line-height: 1.2; margin: 0 0 6px;
+			color: var(--text);
+		}
+		.sp-cta-strip p {
+			font-size: 13px; color: var(--text-2); margin: 0;
+			line-height: 1.5;
+		}
+		.sp-cta-btn {
+			flex-shrink: 0;
+			display: inline-flex; align-items: center; justify-content: center;
+			padding: 16px 26px;
+			background: var(--text); color: #fff;
+			font-family: var(--sans); font-size: 12px; font-weight: 700;
+			letter-spacing: .1em; text-transform: uppercase;
+			text-decoration: none; cursor: pointer; border: none;
+			transition: background .2s ease;
+			white-space: nowrap;
+		}
+		.sp-cta-btn:hover { background: var(--accent); }
+
+		/* Tablet */
+		@media (max-width: 1024px) {
+			.sp-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+			.sp-seasonal { gap: 28px; }
+		}
+
+		/* Mobile */
+		@media (max-width: 767px) {
+			.sp-block { margin-top: 36px; }
+			.sp-sec-head { margin-bottom: 18px; }
+			.sp-seasonal { grid-template-columns: 1fr; gap: 18px; }
+			.sp-seasonal-media { aspect-ratio: 16/10; }
+			.sp-seasonal-title { font-size: clamp(22px, 6vw, 28px); }
+			.sp-seasonal-desc { font-size: 14px; -webkit-line-clamp: 4; line-clamp: 4; }
+			.sp-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+			.sp-card-title { font-size: 16px; -webkit-line-clamp: 3; line-clamp: 3; }
+			.sp-card-foot {
+				flex-direction: column; align-items: flex-start; gap: 2px;
+			}
+			.sp-card-foot .val { font-size: 20px; }
+			.sp-cta-strip {
+				flex-direction: column; align-items: stretch;
+				gap: 18px; padding: 22px 18px; text-align: left;
+			}
+			.sp-cta-btn { width: 100%; padding: 14px 20px; }
+			.sp-bd { font-size: 9px; height: 20px; padding: 0 8px; }
+		}
+
+		/* Skeleton — индикатор загрузки до прихода данных от API */
+		.sp-skel-card { display: flex; flex-direction: column; gap: 12px; }
+		.sp-skel-img,
+		.sp-skel-line {
+			background: linear-gradient(90deg, #efe9e0 0%, #f6f2eb 50%, #efe9e0 100%);
+			background-size: 200% 100%;
+			animation: spShimmer 1.4s linear infinite;
+		}
+		.sp-skel-img { aspect-ratio: 4/3; }
+		.sp-skel-line { height: 14px; }
+		.sp-skel-line.short { width: 60%; }
+		@keyframes spShimmer { to { background-position: -200% 0; } }
 	</style>
 </head>
 
@@ -721,6 +971,14 @@
 			</div>
 			<div class="news-feed anim anim-d2" id="news-feed"></div>
 
+			<!-- Сезонный рецепт (назначается администратором; fallback — последний опубликованный) -->
+			<section class="sp-block anim anim-d2" id="seasonal-block" style="display:none">
+				<div class="sp-sec-head">
+					<h2 class="sp-sec-title">Сезонный рецепт</h2>
+				</div>
+				<div id="seasonal-body"></div>
+			</section>
+
 			<!-- Filters -->
 			<div class="filter-outer anim anim-d1">
 				<div class="filter-scroll-wrap">
@@ -755,6 +1013,26 @@
 				<div class="recipes-total-count" id="recipes-total-count"></div>
 			</div>
 			<div class="cat-grid anim anim-d2" id="cat-grid"></div>
+
+			<!-- Рекомендуем (автосортировка по рейтингу) -->
+			<section class="sp-block anim anim-d2" id="recommended-block" style="display:none">
+				<div class="sp-sec-head">
+					<h2 class="sp-sec-title">Рекомендуем</h2>
+					<a class="sp-sec-link" href="category.html" aria-label="Все рецепты">Все рецепты →</a>
+				</div>
+				<div class="sp-grid" id="recommended-grid"></div>
+			</section>
+
+			<!-- CTA: открыть библиотеку рецептов (динамический счётчик) -->
+			<section class="sp-block anim anim-d2" id="cta-strip-block" style="display:none">
+				<div class="sp-cta-strip">
+					<div>
+						<h3>Откройте полную библиотеку рецептов</h3>
+						<p id="cta-strip-text"></p>
+					</div>
+					<a class="sp-cta-btn" id="cta-strip-btn" href="cabinet.html#subscription">Оформить подписку</a>
+				</div>
+			</section>
 
 		</div>
 	</main>
@@ -851,6 +1129,9 @@
 				loadNewsFeed();
 				renderCats();
 				updateRecipeCount();
+				renderSeasonal();
+				renderRecommended();
+				renderCtaStrip();
 				if (Auth.isLoggedIn()) Plate.load();
 			});
 		});
@@ -1237,6 +1518,233 @@
 			}
 		}
 
+		// ── EDITORIAL HOMEPAGE BLOCKS ──────────────────────────────────────
+		// Бейджи карточек: «Новинка» (если рецепт самый свежий) + access-бейдж.
+		// Логика выбора access-бейджа повторяет news-feed / category — НЕ меняем
+		// бизнес-семантику, только перерисовываем визуал.
+		function spLockBadge(d) {
+			const locked = !Auth.canViewRecipe(d);
+			if (locked) {
+				const lvl = Auth.recipeAccessLevel(d);
+				const lbl = escHtml(Auth.recipeAccessLabel(d) || '');
+				const cls = lvl === 'pro' ? 'sp-bd--pro' : 'sp-bd--trial';
+				const lock = '<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>';
+				return { html: `<span class="sp-bd ${cls}">${lock}${lbl}</span>`, locked: true };
+			}
+			// «Бесплатно» — маркер витрины для гостя/триала, не для подписчика.
+			if (d.accessLevel === 'free' && !Auth.hasFullAccess()) {
+				return { html: '<span class="sp-bd sp-bd--free">Бесплатно</span>', locked: false };
+			}
+			return { html: '', locked: false };
+		}
+
+		// «Самый свежий» рецепт получает бейдж «Новинка» — не зависит от доступа.
+		function _latestRecipeId() {
+			const all = Object.values(RECIPES);
+			if (!all.length) return null;
+			const sorted = all.slice().sort(function(a, b) { return (b.addedTs || 0) - (a.addedTs || 0); });
+			return sorted[0] ? sorted[0].id : null;
+		}
+
+		function spBadgesHtml(d, latestId) {
+			const access = spLockBadge(d);
+			const newBd = (d.id === latestId) ? '<span class="sp-bd sp-bd--new">Новинка</span>' : '';
+			const inner = newBd + access.html;
+			return { html: inner ? `<div class="sp-badges">${inner}</div>` : '', locked: access.locked };
+		}
+
+		function spRecipeHref(d) {
+			return 'recipe.html?id=' + encodeURIComponent(d.id) + '&from=' + encodeURIComponent(d.cat || '');
+		}
+
+		function spClickHandler(d, locked) {
+			const _id = encodeURIComponent(d.id);
+			const _cat = encodeURIComponent(d.cat || '');
+			return locked
+				? `showLockedMsg('${_id}')`
+				: `location.href='recipe.html?id=${_id}&from=${_cat}'`;
+		}
+
+		// 1) Сезонный рецепт. Источник: рецепт с isSeasonal=true.
+		//    Fallback (если админ не назначил) — последний опубликованный рецепт.
+		//    Если рецептов нет вообще — блок скрыт.
+		function renderSeasonal() {
+			const block = document.getElementById('seasonal-block');
+			const body = document.getElementById('seasonal-body');
+			if (!block || !body) return;
+
+			const all = Object.values(RECIPES);
+			let r = all.find(function(x) { return x.isSeasonal; });
+			let isFallback = false;
+			if (!r) {
+				const latestId = _latestRecipeId();
+				r = latestId ? RECIPES[latestId] : null;
+				isFallback = true;
+			}
+			if (!r) { block.style.display = 'none'; return; }
+
+			const latestId = _latestRecipeId();
+			const _id = encodeURIComponent(r.id);
+			const _cat = encodeURIComponent(r.cat || '');
+			const _name = escHtml(String(r.name || ''));
+			const _photo = escHtml(String(r.photo || ''));
+			const _emoji = escHtml(String(r.emoji || '🍴'));
+			const photoHtml = _photo
+				? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')">`
+				: `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:64px">${_emoji}</div>`;
+
+			const _diff = escHtml(String((typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {})[r.diff] || r.diff || ''));
+			const _timeMeta = formatTimeMeta(r.time, r.timeLabel);
+			const _timeStr = escHtml(_timeMeta.short);
+			const _servings = Number(r.servings) || 0;
+			const _kcal = Number(r.kcal) || 0;
+			const _protein = Number(r.protein) || 0;
+			const _fat = Number(r.fat) || 0;
+			const _carbs = Number(r.carbs) || 0;
+			const _quoteRaw = String(r.quote || '').replace(/^[«"']|[»"']$/g, '').trim();
+			const _desc = _quoteRaw ? escHtml(_quoteRaw.length > 180 ? _quoteRaw.slice(0, 178).replace(/\s+\S*$/, '') + '…' : _quoteRaw) : '';
+
+			const bd = spBadgesHtml(r, latestId);
+			const eyebrow = isFallback ? 'Последнее на главной' : 'Сезонный выбор';
+
+			block.style.display = '';
+			body.innerHTML = `
+				<button class="sp-seasonal${bd.locked ? ' locked' : ''}" type="button" onclick="${spClickHandler(r, bd.locked)}">
+					<div class="sp-seasonal-media">
+						${photoHtml}
+						${bd.html}
+					</div>
+					<div class="sp-seasonal-body">
+						<div class="sp-eyebrow">${escHtml(eyebrow)}</div>
+						<h3 class="sp-seasonal-title">${_name}</h3>
+						${_desc ? `<p class="sp-seasonal-desc">${_desc}</p>` : ''}
+						<div class="sp-seasonal-meta">
+							<span>${_timeStr}</span>
+							${_diff ? `<span>${_diff}</span>` : ''}
+							${_servings ? `<span>${_servings} порц.</span>` : ''}
+							<span class="kcal">${_kcal} ккал</span>
+							<span>Б ${_protein} / Ж ${_fat} / У ${_carbs}</span>
+						</div>
+						<span class="sp-cta-inline">Открыть рецепт</span>
+					</div>
+				</button>`;
+		}
+
+		// 2) Рекомендуем — автосортировка по рейтингу.
+		//    Порядок: рейтинг ↓ → кол-во оценок ↓ → дата добавления ↓.
+		//    Рецепты без рейтинга — после рейтинговых, отсортированы по дате.
+		//    Источник рейтингов — _apiRatings, грузится в loadApiRatings().
+		//    Если рейтинги ещё не пришли — повторим рендер по таймеру (один раз).
+		let _spRecCount = 8;
+		function _renderRecommendedInner() {
+			const block = document.getElementById('recommended-block');
+			const grid = document.getElementById('recommended-grid');
+			if (!block || !grid) return;
+			const all = Object.values(RECIPES);
+			if (!all.length) { block.style.display = 'none'; return; }
+
+			// Сначала рейтинговые, потом остальные по дате — но рейтингов может ещё не быть.
+			const withRating = [];
+			const withoutRating = [];
+			all.forEach(function(r) {
+				const rv = _apiRatings[r.id];
+				if (rv && rv.avg > 0) withRating.push({ r, rv });
+				else withoutRating.push(r);
+			});
+			withRating.sort(function(a, b) {
+				if (b.rv.avg !== a.rv.avg) return b.rv.avg - a.rv.avg;
+				if (b.rv.count !== a.rv.count) return b.rv.count - a.rv.count;
+				return (b.r.addedTs || 0) - (a.r.addedTs || 0);
+			});
+			withoutRating.sort(function(a, b) { return (b.addedTs || 0) - (a.addedTs || 0); });
+
+			const shown = withRating.map(function(x) { return x.r; }).concat(withoutRating).slice(0, _spRecCount);
+			const latestId = _latestRecipeId();
+			const diffLabels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
+
+			block.style.display = '';
+			grid.innerHTML = shown.map(function(d) {
+				const _name = escHtml(String(d.name || ''));
+				const _photo = escHtml(String(d.photo || ''));
+				const _emoji = escHtml(String(d.emoji || '🍴'));
+				const photoHtml = _photo
+					? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')">`
+					: `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:44px">${_emoji}</div>`;
+				const _diff = escHtml(String(diffLabels[d.diff] || d.diff || ''));
+				const _timeMeta = formatTimeMeta(d.time, d.timeLabel);
+				const _timeStr = escHtml(_timeMeta.short);
+				const _kcal = Number(d.kcal) || 0;
+				const bd = spBadgesHtml(d, latestId);
+				return `
+					<button class="sp-card${bd.locked ? ' locked' : ''}" type="button" onclick="${spClickHandler(d, bd.locked)}" aria-label="${_name}">
+						<div class="sp-card-media">
+							${photoHtml}
+							${bd.html}
+						</div>
+						<div class="sp-card-body">
+							<h3 class="sp-card-title">${_name}</h3>
+							<div class="sp-card-meta">
+								<span>${_timeStr}</span>
+								${_diff ? `<span>${_diff}</span>` : ''}
+							</div>
+							<div class="sp-card-foot">
+								<span class="lbl">В порции</span>
+								<span class="val">${_kcal}<small>ккал</small></span>
+							</div>
+						</div>
+					</button>`;
+			}).join('');
+		}
+		function renderRecommended() {
+			_renderRecommendedInner();
+			// Рейтинги грузятся параллельно; если их ещё не было — перерисуем через ~600мс.
+			if (!Object.keys(_apiRatings).length) {
+				setTimeout(_renderRecommendedInner, 700);
+			}
+		}
+
+		// 3) CTA-полоса с динамическим счётчиком.
+		//    Число — реальное кол-во опубликованных рецептов (RECIPES уже содержит
+		//    только опубликованные, т.к. /content/recipes фильтрует по is_published).
+		//    Логика «Более N» — округление вниз до ближайших 5/10/50, если есть смысл.
+		//    При N < 5 показываем точное число.
+		function _roundDownMarketing(n) {
+			if (n < 5) return n;
+			if (n < 20) return Math.floor(n / 5) * 5;
+			if (n < 100) return Math.floor(n / 10) * 10;
+			return Math.floor(n / 50) * 50;
+		}
+		function renderCtaStrip() {
+			const block = document.getElementById('cta-strip-block');
+			const txt = document.getElementById('cta-strip-text');
+			const btn = document.getElementById('cta-strip-btn');
+			if (!block || !txt) return;
+
+			// Полная подписка не нужна — скрываем CTA. (Гость/триал/expired — видят.)
+			if (Auth.hasFullAccess && Auth.hasFullAccess()) {
+				block.style.display = 'none';
+				return;
+			}
+
+			const n = Object.keys(RECIPES).length;
+			if (!n) { block.style.display = 'none'; return; }
+			const rounded = _roundDownMarketing(n);
+			const prefix = (n >= 5 && rounded < n) ? 'Более ' : '';
+			const m10 = rounded % 10, m100 = rounded % 100;
+			const word = (m100 >= 11 && m100 <= 14) ? 'рецептов'
+				: m10 === 1 ? 'рецепта' // «Более 51 рецепта» — маркетинговый окрас
+				: (m10 >= 2 && m10 <= 4) ? 'рецептов'
+				: 'рецептов';
+			txt.textContent = prefix + rounded + ' ' + word + ', расчёт КБЖУ под ваш профиль, замены продуктов и сезонные подборки.';
+
+			// Гость → ведём на login (триал автоматически), иначе на подписку.
+			if (btn) {
+				btn.href = Auth.isGuest && Auth.isGuest() ? Auth._loginUrl() : 'cabinet.html#subscription';
+				btn.textContent = Auth.isGuest && Auth.isGuest() ? 'Попробовать бесплатно' : 'Оформить подписку';
+			}
+			block.style.display = '';
+		}
+
 		function showLockedMsg(recipeId) {
 			const r = recipeId ? RECIPES[recipeId] : null;
 			const cta = r ? Auth.recipePaywallCta(r) : null;
@@ -1320,6 +1828,12 @@
 				if (!res.ok) return;
 				const data = await res.json();
 				Object.assign(_apiRatings, data);
+				// Рейтинги пришли — переотрисуем «Рекомендуем» уже с актуальной сортировкой.
+				// Прямой вызов _renderRecommendedInner (без setTimeout), чтобы не зависеть
+				// от того, успел ли renderRecommended поставить таймер.
+				if (typeof _renderRecommendedInner === 'function') {
+					_renderRecommendedInner();
+				}
 			} catch (e) { /* silent */ }
 		})();
 

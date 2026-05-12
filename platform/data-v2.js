@@ -619,6 +619,7 @@ function _mapRecipe(r) {
         time: r.time_min || 30, timeLabel: r.time_label || null, diff: r.difficulty || 'easy', servings: r.servings || 4, portionGrams: r.portion_grams || 300,
         accessLevel,
         free: accessLevel === 'free',
+        isSeasonal: r.is_seasonal === true,
         kcal: r.kcal || 0, protein: r.protein || 0, fat: r.fat || 0,
         carbs: r.carbs || 0, fiber: r.fiber || 0,
         tags: r.tags || [],
