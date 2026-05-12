@@ -207,52 +207,6 @@
 			opacity: .85;
 		}
 
-		/* Category progress pills */
-		.bal-progress {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 6px;
-			margin-top: 10px;
-		}
-
-		.bal-progress-pill {
-			display: inline-flex;
-			align-items: center;
-			gap: 4px;
-			padding: 3px 10px;
-			border-radius: 20px;
-			font-size: 11px;
-			font-weight: 600;
-			border: 1.5px solid var(--border);
-			background: #fff;
-			color: var(--text-2);
-			transition: all .3s ease;
-		}
-
-		.bal-progress-pill.done {
-			background: var(--pill-bg, #e8f5e9);
-			border-color: var(--pill-color, #66bb6a);
-			color: var(--pill-color, #2e7d32);
-		}
-
-		.bal-progress-pill .pill-check {
-			width: 14px;
-			height: 14px;
-			border-radius: 50%;
-			border: 1.5px solid var(--border);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			font-size: 9px;
-			transition: all .3s ease;
-		}
-
-		.bal-progress-pill.done .pill-check {
-			background: var(--pill-color, #66bb6a);
-			border-color: var(--pill-color, #66bb6a);
-			color: #fff;
-		}
-
 		/* Celebration sparkles */
 		@keyframes balCelebrate {
 			0% {
@@ -717,15 +671,127 @@
 			line-height: 1.6 !important;
 		}
 
-		/* SIDEBAR: cleaner balance panel */
-		.bal-sidebar { border-radius: 0 !important; border: 1px solid var(--border) !important; box-shadow: none !important; }
-		.bal-banner-warn { background: #fffcf8 !important; border-bottom-color: #f0e4d4 !important; }
-		.bal-item { border-radius: 6px !important; }
-		.bal-total { border-top: 2px solid var(--text) !important; }
-		.bal-total-kcal { font-family: var(--serif) !important; }
-		/* style-v4.css lacks @charset so `content: 'ккал'` renders garbled.
-		   Override here — recipe.html is explicit UTF-8, Cyrillic in inline style is safe. */
-		.bal-item-kcal::after { content: 'ккал'; }
+		/* ── SIDEBAR (editorial redesign) ───────────────────────────────
+		   Neutralises the legacy 4-colour group palette in style-v4.css and
+		   restyles banner / progress / groups / items / total to match the
+		   NYT Cooking editorial reference. JS still emits .bal-* classes so
+		   most rules use !important to win over style-v4.css. */
+		.bal-sidebar { border-radius: 0 !important; border: 1px solid var(--border) !important; box-shadow: none !important; overflow: hidden; }
+
+		/* Kill per-group colour vars (protein/fat/carbs/fiber) */
+		.bal-group { --g-color: var(--text) !important; --g-bg: transparent !important; --g-border: var(--border) !important; }
+		.bal-group.done { background: transparent !important; }
+
+		/* Banner */
+		.bal-banner { padding: 18px 18px 16px !important; border-bottom: 1px solid var(--border) !important; }
+		.bal-banner-warn { background: #fff !important; border-bottom-color: var(--border) !important; color: var(--text) !important; }
+		.bal-banner-success { background: #fff !important; border-bottom-color: var(--border) !important; color: var(--text) !important; animation: none !important; }
+		.bal-banner-label { font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+		.bal-banner-title { font-family: var(--serif) !important; font-size: 19px !important; font-weight: 700 !important; line-height: 1.15 !important; letter-spacing: -.01em !important; color: var(--text) !important; margin-bottom: 6px !important; padding-right: 52px !important; }
+		.bal-banner-title .bal-banner-icon { display: none !important; }
+		.bal-banner-sub { font-size: 12px !important; line-height: 1.5 !important; color: var(--text-2) !important; opacity: 1 !important; font-weight: 400 !important; padding-right: 52px !important; }
+
+		/* Progress checklist */
+		.bal-progress { display: flex !important; flex-direction: column !important; gap: 0 !important; margin-top: 14px !important; border-top: 1px solid var(--border); }
+		.bal-progress-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 12px; border-bottom: 1px solid var(--border); }
+		.bal-progress-item:last-child { border-bottom: none; }
+		.bal-progress-check { width: 16px; height: 16px; flex-shrink: 0; border: 1.5px solid var(--text-3); display: inline-flex; align-items: center; justify-content: center; font-size: 10px; line-height: 1; background: transparent; box-sizing: border-box; }
+		.bal-progress-item.done .bal-progress-check { background: var(--text); border-color: var(--text); color: #fff; }
+		.bal-progress-item.done .bal-progress-check::after { content: '✓'; }
+		.bal-progress-label { flex: 1; font-weight: 600; color: var(--text); text-transform: uppercase; letter-spacing: .05em; font-size: 11px; }
+		.bal-progress-item.done .bal-progress-label { color: var(--text-3); }
+		.bal-progress-status { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+		.bal-progress-item.done .bal-progress-status { color: var(--accent); }
+
+		/* Group */
+		.bal-group { border-bottom: none !important; border-top: 1px solid var(--border) !important; background: transparent !important; }
+		.bal-group:first-of-type { border-top: none !important; }
+		.bal-group-head { gap: 12px !important; padding: 14px 18px !important; }
+		.bal-group-num { font-family: var(--serif); font-size: 18px; font-weight: 700; color: var(--text-3); width: 24px; flex-shrink: 0; }
+		.bal-group.done .bal-group-num { color: var(--accent); }
+		.bal-group-label { font-size: 13px !important; font-weight: 600 !important; color: var(--text) !important; line-height: 1.3 !important; }
+		.bal-group.done .bal-group-label { color: var(--text) !important; }
+		.bal-group-status { font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+		.bal-group.done .bal-group-status { color: var(--accent); }
+		.bal-group-status-done { display: none; }
+		.bal-group.done .bal-group-status-todo { display: none; }
+		.bal-group.done .bal-group-status-done { display: inline; }
+		.bal-group-caret { font-size: 10px; color: var(--text-3); transition: transform .15s ease; flex-shrink: 0; }
+		.bal-group.open .bal-group-caret { transform: rotate(180deg); }
+
+		/* Items */
+		.bal-group-body { padding: 0 18px 14px 54px !important; animation: none !important; }
+		.bal-group-items { gap: 0 !important; }
+		.bal-item { background: transparent !important; border: none !important; border-bottom: 1px solid var(--border) !important; border-radius: 0 !important; padding: 10px 0 !important; gap: 12px !important; box-shadow: none !important; }
+		.bal-item:hover { background: transparent !important; border-color: var(--border) !important; }
+		.bal-item:last-child { border-bottom: none !important; }
+		.bal-item.checked { background: transparent !important; border-color: var(--border) !important; box-shadow: none !important; }
+		.bal-item-check { width: 14px !important; height: 14px !important; border-radius: 0 !important; border: 1.5px solid var(--text-3) !important; background: transparent !important; box-sizing: border-box; }
+		.bal-item.checked .bal-item-check { background: var(--text) !important; border-color: var(--text) !important; }
+		.bal-item.checked .bal-item-check::after { font-size: 9px !important; font-weight: 700 !important; animation: none !important; }
+		.bal-item-text { font-size: 13px !important; font-weight: 400 !important; color: var(--text) !important; }
+		.bal-item.checked .bal-item-text { color: var(--text) !important; font-weight: 500 !important; }
+		.bal-item-amount { color: var(--text-3) !important; font-weight: 500; }
+		.bal-item-kcal { font-family: var(--serif) !important; font-size: 13px !important; font-weight: 700 !important; color: var(--text-3) !important; font-feature-settings: 'tnum'; line-height: 1.2 !important; }
+		.bal-item.checked .bal-item-kcal { color: var(--accent) !important; }
+		.bal-item-kcal::after { content: '' !important; display: none !important; }
+		.bal-item-recipe-link {
+			color: var(--accent) !important;
+			background: transparent !important;
+			border: none !important;
+			padding: 0 !important;
+			border-radius: 0 !important;
+			text-decoration: underline;
+			text-underline-offset: 2px;
+			font-size: 11px !important;
+			letter-spacing: 0 !important;
+			font-weight: 600 !important;
+		}
+		.bal-item-recipe-link:hover { background: transparent !important; color: var(--text) !important; }
+
+		/* Total */
+		.bal-total { border-top: 2px solid var(--text) !important; background: var(--bg-alt) !important; padding: 18px !important; }
+		.bal-sidebar.balanced .bal-total { background: var(--bg-alt) !important; border-top-color: var(--text) !important; }
+		.bal-total-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px !important; }
+		.bal-total-label { font-size: 10px !important; font-weight: 800 !important; letter-spacing: .12em !important; text-transform: uppercase !important; color: var(--text) !important; }
+		.bal-total-balanced-note { color: var(--accent) !important; font-size: 11px !important; font-weight: 700 !important; }
+		.bal-total-kcal-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+		.bal-total-kcal { font-family: var(--serif) !important; font-size: 42px !important; font-weight: 700 !important; color: var(--accent) !important; line-height: 1 !important; letter-spacing: -.02em !important; animation: none !important; white-space: nowrap; }
+		.bal-total-kcal-unit { font-family: var(--font) !important; font-size: 11px !important; font-weight: 700 !important; letter-spacing: .1em !important; text-transform: uppercase !important; color: var(--text-3) !important; }
+		.bal-total-cells { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 0 !important; }
+		.bal-total-cell { background: transparent !important; border: none !important; border-right: 1px solid var(--border) !important; border-radius: 0 !important; padding: 0 10px !important; text-align: left !important; display: flex !important; flex-direction: column; align-items: flex-start; overflow: hidden; }
+		.bal-total-cell:first-child { padding-left: 0 !important; }
+		.bal-total-cell:last-child { border-right: none !important; }
+		.bal-total-cell b { font-family: var(--serif) !important; font-size: 16px !important; font-weight: 700 !important; color: var(--text) !important; line-height: 1 !important; }
+		.bal-total-cell span { font-size: 9px !important; font-weight: 700 !important; letter-spacing: .08em !important; color: var(--text-3) !important; margin-top: 4px; }
+		.bal-total-disclaimer { font-size: 10px !important; color: var(--text-3) !important; margin-top: 10px; line-height: 1.4; }
+
+		/* Wizard (mobile ≤1024) */
+		.bal-wizard-head { background: var(--bg-alt) !important; border-bottom: 1px solid var(--border) !important; }
+		.bal-wizard-step-counter { color: var(--accent) !important; }
+		.bal-wizard-dot { background: var(--border) !important; }
+		.bal-wizard-dot.active { background: var(--accent) !important; }
+		.bal-wizard-dot.done { background: var(--accent) !important; }
+		.bal-wizard-icon {
+			font-family: var(--serif) !important; font-size: 22px !important;
+			font-weight: 700 !important; color: var(--text-3) !important;
+			line-height: 1 !important; min-width: 28px; text-align: center;
+		}
+		.bal-wizard-label { font-family: var(--serif) !important; font-weight: 700 !important; color: var(--text) !important; }
+		.bal-wizard-hint { color: var(--text-2) !important; }
+		.bal-wizard-next { background: var(--accent) !important; color: #fff !important; border-radius: 0 !important; }
+		.bal-wizard-next:disabled { background: #f0f0f0 !important; color: #bbb !important; }
+		.bal-wizard-prev { border-radius: 0 !important; }
+
+		/* Sticky add-on toggle ("Показать ещё") — neutralise accent halo */
+		.bal-group-toggle { border-radius: 0 !important; }
+		.bal-group-toggle-dot { background: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent); }
+
+		/* Mobile wizard-only: hide the desktop checklist
+		   (overrides our own `display: flex !important` above on ≤1024px) */
+		@media (max-width: 1024px) {
+			.bal-sidebar .bal-progress { display: none !important; }
+		}
 
 		/* STICKY ADD BUTTON */
 		.sticky-add { border-top: 1px solid var(--border) !important; box-shadow: 0 -2px 12px rgba(0,0,0,.06) !important; }
@@ -980,7 +1046,6 @@
 
 		// Must be declared before renderRecipe is called (used inside buildGroup)
 		const subItemRegistry = {};
-		const GROUP_CLASS = { p: 'group-protein', f: 'group-fat', c: 'group-carbs', fi: 'group-fiber' };
 
 		// Steps UX state (mobile compact + stepper) — reset per-recipe in initStepsUI
 		let _stepsHtmlArr = [];
@@ -1992,8 +2057,11 @@
 			if (_balCats[0]) _accordionOpen[_balCats[0].prefix] = true;
 
 			const balProgressHtml = _balCats.map(c => {
-				const m = GROUP_META[c.prefix] || {};
-				return `<span class="bal-progress-pill" id="bal-pill-${c.key}" style="--pill-color:${m.color};--pill-bg:${m.bg}"><span class="pill-check" id="bal-chk-${c.key}"></span>${m.icon || ''} ${c.label}</span>`;
+				return `<div class="bal-progress-item" id="bal-pill-${c.key}">
+                    <span class="bal-progress-check" id="bal-chk-${c.key}"></span>
+                    <span class="bal-progress-label">${escHtml(c.label)}</span>
+                    <span class="bal-progress-status" id="bal-pst-${c.key}">требуется</span>
+                </div>`;
 			}).join('');
 
 			// Group lookups for stepIndex
@@ -2004,8 +2072,9 @@
             <div class="bal-sidebar anim anim-d2" id="bal-sidebar" data-wizard-step="0">
                 <div id="bal-banner" class="bal-banner bal-banner-warn">
                     <button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">🔕</span></button>
-                    <div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div>
-                    <div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи — КБЖУ пересчитается</div>
+                    <div class="bal-banner-label">Баланс блюда</div>
+                    <div class="bal-banner-title">Сделайте приём пищи полноценным</div>
+                    <div class="bal-banner-sub">Добавьте недостающие группы — КБЖУ и калории пересчитаются автоматически.</div>
                     <div class="bal-progress">${balProgressHtml}</div>
                 </div>
                 <div class="bal-wizard-head" id="bal-wizard-head">
@@ -2014,7 +2083,7 @@
                         <div class="bal-wizard-dots" id="bal-wizard-dots"></div>
                     </div>
                     <div class="bal-wizard-title-row">
-                        <span class="bal-wizard-icon" id="bal-wizard-icon">💪</span>
+                        <span class="bal-wizard-icon" id="bal-wizard-icon">01</span>
                         <div>
                             <div class="bal-wizard-label" id="bal-wizard-label">Белок</div>
                             <div class="bal-wizard-hint" id="bal-wizard-hint">Добавь белка для сытости</div>
@@ -2031,17 +2100,18 @@
                 </div>
                 <div class="bal-total" id="bal-total-bar">
                     <div class="bal-total-header">
-                        <span class="bal-total-label" id="bal-total-label">ИТОГО · БЛЮДО + ДОБАВКИ</span>
+                        <span class="bal-total-label" id="bal-total-label">Итого · блюдо + добавки</span>
                         <span class="bal-total-balanced-note">✓ Сбалансировано</span>
                     </div>
-                    <div class="bal-total-body">
-                        <div class="bal-total-cells">
-                            <div class="bal-total-cell"><b id="add-macro-p">${Number(r.protein)}г</b><span>БЕЛКИ</span></div>
-                            <div class="bal-total-cell"><b id="add-macro-f">${Number(r.fat)}г</b><span>ЖИРЫ</span></div>
-                            <div class="bal-total-cell"><b id="add-macro-c">${Number(r.carbs)}г</b><span>УГЛ</span></div>
-                            <div class="bal-total-cell"><b id="add-macro-fi">${Number(r.fiber || 0)}г</b><span>КЛЧ</span></div>
-                        </div>
-                        <div class="bal-total-kcal" id="bal-total-kcal">${Number(r.kcal)}<span class="bal-total-kcal-unit"> ккал</span></div>
+                    <div class="bal-total-kcal-row">
+                        <span class="bal-total-kcal" id="bal-total-kcal">${Number(r.kcal)}</span>
+                        <span class="bal-total-kcal-unit">Ккал</span>
+                    </div>
+                    <div class="bal-total-cells">
+                        <div class="bal-total-cell"><b id="add-macro-p">${Number(r.protein)}г</b><span>Белки</span></div>
+                        <div class="bal-total-cell"><b id="add-macro-f">${Number(r.fat)}г</b><span>Жиры</span></div>
+                        <div class="bal-total-cell"><b id="add-macro-c">${Number(r.carbs)}г</b><span>Углев.</span></div>
+                        <div class="bal-total-cell"><b id="add-macro-fi">${Number(r.fiber || 0)}г</b><span>Клетч.</span></div>
                     </div>
                     <div class="bal-total-disclaimer">Расчёт примерный: значения могут немного отличаться в зависимости от продукта, бренда и жирности</div>
                 </div>
@@ -2315,7 +2385,6 @@
 			if (!items || !items.length) return '';
 			const meta = GROUP_META[prefix] || {};
 			_groupConfig[prefix] = { items, stepIndex, icon: meta.icon, title: meta.title };
-			const cls = GROUP_CLASS[prefix] || '';
 			const shouldCollapse = items.length > GROUP_COLLAPSE_LIMIT;
 			const expanded = !!expandedGroups[prefix];
 			const visible = (shouldCollapse && !expanded) ? items.slice(0, GROUP_COLLAPSE_LIMIT) : items;
@@ -2328,13 +2397,13 @@
                     </button>
                 </div>`
 				: '';
-			const checkSvg = '<svg class="bal-group-icon-check" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5L5 9L12.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-			return `<div class="bal-group ${cls}${openCls}" id="bal-group-${prefix}" data-prefix="${prefix}" data-step="${stepIndex}">
+			const numStr = String(stepIndex + 1).padStart(2, '0');
+			return `<div class="bal-group${openCls}" id="bal-group-${prefix}" data-prefix="${prefix}" data-step="${stepIndex}">
             <button type="button" class="bal-group-head" onclick="balToggleAccordion('${prefix}')">
-                <span class="bal-group-icon-box"><span class="bal-group-icon-emoji">${meta.icon || ''}</span>${checkSvg}</span>
+                <span class="bal-group-num">${numStr}</span>
                 <span class="bal-group-label">${escHtml(meta.title || '')}</span>
-                <span class="bal-group-done-badge">✓ выбрано</span>
-                <span class="bal-group-chevron">▼</span>
+                <span class="bal-group-status"><span class="bal-group-status-todo">+ выбрать</span><span class="bal-group-status-done">✓ выбрано</span></span>
+                <span class="bal-group-caret">▾</span>
             </button>
             <div class="bal-group-body">
                 <div class="bal-group-items" id="bal-group-items-${prefix}">
@@ -2399,35 +2468,35 @@
 			const meta = GROUP_META[cat.prefix] || {};
 			root.dataset.wizardStep = String(_wizardStep);
 
+			// Editorial: clear any legacy per-group color vars so the wizard head
+			// stays in the neutral palette (--accent / --text) regardless of step.
 			const head = document.getElementById('bal-wizard-head');
 			if (head) {
-				head.style.setProperty('--g-bg', meta.bg || '#fff7ec');
-				head.style.setProperty('--g-border', meta.border || '#f0c080');
-				head.style.setProperty('--g-color', meta.color || '#b85e00');
+				head.style.removeProperty('--g-bg');
+				head.style.removeProperty('--g-border');
+				head.style.removeProperty('--g-color');
 			}
 			const counterEl = document.getElementById('bal-wizard-counter');
 			if (counterEl) counterEl.textContent = `Шаг ${_wizardStep + 1} из ${total}`;
 			const iconEl = document.getElementById('bal-wizard-icon');
-			if (iconEl) iconEl.textContent = meta.icon || '';
+			if (iconEl) iconEl.textContent = String(_wizardStep + 1).padStart(2, '0');
 			const labelEl = document.getElementById('bal-wizard-label');
 			if (labelEl) labelEl.textContent = meta.shortLabel || cat.label;
 			const hintEl = document.getElementById('bal-wizard-hint');
 			if (hintEl) hintEl.textContent = meta.title || '';
 
-			// Dots
+			// Dots — single accent palette (active/done = accent, idle = border)
 			const dotsEl = document.getElementById('bal-wizard-dots');
 			if (dotsEl) {
 				const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
 				dotsEl.innerHTML = _balRequired.map((c, i) => {
-					const m = GROUP_META[c.prefix] || {};
 					const done = checkedPrefixes.has(c.prefix);
 					const cls = i === _wizardStep ? 'bal-wizard-dot active' : (done ? 'bal-wizard-dot done' : 'bal-wizard-dot');
-					const color = done ? m.color : (i === _wizardStep ? meta.color : '#ddd');
-					return `<div class="${cls}" style="--dot-color:${m.color};background:${color}" onclick="balWizardSetStep(${i})"></div>`;
+					return `<div class="${cls}" onclick="balWizardSetStep(${i})"></div>`;
 				}).join('');
 			}
 
-			// Next / Prev buttons
+			// Next / Prev buttons — accent only, no group color
 			const prevBtn = document.getElementById('bal-wizard-prev');
 			if (prevBtn) prevBtn.disabled = _wizardStep === 0;
 			const nextBtn = document.getElementById('bal-wizard-next');
@@ -2444,9 +2513,9 @@
 					// Блокируем переход пока пользователь не выбрал добавку в текущей группе
 					nextBtn.disabled = !groupDone;
 				}
-				const active = groupDone || (isLast && allDone);
-				nextBtn.style.background = active ? meta.color : '#f0f0f0';
-				nextBtn.style.color = active ? '#fff' : '#bbb';
+				// Clear any inline colors from the colored era — CSS now drives styling.
+				nextBtn.style.removeProperty('background');
+				nextBtn.style.removeProperty('color');
 				nextBtn.style.cursor = nextBtn.disabled ? 'default' : 'pointer';
 			}
 		}
@@ -2534,10 +2603,10 @@
 			_balRequired.forEach(cat => {
 				const done = checkedPrefixes.has(cat.prefix);
 				const pill = document.getElementById('bal-pill-' + cat.key);
-				const chk = document.getElementById('bal-chk-' + cat.key);
 				if (pill) pill.classList.toggle('done', done);
-				if (chk) chk.textContent = done ? '✓' : '';
-				// Paint the group head (desktop accordion) + tint body background
+				const pst = document.getElementById('bal-pst-' + cat.key);
+				if (pst) pst.textContent = done ? 'выбрано' : 'требуется';
+				// Paint the group head (desktop accordion) state
 				const groupEl = document.getElementById('bal-group-' + cat.prefix);
 				if (groupEl) groupEl.classList.toggle('done', done);
 				if (!done) allDone = false;
@@ -2553,7 +2622,7 @@
 				const soundBtnHtml = `<button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">🔕</span></button>`;
 				if (allDone) {
 					banner.className = 'bal-banner bal-banner-success';
-					banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-title">✅ Блюдо сбалансировано!</div><div class="bal-banner-sub">Добавьте его в тарелку — это полноценный приём пищи</div>`;
+					banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-label">Баланс блюда</div><div class="bal-banner-title">Блюдо сбалансировано</div><div class="bal-banner-sub">Добавьте его в тарелку — это полноценный приём пищи.</div>`;
 					if (!_celebrationShown) {
 						_celebrationShown = true;
 						showToast('Блюдо сбалансировано ✅');
@@ -2562,15 +2631,18 @@
 					}
 				} else {
 					if (_wasBalanced) {
-						// was balanced, now not — reset banner
+						// was balanced, now not — reset banner (editorial checklist)
 						banner.className = 'bal-banner bal-banner-warn';
 						const checkedSet = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
-						const pills = _balRequired.map(c => {
-							const m = GROUP_META[c.prefix] || {};
+						const items = _balRequired.map(c => {
 							const done = checkedSet.has(c.prefix);
-							return `<span class="bal-progress-pill${done ? ' done' : ''}" id="bal-pill-${c.key}" style="--pill-color:${m.color};--pill-bg:${m.bg}"><span class="pill-check" id="bal-chk-${c.key}">${done ? '✓' : ''}</span>${m.icon || ''} ${c.label}</span>`;
+							return `<div class="bal-progress-item${done ? ' done' : ''}" id="bal-pill-${c.key}">
+                                <span class="bal-progress-check" id="bal-chk-${c.key}"></span>
+                                <span class="bal-progress-label">${escHtml(c.label)}</span>
+                                <span class="bal-progress-status" id="bal-pst-${c.key}">${done ? 'выбрано' : 'требуется'}</span>
+                            </div>`;
 						}).join('');
-						banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-title"><span class="bal-banner-icon">⚖️</span> Блюдо не сбалансировано</div><div class="bal-banner-sub">Выберите добавки ниже, чтобы сделать его полноценным приёмом пищи — КБЖУ пересчитается</div><div class="bal-progress">${pills}</div>`;
+						banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-label">Баланс блюда</div><div class="bal-banner-title">Сделайте приём пищи полноценным</div><div class="bal-banner-sub">Добавьте недостающие группы — КБЖУ и калории пересчитаются автоматически.</div><div class="bal-progress">${items}</div>`;
 						_celebrationShown = false;
 					}
 				}
@@ -2943,7 +3015,7 @@
 			total.carbs = Math.round(total.carbs * 10) / 10;
 			total.fiber = Math.round(total.fiber * 10) / 10;
 			const tEl = document.getElementById('bal-total-kcal');
-			if (tEl) tEl.innerHTML = total.kcal + '<span class="bal-total-kcal-unit"> ккал</span>';
+			if (tEl) tEl.textContent = String(total.kcal);
 			const cellP  = document.getElementById('add-macro-p');
 			const cellF  = document.getElementById('add-macro-f');
 			const cellC  = document.getElementById('add-macro-c');
