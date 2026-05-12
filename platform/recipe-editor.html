@@ -1242,13 +1242,36 @@
                 <label class="re-checkbox-label">
                     <input type="checkbox" id="re-published" checked> Опубликован
                 </label>
-                <label class="re-checkbox-label">
-                    <input type="checkbox" id="re-free"> Trial
-                </label>
                 <label class="re-checkbox-label" title="Бизнес-флаг: рецепт — суп. Автоматически добавляет хлеб и сухарики в Углеводы.">
                     <input type="checkbox" id="re-is-soup"> Суп
                 </label>
             </div>
+
+            <div class="re-field" style="margin-top:12px">
+                <label class="re-field-label" for="re-access-level">Уровень доступа</label>
+                <select id="re-access-level" class="re-input" style="max-width:420px">
+                    <option value="pro">Pro — только подписчики Pro</option>
+                    <option value="trial">Trial — доступен в пробном периоде и Pro</option>
+                    <option value="free">Free — доступен гостям без регистрации</option>
+                </select>
+                <div class="re-field-hint" style="font-size:12px;color:var(--text-3);margin-top:4px">
+                    Подробнее: docs/guest-mode-mvp.md §5
+                </div>
+            </div>
+            <!-- Legacy is_free mirror (скрыт). Серверный API синхронизирует это поле автоматически
+                 на основе access_level: is_free = (access_level === 'free').
+                 На клиенте обновляем для целостности перед отправкой формы. -->
+            <input type="checkbox" id="re-free" style="display:none">
+            <script>
+                (function () {
+                    var sel = document.getElementById('re-access-level');
+                    var cb = document.getElementById('re-free');
+                    if (!sel || !cb) return;
+                    function sync() { cb.checked = (sel.value === 'free'); }
+                    sel.addEventListener('change', sync);
+                    sync();
+                })();
+            </script>
         </div>
 
         <!-- ══════════ Секция 2: Карточка ══════════ -->
@@ -1827,6 +1850,8 @@
         document.getElementById('re-sort-order').value = r.sort_order || 0;
         document.getElementById('re-published').checked = r.is_published;
         document.getElementById('re-free').checked = r.is_free;
+        const _alSel = document.getElementById('re-access-level');
+        if (_alSel) _alSel.value = r.access_level || (r.is_free ? 'free' : 'pro');
         document.getElementById('re-is-soup').checked = !!r.is_soup;
         document.getElementById('re-photo').value = r.photo || '';
         document.getElementById('re-img-position').value = r.img_position || '';
@@ -2290,6 +2315,8 @@
             yt_video: normalizeVideoInput(document.getElementById('re-yt-video').value),
             vk_video: normalizeVideoInput(document.getElementById('re-vk-video').value),
             dzen_video: normalizeVideoInput(document.getElementById('re-dzen-video').value),
+            // access_level — источник истины. is_free сервер автоматически зеркалит.
+            access_level: (document.getElementById('re-access-level') && document.getElementById('re-access-level').value) || 'pro',
             is_free: document.getElementById('re-free').checked,
             is_published: document.getElementById('re-published').checked,
             is_soup: document.getElementById('re-is-soup').checked,
@@ -2546,6 +2573,8 @@
             document.getElementById('re-sort-order').value = r.sort_order || 0;
             document.getElementById('re-published').checked = !!r.is_published;
             document.getElementById('re-free').checked = !!r.is_free;
+            const _alSel2 = document.getElementById('re-access-level');
+            if (_alSel2) _alSel2.value = r.access_level || (r.is_free ? 'free' : 'pro');
             document.getElementById('re-is-soup').checked = !!r.is_soup;
             document.getElementById('re-photo').value = r.photo || '';
             document.getElementById('re-img-position').value = r.img_position || '';

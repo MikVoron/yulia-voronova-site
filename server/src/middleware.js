@@ -61,4 +61,39 @@ async function checkActiveSubscription(userId) {
   return false;
 }
 
-module.exports = { authenticate, requireAdmin, requireActiveSubscription, optionalAuthenticate, checkActiveSubscription };
+// Возвращает уровень доступа пользователя: 'admin' | 'active' | 'trial' | 'guest'.
+// 'guest' — нет токена / нет user / просроченная подписка / нет подписки.
+// Используется в /content/recipes для решения, какие поля рецепта возвращать.
+async function getUserTier(userId) {
+  if (!userId) return 'guest';
+  const u = await db.query('SELECT role FROM users WHERE id=$1', [userId]);
+  if (u.rows.length && u.rows[0].role === 'admin') return 'admin';
+  const result = await db.query(
+    'SELECT status, trial_ends_at, active_until FROM subscriptions WHERE user_id=$1', [userId]
+  );
+  if (!result.rows.length) return 'guest';
+  const sub = result.rows[0];
+  const now = new Date();
+  if (sub.status === 'active' && new Date(sub.active_until) > now) return 'active';
+  if (sub.status === 'trial'  && new Date(sub.trial_ends_at) > now) return 'trial';
+  return 'guest';
+}
+
+// Решает, может ли пользователь видеть полный рецепт (ingredients/steps/note).
+// access_level: 'free' | 'trial' | 'pro'  (см. docs/guest-mode-mvp.md §5A.3)
+function userCanSeeRecipe(userTier, accessLevel) {
+  if (accessLevel === 'free') return true;
+  if (accessLevel === 'trial') {
+    return userTier === 'trial' || userTier === 'active' || userTier === 'admin';
+  }
+  if (accessLevel === 'pro') {
+    return userTier === 'active' || userTier === 'admin';
+  }
+  return false;  // неизвестный уровень — закрыто
+}
+
+module.exports = {
+  authenticate, requireAdmin, requireActiveSubscription,
+  optionalAuthenticate, checkActiveSubscription,
+  getUserTier, userCanSeeRecipe,
+};

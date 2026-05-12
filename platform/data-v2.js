@@ -137,8 +137,17 @@ const Auth = {
         const user = this.getUser();
         if (user) { user.role = role; localStorage.setItem(this.KEY, JSON.stringify(user)); }
     },
-    async checkAccess() {
-        if (!this.isLoggedIn()) { location.href = this._loginUrl(); return false; }
+    async checkAccess(opts) {
+        const allowGuest = !!(opts && opts.allowGuest);
+        if (!this.isLoggedIn()) {
+            if (allowGuest) {
+                this._subStatus = 'guest';
+                document.body.style.visibility = 'visible';
+                return false;
+            }
+            location.href = this._loginUrl();
+            return false;
+        }
         if (!this.getToken()) {
             const ok = await this.refreshToken();
             if (!ok) {
@@ -190,8 +199,62 @@ const Auth = {
         }
     },
     isTrial() { return this._subStatus === 'trial'; },
+    isGuest() { return !this.isLoggedIn(); },
     hasFullAccess() { return this._subStatus === 'active'; },
-    canViewRecipe(recipe) { return recipe.free || this.hasFullAccess(); },
+
+    // Уровень доступа рецепта: 'free' | 'trial' | 'pro'.
+    // Fallback на is_free, если access_level не пришёл (старые данные).
+    recipeAccessLevel(recipe) {
+        if (recipe && recipe.accessLevel) return recipe.accessLevel;
+        return (recipe && recipe.free) ? 'free' : 'pro';
+    },
+    // Видит ли текущий пользователь полный рецепт?
+    // Матрица в docs/guest-mode-mvp.md §5.1
+    canViewRecipe(recipe) {
+        const level = this.recipeAccessLevel(recipe);
+        if (level === 'free') return true;
+        if (level === 'trial') return this.isTrial() || this.hasFullAccess();
+        if (level === 'pro')   return this.hasFullAccess();
+        return false;
+    },
+    // Бейдж для карточки. Возвращает строку или '' если уровень не нужно показывать.
+    recipeAccessLabel(recipe) {
+        const level = this.recipeAccessLevel(recipe);
+        if (level === 'free')  return 'Бесплатно';
+        if (level === 'trial') return 'Trial';
+        if (level === 'pro')   return 'Pro';
+        return '';
+    },
+    // CTA для locked-карточки и preview-блока в recipe.html.
+    // Возвращает { title, btn, href } или null, если у пользователя есть доступ.
+    // См. таблицу в docs/guest-mode-mvp.md §6.4
+    recipePaywallCta(recipe) {
+        if (this.canViewRecipe(recipe)) return null;
+        const level = this.recipeAccessLevel(recipe);
+        const ret = this._currentReturnUrl();
+        if (this.isGuest()) {
+            return {
+                title: level === 'pro'
+                    ? 'Этот рецепт открыт для подписчиков Pro'
+                    : 'Этот рецепт открыт после регистрации',
+                btn: 'Войти и получить 7 дней бесплатно',
+                href: this._loginUrl(),
+            };
+        }
+        if (this.isTrial() && level === 'pro') {
+            return {
+                title: 'Этот рецепт доступен по подписке Pro',
+                btn: 'Оформить Pro',
+                href: 'cabinet.html?tab=subscription' + (ret ? '&return=' + encodeURIComponent(ret) : ''),
+            };
+        }
+        // expired / no_sub / error — продлить
+        return {
+            title: 'Доступ к рецептам ограничен',
+            btn: 'Продлить подписку',
+            href: 'cabinet.html?tab=subscription' + (ret ? '&return=' + encodeURIComponent(ret) : ''),
+        };
+    },
     _showPaywall(reason) {
         // Не блокировать cabinet.html — это и есть страница оплаты
         if (location.pathname.indexOf('cabinet.html') !== -1) {
@@ -549,10 +612,13 @@ function _fixPhoto(p) {
 
 // Map API snake_case → frontend camelCase
 function _mapRecipe(r) {
+    // access_level — источник истины; free оставляем как legacy mirror для совместимости
+    const accessLevel = r.access_level || (r.is_free ? 'free' : 'pro');
     return {
         id: r.id, cat: r.cat, categories: r.categories || (r.cat ? [r.cat] : []), name: r.name, emoji: r.emoji || '🍴',
         time: r.time_min || 30, timeLabel: r.time_label || null, diff: r.difficulty || 'easy', servings: r.servings || 4, portionGrams: r.portion_grams || 300,
-        free: !!r.is_free,
+        accessLevel,
+        free: accessLevel === 'free',
         kcal: r.kcal || 0, protein: r.protein || 0, fat: r.fat || 0,
         carbs: r.carbs || 0, fiber: r.fiber || 0,
         tags: r.tags || [],

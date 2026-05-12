@@ -8,16 +8,31 @@ let userState = { is_blocked: false, role: 'user' };
 let subState = null; // null = no subscription row; or { status, trial_ends_at, active_until }
 
 const FREE_RECIPE = {
-  id: 'free-1', cat: 'breakfasts', name: 'Free recipe', is_free: true,
+  id: 'free-1', cat: 'breakfasts', name: 'Free recipe',
+  is_free: true, access_level: 'free',
   ingredients: [{ name: 'a' }], steps: [{ text: 's' }], note: 'free-note',
   categories: ['breakfasts'],
 };
 const PAID_RECIPE = {
-  id: 'paid-1', cat: 'mains', name: 'Paid recipe', is_free: false,
+  id: 'paid-1', cat: 'mains', name: 'Paid recipe',
+  // Legacy-style: только is_free, без access_level — проверяем fallback на 'pro'
+  is_free: false, access_level: null,
   ingredients: [{ name: 'b' }], steps: [{ text: 't' }], note: 'paid-note',
   categories: ['mains'],
 };
-const RECIPES = [FREE_RECIPE, PAID_RECIPE];
+const TRIAL_RECIPE = {
+  id: 'trial-1', cat: 'mains', name: 'Trial recipe',
+  is_free: false, access_level: 'trial',
+  ingredients: [{ name: 'c' }], steps: [{ text: 'u' }], note: 'trial-note',
+  categories: ['mains'],
+};
+const PRO_RECIPE = {
+  id: 'pro-1', cat: 'mains', name: 'Pro recipe',
+  is_free: false, access_level: 'pro',
+  ingredients: [{ name: 'd' }], steps: [{ text: 'v' }], note: 'pro-note',
+  categories: ['mains'],
+};
+const RECIPES = [FREE_RECIPE, PAID_RECIPE, TRIAL_RECIPE, PRO_RECIPE];
 
 const mockQuery = vi.fn(async (sql /*, params */) => {
   if (/SELECT is_blocked FROM users WHERE id/.test(sql)) {
@@ -126,16 +141,10 @@ describe('GET /content/recipes — paywall stripping', () => {
     expectFull(res.json().find(r => r.id === 'paid-1'));
   });
 
-  it('user with active trial: paid recipe full', async () => {
-    subState = { status: 'trial', trial_ends_at: FUTURE, active_until: PAST };
-    const res = await app.inject({
-      method: 'GET',
-      url: '/content/recipes',
-      headers: { authorization: 'Bearer ' + makeToken() },
-    });
-    expect(res.statusCode).toBe(200);
-    expectFull(res.json().find(r => r.id === 'paid-1'));
-  });
+  // Note: тест «trial-пользователь видит paid-1 полностью» удалён.
+  // Под старой моделью trial видел всё; под новой access_level моделью paid-1
+  // с access_level=null → fallback 'pro' → trial его не видит. Новое
+  // поведение покрыто в describe('access_level matrix') ниже.
 
   it('user with expired subscription: paid recipe stripped', async () => {
     subState = { status: 'expired', trial_ends_at: PAST, active_until: PAST };
@@ -203,5 +212,164 @@ describe('GET /content/recipes — paywall stripping', () => {
     });
     expect(res.statusCode).toBe(200);
     expectStripped(res.json().find(r => r.id === 'paid-1'));
+  });
+});
+
+// access_level matrix — см. docs/guest-mode-mvp.md §5A.3, §5A.8
+describe('GET /content/recipes — access_level matrix', () => {
+  it('guest: free=full, trial=stripped, pro=stripped', async () => {
+    const res = await app.inject({ method: 'GET', url: '/content/recipes' });
+    expect(res.statusCode).toBe(200);
+    const data = res.json();
+    expectFull(data.find(r => r.id === 'free-1'));
+    expectStripped(data.find(r => r.id === 'trial-1'));
+    expectStripped(data.find(r => r.id === 'pro-1'));
+  });
+
+  it('trial user: free=full, trial=full, pro=stripped', async () => {
+    subState = { status: 'trial', trial_ends_at: FUTURE, active_until: PAST };
+    const res = await app.inject({
+      method: 'GET',
+      url: '/content/recipes',
+      headers: { authorization: 'Bearer ' + makeToken() },
+    });
+    expect(res.statusCode).toBe(200);
+    const data = res.json();
+    expectFull(data.find(r => r.id === 'free-1'));
+    expectFull(data.find(r => r.id === 'trial-1'));
+    expectStripped(data.find(r => r.id === 'pro-1'));
+  });
+
+  it('active user: free=full, trial=full, pro=full', async () => {
+    subState = { status: 'active', trial_ends_at: PAST, active_until: FUTURE };
+    const res = await app.inject({
+      method: 'GET',
+      url: '/content/recipes',
+      headers: { authorization: 'Bearer ' + makeToken() },
+    });
+    expect(res.statusCode).toBe(200);
+    const data = res.json();
+    expectFull(data.find(r => r.id === 'free-1'));
+    expectFull(data.find(r => r.id === 'trial-1'));
+    expectFull(data.find(r => r.id === 'pro-1'));
+  });
+
+  it('admin without subscription: all levels full', async () => {
+    userState = { is_blocked: false, role: 'admin' };
+    subState = null;
+    const res = await app.inject({
+      method: 'GET',
+      url: '/content/recipes',
+      headers: { authorization: 'Bearer ' + makeToken() },
+    });
+    expect(res.statusCode).toBe(200);
+    const data = res.json();
+    expectFull(data.find(r => r.id === 'free-1'));
+    expectFull(data.find(r => r.id === 'trial-1'));
+    expectFull(data.find(r => r.id === 'pro-1'));
+  });
+
+  it('expired user: free=full, trial=stripped, pro=stripped', async () => {
+    subState = { status: 'expired', trial_ends_at: PAST, active_until: PAST };
+    const res = await app.inject({
+      method: 'GET',
+      url: '/content/recipes',
+      headers: { authorization: 'Bearer ' + makeToken() },
+    });
+    expect(res.statusCode).toBe(200);
+    const data = res.json();
+    expectFull(data.find(r => r.id === 'free-1'));
+    expectStripped(data.find(r => r.id === 'trial-1'));
+    expectStripped(data.find(r => r.id === 'pro-1'));
+  });
+
+  it('blocked user with active sub: all paid levels stripped (block trumps tier)', async () => {
+    userState = { is_blocked: true, role: 'user' };
+    subState = { status: 'active', trial_ends_at: PAST, active_until: FUTURE };
+    const res = await app.inject({
+      method: 'GET',
+      url: '/content/recipes',
+      headers: { authorization: 'Bearer ' + makeToken() },
+    });
+    expect(res.statusCode).toBe(200);
+    const data = res.json();
+    expectFull(data.find(r => r.id === 'free-1'));
+    expectStripped(data.find(r => r.id === 'trial-1'));
+    expectStripped(data.find(r => r.id === 'pro-1'));
+  });
+
+  it('legacy recipe with is_free=false and no access_level: stripped for guest (fallback to pro)', async () => {
+    // paid-1 имеет access_level: null — должен трактоваться как 'pro'
+    const res = await app.inject({ method: 'GET', url: '/content/recipes' });
+    expect(res.statusCode).toBe(200);
+    expectStripped(res.json().find(r => r.id === 'paid-1'));
+  });
+
+  it('legacy recipe with is_free=false and no access_level: stripped for trial (fallback to pro)', async () => {
+    subState = { status: 'trial', trial_ends_at: FUTURE, active_until: PAST };
+    const res = await app.inject({
+      method: 'GET',
+      url: '/content/recipes',
+      headers: { authorization: 'Bearer ' + makeToken() },
+    });
+    expect(res.statusCode).toBe(200);
+    // paid-1 → access_level fallback 'pro' → стрипается для trial
+    expectStripped(res.json().find(r => r.id === 'paid-1'));
+  });
+});
+
+// Validation tests for admin write endpoints.
+// Любой невалидный access_level должен дать 400 ДО касания БД — никакого silent fallback.
+describe('admin /recipes: access_level validation', () => {
+  it('POST /admin/recipes: invalid access_level returns 400', async () => {
+    userState = { is_blocked: false, role: 'admin' };
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/recipes',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: {
+        id: 'bogus-test', name: 'Bogus', categories: ['mains'],
+        access_level: 'super-secret',
+      },
+    });
+    expect(res.statusCode).toBe(400);
+    const body = res.json();
+    expect(body.field).toBe('access_level');
+    expect(body.error).toMatch(/access_level/i);
+  });
+
+  it('PUT /admin/recipes/:id: invalid access_level returns 400', async () => {
+    userState = { is_blocked: false, role: 'admin' };
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/admin/recipes/some-id',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: {
+        name: 'X', categories: ['mains'],
+        access_level: 'ULTRA',
+      },
+    });
+    expect(res.statusCode).toBe(400);
+    const body = res.json();
+    expect(body.field).toBe('access_level');
+  });
+
+  it('POST /admin/recipes: empty access_level falls back via is_free (no 400)', async () => {
+    // access_level отсутствует / пуст → backward compat: is_free=true → 'free'
+    userState = { is_blocked: false, role: 'admin' };
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/recipes',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: {
+        // намеренно без access_level
+        id: 'fallback-test', name: 'X', categories: ['mains'],
+        is_free: true,
+      },
+    });
+    // Хэндлер пройдёт валидацию (т.к. fallback на is_free=true → 'free') и
+    // упадёт уже на INSERT (mockQuery возвращает пустой rows[0] → TypeError).
+    // Главное — это НЕ 400-ошибка валидации access_level.
+    expect(res.statusCode).not.toBe(400);
   });
 });

@@ -1,7 +1,39 @@
 const db = require('../db');
-const { authenticate, requireAdmin, optionalAuthenticate, checkActiveSubscription } = require('../middleware');
+const { authenticate, requireAdmin, optionalAuthenticate, getUserTier, userCanSeeRecipe } = require('../middleware');
 const email = require('../email');
 const audit = require('../audit');
+
+const ACCESS_LEVELS = ['free', 'trial', 'pro'];
+
+// Нормализация access_level (новое поле) + backward compat с is_free.
+// Возвращает { access_level, is_free } для записи в БД.
+//
+// Правила:
+//   - access_level отсутствует (undefined / null / '') → legacy fallback:
+//       is_free=true → 'free', иначе 'trial' (НЕ 'pro' — не закрываем рецепт
+//       по умолчанию незаметно).
+//   - access_level присутствует и валиден ('free'/'trial'/'pro') → используем его,
+//       is_free = (access_level === 'free') — серверный mirror.
+//   - access_level присутствует, но НЕвалиден → бросаем ошибку 400. Молчаливый
+//       fallback опасен: вместо явной ошибки админ получил бы случайно
+//       проставленный 'trial', и заметил бы это только при просмотре карточки.
+function normalizeAccessLevel(body) {
+  const raw = body ? body.access_level : undefined;
+  if (raw === undefined || raw === null || raw === '') {
+    const legacyFree = !!(body && body.is_free);
+    return {
+      access_level: legacyFree ? 'free' : 'trial',
+      is_free: legacyFree,
+    };
+  }
+  if (typeof raw === 'string' && ACCESS_LEVELS.includes(raw)) {
+    return { access_level: raw, is_free: raw === 'free' };
+  }
+  const err = new Error('Недопустимое значение access_level (ожидается free/trial/pro)');
+  err.statusCode = 400;
+  err.field = 'access_level';
+  throw err;
+}
 
 // Нормализация time_label: принимаем только строку до 60 символов, иначе → null.
 // Колонка в БД — VARCHAR(60). Пустые строки и нестроковые значения всегда дают null.
@@ -34,20 +66,17 @@ async function contentRoutes(fastify) {
   });
 
   // GET /content/recipes — all published recipes
-  // Paid fields (ingredients, steps, note) are stripped for users without active subscription
+  // Stripping (ingredients, steps, note) применяется по матрице:
+  //   guest        → full только для access_level='free'
+  //   trial        → full для 'free' и 'trial', stripped для 'pro'
+  //   active/admin → full для всех
+  // См. docs/guest-mode-mvp.md §5A.3
   fastify.get('/content/recipes', async (req) => {
     await optionalAuthenticate(req);
-    let hasAccess = false;
-    if (req.user) {
-      const userRes = await db.query('SELECT role FROM users WHERE id=$1', [req.user.sub]);
-      if (userRes.rows.length && userRes.rows[0].role === 'admin') {
-        hasAccess = true;
-      } else {
-        hasAccess = await checkActiveSubscription(req.user.sub);
-      }
-    }
+    const tier = req.user ? await getUserTier(req.user.sub) : 'guest';
     const result = await db.query(
-      `SELECT r.id, r.cat, r.name, r.emoji, r.time_min, r.time_label, r.difficulty, r.servings, r.is_free,
+      `SELECT r.id, r.cat, r.name, r.emoji, r.time_min, r.time_label, r.difficulty, r.servings,
+              r.is_free, r.access_level,
               r.kcal, r.protein, r.fat, r.carbs, r.fiber, r.tags, r.photo, r.img_position, r.quote,
               r.ingredients, r.steps, r.note, r.vk_video, r.yt_video, r.dzen_video,
               r.add_protein, r.add_fat, r.add_carbs, r.add_fiber, r.auto_addons, r.is_soup,
@@ -59,9 +88,10 @@ async function contentRoutes(fastify) {
               ) AS categories
        FROM recipes r WHERE r.is_published = true ORDER BY r.sort_order, r.created_at`
     );
-    if (hasAccess) return result.rows;
     return result.rows.map(r => {
-      if (r.is_free) return r;
+      // Fallback: если access_level пуст (старые данные до миграции) — выводим из is_free
+      const level = r.access_level || (r.is_free ? 'free' : 'pro');
+      if (userCanSeeRecipe(tier, level)) return r;
       const { ingredients, steps, note, ...meta } = r;
       return meta;
     });
@@ -310,20 +340,24 @@ async function contentRoutes(fastify) {
     let timeLabel;
     try { timeLabel = normalizeTimeLabel(r.time_label); }
     catch (e) { return reply.status(400).send({ error: e.message, field: 'time_label' }); }
+    // access_level — валидируем ДО запросов в БД. Невалидный input → 400, без silent fallback.
+    let access_level, is_free;
+    try { ({ access_level, is_free } = normalizeAccessLevel(r)); }
+    catch (e) { return reply.status(e.statusCode || 400).send({ error: e.message, field: e.field || 'access_level' }); }
     // Check id uniqueness
     const exists = await db.query('SELECT id FROM recipes WHERE id=$1', [r.id]);
     if (exists.rows.length) return reply.status(409).send({ error: 'Рецепт с таким id уже существует' });
     const primaryCat = cats[0];
     const result = await db.query(
-      `INSERT INTO recipes (id, cat, name, emoji, time_min, time_label, difficulty, servings, is_free,
+      `INSERT INTO recipes (id, cat, name, emoji, time_min, time_label, difficulty, servings, is_free, access_level,
           kcal, protein, fat, carbs, fiber, tags, photo, img_position, quote,
           ingredients, steps, note, vk_video, yt_video, dzen_video, add_protein, add_fat, add_carbs, add_fiber,
           portion_grams, sort_order, is_published, auto_addons, is_soup)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34)
        RETURNING *`,
       [
         r.id, primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, timeLabel, r.difficulty || 'easy',
-        r.servings || 4, r.is_free || false,
+        r.servings || 4, is_free, access_level,
         r.kcal || 0, r.protein || 0, r.fat || 0, r.carbs || 0, r.fiber || 0,
         r.tags || [], r.photo || null, r.img_position || null, r.quote || null,
         JSON.stringify(r.ingredients || []), JSON.stringify(r.steps || []),
@@ -354,16 +388,21 @@ async function contentRoutes(fastify) {
     let timeLabel;
     try { timeLabel = normalizeTimeLabel(r.time_label); }
     catch (e) { return reply.status(400).send({ error: e.message, field: 'time_label' }); }
+    // access_level — валидируем ДО запросов в БД. Невалидный input → 400, без silent fallback.
+    let access_level, is_free;
+    try { ({ access_level, is_free } = normalizeAccessLevel(r)); }
+    catch (e) { return reply.status(e.statusCode || 400).send({ error: e.message, field: e.field || 'access_level' }); }
     const result = await db.query(
       `UPDATE recipes SET cat=$1, name=$2, emoji=$3, time_min=$4, time_label=$5, difficulty=$6, servings=$7,
-          is_free=$8, kcal=$9, protein=$10, fat=$11, carbs=$12, fiber=$13, tags=$14,
-          photo=$15, img_position=$16, quote=$17, ingredients=$18, steps=$19, note=$20,
-          vk_video=$21, yt_video=$22, dzen_video=$23, add_protein=$24, add_fat=$25, add_carbs=$26, add_fiber=$27,
-          portion_grams=$28, sort_order=$29, is_published=$30, auto_addons=$31, is_soup=$32, updated_at=now()
-       WHERE id=$33 RETURNING *`,
+          is_free=$8, access_level=$9,
+          kcal=$10, protein=$11, fat=$12, carbs=$13, fiber=$14, tags=$15,
+          photo=$16, img_position=$17, quote=$18, ingredients=$19, steps=$20, note=$21,
+          vk_video=$22, yt_video=$23, dzen_video=$24, add_protein=$25, add_fat=$26, add_carbs=$27, add_fiber=$28,
+          portion_grams=$29, sort_order=$30, is_published=$31, auto_addons=$32, is_soup=$33, updated_at=now()
+       WHERE id=$34 RETURNING *`,
       [
         primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, timeLabel, r.difficulty || 'easy',
-        r.servings || 4, r.is_free || false,
+        r.servings || 4, is_free, access_level,
         r.kcal || 0, r.protein || 0, r.fat || 0, r.carbs || 0, r.fiber || 0,
         r.tags || [], r.photo || null, r.img_position || null, r.quote || null,
         JSON.stringify(r.ingredients || []), JSON.stringify(r.steps || []),
