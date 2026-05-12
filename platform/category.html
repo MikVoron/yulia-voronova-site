@@ -23,6 +23,33 @@
         .cat-hero-ava img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
         .cat-hero-name { font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--text); line-height: 1.1; }
         .cat-hero-desc { font-size: 13px; color: var(--text-2); margin-top: 3px; }
+
+        /* ── HEADER: hide back-btn, keep DOM ── */
+        .v-header .vh-back-btn { display: none !important; }
+        .v-header .vh-back-btn ~ .v-user-wrap { display: block !important; }
+
+        /* ── BREADCRUMBS ── */
+        .cat-crumbs {
+            display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+            margin: 0 0 16px;
+            font-family: var(--font); font-size: 12px; font-weight: 600;
+            letter-spacing: .04em;
+        }
+        .cat-crumbs a {
+            color: var(--text-2); text-decoration: none;
+            text-transform: uppercase; letter-spacing: inherit;
+            transition: color .15s;
+        }
+        .cat-crumbs a:hover { color: var(--accent); }
+        .cat-crumbs .crumb-sep { color: var(--text-3); font-weight: 500; font-size: 11px; }
+        .cat-crumbs .crumb-current {
+            color: var(--text); font-weight: 700;
+            text-transform: none; letter-spacing: 0;
+            max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        @media (max-width: 767px) {
+            .cat-crumbs .crumb-current { max-width: 140px; }
+        }
     </style>
 </head>
 <body class="v-page">
@@ -69,6 +96,9 @@
 
 <main style="flex:1; padding-bottom: 40px;">
     <div class="v-wrap">
+
+        <!-- Breadcrumbs -->
+        <nav class="cat-crumbs" id="cat-crumbs" aria-label="Хлебные крошки" style="display:none"></nav>
 
         <!-- Category hero -->
         <div class="cat-hero anim" id="cat-hero"></div>
@@ -194,10 +224,24 @@
                 '<div class="cat-hero-ava">🔍</div>' +
                 '<div><div class="cat-hero-name">Поиск: «' + escHtml(searchQuery) + '»</div>' +
                 '<div class="cat-hero-desc">Всего найдено: ' + pluralR(total) + '</div></div></div>';
+            var crumbsEl = document.getElementById('cat-crumbs');
+            if (crumbsEl) {
+                crumbsEl.innerHTML = '<a href="index.html">Главная</a>' +
+                    '<span class="crumb-sep">›</span>' +
+                    '<span class="crumb-current">Поиск</span>';
+                crumbsEl.style.display = '';
+            }
         } else {
             cat = getCategory(catId);
             if (cat) {
                 document.title = cat.name + ' — Конструктор питания';
+                var crumbsEl = document.getElementById('cat-crumbs');
+                if (crumbsEl) {
+                    crumbsEl.innerHTML = '<a href="index.html">Главная</a>' +
+                        '<span class="crumb-sep">›</span>' +
+                        '<span class="crumb-current">' + escHtml(String(cat.name)) + '</span>';
+                    crumbsEl.style.display = '';
+                }
                 var catAvatars = typeof CAT_AVATARS !== 'undefined' ? CAT_AVATARS : {};
                 var avaUrl = (typeof getCategoryPhoto === 'function' ? getCategoryPhoto(catId, catAvatars[catId]) : catAvatars[catId]) || '';
                 var avaImg = avaUrl
