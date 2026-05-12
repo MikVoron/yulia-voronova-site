@@ -530,6 +530,208 @@
 			.kbzhu-disclaimer,
 			.bal-total-disclaimer { font-size: 10.5px; }
 		}
+
+		/* ── BREADCRUMBS (above hero) ────────────────────── */
+		.recipe-crumbs {
+			display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+			margin: 0 0 16px;
+			font-family: var(--font); font-size: 12px; font-weight: 600;
+			letter-spacing: .04em;
+		}
+		.recipe-crumbs a,
+		.recipe-crumbs button {
+			color: var(--text-2); background: none; border: none; padding: 0;
+			font: inherit; cursor: pointer; text-decoration: none;
+			text-transform: uppercase; letter-spacing: inherit;
+			transition: color .15s;
+		}
+		.recipe-crumbs a:hover,
+		.recipe-crumbs button:hover { color: var(--accent); }
+		.recipe-crumbs .crumb-sep {
+			color: var(--text-3); font-weight: 500; font-size: 11px;
+			text-transform: none;
+		}
+		.recipe-crumbs .crumb-current {
+			color: var(--text-3); font-weight: 500;
+			text-transform: none; letter-spacing: 0;
+			max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+		}
+		@media (max-width: 767px) {
+			.recipe-crumbs .crumb-current { max-width: 140px; }
+		}
+
+		/* ── HEADER: hide back-btn on recipe page, keep DOM ── */
+		.v-header .vh-back-btn { display: none !important; }
+		/* style-v4.css has `.vh-back-btn ~ .v-user-wrap { display: none }` on
+		   mobile that hides profile when back-btn is a sibling. The original
+		   .v-user-wrap has no explicit display (defaults to block), so revert
+		   to that to keep profile visible while back-btn lives invisibly in DOM. */
+		.v-header .vh-back-btn ~ .v-user-wrap { display: block !important; }
+
+		/* ── NYT Cooking–style recipe page overrides ─────── */
+
+		/* HERO: editorial crop, no rounding */
+		.recipe-hero-img {
+			border-radius: 0 !important;
+			aspect-ratio: 16/10 !important;
+			margin-bottom: 28px !important;
+		}
+		.recipe-hero-img .card-fav-btn {
+			top: 14px !important; right: 14px !important;
+			width: 36px !important; height: 36px !important;
+			background: rgba(255,255,255,.92) !important;
+			backdrop-filter: blur(8px);
+			box-shadow: 0 2px 8px rgba(0,0,0,.12) !important;
+		}
+		.photo-overlay {
+			padding: 10px 14px !important;
+			background: linear-gradient(to top, rgba(0,0,0,.45) 0%, transparent 100%) !important;
+		}
+
+		/* TITLE: large editorial serif.
+		   Scoped to .recipe-main so renderSublist's title (no .recipe-main wrapper)
+		   stays at the original style-v4.css size. */
+		.recipe-main .recipe-title {
+			font-family: var(--serif) !important;
+			font-size: clamp(28px, 4vw, 42px) !important;
+			font-weight: 700 !important;
+			line-height: 1.1 !important;
+			letter-spacing: -0.02em !important;
+			color: var(--text) !important;
+			margin-bottom: 12px !important;
+		}
+
+		/* META BADGES: inline ruled, not pills */
+		.recipe-badges {
+			display: flex !important;
+			flex-wrap: wrap !important;
+			gap: 0 !important;
+			align-items: center !important;
+			margin-bottom: 16px !important;
+			padding-bottom: 16px !important;
+			border-bottom: 1px solid var(--border) !important;
+		}
+		.recipe-badge {
+			background: none !important;
+			border: none !important;
+			padding: 0 !important;
+			border-radius: 0 !important;
+			font-size: 13px !important;
+			font-weight: 500 !important;
+			color: var(--text-2) !important;
+		}
+		.recipe-badge + .recipe-badge::before {
+			content: '·';
+			margin: 0 10px;
+			color: var(--text-3);
+			font-weight: 700;
+		}
+
+		/* STARS */
+		.recipe-meta-row { margin-bottom: 20px; }
+		.recipe-meta-stars .r-star { font-size: 16px !important; }
+		.recipe-meta-stars .r-star.filled { color: var(--accent) !important; }
+
+		/* KBZHU: editorial ruled grid */
+		.kbzhu {
+			gap: 0 !important; margin: 20px 0 !important;
+			border: 1px solid var(--border) !important;
+			border-radius: 0 !important; overflow: hidden;
+		}
+		.kbzhu-cell {
+			background: #fff !important; border-radius: 0 !important;
+			border: none !important; border-right: 1px solid var(--border);
+			padding: 16px 8px !important;
+		}
+		.kbzhu-cell:last-child { border-right: none; }
+		.kbzhu-cell .kbzhu-val {
+			font-family: var(--serif) !important;
+			font-size: 22px !important; font-weight: 700 !important;
+			color: var(--text) !important;
+		}
+		.kbzhu-cell.main .kbzhu-val { color: var(--accent) !important; }
+		.kbzhu-cell .kbzhu-lbl {
+			font-size: 9px !important; font-weight: 700 !important;
+			letter-spacing: .08em !important; color: var(--text-3) !important;
+			text-transform: uppercase !important; margin-top: 6px !important;
+		}
+
+		/* SECTION TITLES: uppercase label + rule (only inside .recipe-main) */
+		.recipe-main .v-section-title {
+			font-family: var(--font) !important;
+			font-size: 11px !important; font-weight: 800 !important;
+			letter-spacing: .1em !important; text-transform: uppercase !important;
+			color: var(--text) !important;
+			padding-bottom: 8px !important;
+			border-bottom: 2px solid var(--text) !important;
+			margin-bottom: 14px !important;
+		}
+
+		/* INGREDIENTS: clean ruled list */
+		.ing-list { gap: 0 !important; }
+		.ing-item {
+			background: transparent !important; border: none !important;
+			border-bottom: 1px solid #f0ebe4 !important;
+			border-radius: 0 !important; padding: 12px 0 !important;
+			font-size: 14px !important;
+		}
+		.ing-item:last-child { border-bottom: none !important; }
+		.ing-dot { width: 5px !important; height: 5px !important; background: var(--text) !important; opacity: .35; }
+		.ing-name { font-weight: 400 !important; color: var(--text) !important; }
+		.ing-swap-btn {
+			font-size: 10px !important; background: transparent !important;
+			color: var(--accent) !important; border: 1px solid var(--accent) !important;
+		}
+		.ing-swap-btn:hover { background: var(--accent) !important; color: #fff !important; }
+
+		/* STEPS: editorial vertical rhythm */
+		.step-item {
+			padding: 20px 0 !important; border-bottom: 1px solid #f0ebe4 !important;
+			font-size: 14.5px !important; line-height: 1.7 !important;
+		}
+		.step-item:last-child { border-bottom: none !important; }
+		.step-num {
+			width: 30px !important; height: 30px !important;
+			font-family: var(--serif) !important;
+			font-size: 14px !important; font-weight: 700 !important;
+			background: var(--text) !important; color: #fff !important;
+		}
+		.step-photo-wrap .step-photo-img { border-radius: 4px !important; }
+
+		/* JULIA TIP: editorial quote.
+		   Scoped to .recipe-main so sublist tips keep the original bubble. */
+		.recipe-main .julia-tip-bubble {
+			background: var(--bg-alt) !important; border-radius: 0 !important;
+			border-left: 3px solid var(--accent); box-shadow: none !important;
+			padding: 24px 24px 18px !important;
+		}
+		.recipe-main .julia-tip-bubble::before { display: none !important; }
+		.recipe-main .julia-tip-text {
+			font-family: var(--serif) !important; font-size: 16px !important;
+			font-style: italic !important; text-align: left !important;
+			line-height: 1.6 !important;
+		}
+
+		/* SIDEBAR: cleaner balance panel */
+		.bal-sidebar { border-radius: 0 !important; border: 1px solid var(--border) !important; box-shadow: none !important; }
+		.bal-banner-warn { background: #fffcf8 !important; border-bottom-color: #f0e4d4 !important; }
+		.bal-item { border-radius: 6px !important; }
+		.bal-total { border-top: 2px solid var(--text) !important; }
+		.bal-total-kcal { font-family: var(--serif) !important; }
+
+		/* STICKY ADD BUTTON */
+		.sticky-add { border-top: 1px solid var(--border) !important; box-shadow: 0 -2px 12px rgba(0,0,0,.06) !important; }
+
+		/* RESPONSIVE adjustments for hero/title/kbzhu */
+		@media (max-width: 1024px) {
+			.recipe-layout { grid-template-columns: 1fr !important; gap: 24px !important; }
+		}
+		@media (max-width: 767px) {
+			.recipe-hero-img { aspect-ratio: 4/3 !important; }
+			.recipe-main .recipe-title { font-size: clamp(24px, 6vw, 32px) !important; }
+			.kbzhu-cell .kbzhu-val { font-size: 18px !important; }
+			.kbzhu-cell { padding: 12px 6px !important; }
+		}
 	</style>
 </head>
 
@@ -1858,9 +2060,34 @@
 			const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 			const dateStr = r.added || '';
 
+			// Breadcrumbs: Главная › <mid> › <recipe name>
+			// `mid` is derived from URL context (parent → search → fromCat → r.cat),
+			// not hardcoded. Falls back to single-level when no category is known.
+			const crumbsHtml = (() => {
+				const parts = ['<a href="index.html">Главная</a>'];
+				const parent = (parentRecipeId && parentRecipeId !== r.id && RECIPES[parentRecipeId]) ? RECIPES[parentRecipeId] : null;
+				if (parent) {
+					parts.push('<a href="' + escHtml(recipeLink(parent.id)) + '">' + escHtml(parent.name) + '</a>');
+				} else if (fromCat === 'search' && searchQ) {
+					parts.push('<a href="category.html?q=' + encodeURIComponent(searchQ) + '">Поиск</a>');
+				} else {
+					// Real category from URL takes priority; fallback to recipe's own cat
+					// (so plate/search without query degrade gracefully).
+					const catId = (fromCat && fromCat !== 'plate' && fromCat !== 'search' && CATEGORIES[fromCat])
+						? fromCat
+						: (r.cat && CATEGORIES[r.cat] ? r.cat : (Array.isArray(r.categories) && r.categories.find(c => CATEGORIES[c]) || ''));
+					if (catId && CATEGORIES[catId]) {
+						parts.push('<a href="category.html?cat=' + encodeURIComponent(catId) + '">' + escHtml(CATEGORIES[catId].name) + '</a>');
+					}
+				}
+				parts.push('<span class="crumb-current">' + escHtml(r.name) + '</span>');
+				return parts.join('<span class="crumb-sep">›</span>');
+			})();
+
 			document.getElementById('page-content').innerHTML = `
             <div class="recipe-layout">
                 <div class="recipe-main anim">
+                    <nav class="recipe-crumbs" aria-label="Хлебные крошки">${crumbsHtml}</nav>
                     <div class="recipe-hero-img">
                         <img src="${escHtml(photoUrl(r.photo) || PHOTO_BY_CAT[r.cat] || PHOTO_FALLBACK)}"
                              alt="${escHtml(r.name)}"
