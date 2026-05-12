@@ -665,11 +665,14 @@
 			letter-spacing: .12em !important; text-transform: uppercase !important;
 			color: var(--text) !important;
 			padding-bottom: 8px !important;
-			border-bottom: 2px solid var(--text) !important;
+			border-bottom: 1px solid var(--text-2) !important;
 			margin-bottom: 14px !important;
 		}
 
-		/* INGREDIENTS: clean ruled list */
+		/* INGREDIENTS: clean ruled list.
+		   Each ingredient is wrapped: <div><div class="ing-item">...</div>[swap][placeholder]</div>
+		   So .ing-item:last-child fires on every simple item (no swap) — wrong.
+		   Target the wrapper's last-child instead. */
 		.ing-list { gap: 0 !important; }
 		.ing-item {
 			background: transparent !important; border: none !important;
@@ -677,7 +680,7 @@
 			border-radius: 0 !important; padding: 12px 0 !important;
 			font-size: 14px !important;
 		}
-		.ing-item:last-child { border-bottom: none !important; }
+		.ing-list > div:last-child .ing-item { border-bottom: none !important; }
 		.ing-dot { width: 5px !important; height: 5px !important; background: var(--text) !important; opacity: .35; }
 		.ing-name { font-weight: 400 !important; color: var(--text) !important; }
 		.ing-swap-btn {
