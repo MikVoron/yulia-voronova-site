@@ -31,7 +31,7 @@
         /* ── BREADCRUMBS ── */
         .cat-crumbs {
             display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
-            margin: 0 0 16px;
+            margin: 20px 0 16px;
             font-family: var(--font); font-size: 12px; font-weight: 600;
             letter-spacing: .04em;
         }
@@ -46,6 +46,7 @@
             color: var(--text); font-weight: 700;
             text-transform: none; letter-spacing: 0;
             max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            border-bottom: 1.5px solid var(--accent); padding-bottom: 1px;
         }
         @media (max-width: 767px) {
             .cat-crumbs .crumb-current { max-width: 140px; }
