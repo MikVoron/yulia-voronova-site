@@ -221,8 +221,8 @@ const Auth = {
     recipeAccessLabel(recipe) {
         const level = this.recipeAccessLevel(recipe);
         if (level === 'free')  return 'Бесплатно';
-        if (level === 'trial') return 'Trial';
-        if (level === 'pro')   return 'Pro';
+        if (level === 'trial') return 'Пробный';
+        if (level === 'pro')   return 'Подписка';
         return '';
     },
     // CTA для locked-карточки и preview-блока в recipe.html.

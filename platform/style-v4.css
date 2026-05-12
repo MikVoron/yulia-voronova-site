@@ -486,28 +486,26 @@ img { display: block; max-width: 100%; }
 .recipe-card.locked .recipe-card__media img,
 .featured-card.locked .featured-card-photo img { filter: grayscale(.4); }
 .recipe-card.locked:hover, .featured-card.locked:hover { opacity: .7; }
-.locked-badge {
-    position: absolute; top: 8px; right: 8px; z-index: 2;
-    background: rgba(0,0,0,.55); color: #fff; border-radius: 6px;
-    padding: 3px 8px; font-size: 11px; font-weight: 600;
-    display: flex; align-items: center; gap: 4px;
-    backdrop-filter: blur(4px);
-}
-.locked-badge svg { width: 12px; height: 12px; fill: #fff; }
-.trial-badge {
-    position: absolute; top: 8px; right: 8px; z-index: 2;
-    background: rgba(91,158,201,.85); color: #fff; border-radius: 6px;
-    padding: 3px 8px; font-size: 11px; font-weight: 600;
-    backdrop-filter: blur(4px);
-}
-/* «Бесплатно» — маркер витрины для гостей/триала. Зелёный, чтобы отличался от locked. */
+/* Бейджи уровня доступа — всегда в левом верхнем углу, чтобы не пересекаться с
+   круглой кнопкой избранного (.recipe-card__bookmark) справа. */
+.locked-badge,
+.trial-badge,
 .free-badge {
-    position: absolute; top: 8px; right: 8px; z-index: 2;
-    background: rgba(74, 156, 87, .9); color: #fff; border-radius: 6px;
-    padding: 3px 8px; font-size: 11px; font-weight: 700;
-    letter-spacing: .02em;
+    position: absolute; top: 8px; left: 8px; right: auto; z-index: 2;
+    color: #fff; border-radius: 6px;
+    padding: 3px 8px; font-size: 11px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 4px;
     backdrop-filter: blur(4px);
+    letter-spacing: .02em;
 }
+.locked-badge svg,
+.trial-badge svg { width: 12px; height: 12px; fill: #fff; }
+/* Подписка (pro) — оранжевый, премиальный акцент в стиле «Апельсин». */
+.locked-badge { background: rgba(217, 119, 6, .92); }
+/* Пробный (trial) — синий, чтобы отличался от free и pro. */
+.trial-badge  { background: rgba(91, 158, 201, .9); }
+/* Бесплатно — зелёный маркер витрины для гостей/триала. */
+.free-badge   { background: rgba(74, 156, 87, .92); font-weight: 700; }
 
 /* ── RECIPE PREVIEW (locked recipe.html для гостя/trial без доступа) ── */
 .recipe-preview { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
