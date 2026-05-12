@@ -1082,8 +1082,10 @@
 				html = `<button class="featured-card${locked ? ' locked' : ''}" onclick="${locked ? "showLockedMsg('" + _id + "')" : "location.href=\'recipe.html?id=" + _id + "&from=" + _cat + "\'"}">
                     <div class="featured-card-photo" style="position:relative">
                         ${photoHtml}
-                        ${lockBadge}${freeBadge}
-                        ${item.badge ? '<div class="card-new-badge">' + escHtml(String(item.badge)) + '</div>' : ''}
+                        <div class="card-badge-stack">
+                            ${item.badge ? '<div class="card-new-badge">' + escHtml(String(item.badge)) + '</div>' : ''}
+                            ${lockBadge}${freeBadge}
+                        </div>
                     </div>
                     <div class="featured-card-body">
                         ${item.date ? '<div class="news-item-date">' + escHtml(item.date) + '</div>' : ''}

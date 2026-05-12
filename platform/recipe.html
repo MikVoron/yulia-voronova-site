@@ -366,6 +366,11 @@
 			.bal-mini-progress {
 				font-size: 12.5px;
 			}
+			/* Когда sticky-плашка добавок видна, отодвигаем хлебные крошки
+			   ниже неё, чтобы не закрывала навигацию. */
+			.bal-mini-status.show ~ main .recipe-crumbs {
+				margin-top: 44px;
+			}
 		}
 
 		/* ── Balance success modal ───────────────────────── */
@@ -2616,6 +2621,12 @@
 			if (sidebarRoot) sidebarRoot.classList.toggle('balanced', allDone);
 			// Refresh mobile wizard UI (step dots + next button)
 			updateWizardUI();
+			// Just balanced — collapse all add-on accordions so финальное состояние
+			// выглядит компактно. Делаем это один раз, в момент перехода unbalanced → balanced.
+			if (allDone && !_wasBalanced) {
+				Object.keys(_accordionOpen).forEach(prefix => { _accordionOpen[prefix] = false; });
+				document.querySelectorAll('.bal-group.open').forEach(el => el.classList.remove('open'));
+			}
 			// Update banner
 			const banner = document.getElementById('bal-banner');
 			if (banner) {
