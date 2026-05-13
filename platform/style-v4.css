@@ -2089,9 +2089,8 @@ img { display: block; max-width: 100%; }
     text-decoration: none; color: inherit; flex-shrink: 0;
 }
 .sp-brand-ava {
-    width: 38px; height: 38px; border-radius: 50%;
-    background: var(--accent-l) url('https://voronova.online/images/YV-small.webp') center/cover no-repeat;
-    border: 2px solid var(--accent);
+    width: 44px; height: 44px;
+    background: url('https://voronova.online/images/icons/logo-small.png') center/contain no-repeat;
     flex-shrink: 0;
 }
 .sp-brand-meta { display: flex; flex-direction: column; line-height: 1; min-width: 0; }
