@@ -24,9 +24,8 @@
         .cat-hero-name { font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--text); line-height: 1.1; }
         .cat-hero-desc { font-size: 13px; color: var(--text-2); margin-top: 3px; }
 
-        /* ── HEADER: hide back-btn, keep DOM ── */
-        .v-header .vh-back-btn { display: none !important; }
-        .v-header .vh-back-btn ~ .v-user-wrap { display: block !important; }
+        /* Editorial-header (.sp-header) импортирован из style-v4.css.
+           Старые .v-header / vh-* overrides здесь больше не нужны. */
 
         /* ── BREADCRUMBS ── */
         .cat-crumbs {
@@ -55,42 +54,42 @@
 </head>
 <body class="v-page">
 
-<!-- HEADER -->
-<header class="v-header" id="hdr">
+<!-- HEADER (editorial, shared с index/recipe — стили в style-v4.css) -->
+<header class="sp-header" id="hdr">
     <div class="v-wrap">
-        <div class="vh-inner">
-            <button class="vh-back-btn" onclick="location.href='index.html'" aria-label="Назад">
+        <div class="sp-header-inner">
+            <button class="vh-back-btn" type="button" onclick="location.href='index.html'" aria-label="Назад">
                 <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
             </button>
-            <a href="index.html" class="vh-brand">
-                <span class="vh-brand-meta">
-                    <span class="vh-brand-name">Юлия Воронова</span>
-                    <span class="vh-brand-role">нутрициолог</span>
+            <a href="index.html" class="sp-brand">
+                <span class="sp-brand-ava" aria-hidden="true"></span>
+                <span class="sp-brand-meta">
+                    <span class="sp-brand-eyebrow">Юлия Воронова · нутрициолог</span>
+                    <span class="sp-brand-title">Умная тарелка</span>
                 </span>
-                <span class="vh-brand-title">Умная <span class="vh-accent">тарелка</span></span>
             </a>
-            <div class="vh-slogan-wrap">
-                <span class="vh-slogan">Персональный помощник в сбалансированном питании</span>
-            </div>
-            <div class="v-user-wrap" id="user-wrap">
-                <button class="vh-profile-pill" id="user-badge" onclick="toggleUserMenu(event)" type="button">
-                    <div class="v-user-avatar" id="u-ava" style="width:34px;height:34px;overflow:hidden;flex-shrink:0;border-radius:50%">?</div>
-                    <span class="vh-profile-name" id="u-name">Войти</span>
+            <nav class="sp-nav" id="sp-nav" aria-label="Разделы"></nav>
+            <div class="sp-utils">
+                <button class="sp-plate" id="plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
+                    <span class="sp-plate-icon">
+                        <span class="sl sl-g"></span>
+                        <span class="sl sl-y"></span>
+                        <span class="sl sl-r"></span>
+                    </span>
+                    <span class="plate-count" style="display:none">0</span>
                 </button>
-                <div class="user-dropdown" id="user-dropdown">
-                    <a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
-                    <div class="user-dd-sep"></div>
-                    <button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
+                <div class="v-user-wrap" id="user-wrap">
+                    <button class="sp-profile" id="user-badge" onclick="toggleUserMenu(event)" type="button">
+                        <span class="v-user-avatar" id="u-ava" aria-hidden="true">?</span>
+                        <span class="sp-profile-name" id="u-name">Войти</span>
+                    </button>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
+                        <div class="user-dd-sep"></div>
+                        <button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
+                    </div>
                 </div>
             </div>
-            <button class="vh-plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
-                <span class="vh-plate-icon" style="position:relative;width:25px;height:25px;display:inline-block;overflow:hidden;border-radius:50%;flex-shrink:0">
-                    <span class="vh-slice vh-slice-g"></span>
-                    <span class="vh-slice vh-slice-y"></span>
-                    <span class="vh-slice vh-slice-r"></span>
-                </span>
-                <span class="plate-count" style="display:none">0</span>
-            </button>
         </div>
     </div>
 </header>
@@ -217,6 +216,8 @@
             showApiError(document.getElementById('dish-list'));
             return;
         }
+        // Editorial header parity: подсвечиваем текущий раздел (или просто «Главная» в режиме поиска).
+        renderHeaderNav(searchQuery ? null : catId);
         if (searchQuery) {
             document.title = 'Поиск «' + searchQuery + '» — Конструктор питания';
             var total = (typeof searchRecipes === 'function') ? searchRecipes(searchQuery).length : 0;
@@ -281,6 +282,9 @@
             if (uName) uName.textContent = 'Войти';
             const dd = document.getElementById('user-dropdown');
             if (dd) dd.remove();
+            // Editorial-header: профиль превращается в кнопку «Войти».
+            const ub = document.getElementById('user-badge');
+            if (ub) ub.classList.add('is-guest');
             return;
         }
         const customName = Auth.getDisplayName();
@@ -317,6 +321,26 @@
         document.body.appendChild(overlay);
         requestAnimationFrame(() => overlay.classList.add('show'));
         setTimeout(() => { Auth.logout(); location.href = 'login.html'; }, 1800);
+    }
+
+    // Editorial header nav (parity с index/recipe). До 5 категорий, активная — текущая
+    // catId; active всегда виден, даже если выпадает из топ-5.
+    function renderHeaderNav(activeCatId) {
+        const nav = document.getElementById('sp-nav');
+        if (!nav) return;
+        const cats = (typeof CATEGORIES === 'object') ? Object.values(CATEGORIES) : [];
+        if (!cats.length) return;
+        const items = cats.slice(0, 5);
+        if (activeCatId && !items.some(function (c) { return c.id === activeCatId; })) {
+            const found = cats.find(function (c) { return c.id === activeCatId; });
+            if (found) items[items.length - 1] = found;
+        }
+        const homeCls = activeCatId ? '' : ' class="active"';
+        nav.innerHTML = '<a' + homeCls + ' href="index.html">Главная</a>' +
+            items.map(function (c) {
+                const cls = c.id === activeCatId ? ' class="active"' : '';
+                return '<a' + cls + ' href="category.html?cat=' + encodeURIComponent(c.id) + '">' + escHtml(String(c.name || '')) + '</a>';
+            }).join('');
     }
 
     const params = new URLSearchParams(location.search);

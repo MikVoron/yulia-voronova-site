@@ -2059,5 +2059,182 @@ img { display: block; max-width: 100%; }
 }
 .bal-banner-sound-btn:active { transform: scale(.95); }
 
+/* ═══════════════════════════════════════════════════
+   EDITORIAL HEADER (.sp-header)
+   Общий для index.html, recipe.html, category.html.
+   Бизнес-хуки внутри: #hdr .scrolled, #plate-btn .plate-count,
+   #user-badge #u-ava #u-name #user-wrap #user-dropdown.
+   ═══════════════════════════════════════════════════ */
+.sp-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    transition: box-shadow var(--tr);
+}
+/* Spec §2: на скролле без тени — оставляем только нижнюю границу. */
+.sp-header.scrolled { }
+.sp-header-inner {
+    height: 72px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 24px;
+}
+
+.sp-brand {
+    display: inline-flex; align-items: center; gap: 12px;
+    text-decoration: none; color: inherit; flex-shrink: 0;
+}
+.sp-brand-ava {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--accent-l) url('https://voronova.online/images/YV-small.webp') center/cover no-repeat;
+    border: 2px solid var(--accent);
+    flex-shrink: 0;
+}
+.sp-brand-meta { display: flex; flex-direction: column; line-height: 1; min-width: 0; }
+.sp-brand-eyebrow {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 5px; white-space: nowrap;
+}
+.sp-brand-title {
+    font-family: var(--serif);
+    font-size: 22px; font-weight: 700;
+    color: var(--text); line-height: 1; letter-spacing: -.01em;
+}
+
+.sp-nav {
+    display: flex; align-items: center;
+    gap: 22px; justify-content: center;
+    min-width: 0; overflow: hidden;
+}
+.sp-nav a {
+    font-size: 12px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--text-2); padding: 6px 0; white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color var(--tr), border-color var(--tr);
+}
+.sp-nav a:hover { color: var(--accent); }
+.sp-nav a.active { color: var(--text); border-bottom-color: var(--text); }
+
+.sp-utils { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+.sp-plate {
+    width: 40px; height: 40px;
+    border: 1px solid var(--border); background: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    position: relative; cursor: pointer; padding: 0;
+    border-radius: 0;
+    transition: border-color var(--tr);
+    flex-shrink: 0;
+}
+.sp-plate:hover { border-color: var(--accent); }
+.sp-plate-icon {
+    position: relative; width: 22px; height: 22px;
+    border-radius: 50%; overflow: hidden;
+    background: #fff; border: 1px solid #d0d0d0;
+}
+.sp-plate-icon .sl { position: absolute; }
+.sp-plate-icon .sl-g { inset: 0 50% 0 0; background: #6aaa6a; }
+.sp-plate-icon .sl-y { inset: 0 0 50% 50%; background: #f0b840; }
+.sp-plate-icon .sl-r { inset: 50% 0 0 50%; background: #e07070; }
+.sp-plate .plate-count {
+    position: absolute; top: -6px; right: -6px;
+    min-width: 18px; height: 18px; padding: 0 4px;
+    border-radius: 50%;
+    background: var(--text); color: #fff;
+    font-size: 10px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid #fff;
+}
+
+.sp-profile {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 4px 14px 4px 4px;
+    background: #fff;
+    border: 1px solid var(--border); border-radius: 0;
+    cursor: pointer; color: var(--text-2);
+    font: inherit; min-height: 40px;
+    transition: border-color var(--tr);
+    flex-shrink: 0;
+}
+.sp-profile:hover { border-color: var(--accent); }
+.sp-profile .v-user-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; flex-shrink: 0; border: none;
+}
+.sp-profile-name {
+    font-size: 13px; font-weight: 600; color: var(--text);
+    max-width: 120px; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.sp-profile.is-guest {
+    padding: 0 16px;
+    border-color: var(--text); background: #fff;
+}
+.sp-profile.is-guest:hover { background: var(--text); }
+.sp-profile.is-guest:hover .sp-profile-name { color: #fff; }
+.sp-profile.is-guest .v-user-avatar { display: none; }
+.sp-profile.is-guest .sp-profile-name {
+    font-size: 12px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--text); max-width: none;
+}
+
+.sp-burger { display: none; }
+
+/* Back-button (внутренние страницы): тот же класс .vh-back-btn, но переоформлен
+   под editorial-стиль внутри .sp-header. */
+.sp-header .vh-back-btn {
+    display: none;
+    width: 40px; height: 40px;
+    border-radius: 0;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    align-items: center; justify-content: center;
+    cursor: pointer; padding: 0; flex-shrink: 0;
+}
+.sp-header .vh-back-btn:hover { border-color: var(--accent); color: var(--accent); }
+.sp-header .vh-back-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* Mobile (≤ 767px) */
+@media (max-width: 767px) {
+    .sp-header-inner {
+        height: 60px;
+        grid-template-columns: auto 1fr auto auto;
+        gap: 8px;
+    }
+    .sp-burger {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 40px; height: 40px;
+        border: 1px solid var(--border);
+        background: #fff; padding: 0;
+        cursor: pointer; flex-shrink: 0;
+    }
+    /* На внутренних страницах back-btn заменяет бургер в левом слоте (spec §2). */
+    .sp-header .vh-back-btn { display: inline-flex; }
+    .sp-brand { gap: 0; min-width: 0; justify-self: center; }
+    .sp-brand-ava { display: none; }
+    .sp-brand-eyebrow { display: none; }
+    .sp-brand-title { font-size: 18px; }
+    .sp-nav { display: none; }
+    .sp-utils { gap: 8px; }
+    .sp-plate { width: 40px; height: 40px; }
+    .sp-profile {
+        padding: 0; width: 40px; min-height: 40px;
+        border-radius: 0; justify-content: center;
+    }
+    .sp-profile .sp-profile-name { display: none; }
+    .sp-profile.is-guest { padding: 0; width: 40px; }
+    .sp-profile.is-guest .sp-profile-name {
+        display: inline-flex; font-size: 9px; max-width: none;
+    }
+}
+
 /* FOUC prevention: make body visible once CSS is loaded */
 body { visibility: visible !important; }

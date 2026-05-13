@@ -15,289 +15,220 @@
 	</style>
 	<link rel="stylesheet" href="style-v4.css?v=2026-05-11-1" id="vcss">
 	<style>
-		.greeting {
-			padding: 44px 0 0;
-		}
-
-		.greeting-hi {
-			font-family: 'Playfair Display', var(--serif);
-			font-size: clamp(26px, 4.5vw, 32px);
-			font-weight: 700;
-			color: #1a1a1a;
-			margin-bottom: 10px;
-			line-height: 1.15;
-		}
-
-		.greeting-sub {
-			font-size: clamp(13px, 1.5vw, 14px);
-			color: #666;
-			font-family: 'Montserrat', var(--sans);
-			font-weight: 500;
-			letter-spacing: .03em;
-			text-transform: none;
-			margin-top: 8px;
-		}
-
 		main {
 			padding-bottom: 80px;
 		}
 
-		/* ── NEW HEADER ─────────────────────────────────── */
-		.vh-inner {
+		/* Shared editorial header (.sp-header*) вынесен в style-v4.css.
+		   Здесь — только индекс-специфичные блоки: hero, cat-grid editorial,
+		   drawer (open via burger), CTA close. */
+
+		/* ── DRAWER (mobile) ───────────────────────────────────────────
+		   По spec §2 бургер открывает выдвижное меню разделов. Скрыт на desktop. */
+		.sp-drawer {
+			position: fixed; inset: 0; z-index: 200;
 			display: flex;
-			align-items: center;
-			gap: 14px;
-			height: 82px;
+			pointer-events: none;
 		}
-
-		/* Julia avatar */
-		.vh-julia-ava {
-			order: 1;
-			width: 56px;
-			height: 56px;
-			border-radius: 50%;
-			background: var(--accent-l) url('https://voronova.online/images/YV-small.webp') center/cover no-repeat;
-			border: 2px solid var(--accent);
-			flex-shrink: 0;
-			box-shadow: 0 4px 14px rgba(232, 64, 10, .18);
+		.sp-drawer[hidden] { display: none; }
+		.sp-drawer-back {
+			position: absolute; inset: 0;
+			background: rgba(17,17,17,.4);
+			opacity: 0;
+			transition: opacity .25s ease;
+			pointer-events: auto;
 		}
-
-		/* Brand */
-		.vh-brand {
-			order: 2;
-			display: inline-flex;
-			flex-direction: column;
-			gap: 2px;
-			text-decoration: none;
-			color: inherit;
-			flex: 1;
+		.sp-drawer.open .sp-drawer-back { opacity: 1; }
+		.sp-drawer-panel {
+			position: relative; z-index: 1;
+			width: min(320px, 86vw);
+			height: 100%;
+			background: #fff;
+			border-right: 1px solid var(--border);
+			transform: translateX(-100%);
+			transition: transform .25s ease;
+			display: flex; flex-direction: column;
+			pointer-events: auto;
 		}
-
-		.vh-brand-meta {
-			display: flex;
-			align-items: baseline;
-			gap: 8px;
+		.sp-drawer.open .sp-drawer-panel { transform: translateX(0); }
+		.sp-drawer-head {
+			display: flex; align-items: center; justify-content: space-between;
+			padding: 18px 20px;
+			border-bottom: 1px solid var(--border);
 		}
-
-		.vh-brand-name {
-			font-family: var(--serif);
-			font-size: 13px;
-			font-weight: 600;
-			color: var(--text-2);
-		}
-
-		.vh-brand-role {
-			font-size: 9px;
-			font-weight: 700;
-			color: var(--text-3);
-			text-transform: uppercase;
-			letter-spacing: .1em;
-		}
-
-		.vh-brand-title {
-			font-family: var(--serif);
-			font-size: clamp(22px, 2.2vw, 30px);
-			font-weight: 700;
-			line-height: 1;
+		.sp-drawer-title {
+			font-size: 11px; font-weight: 800;
+			letter-spacing: .14em; text-transform: uppercase;
 			color: var(--text);
 		}
-
-		.vh-accent {
-			color: var(--accent);
+		.sp-drawer-close {
+			width: 36px; height: 36px;
+			border: 1px solid var(--border); background: #fff;
+			display: flex; align-items: center; justify-content: center;
+			cursor: pointer; font-size: 14px; padding: 0;
 		}
-
-		/* Slogan (desktop right area, fixed width) */
-		.vh-slogan-wrap {
-			order: 3;
-			flex: 0 0 auto;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			position: relative;
+		.sp-drawer-close:hover { border-color: var(--accent); color: var(--accent); }
+		.sp-drawer-nav {
+			padding: 8px 0;
+			display: flex; flex-direction: column;
+			overflow-y: auto;
 		}
-
-		.vh-slogan-wrap::before {
-			content: '';
-			position: absolute;
-			width: 280px;
-			height: 110px;
-			left: 50%;
-			top: 50%;
-			transform: translate(-50%, -50%);
-			border-radius: 999px;
-			background: radial-gradient(circle, rgba(232, 64, 10, .14) 0%, rgba(232, 64, 10, .07) 40%, rgba(232, 64, 10, 0) 78%);
-			pointer-events: none;
-			z-index: 0;
+		.sp-drawer-nav a {
+			padding: 14px 20px;
+			font-family: var(--serif);
+			font-size: 17px; font-weight: 700;
+			color: var(--text); text-decoration: none;
+			border-bottom: 1px solid #f2efe9;
 		}
+		.sp-drawer-nav a:hover { background: var(--bg-alt); color: var(--accent); }
+		.sp-drawer-nav a.active { color: var(--accent); }
 
-		.vh-slogan {
-			font-family: 'DM Serif Text', var(--serif);
-			font-size: 14px;
-			line-height: 1.22;
-			color: #9a4f2d;
-			text-align: center;
-			max-width: 22ch;
-			position: relative;
-			z-index: 1;
-		}
-
-		/* Profile pill */
-		.vh-inner>.v-user-wrap {
-			order: 4;
-			flex-shrink: 0;
-			position: relative;
-			margin-left: 24px;
-		}
-
-		.vh-profile-pill {
-			display: inline-flex;
-			align-items: center;
-			gap: 10px;
-			min-height: 42px;
-			padding: 5px 14px 5px 5px;
-			background: #fff7f3;
-			border: 1.5px solid rgba(232, 64, 10, .28);
-			border-radius: 999px;
-			color: var(--text-2);
+		/* CTA close-крестик — spec §3.5 */
+		.sp-cta-strip { position: relative; }
+		.sp-cta-close {
+			position: absolute; top: 10px; right: 10px;
+			width: 28px; height: 28px;
+			background: transparent;
+			border: 1px solid var(--border);
+			display: flex; align-items: center; justify-content: center;
 			cursor: pointer;
-			font: inherit;
+			font-size: 14px; line-height: 1;
+			color: var(--text-2); padding: 0;
 		}
+		.sp-cta-close:hover { border-color: var(--accent); color: var(--accent); }
 
-		.vh-profile-pill:hover {
-			background: #ffe8de;
-		}
-
-		.vh-profile-name {
-			font-size: 13px;
-			font-weight: 600;
-		}
-
-		/* Plate button */
-		.vh-plate-btn {
-			order: 5;
-			position: relative;
-			width: 42px;
-			height: 42px;
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			background: var(--accent-l);
-			border: 1px solid rgba(232, 64, 10, .2);
-			border-radius: 50%;
-			cursor: pointer;
-			flex-shrink: 0;
-			padding: 0;
-		}
-
-		.vh-plate-btn:hover {
-			background: #fde5da;
-		}
-
-		.vh-plate-icon {
-			position: relative;
-			width: 25px;
-			height: 25px;
-			border-radius: 50%;
-			overflow: hidden;
+		/* ── HERO ──────────────────────────────────────────────────── */
+		.sp-hero {
+			display: grid;
+			grid-template-columns: 1.2fr 1fr;
+			gap: 48px; align-items: center;
+			padding: 56px 0 64px;
 			background: #fff;
-			border: 1px solid #d0d0d0;
+		}
+		.sp-hero-text { min-width: 0; }
+		.sp-hero-eyebrow {
+			font-size: 11px; font-weight: 800;
+			letter-spacing: .14em; text-transform: uppercase;
+			color: var(--accent); margin-bottom: 18px;
+		}
+		.sp-hero-title {
+			font-family: var(--serif);
+			font-size: clamp(34px, 5.4vw, 58px);
+			font-weight: 700; line-height: 1.02;
+			letter-spacing: -.02em;
+			color: var(--text);
+			margin: 0 0 18px;
+		}
+		.sp-hero-sub {
+			font-size: 16px; line-height: 1.55;
+			color: var(--text-2);
+			max-width: 50ch; margin: 0 0 28px;
+		}
+		.sp-hero-aside {
+			display: flex; flex-direction: column;
+			min-width: 0; text-decoration: none; color: inherit;
+		}
+		.sp-hero-media {
+			aspect-ratio: 4/3;
+			background: var(--bg-alt);
+			overflow: hidden; position: relative;
+		}
+		.sp-hero-media img {
+			width: 100%; height: 100%; object-fit: cover; display: block;
+			transition: transform .6s ease;
+		}
+		.sp-hero-aside:hover .sp-hero-media img { transform: scale(1.02); }
+		/* Locked hero — клик уходит в showLockedMsg, визуально такой же overlay, как на .sp-card.locked. */
+		.sp-hero-aside.locked { cursor: pointer; opacity: .9; }
+		.sp-hero-aside.locked .sp-hero-media::after {
+			content: ''; position: absolute; inset: 0;
+			background: rgba(0,0,0,.18); z-index: 1;
+		}
+		.sp-hero-aside.locked .sp-hero-media::before {
+			content: '🔒'; position: absolute; left: 50%; top: 50%;
+			transform: translate(-50%, -50%); font-size: 30px; z-index: 2;
+			filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
+		}
+		.sp-hero-caption {
+			margin-top: 14px;
+			font-size: 11px; font-weight: 700;
+			letter-spacing: .1em; text-transform: uppercase;
+			color: var(--text-3);
 		}
 
-		.vh-slice {
-			position: absolute;
+		/* Hero search — flatten под editorial */
+		.sp-hero .hero-search {
+			margin: 0; max-width: 520px;
+		}
+		.sp-hero .hero-search-input {
+			border-radius: 0;
+			border: 1px solid var(--text);
+			box-shadow: none;
+			padding: 16px 22px 16px 52px;
+		}
+		.sp-hero .hero-search-input:focus {
+			border-color: var(--accent);
+			box-shadow: none;
+		}
+		.sp-hero .hero-search-results { border-radius: 0; }
+
+		/* ── Категории — editorial overrides only on homepage ───── */
+		.sp-home .cat-grid {
+			grid-template-columns: repeat(4, 1fr);
+			gap: 22px;
+		}
+		.sp-home .cat-card { border-radius: 0; }
+		.sp-home .cat-icon-wrap { border-radius: 0; }
+		.sp-home .cat-body { padding: 14px 0 0; }
+		.sp-home .cat-name {
+			font-family: var(--serif);
+			font-size: 18px; font-weight: 700;
+			line-height: 1.2; color: var(--text); margin-bottom: 4px;
+		}
+		.sp-home .cat-desc {
+			font-size: 12px; color: var(--text-2); line-height: 1.4;
+		}
+		.sp-home .cat-count {
+			font-size: 10px; font-weight: 700;
+			letter-spacing: .12em; text-transform: uppercase;
+			color: var(--text-3); margin-top: 8px;
 		}
 
-		.vh-slice-g {
-			inset: 0 50% 0 0;
-			background: #6aaa6a;
+		.sp-cats-head {
+			display: flex; align-items: baseline; justify-content: space-between;
+			gap: 16px; margin-bottom: 24px;
+			padding-bottom: 10px; border-bottom: 2px solid var(--text);
+		}
+		.sp-cats-head .sp-sec-title { margin: 0; }
+		.sp-home .recipes-total-count {
+			display: inline-flex; align-items: baseline; gap: 6px;
+		}
+		.sp-home .recipes-total-count .rtc-num {
+			font-family: var(--serif);
+			font-size: 22px; font-weight: 700;
+			line-height: 1; color: var(--text); letter-spacing: 0;
+		}
+		.sp-home .recipes-total-count .rtc-label {
+			font-size: 10px; font-weight: 700;
+			letter-spacing: .12em; text-transform: uppercase;
+			color: var(--text-3);
+			background: none; padding: 0; border-radius: 0;
 		}
 
-		.vh-slice-y {
-			inset: 0 0 50% 50%;
-			background: #f0b840;
-		}
-
-		.vh-slice-r {
-			inset: 50% 0 0 50%;
-			background: #e07070;
-		}
-
-		.vh-plate-btn .plate-count {
-			position: absolute;
-			top: -3px;
-			right: -3px;
-			min-width: 18px;
-			height: 18px;
-			padding: 0 5px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			border-radius: 999px;
-			background: var(--text);
-			color: #fff;
-			box-shadow: 0 0 0 2px #fff;
-			font-size: 10px;
-			font-weight: 700;
-		}
-
-		/* ── MOBILE ──────────────────────────────────────── */
+		/* ── MOBILE (≤ 767px) ──────────────────────────────────────── */
+		/* Mobile overrides — header-часть теперь в style-v4.css; здесь только hero/cat. */
 		@media (max-width: 767px) {
-			.vh-inner {
-				gap: 8px;
-				height: 68px;
+			.sp-hero {
+				grid-template-columns: 1fr;
+				gap: 20px; padding: 24px 0 36px;
 			}
+			.sp-hero-aside { order: -1; }
+			.sp-hero-title { font-size: 30px; }
+			.sp-hero-sub { font-size: 14px; margin-bottom: 22px; }
 
-			/* Julia big photo — hide */
-			.vh-julia-ava {
-				display: none;
-			}
-
-			/* Slogan — hide */
-			.vh-slogan-wrap {
-				display: none;
-			}
-
-			/* Profile pill → left (order 1), becomes round icon */
-			.vh-inner>.v-user-wrap {
-				order: 1;
-				position: static;
-				transform: none;
-				left: auto;
-				top: auto;
-			}
-
-			.vh-profile-pill {
-				width: 42px;
-				min-height: 42px;
-				padding: 0;
-				justify-content: center;
-				border-radius: 50%;
-			}
-
-			.vh-profile-name {
-				display: none;
-			}
-
-			/* Brand → center (order 2), centered text */
-			.vh-brand {
-				order: 2;
-				flex: 1;
-				align-items: center;
-				text-align: center;
-			}
-
-			.vh-brand-meta {
-				justify-content: center;
-			}
-
-			.vh-brand-title {
-				font-size: 21px;
-			}
-
-			/* Plate button → right (order 3) */
-			.vh-plate-btn {
-				order: 3;
-			}
+			.sp-home .cat-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+			.sp-home .cat-name { font-size: 15px; }
+			.sp-cats-head { margin-bottom: 18px; }
 		}
 
 		/* Featured card extras */
@@ -856,6 +787,13 @@
 			.sp-bd { font-size: 9px; height: 20px; padding: 0 8px; }
 		}
 
+		/* Plate slice colors для модалки «Моя тарелка» (.modal-plate-icon
+		   использует устаревшие .vh-slice* классы — оставляем их рабочими). */
+		.modal-plate-icon .vh-slice { position: absolute; }
+		.modal-plate-icon .vh-slice-g { inset: 0 50% 0 0; background: #6aaa6a; }
+		.modal-plate-icon .vh-slice-y { inset: 0 0 50% 50%; background: #f0b840; }
+		.modal-plate-icon .vh-slice-r { inset: 50% 0 0 50%; background: #e07070; }
+
 		/* Skeleton — индикатор загрузки до прихода данных от API */
 		.sp-skel-card { display: flex; flex-direction: column; gap: 12px; }
 		.sp-skel-img,
@@ -871,90 +809,103 @@
 	</style>
 </head>
 
-<body class="v-page">
+<body class="v-page sp-home">
 
-	<!-- HEADER -->
-	<header class="v-header" id="hdr">
+	<!-- HEADER (editorial, per SmartPlate Homepage Mockup) -->
+	<header class="sp-header" id="hdr">
 		<div class="v-wrap">
-			<div class="vh-inner">
+			<div class="sp-header-inner">
 
-				<!-- Julia big avatar: desktop only, order 1 -->
-				<span class="vh-julia-ava" aria-hidden="true"></span>
+				<!-- Burger (mobile only) — открывает drawer категорий, spec §2 -->
+				<button class="sp-burger" type="button" aria-label="Меню" onclick="openDrawer()">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+						<line x1="3" y1="6" x2="21" y2="6" />
+						<line x1="3" y1="12" x2="21" y2="12" />
+						<line x1="3" y1="18" x2="21" y2="18" />
+					</svg>
+				</button>
 
-				<!-- Brand: order 2 desktop, order 2 mobile (center) -->
-				<a href="index.html" class="vh-brand">
-					<span class="vh-brand-meta">
-						<span class="vh-brand-name">Юлия Воронова</span>
-						<span class="vh-brand-role">нутрициолог</span>
+				<!-- Brand zone -->
+				<a href="index.html" class="sp-brand">
+					<span class="sp-brand-ava" aria-hidden="true"></span>
+					<span class="sp-brand-meta">
+						<span class="sp-brand-eyebrow">Юлия Воронова · нутрициолог</span>
+						<span class="sp-brand-title">Умная тарелка</span>
 					</span>
-					<span class="vh-brand-title">Умная <span class="vh-accent">тарелка</span></span>
 				</a>
 
-				<!-- Slogan: desktop center, hidden on mobile -->
-				<div class="vh-slogan-wrap">
-					<span class="vh-slogan">Персональный помощник в сбалансированном питании</span>
-				</div>
+				<!-- Nav (desktop). Populated from CATEGORIES после loadContent. -->
+				<nav class="sp-nav" id="sp-nav" aria-label="Разделы">
+					<a class="active" href="index.html">Главная</a>
+				</nav>
 
-				<!-- Profile pill: order 4 desktop, order 1 mobile (left).
-				     Для гостя весь блок переключается в режим «Войти» через JS (#user-badge → ссылка-кнопка на login.html). -->
-				<div class="v-user-wrap" id="user-wrap">
-					<button class="vh-profile-pill" id="user-badge" onclick="onUserBadgeClick(event)" type="button">
-						<div class="v-user-avatar" id="u-ava" style="width:34px;height:34px;overflow:hidden;flex-shrink:0;border-radius:50%">?</div>
-						<span class="vh-profile-name" id="u-name">Войти</span>
+				<!-- Utilities (plate + profile). Hooks preserved: #plate-btn, .plate-count, #user-badge, #u-ava, #u-name, #user-wrap, #user-dropdown, onUserBadgeClick. -->
+				<div class="sp-utils">
+					<button class="sp-plate" id="plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
+						<span class="sp-plate-icon">
+							<span class="sl sl-g"></span>
+							<span class="sl sl-y"></span>
+							<span class="sl sl-r"></span>
+						</span>
+						<span class="plate-count" style="display:none">0</span>
 					</button>
-					<div class="user-dropdown" id="user-dropdown">
-						<a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
-						<div class="user-dd-sep"></div>
-						<button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
+					<div class="v-user-wrap" id="user-wrap">
+						<button class="sp-profile" id="user-badge" onclick="onUserBadgeClick(event)" type="button">
+							<span class="v-user-avatar" id="u-ava" aria-hidden="true">?</span>
+							<span class="sp-profile-name" id="u-name">Войти</span>
+						</button>
+						<div class="user-dropdown" id="user-dropdown">
+							<a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
+							<div class="user-dd-sep"></div>
+							<button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
+						</div>
 					</div>
 				</div>
-
-				<!-- Plate button: order 5 desktop, order 3 mobile (right).
-				     Для гостя клик ведёт на login (см. openPlate). -->
-				<button class="vh-plate-btn" id="plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
-					<span class="vh-plate-icon" style="position:relative;width:25px;height:25px;display:inline-block;overflow:hidden;border-radius:50%;flex-shrink:0">
-						<span class="vh-slice vh-slice-g"></span>
-						<span class="vh-slice vh-slice-y"></span>
-						<span class="vh-slice vh-slice-r"></span>
-					</span>
-					<span class="plate-count" style="display:none">0</span>
-				</button>
 
 			</div>
 		</div>
 	</header>
 
+	<!-- DRAWER (mobile categories nav, spec §2) -->
+	<div class="sp-drawer" id="sp-drawer" hidden>
+		<div class="sp-drawer-back" onclick="closeDrawer()"></div>
+		<aside class="sp-drawer-panel" role="dialog" aria-label="Разделы">
+			<div class="sp-drawer-head">
+				<span class="sp-drawer-title">Разделы</span>
+				<button class="sp-drawer-close" type="button" onclick="closeDrawer()" aria-label="Закрыть">✕</button>
+			</div>
+			<nav class="sp-drawer-nav" id="sp-drawer-nav">
+				<a class="active" href="index.html">Главная</a>
+			</nav>
+		</aside>
+	</div>
+
 	<!-- MAIN -->
 	<main style="flex:1; padding-bottom: 80px;">
 		<div class="v-wrap">
 
-			<!-- Greeting -->
-			<div class="intro-block" id="intro-block">
-				<div class="greeting anim">
-					<div class="greeting-hi" id="greeting-hi">Привет!</div>
-					<div class="greeting-sub">Что будем готовить сегодня?</div>
-				</div>
+			<!-- HERO (editorial, per SmartPlate Homepage Mockup) -->
+			<section class="sp-hero anim" id="intro-block">
+				<div class="sp-hero-text">
+					<div class="sp-hero-eyebrow" id="sp-hero-eyebrow">Сегодня</div>
+					<h1 class="sp-hero-title" id="sp-hero-title">Полезно, вкусно, по делу.</h1>
+					<p class="sp-hero-sub" id="sp-hero-sub">Персональный помощник в сбалансированном питании. Рецепты, подобранные нутрициологом — с расчётом КБЖУ, заменами продуктов и пошаговыми инструкциями.</p>
 
-				<!-- Hero search -->
-				<div class="hero-search anim anim-d1" id="hero-search">
-					<svg class="hero-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<circle cx="11" cy="11" r="8"></circle>
-						<path d="m21 21-4.3-4.3"></path>
-					</svg>
-					<input type="text" class="hero-search-input" id="hero-search-input" placeholder="Найти полезный рецепт" autocomplete="off">
-					<div class="hero-search-results" id="hero-search-results"></div>
-				</div>
-
-				<!-- Julia strip -->
-				<div class="julia-strip anim anim-d1" style="margin: 28px 0 36px;">
-					<div class="julia-ava" style="background:none;padding:0;overflow:hidden;">
-						<img src="https://voronova.online/images/YV-small.webp" alt="Юлия" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.textContent='👩‍🍳'">
-					</div>
-					<div class="julia-info">
-						<div class="julia-text" id="julia-quote"></div>
+					<!-- Hero search (функционал прежний) -->
+					<div class="hero-search" id="hero-search">
+						<svg class="hero-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="11" cy="11" r="8"></circle>
+							<path d="m21 21-4.3-4.3"></path>
+						</svg>
+						<input type="text" class="hero-search-input" id="hero-search-input" placeholder="Найти полезный рецепт" autocomplete="off">
+						<div class="hero-search-results" id="hero-search-results"></div>
 					</div>
 				</div>
-			</div>
+				<a class="sp-hero-aside" id="sp-hero-aside" href="#seasonal-block" aria-label="Сегодняшний рецепт" style="display:none">
+					<div class="sp-hero-media" id="sp-hero-media"></div>
+					<div class="sp-hero-caption" id="sp-hero-caption"></div>
+				</a>
+			</section>
 
 			<!-- Твоя тарелка (inline, shown when plate has items) -->
 			<div id="plate-inline-section" style="display:none; margin-bottom: 24px;">
@@ -965,11 +916,8 @@
 				<div id="plate-inline-body"></div>
 			</div>
 
-			<!-- News feed -->
-			<div class="v-sec-head anim anim-d2">
-				<div class="v-sec-title">Новости</div>
-			</div>
-			<div class="news-feed anim anim-d2" id="news-feed"></div>
+			<!-- News feed (legacy, скрыт — больше не показываем на главной) -->
+			<div class="news-feed" id="news-feed" style="display:none"></div>
 
 			<!-- Сезонный рецепт (назначается администратором; fallback — последний опубликованный) -->
 			<section class="sp-block anim anim-d2" id="seasonal-block" style="display:none">
@@ -1007,12 +955,14 @@
 				<button class="filter-clear" onclick="clearFilters()">↺ Сбросить</button>
 			</div>
 
-			<!-- Categories -->
-			<div class="v-sec-head anim anim-d2" style="align-items:baseline;gap:14px" id="cats-head">
-				<div class="v-sec-title" id="cats-title">Категории</div>
-				<div class="recipes-total-count" id="recipes-total-count"></div>
-			</div>
-			<div class="cat-grid anim anim-d2" id="cat-grid"></div>
+			<!-- Categories (editorial-обёртка) -->
+			<section class="sp-block anim anim-d2">
+				<div class="sp-cats-head" id="cats-head">
+					<h2 class="sp-sec-title" id="cats-title">Категории</h2>
+					<div class="recipes-total-count" id="recipes-total-count"></div>
+				</div>
+				<div class="cat-grid" id="cat-grid"></div>
+			</section>
 
 			<!-- Рекомендуем (автосортировка по рейтингу) -->
 			<section class="sp-block anim anim-d2" id="recommended-block" style="display:none">
@@ -1023,9 +973,11 @@
 				<div class="sp-grid" id="recommended-grid"></div>
 			</section>
 
-			<!-- CTA: открыть библиотеку рецептов (динамический счётчик) -->
+			<!-- CTA: открыть библиотеку рецептов (динамический счётчик). Закрывается крестиком,
+			     состояние пишется в localStorage[smartplate.cta.dismissed] — spec §3.5. -->
 			<section class="sp-block anim anim-d2" id="cta-strip-block" style="display:none">
 				<div class="sp-cta-strip">
+					<button class="sp-cta-close" type="button" onclick="dismissCtaStrip()" aria-label="Скрыть">✕</button>
 					<div>
 						<h3>Откройте полную библиотеку рецептов</h3>
 						<p id="cta-strip-text"></p>
@@ -1126,10 +1078,11 @@
 				return;
 			}
 			Auth.checkAccess({ allowGuest: true }).finally(function () {
-				loadNewsFeed();
 				renderCats();
 				updateRecipeCount();
 				renderSeasonal();
+				renderHero();
+				renderHeaderNav();
 				renderRecommended();
 				renderCtaStrip();
 				if (Auth.isLoggedIn()) Plate.load();
@@ -1179,6 +1132,9 @@
 		};
 
 		// Init header
+		const greetingEl = document.getElementById('greeting-hi'); // legacy: may не быть на editorial-главной
+		const heroEyebrow = document.getElementById('sp-hero-eyebrow');
+		const userBadge = document.getElementById('user-badge');
 		if (user) {
 			const customName = Auth.getDisplayName();
 			const shortName = customName || user.email.split('@')[0];
@@ -1192,11 +1148,16 @@
 			document.getElementById('u-name').textContent = customName || user.email.split('@')[0];
 			const timeGreet = new Date().getHours() < 12 ? 'Доброе утро' :
 				new Date().getHours() < 17 ? 'Добрый день' : 'Добрый вечер';
-			if (customName) {
-				document.getElementById('greeting-hi').innerHTML =
-					timeGreet + ', <span style="color:var(--accent)">' + escHtml(customName) + '</span>!';
-			} else {
-				document.getElementById('greeting-hi').innerHTML = timeGreet + '!';
+			// Legacy greeting block (если есть на странице — заполняем) + новый hero-eyebrow.
+			if (greetingEl) {
+				greetingEl.innerHTML = customName
+					? (timeGreet + ', <span style="color:var(--accent)">' + escHtml(customName) + '</span>!')
+					: (timeGreet + '!');
+			}
+			if (heroEyebrow) {
+				heroEyebrow.textContent = customName
+					? (timeGreet + ', ' + customName)
+					: timeGreet;
 			}
 		} else {
 			// Гость: шапка показывает «Войти», dropdown скрыт, аватар нейтральный.
@@ -1212,8 +1173,26 @@
 			if (uName) uName.textContent = 'Войти';
 			const dd = document.getElementById('user-dropdown');
 			if (dd) dd.remove();
+			// Editorial-режим: профиль превращается в кнопку «Войти» (без капсулы, прямые углы).
+			if (userBadge) userBadge.classList.add('is-guest');
+			if (heroEyebrow) heroEyebrow.textContent = _spTodayRu();
 		}
 		updatePlateIcon();
+
+		// «Среда · 14 ноября» — eyebrow в hero (для залогиненных перебивается приветствием).
+		function _spTodayRu() {
+			try {
+				const d = new Date();
+				const wd = d.toLocaleDateString('ru-RU', { weekday: 'long' });
+				const dm = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+				return wd.charAt(0).toUpperCase() + wd.slice(1) + ' · ' + dm;
+			} catch (e) { return 'Сегодня'; }
+		}
+		if (user && heroEyebrow) {
+			// Залогинен — оставляем приветствие из ветки выше; ничего не делаем здесь.
+		} else if (heroEyebrow && !heroEyebrow.textContent.trim().length) {
+			heroEyebrow.textContent = _spTodayRu();
+		}
 
 		// Клик по «профильной» пилюле — для гостя редиректит на login, для логина — открывает меню.
 		function onUserBadgeClick(e) {
@@ -1720,6 +1699,11 @@
 			const btn = document.getElementById('cta-strip-btn');
 			if (!block || !txt) return;
 
+			// Пользователь закрыл CTA — больше не показываем (spec §3.5).
+			try {
+				if (localStorage.getItem('smartplate.cta.dismissed')) { block.style.display = 'none'; return; }
+			} catch (e) { /* private mode — игнорируем */ }
+
 			// Полная подписка не нужна — скрываем CTA. (Гость/триал/expired — видят.)
 			if (Auth.hasFullAccess && Auth.hasFullAccess()) {
 				block.style.display = 'none';
@@ -1743,6 +1727,110 @@
 				btn.textContent = Auth.isGuest && Auth.isGuest() ? 'Попробовать бесплатно' : 'Оформить подписку';
 			}
 			block.style.display = '';
+		}
+
+		// Hero photo + caption — берём из сезонного рецепта; fallback на последний опубликованный.
+		// Если рецептов вообще нет — оставляем aside скрытым (display:none стоит в HTML).
+		// Важно: hero уважает paywall так же, как карточки/seasonal — locked-клик идёт в showLockedMsg,
+		// а не на recipe.html.
+		function renderHero() {
+			const aside = document.getElementById('sp-hero-aside');
+			const media = document.getElementById('sp-hero-media');
+			const cap = document.getElementById('sp-hero-caption');
+			if (!aside || !media || !cap) return;
+			const all = Object.values(RECIPES);
+			if (!all.length) { aside.style.display = 'none'; return; }
+			let r = all.find(function (x) { return x.isSeasonal; });
+			let label = 'Сезонный рецепт';
+			if (!r) {
+				const latestId = (typeof _latestRecipeId === 'function') ? _latestRecipeId() : null;
+				r = latestId ? RECIPES[latestId] : all[0];
+				label = 'Новинка';
+			}
+			if (!r) { aside.style.display = 'none'; return; }
+			const _name = escHtml(String(r.name || ''));
+			const _photo = String(r.photo || '');
+			const _emoji = escHtml(String(r.emoji || '🍴'));
+			media.innerHTML = _photo
+				? '<img src="' + escHtml(_photo) + '" alt="' + _name + '" loading="lazy" onerror="imgFallback(this,\'' + _emoji + '\')">'
+				: '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:72px">' + _emoji + '</div>';
+			cap.textContent = label + ' — ' + (r.name || '');
+
+			const locked = (typeof Auth !== 'undefined' && typeof Auth.canViewRecipe === 'function')
+				? !Auth.canViewRecipe(r) : false;
+			aside.classList.toggle('locked', locked);
+			if (locked) {
+				aside.setAttribute('aria-disabled', 'true');
+				aside.href = '#';
+				aside.onclick = function (e) {
+					e.preventDefault();
+					if (typeof showLockedMsg === 'function') showLockedMsg(r.id);
+					return false;
+				};
+			} else {
+				aside.removeAttribute('aria-disabled');
+				aside.href = 'recipe.html?id=' + encodeURIComponent(r.id) + '&from=' + encodeURIComponent(r.cat || '');
+				aside.onclick = null;
+			}
+			aside.style.display = '';
+		}
+
+		// Sticky-навигация в шапке: подставляем актуальные категории.
+		// Показываем до 5 разделов (по дизайну) в desktop-nav + полный список в drawer (mobile).
+		// activeCatId (optional): подсветить раздел; если cat не входит в первые 5 — заменяем
+		// последний элемент, чтобы active всегда был виден.
+		function renderHeaderNav(activeCatId) {
+			const nav = document.getElementById('sp-nav');
+			const drawerNav = document.getElementById('sp-drawer-nav');
+			const cats = (typeof CATEGORIES === 'object') ? Object.values(CATEGORIES) : [];
+			if (!cats.length) return;
+			const homeCls = activeCatId ? '' : ' class="active"';
+			const items = cats.slice(0, 5);
+			if (activeCatId && !items.some(function (c) { return c.id === activeCatId; })) {
+				const found = cats.find(function (c) { return c.id === activeCatId; });
+				if (found) items[items.length - 1] = found;
+			}
+			function row(c) {
+				const cls = c.id === activeCatId ? ' class="active"' : '';
+				return '<a' + cls + ' href="category.html?cat=' + encodeURIComponent(c.id) + '">' + escHtml(String(c.name || '')) + '</a>';
+			}
+			if (nav) {
+				nav.innerHTML = '<a' + homeCls + ' href="index.html">Главная</a>' + items.map(row).join('');
+			}
+			if (drawerNav) {
+				drawerNav.innerHTML = '<a' + homeCls + ' href="index.html">Главная</a>' + cats.map(row).join('');
+			}
+		}
+
+		// Mobile drawer — открывает/закрывает шторку категорий. Backdrop клик закрывает.
+		function openDrawer() {
+			const dr = document.getElementById('sp-drawer');
+			if (!dr) return;
+			dr.removeAttribute('hidden');
+			requestAnimationFrame(function () { dr.classList.add('open'); });
+			document.body.style.overflow = 'hidden';
+		}
+		function closeDrawer() {
+			const dr = document.getElementById('sp-drawer');
+			if (!dr) return;
+			dr.classList.remove('open');
+			document.body.style.overflow = '';
+			setTimeout(function () { if (!dr.classList.contains('open')) dr.setAttribute('hidden', ''); }, 260);
+		}
+		document.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape') {
+				const dr = document.getElementById('sp-drawer');
+				if (dr && dr.classList.contains('open')) closeDrawer();
+			}
+		});
+
+		// CTA strip dismiss — spec §3.5. Скрываем и пишем флаг в localStorage; renderCtaStrip
+		// проверяет флаг при следующем рендере и не показывает блок.
+		const CTA_DISMISS_KEY = 'smartplate.cta.dismissed';
+		function dismissCtaStrip() {
+			try { localStorage.setItem(CTA_DISMISS_KEY, '1'); } catch (e) { /* private mode */ }
+			const block = document.getElementById('cta-strip-block');
+			if (block) block.style.display = 'none';
 		}
 
 		function showLockedMsg(recipeId) {
