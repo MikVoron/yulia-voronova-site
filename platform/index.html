@@ -656,24 +656,27 @@
 			gap: 6px 14px;
 			font: 600 13px/1.2 var(--sans);
 			color: var(--text);
-			margin-bottom: 16px;
+			margin-bottom: 18px;
 		}
 		.sp-new-card-meta .kcal { color: var(--accent); font-weight: 800; }
 		.sp-new-card-meta > * + *::before {
-			content: '·'; color: var(--text-3); margin-right: 14px;
+			content: '·'; color: var(--text-2); margin-right: 14px;
 			display: inline-block; transform: translateX(-7px);
+			font-weight: 700;
 		}
+		/* CTA — full-width: чтобы border-top тянулся на всю ширину карточки.
+		   Цвет — оранжевый (по дизайну). На hover темнеет до accent-d. */
 		.sp-new-card-cta {
-			display: inline-flex; align-items: center; gap: 6px;
-			padding-top: 12px;
+			display: flex; align-items: center; gap: 6px;
+			padding-top: 14px;
 			font: 800 11px/1 var(--sans);
 			letter-spacing: .14em;
 			text-transform: uppercase;
-			color: var(--text);
+			color: var(--accent);
 			border-top: 1px solid var(--text);
 			transition: color var(--tr);
 		}
-		.sp-new-card:hover .sp-new-card-cta { color: var(--accent); }
+		.sp-new-card:hover .sp-new-card-cta { color: var(--accent-d); }
 
 		/* News list (right column) */
 		.sp-new-list { display: flex; flex-direction: column; }
