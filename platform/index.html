@@ -7,7 +7,7 @@
 	<title>Конструктор питания — Юлия Воронова</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
 	<style>
 		body {
 			visibility: hidden
@@ -580,6 +580,88 @@
 		   с существующими стилями платформы. */
 		.sp-block { margin-top: 56px; }
 
+		/* ── EDITORIAL FILTERS (scoped to .sp-home) ───────────────────────────
+		   Плоский editorial-стиль: верх/низ — линии, кнопки uppercase letter-spaced,
+		   активный — подчёркивание, без cream-фона. Category.html не трогаем. */
+		.sp-home .filter-outer {
+			background: none;
+			border: none;
+			border-top: 1px solid var(--text);
+			border-bottom: 1px solid var(--text);
+			border-radius: 0;
+			padding: 8px 0;
+			margin: 48px 0 32px;
+		}
+		.sp-home .filter-bar {
+			gap: 0;
+			flex-wrap: wrap;
+		}
+		.sp-home .filter-chip {
+			padding: 8px 14px;
+			border-radius: 0;
+			background: none;
+			color: var(--text-2);
+			font: 700 11px/1.4 var(--sans);
+			letter-spacing: .12em;
+			text-transform: uppercase;
+			border: none;
+			transition: color var(--tr);
+		}
+		@media (hover: hover) {
+			.sp-home .filter-chip:hover {
+				background: none;
+				color: var(--accent);
+				transform: none;
+			}
+		}
+		.sp-home .filter-chip.on {
+			background: none;
+			color: var(--text);
+			text-decoration: underline;
+			text-underline-offset: 6px;
+			text-decoration-thickness: 2px;
+		}
+		.sp-home .fgroup-btn {
+			padding: 8px 14px;
+			border-radius: 0;
+			background: none;
+			color: var(--text-2);
+			font: 700 11px/1.4 var(--sans);
+			letter-spacing: .12em;
+			text-transform: uppercase;
+			border: none;
+			transition: color var(--tr);
+		}
+		@media (hover: hover) {
+			.sp-home .fgroup-btn:hover {
+				background: none;
+				color: var(--accent);
+				transform: none;
+			}
+		}
+		.sp-home .fgroup-btn.has-value {
+			background: none;
+			color: var(--text);
+			text-decoration: underline;
+			text-underline-offset: 6px;
+			text-decoration-thickness: 2px;
+		}
+		.sp-home .fg-arrow { width: 8px; height: 5px; }
+		.sp-home .filter-sep {
+			width: 1px;
+			height: 16px;
+			background: var(--border);
+			margin: 0 10px;
+		}
+		.sp-home .filter-clear {
+			padding: 8px 0 8px 14px;
+			border-left: 1px solid var(--border);
+			font: 700 11px/1 var(--sans);
+			letter-spacing: .12em;
+			text-transform: uppercase;
+			color: var(--accent);
+		}
+
 		/* ── НОВОЕ: 2-column editorial block ─────────────────────────────────
 		   Левая колонка — vertical featured-card (фото сверху, тело снизу).
 		   Правая — лента новостей (date / title / desc / divider).
@@ -992,7 +1074,7 @@
 					<span class="sp-brand-ava" aria-hidden="true"></span>
 					<span class="sp-brand-meta">
 						<span class="sp-brand-eyebrow">Юлия Воронова · нутрициолог</span>
-						<span class="sp-brand-title">Умная тарелка</span>
+						<span class="sp-brand-title">Умная <span class="sp-brand-accent">тарелка</span></span>
 					</span>
 				</a>
 
