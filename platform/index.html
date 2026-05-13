@@ -158,18 +158,42 @@
 
 		/* Hero search — flatten под editorial */
 		.sp-hero .hero-search {
-			margin: 0; max-width: 520px;
+			margin: 0; max-width: 560px;
+			position: relative;
+			display: block;
 		}
 		.sp-hero .hero-search-input {
 			border-radius: 0;
 			border: 1px solid var(--text);
 			box-shadow: none;
-			padding: 16px 22px 16px 52px;
+			padding: 16px 64px 16px 52px;
+			background: #fff;
 		}
 		.sp-hero .hero-search-input:focus {
 			border-color: var(--accent);
 			box-shadow: none;
 		}
+		/* В editorial-режиме иконка нейтральная, а не оранжевая. */
+		.sp-hero .hero-search-icon {
+			color: var(--text-2);
+		}
+		/* Чёрная квадратная кнопка submit (spec: editorial flat). */
+		.sp-hero .hero-search-submit {
+			position: absolute;
+			top: 1px; right: 1px;
+			width: 50px;
+			height: calc(100% - 2px);
+			background: var(--text);
+			color: #fff;
+			border: none;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			padding: 0;
+			transition: background var(--tr);
+		}
+		.sp-hero .hero-search-submit:hover { background: var(--accent); }
 		.sp-hero .hero-search-results { border-radius: 0; }
 
 		/* ── Категории — editorial overrides only on homepage ───── */
@@ -891,15 +915,20 @@
 					<h1 class="sp-hero-title" id="sp-hero-title">Полезно, вкусно, по делу.</h1>
 					<p class="sp-hero-sub" id="sp-hero-sub">Персональный помощник в сбалансированном питании. Рецепты, подобранные нутрициологом — с расчётом КБЖУ, заменами продуктов и пошаговыми инструкциями.</p>
 
-					<!-- Hero search (функционал прежний) -->
-					<div class="hero-search" id="hero-search">
+					<!-- Hero search (функционал прежний; добавлена editorial-кнопка submit) -->
+					<form class="hero-search" id="hero-search" onsubmit="return submitHeroSearch(event)" role="search">
 						<svg class="hero-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<circle cx="11" cy="11" r="8"></circle>
 							<path d="m21 21-4.3-4.3"></path>
 						</svg>
 						<input type="text" class="hero-search-input" id="hero-search-input" placeholder="Найти полезный рецепт" autocomplete="off">
+						<button type="submit" class="hero-search-submit" aria-label="Искать">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+								<path d="M5 12h14M13 6l6 6-6 6"></path>
+							</svg>
+						</button>
 						<div class="hero-search-results" id="hero-search-results"></div>
-					</div>
+					</form>
 				</div>
 				<a class="sp-hero-aside" id="sp-hero-aside" href="#seasonal-block" aria-label="Сегодняшний рецепт" style="display:none">
 					<div class="sp-hero-media" id="sp-hero-media"></div>
@@ -1160,20 +1189,11 @@
 					: timeGreet;
 			}
 		} else {
-			// Гость: шапка показывает «Войти», dropdown скрыт, аватар нейтральный.
-			const uAva = document.getElementById('u-ava');
-			if (uAva) {
-				uAva.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
-				uAva.style.color = 'var(--text-2)';
-				uAva.style.display = 'flex';
-				uAva.style.alignItems = 'center';
-				uAva.style.justifyContent = 'center';
-			}
+			// Гость: editorial-кнопка «Войти», аватар скрыт через .sp-profile.is-guest.
 			const uName = document.getElementById('u-name');
 			if (uName) uName.textContent = 'Войти';
 			const dd = document.getElementById('user-dropdown');
 			if (dd) dd.remove();
-			// Editorial-режим: профиль превращается в кнопку «Войти» (без капсулы, прямые углы).
 			if (userBadge) userBadge.classList.add('is-guest');
 			if (heroEyebrow) heroEyebrow.textContent = _spTodayRu();
 		}
@@ -1474,6 +1494,15 @@
 				}
 			});
 		})();
+
+		// Обработчик submit для editorial-кнопки «→» в hero-search.
+		function submitHeroSearch(e) {
+			if (e && e.preventDefault) e.preventDefault();
+			const inp = document.getElementById('hero-search-input');
+			const q = inp ? inp.value.trim() : '';
+			if (q) location.href = 'category.html?q=' + encodeURIComponent(q);
+			return false;
+		}
 
 		function toggleNewsMore() {
 			const wrap = document.getElementById('news-more-wrap');

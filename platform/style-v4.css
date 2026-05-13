@@ -2078,8 +2078,11 @@ img { display: block; max-width: 100%; }
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
-    gap: 24px;
+    gap: 18px;
 }
+/* Editorial-главная использует более широкую обёртку — иначе 6 категорий
+   в nav не помещаются. Внутренние страницы (recipe/category) остаются на 980px. */
+.sp-home .v-wrap { max-width: 1180px; }
 
 .sp-brand {
     display: inline-flex; align-items: center; gap: 12px;
@@ -2105,12 +2108,12 @@ img { display: block; max-width: 100%; }
 
 .sp-nav {
     display: flex; align-items: center;
-    gap: 22px; justify-content: center;
+    gap: 18px; justify-content: center;
     min-width: 0; overflow: hidden;
 }
 .sp-nav a {
-    font-size: 12px; font-weight: 700;
-    letter-spacing: .08em; text-transform: uppercase;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
     color: var(--text-2); padding: 6px 0; white-space: nowrap;
     border-bottom: 2px solid transparent;
     transition: color var(--tr), border-color var(--tr);
@@ -2173,15 +2176,16 @@ img { display: block; max-width: 100%; }
     white-space: nowrap;
 }
 .sp-profile.is-guest {
-    padding: 0 16px;
+    padding: 0 18px;
     border-color: var(--text); background: #fff;
+    min-height: 40px;
 }
 .sp-profile.is-guest:hover { background: var(--text); }
 .sp-profile.is-guest:hover .sp-profile-name { color: #fff; }
-.sp-profile.is-guest .v-user-avatar { display: none; }
+.sp-profile.is-guest .v-user-avatar { display: none !important; }
 .sp-profile.is-guest .sp-profile-name {
-    font-size: 12px; font-weight: 700;
-    letter-spacing: .1em; text-transform: uppercase;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: .12em; text-transform: uppercase;
     color: var(--text); max-width: none;
 }
 
