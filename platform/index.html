@@ -580,8 +580,21 @@
 		   с существующими стилями платформы. */
 		.sp-block { margin-top: 56px; }
 
-		/* Только зазор между «Новое» и фильтром — стили chip/btn остаются из style-v4.css. */
-		.sp-home .filter-outer { margin-top: 40px; }
+		/* Editorial-обёртка фильтров на главной: плоско, без рамки/cream-фона —
+		   только линии сверху/снизу. Кнопки .filter-chip / .fgroup-btn остаются
+		   из style-v4.css со всеми ховерами и жёлтым активным состоянием. */
+		.sp-home .filter-outer {
+			background: none;
+			border: none;
+			border-top: 1px solid var(--text);
+			border-bottom: 1px solid var(--text);
+			border-radius: 0;
+			padding: 10px 0;
+			margin: 48px 0 32px;
+		}
+		.sp-home .filter-clear {
+			padding-left: 14px;
+		}
 
 		/* ── НОВОЕ: 2-column editorial block ─────────────────────────────────
 		   Левая колонка — vertical featured-card (фото сверху, тело снизу).
