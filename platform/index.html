@@ -219,24 +219,48 @@
 		}
 
 		.sp-cats-head {
-			display: flex; align-items: baseline; justify-content: space-between;
-			gap: 16px; margin-bottom: 24px;
-			padding-bottom: 10px; border-bottom: 2px solid var(--text);
+			display: flex; align-items: center; justify-content: flex-start;
+			gap: 24px; margin-bottom: 10px;
+			padding-bottom: 8px; border-bottom: 1px solid var(--text);
+			flex-wrap: wrap;
 		}
-		.sp-cats-head .sp-sec-title { margin: 0; }
-		.sp-home .recipes-total-count {
-			display: inline-flex; align-items: baseline; gap: 6px;
+		.sp-cats-head .sp-sec-title { margin: 0; flex-shrink: 0; }
+
+		/* Editorial inline filters inside cats-head — плоско, без рамки/фона.
+		   Кнопки .filter-chip / .fgroup-btn остаются из style-v4.css. */
+		.sp-home .sp-cats-head .filter-outer {
+			background: none; border: none; border-radius: 0;
+			padding: 0; margin: 0;
+			display: flex; align-items: center;
+			flex: 1 1 auto; min-width: 0;
 		}
-		.sp-home .recipes-total-count .rtc-num {
-			font-family: var(--serif);
-			font-size: 22px; font-weight: 700;
-			line-height: 1; color: var(--text); letter-spacing: 0;
+		.sp-home .sp-cats-head .filter-scroll-wrap {
+			flex: 1; overflow: visible; min-width: 0;
 		}
-		.sp-home .recipes-total-count .rtc-label {
-			font-size: 10px; font-weight: 700;
+		.sp-home .sp-cats-head .filter-bar {
+			justify-content: flex-end;
+			gap: 2px;
+		}
+		.sp-home .sp-cats-head .filter-clear {
+			padding: 6px 0 6px 14px;
+			border-left: 1px solid var(--border);
+		}
+
+		/* Status row — «55 рецептов · применён 1 фильтр» под линией. */
+		.sp-home .recipes-total-count.sp-cats-status {
+			display: flex; align-items: center;
+			gap: 8px; margin: 0 0 24px;
+			font: 700 11px/1 var(--sans);
 			letter-spacing: .12em; text-transform: uppercase;
 			color: var(--text-3);
+		}
+		.sp-home .recipes-total-count.sp-cats-status .rtc-num,
+		.sp-home .recipes-total-count.sp-cats-status .rtc-label,
+		.sp-home .recipes-total-count.sp-cats-status .rtc-applied {
+			font: inherit;
 			background: none; padding: 0; border-radius: 0;
+			letter-spacing: inherit; text-transform: inherit;
+			color: inherit;
 		}
 
 		/* ── MOBILE (≤ 767px) ──────────────────────────────────────── */
@@ -252,7 +276,25 @@
 
 			.sp-home .cat-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
 			.sp-home .cat-name { font-size: 15px; }
-			.sp-cats-head { margin-bottom: 18px; }
+			.sp-cats-head {
+				flex-direction: column; align-items: stretch;
+				gap: 10px; margin-bottom: 10px; padding-bottom: 8px;
+			}
+			.sp-home .sp-cats-head .filter-outer {
+				width: 100%;
+				overflow-x: auto;
+				-webkit-overflow-scrolling: touch;
+			}
+			.sp-home .sp-cats-head .filter-scroll-wrap { overflow: visible; }
+			.sp-home .sp-cats-head .filter-bar {
+				flex-wrap: nowrap;
+				justify-content: flex-start;
+			}
+			.sp-home .sp-cats-head .filter-clear {
+				flex-shrink: 0;
+				padding-left: 12px;
+			}
+			.sp-home .recipes-total-count.sp-cats-status { margin-bottom: 16px; }
 		}
 
 		/* Featured card extras */
@@ -580,22 +622,6 @@
 		   с существующими стилями платформы. */
 		.sp-block { margin-top: 56px; }
 
-		/* Editorial-обёртка фильтров на главной: плоско, без рамки/cream-фона —
-		   только линии сверху/снизу. Кнопки .filter-chip / .fgroup-btn остаются
-		   из style-v4.css со всеми ховерами и жёлтым активным состоянием. */
-		.sp-home .filter-outer {
-			background: none;
-			border: none;
-			border-top: 1px solid var(--text);
-			border-bottom: 1px solid var(--text);
-			border-radius: 0;
-			padding: 10px 0;
-			margin: 48px 0 32px;
-		}
-		.sp-home .filter-clear {
-			padding-left: 14px;
-		}
-
 		/* ── НОВОЕ: 2-column editorial block ─────────────────────────────────
 		   Левая колонка — vertical featured-card (фото сверху, тело снизу).
 		   Правая — лента новостей (date / title / desc / divider).
@@ -740,7 +766,7 @@
 		.sp-sec-head {
 			display: flex; align-items: baseline; justify-content: space-between;
 			gap: 16px; margin-bottom: 24px; padding-bottom: 10px;
-			border-bottom: 2px solid var(--text);
+			border-bottom: 1px solid var(--text);
 		}
 		.sp-sec-title {
 			font-family: var(--sans);
@@ -1125,40 +1151,38 @@
 				<div id="seasonal-body"></div>
 			</section>
 
-			<!-- Filters -->
-			<div class="filter-outer anim anim-d1">
-				<div class="filter-scroll-wrap">
-					<div class="filter-bar" id="filter-row">
-						<button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" onclick="toggleFGroup(this)">
-							<span class="fg-label">Время</span>
-							<svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2">
-								<path d="M1 1l4 4 4-4" />
-							</svg>
-						</button>
-						<button class="fgroup-btn" id="fg-diff-btn" data-label="Сложность" data-drop="fg-diff-drop" onclick="toggleFGroup(this)">
-							<span class="fg-label">Сложность</span>
-							<svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2">
-								<path d="M1 1l4 4 4-4" />
-							</svg>
-						</button>
-						<button class="filter-chip" data-f="popular" id="popular-chip" onclick="togglePopular(this)">⭐ Популярные</button>
-						<div class="filter-sep"></div>
-						<button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
-						<button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
-						<button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
-						<button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
-						<button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Бобовые</button>
-					</div>
-				</div>
-				<button class="filter-clear" onclick="clearFilters()">↺ Сбросить</button>
-			</div>
-
-			<!-- Categories (editorial-обёртка) -->
+			<!-- Categories (editorial-обёртка с инлайн-фильтрами) -->
 			<section class="sp-block anim anim-d2">
 				<div class="sp-cats-head" id="cats-head">
 					<h2 class="sp-sec-title" id="cats-title">Категории</h2>
-					<div class="recipes-total-count" id="recipes-total-count"></div>
+					<div class="filter-outer anim anim-d1">
+						<div class="filter-scroll-wrap">
+							<div class="filter-bar" id="filter-row">
+								<button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" onclick="toggleFGroup(this)">
+									<span class="fg-label">Время</span>
+									<svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2">
+										<path d="M1 1l4 4 4-4" />
+									</svg>
+								</button>
+								<button class="fgroup-btn" id="fg-diff-btn" data-label="Сложность" data-drop="fg-diff-drop" onclick="toggleFGroup(this)">
+									<span class="fg-label">Сложность</span>
+									<svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2">
+										<path d="M1 1l4 4 4-4" />
+									</svg>
+								</button>
+								<div class="filter-sep"></div>
+								<button class="filter-chip" data-f="popular" id="popular-chip" onclick="togglePopular(this)">⭐ Популярные</button>
+								<button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
+								<button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
+								<button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
+								<button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
+								<button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Бобовые</button>
+							</div>
+						</div>
+						<button class="filter-clear" onclick="clearFilters()">↺ Сбросить</button>
+					</div>
 				</div>
+				<div class="recipes-total-count sp-cats-status" id="recipes-total-count"></div>
 				<div class="cat-grid" id="cat-grid"></div>
 			</section>
 
@@ -1410,6 +1434,7 @@
 		const activeFilters = {};
 
 		function renderCats() {
+			updateRecipeCount();
 			const grid = document.getElementById('cat-grid');
 			const hasFilters = Object.values(activeFilters).some(v => v);
 			const items = Object.values(CATEGORIES)
@@ -1419,6 +1444,7 @@
 			if (hasFilters && visible.length === 0) {
 				grid.innerHTML =
 					'<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">По выбранным фильтрам рецепты не найдены.</div>';
+				if (typeof updateRecipeCount === 'function') updateRecipeCount();
 				return;
 			}
 
@@ -1807,15 +1833,22 @@
 		}
 		renderPlateInline();
 
-		// Recipe total count (updated after renderCats which runs after loadContent)
+		// Recipe total count + applied filters indicator (вызывается из renderCats / renderPopular).
 		function updateRecipeCount() {
 			const rcEl = document.getElementById('recipes-total-count');
-			if (rcEl) {
-				const n = Object.keys(RECIPES).length;
-				const m10 = n % 10, m100 = n % 100;
-				const word = (m100 >= 11 && m100 <= 14) ? 'рецептов' : m10 === 1 ? 'рецепт' : (m10 >= 2 && m10 <= 4) ? 'рецепта' : 'рецептов';
-				rcEl.innerHTML = `<span class="rtc-num">${n}</span><span class="rtc-label">${word}</span>`;
+			if (!rcEl) return;
+			const n = Object.keys(RECIPES).length;
+			const m10 = n % 10, m100 = n % 100;
+			const word = (m100 >= 11 && m100 <= 14) ? 'рецептов' : m10 === 1 ? 'рецепт' : (m10 >= 2 && m10 <= 4) ? 'рецепта' : 'рецептов';
+			const k = Object.keys(activeFilters).length + (typeof _popularActive !== 'undefined' && _popularActive ? 1 : 0);
+			let applied = '';
+			if (k > 0) {
+				const k10 = k % 10, k100 = k % 100;
+				const verb = (k100 >= 11 && k100 <= 14) ? 'применено' : k10 === 1 ? 'применён' : 'применено';
+				const fword = (k100 >= 11 && k100 <= 14) ? 'фильтров' : k10 === 1 ? 'фильтр' : (k10 >= 2 && k10 <= 4) ? 'фильтра' : 'фильтров';
+				applied = `<span class="rtc-applied">· ${verb} ${k} ${fword}</span>`;
 			}
+			rcEl.innerHTML = `<span class="rtc-num">${n}</span><span class="rtc-label">${word}</span>${applied}`;
 		}
 
 		// ── EDITORIAL HOMEPAGE BLOCKS ──────────────────────────────────────
@@ -2260,6 +2293,7 @@
 		}
 
 		function renderPopular() {
+			updateRecipeCount();
 			const allRecipes = Object.values(RECIPES);
 			const rated = allRecipes.filter(r => _apiRatings[r.id] && _apiRatings[r.id].avg > 0);
 			rated.sort((a, b) => {
