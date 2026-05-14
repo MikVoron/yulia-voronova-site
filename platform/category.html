@@ -70,24 +70,27 @@
         }
         @media (max-width: 767px) {
             .cat-page .filter-outer {
-                flex-direction: row;
+                flex-direction: column;
+                align-items: stretch;
                 width: 100%;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                padding: 0; gap: 0;
+                overflow: visible;
+                padding: 0; gap: 6px;
             }
-            .cat-page .filter-scroll-wrap { overflow: visible; }
+            .cat-page .filter-scroll-wrap { overflow: visible; width: 100%; }
             .cat-page .filter-bar {
-                flex-wrap: nowrap;
-                justify-content: flex-start;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 6px;
                 min-width: 0;
             }
             .cat-page .filter-clear {
                 flex-shrink: 0;
-                padding: 6px 0 6px 12px;
-                border-left: 1px solid var(--border);
-                border-top: none; width: auto; text-align: left;
-                margin-top: 0;
+                width: 100%;
+                padding: 6px 0 2px;
+                text-align: center;
+                border-left: none;
+                border-top: 1px solid var(--border);
+                margin-top: 4px;
             }
         }
     </style>

@@ -285,18 +285,27 @@
 				gap: 10px; margin-bottom: 10px; padding-bottom: 8px;
 			}
 			.sp-home .sp-cats-head .filter-outer {
+				flex-direction: column;
+				align-items: stretch;
 				width: 100%;
-				overflow-x: auto;
-				-webkit-overflow-scrolling: touch;
+				gap: 6px;
+				overflow: visible;
 			}
-			.sp-home .sp-cats-head .filter-scroll-wrap { overflow: visible; }
+			.sp-home .sp-cats-head .filter-scroll-wrap { overflow: visible; width: 100%; }
 			.sp-home .sp-cats-head .filter-bar {
-				flex-wrap: nowrap;
-				justify-content: flex-start;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: 6px;
+				min-width: 0;
 			}
 			.sp-home .sp-cats-head .filter-clear {
 				flex-shrink: 0;
-				padding-left: 12px;
+				width: 100%;
+				padding: 6px 0 2px;
+				text-align: center;
+				border-left: none;
+				border-top: 1px solid var(--border);
+				margin-top: 4px;
 			}
 			.sp-home .recipes-total-count.sp-cats-status { margin-bottom: 16px; }
 		}
@@ -758,12 +767,19 @@
 			-webkit-box-orient: vertical;
 			overflow: hidden;
 		}
+		.sp-new-list .news-toggle-btn { display: none; }
 
 		@media (max-width: 767px) {
 			.sp-new-block { margin-top: 28px; }
 			.sp-new-grid { grid-template-columns: 1fr; gap: 24px; }
 			.sp-new-card-title { font-size: 22px; }
 			.sp-news-item { padding: 16px 0; }
+			.sp-new-list:not(.open) .sp-news-item:nth-of-type(n+2) { display: none; }
+			.sp-new-list .news-toggle-btn {
+				display: inline-flex;
+				align-self: center;
+				margin-top: 4px;
+			}
 		}
 
 
@@ -1675,10 +1691,13 @@
 			}
 
 			if (textItems.length) {
-				listEl.innerHTML = textItems.slice(0, 4).map(renderNewsListItem).join('');
+				const visibleNews = textItems.slice(0, 4);
+				listEl.classList.remove('open');
+				listEl.innerHTML = visibleNews.map(renderNewsListItem).join('') + renderNewsListToggle(visibleNews.length);
 				block.classList.remove('sp-new-block--no-list');
 			} else {
 				listEl.innerHTML = '';
+				listEl.classList.remove('open');
 				block.classList.add('sp-new-block--no-list');
 			}
 
@@ -1768,6 +1787,14 @@
 				<h3 class="sp-news-item-title">${escHtml(title)}</h3>
 				${desc ? `<p class="sp-news-item-desc">${escHtml(desc)}</p>` : ''}
 			</article>`;
+		}
+
+		function renderNewsListToggle(count) {
+			if (count <= 1) return '';
+			return `<button class="news-toggle-btn" id="sp-news-toggle-btn" type="button" onclick="toggleMobileNewsList()">
+				<span class="news-toggle-label">Показать ещё новости (${count - 1})</span>
+				<span class="arr">⌄</span>
+			</button>`;
 		}
 
 		// ── HERO SEARCH ──────────────────────────────────────────────────────
@@ -1861,6 +1888,17 @@
 			btn.classList.toggle('open', open);
 			const hiddenCount = wrap.querySelectorAll('.news-text-card').length;
 			btn.querySelector('.news-toggle-label').textContent = open ? 'Свернуть' : 'Показать ещё новости (' + hiddenCount + ')';
+		}
+
+		function toggleMobileNewsList() {
+			const list = document.getElementById('new-list');
+			const btn = document.getElementById('sp-news-toggle-btn');
+			if (!list || !btn) return;
+			const open = list.classList.toggle('open');
+			btn.classList.toggle('open', open);
+			const hiddenCount = Math.max(0, list.querySelectorAll('.sp-news-item').length - 1);
+			const label = btn.querySelector('.news-toggle-label');
+			if (label) label.textContent = open ? 'Свернуть' : 'Показать ещё новости (' + hiddenCount + ')';
 		}
 		renderPlateInline();
 
