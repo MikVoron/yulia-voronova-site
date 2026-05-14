@@ -50,6 +50,46 @@
         @media (max-width: 767px) {
             .cat-crumbs .crumb-current { max-width: 140px; }
         }
+
+        /* Editorial inline filters — паритет с .sp-home .sp-cats-head на главной.
+           Снимаем серую плашку, рамку, скругление и padding. Кнопки .filter-chip /
+           .fgroup-btn / активные/hover-состояния остаются из style-v4.css. */
+        .cat-page .filter-outer {
+            background: none; border: none; border-radius: 0;
+            padding: 0; margin: 0 0 20px;
+            display: flex; align-items: center;
+        }
+        .cat-page .filter-scroll-wrap {
+            flex: 1; overflow: visible; min-width: 0;
+        }
+        .cat-page .filter-bar { gap: 2px; }
+        .cat-page .filter-clear {
+            padding: 6px 0 6px 14px;
+            border-left: 1px solid var(--border);
+            border-top: none; width: auto; text-align: left;
+        }
+        @media (max-width: 767px) {
+            .cat-page .filter-outer {
+                flex-direction: row;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 0; gap: 0;
+            }
+            .cat-page .filter-scroll-wrap { overflow: visible; }
+            .cat-page .filter-bar {
+                flex-wrap: nowrap;
+                justify-content: flex-start;
+                min-width: 0;
+            }
+            .cat-page .filter-clear {
+                flex-shrink: 0;
+                padding: 6px 0 6px 12px;
+                border-left: 1px solid var(--border);
+                border-top: none; width: auto; text-align: left;
+                margin-top: 0;
+            }
+        }
     </style>
 </head>
 <body class="v-page">
@@ -94,7 +134,7 @@
     </div>
 </header>
 
-<main style="flex:1; padding-bottom: 40px;">
+<main class="cat-page" style="flex:1; padding-bottom: 40px;">
     <div class="v-wrap">
 
         <!-- Breadcrumbs -->

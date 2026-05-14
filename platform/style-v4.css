@@ -2081,9 +2081,14 @@ img { display: block; max-width: 100%; }
     align-items: center;
     gap: 18px;
 }
-/* Editorial-главная использует более широкую обёртку — иначе 6 категорий
-   в nav не помещаются. Внутренние страницы (recipe/category) остаются на 980px. */
+/* Editorial-главная использует более широкую обёртку для всего контента —
+   1180px вместо дефолтных 980px. На внутренних страницах (recipe/category)
+   основной <main> .v-wrap остаётся 980px (см. правило ниже про .sp-header). */
 .sp-home .v-wrap { max-width: 1180px; }
+/* Header всегда живёт в 1180px-обёртке на всех страницах: nav с 6 категориями
+   не помещается в 980px, особенно когда слева ещё .vh-back-btn на внутренних
+   страницах. На <main> это правило не влияет — там селектор не матчится. */
+.sp-header .v-wrap { max-width: 1180px; }
 
 .sp-brand {
     display: inline-flex; align-items: center; gap: 12px;
