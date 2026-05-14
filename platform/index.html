@@ -164,25 +164,29 @@
 		}
 		.sp-hero .hero-search-input {
 			border-radius: 0;
-			border: 1px solid var(--text);
+			border: 1px solid var(--border);
 			box-shadow: none;
-			padding: 16px 64px 16px 52px;
+			padding: 18px 60px 18px 52px;
 			background: #fff;
+			color: var(--text);
 		}
+		.sp-hero .hero-search-input::placeholder { color: var(--text-3); }
 		.sp-hero .hero-search-input:focus {
-			border-color: var(--accent);
+			border-color: var(--text-2);
 			box-shadow: none;
 		}
 		/* В editorial-режиме иконка нейтральная, а не оранжевая. */
 		.sp-hero .hero-search-icon {
-			color: var(--text-2);
+			color: var(--text-3);
+			left: 18px; width: 18px; height: 18px;
 		}
-		/* Чёрная квадратная кнопка submit (spec: editorial flat). */
+		/* Компактная чёрная квадратная кнопка submit (spec: editorial flat).
+		   Не во всю высоту поля — фиксированный квадрат, центрирован по вертикали. */
 		.sp-hero .hero-search-submit {
 			position: absolute;
-			top: 1px; right: 1px;
-			width: 50px;
-			height: calc(100% - 2px);
+			top: 50%; right: 8px;
+			transform: translateY(-50%);
+			width: 36px; height: 36px;
 			background: var(--text);
 			color: #fff;
 			border: none;
@@ -1095,7 +1099,7 @@
 			<section class="sp-hero anim" id="intro-block">
 				<div class="sp-hero-text">
 					<div class="sp-hero-eyebrow" id="sp-hero-eyebrow">Сегодня</div>
-					<h1 class="sp-hero-title" id="sp-hero-title">Полезно, вкусно, по делу.</h1>
+					<h1 class="sp-hero-title" id="sp-hero-title">Полезно,<br>вкусно,<br>по делу.</h1>
 					<p class="sp-hero-sub" id="sp-hero-sub">Персональный помощник в сбалансированном питании. Рецепты, подобранные нутрициологом — с расчётом КБЖУ, заменами продуктов и пошаговыми инструкциями.</p>
 
 					<!-- Hero search (функционал прежний; добавлена editorial-кнопка submit) -->
@@ -1357,43 +1361,20 @@
 		// Init header
 		const greetingEl = document.getElementById('greeting-hi'); // legacy: may не быть на editorial-главной
 		const heroEyebrow = document.getElementById('sp-hero-eyebrow');
+		const heroTitle = document.getElementById('sp-hero-title');
+		const heroSub = document.getElementById('sp-hero-sub');
 		const userBadge = document.getElementById('user-badge');
-		if (user) {
-			const customName = Auth.getDisplayName();
-			const shortName = customName || user.email.split('@')[0];
-			const uAva = document.getElementById('u-ava');
-			const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
-			if (savedAva) {
-				uAva.innerHTML = `<img src="${escHtml(savedAva)}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-			} else {
-				uAva.textContent = (customName || user.email || '?').charAt(0).toUpperCase();
-			}
-			document.getElementById('u-name').textContent = customName || user.email.split('@')[0];
-			const timeGreet = new Date().getHours() < 12 ? 'Доброе утро' :
-				new Date().getHours() < 17 ? 'Добрый день' : 'Добрый вечер';
-			// Legacy greeting block (если есть на странице — заполняем) + новый hero-eyebrow.
-			if (greetingEl) {
-				greetingEl.innerHTML = customName
-					? (timeGreet + ', <span style="color:var(--accent)">' + escHtml(customName) + '</span>!')
-					: (timeGreet + '!');
-			}
-			if (heroEyebrow) {
-				heroEyebrow.textContent = customName
-					? (timeGreet + ', ' + customName)
-					: timeGreet;
-			}
-		} else {
-			// Гость: editorial-кнопка «Войти», аватар скрыт через .sp-profile.is-guest.
-			const uName = document.getElementById('u-name');
-			if (uName) uName.textContent = 'Войти';
-			const dd = document.getElementById('user-dropdown');
-			if (dd) dd.remove();
-			if (userBadge) userBadge.classList.add('is-guest');
-			if (heroEyebrow) heroEyebrow.textContent = _spTodayRu();
-		}
-		updatePlateIcon();
 
-		// «Среда · 14 ноября» — eyebrow в hero (для залогиненных перебивается приветствием).
+		// Приветствие по локальному времени браузера.
+		// 05:00–11:59 → утро, 12:00–17:59 → день, 18:00–23:59 → вечер, 00:00–04:59 → ночь.
+		function _spTimeGreeting() {
+			const h = new Date().getHours();
+			if (h >= 5 && h < 12) return 'Доброе утро';
+			if (h >= 12 && h < 18) return 'Добрый день';
+			if (h >= 18) return 'Добрый вечер';
+			return 'Доброй ночи';
+		}
+		// «Среда · 14 ноября» — eyebrow в hero (общий для гостя и залогиненного).
 		function _spTodayRu() {
 			try {
 				const d = new Date();
@@ -1402,11 +1383,61 @@
 				return wd.charAt(0).toUpperCase() + wd.slice(1) + ' · ' + dm;
 			} catch (e) { return 'Сегодня'; }
 		}
-		if (user && heroEyebrow) {
-			// Залогинен — оставляем приветствие из ветки выше; ничего не делаем здесь.
-		} else if (heroEyebrow && !heroEyebrow.textContent.trim().length) {
-			heroEyebrow.textContent = _spTodayRu();
+		// Имя для приветствия: getDisplayName → user.name → email до @ → пусто.
+		function _spHeroName() {
+			try {
+				const dn = (Auth.getDisplayName && Auth.getDisplayName()) || '';
+				if (dn) return dn;
+				const u = (Auth.getUser && Auth.getUser()) || null;
+				if (u && u.name) return u.name;
+				if (u && u.email && u.email.indexOf('@') > 0) return u.email.split('@')[0];
+			} catch (e) {}
+			return '';
 		}
+
+		if (heroEyebrow) heroEyebrow.textContent = _spTodayRu();
+
+		if (user) {
+			const customName = Auth.getDisplayName();
+			const uAva = document.getElementById('u-ava');
+			const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
+			if (savedAva) {
+				uAva.innerHTML = `<img src="${escHtml(savedAva)}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+			} else {
+				uAva.textContent = (customName || user.email || '?').charAt(0).toUpperCase();
+			}
+			document.getElementById('u-name').textContent = customName || user.email.split('@')[0];
+
+			const timeGreet = _spTimeGreeting();
+			const heroName = _spHeroName();
+			// Hero: приветствие в title, вопрос в sub. Маркетинговый текст не показываем.
+			// Имя выносим на отдельную строку — держим editorial-вертикаль и страхуем длинные имена.
+			if (heroTitle) {
+				if (heroName) {
+					heroTitle.innerHTML = escHtml(timeGreet) + ',<br>' + escHtml(heroName);
+				} else {
+					heroTitle.textContent = timeGreet;
+				}
+			}
+			if (heroSub) {
+				heroSub.textContent = 'Что будем сегодня готовить?';
+			}
+			// Legacy greeting block (если есть на странице — заполняем).
+			if (greetingEl) {
+				greetingEl.innerHTML = customName
+					? (timeGreet + ', <span style="color:var(--accent)">' + escHtml(customName) + '</span>!')
+					: (timeGreet + '!');
+			}
+		} else {
+			// Гость: editorial-кнопка «Войти», аватар скрыт через .sp-profile.is-guest.
+			// Hero title/sub оставляем как в HTML — маркетинговый текст для незалогиненных.
+			const uName = document.getElementById('u-name');
+			if (uName) uName.textContent = 'Войти';
+			const dd = document.getElementById('user-dropdown');
+			if (dd) dd.remove();
+			if (userBadge) userBadge.classList.add('is-guest');
+		}
+		updatePlateIcon();
 
 		// Клик по «профильной» пилюле — для гостя редиректит на login, для логина — открывает меню.
 		function onUserBadgeClick(e) {
