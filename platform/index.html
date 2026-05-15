@@ -201,6 +201,15 @@
 		.sp-hero .hero-search-results { border-radius: 0; }
 
 		/* ── Категории — editorial overrides only on homepage ───── */
+		/* Full-bleed cream-полоса под всю секцию (заголовок + фильтры + сетка).
+		   box-shadow + clip-path растягивают фон до краёв viewport
+		   без vw-трюков (не ломает скролл при наличии скроллбара). */
+		.sp-home .sp-cats-section {
+			background: var(--bg-alt);
+			box-shadow: 0 0 0 100vmax var(--bg-alt);
+			clip-path: inset(0 -100vmax);
+			padding-block: 40px;
+		}
 		.sp-home .cat-grid {
 			grid-template-columns: repeat(4, 1fr);
 			gap: 22px;
@@ -278,6 +287,7 @@
 			.sp-hero-title { font-size: 30px; }
 			.sp-hero-sub { font-size: 14px; margin-bottom: 22px; }
 
+			.sp-home .sp-cats-section { padding-block: 28px; }
 			.sp-home .cat-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
 			.sp-home .cat-name { font-size: 15px; }
 			.sp-cats-head {
@@ -1172,7 +1182,7 @@
 			</section>
 
 			<!-- Categories (editorial-обёртка с инлайн-фильтрами) -->
-			<section class="sp-block anim anim-d2">
+			<section class="sp-block sp-cats-section anim anim-d2">
 				<div class="sp-cats-head" id="cats-head">
 					<h2 class="sp-sec-title" id="cats-title">Категории</h2>
 					<div class="filter-outer anim anim-d1">
