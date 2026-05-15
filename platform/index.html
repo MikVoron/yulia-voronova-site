@@ -83,6 +83,9 @@
 		.sp-drawer-nav a:hover { background: var(--bg-alt); color: var(--accent); }
 		.sp-drawer-nav a.active { color: var(--accent); }
 
+		/* Desktop-nav скрыта до заполнения renderHeaderNav() — убирает мигание одиночной «Главной». */
+		.sp-nav.sp-nav-pending { visibility: hidden; }
+
 		/* CTA close-крестик — spec §3.5 */
 		.sp-cta-strip { position: relative; }
 		.sp-cta-close {
@@ -1071,10 +1074,9 @@
 					</span>
 				</a>
 
-				<!-- Nav (desktop). Populated from CATEGORIES после loadContent. -->
-				<nav class="sp-nav" id="sp-nav" aria-label="Разделы">
-					<a class="active" href="index.html">Главная</a>
-				</nav>
+				<!-- Nav (desktop). Populated from CATEGORIES после loadContent.
+				     sp-nav-pending скрывает через visibility:hidden до первого renderHeaderNav(). -->
+				<nav class="sp-nav sp-nav-pending" id="sp-nav" aria-label="Разделы"></nav>
 
 				<!-- Utilities (plate + profile). Hooks preserved: #plate-btn, .plate-count, #user-badge, #u-ava, #u-name, #user-wrap, #user-dropdown, onUserBadgeClick. -->
 				<div class="sp-utils">
@@ -2229,6 +2231,7 @@
 			}
 			if (nav) {
 				nav.innerHTML = '<a' + homeCls + ' href="index.html">Главная</a>' + items.map(row).join('');
+				nav.classList.remove('sp-nav-pending');
 			}
 			if (drawerNav) {
 				drawerNav.innerHTML = '<a' + homeCls + ' href="index.html">Главная</a>' + cats.map(row).join('');
