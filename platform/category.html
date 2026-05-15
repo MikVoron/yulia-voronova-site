@@ -10,7 +10,11 @@
     <style>body{visibility:hidden}</style>
     <link rel="stylesheet" href="style-v4.css?v=2026-05-15-header-2" id="vcss">
     <style>
-        .cat-hero { padding: 20px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .cat-hero {
+            padding: 20px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px;
+            /* Резерв под финальный hero на first paint: avatar 72 + padding 20+16 + border 1 = 109 */
+            min-height: 109px; box-sizing: border-box;
+        }
         .cat-hero-row { display: flex; align-items: center; gap: 16px; }
         .cat-hero-ava {
             width: 72px; height: 72px; border-radius: 50%;
@@ -24,6 +28,15 @@
         .cat-hero-name { font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--text); line-height: 1.1; }
         .cat-hero-desc { font-size: 13px; color: var(--text-2); margin-top: 3px; }
 
+        /* Skeleton hero до прихода данных из API — повторяет финальную геометрию,
+           чтобы фильтры не съезжали вниз после loadContent(). */
+        .cat-hero-skel-ava { background: var(--bg-alt); border: 2px solid var(--border); }
+        .cat-hero-skel-line {
+            background: var(--bg-alt);
+            border-radius: 4px;
+            opacity: .6;
+        }
+
         /* Editorial-header (.sp-header) импортирован из style-v4.css.
            Старые .v-header / vh-* overrides здесь больше не нужны. */
 
@@ -33,7 +46,12 @@
             margin: 20px 0 16px;
             font-family: var(--font); font-size: 12px; font-weight: 600;
             letter-spacing: .04em;
+            /* Резерв под одну строку крошек — пока не пришёл cat.name,
+               держим место, чтобы фильтры не подскакивали наверх. */
+            min-height: 16px;
         }
+        /* Пока крошки пустые (до loadContent) — невидимы, но место занимают. */
+        .cat-crumbs:empty { visibility: hidden; }
         .cat-crumbs a {
             color: var(--text-2); text-decoration: none;
             text-transform: uppercase; letter-spacing: inherit;
@@ -147,11 +165,20 @@
 <main class="cat-page" style="flex:1; padding-bottom: 40px;">
     <div class="v-wrap">
 
-        <!-- Breadcrumbs -->
-        <nav class="cat-crumbs" id="cat-crumbs" aria-label="Хлебные крошки" style="display:none"></nav>
+        <!-- Breadcrumbs (пустые до loadContent — место занимает за счёт min-height + :empty{visibility:hidden}) -->
+        <nav class="cat-crumbs" id="cat-crumbs" aria-label="Хлебные крошки"></nav>
 
-        <!-- Category hero -->
-        <div class="cat-hero anim" id="cat-hero"></div>
+        <!-- Category hero. Skeleton внутри = финальная геометрия на first paint;
+             JS заменит innerHTML после loadContent(). -->
+        <div class="cat-hero anim" id="cat-hero">
+            <div class="cat-hero-row" aria-hidden="true">
+                <div class="cat-hero-ava cat-hero-skel-ava"></div>
+                <div style="flex:1;min-width:0">
+                    <div class="cat-hero-skel-line" style="width:45%;height:24px"></div>
+                    <div class="cat-hero-skel-line" style="width:65%;height:12px;margin-top:6px"></div>
+                </div>
+            </div>
+        </div>
 
         <!-- Filters -->
         <div class="filter-outer anim anim-d1">
@@ -281,7 +308,6 @@
                 crumbsEl.innerHTML = '<a href="index.html">Главная</a>' +
                     '<span class="crumb-sep">›</span>' +
                     '<span class="crumb-current">Поиск</span>';
-                crumbsEl.style.display = '';
             }
         } else {
             cat = getCategory(catId);
@@ -292,7 +318,6 @@
                     crumbsEl.innerHTML = '<a href="index.html">Главная</a>' +
                         '<span class="crumb-sep">›</span>' +
                         '<span class="crumb-current">' + escHtml(String(cat.name)) + '</span>';
-                    crumbsEl.style.display = '';
                 }
                 var catAvatars = typeof CAT_AVATARS !== 'undefined' ? CAT_AVATARS : {};
                 var avaUrl = (typeof getCategoryPhoto === 'function' ? getCategoryPhoto(catId, catAvatars[catId]) : catAvatars[catId]) || '';
