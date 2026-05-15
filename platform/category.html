@@ -28,15 +28,6 @@
         .cat-hero-name { font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--text); line-height: 1.1; }
         .cat-hero-desc { font-size: 13px; color: var(--text-2); margin-top: 3px; }
 
-        /* Skeleton hero до прихода данных из API — повторяет финальную геометрию,
-           чтобы фильтры не съезжали вниз после loadContent(). */
-        .cat-hero-skel-ava { background: var(--bg-alt); border: 2px solid var(--border); }
-        .cat-hero-skel-line {
-            background: var(--bg-alt);
-            border-radius: 4px;
-            opacity: .6;
-        }
-
         /* Editorial-header (.sp-header) импортирован из style-v4.css.
            Старые .v-header / vh-* overrides здесь больше не нужны. */
 
@@ -46,12 +37,9 @@
             margin: 20px 0 16px;
             font-family: var(--font); font-size: 12px; font-weight: 600;
             letter-spacing: .04em;
-            /* Резерв под одну строку крошек — пока не пришёл cat.name,
-               держим место, чтобы фильтры не подскакивали наверх. */
+            /* Резерв на случай, если catId не из fallback-карты — фильтры не подскочат. */
             min-height: 16px;
         }
-        /* Пока крошки пустые (до loadContent) — невидимы, но место занимают. */
-        .cat-crumbs:empty { visibility: hidden; }
         .cat-crumbs a {
             color: var(--text-2); text-decoration: none;
             text-transform: uppercase; letter-spacing: inherit;
@@ -165,23 +153,16 @@
 <main class="cat-page" style="flex:1; padding-bottom: 40px;">
     <div class="v-wrap">
 
-        <!-- Breadcrumbs (пустые до loadContent — место занимает за счёт min-height + :empty{visibility:hidden}) -->
+        <!-- Breadcrumbs — заполняются синхронно из JS до loadContent() (см. ниже). -->
         <nav class="cat-crumbs" id="cat-crumbs" aria-label="Хлебные крошки"></nav>
 
-        <!-- Category hero. Skeleton внутри = финальная геометрия на first paint;
-             JS заменит innerHTML после loadContent(). -->
-        <div class="cat-hero anim" id="cat-hero">
-            <div class="cat-hero-row" aria-hidden="true">
-                <div class="cat-hero-ava cat-hero-skel-ava"></div>
-                <div style="flex:1;min-width:0">
-                    <div class="cat-hero-skel-line" style="width:45%;height:24px"></div>
-                    <div class="cat-hero-skel-line" style="width:65%;height:12px;margin-top:6px"></div>
-                </div>
-            </div>
-        </div>
+        <!-- Category hero — fallback заполняется синхронно из JS (см. ниже),
+             loadContent().then() заменит на актуальные данные из API. .anim снят,
+             чтобы верх страницы не fadeUp-ил и не исчезал на first paint. -->
+        <div class="cat-hero" id="cat-hero"></div>
 
-        <!-- Filters -->
-        <div class="filter-outer anim anim-d1">
+        <!-- Filters — .anim снят, чтобы не моргали при появлении hero. -->
+        <div class="filter-outer">
         <div class="filter-scroll-wrap">
         <div class="filter-bar" id="filter-row">
             <button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" onclick="toggleFGroup(this)">
@@ -288,6 +269,49 @@
 
 <script src="data-v2.js?v=1779940200"></script>
 <script>
+    // ── SYNC FALLBACK HERO + CRUMBS ─────────────────────────────────────────
+    // Заполняем верх страницы (название категории и крошки) синхронно, до того
+    // как loadContent() сходит в API. Юзер сразу видит «Завтраки», а не пустоту.
+    // После loadContent().then() ниже хук перерисует hero/crumbs данными из API
+    // (имя/описание/аватар) — позиция и габариты блока совпадают, рывка нет.
+    (function renderFallbackHero() {
+        var p = new URLSearchParams(location.search);
+        var q = (p.get('q') || '').trim();
+        var id = p.get('cat') || (q ? '' : 'breakfasts');
+        var hero = document.getElementById('cat-hero');
+        var crumbs = document.getElementById('cat-crumbs');
+        if (q) {
+            if (hero) hero.innerHTML =
+                '<div class="cat-hero-row">' +
+                '<div class="cat-hero-ava">🔍</div>' +
+                '<div><div class="cat-hero-name">Поиск</div></div></div>';
+            if (crumbs) crumbs.innerHTML =
+                '<a href="index.html">Главная</a>' +
+                '<span class="crumb-sep">›</span>' +
+                '<span class="crumb-current">Поиск</span>';
+            return;
+        }
+        var FB = {
+            breakfasts: { name: 'Завтраки',         emoji: '🍳', desc: 'Утренние блюда с балансом БЖУ' },
+            mains:      { name: 'Основные блюда',   emoji: '🍲', desc: 'Полноценные обеды и ужины' },
+            pancakes:   { name: 'Блины / Оладьи',   emoji: '🥞', desc: 'Сладкие и сытные варианты' },
+            spreads:    { name: 'Намазки',          emoji: '🥑', desc: 'Намазки на хлеб и тосты' },
+            sauces:     { name: 'Соусы',            emoji: '🥫', desc: 'Заправки и подливки к блюдам' }
+        };
+        var fb = FB[id];
+        if (!fb) return;
+        document.title = fb.name + ' — Конструктор питания';
+        if (hero) hero.innerHTML =
+            '<div class="cat-hero-row">' +
+            '<div class="cat-hero-ava">' + fb.emoji + '</div>' +
+            '<div><div class="cat-hero-name">' + fb.name + '</div>' +
+            '<div class="cat-hero-desc">' + fb.desc + '</div></div></div>';
+        if (crumbs) crumbs.innerHTML =
+            '<a href="index.html">Главная</a>' +
+            '<span class="crumb-sep">›</span>' +
+            '<span class="crumb-current">' + fb.name + '</span>';
+    })();
+
     loadContent().then(function() {
         if (isContentError()) {
             showApiError(document.getElementById('dish-list'));
