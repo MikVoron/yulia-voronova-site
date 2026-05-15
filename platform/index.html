@@ -172,8 +172,8 @@
 		}
 		.sp-hero .hero-search-input::placeholder { color: var(--text-3); }
 		.sp-hero .hero-search-input:focus {
-			border-color: var(--text-2);
-			box-shadow: none;
+			border-color: var(--accent);
+			box-shadow: 0 0 0 3px rgba(232, 64, 10, .10);
 		}
 		/* В editorial-режиме иконка нейтральная, а не оранжевая. */
 		.sp-hero .hero-search-icon {
@@ -972,7 +972,7 @@
 		.sp-cta-strip {
 			display: flex; align-items: center; justify-content: space-between;
 			gap: 24px; padding: 28px 32px;
-			background: var(--bg-alt); border: 1px solid var(--border);
+			background: #fff; border: 1px solid var(--border);
 		}
 		.sp-cta-strip h3 {
 			font-family: var(--serif); font-size: clamp(22px, 2.4vw, 28px);
@@ -1229,7 +1229,6 @@
 			     состояние пишется в localStorage[smartplate.cta.dismissed] — spec §3.5. -->
 			<section class="sp-block anim anim-d2" id="cta-strip-block" style="display:none">
 				<div class="sp-cta-strip">
-					<button class="sp-cta-close" type="button" onclick="dismissCtaStrip()" aria-label="Скрыть">✕</button>
 					<div>
 						<h3>Откройте полную библиотеку рецептов</h3>
 						<p id="cta-strip-text"></p>
