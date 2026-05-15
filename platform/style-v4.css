@@ -2077,7 +2077,7 @@ img { display: block; max-width: 100%; }
 .sp-header-inner {
     height: 72px;
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: minmax(200px, auto) 1fr minmax(120px, auto);
     align-items: center;
     gap: 18px;
 }
@@ -2115,7 +2115,8 @@ img { display: block; max-width: 100%; }
 .sp-nav {
     display: flex; align-items: center;
     gap: 18px; justify-content: center;
-    min-width: 0; overflow: hidden;
+    min-width: 0;
+    /* overflow не hidden: hidden обрезал все ссылки когда 1fr вычислялся узким */
 }
 .sp-nav a {
     font-size: 11px; font-weight: 600;
@@ -2127,7 +2128,7 @@ img { display: block; max-width: 100%; }
 .sp-nav a:hover { color: var(--accent); }
 .sp-nav a.active { color: var(--text); border-bottom-color: var(--text); }
 
-.sp-utils { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.sp-utils { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; justify-content: flex-end; }
 
 .sp-plate {
     width: 40px; height: 40px;
