@@ -1071,9 +1071,16 @@
 					</span>
 				</a>
 
-					<!-- Nav (desktop). Populated via bootstrapNav() (кэш/fallback) сразу,
-				     потом обновляется renderHeaderNav() после loadContent(). -->
-				<nav class="sp-nav" id="sp-nav" aria-label="Разделы"></nav>
+						<!-- Nav (desktop). Статический fallback виден с first paint;
+				     renderHeaderNav() обновляет после loadContent(). -->
+				<nav class="sp-nav" id="sp-nav" aria-label="Разделы">
+					<a class="active" href="index.html">Главная</a>
+					<a href="category.html?cat=breakfasts">Завтраки</a>
+					<a href="category.html?cat=mains">Основные блюда</a>
+					<a href="category.html?cat=pancakes">Блины / Оладьи</a>
+					<a href="category.html?cat=spreads">Намазки</a>
+					<a href="category.html?cat=sauces">Соусы</a>
+				</nav>
 
 				<!-- Utilities (plate + profile). Hooks preserved: #plate-btn, .plate-count, #user-badge, #u-ava, #u-name, #user-wrap, #user-dropdown, onUserBadgeClick. -->
 				<div class="sp-utils">
@@ -1322,27 +1329,6 @@
 		function escHtml(s) {
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 		}
-		// Bootstrap nav — заполняем сразу из localStorage-кэша или статического fallback,
-		// не дожидаясь loadContent(). renderHeaderNav() потом тихо перерисует с реальными данными.
-		(function bootstrapNav() {
-			var nav = document.getElementById('sp-nav');
-			if (!nav) return;
-			var FALLBACK = [
-				{ id: 'breakfasts', name: 'Завтраки' },
-				{ id: 'mains',      name: 'Основные блюда' },
-				{ id: 'pancakes',   name: 'Блины / Оладьи' },
-				{ id: 'spreads',    name: 'Намазки' },
-				{ id: 'sauces',     name: 'Соусы' }
-			];
-			var cats = FALLBACK;
-			try { var raw = localStorage.getItem('smartplate.nav.cats'); if (raw) cats = JSON.parse(raw); } catch (e) {}
-			function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-			nav.innerHTML = '<a class="active" href="index.html">Главная</a>' +
-				cats.slice(0, 5).map(function (c) {
-					return '<a href="category.html?cat=' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a>';
-				}).join('');
-		})();
-
 		loadContent().then(function () {
 			if (isContentError()) {
 				showApiError(document.getElementById('cat-grid'));
@@ -2250,7 +2236,6 @@
 			if (nav) {
 				nav.innerHTML = '<a' + homeCls + ' href="index.html">Главная</a>' + items.map(row).join('');
 			}
-			try { localStorage.setItem('smartplate.nav.cats', JSON.stringify(cats.map(function(c){ return {id:c.id, name:c.name}; }))); } catch(e) {}
 			if (drawerNav) {
 				drawerNav.innerHTML = '<a' + homeCls + ' href="index.html">Главная</a>' + cats.map(row).join('');
 			}
