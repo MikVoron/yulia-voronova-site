@@ -83,9 +83,6 @@
 		.sp-drawer-nav a:hover { background: var(--bg-alt); color: var(--accent); }
 		.sp-drawer-nav a.active { color: var(--accent); }
 
-		/* Desktop-nav скрыта до заполнения renderHeaderNav() — убирает мигание одиночной «Главной». */
-		.sp-nav.sp-nav-pending { visibility: hidden; }
-
 		/* CTA close-крестик — spec §3.5 */
 		.sp-cta-strip { position: relative; }
 		.sp-cta-close {
@@ -1074,9 +1071,9 @@
 					</span>
 				</a>
 
-				<!-- Nav (desktop). Populated from CATEGORIES после loadContent.
-				     sp-nav-pending скрывает через visibility:hidden до первого renderHeaderNav(). -->
-				<nav class="sp-nav sp-nav-pending" id="sp-nav" aria-label="Разделы"></nav>
+					<!-- Nav (desktop). Populated via bootstrapNav() (кэш/fallback) сразу,
+				     потом обновляется renderHeaderNav() после loadContent(). -->
+				<nav class="sp-nav" id="sp-nav" aria-label="Разделы"></nav>
 
 				<!-- Utilities (plate + profile). Hooks preserved: #plate-btn, .plate-count, #user-badge, #u-ava, #u-name, #user-wrap, #user-dropdown, onUserBadgeClick. -->
 				<div class="sp-utils">
@@ -1325,6 +1322,27 @@
 		function escHtml(s) {
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 		}
+		// Bootstrap nav — заполняем сразу из localStorage-кэша или статического fallback,
+		// не дожидаясь loadContent(). renderHeaderNav() потом тихо перерисует с реальными данными.
+		(function bootstrapNav() {
+			var nav = document.getElementById('sp-nav');
+			if (!nav) return;
+			var FALLBACK = [
+				{ id: 'breakfasts', name: 'Завтраки' },
+				{ id: 'mains',      name: 'Основные блюда' },
+				{ id: 'pancakes',   name: 'Блины / Оладьи' },
+				{ id: 'spreads',    name: 'Намазки' },
+				{ id: 'sauces',     name: 'Соусы' }
+			];
+			var cats = FALLBACK;
+			try { var raw = localStorage.getItem('smartplate.nav.cats'); if (raw) cats = JSON.parse(raw); } catch (e) {}
+			function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+			nav.innerHTML = '<a class="active" href="index.html">Главная</a>' +
+				cats.slice(0, 5).map(function (c) {
+					return '<a href="category.html?cat=' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a>';
+				}).join('');
+		})();
+
 		loadContent().then(function () {
 			if (isContentError()) {
 				showApiError(document.getElementById('cat-grid'));
@@ -2231,8 +2249,8 @@
 			}
 			if (nav) {
 				nav.innerHTML = '<a' + homeCls + ' href="index.html">Главная</a>' + items.map(row).join('');
-				nav.classList.remove('sp-nav-pending');
 			}
+			try { localStorage.setItem('smartplate.nav.cats', JSON.stringify(cats.map(function(c){ return {id:c.id, name:c.name}; }))); } catch(e) {}
 			if (drawerNav) {
 				drawerNav.innerHTML = '<a' + homeCls + ' href="index.html">Главная</a>' + cats.map(row).join('');
 			}

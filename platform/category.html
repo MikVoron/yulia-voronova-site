@@ -254,6 +254,28 @@
 
 <script src="data-v2.js?v=1779940200"></script>
 <script>
+    // Bootstrap nav до loadContent(): кэш из localStorage или статический fallback.
+    (function bootstrapNav(activeCatId) {
+        var nav = document.getElementById('sp-nav');
+        if (!nav) return;
+        var FALLBACK = [
+            { id: 'breakfasts', name: 'Завтраки' },
+            { id: 'mains',      name: 'Основные блюда' },
+            { id: 'pancakes',   name: 'Блины / Оладьи' },
+            { id: 'spreads',    name: 'Намазки' },
+            { id: 'sauces',     name: 'Соусы' }
+        ];
+        var cats = FALLBACK;
+        try { var raw = localStorage.getItem('smartplate.nav.cats'); if (raw) cats = JSON.parse(raw); } catch (e) {}
+        function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+        var homeCls = activeCatId ? '' : ' class="active"';
+        nav.innerHTML = '<a' + homeCls + ' href="index.html">Главная</a>' +
+            cats.slice(0, 5).map(function (c) {
+                var cls = c.id === activeCatId ? ' class="active"' : '';
+                return '<a' + cls + ' href="category.html?cat=' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a>';
+            }).join('');
+    })((new URLSearchParams(location.search).get('cat')) || null);
+
     loadContent().then(function() {
         if (isContentError()) {
             showApiError(document.getElementById('dish-list'));
@@ -384,6 +406,7 @@
                 const cls = c.id === activeCatId ? ' class="active"' : '';
                 return '<a' + cls + ' href="category.html?cat=' + encodeURIComponent(c.id) + '">' + escHtml(String(c.name || '')) + '</a>';
             }).join('');
+        try { localStorage.setItem('smartplate.nav.cats', JSON.stringify(cats.map(function(c){ return {id:c.id, name:c.name}; }))); } catch(e) {}
     }
 
     const params = new URLSearchParams(location.search);
