@@ -523,8 +523,17 @@ img { display: block; max-width: 100%; }
 .locked-badge { background: rgba(217, 119, 6, .92); }
 /* Пробный (trial) — синий, чтобы отличался от free и pro. */
 .trial-badge  { background: rgba(91, 158, 201, .9); }
-/* Бесплатно — зелёный маркер витрины для гостей/триала. */
-.free-badge   { background: rgba(74, 156, 87, .92); font-weight: 700; }
+/* Бесплатно — белый с оранжевой искрой ✦ перед текстом. */
+.free-badge {
+    background: rgba(255, 255, 255, .95); color: var(--text);
+    border: 1px solid var(--text); font-weight: 700;
+}
+.free-badge::before {
+    content: '\2726'; /* ✦ */
+    color: var(--accent);
+    font-size: 12px;
+    line-height: 1;
+}
 
 /* ── RECIPE PREVIEW (locked recipe.html для гостя/trial без доступа) ── */
 .recipe-preview { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
