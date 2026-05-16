@@ -13,7 +13,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-15-header-2" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-16-badges-1" id="vcss">
 	<style>
 		main {
 			padding-bottom: 80px;
@@ -138,16 +138,12 @@
 			transition: transform .6s ease;
 		}
 		.sp-hero-aside:hover .sp-hero-media img { transform: scale(1.02); }
-		/* Locked hero — клик уходит в showLockedMsg, визуально такой же overlay, как на .sp-card.locked. */
+		/* Locked hero — клик уходит в showLockedMsg, визуально полупрозрачный
+		   слой поверх фото без иконки замка (замок только внутри бейджа). */
 		.sp-hero-aside.locked { cursor: pointer; opacity: .9; }
 		.sp-hero-aside.locked .sp-hero-media::after {
 			content: ''; position: absolute; inset: 0;
 			background: rgba(0,0,0,.18); z-index: 1;
-		}
-		.sp-hero-aside.locked .sp-hero-media::before {
-			content: '🔒'; position: absolute; left: 50%; top: 50%;
-			transform: translate(-50%, -50%); font-size: 30px; z-index: 2;
-			filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
 		}
 		.sp-hero-caption {
 			margin-top: 14px;
@@ -832,11 +828,6 @@
 			content: ''; position: absolute; inset: 0;
 			background: rgba(0, 0, 0, .18); z-index: 1;
 		}
-		.sp-seasonal.locked .sp-seasonal-media::before {
-			content: '🔒'; position: absolute; left: 50%; top: 50%;
-			transform: translate(-50%, -50%); font-size: 28px; z-index: 2;
-			filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .35));
-		}
 		.sp-seasonal-body {
 			display: flex; flex-direction: column; justify-content: center;
 			padding: 4px 0;
@@ -895,11 +886,6 @@
 			content: ''; position: absolute; inset: 0;
 			background: rgba(0, 0, 0, .18); z-index: 1;
 		}
-		.sp-card.locked .sp-card-media::before {
-			content: '🔒'; position: absolute; left: 50%; top: 50%;
-			transform: translate(-50%, -50%); font-size: 22px; z-index: 2;
-			filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .35));
-		}
 		.sp-card-media {
 			position: relative; aspect-ratio: 4/3; overflow: hidden;
 			background: var(--bg-alt);
@@ -955,17 +941,18 @@
 			gap: 4px; pointer-events: none;
 		}
 		.sp-bd {
+			box-sizing: border-box;
 			height: 22px; padding: 0 10px;
-			display: inline-flex; align-items: center; gap: 5px;
+			display: inline-flex; align-items: center; gap: 4px;
 			font-family: var(--sans); font-size: 10px; font-weight: 800;
 			letter-spacing: .08em; text-transform: uppercase;
-			backdrop-filter: blur(8px); border-radius: 2px;
+			border-radius: 0;
 			white-space: nowrap;
 		}
 		.sp-bd svg { width: 10px; height: 10px; fill: currentColor; }
 		.sp-bd--new   { background: var(--accent); color: #fff; }
-		.sp-bd--pro   { background: rgba(217, 119, 6, .94); color: #fff; }
-		.sp-bd--trial { background: rgba(91, 158, 201, .94); color: #fff; }
+		.sp-bd--pro   { background: rgba(17, 17, 17, .92); color: #fff; }
+		.sp-bd--trial { background: rgba(255, 255, 255, .95); color: var(--text); border: 1px solid var(--text); }
 		.sp-bd--free  { background: rgba(255, 255, 255, .95); color: var(--text); border: 1px solid var(--text); }
 		.sp-bd--free::before { content: '\2726'; color: var(--accent); font-size: 12px; line-height: 1; }
 

@@ -331,18 +331,23 @@ img { display: block; max-width: 100%; }
 .featured-card-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .featured-card-kcal { font-size: 14px; font-weight: 700; color: var(--accent); }
 .card-new-badge {
-    position: absolute; top: 10px; left: 10px;
-    background: #e84a3a; color: #fff;
+    position: absolute; top: 8px; left: 8px; z-index: 3;
+    box-sizing: border-box;
+    height: 22px; padding: 0 10px;
+    background: var(--accent); color: #fff;
+    font-family: var(--sans);
     font-size: 10px; font-weight: 800;
-    padding: 4px 10px; border-radius: 20px;
-    letter-spacing: .8px; text-transform: uppercase; z-index: 3;
+    letter-spacing: .08em; text-transform: uppercase;
+    border-radius: 0;
+    display: inline-flex; align-items: center;
+    white-space: nowrap;
 }
 
 /* Stack-контейнер для бейджей в карточке: «Новинка» + бейдж доступа
    располагаются колонкой и не перекрывают друг друга. */
 .card-badge-stack {
-    position: absolute; top: 12px; left: 12px; z-index: 3;
-    display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+    position: absolute; top: 8px; left: 8px; z-index: 3;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
     pointer-events: none;
 }
 .card-badge-stack > * { pointer-events: auto; }
@@ -505,28 +510,36 @@ img { display: block; max-width: 100%; }
 .recipe-card.locked .recipe-card__media img,
 .featured-card.locked .featured-card-photo img { filter: grayscale(.4); }
 .recipe-card.locked:hover, .featured-card.locked:hover { opacity: .7; }
-/* Бейджи уровня доступа — всегда в левом верхнем углу, чтобы не пересекаться с
-   круглой кнопкой избранного (.recipe-card__bookmark) справа. */
+/* Бейджи уровня доступа — editorial-стиль, top-left, 10px Montserrat 800,
+   без скруглений. Совпадают с .sp-bd--* на главной. */
 .locked-badge,
 .trial-badge,
 .free-badge {
     position: absolute; top: 8px; left: 8px; right: auto; z-index: 2;
-    color: #fff; border-radius: 6px;
-    padding: 3px 8px; font-size: 11px; font-weight: 600;
+    box-sizing: border-box;
+    height: 22px; padding: 0 10px;
+    border-radius: 0;
+    font-family: var(--sans);
+    font-size: 10px; font-weight: 800;
+    letter-spacing: .08em; text-transform: uppercase;
     display: inline-flex; align-items: center; gap: 4px;
-    backdrop-filter: blur(4px);
-    letter-spacing: .02em;
+    white-space: nowrap;
 }
 .locked-badge svg,
-.trial-badge svg { width: 12px; height: 12px; fill: #fff; }
-/* Подписка (pro) — оранжевый, премиальный акцент в стиле «Апельсин». */
-.locked-badge { background: rgba(217, 119, 6, .92); }
-/* Пробный (trial) — синий, чтобы отличался от free и pro. */
-.trial-badge  { background: rgba(91, 158, 201, .9); }
-/* Бесплатно — белый с оранжевой искрой ✦ перед текстом. */
+.trial-badge svg { width: 10px; height: 10px; }
+/* Подписка (pro) — тёмный editorial-чёрный. */
+.locked-badge { background: rgba(17, 17, 17, .92); color: #fff; }
+.locked-badge svg { fill: #fff; }
+/* Пробный (trial) — белый с бордером, тёмная иконка. */
+.trial-badge {
+    background: rgba(255, 255, 255, .95); color: var(--text);
+    border: 1px solid var(--text);
+}
+.trial-badge svg { fill: #111; }
+/* Бесплатно — белый с бордером, маркер ✦ оранжевый перед текстом. */
 .free-badge {
     background: rgba(255, 255, 255, .95); color: var(--text);
-    border: 1px solid var(--text); font-weight: 700;
+    border: 1px solid var(--text);
 }
 .free-badge::before {
     content: '\2726'; /* ✦ */
