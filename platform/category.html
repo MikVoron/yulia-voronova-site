@@ -108,6 +108,71 @@
                 margin-top: 4px;
             }
         }
+
+        /* ── SKELETON CARDS ─────────────────────────────────
+           Повторяет геометрию .recipe-card 1:1 (никакого layout shift
+           при подмене на реальные карточки из buildDishCard). */
+        :root {
+            --sk-base: #efe7d8;   /* тёплый бежевый под палитру «Апельсина» */
+            --sk-hi:   #f7f1e3;   /* мягкий блик shimmer */
+        }
+        .recipe-card.is-skeleton {
+            cursor: default;
+            pointer-events: none;
+        }
+        .recipe-card.is-skeleton:hover {
+            transform: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 24px rgba(26,26,26,.06);
+        }
+        .recipe-card.is-skeleton .recipe-card__media {
+            background: var(--sk-base);
+            position: relative;
+            overflow: hidden;
+        }
+        .recipe-card.is-skeleton .recipe-card__footer {
+            border-top: 1px solid #e8dfd0;
+        }
+        .sk-line {
+            display: block;
+            height: 12px;
+            background: var(--sk-base);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .sk-line--title { height: 18px; }
+
+        /* Soft shimmer — низкий контраст, плавно, без агрессии. */
+        .recipe-card.is-skeleton .recipe-card__media::after,
+        .sk-line::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                var(--sk-hi) 50%,
+                transparent 100%
+            );
+            transform: translateX(-100%);
+            animation: skShimmer 1.6s ease-in-out infinite;
+        }
+        @keyframes skShimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        /* Reduced motion → полностью статичный skeleton (без shimmer и без pulse). */
+        @media (prefers-reduced-motion: reduce) {
+            .recipe-card.is-skeleton .recipe-card__media::after,
+            .sk-line::after {
+                animation: none;
+                background: none;
+            }
+            .recipe-card.is-skeleton .recipe-card__media,
+            .sk-line {
+                animation: none;
+            }
+        }
     </style>
 </head>
 <body class="v-page">
@@ -328,7 +393,9 @@
 
     loadContent().then(function() {
         if (isContentError()) {
-            showApiError(document.getElementById('dish-list'));
+            const dishList = document.getElementById('dish-list');
+            dishList.removeAttribute('aria-busy');
+            showApiError(dishList);
             return;
         }
         // Editorial header parity: подсвечиваем текущий раздел (или просто «Главная» в режиме поиска).
@@ -637,8 +704,56 @@
         }
     }
 
+    // Ожидаемое количество skeleton-карточек по категориям. Подбирается
+    // близко к реальному размеру категории, чтобы сетка не схлопывалась
+    // с 6 до 3 при подмене скелетона на реальные карточки. Неизвестные → 4.
+    const SKELETON_COUNTS = {
+        pancakes: 3,
+        breakfasts: 6,
+        mains: 6,
+        spreads: 4,
+        sauces: 4
+    };
+
+    // Skeleton-карточки для состояния загрузки.
+    // Геометрия = реальной .recipe-card (классы .recipe-card / __media / __body / __footer),
+    // содержимое — .sk-line блоки разной ширины (живее, чем равные полоски).
+    function renderRecipeSkeletons(count = 6) {
+        const widths = [
+            ['92%','78%','58%'],
+            ['88%','72%','42%'],
+            ['95%','65%','38%'],
+            ['86%','80%','50%'],
+            ['90%','62%','46%'],
+            ['82%','74%','40%']
+        ];
+        const html = Array.from({length: count}, (_, i) => {
+            const [w1, w2, w3] = widths[i % widths.length];
+            return '<div class="recipe-card is-skeleton" aria-hidden="true">'
+                +   '<div class="recipe-card__media"></div>'
+                +   '<div class="recipe-card__body">'
+                +     '<div class="recipe-card__title">'
+                +       '<span class="sk-line sk-line--title" style="width:' + w1 + '"></span>'
+                +       '<span class="sk-line sk-line--title" style="width:' + w2 + ';margin-top:6px"></span>'
+                +       '<span class="sk-line sk-line--title" style="width:' + w3 + ';margin-top:6px"></span>'
+                +     '</div>'
+                +     '<span class="sk-line" style="width:42%;margin-top:14px"></span>'
+                +     '<span class="sk-line" style="width:55%;margin-top:10px"></span>'
+                +     '<div class="recipe-card__footer">'
+                +       '<span class="sk-line" style="width:36%;height:10px"></span>'
+                +       '<span class="sk-line" style="width:24%;height:16px"></span>'
+                +     '</div>'
+                +   '</div>'
+                + '</div>';
+        }).join('');
+        const list = document.getElementById('dish-list');
+        list.setAttribute('aria-busy', 'true');
+        list.innerHTML = html;
+    }
+
     function renderDishes() {
         const dishes = getDishesForView();
+        document.getElementById('dish-list').removeAttribute('aria-busy');
         document.getElementById('count-label').textContent = pluralR(dishes.length);
         if (!dishes.length) {
             const emptyMsg = searchQuery
@@ -653,9 +768,9 @@
         document.getElementById('dish-list').innerHTML = dishes.map(d => buildDishCard(d, photo, diff_labels)).join('');
         dishes.forEach(d => { updatePopStars(d.id); updateRatingRow(d.id); });
     }
-    // Initial render deferred to loadContent().then() — show loader until data is ready
-    document.getElementById('dish-list').innerHTML =
-        '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">Загрузка рецептов…</div>';
+    // Initial render deferred to loadContent().then() — показываем skeleton-карточки,
+    // пока данные не пришли. Геометрия = реальной карточке, без layout shift.
+    renderRecipeSkeletons(SKELETON_COUNTS[catId] || 4);
 
     // ── LOAD API RATINGS for Popular filter + accurate pills ────────────
     const _apiRatings = {}; // recipeId → { avg, count }
@@ -692,6 +807,7 @@
                 return rb.count - ra.count;
             });
             // Render sorted list (copy logic from original but with pre-sorted dishes)
+            document.getElementById('dish-list').removeAttribute('aria-busy');
             document.getElementById('count-label').textContent = pluralR(dishes.length);
             if (!dishes.length) {
                 const emptyMsg = searchQuery
