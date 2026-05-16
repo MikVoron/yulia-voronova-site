@@ -1040,9 +1040,24 @@
 			animation: spShimmer 1.4s linear infinite;
 		}
 		.sp-skel-img { aspect-ratio: 4/3; }
-		.sp-skel-line { height: 14px; }
+		.sp-skel-line { height: 14px; border-radius: 4px; }
 		.sp-skel-line.short { width: 60%; }
 		@keyframes spShimmer { to { background-position: -200% 0; } }
+
+		/* Reduced motion → статичный skeleton без shimmer. */
+		@media (prefers-reduced-motion: reduce) {
+			.sp-skel-img,
+			.sp-skel-line {
+				animation: none;
+				background: var(--bg-alt, #efe9e0);
+			}
+		}
+
+		/* #new-block: страховка от layout shift, если JS-инициализация
+		   запоздает или контент рендерится медленнее обычного. min-height
+		   близко к реальной высоте 2-колоночного блока на десктопе. */
+		.sp-new-block { min-height: 320px; }
+		@media (max-width: 767px) { .sp-new-block { min-height: 0; } }
 	</style>
 </head>
 
@@ -1167,7 +1182,7 @@
 			<!-- Новое: editorial 2-column блок (фичер-рецепт + лента новостей).
 			     Заменяет старый seasonal-block + news-feed: левая колонка = последний опубликованный
 			     рецепт, правая = последние новости из API. По дизайну NYT Cooking / Times Cooking. -->
-			<section class="sp-new-block anim anim-d1" id="new-block" style="display:none">
+			<section class="sp-new-block" id="new-block">
 				<div class="sp-sec-head">
 					<h2 class="sp-sec-title">Новое</h2>
 					<a class="sp-sec-link" id="new-block-all" href="category.html">Все рецепты →</a>
@@ -1331,10 +1346,17 @@
 		}
 		loadContent().then(function () {
 			if (isContentError()) {
+				// Контент не загрузился — прячем #new-block, чтобы не висел над ошибкой.
+				const nb = document.getElementById('new-block');
+				if (nb) nb.style.display = 'none';
 				showApiError(document.getElementById('cat-grid'));
 				return;
 			}
 			Auth.checkAccess({ allowGuest: true }).finally(function () {
+				// Сначала заполняем #new-block синхронно (featured из RECIPES + skeleton
+				// новостей справа), чтобы он занял место ДО renderCats() — иначе
+				// категории прыгают вниз после loadNewsFeed().
+				renderNewsFeedInitial();
 				renderCats();
 				updateRecipeCount();
 				// renderSeasonal(); — отключено: роль перешла к #new-block (см. renderNewsFeed)
@@ -1555,8 +1577,11 @@
 						};
 					});
 					var textNews = all.filter(function (n) { return n.type === 'news'; }).slice(0, 4);
-					// Последний добавленный рецепт — автоматически закрепляется в левой колонке
-					var latestRecipe = Object.values(RECIPES).sort(function (a, b) { return (b.addedTs || 0) - (a.addedTs || 0); })[0];
+					// Последний добавленный рецепт — автоматически закрепляется в левой колонке.
+					// Селектор `_latestRecipeId()` тот же, что использует renderNewsFeedInitial(),
+					// чтобы featured не менялся после ответа /api/news.
+					var latestId = _latestRecipeId();
+					var latestRecipe = latestId ? RECIPES[latestId] : null;
 					NEWS_FEED = [];
 					if (latestRecipe) {
 						NEWS_FEED.push({
@@ -1568,7 +1593,8 @@
 				} else {
 					// API недоступен — всё равно покажем хотя бы featured-рецепт.
 					NEWS_FEED = [];
-					var latestRecipe2 = Object.values(RECIPES).sort(function (a, b) { return (b.addedTs || 0) - (a.addedTs || 0); })[0];
+					var latestId2 = _latestRecipeId();
+					var latestRecipe2 = latestId2 ? RECIPES[latestId2] : null;
 					if (latestRecipe2) {
 						NEWS_FEED.push({
 							type: 'recipe', id: latestRecipe2.id, badge: 'Новинка',
@@ -1578,7 +1604,8 @@
 				}
 			} catch {
 				NEWS_FEED = [];
-				var lr = Object.values(RECIPES).sort(function (a, b) { return (b.addedTs || 0) - (a.addedTs || 0); })[0];
+				var lrId = _latestRecipeId();
+				var lr = lrId ? RECIPES[lrId] : null;
 				if (lr) {
 					NEWS_FEED.push({
 						type: 'recipe', id: lr.id, badge: 'Новинка',
@@ -1682,6 +1709,45 @@
 			return html;
 		}
 
+		// Синхронная инициализация #new-block ДО renderCats().
+		// Левая колонка — финальная featured-карточка из RECIPES (тот же селектор
+		// `_latestRecipeId`, что использует loadNewsFeed → swap-а не будет).
+		// Правая колонка — skeleton из 4 строк новостей; loadNewsFeed() позже
+		// заменит его на реальные новости или схлопнет блок в одну колонку.
+		// Цель: блок занимает место с first paint, категории не прыгают вниз.
+		function renderNewsFeedInitial() {
+			const block = document.getElementById('new-block');
+			const featureEl = document.getElementById('new-feature');
+			const listEl = document.getElementById('new-list');
+			if (!block || !featureEl || !listEl) return;
+
+			// Если RECIPES пуст — крайний случай (контент-ошибка), блок прячем.
+			const latestId = _latestRecipeId();
+			if (!latestId) { block.style.display = 'none'; return; }
+			const latest = RECIPES[latestId];
+
+			featureEl.innerHTML = renderNewFeatureCard({
+				type: 'recipe',
+				id: latest.id,
+				badge: 'Новинка',
+				date: _spFormatNewsDate(latest.added || latest.addedTs)
+			});
+
+			// Skeleton-строки правой колонки (геометрия = .sp-news-item:
+			// date-полоска + 2 строки заголовка). 4 строки соответствуют
+			// финальному количеству textItems.slice(0, 4).
+			const widths = [['86%','62%'], ['92%','58%'], ['80%','70%'], ['88%','50%']];
+			listEl.innerHTML = widths.map(function (w, i) {
+				return '<article class="sp-news-item" aria-hidden="true">'
+					+   '<span class="sp-skel-line" style="width:32%;height:10px;display:block"></span>'
+					+   '<span class="sp-skel-line" style="width:' + w[0] + ';height:16px;display:block;margin-top:10px"></span>'
+					+   '<span class="sp-skel-line" style="width:' + w[1] + ';height:16px;display:block;margin-top:6px"></span>'
+					+ '</article>';
+			}).join('');
+			block.classList.remove('sp-new-block--no-list');
+			block.setAttribute('aria-busy', 'true');
+		}
+
 		// Editorial 2-column «Новое»: слева vertical-карточка последнего рецепта,
 		// справа — лента текстовых новостей. См. секцию #new-block в HTML.
 		function renderNewsFeed() {
@@ -1693,12 +1759,10 @@
 			const recipeItems = NEWS_FEED.filter(function (i) { return i.type === 'recipe'; });
 			const textItems = NEWS_FEED.filter(function (i) { return i.type === 'news'; });
 
-			const featured = recipeItems[0];
-			if (!featured && !textItems.length) {
-				block.style.display = 'none';
-				return;
-			}
+			// display блока больше не трогаем — он показан с first paint,
+			// а инициализация прошла через renderNewsFeedInitial().
 
+			const featured = recipeItems[0];
 			if (featured) {
 				featureEl.innerHTML = renderNewFeatureCard(featured);
 			} else {
@@ -1711,12 +1775,13 @@
 				listEl.innerHTML = visibleNews.map(renderNewsListItem).join('') + renderNewsListToggle(visibleNews.length);
 				block.classList.remove('sp-new-block--no-list');
 			} else {
+				// Текстовых новостей нет — single-column mode (фичер во всю ширину).
+				// Горизонтальный shift приемлем; vertical layout уже стабилен.
 				listEl.innerHTML = '';
 				listEl.classList.remove('open');
 				block.classList.add('sp-new-block--no-list');
 			}
-
-			block.style.display = '';
+			block.removeAttribute('aria-busy');
 		}
 
 		// Vertical featured-card в левой колонке #new-block (фото сверху, тело снизу).
