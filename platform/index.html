@@ -150,6 +150,25 @@
 			font-size: 11px; font-weight: 600;
 			letter-spacing: .08em; text-transform: uppercase;
 			color: var(--text-3);
+			/* Резерв под 1 строку caption — иначе при появлении текста
+			   hero становится на ~18px выше, и левая колонка/поиск дёргаются. */
+			line-height: 17px; min-height: 17px;
+		}
+
+		/* Loading-state для hero-aside: media и caption уже занимают своё
+		   место (aspect-ratio + min-height), а shimmer делает их визуально
+		   «загружающимися». renderHero() снимает .is-loading после fill. */
+		.sp-hero-aside.is-loading .sp-hero-media {
+			background: linear-gradient(90deg, #efe9e0 0%, #f6f2eb 50%, #efe9e0 100%);
+			background-size: 200% 100%;
+			animation: spShimmer 1.4s linear infinite;
+		}
+		.sp-hero-aside.is-loading .sp-hero-caption {
+			background: linear-gradient(90deg, #efe9e0 0%, #f6f2eb 50%, #efe9e0 100%);
+			background-size: 200% 100%;
+			animation: spShimmer 1.4s linear infinite;
+			border-radius: 4px;
+			max-width: 60%;
 		}
 
 		/* Hero search — flatten под editorial */
@@ -1035,7 +1054,9 @@
 		/* Reduced motion → статичный skeleton без shimmer. */
 		@media (prefers-reduced-motion: reduce) {
 			.sp-skel-img,
-			.sp-skel-line {
+			.sp-skel-line,
+			.sp-hero-aside.is-loading .sp-hero-media,
+			.sp-hero-aside.is-loading .sp-hero-caption {
 				animation: none;
 				background: var(--bg-alt, #efe9e0);
 			}
@@ -1152,7 +1173,7 @@
 						<div class="hero-search-results" id="hero-search-results"></div>
 					</form>
 				</div>
-				<a class="sp-hero-aside" id="sp-hero-aside" href="#new-block" aria-label="Сегодняшний рецепт" style="display:none">
+				<a class="sp-hero-aside is-loading" id="sp-hero-aside" href="#new-block" aria-label="Сегодняшний рецепт">
 					<div class="sp-hero-media" id="sp-hero-media"></div>
 					<div class="sp-hero-caption" id="sp-hero-caption"></div>
 				</a>
@@ -1225,8 +1246,9 @@
 				<div class="cat-grid" id="cat-grid"></div>
 			</section>
 
-			<!-- Рекомендуем (автосортировка по рейтингу) -->
-			<section class="sp-block anim anim-d2" id="recommended-block" style="display:none">
+			<!-- Рекомендуем (автосортировка по рейтингу). Display:none снят —
+			     блок в потоке с первого кадра, скелетон заполняется до loadContent. -->
+			<section class="sp-block anim anim-d2" id="recommended-block">
 				<div class="sp-sec-head">
 					<h2 class="sp-sec-title">Рекомендуем</h2>
 					<a class="sp-sec-link" href="category.html" aria-label="Все рецепты">Все рецепты →</a>
@@ -1332,11 +1354,18 @@
 		function escHtml(s) {
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 		}
+
+		// Skeleton в #recommended-block СРАЗУ — место зарезервировано до того,
+		// как loadContent() резолвится. Реальные карточки заполнит renderRecommended().
+		_renderRecommendedSkeleton();
+
 		loadContent().then(function () {
 			if (isContentError()) {
-				// Контент не загрузился — прячем #new-block, чтобы не висел над ошибкой.
+				// Контент не загрузился — прячем динамические блоки, чтобы не висели над ошибкой.
 				const nb = document.getElementById('new-block');
 				if (nb) nb.style.display = 'none';
+				const rb = document.getElementById('recommended-block');
+				if (rb) rb.style.display = 'none';
 				showApiError(document.getElementById('cat-grid'));
 				return;
 			}
@@ -2106,6 +2135,21 @@
 		//    Источник рейтингов — _apiRatings, грузится в loadApiRatings().
 		//    Если рейтинги ещё не пришли — повторим рендер по таймеру (один раз).
 		let _spRecCount = 8;
+		// Skeleton-карточки в #recommended-grid до loadContent → renderRecommended.
+		// Заполняется СИНХРОННО при загрузке скрипта (см. вызов ниже), чтобы блок
+		// не появлялся пустой и не пушил CTA-strip вниз при первом рендере.
+		// Геометрия .sp-skel-card повторяет .sp-card (img 4:3 + 2 строки).
+		function _renderRecommendedSkeleton() {
+			const grid = document.getElementById('recommended-grid');
+			if (!grid) return;
+			grid.innerHTML = Array.from({ length: _spRecCount }, function () {
+				return '<div class="sp-skel-card" aria-hidden="true">'
+					+    '<div class="sp-skel-img"></div>'
+					+    '<div class="sp-skel-line"></div>'
+					+    '<div class="sp-skel-line short"></div>'
+					+ '</div>';
+			}).join('');
+		}
 		function _renderRecommendedInner() {
 			const block = document.getElementById('recommended-block');
 			const grid = document.getElementById('recommended-grid');
@@ -2221,7 +2265,9 @@
 		}
 
 		// Hero photo + caption — берём из сезонного рецепта; fallback на последний опубликованный.
-		// Если рецептов вообще нет — оставляем aside скрытым (display:none стоит в HTML).
+		// Если рецептов нет / контент-ошибка — оставляем aside скрытым (исключительные ветки
+		// ниже ставят display:none). В нормальном loading-состоянии место уже зарезервировано
+		// через .sp-hero-aside.is-loading (см. CSS) — этот метод снимает класс после fill.
 		// Важно: hero уважает paywall так же, как карточки/seasonal — locked-клик идёт в showLockedMsg,
 		// а не на recipe.html.
 		function renderHero() {
@@ -2243,10 +2289,12 @@
 			const _name = escHtml(String(r.name || ''));
 			const _photo = String(r.photo || '');
 			const _emoji = escHtml(String(r.emoji || '🍴'));
+			// loading="eager" + fetchpriority="high" — фото первого экрана, важно для LCP.
 			media.innerHTML = _photo
-				? '<img src="' + escHtml(_photo) + '" alt="' + _name + '" loading="lazy" onerror="imgFallback(this,\'' + _emoji + '\')">'
+				? '<img src="' + escHtml(_photo) + '" alt="' + _name + '" loading="eager" fetchpriority="high" onerror="imgFallback(this,\'' + _emoji + '\')">'
 				: '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:72px">' + _emoji + '</div>';
 			cap.textContent = label + ' — ' + (r.name || '');
+			aside.classList.remove('is-loading');
 
 			const locked = (typeof Auth !== 'undefined' && typeof Auth.canViewRecipe === 'function')
 				? !Auth.canViewRecipe(r) : false;

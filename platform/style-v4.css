@@ -889,6 +889,15 @@ img { display: block; max-width: 100%; }
 .step-text { flex: 1; min-width: 0; }
 .step-photo-wrap { width: 100%; }
 .step-photo-wrap .step-photo-img { width: 100%; border-radius: 10px; display: block; }
+/* Резерв aspect-ratio для одиночного фото шага и финального фото —
+   до загрузки img у этих случаев был height: 0, потом резко 4:3 от ширины.
+   Карусель (.step-photo-carousel) живёт внутри .step-photo-wrap, но имеет
+   собственную геометрию, поэтому селектор намеренно direct-child (>). */
+.step-photo-wrap > .step-photo-img {
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    height: 100%;
+}
 .step-photo-carousel { position: relative; width: 100%; overflow: hidden; border-radius: 10px; background: #f4efe8; }
 .step-photo-carousel .step-photo-img { display: none; width: 100%; height: auto; margin-top: 0; border-radius: 10px; }
 .step-photo-carousel .step-photo-img.is-active { display: block; }
