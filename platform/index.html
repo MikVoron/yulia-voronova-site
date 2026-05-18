@@ -1355,6 +1355,10 @@
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 		}
 
+		// Объявляем здесь, а не внизу: _renderRecommendedSkeleton() использует
+		// _spRecCount синхронно, а let остаётся в TDZ до строки объявления.
+		let _spRecCount = 8;
+
 		// Skeleton в #recommended-block СРАЗУ — место зарезервировано до того,
 		// как loadContent() резолвится. Реальные карточки заполнит renderRecommended().
 		_renderRecommendedSkeleton();
@@ -2134,7 +2138,6 @@
 		//    Рецепты без рейтинга — после рейтинговых, отсортированы по дате.
 		//    Источник рейтингов — _apiRatings, грузится в loadApiRatings().
 		//    Если рейтинги ещё не пришли — повторим рендер по таймеру (один раз).
-		let _spRecCount = 8;
 		// Skeleton-карточки в #recommended-grid до loadContent → renderRecommended.
 		// Заполняется СИНХРОННО при загрузке скрипта (см. вызов ниже), чтобы блок
 		// не появлялся пустой и не пушил CTA-strip вниз при первом рендере.

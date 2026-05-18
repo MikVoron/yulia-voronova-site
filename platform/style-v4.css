@@ -3,6 +3,9 @@
    Белый фон · Чёрный текст · Оранжево-красный акцент
    ═══════════════════════════════════════════════════ */
 :root {
+    /* Единый max-width для шапки и контента: меняется в одном месте. */
+    --page-wrap:  1180px;
+
     --bg:         #ffffff;
     --bg-alt:     #faf8f5;
     --card:       #ffffff;
@@ -38,7 +41,7 @@ img { display: block; max-width: 100%; }
 
 /* ── LAYOUT ─────────────────────────────────────────── */
 .v-page { display: flex; flex-direction: column; min-height: 100dvh; }
-.v-wrap { width: 100%; max-width: 980px; margin: 0 auto; padding: 0 20px; }
+.v-wrap { width: 100%; max-width: var(--page-wrap); margin: 0 auto; padding: 0 20px; }
 .v-wrap-sm { max-width: 680px; }
 
 /* ── HEADER ─────────────────────────────────────────── */
@@ -2112,14 +2115,12 @@ img { display: block; max-width: 100%; }
     align-items: center;
     gap: 18px;
 }
-/* Editorial-главная использует более широкую обёртку для всего контента —
-   1180px вместо дефолтных 980px. На внутренних страницах (recipe/category)
-   основной <main> .v-wrap остаётся 980px (см. правило ниже про .sp-header). */
-.sp-home .v-wrap { max-width: 1180px; }
-/* Header всегда живёт в 1180px-обёртке на всех страницах: nav с 6 категориями
-   не помещается в 980px, особенно когда слева ещё .vh-back-btn на внутренних
-   страницах. На <main> это правило не влияет — там селектор не матчится. */
-.sp-header .v-wrap { max-width: 1180px; }
+/* Все страницы: и шапка, и основной контент — одна переменная --page-wrap.
+   Правила ниже оставлены для явности; реально base .v-wrap уже задаёт то же.
+   sp-home переопределяет (более высокая специфичность) на случай, если
+   какая-то страница переопределяет --page-wrap локально. */
+.sp-home .v-wrap    { max-width: var(--page-wrap); }
+.sp-header .v-wrap  { max-width: var(--page-wrap); }
 
 .sp-brand {
     display: inline-flex; align-items: center; gap: 12px;
