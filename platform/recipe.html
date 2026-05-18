@@ -1013,7 +1013,14 @@
 			document.getElementById('user-dropdown').classList.remove('open');
 			const overlay = document.createElement('div');
 			overlay.className = 'farewell-overlay';
-			overlay.innerHTML = '<div class="farewell-emoji">👋</div><div class="farewell-text">До встречи!</div><div class="farewell-sub">Возвращайтесь — мы ждём вас</div>';
+			overlay.innerHTML = '<div class="farewell-card" role="status" aria-live="polite">' +
+				'<div class="farewell-eyebrow">Сеанс завершён</div>' +
+				'<h2 class="farewell-title">До встречи!</h2>' +
+				'<div class="farewell-divider"></div>' +
+				'<p class="farewell-sub">Возвращайтесь — мы ждём вас</p>' +
+				'<p class="farewell-caption">Перенаправляем на страницу входа…</p>' +
+				'<div class="farewell-progress"><span></span></div>' +
+			'</div>';
 			document.body.appendChild(overlay);
 			requestAnimationFrame(() => overlay.classList.add('show'));
 			setTimeout(() => { Auth.logout(); location.href = 'login.html'; }, 1800);
