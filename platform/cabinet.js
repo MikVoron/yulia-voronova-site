@@ -893,20 +893,22 @@
 			const primaryCatId = (d.categories && d.categories[0]) || d.cat;
 			const catName = primaryCatId ? escHtml((CATEGORIES[primaryCatId] || {}).name || primaryCatId) : '';
 			const photoHtml = _photo
-				? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
-				: `<div class="recipe-card-emoji">${_emoji}</div>`;
-			return `<button class="fav-card" type="button" onclick="goToRecipe('${_id}')">
+				? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}','fav-card-media-placeholder')"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
+				: `<div class="fav-card-media-placeholder">${_emoji}</div>`;
+			return `<article class="fav-card" role="button" tabindex="0"
+					onclick="goToRecipe('${_id}')"
+					onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();goToRecipe('${_id}')}">
 				<div class="fav-card-media">
 					${photoHtml}
+					${catName ? `<div class="fav-card-eyebrow">${catName}</div>` : ''}
 					<button class="fav-card-bookmark active" type="button" id="fav-${_id}"
 						onclick="event.stopPropagation();toggleFav('${_id}')" aria-label="Убрать из избранного">♥</button>
 				</div>
-				${catName ? `<div class="fav-card-eyebrow">${catName}</div>` : ''}
 				<div class="fav-card-body">
 					<div class="fav-card-title">${_name}</div>
 				</div>
 				${_kcal ? `<div class="fav-card-foot"><span class="fav-card-kcal-lab">ккал</span><span class="fav-card-kcal-val">${_kcal}</span></div>` : ''}
-			</button>`;
+			</article>`;
 		}
 
 		// ── ЗАМЕТКИ ───────────────────────────────────────────────────────────────
@@ -979,11 +981,11 @@
 		}
 		function escHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
-		function imgFallback(img, emoji) {
+		function imgFallback(img, emoji, cls) {
 			img.onerror = null;
 			img.style.display = 'none';
 			var d = document.createElement('div');
-			d.className = 'recipe-card-emoji';
+			d.className = cls || 'recipe-card-emoji';
 			d.textContent = emoji;
 			img.parentElement.insertBefore(d, img);
 		}
