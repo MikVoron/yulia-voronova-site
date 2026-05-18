@@ -108,6 +108,28 @@ const Auth = {
         }
     },
     getAvatar() { return localStorage.getItem(this._userKey('user_avatar')) || null; },
+    // Единый рендер аватара в #u-ava на всех страницах платформы.
+    // Without it разные страницы рисуют через innerHTML/backgroundImage/inline <img>
+    // с разными inline-стилями → кроп и размер «прыгают» между страницами.
+    renderAvatar(el, displayName) {
+        if (!el) return;
+        const u = this.getUser();
+        // localStorage user_avatar > user.avatar (с сервера при логине, до первого setAvatar).
+        const avatar = this.getAvatar() || (u && u.avatar) || null;
+        if (avatar) {
+            const img = document.createElement('img');
+            img.src = avatar;
+            img.alt = '';
+            img.className = 'v-user-avatar-img';
+            el.replaceChildren(img);
+            // Сбрасываем background-image, если был выставлен ранее (legacy путь в index.html).
+            el.style.backgroundImage = '';
+        } else {
+            const fallback = (displayName || this.getDisplayName() || (u && u.email) || '?').trim() || '?';
+            el.textContent = fallback.charAt(0).toUpperCase();
+            el.style.backgroundImage = '';
+        }
+    },
     setAvatar(dataUrl) {
         const key = this._userKey('user_avatar');
         if (dataUrl) localStorage.setItem(key, dataUrl);

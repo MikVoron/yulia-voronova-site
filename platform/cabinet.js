@@ -64,14 +64,7 @@
 			const emailBase = user.email ? user.email.split('@')[0] : '?';
 			const customName = Auth.getDisplayName();
 			const displayName = customName || user.name || emailBase;
-			const uAva = document.getElementById('u-ava');
-			const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
-			if (savedAva) {
-				const safeAva = String(savedAva).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-				uAva.innerHTML = `<img src="${safeAva}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-			} else {
-				uAva.textContent = displayName.charAt(0).toUpperCase();
-			}
+			Auth.renderAvatar(document.getElementById('u-ava'), displayName);
 			document.getElementById('u-name').textContent = displayName;
 		})();
 
@@ -160,8 +153,7 @@
 			const freshAva = Auth.getAvatar();
 			if (freshAva) {
 				document.getElementById('cab-ava').innerHTML = '<img src="' + freshAva + '" alt="avatar">';
-				var uAva = document.getElementById('u-ava');
-				if (uAva) uAva.innerHTML = '<img src="' + freshAva + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+				Auth.renderAvatar(document.getElementById('u-ava'));
 			}
 		});
 
@@ -185,10 +177,7 @@
 			// Update header pill
 			var uName = document.getElementById('u-name');
 			if (uName) uName.textContent = val || user.email.split('@')[0];
-			var uAva = document.getElementById('u-ava');
-			if (uAva && !localStorage.getItem(Auth._userKey('user_avatar'))) {
-				uAva.textContent = (val || user.email || '?').charAt(0).toUpperCase();
-			}
+			Auth.renderAvatar(document.getElementById('u-ava'), val || user.email);
 			if (val) {
 				document.getElementById('name-edit-row').style.display = 'none';
 				document.getElementById('name-edit-btn').style.display = 'inline-flex';
@@ -216,8 +205,7 @@
 				Auth.setAvatar(dataUrl);
 				// Update UI
 				document.getElementById('cab-ava').innerHTML = '<img src="' + dataUrl + '" alt="avatar">';
-				const uAva = document.getElementById('u-ava');
-				if (uAva) uAva.innerHTML = '<img src="' + dataUrl + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+				Auth.renderAvatar(document.getElementById('u-ava'));
 				// Save to server
 				Auth.api('/auth/profile', { method: 'PUT', body: JSON.stringify({ avatar: dataUrl }) }).then(function(res) {
 					if (!res.ok) console.error('Avatar save failed:', res.status);
