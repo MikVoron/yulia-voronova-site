@@ -1272,7 +1272,7 @@
 	</main>
 
 	<!-- MY PLATE MODAL -->
-	<div class="modal-overlay" id="plate-overlay" onclick="closePlateIfOutside(event)">
+	<div class="modal-overlay plate-modal-v1" id="plate-overlay" onclick="closePlateIfOutside(event)">
 		<div class="modal-box" id="plate-modal">
 			<div class="modal-handle"></div>
 			<div class="modal-header">
@@ -1281,7 +1281,7 @@
 			</div>
 			<div class="modal-body" id="plate-body"></div>
 			<div class="modal-footer" id="plate-footer" style="display:none">
-				<button class="btn btn-green btn-full" onclick="savePlate()">Сохранить в историю</button>
+				<button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlate()">Сохранить в историю</button>
 			</div>
 		</div>
 	</div>
@@ -2551,10 +2551,12 @@
 			const footer = document.getElementById('plate-footer');
 
 			if (!items.length) {
-				body.innerHTML = `<div class="plate-empty">
-                <div class="plate-empty-icon">🍽️</div>
-                <div class="plate-empty-text">Тарелка пока пуста</div>
-                <div class="plate-empty-sub">Выберите категорию и добавьте блюда</div>
+				body.innerHTML = `<div class="pv1-empty">
+                <div class="pv1-eyebrow">Пока пусто</div>
+                <h2 class="pv1-headline">Соберите первый приём пищи</h2>
+                <div class="pv1-divider"></div>
+                <p class="pv1-sub">Выберите рецепт из категории — и он попадёт сюда. КБЖУ пересчитаются автоматически.</p>
+                <button class="pv1-cta" onclick="closePlate()">К рецептам →</button>
             </div>`;
 				footer.style.display = 'none';
 				return;
@@ -2564,41 +2566,49 @@
 			const list = items.map((item, i) => {
 				const adds = item.additions || [];
 				const additionsHtml = adds.length
-					? `<div class="plate-additions">${adds.map(a =>
-						`<div class="plate-addition-item">
-							<span class="plate-addition-dot">+</span>
-							<span class="plate-addition-name">${a.name}</span>
-							<span class="plate-addition-kcal">${a.kcal || 0} ккал</span>
-						</div>`).join('')}</div>`
+					? `<ul class="pv1-additions">${adds.map(a =>
+						`<li class="pv1-addition">
+							<span class="pv1-addition-dot">+</span>
+							<span class="pv1-addition-name">${escHtml(String(a.name || ''))}</span>
+							<span class="pv1-addition-kcal">${Number(a.kcal) || 0} ккал</span>
+						</li>`).join('')}</ul>`
 					: '';
-				return `<div class="plate-item" id="pi-${i}">
+				const safeName = escHtml(String(item.name || ''));
+				const nameHtml = item.recipeId
+					? `<div class="pv1-item-name is-link" onclick="closePlate();location.href='recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1'">${safeName}</div>`
+					: `<div class="pv1-item-name">${safeName}</div>`;
+				return `<div class="pv1-item" id="pi-${Number(i)}">
 					${item.photo
-						? `<img class="plate-item-photo" src="${item.photo}" alt="">`
-						: `<div class="plate-item-emoji">${item.emoji || '🍴'}</div>`}
-					<div class="plate-item-info">
-						${item.recipeId
-						? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="closePlate();location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
-						: `<div class="plate-item-name">${item.name}</div>`}
-						<div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div>
+						? `<img class="pv1-item-photo" src="${escHtml(String(item.photo))}" alt="">`
+						: `<div class="pv1-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
+					<div class="pv1-item-main">
+						${nameHtml}
+						<div class="pv1-item-meta">${Number(item.kcal) || 0} ккал · Б ${Number(item.protein) || 0} · Ж ${Number(item.fat) || 0} · У ${Number(item.carbs) || 0}</div>
 						${additionsHtml}
 					</div>
-					<button class="plate-item-del" onclick="removeItem(${i})">✕</button>
+					<button class="pv1-item-del" onclick="removeItem(${Number(i)})" aria-label="Удалить">✕</button>
 				</div>`;
 			}).join('');
 
 			body.innerHTML = `
-            <div class="plate-items">${list}</div>
-            <div class="plate-total-block">
-                <div class="plate-total-title">Итого</div>
-                <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г${t.fiber ? ' | Кл: ' + t.fiber + 'г' : ''}</div>
+            <div class="pv1-items">${list}</div>
+            <div class="pv1-totals">
+                <div class="pv1-totals-label">Итого за приём</div>
+                <div class="pv1-totals-grid">
+                    <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.kcal) || 0}</div><div class="pv1-tot-key">ккал</div></div>
+                    <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.protein) || 0}</div><div class="pv1-tot-key">белки, г</div></div>
+                    <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.fat) || 0}</div><div class="pv1-tot-key">жиры, г</div></div>
+                    <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.carbs) || 0}</div><div class="pv1-tot-key">углеводы, г</div></div>
+                </div>
+                ${t.fiber ? `<div class="pv1-tot-note">Клетчатка: ${Number(t.fiber) || 0} г</div>` : ''}
             </div>
-            <div class="water-row" style="margin-top:12px">
+            <div class="water-row">
                 <div class="water-label">💧 Ваш вес:</div>
                 <input class="water-inp" type="number" id="w-inp" value="60" min="30" max="200" oninput="updateWater()">
                 <div class="water-label">кг</div>
                 <div class="water-result" id="w-res">→ 1800 мл</div>
             </div>
-            <div class="shop-ask" id="shop-block" style="margin-top:14px">
+            <div class="shop-ask" id="shop-block">
                 <div class="shop-ask-text">🛒 Список покупок</div>
                 <div class="shop-ask-btns">
                     <button class="btn btn-orange btn-sm" onclick="doShare()">Поделиться</button>
@@ -2635,24 +2645,27 @@
 			section.style.display = 'block';
 			const t = Plate.totals();
 			const body = document.getElementById('plate-inline-body');
-			const list = items.map((item, i) => `
+			const list = items.map((item, i) => {
+				const safeName = escHtml(String(item.name || ''));
+				return `
             <div class="plate-item">
                 ${item.photo
-					? `<img class="plate-item-photo" src="${item.photo}" alt="">`
-					: `<div class="plate-item-emoji">${item.emoji || '🍴'}</div>`}
+					? `<img class="plate-item-photo" src="${escHtml(String(item.photo))}" alt="">`
+					: `<div class="plate-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
                 <div class="plate-item-info">
                     ${item.recipeId
-					? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="location.href='recipe.html?id=${item.recipeId}&from=plate&simple=1'">${item.name}</div>`
-					: `<div class="plate-item-name">${item.name}</div>`}
-                    <div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div>
+					? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="location.href='recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1'">${safeName}</div>`
+					: `<div class="plate-item-name">${safeName}</div>`}
+                    <div class="plate-item-kcal">${Number(item.kcal) || 0} ккал · Б${Number(item.protein) || 0}г · Ж${Number(item.fat) || 0}г · У${Number(item.carbs) || 0}г</div>
                 </div>
-                <button class="plate-item-del" onclick="removeItemInline(${i})">✕</button>
-            </div>`).join('');
+                <button class="plate-item-del" onclick="removeItemInline(${Number(i)})">✕</button>
+            </div>`;
+			}).join('');
 			body.innerHTML = `
             <div class="plate-items" style="margin-bottom:12px">${list}</div>
             <div class="plate-total-block">
                 <div class="plate-total-title">Итого</div>
-                <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г${t.fiber ? ' | Кл: ' + t.fiber + 'г' : ''}</div>
+                <div class="plate-total-val">${Number(t.kcal) || 0} ккал | Б: ${Number(t.protein) || 0}г | Ж: ${Number(t.fat) || 0}г | У: ${Number(t.carbs) || 0}г${t.fiber ? ' | Кл: ' + (Number(t.fiber) || 0) + 'г' : ''}</div>
             </div>`;
 		}
 		function removeItemInline(i) { Plate.remove(i); renderPlateInline(); updatePlateIcon(); }

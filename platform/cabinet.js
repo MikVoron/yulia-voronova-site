@@ -938,38 +938,63 @@
 			const items = Plate.get();
 			const body = document.getElementById('plate-body');
 			if (!items.length) {
-				body.innerHTML = '<div class="plate-empty"><div class="plate-empty-icon">🍽️</div><div class="plate-empty-text">Тарелка пока пуста</div></div>';
+				body.innerHTML = `<div class="pv1-empty">
+                <div class="pv1-eyebrow">Пока пусто</div>
+                <h2 class="pv1-headline">Соберите первый приём пищи</h2>
+                <div class="pv1-divider"></div>
+                <p class="pv1-sub">Выберите рецепт из категории — и он попадёт сюда. КБЖУ пересчитаются автоматически.</p>
+                <button class="pv1-cta" onclick="closePlate();location.href='index.html'">К рецептам →</button>
+            </div>`;
 			} else {
 				const t = Plate.totals();
-				body.innerHTML = '<div class="plate-items">' +
-					items.map((item, i) => `<div class="plate-item">
+				const list = items.map((item, i) => `<div class="pv1-item">
                     ${item.photo
-						? `<img class="plate-item-photo" src="${item.photo}" alt="">`
-						: `<div class="plate-item-emoji">${item.emoji || '🍴'}</div>`}
-                    <div class="plate-item-info"><div class="plate-item-name">${item.name}</div>
-                    <div class="plate-item-kcal">${item.kcal} ккал · Б${item.protein}г · Ж${item.fat}г · У${item.carbs}г</div></div>
-                    <button class="plate-item-del" onclick="removePlateItem(${i})">✕</button>
-                </div>`).join('') + '</div>' +
-					`<div class="plate-total-block" style="margin-top:12px">
-                    <div class="plate-total-title">Итого</div>
-                    <div class="plate-total-val">${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г${t.fiber ? ' | Кл: ' + t.fiber + 'г' : ''}</div>
+						? `<img class="pv1-item-photo" src="${escHtml(String(item.photo))}" alt="">`
+						: `<div class="pv1-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
+                    <div class="pv1-item-main">
+                        <div class="pv1-item-name">${escHtml(String(item.name || ''))}</div>
+                        <div class="pv1-item-meta">${Number(item.kcal) || 0} ккал · Б ${Number(item.protein) || 0} · Ж ${Number(item.fat) || 0} · У ${Number(item.carbs) || 0}</div>
+                    </div>
+                    <button class="pv1-item-del" onclick="removePlateItem(${Number(i)})" aria-label="Удалить">✕</button>
+                </div>`).join('');
+				body.innerHTML = `<div class="pv1-items">${list}</div>
+                <div class="pv1-totals">
+                    <div class="pv1-totals-label">Итого за приём</div>
+                    <div class="pv1-totals-grid">
+                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.kcal) || 0}</div><div class="pv1-tot-key">ккал</div></div>
+                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.protein) || 0}</div><div class="pv1-tot-key">белки, г</div></div>
+                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.fat) || 0}</div><div class="pv1-tot-key">жиры, г</div></div>
+                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.carbs) || 0}</div><div class="pv1-tot-key">углеводы, г</div></div>
+                    </div>
+                    ${t.fiber ? `<div class="pv1-tot-note">Клетчатка: ${Number(t.fiber) || 0} г</div>` : ''}
                 </div>
-                <div style="display:flex;gap:8px;margin-top:10px">
-                    <button class="btn btn-orange" style="flex:1" onclick="location.href='index.html'">← На главную</button>
-                    <button class="btn btn-ghost" style="flex-shrink:0" onclick="shareShoppingList()">📤 Список продуктов</button>
+                <div class="pv1-actions">
+                    <div class="pv1-actions-row">
+                        <button class="pv1-btn" onclick="location.href='index.html'">← На главную</button>
+                        <button class="pv1-btn" onclick="shareShoppingList()">Список продуктов</button>
+                    </div>
+                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateCabinet()">Сохранить в историю</button>
                 </div>`;
 			}
-			document.getElementById('plate-overlay').classList.add('active');
+			document.getElementById('plate-overlay').classList.add('open');
 			document.body.style.overflow = 'hidden';
 		}
 		function closePlate() {
-			document.getElementById('plate-overlay').classList.remove('active');
+			document.getElementById('plate-overlay').classList.remove('open');
 			document.body.style.overflow = '';
 		}
 		function closePlateIfOutside(e) {
 			if (e.target === document.getElementById('plate-overlay')) closePlate();
 		}
 		function removePlateItem(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
+		function savePlateCabinet() {
+			if (!Plate.count()) return;
+			Plate.saveHistory();
+			updatePlateIcon();
+			renderHistory();
+			closePlate();
+			if (typeof showToast === 'function') showToast('Тарелка сохранена в историю 🎉');
+		}
 
 		// ── ОБРАТНАЯ СВЯЗЬ ────────────────────────────────────────────────────────
 		// Очистка старого localStorage (обращения теперь хранятся на сервере)
