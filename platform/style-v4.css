@@ -1513,8 +1513,7 @@ img { display: block; max-width: 100%; }
 .plate-empty-sub { font-size: 13px; color: var(--text-3); margin-top: 6px; }
 
 /* ─── PLATE MODAL — EDITORIAL VARIANT 1 ──────────────────────
-   Scoped by .plate-modal-v1 on .modal-overlay#plate-overlay.
-   Inline plate section (#plate-inline-section) keeps legacy look. */
+   Scoped by .plate-modal-v1 on .modal-overlay#plate-overlay. */
 .plate-modal-v1 .modal-box { background: #fff; }
 .plate-modal-v1 .modal-header {
     border-bottom: 1px solid var(--text);

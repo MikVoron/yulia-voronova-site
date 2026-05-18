@@ -1034,6 +1034,37 @@
 		}
 		.sp-cta-btn:hover { background: var(--accent); }
 
+		/* Plate summary strip (compact, shown when plate has items) */
+		.sp-plate-summary {
+			display: flex; align-items: center; justify-content: space-between;
+			gap: 20px; padding: 14px 22px; margin-bottom: 28px;
+			background: #fff; border: 1px solid var(--text);
+		}
+		.sp-plate-summary-info {
+			display: flex; align-items: center; gap: 10px;
+			font-family: var(--sans); min-width: 0;
+		}
+		.sp-plate-summary-count {
+			font-size: 13px; font-weight: 700; color: var(--text);
+			letter-spacing: .04em;
+		}
+		.sp-plate-summary-sep { color: var(--text-3); font-weight: 700; }
+		.sp-plate-summary-kcal {
+			font-size: 13px; font-weight: 600; color: var(--text-2);
+		}
+		.sp-plate-summary-btn {
+			flex-shrink: 0;
+			display: inline-flex; align-items: center; justify-content: center;
+			padding: 10px 18px;
+			background: var(--text); color: #fff;
+			font-family: var(--sans); font-size: 11px; font-weight: 700;
+			letter-spacing: .12em; text-transform: uppercase;
+			cursor: pointer; border: none;
+			transition: background .2s ease;
+			white-space: nowrap;
+		}
+		.sp-plate-summary-btn:hover { background: var(--accent); }
+
 		/* Tablet */
 		@media (max-width: 1024px) {
 			.sp-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
@@ -1060,6 +1091,11 @@
 			}
 			.sp-cta-btn { width: 100%; padding: 14px 20px; }
 			.sp-bd { font-size: 9px; height: 20px; padding: 0 8px; }
+			.sp-plate-summary {
+				flex-direction: column; align-items: stretch;
+				gap: 12px; padding: 14px 16px;
+			}
+			.sp-plate-summary-btn { width: 100%; padding: 12px 16px; }
 		}
 
 		/* Plate icon в заголовке модалки — SVG из общего паттерна (см. style-v4.css .sp-plate-svg). */
@@ -1207,13 +1243,14 @@
 				</a>
 			</section>
 
-			<!-- Твоя тарелка (inline, shown when plate has items) -->
-			<div id="plate-inline-section" style="display:none; margin-bottom: 24px;">
-				<div class="v-sec-head">
-					<div class="v-sec-title">🍽️ Твоя тарелка</div>
-					<button class="btn btn-ghost btn-sm" onclick="clearPlateInline()">Очистить</button>
+			<!-- Тарелка: компактный summary над "Новое". Полный список и действия — в модалке openPlate(). -->
+			<div id="plate-inline-section" class="sp-plate-summary" style="display:none">
+				<div class="sp-plate-summary-info">
+					<span class="sp-plate-summary-count" id="plate-summary-count"></span>
+					<span class="sp-plate-summary-sep">·</span>
+					<span class="sp-plate-summary-kcal" id="plate-summary-kcal"></span>
 				</div>
-				<div id="plate-inline-body"></div>
+				<button class="sp-plate-summary-btn" onclick="openPlate()" type="button">Открыть тарелку →</button>
 			</div>
 
 			<!-- Новое: editorial 2-column блок (фичер-рецепт + лента новостей).
@@ -2653,45 +2690,22 @@
 		}
 		function savePlate() { Plate.saveHistory(); renderPlateModal(); renderPlateInline(); showToast('Тарелка сохранена в историю 🎉'); }
 
-		// ── INLINE PLATE SECTION ─────────────────────────────────────────────
+		// ── INLINE PLATE SUMMARY ─────────────────────────────────────────────
+		// Компактный summary над "Новое". Управление тарелкой — в модалке openPlate().
 		function renderPlateInline() {
 			const items = Plate.get();
 			const section = document.getElementById('plate-inline-section');
-			const introBlock = document.getElementById('intro-block');
 			if (!items.length) {
 				section.style.display = 'none';
-				if (introBlock) introBlock.style.display = '';
 				return;
 			}
-			if (introBlock) introBlock.style.display = 'none';
-			section.style.display = 'block';
 			const t = Plate.totals();
-			const body = document.getElementById('plate-inline-body');
-			const list = items.map((item, i) => {
-				const safeName = escHtml(String(item.name || ''));
-				return `
-            <div class="plate-item">
-                ${item.photo
-					? `<img class="plate-item-photo" src="${escHtml(String(item.photo))}" alt="">`
-					: `<div class="plate-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
-                <div class="plate-item-info">
-                    ${item.recipeId
-					? `<div class="plate-item-name" style="cursor:pointer;color:var(--green-d)" onclick="location.href='recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1'">${safeName}</div>`
-					: `<div class="plate-item-name">${safeName}</div>`}
-                    <div class="plate-item-kcal">${Number(item.kcal) || 0} ккал · Б${Number(item.protein) || 0}г · Ж${Number(item.fat) || 0}г · У${Number(item.carbs) || 0}г</div>
-                </div>
-                <button class="plate-item-del" onclick="removeItemInline(${Number(i)})">✕</button>
-            </div>`;
-			}).join('');
-			body.innerHTML = `
-            <div class="plate-items" style="margin-bottom:12px">${list}</div>
-            <div class="plate-total-block">
-                <div class="plate-total-title">Итого</div>
-                <div class="plate-total-val">${Number(t.kcal) || 0} ккал | Б: ${Number(t.protein) || 0}г | Ж: ${Number(t.fat) || 0}г | У: ${Number(t.carbs) || 0}г${t.fiber ? ' | Кл: ' + (Number(t.fiber) || 0) + 'г' : ''}</div>
-            </div>`;
+			const n = items.length;
+			const word = n === 1 ? 'блюдо' : (n >= 2 && n <= 4 ? 'блюда' : 'блюд');
+			document.getElementById('plate-summary-count').textContent = `В тарелке: ${n} ${word}`;
+			document.getElementById('plate-summary-kcal').textContent = `${Number(t.kcal) || 0} ккал`;
+			section.style.display = 'flex';
 		}
-		function removeItemInline(i) { Plate.remove(i); renderPlateInline(); updatePlateIcon(); }
-		function clearPlateInline() { Plate.clear(); renderPlateInline(); updatePlateIcon(); }
 
 		// Swipe to close
 		let sy = 0;

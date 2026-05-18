@@ -600,6 +600,16 @@ function updatePlateIcon() {
     });
 }
 
+// Bfcache fix: после Plate.add() + history.back() браузер восстанавливает
+// предыдущую страницу из back-forward cache без перезапуска скриптов, поэтому
+// .plate-count и компактный summary остаются в старом состоянии. Здесь
+// синхронизируем виджеты из localStorage при возврате из bfcache.
+window.addEventListener('pageshow', function(e) {
+    if (!e.persisted) return;
+    updatePlateIcon();
+    if (typeof renderPlateInline === 'function') renderPlateInline();
+});
+
 // ─── RECIPE DATA (loaded from API) ───────────────────────────────────────────
 const RECIPES = {};
 let CATEGORIES = {};
