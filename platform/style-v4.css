@@ -1491,20 +1491,7 @@ img { display: block; max-width: 100%; }
                      letter-spacing: .5px; margin-bottom: 6px; }
 .plate-total-val { font-size: 15px; font-weight: 700; color: var(--text); }
 
-/* Water */
-.water-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
-.water-label { font-size: 13px; color: var(--text-2); }
-.water-inp { width: 64px; padding: 8px 10px; border: 1.5px solid var(--border);
-              border-radius: var(--r-s); font-size: 14px; text-align: center;
-              font-family: inherit; font-weight: 700; }
-.water-inp:focus { outline: none; border-color: var(--accent); }
-.water-result { font-weight: 800; color: var(--accent); font-size: 14px; }
-
-/* Shopping */
-.shop-ask { margin-top: 14px; padding: 14px 16px; background: var(--bg-alt);
-             border-radius: var(--r-m); border: 1px solid var(--border); }
-.shop-ask-text { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
-.shop-ask-btns { display: flex; gap: 8px; }
+/* (Legacy .water-row / .shop-ask removed — see .plate-modal-v1 .hydration / .shop below) */
 
 /* Empty plate */
 .plate-empty { text-align: center; padding: 48px 20px; }
@@ -1698,14 +1685,85 @@ img { display: block; max-width: 100%; }
 .pv1-btn-primary:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
 .pv1-btn-full { width: 100%; flex: 1 1 100%; }
 
-/* Water + shopping rows blend into editorial frame */
-.plate-modal-v1 .water-row {
-    margin-top: 16px; padding-top: 14px;
-    border-top: 1px solid var(--border);
+/* Hydration row + Shop block — per Plate Modal Full design.
+   Hydration: SVG icon + weight input + serif accent target value.
+   Shop:      cream card with cart-svg counter + 2 buttons (primary + ghost). */
+.plate-modal-v1 .hydration {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 0; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
 }
-.plate-modal-v1 .shop-ask {
-    margin-top: 14px; background: var(--bg-alt);
-    border: 1px solid var(--border); border-radius: 0;
+.plate-modal-v1 .hydration-icon {
+    width: 28px; height: 28px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+}
+.plate-modal-v1 .hydration-label {
+    font-size: 10px; font-weight: 800; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--text-3);
+}
+.plate-modal-v1 .hydration-input-wrap {
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.plate-modal-v1 .hydration-input {
+    width: 54px; padding: 8px 10px; font-family: inherit;
+    font-size: 14px; font-weight: 700; color: var(--text);
+    background: #fff; border: 1px solid var(--border);
+    text-align: center; outline: none; border-radius: 0;
+}
+.plate-modal-v1 .hydration-input:focus { border-color: var(--accent); }
+.plate-modal-v1 .hydration-unit {
+    font-size: 11px; font-weight: 700; letter-spacing: .06em; color: var(--text-3);
+}
+.plate-modal-v1 .hydration-arrow { font-size: 14px; color: var(--text-3); margin: 0 4px; }
+.plate-modal-v1 .hydration-target {
+    font-family: var(--serif); font-size: 18px; font-weight: 700;
+    color: var(--accent); line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+.plate-modal-v1 .hydration-target small {
+    font-family: var(--sans); font-size: 11px; font-weight: 700;
+    letter-spacing: .06em; color: var(--text-3); margin-left: 3px;
+    text-transform: uppercase;
+}
+@media (min-width: 768px) {
+    .plate-modal-v1 .hydration { padding: 16px 0; gap: 14px; }
+    .plate-modal-v1 .hydration-icon { width: 32px; height: 32px; }
+    .plate-modal-v1 .hydration-target { font-size: 22px; }
+    .plate-modal-v1 .hydration-arrow { margin: 0 6px; }
+}
+
+.plate-modal-v1 .shop {
+    margin-top: 14px;
+    padding: 16px 18px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+}
+.plate-modal-v1 .shop-head {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 10px; font-weight: 800; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--text);
+    margin-bottom: 10px;
+}
+.plate-modal-v1 .shop-head svg { width: 14px; height: 14px; flex-shrink: 0; }
+.plate-modal-v1 .shop-actions { display: flex; gap: 8px; }
+.plate-modal-v1 .shop-btn {
+    flex: 1;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 11px 14px; font-family: inherit;
+    font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+    cursor: pointer; border: none;
+    transition: var(--tr);
+}
+.plate-modal-v1 .shop-btn-primary { background: var(--accent); color: #fff; }
+.plate-modal-v1 .shop-btn-primary:hover { background: var(--text); }
+.plate-modal-v1 .shop-btn-ghost {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--text);
+}
+.plate-modal-v1 .shop-btn-ghost:hover { background: var(--text); color: #fff; }
+@media (min-width: 768px) {
+    .plate-modal-v1 .shop { padding: 18px 22px; }
+    .plate-modal-v1 .shop-btn { padding: 10px 16px; font-size: 11px; flex: 0 1 auto; }
 }
 
 /* ── STICKY ADD BTN ──────────────────────────────────── */

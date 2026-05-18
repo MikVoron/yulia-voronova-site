@@ -2622,6 +2622,7 @@
 			}
 
 			const t = Plate.totals();
+			const ingCount = items.reduce((n, it) => n + ((it.ingredients && it.ingredients.length) || 0), 0);
 			const list = items.map((item, i) => {
 				const adds = item.additions || [];
 				const additionsHtml = adds.length
@@ -2661,17 +2662,30 @@
                     <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.fiber) || 0}</div><div class="pv1-tot-key">Клетч., г</div></div>
                 </div>
             </div>
-            <div class="water-row">
-                <div class="water-label">💧 Ваш вес:</div>
-                <input class="water-inp" type="number" id="w-inp" value="60" min="30" max="200" oninput="updateWater()">
-                <div class="water-label">кг</div>
-                <div class="water-result" id="w-res">→ 1800 мл</div>
+            <div class="hydration">
+                <span class="hydration-icon">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+                        <path d="M12 3 C8 9, 5 13, 5 16 C5 19.3, 8.1 22, 12 22 C15.9 22, 19 19.3, 19 16 C19 13, 16 9, 12 3 Z" stroke="#111" stroke-width="1.5"/>
+                        <path d="M15 16 C15 17.7, 13.7 19, 12 19" stroke="#e8400a" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </span>
+                <span class="hydration-label">Ваш вес</span>
+                <span class="hydration-input-wrap">
+                    <input class="hydration-input" type="number" id="w-inp" value="60" min="30" max="200" oninput="updateWater()" aria-label="Ваш вес в килограммах">
+                    <span class="hydration-unit">кг</span>
+                </span>
+                <span class="hydration-arrow" aria-hidden="true">→</span>
+                <span class="hydration-label">Норма воды</span>
+                <span class="hydration-target"><span id="w-res">1800</span><small>мл</small></span>
             </div>
-            <div class="shop-ask" id="shop-block">
-                <div class="shop-ask-text">🛒 Список покупок</div>
-                <div class="shop-ask-btns">
-                    <button class="btn btn-orange btn-sm" onclick="doShare()">Поделиться</button>
-                    <button class="btn btn-ghost btn-sm" onclick="doCopy()">Скопировать</button>
+            <div class="shop" id="shop-block">
+                <div class="shop-head">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
+                    Список покупок${ingCount ? ` · ${ingCount} шт` : ''}
+                </div>
+                <div class="shop-actions">
+                    <button class="shop-btn shop-btn-primary" onclick="doShare()">Поделиться</button>
+                    <button class="shop-btn shop-btn-ghost" onclick="doCopy()">Скопировать</button>
                 </div>
             </div>`;
 			footer.style.display = 'block';
@@ -2680,7 +2694,7 @@
 		function removeItem(i) { Plate.remove(i); renderPlateModal(); updatePlateIcon(); renderPlateInline(); }
 		function updateWater() {
 			const w = parseInt(document.getElementById('w-inp').value) || 60;
-			document.getElementById('w-res').textContent = '→ ' + (w * 30) + ' мл';
+			document.getElementById('w-res').textContent = (w * 30);
 		}
 		function doShare() { shareShoppingList(); }
 		function doCopy() {
