@@ -5,989 +5,669 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Мой кабинет — Умная тарелка</title>
-	<link rel="icon" type="image/svg+xml" href="plate-favicon.svg">
+	<link rel="icon" type="image/svg+xml" href="../images/favicons/plate-favicon.svg">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
 	<style>
 		body {
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-11-1" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-18-1" id="vcss">
 	<style>
-		/* ── CABINET ── */
+		/* ──────────────────────────────────────────────────────────────
+		   CABINET — editorial redesign (Account Page Redesign.html)
+		   Body wrap-only; sp-header остаётся общий, как на index/recipe.
+		   ────────────────────────────────────────────────────────────── */
+		body.v-page { background: #f0ece6; }
 
-		/* ── PROFILE ── */
-		.cab-profile {
-			position: relative;
-			overflow: hidden;
-			display: grid;
-			gap: 22px;
-			padding: 28px;
-			margin-top: 10px;
-			border-radius: 28px;
-			background: rgba(255, 253, 250, 0.88);
-			border: 1px solid rgba(255, 255, 255, 0.75);
-			box-shadow: 0 22px 60px rgba(91, 49, 20, 0.10);
-			backdrop-filter: blur(20px);
-			-webkit-backdrop-filter: blur(20px);
+		.cab-main { flex: 1; padding-bottom: 60px; }
+
+		.cab-breadcrumb {
+			padding: 24px 0 8px;
+			font-size: 11px; font-weight: 700; letter-spacing: .14em;
+			text-transform: uppercase; color: var(--text-3);
 		}
+		.cab-breadcrumb b { color: var(--text); font-weight: 700; }
 
-		.cab-profile::before {
-			content: "";
-			position: absolute;
-			top: -80px;
-			right: -70px;
-			width: 220px;
-			height: 220px;
-			border-radius: 50%;
-			background: radial-gradient(circle, rgba(217,95,36,0.18) 0%, rgba(217,95,36,0) 72%);
-			pointer-events: none;
+		/* ── HERO ─────────────────────────────────────────────────────── */
+		.cab-hero {
+			background: #fff;
+			padding: 40px;
+			border-top: 2px solid var(--text);
+			border-bottom: 1px solid var(--border);
+			display: grid; grid-template-columns: auto 1fr; gap: 32px;
+			align-items: flex-start;
 		}
-
-		.cab-profile-head {
-			position: relative;
-			z-index: 1;
-			display: flex;
-			gap: 18px;
-			align-items: center;
-		}
-
-		.cab-ava-wrap {
-			position: relative;
-			flex-shrink: 0;
+		.cab-hero-ava {
+			position: relative; width: 128px; height: 128px; flex-shrink: 0;
+			background: #faf8f5; overflow: hidden;
+			border: 1px solid var(--border);
 			cursor: pointer;
 		}
-
-		.cab-ava {
-			width: 86px;
-			height: 86px;
-			border-radius: 24px;
-			background: linear-gradient(135deg, #e96d30, #bf3d11);
-			color: #fff;
-			font-family: var(--serif);
-			font-size: 34px;
-			font-weight: 400;
-			display: grid;
-			place-items: center;
-			overflow: hidden;
+		.cab-hero-ava .cab-ava {
+			width: 100%; height: 100%;
+			display: grid; place-items: center;
+			font-family: var(--serif); font-size: 56px; font-weight: 700;
+			color: var(--text); background: #faf8f5;
+			border-radius: 0;
+			box-shadow: none;
 			border: none;
-			box-shadow: 0 18px 40px rgba(191, 61, 17, 0.25);
 		}
-
-		.cab-ava img {
-			width: 100%;
-			height: 100%;
-			object-fit: cover;
+		.cab-hero-ava .cab-ava img {
+			width: 100%; height: 100%; object-fit: cover; display: block;
 		}
-
-		.cab-ava-badge {
-			position: absolute;
-			bottom: -2px;
-			right: -2px;
-			width: 24px;
-			height: 24px;
-			border-radius: 50%;
-			background: var(--accent);
-			border: 2.5px solid rgba(255, 253, 250, 0.9);
-			display: flex;
-			align-items: center;
-			justify-content: center;
+		.cab-hero-ava-edit {
+			position: absolute; right: -8px; bottom: -8px;
+			width: 32px; height: 32px; background: var(--accent); color: #fff;
+			display: flex; align-items: center; justify-content: center;
+			border: none; cursor: pointer; transition: .15s;
+			box-shadow: 0 4px 10px rgba(232,64,10,.3);
 		}
+		.cab-hero-ava-edit:hover { background: var(--accent-d); }
+		.cab-hero-ava-edit svg { width: 14px; height: 14px; fill: #fff; }
 
-		.cab-ava-badge svg {
-			width: 11px;
-			height: 11px;
-			fill: #fff;
+		.cab-hero-info { min-width: 0; }
+		.cab-hero-eyebrow {
+			display: inline-flex; align-items: center; gap: 8px;
+			font-size: 10px; font-weight: 800; letter-spacing: .2em;
+			text-transform: uppercase; color: var(--accent);
+			margin-bottom: 10px;
 		}
-
+		.cab-hero-eyebrow::before {
+			content: ''; width: 18px; height: 1.5px; background: var(--accent);
+		}
+		.cab-hero-name-row {
+			display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+		}
 		.cab-name {
-			font-family: var(--serif);
-			font-size: clamp(28px, 5vw, 42px);
-			font-weight: 700;
-			color: var(--text);
-			line-height: 0.95;
-			margin: 0;
+			font-family: var(--serif); font-size: clamp(36px, 5vw, 52px);
+			font-weight: 700; line-height: 1.05; letter-spacing: -.02em;
+			color: var(--text); margin: 0;
+		}
+		.cab-hero-name-edit {
+			background: transparent; border: none; cursor: pointer;
+			color: var(--text-3); padding: 6px;
+			display: inline-flex; align-items: center; justify-content: center;
+		}
+		.cab-hero-name-edit:hover { color: var(--accent); }
+		.cab-hero-meta {
+			margin-top: 8px;
+			display: flex; flex-wrap: wrap; gap: 14px;
+			font-size: 13px; color: var(--text-2);
+		}
+		.cab-email { color: var(--text); font-weight: 700; }
+		.cab-since { color: var(--text-2); }
+		.cab-hero-meta-sep { color: var(--border); }
+
+		.cab-name-edit-row {
+			margin-top: 12px; display: flex; align-items: center; gap: 10px;
+		}
+		.cab-name-edit-row input {
+			padding: 8px 12px; border: 1px solid var(--border); border-radius: 0;
+			font-size: 13px; font-family: inherit; color: var(--text);
+			width: 200px; outline: none; transition: border-color .2s;
+			background: #fff;
+		}
+		.cab-name-edit-row input:focus { border-color: var(--accent); }
+		.cab-name-saved {
+			font-size: 11px; color: var(--accent);
+			opacity: 0; transition: opacity .3s;
+			font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
 		}
 
-		.cab-email {
-			font-size: 14px;
-			color: var(--text);
-			opacity: .75;
-			margin-top: 6px;
-			line-height: 1.65;
-		}
-
-		.cab-since {
-			font-size: 13px;
-			color: var(--text);
-			opacity: .65;
-			margin-top: 2px;
-		}
-
-		/* ── METRIC CARDS ── */
-		.cab-summary {
-			position: relative;
-			z-index: 1;
+		/* KPI strip — до 4 метрик; адаптивная сетка (4 → 2×2 → 1) */
+		.cab-kpi-strip {
+			margin-top: 28px;
 			display: grid;
-			grid-template-columns: 1fr 1fr;
-			gap: 14px;
+			grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+			border: 1px solid var(--border);
+			background: #faf8f5;
+			overflow: hidden;
 		}
-
-		.cab-metric {
-			border-radius: 24px;
-			padding: 20px;
-			border: 1px solid #ead9cb;
-			background: linear-gradient(180deg, #fffdfa 0%, #fff8f2 100%);
+		.cab-kpi {
+			padding: 22px 26px;
+			display: flex; flex-direction: column; gap: 8px;
+			border-right: 1px solid var(--border);
+			border-bottom: 1px solid var(--border);
+			margin-right: -1px;
+			margin-bottom: -1px;
 		}
-
-		.cab-metric-label {
-			color: #7b685d;
-			font-size: 12px;
-			font-weight: 800;
-			text-transform: uppercase;
-			letter-spacing: 0.12em;
+		.cab-kpi-label {
+			font-size: 10px; font-weight: 800; letter-spacing: .18em;
+			text-transform: uppercase; color: var(--text-3);
 		}
-
-		.cab-metric-value {
-			margin-top: 16px;
-			display: flex;
-			align-items: flex-end;
-			gap: 8px;
+		.cab-kpi-row { display: flex; align-items: baseline; gap: 10px; }
+		.cab-kpi-val {
+			font-family: var(--serif); font-size: 44px; font-weight: 700;
+			line-height: 1; color: var(--text); letter-spacing: -.02em;
 		}
-
-		.cab-metric-value .cab-weight-input {
-			width: 100px;
-			padding: 0;
-			font-size: clamp(36px, 8vw, 52px);
-			font-weight: 700;
-			font-family: var(--sans);
-			color: var(--text);
-			text-align: left;
-			background: transparent;
-			border: none;
-			border-bottom: 2px solid #ead9cb;
-			outline: none;
-			transition: border-color .2s;
-			line-height: 0.9;
-			letter-spacing: -0.04em;
+		.cab-kpi-unit {
+			font-size: 13px; font-weight: 600; color: var(--text-2);
+			letter-spacing: .04em;
 		}
+		.cab-kpi-hint { font-size: 12px; color: var(--text-3); }
 
-		.cab-metric-value .cab-weight-input:focus {
-			border-bottom-color: var(--accent);
-		}
-
-		.cab-metric-value .cab-weight-unit {
-			font-size: 18px;
-			font-weight: 700;
-			color: var(--text);
-			padding-bottom: 8px;
-			margin-left: -4px;
-		}
-
-
-		@media (max-width: 600px) {
-			.cab-profile { padding: 20px; }
-			.cab-summary { grid-template-columns: 1fr; }
-			.cab-ava { width: 72px; height: 72px; font-size: 28px; border-radius: 20px; }
-		}
-
-		/* ── TABS ── */
-		.cab-tabs {
-			display: flex;
-			gap: 0;
-			margin: 20px 0 0;
+		.cab-weight-input {
+			width: 110px; padding: 0;
+			font-family: var(--serif); font-size: 44px; font-weight: 700;
+			color: var(--text); text-align: left;
+			background: transparent; border: none;
 			border-bottom: 2px solid var(--border);
+			outline: none; transition: border-color .2s;
+			line-height: 1; letter-spacing: -.02em;
+		}
+		.cab-weight-input:focus { border-bottom-color: var(--accent); }
+
+		/* ── TABS ─────────────────────────────────────────────────────── */
+		.cab-tabs {
+			background: #fff;
+			border-bottom: 1px solid var(--border);
+			display: flex; align-items: stretch; gap: 0;
 			overflow-x: auto;
 			scrollbar-width: none;
 		}
-
-		.cab-tabs::-webkit-scrollbar {
-			display: none;
-		}
-
+		.cab-tabs::-webkit-scrollbar { display: none; }
 		.cab-tab {
-			padding: 10px 14px;
-			font-size: 12px;
-			font-weight: 700;
-			color: var(--text-3);
-			border: none;
-			background: none;
-			cursor: pointer;
-			border-bottom: 2px solid transparent;
-			margin-bottom: -2px;
-			white-space: nowrap;
-			transition: color .2s;
+			font-family: var(--sans);
+			background: transparent; border: none; cursor: pointer;
+			padding: 18px 22px;
+			font-size: 11px; font-weight: 800; letter-spacing: .16em;
+			text-transform: uppercase; color: var(--text-3);
+			border-bottom: 2px solid transparent; margin-bottom: -1px;
+			transition: .15s; white-space: nowrap;
+			display: inline-flex; align-items: center; gap: 8px;
 			-webkit-tap-highlight-color: transparent;
-			flex-shrink: 0;
 		}
+		.cab-tab:hover { color: var(--text); }
+		.cab-tab.active { color: var(--text); border-bottom-color: var(--accent); }
 
-		@media (max-width: 480px) {
-			.cab-tab {
-				padding: 10px 8px;
-				font-size: 11px;
-			}
-		}
-
-		.cab-tab.active {
-			color: var(--accent);
-			border-bottom-color: var(--accent);
-		}
-
+		/* ── PANE ──────────────────────────────────────────────────────── */
 		.cab-tab-panel {
 			display: none;
-			padding: 24px 0;
+			background: #fff;
+			padding: 40px;
+		}
+		.cab-tab-panel.active { display: block; }
+
+		.cab-sec-title-row {
+			display: flex; align-items: baseline; justify-content: space-between;
+			gap: 16px;
+			padding-bottom: 12px; margin-bottom: 20px;
+			border-bottom: 2px solid var(--text);
+		}
+		.cab-sec-title {
+			font-family: var(--serif); font-size: 24px; font-weight: 700;
+			letter-spacing: -.01em; margin: 0;
+		}
+		.cab-sec-title-meta {
+			font-size: 11px; font-weight: 700; letter-spacing: .14em;
+			text-transform: uppercase; color: var(--text-3);
 		}
 
-		.cab-tab-panel.active {
-			display: block;
-		}
-
-		/* ── ИСТОРИЯ ТАРЕЛОК ── */
-		.hist-empty {
-			text-align: center;
-			padding: 50px 20px;
-			color: var(--text-3);
-			font-size: 14px;
-		}
-
-		.hist-entry {
-			border: 1px solid var(--border);
-			border-radius: var(--r-s);
-			margin-bottom: 14px;
-			overflow: hidden;
-		}
-
-		.hist-entry-head {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			padding: 12px 16px;
-			background: var(--bg-alt);
-			cursor: pointer;
-			user-select: none;
-		}
-
-		.hist-date {
-			font-size: 13px;
-			font-weight: 700;
-			color: var(--text);
-		}
-
-		.hist-macros {
-			font-size: 12px;
-			color: var(--text-3);
-			margin-top: 2px;
-		}
-
-		.hist-arrow {
-			font-size: 14px;
-			color: var(--text-3);
-			transition: transform .2s;
-		}
-
-		.hist-entry.open .hist-arrow {
-			transform: rotate(180deg);
-		}
-
-		.hist-items {
-			display: none;
-			padding: 10px 16px 14px;
-		}
-
-		.hist-entry.open .hist-items {
-			display: block;
-		}
-
-		.hist-item {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			padding: 6px 0;
-			border-bottom: 1px solid var(--border);
-		}
-
-		.hist-item:last-child {
-			border-bottom: none;
-		}
-
-		.hist-item-emoji {
-			font-size: 18px;
-			flex-shrink: 0;
-		}
-
-		.hist-item-name {
-			font-size: 13px;
-			color: var(--text);
-			flex: 1;
-		}
-
-		.hist-item-kcal {
-			font-size: 12px;
-			color: var(--text-3);
-			flex-shrink: 0;
-		}
-
-		/* ── ИЗБРАННЫЕ ── */
-		.fav-empty {
-			text-align: center;
-			padding: 50px 20px;
-			color: var(--text-3);
-			font-size: 14px;
-			grid-column: 1 / -1;
-		}
-
-		/* ── ЗАМЕТКИ ── */
-		.notes-wrap {
-			display: flex;
-			flex-direction: column;
-			gap: 12px;
-		}
-
-		.notes-textarea {
-			width: 100%;
-			min-height: 200px;
-			padding: 14px;
-			font-family: var(--sans);
-			font-size: 14px;
-			color: var(--text);
-			background: var(--card);
-			border: 1px solid var(--border);
-			border-radius: var(--r-s);
-			resize: vertical;
-			line-height: 1.6;
-			box-sizing: border-box;
-			outline: none;
-			transition: border-color .2s;
-		}
-
-		.notes-textarea:focus {
-			border-color: var(--accent);
-		}
-
-		.notes-saved {
-			font-size: 12px;
-			color: var(--text-3);
-			height: 16px;
-		}
-
-		/* ── ОБРАТНАЯ СВЯЗЬ ── */
-		.fb-cats {
-			display: flex;
-			gap: 8px;
-			flex-wrap: wrap;
-			margin-bottom: 16px;
-		}
-
-		.fb-cat {
-			padding: 8px 16px;
-			border-radius: var(--r-f);
-			border: 1.5px solid var(--border);
-			background: var(--card);
-			font-size: 13px;
-			font-weight: 600;
-			color: var(--text-2);
-			cursor: pointer;
-			transition: all .18s;
-		}
-
-		.fb-cat.active {
-			border-color: var(--accent);
-			background: var(--accent-l);
-			color: var(--accent);
-		}
-
-		.fb-textarea {
-			width: 100%;
-			min-height: 120px;
-			padding: 14px;
-			font-family: var(--sans);
-			font-size: 14px;
-			color: var(--text);
-			background: var(--card);
-			border: 1px solid var(--border);
-			border-radius: var(--r-s);
-			resize: vertical;
-			line-height: 1.6;
-			box-sizing: border-box;
-			outline: none;
-			transition: border-color .2s;
-		}
-
-		.fb-textarea:focus {
-			border-color: var(--accent);
-		}
-
-		.fb-actions {
-			display: flex;
-			gap: 10px;
-			margin-top: 12px;
-			flex-wrap: wrap;
-		}
-
-		.fb-hint {
-			font-size: 12px;
-			color: var(--text-3);
-			margin-top: 10px;
-			line-height: 1.5;
-		}
-
-		.fb-sent {
-			margin-top: 20px;
-		}
-
-		.fb-ticket {
-			padding: 16px;
-			background: var(--card);
-			border: 1px solid var(--border);
-			border-radius: var(--r-m);
-			margin-bottom: 12px;
-		}
-
-		.fb-ticket-head {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			gap: 10px;
-			margin-bottom: 10px;
-		}
-
-		.fb-badge {
-			display: inline-flex;
-			align-items: center;
-			padding: 0 10px;
-			min-height: 26px;
-			border-radius: 999px;
-			font-size: 11px;
-			font-weight: 800;
-			text-transform: uppercase;
-			letter-spacing: .06em;
-		}
-
-		.fb-badge-wish { color: var(--accent); background: var(--accent-l); }
-		.fb-badge-recipe { color: #7c5ca8; background: rgba(124, 92, 168, 0.12); }
-		.fb-badge-problem { color: #be7a00; background: rgba(190, 122, 0, 0.14); }
-
-		.fb-ticket-text {
-			font-size: 14px;
-			color: var(--text);
-			line-height: 1.6;
-			margin: 0 0 12px;
-		}
-
-		.fb-ticket-status {
-			display: inline-flex;
-			align-items: center;
-			padding: 0 10px;
-			min-height: 28px;
-			border-radius: 999px;
-			font-size: 12px;
-			font-weight: 700;
-		}
-
-		.fb-st-new { color: var(--text-3); background: var(--bg-alt); }
-		.fb-st-answered { color: #476b4c; background: #edf6ee; }
-
-		.fb-reply {
-			margin-top: 14px;
-			display: flex;
-			gap: 10px;
-			padding: 14px;
-			border-radius: var(--r-s);
-			background: var(--bg-alt);
-			border: 1px solid var(--border);
-		}
-
-		.fb-reply-mark {
-			width: 36px;
-			height: 36px;
-			flex: 0 0 auto;
-			border-radius: 50%;
-			object-fit: cover;
-			border: 2px solid var(--accent);
-		}
-
-		.fb-reply-title {
-			font-size: 12px;
-			font-weight: 800;
-			text-transform: uppercase;
-			letter-spacing: .1em;
-			color: var(--text-3);
-			margin-bottom: 6px;
-		}
-
-		.fb-reply-body p {
-			margin: 0 0 8px;
-			font-size: 14px;
-			line-height: 1.6;
-			color: var(--text);
-		}
-
-		.fb-reply-body time {
-			font-size: 11px;
-			color: var(--text-3);
-			font-weight: 600;
-		}
-
-		.fb-ticket-head time {
-			font-size: 11px;
-			color: var(--text-3);
-			font-weight: 600;
-		}
-
-		.fb-unseen-badge {
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			min-width: 18px;
-			height: 18px;
-			padding: 0 5px;
-			border-radius: 999px;
-			background: var(--accent);
-			color: #fff;
-			font-size: 11px;
-			font-weight: 800;
-			margin-left: 4px;
-			vertical-align: middle;
-		}
-
-		/* ── ПОДПИСКА ── */
+		/* ── SUBSCRIPTION STATUS CARD (editorial) ─────────────────────── */
 		.sub-status-card {
-			padding: 20px;
-			border-radius: var(--r-s);
+			padding: 24px 28px;
 			border: 1px solid var(--border);
-			background: transparent;
-			margin-bottom: 20px;
+			background: linear-gradient(180deg, #fffaf6 0%, #fff 100%);
+			margin-bottom: 28px;
 		}
-
 		.sub-badge {
-			display: inline-block;
-			padding: 4px 12px;
-			border-radius: 20px;
-			font-size: 12px;
-			font-weight: 700;
+			display: inline-flex; align-items: center; gap: 6px;
+			padding: 5px 11px 5px 9px;
+			font-size: 10px; font-weight: 800; letter-spacing: .16em;
 			text-transform: uppercase;
-			letter-spacing: .04em;
+			border-radius: 0;
 		}
-
-		.sub-badge.trial {
-			background: #fff3cd;
-			color: #856404;
+		.sub-badge::before {
+			content: ''; width: 6px; height: 6px;
+			background: currentColor; border-radius: 50%;
 		}
-
+		.sub-badge.trial { background: #fff3cd; color: #856404; }
+		.sub-badge.active { background: #eef8ee; color: #2d7a2d; border: 1px solid #90d090; }
+		.sub-badge.expired { background: #fbe3e6; color: #8a1a1a; }
 		.sub-badge.early-bird {
-			background: linear-gradient(135deg, #fff8f0, #ffe8d6);
-			color: var(--accent);
+			background: var(--accent-l); color: var(--accent);
 			border: 1px solid var(--accent);
 			margin-left: 8px;
-			font-size: 11px;
 		}
-
-		.sub-badge.active {
-			background: #d4edda;
-			color: #155724;
-		}
-
-		.sub-badge.expired {
-			background: #f8d7da;
-			color: #721c24;
-		}
-
+		.sub-badge.early-bird::before { display: none; }
 		.sub-days {
-			font-size: 22px;
-			font-weight: 800;
-			color: var(--text);
-			margin-top: 10px;
+			font-family: var(--serif); font-size: 28px; font-weight: 700;
+			letter-spacing: -.01em; color: var(--text);
+			margin-top: 14px; line-height: 1.1;
 		}
-
 		.sub-until {
-			font-size: 13px;
-			color: var(--text-3);
-			margin-top: 4px;
+			font-size: 13px; color: var(--text-2);
+			margin-top: 6px;
 		}
 
-		.pay-section {
-			margin-top: 24px;
-		}
+		/* ── PAYMENT SECTION ──────────────────────────────────────────── */
+		.pay-section { margin-top: 8px; }
 
-		/* ── Шаги ── */
 		.pay-steps {
-			display: flex;
-			gap: 4px;
-			margin-bottom: 20px;
+			display: flex; gap: 4px; margin-bottom: 24px;
+			border-bottom: 1px solid var(--border);
 		}
-
 		.pay-step {
-			flex: 1;
-			padding: 10px 8px;
-			font-size: 12px;
-			font-weight: 700;
-			color: var(--text-3);
+			flex: 1; padding: 12px 8px;
+			font-size: 11px; font-weight: 800; letter-spacing: .08em;
+			text-transform: uppercase; color: var(--text-3);
 			text-align: center;
-			border-bottom: 3px solid var(--border);
+			border-bottom: 3px solid transparent;
+			margin-bottom: -1px;
 			transition: all .2s;
 		}
-
-		.pay-step.active {
-			color: var(--accent);
-			border-color: var(--accent);
-		}
-
-		.pay-step.done {
-			color: #155724;
-			border-color: #28a745;
-		}
-
+		.pay-step.active { color: var(--accent); border-color: var(--accent); }
+		.pay-step.done { color: #2d7a2d; border-color: #2d7a2d; }
 		.pay-step-num {
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			width: 20px;
-			height: 20px;
-			border-radius: 50%;
-			background: var(--border);
-			color: var(--text-3);
-			font-size: 11px;
-			font-weight: 800;
-			margin-right: 4px;
+			display: inline-flex; align-items: center; justify-content: center;
+			width: 20px; height: 20px;
+			background: var(--border); color: var(--text-3);
+			font-size: 11px; font-weight: 800; margin-right: 6px;
 			transition: all .2s;
 		}
+		.pay-step.active .pay-step-num { background: var(--accent); color: #fff; }
+		.pay-step.done .pay-step-num { background: #2d7a2d; color: #fff; }
 
-		.pay-step.active .pay-step-num {
-			background: var(--accent);
-			color: #fff;
-		}
-
-		.pay-step.done .pay-step-num {
-			background: #28a745;
-			color: #fff;
-		}
-
-		/* ── Карточки тарифов ── */
 		.pay-plan-grid {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			gap: 10px;
+			display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
 		}
-
 		.pay-plan-card {
-			padding: 16px;
-			border-radius: 12px;
-			border: 2px solid var(--border);
-			background: var(--card);
-			cursor: pointer;
-			transition: all .18s;
-			text-align: center;
-			position: relative;
+			padding: 18px; border: 1.5px solid var(--border);
+			background: #fff; cursor: pointer; transition: all .18s;
+			text-align: center; position: relative;
 		}
-
-		.pay-plan-card:hover {
-			border-color: var(--accent);
-		}
-
+		.pay-plan-card:hover { border-color: var(--accent); }
 		.pay-plan-card.selected {
 			border-color: var(--accent);
 			background: var(--accent-l);
-			box-shadow: 0 0 0 3px rgba(232, 64, 10, .1);
+			box-shadow: inset 0 0 0 1px var(--accent);
 		}
-
 		.pay-plan-duration {
-			font-size: 15px;
-			font-weight: 800;
-			color: var(--text);
+			font-size: 11px; font-weight: 800; letter-spacing: .14em;
+			text-transform: uppercase; color: var(--text);
 		}
-
 		.pay-plan-price {
-			font-size: 22px;
-			font-weight: 800;
-			color: var(--accent);
-			margin-top: 6px;
+			font-family: var(--serif); font-size: 28px; font-weight: 700;
+			color: var(--accent); margin-top: 8px; letter-spacing: -.01em;
 		}
-
-		.pay-plan-permonth {
-			font-size: 12px;
-			color: var(--text-3);
-			margin-top: 2px;
-		}
-
+		.pay-plan-permonth { font-size: 12px; color: var(--text-3); margin-top: 2px; }
 		.pay-plan-badge {
-			position: absolute;
-			top: -10px;
-			right: -6px;
-			background: var(--accent);
-			color: #fff;
-			font-size: 10px;
-			font-weight: 800;
-			padding: 2px 8px;
-			border-radius: 6px;
-			text-transform: uppercase;
+			position: absolute; top: -10px; right: -6px;
+			background: var(--accent); color: #fff;
+			font-size: 10px; font-weight: 800; padding: 3px 8px;
+			text-transform: uppercase; letter-spacing: .08em;
+		}
+		@media (max-width: 480px) {
+			.pay-plan-grid { grid-template-columns: 1fr; }
 		}
 
-		@media (max-width: 400px) {
-			.pay-plan-grid {
-				grid-template-columns: 1fr;
-			}
-		}
-
-		/* ── Реквизиты (шаг 2) ── */
 		.pay-info-card {
-			padding: 20px;
-			border-radius: var(--r-s);
-			border: 2px solid var(--accent);
-			background: var(--accent-l);
-			line-height: 1.7;
+			padding: 22px; border: 1.5px solid var(--accent);
+			background: var(--accent-l); line-height: 1.7;
 		}
-
-		.pay-info-card strong {
-			color: var(--text);
-		}
-
 		.pay-card-row {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			gap: 12px;
-			margin: 8px 0 12px;
+			display: flex; align-items: center; justify-content: space-between;
+			gap: 12px; margin: 8px 0 12px; flex-wrap: wrap;
 		}
-
 		.pay-info-card .pay-card-number {
-			font-size: 20px;
-			font-weight: 800;
-			letter-spacing: 2px;
-			color: var(--text);
-			user-select: all;
+			font-family: var(--serif); font-size: 20px; font-weight: 700;
+			letter-spacing: 2px; color: var(--text); user-select: all;
 		}
-
 		.pay-copy-btn {
-			padding: 8px 16px;
-			border-radius: 8px;
-			border: 1.5px solid var(--accent);
-			background: #fff;
-			font-size: 13px;
-			font-weight: 700;
-			color: var(--accent);
-			cursor: pointer;
-			transition: all .18s;
-			white-space: nowrap;
+			padding: 8px 14px; border: 1.5px solid var(--accent);
+			background: #fff; font-size: 11px; font-weight: 800;
+			color: var(--accent); cursor: pointer; transition: all .18s;
+			white-space: nowrap; letter-spacing: .08em; text-transform: uppercase;
 		}
-
-		.pay-copy-btn:hover {
-			background: var(--accent);
-			color: #fff;
-		}
-
+		.pay-copy-btn:hover { background: var(--accent); color: #fff; }
 		.pay-card-details {
-			font-size: 14px;
-			display: flex;
-			flex-direction: column;
-			gap: 2px;
+			font-size: 14px; display: flex; flex-direction: column; gap: 2px;
 		}
-
 		.pay-transfer-summary {
-			margin-top: 14px;
-			padding-top: 14px;
-			border-top: 1px solid rgba(232, 64, 10, .15);
-			font-size: 15px;
-			font-weight: 600;
-			color: var(--text);
+			margin-top: 14px; padding-top: 14px;
+			border-top: 1px solid rgba(232,64,10,.18);
+			font-size: 15px; font-weight: 600; color: var(--text);
 		}
-
-		.pay-transfer-summary strong {
-			font-size: 18px;
-			color: var(--accent);
-		}
+		.pay-transfer-summary strong { font-size: 20px; color: var(--accent); font-family: var(--serif); }
 
 		.eb-pulse {
-			font-size: 15px;
-			font-weight: 800;
-			color: var(--accent);
-			display: inline-block;
+			font-family: var(--serif); font-size: 17px; font-weight: 700;
+			color: var(--accent); display: inline-block;
 			animation: ebPulse 2s ease-in-out infinite;
 		}
-
 		@keyframes ebPulse {
-
-			0%,
-			100% {
-				opacity: 1;
-				transform: scale(1);
-			}
-
-			50% {
-				opacity: .7;
-				transform: scale(1.12);
-			}
+			0%, 100% { opacity: 1; transform: scale(1); }
+			50% { opacity: .7; transform: scale(1.12); }
 		}
 
-		.pay-form {
-			display: flex;
-			flex-direction: column;
-			gap: 12px;
-		}
-
+		.pay-form { display: flex; flex-direction: column; gap: 14px; }
 		.pay-field label {
-			display: block;
-			font-size: 13px;
-			font-weight: 700;
-			color: var(--text);
-			margin-bottom: 4px;
+			display: block; font-size: 11px; font-weight: 800;
+			color: var(--text); letter-spacing: .12em; text-transform: uppercase;
+			margin-bottom: 6px;
 		}
-
 		.pay-field input,
 		.pay-field textarea {
-			width: 100%;
-			padding: 12px 14px;
-			border: 1.5px solid var(--border);
-			border-radius: 10px;
-			font-family: inherit;
-			font-size: 14px;
-			color: var(--text);
-			background: var(--card);
-			outline: none;
-			transition: border-color .2s;
+			width: 100%; padding: 12px 14px;
+			border: 1.5px solid var(--border); border-radius: 0;
+			font-family: inherit; font-size: 14px; color: var(--text);
+			background: #fff; outline: none; transition: border-color .2s;
 			box-sizing: border-box;
 		}
-
 		.pay-field input:focus,
-		.pay-field textarea:focus {
-			border-color: var(--accent);
-		}
+		.pay-field textarea:focus { border-color: var(--accent); }
+		.pay-field textarea { min-height: 70px; resize: vertical; }
 
-		.pay-field textarea {
-			min-height: 60px;
-			resize: vertical;
-		}
-
-		/* ── Success card ── */
 		.pay-success-card {
-			text-align: center;
-			padding: 32px 20px;
-			border-radius: var(--r-s);
-			border: 2px solid #28a745;
-			background: #f0faf3;
+			text-align: center; padding: 36px 22px;
+			border: 1.5px solid #2d7a2d; background: #eef8ee;
 		}
-
 		.pay-success-icon {
-			width: 48px;
-			height: 48px;
-			margin: 0 auto 12px;
-			background: #28a745;
-			color: #fff;
-			border-radius: 50%;
-			font-size: 24px;
-			line-height: 48px;
-			font-weight: 800;
+			width: 48px; height: 48px; margin: 0 auto 14px;
+			background: #2d7a2d; color: #fff;
+			border-radius: 50%; font-size: 24px; line-height: 48px; font-weight: 800;
 		}
-
 		.pay-success-title {
-			font-size: 17px;
-			font-weight: 800;
-			color: #155724;
-			margin-bottom: 8px;
+			font-family: var(--serif); font-size: 22px; font-weight: 700;
+			color: #2d7a2d; margin-bottom: 8px; letter-spacing: -.01em;
 		}
+		.pay-success-text { font-size: 14px; color: var(--text-2); line-height: 1.5; }
 
-		.pay-success-text {
-			font-size: 14px;
-			color: var(--text-2);
-			line-height: 1.5;
-		}
-
-		/* ── История платежей ── */
-		.pay-history {
-			margin-top: 28px;
-		}
-
+		/* History of payments (editorial table-rows) */
+		.pay-history { margin-top: 36px; }
 		.pay-hist-item {
-			display: flex;
-			justify-content: space-between;
-			align-items: flex-start;
-			padding: 12px 14px;
-			border: 1px solid var(--border);
-			border-radius: var(--r-s);
-			margin-bottom: 8px;
-			background: var(--card);
+			display: flex; flex-wrap: wrap; gap: 12px 24px;
+			justify-content: space-between; align-items: flex-start;
+			padding: 18px 4px; border-bottom: 1px solid var(--border);
+			background: transparent; border-radius: 0;
 		}
-
-		.pay-hist-item.rejected {
-			border-color: #f5c6cb;
-		}
-
+		.pay-hist-item:first-of-type { border-top: 1px solid var(--border); }
+		.pay-hist-item.rejected { border-color: #f5c6cb; }
 		.pay-hist-status {
-			font-size: 12px;
-			font-weight: 700;
-			padding: 3px 10px;
-			border-radius: 12px;
-			white-space: nowrap;
-			flex-shrink: 0;
+			font-size: 10px; font-weight: 800; letter-spacing: .14em;
+			padding: 5px 11px 5px 9px; text-transform: uppercase;
+			white-space: nowrap; flex-shrink: 0;
+			display: inline-flex; align-items: center; gap: 6px;
 		}
-
-		.pay-hist-status.pending {
-			background: #fff3cd;
-			color: #856404;
+		.pay-hist-status::before {
+			content: ''; width: 6px; height: 6px;
+			background: currentColor; border-radius: 50%;
 		}
-
-		.pay-hist-status.confirmed {
-			background: #d4edda;
-			color: #155724;
-		}
-
-		.pay-hist-status.rejected {
-			background: #f8d7da;
-			color: #721c24;
-		}
-
+		.pay-hist-status.pending { background: #fff3cd; color: #856404; }
+		.pay-hist-status.confirmed { background: #eef8ee; color: #2d7a2d; border: 1px solid #90d090; }
+		.pay-hist-status.rejected { background: #fbe3e6; color: #8a1a1a; }
 		.pay-hist-reject-reason {
-			margin-top: 6px;
-			padding: 8px 10px;
-			background: #fff5f5;
-			border-left: 3px solid #dc3545;
-			border-radius: 4px;
-			font-size: 13px;
-			color: #721c24;
-			line-height: 1.4;
+			margin-top: 8px; padding: 10px 12px;
+			background: #fff5f5; border-left: 3px solid #dc3545;
+			font-size: 13px; color: #721c24; line-height: 1.5;
+			flex-basis: 100%;
 		}
 
-		/* ── BOOKMARK BUTTON on cards ── */
+		/* Early bird card */
+		#early-bird-card {
+			padding: 22px;
+			border: 1.5px solid var(--accent);
+			background: linear-gradient(135deg, #fff8f5, #fff2ed);
+			margin-bottom: 24px; position: relative; overflow: hidden;
+		}
+
+		/* ── HISTORY PANE ─────────────────────────────────────────────── */
+		.hist-empty,
+		.fav-empty {
+			text-align: center; padding: 60px 20px;
+			color: var(--text-3); font-size: 14px;
+		}
+		.hist-empty-mark {
+			font-size: 10px; font-weight: 800; letter-spacing: .2em;
+			text-transform: uppercase; color: var(--accent); margin-bottom: 14px;
+		}
+		.hist-entry {
+			border: 1px solid var(--border);
+			margin-bottom: 12px; overflow: hidden;
+		}
+		.hist-entry-head {
+			display: flex; align-items: center; justify-content: space-between;
+			padding: 14px 18px; background: #faf8f5; cursor: pointer; user-select: none;
+		}
+		.hist-date {
+			font-size: 11px; font-weight: 800; letter-spacing: .14em;
+			text-transform: uppercase; color: var(--text);
+		}
+		.hist-macros { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+		.hist-arrow { font-size: 14px; color: var(--text-3); transition: transform .2s; }
+		.hist-entry.open .hist-arrow { transform: rotate(180deg); }
+		.hist-items { display: none; padding: 12px 18px 16px; }
+		.hist-entry.open .hist-items { display: block; }
+		.hist-item {
+			display: flex; align-items: center; gap: 10px;
+			padding: 8px 0; border-bottom: 1px solid var(--border);
+		}
+		.hist-item:last-child { border-bottom: none; }
+		.hist-item-emoji { font-size: 18px; flex-shrink: 0; }
+		.hist-item-name { font-size: 13px; color: var(--text); flex: 1; }
+		.hist-item-kcal { font-size: 12px; color: var(--text-3); flex-shrink: 0; }
+
+		/* ── FAVORITES ─────────────────────────────────────────────────── */
+		.fav-empty { grid-column: 1 / -1; }
+
 		.card-fav-btn {
-			position: absolute;
-			top: 8px;
-			right: 8px;
-			width: 28px;
-			height: 28px;
-			border-radius: 50%;
-			background: rgba(255, 255, 255, .88);
-			border: none;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			cursor: pointer;
-			z-index: 2;
-			padding: 0;
+			position: absolute; top: 8px; right: 8px;
+			width: 28px; height: 28px;
+			background: rgba(255,255,255,.92); border: none;
+			display: flex; align-items: center; justify-content: center;
+			cursor: pointer; z-index: 2; padding: 0;
 			-webkit-tap-highlight-color: transparent;
 		}
+		.card-fav-btn svg { width: 16px; height: 16px; }
+		.card-fav-btn.active svg { fill: var(--accent); stroke: var(--accent); }
+		.card-fav-btn:not(.active) svg { fill: none; stroke: #888; stroke-width: 2; }
 
-		.card-fav-btn svg {
-			width: 16px;
-			height: 16px;
+		/* ── NOTES ─────────────────────────────────────────────────────── */
+		.notes-wrap { display: flex; flex-direction: column; gap: 14px; }
+		.notes-textarea {
+			width: 100%; min-height: 180px; padding: 16px;
+			font-family: var(--sans); font-size: 14px; color: var(--text);
+			background: #fff; border: 1.5px solid var(--border); border-radius: 0;
+			resize: vertical; line-height: 1.6; box-sizing: border-box;
+			outline: none; transition: border-color .2s;
+		}
+		.notes-textarea:focus { border-color: var(--accent); }
+		.notes-saved { font-size: 11px; color: var(--text-3); height: 16px; letter-spacing: .04em; }
+
+		/* ── FEEDBACK ──────────────────────────────────────────────────── */
+		.fb-cats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+		.fb-cat {
+			padding: 10px 18px; border: 1.5px solid var(--border);
+			background: #fff; font-size: 12px; font-weight: 700;
+			color: var(--text-2); cursor: pointer; transition: all .18s;
+			border-radius: 0; letter-spacing: .04em;
+		}
+		.fb-cat.active {
+			border-color: var(--accent); background: var(--accent-l); color: var(--accent);
+		}
+		.fb-textarea {
+			width: 100%; min-height: 130px; padding: 16px;
+			font-family: var(--sans); font-size: 14px; color: var(--text);
+			background: #fff; border: 1.5px solid var(--border); border-radius: 0;
+			resize: vertical; line-height: 1.6; box-sizing: border-box;
+			outline: none; transition: border-color .2s;
+		}
+		.fb-textarea:focus { border-color: var(--accent); }
+		.fb-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+		.fb-hint {
+			font-size: 12px; color: var(--text-3);
+			margin-top: 12px; line-height: 1.5;
+		}
+		.fb-sent { margin-top: 24px; }
+		.fb-ticket {
+			padding: 18px; background: #fff; border: 1px solid var(--border);
+			margin-bottom: 12px;
+		}
+		.fb-ticket-head {
+			display: flex; align-items: center; justify-content: space-between;
+			gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
+		}
+		.fb-badge {
+			display: inline-flex; align-items: center;
+			padding: 5px 11px;
+			font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em;
+		}
+		.fb-badge-wish { color: var(--accent); background: var(--accent-l); }
+		.fb-badge-recipe { color: #7c5ca8; background: rgba(124,92,168,.12); }
+		.fb-badge-problem { color: #be7a00; background: rgba(190,122,0,.14); }
+		.fb-ticket-text {
+			font-size: 14px; color: var(--text); line-height: 1.6;
+			margin: 0 0 12px;
+		}
+		.fb-ticket-status {
+			display: inline-flex; align-items: center;
+			padding: 5px 11px;
+			font-size: 11px; font-weight: 700; letter-spacing: .06em;
+		}
+		.fb-st-new { color: var(--text-3); background: #faf8f5; }
+		.fb-st-answered { color: #476b4c; background: #edf6ee; }
+		.fb-reply {
+			margin-top: 14px; display: flex; gap: 12px;
+			padding: 16px; background: #faf8f5; border: 1px solid var(--border);
+		}
+		.fb-reply-mark {
+			width: 36px; height: 36px; flex: 0 0 auto;
+			border-radius: 50%; object-fit: cover;
+			border: 2px solid var(--accent);
+		}
+		.fb-reply-title {
+			font-size: 11px; font-weight: 800; text-transform: uppercase;
+			letter-spacing: .12em; color: var(--text-3); margin-bottom: 6px;
+		}
+		.fb-reply-body p {
+			margin: 0 0 8px; font-size: 14px; line-height: 1.6; color: var(--text);
+		}
+		.fb-reply-body time { font-size: 11px; color: var(--text-3); font-weight: 600; }
+		.fb-ticket-head time { font-size: 11px; color: var(--text-3); font-weight: 600; }
+		.fb-unseen-badge {
+			display: inline-flex; align-items: center; justify-content: center;
+			min-width: 18px; height: 18px; padding: 0 5px;
+			background: var(--accent); color: #fff;
+			font-size: 10px; font-weight: 800;
+			margin-left: 4px; vertical-align: middle;
 		}
 
-		.card-fav-btn.active svg {
-			fill: var(--accent);
-			stroke: var(--accent);
+		/* ── SUPPORT NOTE ─────────────────────────────────────────────── */
+		.cab-support-note {
+			margin-top: 32px; padding: 18px 22px;
+			background: #faf8f5; border-left: 3px solid var(--accent);
+			display: flex; align-items: center; justify-content: space-between;
+			gap: 20px; flex-wrap: wrap;
+		}
+		.cab-support-note-text {
+			font-size: 13px; color: var(--text-2); line-height: 1.5;
+		}
+		.cab-support-note-text b { color: var(--text); font-weight: 700; }
+		.cab-support-note a {
+			color: var(--accent); font-weight: 700;
+			text-decoration: underline; text-underline-offset: 3px;
 		}
 
-		.card-fav-btn:not(.active) svg {
-			fill: none;
-			stroke: #888;
-			stroke-width: 2;
+		/* ── SETTINGS RAIL (bottom) ───────────────────────────────────── */
+		.cab-settings-rail {
+			margin-top: 40px; background: #fff;
+			border-top: 2px solid var(--text);
+			border-bottom: 1px solid var(--border);
+		}
+		.cab-settings-rail-inner { padding: 24px 0; }
+		.cab-settings-head {
+			font-size: 10px; font-weight: 800; letter-spacing: .2em;
+			text-transform: uppercase; color: var(--text-3); margin-bottom: 14px;
+		}
+		.cab-setting-row {
+			display: flex; align-items: center; justify-content: space-between;
+			padding: 18px 0; border-top: 1px solid var(--border); gap: 24px;
+		}
+		.cab-setting-info { min-width: 0; }
+		.cab-setting-title {
+			font-family: var(--serif); font-size: 18px; font-weight: 700;
+			margin: 0 0 4px; letter-spacing: -.005em; color: var(--text);
+		}
+		.cab-setting-desc {
+			font-size: 13px; color: var(--text-2);
+			line-height: 1.5; margin: 0;
+		}
+
+		/* Editorial toggle (square, без скруглений) */
+		.cab-newsletter-toggle {
+			position: relative; display: inline-block;
+			width: 56px; height: 28px; cursor: pointer; flex-shrink: 0;
+		}
+		.cab-newsletter-toggle input {
+			position: absolute; opacity: 0; inset: 0;
+			width: 100%; height: 100%; cursor: pointer; margin: 0;
+		}
+		.cab-toggle-bg {
+			position: absolute; inset: 0;
+			background: #ccc; transition: background .2s;
+			border: 1.5px solid #999;
+		}
+		.cab-toggle-thumb {
+			position: absolute; top: 2px; left: 2px;
+			width: 22px; height: 22px; background: #fff;
+			transition: transform .2s;
+		}
+
+		.cab-logout-row {
+			display: flex; justify-content: flex-end;
+			padding: 22px 0 8px;
+			border-top: 1px dashed var(--border); margin-top: 14px;
+		}
+		.cab-logout-btn {
+			background: transparent; border: none;
+			font-family: var(--sans); font-size: 12px; font-weight: 800;
+			letter-spacing: .16em; text-transform: uppercase; color: var(--text-3);
+			cursor: pointer; padding: 6px 8px;
+		}
+		.cab-logout-btn:hover { color: var(--accent); }
+
+		.cab-privacy-link {
+			text-align: center; padding: 22px 0 8px;
+			font-size: 12px; color: var(--text-3);
+		}
+		.cab-privacy-link a {
+			color: var(--text-2); text-decoration: underline; text-underline-offset: 3px;
+		}
+		.cab-privacy-link a:hover { color: var(--accent); }
+
+		/* ── RESPONSIVE ────────────────────────────────────────────────── */
+		@media (max-width: 760px) {
+			.cab-hero {
+				padding: 26px 22px;
+				grid-template-columns: 1fr;
+				gap: 20px;
+			}
+			.cab-hero-ava { width: 96px; height: 96px; }
+			.cab-hero-ava .cab-ava { font-size: 40px; }
+			.cab-kpi { padding: 18px 20px; }
+			.cab-kpi-val,
+			.cab-weight-input { font-size: 36px; }
+			.cab-weight-input { width: 96px; }
+			.cab-tab-panel { padding: 24px 18px; }
+			.cab-tab { padding: 16px 14px; font-size: 10.5px; letter-spacing: .12em; }
+			.cab-sec-title { font-size: 22px; }
+			.cab-sec-title-row { flex-wrap: wrap; gap: 6px 12px; }
+		}
+		@media (max-width: 480px) {
+			.cab-hero { padding: 22px 18px; }
+			.cab-name { font-size: 32px; }
+			.cab-tab { padding: 14px 12px; font-size: 10px; letter-spacing: .1em; }
+			.cab-tab-panel { padding: 22px 16px; }
 		}
 	</style>
 </head>
 
 <body class="v-page">
 
-	<!-- HEADER (shared SmartPlate header — see platform/index.html, recipe.html, category.html) -->
+	<!-- HEADER (shared SmartPlate header — общий, как на index.html / recipe.html / category.html) -->
 	<header class="sp-header" id="hdr">
 		<div class="v-wrap">
 			<div class="sp-header-inner">
@@ -1038,88 +718,117 @@
 
 	<input type="file" id="ava-upload" accept="image/*" style="display:none" onchange="handleAvatarUpload(this)">
 
-	<main style="flex:1; padding-bottom: 80px;">
+	<main class="cab-main">
+		<div class="v-wrap">
+			<div class="cab-breadcrumb">Главная · <b>Личный кабинет</b></div>
+		</div>
+
+		<!-- HERO -->
+		<div class="v-wrap">
+			<section class="cab-hero anim">
+				<div class="cab-hero-ava" onclick="document.getElementById('ava-upload').click()">
+					<div class="cab-ava" id="cab-ava">?</div>
+					<button class="cab-hero-ava-edit" type="button" aria-label="Изменить аватар">
+						<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83z"/></svg>
+					</button>
+				</div>
+				<div class="cab-hero-info">
+					<div class="cab-hero-eyebrow">Личный кабинет</div>
+					<div class="cab-hero-name-row">
+						<h1 class="cab-name" id="cab-name">—</h1>
+						<button id="name-edit-btn" class="cab-hero-name-edit" type="button" onclick="startEditName()" style="display:none" title="Изменить имя" aria-label="Изменить имя">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg>
+						</button>
+					</div>
+					<div class="cab-hero-meta">
+						<span class="cab-email" id="cab-email"></span>
+						<span class="cab-hero-meta-sep">·</span>
+						<span class="cab-since" id="cab-since"></span>
+					</div>
+					<div class="cab-name-edit-row" id="name-edit-row" style="display:none">
+						<input type="text" id="cab-custom-name" placeholder="Как вас зовут?" maxlength="30" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)';finishEditName()" onkeydown="if(event.key==='Enter'){this.blur()}">
+						<span class="cab-name-saved" id="name-saved-msg">Сохранено</span>
+					</div>
+
+					<div class="cab-kpi-strip">
+						<div class="cab-kpi">
+							<span class="cab-kpi-label">Мой вес</span>
+							<div class="cab-kpi-row">
+								<input type="number" class="cab-weight-input" id="cab-weight" placeholder="—" min="30" max="999" step="0.5" maxlength="3" oninput="if(this.value.length>3)this.value=this.value.slice(0,3);saveWeight(this.value)" onchange="saveWeight(this.value)">
+								<span class="cab-kpi-unit">кг</span>
+							</div>
+							<span class="cab-kpi-hint">Введите вес — рассчитаем норму воды</span>
+						</div>
+
+						<div class="cab-kpi" id="water-norm" style="display:none">
+							<span class="cab-kpi-label">Норма воды сегодня</span>
+							<div class="cab-kpi-row">
+								<span class="cab-kpi-val" id="water-val"></span>
+							</div>
+							<span class="cab-kpi-hint" id="water-glasses-badge"></span>
+						</div>
+
+						<div class="cab-kpi">
+							<span class="cab-kpi-label">Собрано тарелок</span>
+							<div class="cab-kpi-row">
+								<span class="cab-kpi-val" id="cab-plates-count">0</span>
+							</div>
+							<span class="cab-kpi-hint">Сохранённые тарелки</span>
+						</div>
+
+						<div class="cab-kpi">
+							<span class="cab-kpi-label">В избранном</span>
+							<div class="cab-kpi-row">
+								<span class="cab-kpi-val" id="cab-favorites-count">0</span>
+							</div>
+							<span class="cab-kpi-hint">Рецептов отмечено ♡</span>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+
+		<!-- TABS -->
+		<div class="v-wrap">
+			<nav class="cab-tabs" aria-label="Разделы кабинета">
+				<button class="cab-tab active" type="button" onclick="switchTab('subscription',this)">Подписка</button>
+				<button class="cab-tab" type="button" onclick="switchTab('history',this)">История</button>
+				<button class="cab-tab" type="button" onclick="switchTab('favorites',this)">Избранные</button>
+				<button class="cab-tab" type="button" onclick="switchTab('notes',this)">Заметки</button>
+				<button class="cab-tab" type="button" onclick="switchTab('feedback',this)">Связь <span class="fb-unseen-badge" id="fb-unseen-badge" style="display:none">0</span></button>
+			</nav>
+		</div>
+
+		<!-- PANES -->
 		<div class="v-wrap">
 
-			<!-- Profile -->
-			<div class="cab-profile anim">
-				<div class="cab-profile-head">
-					<div class="cab-ava-wrap" onclick="document.getElementById('ava-upload').click()">
-						<div class="cab-ava" id="cab-ava">?</div>
-						<div class="cab-ava-badge">
-							<svg viewBox="0 0 24 24">
-								<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83z" />
-							</svg>
-						</div>
-					</div>
-					<div>
-						<div style="display:flex;align-items:center;gap:6px">
-							<div class="cab-name" id="cab-name">—</div>
-							<button id="name-edit-btn" onclick="startEditName()" style="background:none;border:none;cursor:pointer;padding:2px;opacity:.5;transition:opacity .2s;display:none" title="Изменить имя">
-								<svg width="14" height="14" viewBox="0 0 24 24" fill="var(--text-3)">
-									<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83z" />
-								</svg>
-							</button>
-						</div>
-						<div class="cab-email" id="cab-email"></div>
-						<div class="cab-name-row" id="name-edit-row" style="margin-top:8px;display:none;align-items:center;gap:8px">
-							<input type="text" id="cab-custom-name" placeholder="Как вас зовут?" maxlength="30" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);width:180px;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)';finishEditName()" onkeydown="if(event.key==='Enter'){this.blur()}">
-							<span id="name-saved-msg" style="font-size:11px;color:var(--accent);opacity:0;transition:opacity .3s">Сохранено</span>
-						</div>
-						<div class="cab-since" id="cab-since"></div>
-					</div>
-				</div>
-
-				<div class="cab-summary">
-					<div class="cab-metric">
-						<div class="cab-metric-label">Мой вес</div>
-						<div class="cab-metric-value">
-							<input type="number" class="cab-weight-input" id="cab-weight" placeholder="—" min="30" max="999" step="0.5" maxlength="3" oninput="if(this.value.length>3)this.value=this.value.slice(0,3);saveWeight(this.value)" onchange="saveWeight(this.value)">
-							<span class="cab-weight-unit">кг</span>
-						</div>
-					</div>
-
-					<div class="cab-metric" id="water-norm" style="display:none">
-						<div class="cab-metric-label">Ваша норма воды сегодня</div>
-						<div class="cab-metric-value">
-							<strong style="font-size:clamp(36px,8vw,52px);line-height:0.9;letter-spacing:-0.04em" id="water-val"></strong>
-						</div>
-						<div style="font-size:12px;color:#7b685d;margin-top:8px" id="water-glasses-badge"></div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Tabs -->
-			<div class="cab-tabs">
-				<button class="cab-tab active" onclick="switchTab('subscription',this)">Подписка</button>
-				<button class="cab-tab" onclick="switchTab('history',this)">История</button>
-				<button class="cab-tab" onclick="switchTab('favorites',this)">Избранные</button>
-				<button class="cab-tab" onclick="switchTab('notes',this)">Заметки</button>
-				<button class="cab-tab" onclick="switchTab('feedback',this)">Связь <span class="fb-unseen-badge" id="fb-unseen-badge" style="display:none">0</span></button>
-			</div>
-
 			<!-- Подписка -->
-			<div class="cab-tab-panel active" id="panel-subscription">
+			<section class="cab-tab-panel active" id="panel-subscription">
+				<div class="cab-sec-title-row">
+					<h2 class="cab-sec-title">Подписка</h2>
+					<span class="cab-sec-title-meta">Статус и&nbsp;доступ</span>
+				</div>
+
 				<div id="sub-status-wrap"></div>
 
 				<!-- Early bird -->
-				<div id="early-bird-card" style="display:none;padding:20px;border-radius:var(--r-s);border:2px solid var(--accent);background:linear-gradient(135deg,#fff8f5,#fff2ed);margin-bottom:20px;position:relative;overflow:hidden">
+				<div id="early-bird-card" style="display:none">
 					<div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(232,64,10,.06);border-radius:50%"></div>
-					<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:8px">Специальная цена на старте</div>
-					<div style="font-size:28px;font-weight:800;color:var(--text)">100 ₽ <span style="font-size:15px;font-weight:600;color:var(--text-3)">/ месяц</span></div>
+					<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);margin-bottom:8px">Специальная цена на старте</div>
+					<div style="font-family:var(--serif);font-size:32px;font-weight:700;color:var(--text);letter-spacing:-.01em">100&nbsp;₽ <span style="font-size:15px;font-weight:600;color:var(--text-3);font-family:var(--sans)">/ месяц</span></div>
 					<div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px">Навсегда для первых 50 участников</div>
 					<div style="font-size:13px;color:var(--text-2);line-height:1.6;margin-top:10px">Спасибо тем, кто присоединяется в начале пути.<br>Для вас действует особая стоимость доступа.</div>
-					<div style="margin-top:12px;display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(232,64,10,.08);border-radius:8px">
+					<div style="margin-top:12px;display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(232,64,10,.08)">
 						<span class="eb-pulse" id="early-bird-remaining">—</span>
 						<span style="font-size:12px;color:var(--text-2)">свободных мест</span>
 					</div>
 				</div>
 
 				<div class="pay-section">
-					<button class="btn btn-orange" id="pay-toggle-btn" onclick="togglePaySection()" style="width:100%;padding:14px;font-size:15px;font-weight:700;border-radius:12px">
+					<button class="btn btn-orange" id="pay-toggle-btn" onclick="togglePaySection()" type="button" style="width:100%;padding:16px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;border-radius:0">
 						Оформить подписку
 					</button>
-					<div id="pay-details" style="display:none;margin-top:20px">
+					<div id="pay-details" style="display:none;margin-top:24px">
 
 						<!-- Шаги -->
 						<div class="pay-steps">
@@ -1131,19 +840,19 @@
 						<!-- Шаг 1: Выбор тарифа -->
 						<div class="pay-wizard-step" id="pay-step-1">
 							<div class="pay-plan-grid" id="pay-plan-grid"></div>
-							<button class="btn btn-orange pay-next-btn" id="pay-next-1" onclick="goPayStep(2)" disabled style="margin-top:16px;width:100%;padding:14px">Далее</button>
+							<button class="btn btn-orange pay-next-btn" id="pay-next-1" onclick="goPayStep(2)" type="button" disabled style="margin-top:18px;width:100%;padding:14px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;border-radius:0">Далее</button>
 						</div>
 
 						<!-- Шаг 2: Реквизиты -->
 						<div class="pay-wizard-step" id="pay-step-2" style="display:none">
 							<div class="pay-info-card">
-								<div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:10px">Реквизиты для перевода</div>
+								<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);margin-bottom:12px">Реквизиты для перевода</div>
 								<div class="pay-card-row">
 									<div>
-										<div style="font-size:12px;color:var(--text-3);margin-bottom:2px">Номер карты</div>
+										<div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Номер карты</div>
 										<div class="pay-card-number" id="pay-card-num">5536 9140 1940 4148</div>
 									</div>
-									<button class="pay-copy-btn" onclick="copyCard()" id="pay-copy-btn">Скопировать</button>
+									<button class="pay-copy-btn" onclick="copyCard()" type="button" id="pay-copy-btn">Скопировать</button>
 								</div>
 								<div class="pay-card-details">
 									<div><span style="color:var(--text-3)">Получатель:</span> <strong>Воронова Юлия Игоревна</strong></div>
@@ -1153,9 +862,9 @@
 									Сумма к переводу: <strong id="pay-transfer-amount">—</strong>
 								</div>
 							</div>
-							<div style="display:flex;gap:8px;margin-top:16px">
-								<button class="btn btn-ghost" onclick="goPayStep(1)" style="flex:1;padding:14px">Назад</button>
-								<button class="btn btn-orange" onclick="goPayStep(3)" style="flex:2;padding:14px">Я перевёл, далее</button>
+							<div style="display:flex;gap:8px;margin-top:18px">
+								<button class="btn btn-ghost" onclick="goPayStep(1)" type="button" style="flex:1;padding:14px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0">Назад</button>
+								<button class="btn btn-orange" onclick="goPayStep(3)" type="button" style="flex:2;padding:14px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0">Я перевёл, далее</button>
 							</div>
 						</div>
 
@@ -1168,31 +877,31 @@
 									<input type="datetime-local" id="pay-date">
 								</div>
 								<div class="pay-field">
-									<label style="font-size:13px;color:var(--text-2)">Отправитель</label>
+									<label>Отправитель</label>
 									<div id="pay-sender-display" style="font-size:14px;font-weight:600;color:var(--text);margin-top:2px"></div>
 								</div>
 								<div class="pay-field">
-									<label for="pay-screenshot">Скриншот перевода <span style="font-weight:400;color:var(--text-3)">(необязательно)</span></label>
-									<label id="pay-screenshot-label" style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px dashed var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text-2);transition:border-color .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+									<label for="pay-screenshot">Скриншот перевода <span style="font-weight:400;color:var(--text-3);text-transform:none;letter-spacing:0">(необязательно)</span></label>
+									<label id="pay-screenshot-label" style="display:flex;align-items:center;gap:8px;padding:12px 16px;border:1.5px dashed var(--border);cursor:pointer;font-size:13px;color:var(--text-2);transition:border-color .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
 										<span style="font-size:20px">📎</span>
 										<span id="pay-screenshot-name">Прикрепить изображение</span>
 										<input type="file" id="pay-screenshot" accept="image/*" style="display:none" onchange="previewScreenshot(this)">
 									</label>
-									<div id="pay-screenshot-preview" style="display:none;margin-top:8px;position:relative">
-										<img id="pay-screenshot-img" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border)">
-										<button onclick="clearScreenshot()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;line-height:24px">✕</button>
+									<div id="pay-screenshot-preview" style="display:none;margin-top:10px;position:relative">
+										<img id="pay-screenshot-img" style="max-width:100%;max-height:200px;border:1px solid var(--border)">
+										<button onclick="clearScreenshot()" type="button" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;line-height:24px">✕</button>
 									</div>
 								</div>
 								<div class="pay-field">
-									<label for="pay-comment">Комментарий <span style="font-weight:400;color:var(--text-3)">(необязательно)</span></label>
+									<label for="pay-comment">Комментарий <span style="font-weight:400;color:var(--text-3);text-transform:none;letter-spacing:0">(необязательно)</span></label>
 									<div style="font-size:12px;color:var(--text-3);margin-bottom:4px">Укажите, если перевод был с другой карты или от другого человека</div>
 									<textarea id="pay-comment" placeholder="Например: перевод от мужа, карта на фамилию Иванов"></textarea>
 								</div>
 								<div id="pay-error" style="color:#c0392b;font-size:13px;display:none"></div>
 								<div id="pay-wizard-legal" style="font-size:12px;color:var(--text-3);line-height:1.5;margin-bottom:10px"></div>
 								<div style="display:flex;gap:8px">
-									<button class="btn btn-ghost" onclick="goPayStep(2)" style="flex:1;padding:14px">Назад</button>
-									<button class="btn btn-orange" id="pay-submit-btn" onclick="submitPayment()" style="flex:2;padding:14px">Отправить на проверку</button>
+									<button class="btn btn-ghost" onclick="goPayStep(2)" type="button" style="flex:1;padding:14px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0">Назад</button>
+									<button class="btn btn-orange" id="pay-submit-btn" onclick="submitPayment()" type="button" style="flex:2;padding:14px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0">Отправить на проверку</button>
 								</div>
 							</div>
 						</div>
@@ -1200,75 +909,98 @@
 						<!-- Success state -->
 						<div id="pay-success" class="pay-success-card" style="display:none">
 							<div class="pay-success-icon">&#10003;</div>
-							<div class="pay-success-title">Платёж отправлен на проверку</div>
-							<div class="pay-success-text">Обычно подтверждаем в течение 30 минут.</div>
-							<div class="pay-success-text">Статус появится в истории платежей ниже.</div>
-							<button class="btn btn-ghost" onclick="resetPayWizard()" style="margin-top:16px;padding:10px 24px">Готово</button>
+							<div class="pay-success-title">Платёж отправлен на&nbsp;проверку</div>
+							<div class="pay-success-text">Обычно подтверждаем в&nbsp;течение 30&nbsp;минут.</div>
+							<div class="pay-success-text">Статус появится в&nbsp;истории платежей ниже.</div>
+							<button class="btn btn-ghost" onclick="resetPayWizard()" type="button" style="margin-top:18px;padding:12px 26px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0">Готово</button>
 						</div>
 
 					</div><!-- /pay-details -->
 				</div>
 
 				<div class="pay-history" id="pay-history"></div>
-			</div>
+			</section>
 
 			<!-- История тарелок -->
-			<div class="cab-tab-panel" id="panel-history">
+			<section class="cab-tab-panel" id="panel-history">
+				<div class="cab-sec-title-row">
+					<h2 class="cab-sec-title">История тарелок</h2>
+					<span class="cab-sec-title-meta">Архив ваших блюд</span>
+				</div>
 				<div id="history-body"></div>
-			</div>
+			</section>
 
 			<!-- Избранные -->
-			<div class="cab-tab-panel" id="panel-favorites">
+			<section class="cab-tab-panel" id="panel-favorites">
+				<div class="cab-sec-title-row">
+					<h2 class="cab-sec-title">Избранные рецепты</h2>
+					<span class="cab-sec-title-meta">Сохранённые блюда</span>
+				</div>
 				<div class="recipe-card-grid" id="fav-grid"></div>
-			</div>
+			</section>
 
 			<!-- Заметки -->
-			<div class="cab-tab-panel" id="panel-notes">
-				<div class="notes-wrap">
-					<div class="v-sec-title" style="margin-bottom:14px">Новая заметка</div>
-					<textarea class="notes-textarea" id="notes-ta" placeholder="Идеи рецептов, цели, наблюдения о питании…"></textarea>
-					<button class="btn btn-green" style="margin-top:10px;align-self:flex-start" onclick="addNote()">Сохранить</button>
-					<div id="notes-list" style="margin-top:28px"></div>
+			<section class="cab-tab-panel" id="panel-notes">
+				<div class="cab-sec-title-row">
+					<h2 class="cab-sec-title">Заметки</h2>
+					<span class="cab-sec-title-meta">Идеи и&nbsp;наблюдения</span>
 				</div>
-			</div>
+				<div class="notes-wrap">
+					<textarea class="notes-textarea" id="notes-ta" placeholder="Идеи рецептов, цели, наблюдения о питании…"></textarea>
+					<button class="btn btn-green" type="button" style="margin-top:10px;align-self:flex-start;padding:12px 22px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0" onclick="addNote()">Сохранить</button>
+					<div id="notes-list" style="margin-top:24px"></div>
+				</div>
+			</section>
 
 			<!-- Обратная связь -->
-			<div class="cab-tab-panel" id="panel-feedback">
-				<div style="margin-bottom:18px">
-					<div class="v-section-title" style="margin-bottom:6px">Помогите нам стать лучше</div>
-					<div style="font-size:13px;color:var(--text-2);line-height:1.5">Расскажите, чего вам не хватает, что можно улучшить или какой рецепт добавить. Ваш отзыв отправится напрямую Юлии.</div>
+			<section class="cab-tab-panel" id="panel-feedback">
+				<div class="cab-sec-title-row">
+					<h2 class="cab-sec-title">Связь с&nbsp;редакцией</h2>
+					<span class="cab-sec-title-meta">Помогите нам стать лучше</span>
+				</div>
+				<div style="margin-bottom:18px;font-size:13.5px;color:var(--text-2);line-height:1.6;max-width:620px">
+					Расскажите, чего вам не&nbsp;хватает, что можно улучшить или какой рецепт добавить. Сообщение отправится напрямую Юлии.
 				</div>
 				<div class="fb-cats" id="fb-cats">
-					<button class="fb-cat active" onclick="pickFbCat(this)" data-cat="wish">💡 Пожелание</button>
-					<button class="fb-cat" onclick="pickFbCat(this)" data-cat="recipe">🍳 Идея рецепта</button>
-					<button class="fb-cat" onclick="pickFbCat(this)" data-cat="problem">⚠️ Проблема</button>
+					<button class="fb-cat active" type="button" onclick="pickFbCat(this)" data-cat="wish">💡 Пожелание</button>
+					<button class="fb-cat" type="button" onclick="pickFbCat(this)" data-cat="recipe">🍳 Идея рецепта</button>
+					<button class="fb-cat" type="button" onclick="pickFbCat(this)" data-cat="problem">⚠️ Проблема</button>
 				</div>
 				<textarea class="fb-textarea" id="fb-text" placeholder="Опишите вашу идею, пожелание или проблему…"></textarea>
 				<div class="fb-actions">
-					<button class="btn btn-orange" onclick="sendFeedback()">Отправить</button>
+					<button class="btn btn-orange" type="button" onclick="sendFeedback()" style="padding:12px 26px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0">Отправить</button>
 				</div>
-				<div class="fb-hint">Сообщение будет отправлено напрямую Юлии. Ответ появится здесь.</div>
+				<div class="fb-hint">Ответ появится здесь. Если вопрос срочный — напишите на&nbsp;<a href="mailto:hello@voronova.online" style="color:var(--accent)">hello@voronova.online</a>.</div>
 				<div class="fb-sent" id="fb-sent-list"></div>
-			</div>
-
-			<!-- Настройки рассылки (внизу панели обратной связи) -->
+			</section>
 
 		</div>
-
-		<!-- Newsletter toggle (всегда видно внизу) -->
-		<div style="margin-top:24px;padding:16px 20px;background:var(--bg-alt);border-radius:var(--r-m);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-			<div>
-				<div style="font-size:14px;font-weight:700;color:var(--text)">Email-рассылка новостей</div>
-				<div style="font-size:12px;color:var(--text-3);margin-top:2px">Получать уведомления о новых рецептах и новостях</div>
-			</div>
-			<label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0">
-				<input type="checkbox" id="newsletter-toggle" checked onchange="toggleNewsletter(this.checked)" style="opacity:0;width:0;height:0">
-				<span style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:24px;transition:.3s"></span>
-				<span id="nl-slider" style="position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s"></span>
-			</label>
-		</div>
-
 	</main>
+
+	<!-- SETTINGS RAIL (bottom) -->
+	<div class="cab-settings-rail">
+		<div class="v-wrap">
+			<div class="cab-settings-rail-inner">
+				<div class="cab-settings-head">Настройки аккаунта</div>
+
+				<label class="cab-setting-row" for="newsletter-toggle" style="cursor:pointer">
+					<div class="cab-setting-info">
+						<h4 class="cab-setting-title">Email-рассылка новостей</h4>
+						<p class="cab-setting-desc">Получать уведомления о&nbsp;новых рецептах, подборках и&nbsp;статьях редакции.</p>
+					</div>
+					<span class="cab-newsletter-toggle">
+						<input type="checkbox" id="newsletter-toggle" checked onchange="toggleNewsletter(this.checked)">
+						<span class="cab-toggle-bg"></span>
+						<span class="cab-toggle-thumb" id="nl-slider"></span>
+					</span>
+				</label>
+
+				<div class="cab-logout-row">
+					<button class="cab-logout-btn" type="button" onclick="doLogout()">Выйти из&nbsp;аккаунта →</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<!-- MY PLATE MODAL -->
 	<div class="modal-overlay plate-modal-v1" id="plate-overlay" onclick="closePlateIfOutside(event)">
@@ -1307,8 +1039,8 @@
 				<a href="https://vk.com/voronova_nutrition" target="_blank" rel="noopener" aria-label="VK">
 					<svg viewBox="0 0 24 24">
 						<path d="M12.785 16.241s.288-.032.436-.194c.136-.148.131-.427.131-.427s-.019-1.304.582-1.496c.592-.189 1.352 1.26 2.158 1.817.61.422 1.073.329 1.073.329l2.155-.03s1.128-.07.593-.957c-.044-.073-.312-.659-1.608-1.865-1.357-1.259-1.175-1.056.459-3.234.997-1.328 1.396-2.139 1.271-2.486-.12-.331-.848-.244-.848-.244l-2.425.015s-.18-.025-.313.055c-.131.079-.215.262-.215.262s-.388 1.036-.905 1.916c-1.09 1.85-1.526 1.948-1.703 1.833-.414-.267-.311-1.073-.311-1.646 0-1.789.271-2.534-.528-2.726-.265-.064-.46-.106-1.138-.113-.871-.009-1.608.003-2.025.207-.278.136-.492.439-.361.456.161.022.527.099.721.363.251.341.242 1.107.242 1.107s.144 2.107-.336 2.368c-.329.18-.781-.187-1.752-1.865-.498-.859-.875-1.81-.875-1.81s-.072-.176-.202-.271c-.157-.115-.376-.151-.376-.151l-2.304.015s-.346.01-.473.161C4.021 8.824 4.117 9.1 4.117 9.1s1.801 4.22 3.839 6.348c1.87 1.951 3.994 1.822 3.994 1.822h.961l.026-.029z" />
-					</svg>
-				</a>
+				</svg>
+			</a>
 				<a href="https://dzen.ru/voronova_nutrition" target="_blank" rel="noopener" aria-label="Дзен">
 					<svg viewBox="0 0 129 129">
 						<path d="M128.389 62.78C128.389 62.14 127.869 61.61 127.229 61.58C104.266 60.71 90.291 57.78 80.514 48.005C70.717 38.208 67.798 24.223 66.928 1.21C66.908.57 66.378.05 65.728.05H63.049C62.409.05 61.88.57 61.85 1.21C60.98 24.213 58.061 38.208 48.264 48.005C38.477 57.792 24.511 60.711 1.548 61.58C.909 61.601.389 62.131.389 62.78V65.46C.389 66.099.909 66.629 1.548 66.659C24.511 67.529 38.487 70.458 48.264 80.235C58.041 90.012 60.96 103.958 61.84 126.88C61.86 127.52 62.389 128.04 63.039 128.04H65.728C66.368 128.04 66.898 127.52 66.928 126.88C67.808 103.958 70.727 90.012 80.504 80.235C90.291 70.448 104.256 67.529 127.219 66.659C127.859 66.639 128.379 66.109 128.379 65.46V62.78H128.389Z" />

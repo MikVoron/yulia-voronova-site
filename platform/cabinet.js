@@ -130,6 +130,7 @@
 		_cabAccess.then(function() {
 			return Favorites.load();
 		}).then(function() {
+			if (typeof renderCabSummaryStats === 'function') renderCabSummaryStats();
 			if (document.getElementById('panel-favorites') && document.getElementById('panel-favorites').classList.contains('active')) renderFavorites();
 		}).catch(function() {});
 		_cabAccess.then(function() {
@@ -139,6 +140,8 @@
 		}).catch(function() {});
 		_cabAccess.then(function() {
 			return Plate.load();
+		}).then(function() {
+			if (typeof renderCabSummaryStats === 'function') renderCabSummaryStats();
 		}).catch(function() {});
 		_cabAccess.then(function() {
 			const freshName = Auth.getDisplayName();
@@ -239,7 +242,8 @@
 		function updateNlSlider(on) {
 			const slider = document.getElementById('nl-slider');
 			const bg = slider?.parentElement?.querySelector('span');
-			if (slider) slider.style.transform = on ? 'translateX(20px)' : 'translateX(0)';
+			// toggle 56×28 (border 1.5px) + thumb 22×22 at left:2 → ход = 56 - 22 - 2*2 = 30px
+			if (slider) slider.style.transform = on ? 'translateX(30px)' : 'translateX(0)';
 			if (bg) bg.style.background = on ? 'var(--accent)' : '#ccc';
 		}
 
@@ -732,8 +736,17 @@
 			});
 		});
 
+		// ── KPI SUMMARY (4 метрики в шапке кабинета) ──────────────────────────────
+		function renderCabSummaryStats() {
+			const platesEl = document.getElementById('cab-plates-count');
+			const favEl = document.getElementById('cab-favorites-count');
+			if (platesEl) platesEl.textContent = String(Plate.getHistory().length || 0);
+			if (favEl) favEl.textContent = String(Favorites.get().length || 0);
+		}
+
 		// ── ИСТОРИЯ ТАРЕЛОК ───────────────────────────────────────────────────────
 		function renderHistory() {
+			renderCabSummaryStats();
 			const hist = Plate.getHistory();
 			const el = document.getElementById('history-body');
 			if (!hist.length) {
@@ -773,6 +786,7 @@
 
 		// ── ИЗБРАННЫЕ ─────────────────────────────────────────────────────────────
 		function renderFavorites() {
+			renderCabSummaryStats();
 			const ids = Favorites.get();
 			const grid = document.getElementById('fav-grid');
 			if (!ids.length) {
