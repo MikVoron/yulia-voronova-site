@@ -10,32 +10,48 @@
     <style>body{visibility:hidden}</style>
     <link rel="stylesheet" href="style-v4.css?v=2026-05-16-badges-1" id="vcss">
     <style>
+        /* ── HERO (Variant 1 — фото слева, editorial-серьёзная типографика) ── */
         .cat-hero {
-            padding: 20px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px;
-            /* Резерв под финальный hero на first paint: avatar 72 + padding 20+16 + border 1 = 109 */
-            min-height: 109px; box-sizing: border-box;
+            padding: 24px 0 28px; border-bottom: 1px solid var(--border); margin-bottom: 0;
+            /* Резерв под финальный hero на first paint: avatar 88 + padding 24+28 + border 1 = 141 */
+            min-height: 141px; box-sizing: border-box;
         }
-        .cat-hero-row { display: flex; align-items: center; gap: 16px; }
+        .cat-hero-row { display: flex; align-items: center; gap: 24px; }
         .cat-hero-ava {
-            width: 72px; height: 72px; border-radius: 50%;
+            width: 88px; height: 88px; border-radius: 0;
             object-fit: cover; flex-shrink: 0;
-            border: 2px solid var(--border);
+            border: 1px solid var(--border);
             background: var(--bg-alt);
             display: flex; align-items: center; justify-content: center;
-            font-size: 32px; overflow: hidden;
+            font-size: 36px; overflow: hidden;
         }
-        .cat-hero-ava img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .cat-hero-ava img { width: 100%; height: 100%; object-fit: cover; border-radius: 0; }
 
         /* Brand-вариант аватарки для fallback hero: логотип Юлии вместо emoji.
-           Геометрия 72×72 сохраняется, лого вписывается с object-fit: contain. */
+           Лого вписывается с object-fit: contain; геометрия квадратного аватара сохраняется. */
         .cat-hero-ava--logo { background: #fff; }
         .cat-hero-ava--logo img {
-            width: 56px; height: 56px;
+            width: 64px; height: 64px;
             object-fit: contain;
             border-radius: 0;
         }
-        .cat-hero-name { font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--text); line-height: 1.1; }
-        .cat-hero-desc { font-size: 13px; color: var(--text-2); margin-top: 3px; }
+        .cat-hero-name {
+            font-family: var(--serif); font-size: 44px; font-weight: 700;
+            color: var(--text); line-height: 1.05; letter-spacing: -.02em;
+            margin: 0;
+        }
+        .cat-hero-desc {
+            font-size: 15px; color: var(--text-2); margin-top: 8px;
+            line-height: 1.5; max-width: 560px;
+        }
+        @media (max-width: 767px) {
+            .cat-hero { padding: 18px 0 22px; min-height: 0; }
+            .cat-hero-row { gap: 16px; }
+            .cat-hero-ava { width: 64px; height: 64px; font-size: 28px; }
+            .cat-hero-ava--logo img { width: 48px; height: 48px; }
+            .cat-hero-name { font-size: 28px; letter-spacing: -.01em; }
+            .cat-hero-desc { font-size: 13px; margin-top: 5px; }
+        }
 
         /* Editorial-header (.sp-header) импортирован из style-v4.css.
            Старые .v-header / vh-* overrides здесь больше не нужны. */
@@ -43,9 +59,9 @@
         /* ── BREADCRUMBS ── */
         .cat-crumbs {
             display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
-            margin: 20px 0 16px;
+            margin: 16px 0 14px;
             font-family: var(--font); font-size: 12px; font-weight: 600;
-            letter-spacing: .04em;
+            letter-spacing: .06em;
             /* Резерв на случай, если catId не из fallback-карты — фильтры не подскочат. */
             min-height: 16px;
         }
@@ -57,31 +73,63 @@
         .cat-crumbs a:hover { color: var(--accent); }
         .cat-crumbs .crumb-sep { color: var(--text-3); font-weight: 500; font-size: 11px; }
         .cat-crumbs .crumb-current {
-            color: var(--text); font-weight: 700;
-            text-transform: none; letter-spacing: 0;
+            color: var(--text-3); font-weight: 500;
+            text-transform: uppercase; letter-spacing: inherit;
             max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-            border-bottom: 1.5px solid var(--accent); padding-bottom: 1px;
         }
         @media (max-width: 767px) {
             .cat-crumbs .crumb-current { max-width: 140px; }
         }
 
-        /* Editorial inline filters — паритет с .sp-home .sp-cats-head на главной.
-           Снимаем серую плашку, рамку, скругление и padding. Кнопки .filter-chip /
-           .fgroup-btn / активные/hover-состояния остаются из style-v4.css. */
+        /* ── Editorial filter bar (Variant 1, NYT-style) ──
+           Горизонтальные правила сверху (жирное по тексту) и снизу (тонкое border),
+           прозрачные чипы, активный — подчёркнут оранжевой линией.
+           Скоупим под .cat-page, чтобы не задеть .filter-* на index/recipe. */
         .cat-page .filter-outer {
             background: none; border: none; border-radius: 0;
-            padding: 0; margin: 0 0 20px;
+            border-top: 1px solid var(--text);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 0; margin: 16px 0 0;
             display: flex; align-items: center;
         }
         .cat-page .filter-scroll-wrap {
             flex: 1; overflow: visible; min-width: 0;
         }
-        .cat-page .filter-bar { gap: 2px; }
+        .cat-page .filter-bar {
+            gap: 0; flex-wrap: wrap; align-items: center;
+        }
+        .cat-page .filter-chip,
+        .cat-page .fgroup-btn {
+            position: relative;
+            background: transparent; color: var(--text-2);
+            padding: 6px 12px; border-radius: 0;
+            font-size: 12px; font-weight: 600; letter-spacing: .02em;
+            transition: color .15s;
+        }
+        @media (hover: hover) {
+            .cat-page .filter-chip:hover,
+            .cat-page .fgroup-btn:hover {
+                background: transparent; color: var(--accent); transform: none;
+            }
+        }
+        .cat-page .filter-chip.on,
+        .cat-page .fgroup-btn.has-value {
+            background: transparent; color: var(--text); font-weight: 700;
+        }
+        .cat-page .filter-chip.on::after,
+        .cat-page .fgroup-btn.has-value::after {
+            content: ''; position: absolute; left: 12px; right: 12px; bottom: -1px;
+            height: 2px; background: var(--accent);
+        }
+        .cat-page .filter-sep {
+            width: 1px; height: 16px; background: var(--border); margin: 0 6px;
+        }
         .cat-page .filter-clear {
             padding: 6px 0 6px 14px;
             border-left: 1px solid var(--border);
             border-top: none; width: auto; text-align: left;
+            color: var(--accent); font-size: 11px; font-weight: 700;
+            letter-spacing: .06em; text-transform: uppercase;
         }
         @media (max-width: 767px) {
             .cat-page .filter-outer {
@@ -89,13 +137,13 @@
                 align-items: stretch;
                 width: 100%;
                 overflow: visible;
-                padding: 0; gap: 6px;
+                padding: 8px 0; gap: 6px;
             }
             .cat-page .filter-scroll-wrap { overflow: visible; width: 100%; }
             .cat-page .filter-bar {
                 flex-wrap: wrap;
                 justify-content: center;
-                gap: 6px;
+                gap: 4px;
                 min-width: 0;
             }
             .cat-page .filter-clear {
@@ -107,6 +155,18 @@
                 border-top: 1px solid var(--border);
                 margin-top: 4px;
             }
+        }
+
+        /* ── Count line (editorial uppercase) ── */
+        .cat-page .cat-count-row {
+            margin-top: 18px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .cat-page .cat-count-label {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: .08em; text-transform: uppercase;
+            color: var(--text-3);
+            font-family: var(--sans);
         }
 
         /* ── SKELETON CARDS ─────────────────────────────────
@@ -260,10 +320,10 @@
         </div>
 
         <!-- Dish list -->
-        <div style="border-top:1px solid var(--border);margin:20px 0 0;padding-top:20px;display:flex;align-items:center;justify-content:space-between">
-            <div class="v-sec-title anim anim-d1" id="count-label" style="font-size:13px;color:var(--text-3);font-weight:600"></div>
+        <div class="cat-count-row">
+            <div class="cat-count-label anim anim-d1" id="count-label"></div>
         </div>
-        <div class="recipe-card-grid anim anim-d1" id="dish-list" style="margin-top:16px"></div>
+        <div class="recipe-card-grid anim anim-d1" id="dish-list" style="margin-top:14px"></div>
     </div>
 </main>
 
