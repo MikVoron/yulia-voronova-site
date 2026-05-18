@@ -1,662 +1,796 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Войти — Умная тарелка</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400;1,700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Войти — Умная тарелка</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400;1,700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		*,
+		*::before,
+		*::after {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
 
-        :root {
-            --accent: #e8400a;
-            --accent-d: #c73208;
-            --bg: #f0ece6;
-            --bg-card: #ffffff;
-            --bg-input: #ffffff;
-            --border: #e5e5e5;
-            --text: #111111;
-            --text-2: #444444;
-            --text-3: #777777;
-            --sans: 'Montserrat', system-ui, -apple-system, sans-serif;
-            --serif: 'Playfair Display', Georgia, serif;
-        }
+		:root {
+			--accent: #e8400a;
+			--accent-d: #c73208;
+			--bg: #f0ece6;
+			--bg-card: #ffffff;
+			--bg-input: #ffffff;
+			--border: #e5e5e5;
+			--text: #111111;
+			--text-2: #444444;
+			--text-3: #777777;
+			--sans: 'Montserrat', system-ui, -apple-system, sans-serif;
+			--serif: 'Playfair Display', Georgia, serif;
+		}
 
-        body {
-            font-family: var(--sans);
-            color: var(--text);
-            background: var(--bg);
-            min-height: 100dvh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 24px;
-        }
+		body {
+			font-family: var(--sans);
+			color: var(--text);
+			background: var(--bg);
+			min-height: 100dvh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 40px 24px;
+		}
 
-        .lp-shell {
-            width: 100%;
-            max-width: 1100px;
-        }
+		.lp-shell {
+			width: 100%;
+			max-width: 1100px;
+		}
 
-        /* ── Split card ───────────────────────────────────────── */
-        .lp-card {
-            background: var(--bg-card);
-            display: grid;
-            grid-template-columns: 1.1fr 1fr;
-            min-height: 600px;
-            border: 1px solid var(--border);
-        }
+		/* ── Split card ───────────────────────────────────────── */
+		.lp-card {
+			background: var(--bg-card);
+			display: grid;
+			grid-template-columns: 1.1fr 1fr;
+			min-height: 600px;
+			border: 1px solid var(--border);
+		}
 
-        /* ── Left: media panel ────────────────────────────────── */
-        .lp-media {
-            position: relative;
-            overflow: hidden;
-            background: #1a1410;
-            min-height: 320px;
-        }
-        .lp-media-img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            display: block;
-            opacity: .85;
-        }
-        .lp-media-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(180deg, rgba(0,0,0,.32) 0%, rgba(0,0,0,.66) 100%);
-            display: flex; flex-direction: column;
-            justify-content: space-between;
-            padding: 36px 36px 40px;
-        }
+		/* ── Left: media panel ────────────────────────────────── */
+		.lp-media {
+			position: relative;
+			overflow: hidden;
+			background: #1a1410;
+			min-height: 320px;
+		}
 
-        .lp-brand {
-            font-family: var(--serif);
-            font-size: 26px; font-weight: 700;
-            color: #fff;
-            letter-spacing: -.01em;
-            line-height: 1.1;
-        }
-        .lp-brand .accent {
-            color: var(--accent);
-            font-style: italic;
-        }
-        .lp-brand-sub {
-            font-size: 10px; font-weight: 700;
-            letter-spacing: .14em; text-transform: uppercase;
-            color: rgba(255,255,255,.7);
-            margin-top: 8px;
-        }
+		.lp-media-img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			display: block;
+			opacity: .85;
+		}
 
-        .lp-quote-eyebrow {
-            font-size: 10px; font-weight: 700;
-            letter-spacing: .16em; text-transform: uppercase;
-            color: rgba(255,255,255,.72);
-            margin-bottom: 16px;
-        }
-        .lp-quote-text {
-            font-family: var(--serif);
-            font-size: 26px; font-weight: 700;
-            line-height: 1.22;
-            letter-spacing: -.01em;
-            color: #fff;
-            max-width: 420px;
-        }
-        .lp-quote-author {
-            margin-top: 16px;
-            font-size: 12px; font-weight: 600;
-            color: rgba(255,255,255,.85);
-        }
+		.lp-media-overlay {
+			position: absolute;
+			inset: 0;
+			background: linear-gradient(180deg, rgba(0, 0, 0, .32) 0%, rgba(0, 0, 0, .66) 100%);
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			padding: 36px 36px 40px;
+		}
 
-        /* ── Right: form panel ────────────────────────────────── */
-        .lp-form {
-            padding: 64px 56px;
-            display: flex; flex-direction: column;
-            justify-content: center;
-            min-width: 0;
-        }
+		.lp-brand {
+			font-family: var(--serif);
+			font-size: 26px;
+			font-weight: 700;
+			color: #fff;
+			letter-spacing: -.01em;
+			line-height: 1.1;
+		}
 
-        .form-eyebrow {
-            font-size: 11px; font-weight: 800;
-            letter-spacing: .14em; text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 14px;
-        }
-        .lp-h2 {
-            font-family: var(--serif);
-            font-size: 38px; font-weight: 700;
-            line-height: 1.1;
-            letter-spacing: -.02em;
-            margin: 0 0 12px;
-        }
-        .lp-lead {
-            font-size: 15px; line-height: 1.5;
-            color: var(--text-2);
-            margin: 0 0 28px;
-            max-width: 380px;
-        }
-        .lp-lead strong {
-            color: var(--text);
-            font-weight: 700;
-        }
+		.lp-brand .accent {
+			color: var(--accent);
+			font-style: italic;
+		}
 
-        .form-label {
-            display: block;
-            font-size: 11px; font-weight: 700;
-            letter-spacing: .12em; text-transform: uppercase;
-            color: var(--text);
-            margin-bottom: 8px;
-        }
-        .form-input {
-            width: 100%;
-            padding: 14px 16px;
-            font-family: inherit;
-            font-size: 15px;
-            font-weight: 500;
-            color: var(--text);
-            border: 1px solid var(--border);
-            background: var(--bg-input);
-            border-radius: 0;
-            outline: none;
-            transition: border-color .15s, box-shadow .15s;
-        }
-        .form-input::placeholder { color: var(--text-3); }
-        .form-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 1px var(--accent);
-        }
-        .form-input[readonly] {
-            color: var(--text-3);
-            background: #fafafa;
-        }
-        .form-input.code-input {
-            font-size: 28px;
-            letter-spacing: 14px;
-            text-align: center;
-            font-weight: 700;
-            padding: 18px 16px;
-        }
+		.lp-brand-sub {
+			font-size: 10px;
+			font-weight: 700;
+			letter-spacing: .14em;
+			text-transform: uppercase;
+			color: rgba(255, 255, 255, .7);
+			margin-top: 8px;
+		}
 
-        .field { margin-bottom: 18px; }
+		.lp-quote-eyebrow {
+			font-size: 10px;
+			font-weight: 700;
+			letter-spacing: .16em;
+			text-transform: uppercase;
+			color: rgba(255, 255, 255, .72);
+			margin-bottom: 16px;
+		}
 
-        /* ── Buttons ──────────────────────────────────────────── */
-        .btn-primary {
-            width: 100%;
-            padding: 16px;
-            font-family: inherit;
-            font-size: 13px; font-weight: 800;
-            letter-spacing: .1em; text-transform: uppercase;
-            background: var(--text);
-            color: #fff;
-            border: none;
-            border-radius: 0;
-            cursor: pointer;
-            transition: background .15s, opacity .15s;
-        }
-        .btn-primary:hover:not(:disabled) { background: var(--accent); }
-        .btn-primary:active:not(:disabled) { background: var(--accent-d); }
-        .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+		.lp-quote-text {
+			font-family: var(--serif);
+			font-size: 26px;
+			font-weight: 700;
+			line-height: 1.22;
+			letter-spacing: -.01em;
+			color: #fff;
+			max-width: 420px;
+		}
 
-        .btn-secondary {
-            width: 100%;
-            margin-top: 10px;
-            padding: 12px;
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-2);
-            font-family: inherit;
-            font-size: 12px; font-weight: 700;
-            letter-spacing: .1em; text-transform: uppercase;
-            cursor: pointer;
-            border-radius: 0;
-            transition: color .15s, border-color .15s;
-        }
-        .btn-secondary:hover { color: var(--text); border-color: var(--text); }
+		.lp-quote-author {
+			margin-top: 16px;
+			font-size: 12px;
+			font-weight: 600;
+			color: rgba(255, 255, 255, .85);
+		}
 
-        /* ── Error / hint / timer ─────────────────────────────── */
-        .lp-error {
-            display: none;
-            margin-bottom: 14px;
-            padding: 10px 14px;
-            border-left: 3px solid #c0392b;
-            background: #fdf3f2;
-            color: #8b1f15;
-            font-size: 13px; font-weight: 600;
-            line-height: 1.4;
-        }
-        .lp-error.is-visible { display: block; }
+		/* ── Right: form panel ────────────────────────────────── */
+		.lp-form {
+			padding: 64px 56px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			min-width: 0;
+		}
 
-        .fine-print {
-            font-size: 11px;
-            color: var(--text-3);
-            line-height: 1.6;
-            margin-top: 18px;
-        }
-        .fine-print a {
-            color: var(--text);
-            text-decoration: underline;
-        }
-        .fine-print a:hover { color: var(--accent); }
+		.form-eyebrow {
+			font-size: 11px;
+			font-weight: 800;
+			letter-spacing: .14em;
+			text-transform: uppercase;
+			color: var(--accent);
+			margin-bottom: 14px;
+		}
 
-        .lp-timer {
-            margin-top: 14px;
-            font-size: 12px;
-            color: var(--text-2);
-            text-align: center;
-            letter-spacing: .02em;
-        }
-        .lp-timer a {
-            color: var(--accent);
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .lp-timer a:hover { text-decoration: underline; }
+		.lp-h2 {
+			font-family: var(--serif);
+			font-size: 38px;
+			font-weight: 700;
+			line-height: 1.1;
+			letter-spacing: -.02em;
+			margin: 0 0 12px;
+		}
 
-        /* ── Step animation ───────────────────────────────────── */
-        .lp-step { animation: fadeUp .32s ease both; }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+		.lp-lead {
+			font-size: 15px;
+			line-height: 1.5;
+			color: var(--text-2);
+			margin: 0 0 28px;
+			max-width: 380px;
+		}
 
-        /* ── Spinner inside primary button ────────────────────── */
-        .lp-spinner {
-            display: inline-block;
-            width: 14px; height: 14px;
-            border: 2px solid rgba(255,255,255,.35);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin .6s linear infinite;
-            vertical-align: -2px;
-            margin-right: 8px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+		.lp-lead strong {
+			color: var(--text);
+			font-weight: 700;
+		}
 
-        /* ── Success state ───────────────────────────────────── */
-        .lp-success {
-            display: none;
-            text-align: left;
-            animation: fadeUp .32s ease both;
-        }
-        .lp-success-mark {
-            width: 56px; height: 56px;
-            border: 2px solid var(--accent);
-            display: flex; align-items: center; justify-content: center;
-            margin-bottom: 22px;
-        }
-        .lp-success-mark svg {
-            width: 28px; height: 28px;
-            stroke: var(--accent);
-            fill: none;
-            stroke-width: 2.5;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
+		.form-label {
+			display: block;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: .12em;
+			text-transform: uppercase;
+			color: var(--text);
+			margin-bottom: 8px;
+		}
 
-        /* ── Features under form (decoupled from card grid) ──── */
-        .lp-features {
-            margin-top: 28px;
-            padding-top: 22px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .lp-feat {
-            display: flex; align-items: center; gap: 8px;
-            font-size: 11px; font-weight: 700;
-            letter-spacing: .08em; text-transform: uppercase;
-            color: var(--text-2);
-        }
-        .lp-feat-dot {
-            width: 5px; height: 5px;
-            background: var(--accent);
-            display: inline-block;
-        }
+		.form-input {
+			width: 100%;
+			padding: 14px 16px;
+			font-family: inherit;
+			font-size: 15px;
+			font-weight: 500;
+			color: var(--text);
+			border: 1px solid var(--border);
+			background: var(--bg-input);
+			border-radius: 0;
+			outline: none;
+			transition: border-color .15s, box-shadow .15s;
+		}
 
-        /* ── Mobile ───────────────────────────────────────────── */
-        @media (max-width: 860px) {
-            body { padding: 0; align-items: stretch; }
-            .lp-shell { max-width: none; }
-            .lp-card {
-                grid-template-columns: 1fr;
-                min-height: 100dvh;
-                border: none;
-            }
-            .lp-media {
-                min-height: 0;
-                aspect-ratio: 16 / 10;
-            }
-            .lp-media-overlay { padding: 24px; }
-            .lp-brand { font-size: 22px; }
-            .lp-quote-text { font-size: 18px; max-width: none; }
-            .lp-form { padding: 36px 24px 40px; }
-            .lp-h2 { font-size: 30px; }
-            .lp-lead { font-size: 14px; margin-bottom: 22px; }
-        }
+		.form-input::placeholder {
+			color: var(--text-3);
+		}
 
-        @media (max-width: 380px) {
-            .lp-form { padding: 30px 18px 36px; }
-            .lp-h2 { font-size: 26px; }
-            .form-input.code-input { font-size: 22px; letter-spacing: 10px; }
-        }
-    </style>
+		.form-input:focus {
+			border-color: var(--accent);
+			box-shadow: 0 0 0 1px var(--accent);
+		}
+
+		.form-input[readonly] {
+			color: var(--text-3);
+			background: #fafafa;
+		}
+
+		.form-input.code-input {
+			font-size: 28px;
+			letter-spacing: 14px;
+			text-align: center;
+			font-weight: 700;
+			padding: 18px 16px;
+		}
+
+		.field {
+			margin-bottom: 18px;
+		}
+
+		/* ── Buttons ──────────────────────────────────────────── */
+		.btn-primary {
+			width: 100%;
+			padding: 16px;
+			font-family: inherit;
+			font-size: 13px;
+			font-weight: 800;
+			letter-spacing: .1em;
+			text-transform: uppercase;
+			background: var(--text);
+			color: #fff;
+			border: none;
+			border-radius: 0;
+			cursor: pointer;
+			transition: background .15s, opacity .15s;
+		}
+
+		.btn-primary:hover:not(:disabled) {
+			background: var(--accent);
+		}
+
+		.btn-primary:active:not(:disabled) {
+			background: var(--accent-d);
+		}
+
+		.btn-primary:disabled {
+			opacity: .5;
+			cursor: not-allowed;
+		}
+
+		.btn-secondary {
+			width: 100%;
+			margin-top: 10px;
+			padding: 12px;
+			background: transparent;
+			border: 1px solid var(--border);
+			color: var(--text-2);
+			font-family: inherit;
+			font-size: 12px;
+			font-weight: 700;
+			letter-spacing: .1em;
+			text-transform: uppercase;
+			cursor: pointer;
+			border-radius: 0;
+			transition: color .15s, border-color .15s;
+		}
+
+		.btn-secondary:hover {
+			color: var(--text);
+			border-color: var(--text);
+		}
+
+		/* ── Error / hint / timer ─────────────────────────────── */
+		.lp-error {
+			display: none;
+			margin-bottom: 14px;
+			padding: 10px 14px;
+			border-left: 3px solid #c0392b;
+			background: #fdf3f2;
+			color: #8b1f15;
+			font-size: 13px;
+			font-weight: 600;
+			line-height: 1.4;
+		}
+
+		.lp-error.is-visible {
+			display: block;
+		}
+
+		.fine-print {
+			font-size: 11px;
+			color: var(--text-3);
+			line-height: 1.6;
+			margin-top: 18px;
+		}
+
+		.fine-print a {
+			color: var(--text);
+			text-decoration: underline;
+		}
+
+		.fine-print a:hover {
+			color: var(--accent);
+		}
+
+		.lp-timer {
+			margin-top: 14px;
+			font-size: 12px;
+			color: var(--text-2);
+			text-align: center;
+			letter-spacing: .02em;
+		}
+
+		.lp-timer a {
+			color: var(--accent);
+			font-weight: 700;
+			cursor: pointer;
+			text-decoration: none;
+		}
+
+		.lp-timer a:hover {
+			text-decoration: underline;
+		}
+
+		/* ── Step animation ───────────────────────────────────── */
+		.lp-step {
+			animation: fadeUp .32s ease both;
+		}
+
+		@keyframes fadeUp {
+			from {
+				opacity: 0;
+				transform: translateY(12px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		/* ── Spinner inside primary button ────────────────────── */
+		.lp-spinner {
+			display: inline-block;
+			width: 14px;
+			height: 14px;
+			border: 2px solid rgba(255, 255, 255, .35);
+			border-top-color: #fff;
+			border-radius: 50%;
+			animation: spin .6s linear infinite;
+			vertical-align: -2px;
+			margin-right: 8px;
+		}
+
+		@keyframes spin {
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
+		/* ── Success state ───────────────────────────────────── */
+		.lp-success {
+			display: none;
+			text-align: left;
+			animation: fadeUp .32s ease both;
+		}
+
+		.lp-success-mark {
+			width: 56px;
+			height: 56px;
+			border: 2px solid var(--accent);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-bottom: 22px;
+		}
+
+		.lp-success-mark svg {
+			width: 28px;
+			height: 28px;
+			stroke: var(--accent);
+			fill: none;
+			stroke-width: 2.5;
+			stroke-linecap: round;
+			stroke-linejoin: round;
+		}
+
+		/* ── Features under form (decoupled from card grid) ──── */
+		.lp-features {
+			margin-top: 28px;
+			padding-top: 22px;
+			border-top: 1px solid var(--border);
+			display: flex;
+			flex-wrap: wrap;
+			gap: 20px;
+		}
+
+		.lp-feat {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: .08em;
+			text-transform: uppercase;
+			color: var(--text-2);
+		}
+
+		.lp-feat-dot {
+			width: 5px;
+			height: 5px;
+			background: var(--accent);
+			display: inline-block;
+		}
+
+		/* ── Mobile ───────────────────────────────────────────── */
+		@media (max-width: 860px) {
+			body {
+				padding: 0;
+				align-items: stretch;
+			}
+
+			.lp-shell {
+				max-width: none;
+			}
+
+			.lp-card {
+				grid-template-columns: 1fr;
+				min-height: 100dvh;
+				border: none;
+			}
+
+			.lp-media {
+				min-height: 0;
+				aspect-ratio: 16 / 10;
+			}
+
+			.lp-media-overlay {
+				padding: 24px;
+			}
+
+			.lp-brand {
+				font-size: 22px;
+			}
+
+			.lp-quote-text {
+				font-size: 18px;
+				max-width: none;
+			}
+
+			.lp-form {
+				padding: 36px 24px 40px;
+			}
+
+			.lp-h2 {
+				font-size: 30px;
+			}
+
+			.lp-lead {
+				font-size: 14px;
+				margin-bottom: 22px;
+			}
+		}
+
+		@media (max-width: 380px) {
+			.lp-form {
+				padding: 30px 18px 36px;
+			}
+
+			.lp-h2 {
+				font-size: 26px;
+			}
+
+			.form-input.code-input {
+				font-size: 22px;
+				letter-spacing: 10px;
+			}
+		}
+	</style>
 </head>
+
 <body>
 
-<div class="lp-shell">
-    <div class="lp-card">
+	<div class="lp-shell">
+		<div class="lp-card">
 
-        <!-- ─── Left: media panel ─────────────────────────────── -->
-        <aside class="lp-media" aria-hidden="true">
-            <img class="lp-media-img"
-                 src="images/cook-healthy-food.webp"
-                 alt=""
-                 onerror="this.style.display='none'">
-            <div class="lp-media-overlay">
-                <div>
-                    <div class="lp-brand">Умная <span class="accent">тарелка</span></div>
-                    <div class="lp-brand-sub">Юлия Воронова · Нутрициолог</div>
-                </div>
-                <div class="lp-quote">
-                    <div class="lp-quote-eyebrow">Принцип платформы</div>
-                    <div class="lp-quote-text">«Сбалансированное питание — не диета. Это привычка чувствовать сытость и лёгкость.»</div>
-                    <div class="lp-quote-author">— Юлия Воронова</div>
-                </div>
-            </div>
-        </aside>
+			<!-- ─── Left: media panel ─────────────────────────────── -->
+			<aside class="lp-media" aria-hidden="true">
+				<img class="lp-media-img" src="images/cook-healthy-food.webp" alt="" onerror="this.style.display='none'">
+				<div class="lp-media-overlay">
+					<div>
+						<div class="lp-brand">Умная <span class="accent">тарелка</span></div>
+						<div class="lp-brand-sub">Юлия Воронова · Нутрициолог</div>
+					</div>
+					<div class="lp-quote">
+						<div class="lp-quote-eyebrow">Принцип платформы</div>
+						<div class="lp-quote-text">«Сбалансированное питание — не диета. Это привычка чувствовать сытость и лёгкость.»</div>
+						<div class="lp-quote-author">— Юлия Воронова</div>
+					</div>
+				</div>
+			</aside>
 
-        <!-- ─── Right: form panel ─────────────────────────────── -->
-        <main class="lp-form">
+			<!-- ─── Right: form panel ─────────────────────────────── -->
+			<main class="lp-form">
 
-            <!-- Step 1: Email -->
-            <section id="step-email" class="lp-step">
-                <div class="form-eyebrow">Войти / Регистрация</div>
-                <h1 class="lp-h2">Войдите в свой кабинет</h1>
-                <p class="lp-lead">Введите email — мы пришлём 6-значный код. Пароль не нужен.</p>
+				<!-- Step 1: Email -->
+				<section id="step-email" class="lp-step">
+					<div class="form-eyebrow">Войти / Регистрация</div>
+					<h1 class="lp-h2">Войдите в свой кабинет</h1>
+					<p class="lp-lead">Введите email - мы пришлём 6-значный код. Пароль не нужен, вход запомним на этом устройстве.</p>
 
-                <div class="field">
-                    <label class="form-label" for="email-input">Email</label>
-                    <input class="form-input" type="email" id="email-input"
-                           placeholder="your@email.com" autocomplete="email"
-                           aria-describedby="email-error">
-                </div>
-                <div class="lp-error" id="email-error" role="alert" aria-live="polite"></div>
-                <button class="btn-primary" id="send-code-btn" type="button" onclick="sendCode()">Получить код →</button>
+					<div class="field">
+						<label class="form-label" for="email-input">Email</label>
+						<input class="form-input" type="email" id="email-input" placeholder="your@email.com" autocomplete="email" aria-describedby="email-error">
+					</div>
+					<div class="lp-error" id="email-error" role="alert" aria-live="polite"></div>
+					<button class="btn-primary" id="send-code-btn" type="button" onclick="sendCode()">Получить код →</button>
 
-                <p class="fine-print" id="lp-footer-legal">
-                    Продолжая, вы соглашаетесь с
-                    <a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener">политикой обработки данных</a>.
-                </p>
-            </section>
+					<p class="fine-print" id="lp-footer-legal">
+						Продолжая, вы соглашаетесь с
+						<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener">политикой обработки данных</a>.
+					</p>
+				</section>
 
-            <!-- Step 2: Code -->
-            <section id="step-code" class="lp-step" style="display:none">
-                <div class="form-eyebrow">Подтверждение</div>
-                <h1 class="lp-h2">Введите код</h1>
-                <p class="lp-lead">Отправили на <strong id="email-show-text"></strong></p>
+				<!-- Step 2: Code -->
+				<section id="step-code" class="lp-step" style="display:none">
+					<div class="form-eyebrow">Подтверждение</div>
+					<h1 class="lp-h2">Введите код</h1>
+					<p class="lp-lead">Отправили на <strong id="email-show-text"></strong></p>
 
-                <div class="field">
-                    <label class="form-label" for="code-input">6-значный код</label>
-                    <input class="form-input code-input" type="text" id="code-input"
-                           placeholder="------" maxlength="6"
-                           inputmode="numeric" autocomplete="one-time-code"
-                           aria-describedby="code-error">
-                </div>
-                <div class="lp-error" id="code-error" role="alert" aria-live="polite"></div>
-                <button class="btn-primary" id="verify-btn" type="button" onclick="verifyCode()">Войти →</button>
+					<div class="field">
+						<label class="form-label" for="code-input">6-значный код</label>
+						<input class="form-input code-input" type="text" id="code-input" placeholder="------" maxlength="6" inputmode="numeric" autocomplete="one-time-code" aria-describedby="code-error">
+					</div>
+					<div class="lp-error" id="code-error" role="alert" aria-live="polite"></div>
+					<button class="btn-primary" id="verify-btn" type="button" onclick="verifyCode()">Войти →</button>
 
-                <div class="lp-timer" id="timer-block">
-                    Отправить повторно через <span id="timer-sec">60</span> сек
-                </div>
-                <button class="btn-secondary" type="button" onclick="goBack()">← Другой email</button>
-            </section>
+					<div class="lp-timer" id="timer-block">
+						Отправить повторно через <span id="timer-sec">60</span> сек
+					</div>
+					<button class="btn-secondary" type="button" onclick="goBack()">← Другой email</button>
+				</section>
 
-            <!-- Step 3: Success -->
-            <section id="step-success" class="lp-success">
-                <div class="lp-success-mark">
-                    <svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 7"/></svg>
-                </div>
-                <div class="form-eyebrow">Готово</div>
-                <h1 class="lp-h2">Добро пожаловать</h1>
-                <p class="lp-lead">Загружаем платформу…</p>
-            </section>
+				<!-- Step 3: Success -->
+				<section id="step-success" class="lp-success">
+					<div class="lp-success-mark">
+						<svg viewBox="0 0 24 24">
+							<polyline points="5 12 10 17 19 7" />
+						</svg>
+					</div>
+					<div class="form-eyebrow">Готово</div>
+					<h1 class="lp-h2">Добро пожаловать</h1>
+					<p class="lp-lead">Загружаем платформу…</p>
+				</section>
 
-            <!-- Features (kept compact for trust signal) -->
-            <div class="lp-features">
-                <div class="lp-feat"><span class="lp-feat-dot"></span><span id="lp-recipes-count">36+ рецептов</span></div>
-                <div class="lp-feat"><span class="lp-feat-dot"></span>КБЖУ расчёт</div>
-                <div class="lp-feat"><span class="lp-feat-dot"></span>Конструктор тарелки</div>
-            </div>
+				<!-- Features (kept compact for trust signal) -->
+				<div class="lp-features">
+					<div class="lp-feat"><span class="lp-feat-dot"></span><span id="lp-recipes-count">36+ рецептов</span></div>
+					<div class="lp-feat"><span class="lp-feat-dot"></span>КБЖУ расчёт</div>
+					<div class="lp-feat"><span class="lp-feat-dot"></span>Конструктор тарелки</div>
+				</div>
 
-        </main>
-    </div>
-</div>
+			</main>
+		</div>
+	</div>
 
-<script src="data-v2.js?v=1774941737"></script>
-<script>
-    // Защита от open-redirect: только относительные пути в пределах поддомена
-    function _safeReturn(url) {
-        if (!url || typeof url !== 'string') return null;
-        var v = url.trim();
-        if (!v || v !== url) return null;
-        if (/[\x00-\x1F\x7F]/.test(v)) return null;
-        if (/^[a-z][a-z0-9+.\-]*:/i.test(v)) return null;
-        if (v.indexOf('//') === 0) return null;
-        if (v.indexOf('\\') !== -1) return null;
-        return v;
-    }
-    var _rawReturn = new URLSearchParams(location.search).get('return');
-    var _returnUrl = _safeReturn(_rawReturn) || 'index.html';
-    var _isAdminLogin = _returnUrl.indexOf('admin.html') !== -1 || _returnUrl.indexOf('recipe-editor.html') !== -1;
-    var _hasReturn = !!_safeReturn(_rawReturn);
-    // Дописываем оферту, только если она опубликована (флаг в data-v2.js)
-    if (typeof LEGAL_OFFER_ENABLED !== 'undefined' && LEGAL_OFFER_ENABLED) {
-        var _legalEl = document.getElementById('lp-footer-legal');
-        if (_legalEl) {
-            _legalEl.innerHTML = 'Продолжая, вы соглашаетесь с '
-                + '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener">офертой</a> и '
-                + '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener">политикой обработки данных</a>.';
-        }
-    }
-    if (Auth.isLoggedIn()) {
-        if (_hasReturn) {
-            // Originating page redirected us here because its API calls failed despite localStorage flag.
-            // Try a silent refresh — if it works, go back; otherwise stay on the form (no server logout,
-            // so a transient 429 on /auth/refresh doesn't nuke a valid refresh cookie).
-            Auth.refreshToken().then(function(ok) {
-                if (ok) location.href = _returnUrl;
-                // else: show login form and let the user re-auth by email code
-            });
-        } else {
-            location.href = _returnUrl;
-        }
-    }
+	<script src="data-v2.js?v=1774941737"></script>
+	<script>
+		// Защита от open-redirect: только относительные пути в пределах поддомена
+		function _safeReturn(url) {
+			if (!url || typeof url !== 'string') return null;
+			var v = url.trim();
+			if (!v || v !== url) return null;
+			if (/[\x00-\x1F\x7F]/.test(v)) return null;
+			if (/^[a-z][a-z0-9+.\-]*:/i.test(v)) return null;
+			if (v.indexOf('//') === 0) return null;
+			if (v.indexOf('\\') !== -1) return null;
+			return v;
+		}
+		var _rawReturn = new URLSearchParams(location.search).get('return');
+		var _returnUrl = _safeReturn(_rawReturn) || 'index.html';
+		var _isAdminLogin = _returnUrl.indexOf('admin.html') !== -1 || _returnUrl.indexOf('recipe-editor.html') !== -1;
+		var _hasReturn = !!_safeReturn(_rawReturn);
+		// Дописываем оферту, только если она опубликована (флаг в data-v2.js)
+		if (typeof LEGAL_OFFER_ENABLED !== 'undefined' && LEGAL_OFFER_ENABLED) {
+			var _legalEl = document.getElementById('lp-footer-legal');
+			if (_legalEl) {
+				_legalEl.innerHTML = 'Продолжая, вы соглашаетесь с '
+					+ '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener">офертой</a> и '
+					+ '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener">политикой обработки данных</a>.';
+			}
+		}
+		if (Auth.isLoggedIn()) {
+			if (_hasReturn) {
+				// Originating page redirected us here because its API calls failed despite localStorage flag.
+				// Try a silent refresh — if it works, go back; otherwise stay on the form (no server logout,
+				// so a transient 429 on /auth/refresh doesn't nuke a valid refresh cookie).
+				Auth.refreshToken().then(function (ok) {
+					if (ok) location.href = _returnUrl;
+					// else: show login form and let the user re-auth by email code
+				});
+			} else {
+				location.href = _returnUrl;
+			}
+		}
 
-    // Show OAuth error if redirected back
-    (function() {
-        var params = new URLSearchParams(location.search);
-        var err = params.get('error');
-        if (err === 'blocked') showError('email-error', 'Аккаунт заблокирован');
-        else if (err) showError('email-error', 'Ошибка входа. Попробуйте другой способ.');
-    })();
+		// Show OAuth error if redirected back
+		(function () {
+			var params = new URLSearchParams(location.search);
+			var err = params.get('error');
+			if (err === 'blocked') showError('email-error', 'Аккаунт заблокирован');
+			else if (err) showError('email-error', 'Ошибка входа. Попробуйте другой способ.');
+		})();
 
-    var currentEmail = '';
-    var timerInterval = null;
-    var _fingerprint = null;
+		var currentEmail = '';
+		var timerInterval = null;
+		var _fingerprint = null;
 
-    // Dynamic recipe count
-    fetch(API_BASE + '/content/stats')
-        .then(function(r) { return r.ok ? r.json() : null; })
-        .then(function(d) {
-            if (d && d.recipes) {
-                var plural = d.recipes % 10 === 1 && d.recipes % 100 !== 11 ? 'рецепт'
-                    : (d.recipes % 10 >= 2 && d.recipes % 10 <= 4 && (d.recipes % 100 < 10 || d.recipes % 100 >= 20)) ? 'рецепта' : 'рецептов';
-                document.getElementById('lp-recipes-count').textContent = d.recipes + ' ' + plural;
-            }
-        })
-        .catch(function(){});
+		// Dynamic recipe count
+		fetch(API_BASE + '/content/stats')
+			.then(function (r) { return r.ok ? r.json() : null; })
+			.then(function (d) {
+				if (d && d.recipes) {
+					var plural = d.recipes % 10 === 1 && d.recipes % 100 !== 11 ? 'рецепт'
+						: (d.recipes % 10 >= 2 && d.recipes % 10 <= 4 && (d.recipes % 100 < 10 || d.recipes % 100 >= 20)) ? 'рецепта' : 'рецептов';
+					document.getElementById('lp-recipes-count').textContent = d.recipes + ' ' + plural;
+				}
+			})
+			.catch(function () { });
 
-    // Генерация browser fingerprint (canvas + screen + timezone + UA)
-    (async function() {
-        try {
-            var canvas = document.createElement('canvas');
-            var ctx = canvas.getContext('2d');
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillText('fp-test', 2, 2);
-            var raw = [
-                canvas.toDataURL(),
-                screen.width, screen.height, screen.colorDepth,
-                Intl.DateTimeFormat().resolvedOptions().timeZone,
-                navigator.userAgent,
-                navigator.language,
-                navigator.hardwareConcurrency || 0
-            ].join('|');
-            var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
-            _fingerprint = Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
-        } catch (e) { _fingerprint = null; }
-    })();
+		// Генерация browser fingerprint (canvas + screen + timezone + UA)
+		(async function () {
+			try {
+				var canvas = document.createElement('canvas');
+				var ctx = canvas.getContext('2d');
+				ctx.textBaseline = 'top';
+				ctx.font = '14px Arial';
+				ctx.fillText('fp-test', 2, 2);
+				var raw = [
+					canvas.toDataURL(),
+					screen.width, screen.height, screen.colorDepth,
+					Intl.DateTimeFormat().resolvedOptions().timeZone,
+					navigator.userAgent,
+					navigator.language,
+					navigator.hardwareConcurrency || 0
+				].join('|');
+				var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
+				_fingerprint = Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+			} catch (e) { _fingerprint = null; }
+		})();
 
-    function showError(id, msg) {
-        var el = document.getElementById(id);
-        el.textContent = msg;
-        el.classList.add('is-visible');
-    }
-    function hideError(id) {
-        var el = document.getElementById(id);
-        el.classList.remove('is-visible');
-        el.textContent = '';
-    }
+		function showError(id, msg) {
+			var el = document.getElementById(id);
+			el.textContent = msg;
+			el.classList.add('is-visible');
+		}
+		function hideError(id) {
+			var el = document.getElementById(id);
+			el.classList.remove('is-visible');
+			el.textContent = '';
+		}
 
-    function setLoading(btnId, loading) {
-        var btn = document.getElementById(btnId);
-        if (loading) {
-            btn.disabled = true;
-            btn.dataset.text = btn.textContent;
-            btn.innerHTML = '<span class="lp-spinner"></span>Отправка…';
-        } else {
-            btn.disabled = false;
-            btn.textContent = btn.dataset.text || 'Отправить';
-        }
-    }
+		function setLoading(btnId, loading) {
+			var btn = document.getElementById(btnId);
+			if (loading) {
+				btn.disabled = true;
+				btn.dataset.text = btn.textContent;
+				btn.innerHTML = '<span class="lp-spinner"></span>Отправка…';
+			} else {
+				btn.disabled = false;
+				btn.textContent = btn.dataset.text || 'Отправить';
+			}
+		}
 
-    async function sendCode() {
-        hideError('email-error');
-        var email = document.getElementById('email-input').value.trim().toLowerCase();
-        if (!email || !email.includes('@') || !email.includes('.')) {
-            showError('email-error', 'Введите корректный email'); return;
-        }
-        currentEmail = email;
-        setLoading('send-code-btn', true);
-        try {
-            var res = await fetch(API_BASE + '/auth/send-code', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, context: _isAdminLogin ? 'admin' : undefined })
-            });
-            var data = await res.json();
-            if (!res.ok) { showError('email-error', data.error || 'Ошибка'); setLoading('send-code-btn', false); return; }
-            showCodeStep();
-        } catch (e) {
-            showError('email-error', 'Ошибка сети');
-        }
-        setLoading('send-code-btn', false);
-    }
+		async function sendCode() {
+			hideError('email-error');
+			var email = document.getElementById('email-input').value.trim().toLowerCase();
+			if (!email || !email.includes('@') || !email.includes('.')) {
+				showError('email-error', 'Введите корректный email'); return;
+			}
+			currentEmail = email;
+			setLoading('send-code-btn', true);
+			try {
+				var res = await fetch(API_BASE + '/auth/send-code', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ email: email, context: _isAdminLogin ? 'admin' : undefined })
+				});
+				var data = await res.json();
+				if (!res.ok) { showError('email-error', data.error || 'Ошибка'); setLoading('send-code-btn', false); return; }
+				showCodeStep();
+			} catch (e) {
+				showError('email-error', 'Ошибка сети');
+			}
+			setLoading('send-code-btn', false);
+		}
 
-    function showCodeStep() {
-        document.getElementById('email-show-text').textContent = currentEmail;
-        document.getElementById('step-email').style.display = 'none';
-        var step2 = document.getElementById('step-code');
-        step2.style.display = 'block';
-        step2.style.animation = 'none';
-        requestAnimationFrame(function() {
-            step2.style.animation = 'fadeUp .32s ease both';
-            document.getElementById('code-input').focus();
-        });
-        startTimer();
-    }
+		function showCodeStep() {
+			document.getElementById('email-show-text').textContent = currentEmail;
+			document.getElementById('step-email').style.display = 'none';
+			var step2 = document.getElementById('step-code');
+			step2.style.display = 'block';
+			step2.style.animation = 'none';
+			requestAnimationFrame(function () {
+				step2.style.animation = 'fadeUp .32s ease both';
+				document.getElementById('code-input').focus();
+			});
+			startTimer();
+		}
 
-    function startTimer() {
-        var sec = 60;
-        var timerEl = document.getElementById('timer-sec');
-        var block = document.getElementById('timer-block');
-        block.innerHTML = 'Отправить повторно через <span id="timer-sec">60</span> сек';
-        timerEl = document.getElementById('timer-sec');
-        clearInterval(timerInterval);
-        timerInterval = setInterval(function() {
-            sec--;
-            timerEl.textContent = sec;
-            if (sec <= 0) {
-                clearInterval(timerInterval);
-                block.innerHTML = '<a onclick="resendCode()">Отправить код повторно</a>';
-            }
-        }, 1000);
-    }
+		function startTimer() {
+			var sec = 60;
+			var timerEl = document.getElementById('timer-sec');
+			var block = document.getElementById('timer-block');
+			block.innerHTML = 'Отправить повторно через <span id="timer-sec">60</span> сек';
+			timerEl = document.getElementById('timer-sec');
+			clearInterval(timerInterval);
+			timerInterval = setInterval(function () {
+				sec--;
+				timerEl.textContent = sec;
+				if (sec <= 0) {
+					clearInterval(timerInterval);
+					block.innerHTML = '<a onclick="resendCode()">Отправить код повторно</a>';
+				}
+			}, 1000);
+		}
 
-    async function resendCode() {
-        var block = document.getElementById('timer-block');
-        block.innerHTML = 'Отправка…';
-        try {
-            var res = await fetch(API_BASE + '/auth/send-code', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: currentEmail, context: _isAdminLogin ? 'admin' : undefined })
-            });
-            var data = await res.json();
-            if (!res.ok) { block.innerHTML = '<span style="color:#c0392b">' + (data.error || 'Ошибка') + '</span>'; return; }
-            startTimer();
-        } catch (e) {
-            block.innerHTML = '<span style="color:#c0392b">Ошибка сети</span>';
-        }
-    }
+		async function resendCode() {
+			var block = document.getElementById('timer-block');
+			block.innerHTML = 'Отправка…';
+			try {
+				var res = await fetch(API_BASE + '/auth/send-code', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ email: currentEmail, context: _isAdminLogin ? 'admin' : undefined })
+				});
+				var data = await res.json();
+				if (!res.ok) { block.innerHTML = '<span style="color:#c0392b">' + (data.error || 'Ошибка') + '</span>'; return; }
+				startTimer();
+			} catch (e) {
+				block.innerHTML = '<span style="color:#c0392b">Ошибка сети</span>';
+			}
+		}
 
-    async function verifyCode() {
-        hideError('code-error');
-        var code = document.getElementById('code-input').value.trim();
-        if (code.length !== 6) { showError('code-error', 'Введите 6-значный код'); return; }
-        setLoading('verify-btn', true);
-        try {
-            var res = await fetch(API_BASE + '/auth/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ email: currentEmail, code: code, fingerprint: _fingerprint })
-            });
-            var data = await res.json();
-            if (!res.ok) { showError('code-error', data.error || 'Ошибка'); setLoading('verify-btn', false); return; }
-            Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription, data.user.avatar, data.user.role, data.user.createdAt, data.user.id);
-            document.getElementById('step-code').style.display = 'none';
-            var success = document.getElementById('step-success');
-            success.style.display = 'block';
-            success.style.animation = 'fadeUp .32s ease both';
-            setTimeout(function() { location.href = _returnUrl; }, 900);
-        } catch (e) {
-            showError('code-error', 'Ошибка сети');
-            setLoading('verify-btn', false);
-        }
-    }
+		async function verifyCode() {
+			hideError('code-error');
+			var code = document.getElementById('code-input').value.trim();
+			if (code.length !== 6) { showError('code-error', 'Введите 6-значный код'); return; }
+			setLoading('verify-btn', true);
+			try {
+				var res = await fetch(API_BASE + '/auth/verify', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					credentials: 'include',
+					body: JSON.stringify({ email: currentEmail, code: code, fingerprint: _fingerprint })
+				});
+				var data = await res.json();
+				if (!res.ok) { showError('code-error', data.error || 'Ошибка'); setLoading('verify-btn', false); return; }
+				Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription, data.user.avatar, data.user.role, data.user.createdAt, data.user.id);
+				document.getElementById('step-code').style.display = 'none';
+				var success = document.getElementById('step-success');
+				success.style.display = 'block';
+				success.style.animation = 'fadeUp .32s ease both';
+				setTimeout(function () { location.href = _returnUrl; }, 900);
+			} catch (e) {
+				showError('code-error', 'Ошибка сети');
+				setLoading('verify-btn', false);
+			}
+		}
 
-    function goBack() {
-        clearInterval(timerInterval);
-        document.getElementById('step-code').style.display = 'none';
-        document.getElementById('code-input').value = '';
-        var s1 = document.getElementById('step-email');
-        s1.style.display = 'block';
-        s1.style.animation = 'none';
-        requestAnimationFrame(function() { s1.style.animation = 'fadeUp .32s ease both'; });
-        document.getElementById('email-input').focus();
-    }
+		function goBack() {
+			clearInterval(timerInterval);
+			document.getElementById('step-code').style.display = 'none';
+			document.getElementById('code-input').value = '';
+			var s1 = document.getElementById('step-email');
+			s1.style.display = 'block';
+			s1.style.animation = 'none';
+			requestAnimationFrame(function () { s1.style.animation = 'fadeUp .32s ease both'; });
+			document.getElementById('email-input').focus();
+		}
 
-    document.addEventListener('keydown', function(e) {
-        if (e.key !== 'Enter') return;
-        if (document.getElementById('step-email').style.display !== 'none') sendCode();
-        else if (document.getElementById('step-code').style.display !== 'none') verifyCode();
-    });
-    document.getElementById('code-input').addEventListener('input', function() {
-        if (this.value.length === 6) verifyCode();
-    });
-</script>
+		document.addEventListener('keydown', function (e) {
+			if (e.key !== 'Enter') return;
+			if (document.getElementById('step-email').style.display !== 'none') sendCode();
+			else if (document.getElementById('step-code').style.display !== 'none') verifyCode();
+		});
+		document.getElementById('code-input').addEventListener('input', function () {
+			if (this.value.length === 6) verifyCode();
+		});
+	</script>
 </body>
+
 </html>
