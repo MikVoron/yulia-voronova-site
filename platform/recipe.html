@@ -3392,7 +3392,7 @@
 							: `<div class="pv1-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
                         <div class="pv1-item-main">
                             ${nameHtml}
-                            <div class="pv1-item-meta">${Number(item.kcal) || 0} ккал · Б ${Number(item.protein) || 0} · Ж ${Number(item.fat) || 0} · У ${Number(item.carbs) || 0}</div>
+                            <div class="pv1-item-meta">${Number(item.kcal) || 0} ккал · Б ${Number(item.protein) || 0} · Ж ${Number(item.fat) || 0} · У ${Number(item.carbs) || 0} · Кл ${Number(item.fiber) || 0}</div>
                             ${additionsHtml}
                         </div>
                         <button class="pv1-item-del" onclick="removeItemR(${Number(i)})" aria-label="Удалить">✕</button>
@@ -3402,12 +3402,12 @@
                 <div class="pv1-totals">
                     <div class="pv1-totals-label">Итого за приём</div>
                     <div class="pv1-totals-grid">
-                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.kcal) || 0}</div><div class="pv1-tot-key">ккал</div></div>
-                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.protein) || 0}</div><div class="pv1-tot-key">белки, г</div></div>
-                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.fat) || 0}</div><div class="pv1-tot-key">жиры, г</div></div>
-                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.carbs) || 0}</div><div class="pv1-tot-key">углеводы, г</div></div>
+                        <div class="pv1-tot is-kcal"><div class="pv1-tot-num">${Number(t.kcal) || 0}</div><div class="pv1-tot-key">Ккал</div></div>
+                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.protein) || 0}</div><div class="pv1-tot-key">Белки, г</div></div>
+                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.fat) || 0}</div><div class="pv1-tot-key">Жиры, г</div></div>
+                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.carbs) || 0}</div><div class="pv1-tot-key">Углев., г</div></div>
+                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.fiber) || 0}</div><div class="pv1-tot-key">Клетч., г</div></div>
                     </div>
-                    ${t.fiber ? `<div class="pv1-tot-note">Клетчатка: ${Number(t.fiber) || 0} г</div>` : ''}
                 </div>
                 <div class="pv1-actions">
                     <div class="pv1-actions-row">

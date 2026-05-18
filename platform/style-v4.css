@@ -1627,48 +1627,66 @@ img { display: block; max-width: 100%; }
 }
 .pv1-item-del:hover { border-color: var(--text); color: var(--text); }
 
-/* Totals — 4-column editorial grid */
+/* Totals — Plate Modal V1: 5 equal metrics (kcal · prot · fat · carb · fiber)
+   Desktop (≥ 768px): one row of 5 cells, kcal in accent.
+   Mobile (< 768px):  kcal full-width row on top (40px) + 4 macros row below. */
 .pv1-totals { margin-top: 22px; }
 .pv1-totals-label {
     font-size: 11px; font-weight: 800; letter-spacing: .14em;
     text-transform: uppercase; color: var(--text); margin-bottom: 12px;
 }
 .pv1-totals-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    border: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
 }
 .pv1-tot {
-    padding: 12px 6px; text-align: center; border-right: 1px solid var(--border);
+    padding: 14px 4px; text-align: center; border-right: 1px solid var(--border);
 }
 .pv1-tot:last-child { border-right: none; }
 .pv1-tot-num {
-    font-family: var(--serif); font-size: 24px; font-weight: 700;
+    font-family: var(--serif); font-size: 22px; font-weight: 700;
     line-height: 1; color: var(--text); letter-spacing: -.02em;
     font-variant-numeric: tabular-nums;
 }
 .pv1-tot-key {
-    font-size: 9px; font-weight: 700; letter-spacing: .08em;
+    font-size: 8.5px; font-weight: 800; letter-spacing: .06em;
     text-transform: uppercase; color: var(--text-3); margin-top: 6px;
 }
-.pv1-tot-note {
-    margin-top: 10px; font-size: 11px; color: var(--text-3);
-    letter-spacing: .04em; text-align: right;
-    font-variant-numeric: tabular-nums;
+.pv1-tot.is-kcal {
+    grid-column: 1 / -1;
+    padding: 18px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+}
+.pv1-tot.is-kcal .pv1-tot-num {
+    font-size: 40px; color: var(--accent);
+}
+.pv1-tot.is-kcal .pv1-tot-key {
+    font-size: 9px; letter-spacing: .12em; margin-top: 6px;
 }
 @media (min-width: 768px) {
-    .pv1-tot { padding: 14px 8px; }
-    .pv1-tot-num { font-size: 28px; }
-    .pv1-tot-key { font-size: 10px; }
-}
-@media (max-width: 360px) {
-    .pv1-totals-grid { grid-template-columns: repeat(2, 1fr); }
-    .pv1-tot:nth-child(2) { border-right: none; }
-    .pv1-tot:nth-child(1), .pv1-tot:nth-child(2) { border-bottom: 1px solid var(--border); }
+    .pv1-totals-grid { grid-template-columns: repeat(5, 1fr); }
+    .pv1-tot { padding: 18px 8px; }
+    .pv1-tot-num { font-size: 30px; }
+    .pv1-tot-key { font-size: 9px; letter-spacing: .1em; }
+    .pv1-tot.is-kcal {
+        grid-column: auto;
+        padding: 18px 8px;
+        border-right: 1px solid var(--border);
+        border-bottom: none;
+    }
+    .pv1-tot.is-kcal .pv1-tot-num { font-size: 30px; }
+    .pv1-tot.is-kcal .pv1-tot-key { font-size: 9px; letter-spacing: .1em; }
 }
 
-/* Action row */
+/* Action row — column on mobile (per design rule), row on desktop */
 .pv1-actions { margin-top: 18px; display: flex; flex-direction: column; gap: 8px; }
-.pv1-actions-row { display: flex; gap: 8px; }
+.pv1-actions-row { display: flex; flex-direction: column; gap: 8px; }
+@media (min-width: 768px) {
+    .pv1-actions-row { flex-direction: row; }
+}
 .pv1-btn {
     flex: 1; padding: 13px 16px; cursor: pointer; font-family: inherit;
     font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
