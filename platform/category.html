@@ -12,9 +12,11 @@
     <style>
         /* ── HERO (Variant 1 — фото слева, editorial-серьёзная типографика) ── */
         .cat-hero {
-            padding: 24px 0 28px; border-bottom: 1px solid var(--border); margin-bottom: 0;
-            /* Резерв под финальный hero на first paint: avatar 88 + padding 24+28 + border 1 = 141 */
-            min-height: 141px; box-sizing: border-box;
+            padding: 24px 0 28px; margin-bottom: 0;
+            /* Резерв под финальный hero на first paint: avatar 88 + padding 24+28 = 140.
+               Border снизу убран — на Variant 1 единственная линия рисуется
+               border-top'ом фильтр-бара (heavy black, var(--text)). */
+            min-height: 140px; box-sizing: border-box;
         }
         .cat-hero-row { display: flex; align-items: center; gap: 24px; }
         .cat-hero-ava {
