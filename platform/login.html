@@ -6,482 +6,431 @@
     <title>Войти — Умная тарелка</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400;1,700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --accent: #e8400a;
             --accent-d: #c73208;
-            --accent-l: #fff2ed;
-            --accent-glow: rgba(232,64,10,.15);
-            --bg: #ffffff;
-            --bg-alt: #faf8f5;
+            --bg: #f0ece6;
             --bg-card: #ffffff;
-            --bg-input: #faf8f5;
+            --bg-input: #ffffff;
             --border: #e5e5e5;
             --text: #111111;
             --text-2: #444444;
             --text-3: #777777;
+            --sans: 'Montserrat', system-ui, -apple-system, sans-serif;
+            --serif: 'Playfair Display', Georgia, serif;
         }
 
         body {
-            font-family: 'Montserrat', system-ui, sans-serif;
+            font-family: var(--sans);
             color: var(--text);
             background: var(--bg);
             min-height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
+            padding: 40px 24px;
         }
 
-        /* Ambient glow orbs */
-        body::before {
-            content: '';
-            position: fixed;
-            width: 500px; height: 500px;
-            top: -15%; left: -10%;
-            background: radial-gradient(circle, rgba(232,64,10,.06) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            width: 600px; height: 600px;
-            bottom: -20%; right: -15%;
-            background: radial-gradient(circle, rgba(232,64,10,.04) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .lp-container {
+        .lp-shell {
             width: 100%;
-            max-width: 420px;
-            position: relative;
-            z-index: 1;
+            max-width: 1100px;
         }
 
-        /* Top branding */
-        .lp-brand {
-            text-align: center;
-            margin-bottom: 36px;
-        }
-
-        .lp-brand-ava {
-            width: 64px; height: 64px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #eee;
-            margin-bottom: 14px;
-            box-shadow: 0 4px 24px rgba(0,0,0,.08), 0 0 30px var(--accent-glow);
-        }
-
-        .lp-brand-title {
-            font-family: 'Playfair Display', Georgia, serif;
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .lp-brand-title span {
-            color: var(--accent);
-        }
-
-        .lp-brand-sub {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text);
-            margin-top: 4px;
-        }
-
-        /* Card */
+        /* ── Split card ───────────────────────────────────────── */
         .lp-card {
             background: var(--bg-card);
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            min-height: 600px;
             border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 36px 32px 32px;
-            box-shadow: 0 4px 32px rgba(0,0,0,.06), 0 1px 4px rgba(0,0,0,.04);
+        }
+
+        /* ── Left: media panel ────────────────────────────────── */
+        .lp-media {
             position: relative;
             overflow: hidden;
+            background: #1a1410;
+            min-height: 320px;
         }
-
-        /* Subtle top glow line */
-        .lp-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 20%; right: 20%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            opacity: .5;
-        }
-
-        .lp-step-header {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .lp-step-icon {
-            width: 48px; height: 48px;
-            border-radius: 14px;
-            background: var(--accent-l);
-            border: 1px solid #fdd9c8;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 14px;
-            font-size: 24px;
-        }
-
-        .lp-step-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 6px;
-        }
-
-        .lp-step-desc {
-            font-size: 15px;
-            color: var(--text);
-            line-height: 1.5;
-        }
-
-        .lp-step-desc strong { color: var(--text); font-weight: 700; }
-
-        /* Inputs */
-        .lp-field { margin-bottom: 16px; }
-
-        .lp-label {
+        .lp-media-img {
+            width: 100%; height: 100%;
+            object-fit: cover;
             display: block;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 6px;
+            opacity: .85;
+        }
+        .lp-media-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,.32) 0%, rgba(0,0,0,.66) 100%);
+            display: flex; flex-direction: column;
+            justify-content: space-between;
+            padding: 36px 36px 40px;
         }
 
-        .lp-input {
+        .lp-brand {
+            font-family: var(--serif);
+            font-size: 26px; font-weight: 700;
+            color: #fff;
+            letter-spacing: -.01em;
+            line-height: 1.1;
+        }
+        .lp-brand .accent {
+            color: var(--accent);
+            font-style: italic;
+        }
+        .lp-brand-sub {
+            font-size: 10px; font-weight: 700;
+            letter-spacing: .14em; text-transform: uppercase;
+            color: rgba(255,255,255,.7);
+            margin-top: 8px;
+        }
+
+        .lp-quote-eyebrow {
+            font-size: 10px; font-weight: 700;
+            letter-spacing: .16em; text-transform: uppercase;
+            color: rgba(255,255,255,.72);
+            margin-bottom: 16px;
+        }
+        .lp-quote-text {
+            font-family: var(--serif);
+            font-size: 26px; font-weight: 700;
+            line-height: 1.22;
+            letter-spacing: -.01em;
+            color: #fff;
+            max-width: 420px;
+        }
+        .lp-quote-author {
+            margin-top: 16px;
+            font-size: 12px; font-weight: 600;
+            color: rgba(255,255,255,.85);
+        }
+
+        /* ── Right: form panel ────────────────────────────────── */
+        .lp-form {
+            padding: 64px 56px;
+            display: flex; flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+        }
+
+        .form-eyebrow {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: .14em; text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 14px;
+        }
+        .lp-h2 {
+            font-family: var(--serif);
+            font-size: 38px; font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -.02em;
+            margin: 0 0 12px;
+        }
+        .lp-lead {
+            font-size: 15px; line-height: 1.5;
+            color: var(--text-2);
+            margin: 0 0 28px;
+            max-width: 380px;
+        }
+        .lp-lead strong {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: .12em; text-transform: uppercase;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .form-input {
             width: 100%;
-            padding: 15px 16px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 16px;
+            padding: 14px 16px;
             font-family: inherit;
+            font-size: 15px;
             font-weight: 500;
             color: var(--text);
+            border: 1px solid var(--border);
             background: var(--bg-input);
+            border-radius: 0;
             outline: none;
-            transition: all .2s;
+            transition: border-color .15s, box-shadow .15s;
         }
-
-        .lp-input::placeholder { color: #bbb; }
-
-        .lp-input:focus {
+        .form-input::placeholder { color: var(--text-3); }
+        .form-input:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-glow);
+            box-shadow: 0 0 0 1px var(--accent);
         }
-
-        .lp-input[readonly] {
+        .form-input[readonly] {
             color: var(--text-3);
-            opacity: .7;
+            background: #fafafa;
         }
-
-        .lp-input.code-input {
-            font-size: 30px;
+        .form-input.code-input {
+            font-size: 28px;
             letter-spacing: 14px;
             text-align: center;
             font-weight: 700;
-            padding: 18px;
+            padding: 18px 16px;
         }
 
-        /* Buttons */
-        .lp-btn {
+        .field { margin-bottom: 18px; }
+
+        /* ── Buttons ──────────────────────────────────────────── */
+        .btn-primary {
             width: 100%;
             padding: 16px;
-            border-radius: 12px;
             font-family: inherit;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            border: none;
-            margin-bottom: 10px;
-            transition: all .2s;
-        }
-
-        .lp-btn:active { transform: scale(.98); }
-        .lp-btn:disabled { opacity: .35; cursor: not-allowed; }
-
-        .lp-btn-primary {
-            background: linear-gradient(135deg, #e8400a 0%, #ff6b3d 100%);
+            font-size: 13px; font-weight: 800;
+            letter-spacing: .1em; text-transform: uppercase;
+            background: var(--text);
             color: #fff;
-            box-shadow: 0 4px 16px rgba(232,64,10,.25);
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            transition: background .15s, opacity .15s;
         }
+        .btn-primary:hover:not(:disabled) { background: var(--accent); }
+        .btn-primary:active:not(:disabled) { background: var(--accent-d); }
+        .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
 
-        .lp-btn-primary:hover:not(:disabled) {
-            box-shadow: 0 6px 24px rgba(232,64,10,.35);
-            transform: translateY(-1px);
-        }
-
-        .lp-btn-ghost {
-            background: var(--bg-input);
+        .btn-secondary {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: transparent;
             border: 1px solid var(--border);
             color: var(--text-2);
-            font-weight: 500;
-            font-size: 14px;
-            margin-bottom: 0;
+            font-family: inherit;
+            font-size: 12px; font-weight: 700;
+            letter-spacing: .1em; text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 0;
+            transition: color .15s, border-color .15s;
         }
+        .btn-secondary:hover { color: var(--text); border-color: var(--text); }
 
-        .lp-btn-ghost:hover {
-            background: #eee;
-            color: var(--text);
-        }
-
-        /* OAuth buttons */
-        .lp-divider {
-            display: flex; align-items: center; gap: 14px;
-            margin: 20px 0 16px; color: var(--text-3); font-size: 13px; font-weight: 500;
-        }
-        .lp-divider::before, .lp-divider::after {
-            content: ''; flex: 1; height: 1px; background: var(--border);
-        }
-
-        .lp-oauth-row { display: flex; gap: 10px; }
-
-        .lp-btn-oauth {
-            flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 14px 12px; border-radius: 12px; border: 2px solid var(--border);
-            background: var(--bg-card); font-family: inherit; font-size: 14px; font-weight: 600;
-            color: var(--text); cursor: pointer; transition: all .2s; text-decoration: none;
-        }
-        .lp-btn-oauth:hover { border-color: var(--text-3); background: var(--bg-alt); }
-        .lp-btn-oauth svg { flex-shrink: 0; }
-
+        /* ── Error / hint / timer ─────────────────────────────── */
         .lp-error {
-            color: #c0392b;
-            font-size: 13px;
-            margin-bottom: 12px;
             display: none;
-            background: #fef2f2;
+            margin-bottom: 14px;
             padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid #fecaca;
+            border-left: 3px solid #c0392b;
+            background: #fdf3f2;
+            color: #8b1f15;
+            font-size: 13px; font-weight: 600;
+            line-height: 1.4;
         }
+        .lp-error.is-visible { display: block; }
 
-        .lp-hint {
-            color: var(--text-2);
-            font-size: 14px;
-            font-weight: 500;
-            margin-top: 14px;
+        .fine-print {
+            font-size: 11px;
+            color: var(--text-3);
             line-height: 1.6;
-            text-align: center;
+            margin-top: 18px;
         }
+        .fine-print a {
+            color: var(--text);
+            text-decoration: underline;
+        }
+        .fine-print a:hover { color: var(--accent); }
 
-        .lp-step { animation: fadeUp .35s ease both; }
+        .lp-timer {
+            margin-top: 14px;
+            font-size: 12px;
+            color: var(--text-2);
+            text-align: center;
+            letter-spacing: .02em;
+        }
+        .lp-timer a {
+            color: var(--accent);
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .lp-timer a:hover { text-decoration: underline; }
 
+        /* ── Step animation ───────────────────────────────────── */
+        .lp-step { animation: fadeUp .32s ease both; }
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(16px); }
+            from { opacity: 0; transform: translateY(12px); }
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        .lp-timer {
-            color: var(--text-2);
-            font-size: 14px;
-            margin-top: 12px;
-            text-align: center;
-        }
-
-        .lp-timer a {
-            color: var(--accent);
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        .lp-timer a:hover { text-decoration: underline; }
-
+        /* ── Spinner inside primary button ────────────────────── */
         .lp-spinner {
             display: inline-block;
-            width: 18px; height: 18px;
-            border: 2px solid rgba(255,255,255,.4);
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,.35);
             border-top-color: #fff;
             border-radius: 50%;
             animation: spin .6s linear infinite;
-            vertical-align: middle;
-            margin-right: 6px;
+            vertical-align: -2px;
+            margin-right: 8px;
         }
-
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Success */
+        /* ── Success state ───────────────────────────────────── */
         .lp-success {
             display: none;
-            text-align: center;
-            padding: 24px 0;
-            animation: fadeUp .35s ease both;
+            text-align: left;
+            animation: fadeUp .32s ease both;
         }
-
-        .lp-success-glow {
-            width: 72px; height: 72px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #e8400a, #ff6b3d);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            animation: glowPulse .6s ease both;
-            box-shadow: 0 4px 24px rgba(232,64,10,.25);
+        .lp-success-mark {
+            width: 56px; height: 56px;
+            border: 2px solid var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 22px;
         }
-
-        .lp-success-glow svg {
-            width: 32px; height: 32px;
-            stroke: #fff;
+        .lp-success-mark svg {
+            width: 28px; height: 28px;
+            stroke: var(--accent);
             fill: none;
-            stroke-width: 3;
+            stroke-width: 2.5;
             stroke-linecap: round;
             stroke-linejoin: round;
         }
 
-        @keyframes glowPulse {
-            0% { transform: scale(0); box-shadow: 0 0 0 rgba(232,64,10,0); }
-            50% { transform: scale(1.15); box-shadow: 0 6px 32px rgba(232,64,10,.3); }
-            100% { transform: scale(1); box-shadow: 0 4px 24px rgba(232,64,10,.25); }
-        }
-
-        .lp-success-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .lp-success-sub {
-            font-size: 15px;
-            color: var(--text-2);
-            margin-top: 4px;
-        }
-
-        /* Footer */
-        .lp-footer {
-            margin-top: 24px;
-            text-align: center;
-        }
-
-        .lp-footer-text {
-            font-size: 12px;
-            color: var(--text-2);
-            line-height: 1.7;
-        }
-
-        .lp-footer-text a { color: var(--text-2); text-decoration: underline; }
-        .lp-footer-text a:hover { color: var(--text); }
-
-        /* Features below card */
+        /* ── Features under form (decoupled from card grid) ──── */
         .lp-features {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
             margin-top: 28px;
-            flex-wrap: wrap;
-        }
-
-        .lp-feat {
+            padding-top: 22px;
+            border-top: 1px solid var(--border);
             display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .lp-feat {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: .08em; text-transform: uppercase;
             color: var(--text-2);
-            font-weight: 500;
         }
-
         .lp-feat-dot {
-            width: 6px; height: 6px;
-            border-radius: 50%;
+            width: 5px; height: 5px;
             background: var(--accent);
-            box-shadow: 0 0 6px rgba(232,64,10,.3);
+            display: inline-block;
         }
 
-        @media (max-width: 480px) {
-            .lp-card { padding: 28px 20px 24px; border-radius: 16px; }
-            .lp-brand-title { font-size: 26px; }
-            .lp-features { gap: 14px; }
+        /* ── Mobile ───────────────────────────────────────────── */
+        @media (max-width: 860px) {
+            body { padding: 0; align-items: stretch; }
+            .lp-shell { max-width: none; }
+            .lp-card {
+                grid-template-columns: 1fr;
+                min-height: 100dvh;
+                border: none;
+            }
+            .lp-media {
+                min-height: 0;
+                aspect-ratio: 16 / 10;
+            }
+            .lp-media-overlay { padding: 24px; }
+            .lp-brand { font-size: 22px; }
+            .lp-quote-text { font-size: 18px; max-width: none; }
+            .lp-form { padding: 36px 24px 40px; }
+            .lp-h2 { font-size: 30px; }
+            .lp-lead { font-size: 14px; margin-bottom: 22px; }
+        }
+
+        @media (max-width: 380px) {
+            .lp-form { padding: 30px 18px 36px; }
+            .lp-h2 { font-size: 26px; }
+            .form-input.code-input { font-size: 22px; letter-spacing: 10px; }
         }
     </style>
 </head>
 <body>
 
-<div class="lp-container">
-    <div class="lp-brand">
-        <img src="https://voronova.online/images/YV-small.webp" alt="Юлия Воронова" class="lp-brand-ava"
-             onerror="this.style.display='none'">
-        <div class="lp-brand-title">Умная <span>тарелка</span></div>
-        <div class="lp-brand-sub">Юлия Воронова &middot; Нутрициолог</div>
-    </div>
-
+<div class="lp-shell">
     <div class="lp-card">
 
-        <!-- Step 1: Email -->
-        <div id="step-email" class="lp-step">
-            <div class="lp-step-header">
-                <div class="lp-step-icon">&#128274;</div>
-                <div class="lp-step-title">Войти</div>
+        <!-- ─── Left: media panel ─────────────────────────────── -->
+        <aside class="lp-media" aria-hidden="true">
+            <img class="lp-media-img"
+                 src="images/cook-healthy-food.webp"
+                 alt=""
+                 onerror="this.style.display='none'">
+            <div class="lp-media-overlay">
+                <div>
+                    <div class="lp-brand">Умная <span class="accent">тарелка</span></div>
+                    <div class="lp-brand-sub">Юлия Воронова · Нутрициолог</div>
+                </div>
+                <div class="lp-quote">
+                    <div class="lp-quote-eyebrow">Принцип платформы</div>
+                    <div class="lp-quote-text">«Сбалансированное питание — не диета. Это привычка чувствовать сытость и лёгкость.»</div>
+                    <div class="lp-quote-author">— Юлия Воронова</div>
+                </div>
             </div>
-            <div class="lp-field">
-                <label class="lp-label" for="email-input">Email</label>
-                <input class="lp-input" type="email" id="email-input"
-                       placeholder="your@email.com" autocomplete="email">
-            </div>
-            <div class="lp-error" id="email-error"></div>
-            <button class="lp-btn lp-btn-primary" id="send-code-btn" onclick="sendCode()">Получить код</button>
-            <p class="lp-hint">Без пароля. 6-значный код на почту.</p>
+        </aside>
 
-            <!-- OAuth кнопки (VK/Yandex) — код готов, включить после регистрации приложений -->
+        <!-- ─── Right: form panel ─────────────────────────────── -->
+        <main class="lp-form">
 
-            <div class="lp-footer">
-                <p class="lp-footer-text" id="lp-footer-legal">
+            <!-- Step 1: Email -->
+            <section id="step-email" class="lp-step">
+                <div class="form-eyebrow">Войти / Регистрация</div>
+                <h1 class="lp-h2">Войдите в свой кабинет</h1>
+                <p class="lp-lead">Введите email — мы пришлём 6-значный код. Пароль не нужен.</p>
+
+                <div class="field">
+                    <label class="form-label" for="email-input">Email</label>
+                    <input class="form-input" type="email" id="email-input"
+                           placeholder="your@email.com" autocomplete="email"
+                           aria-describedby="email-error">
+                </div>
+                <div class="lp-error" id="email-error" role="alert" aria-live="polite"></div>
+                <button class="btn-primary" id="send-code-btn" type="button" onclick="sendCode()">Получить код →</button>
+
+                <p class="fine-print" id="lp-footer-legal">
                     Продолжая, вы соглашаетесь с
-                    <a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener">политикой обработки данных</a>
+                    <a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener">политикой обработки данных</a>.
                 </p>
-            </div>
-        </div>
+            </section>
 
-        <!-- Step 2: Code -->
-        <div id="step-code" class="lp-step" style="display:none">
-            <div class="lp-step-header">
-                <div class="lp-step-icon">&#9993;&#65039;</div>
-                <div class="lp-step-title">Введите код</div>
-                <div class="lp-step-desc">Отправили на <strong id="email-show-text"></strong></div>
-            </div>
-            <div class="lp-field">
-                <input class="lp-input code-input" type="text" id="code-input"
-                       placeholder="------" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
-            </div>
-            <div class="lp-error" id="code-error"></div>
-            <button class="lp-btn lp-btn-primary" id="verify-btn" onclick="verifyCode()">Войти</button>
-            <div class="lp-timer" id="timer-block">
-                Отправить повторно через <span id="timer-sec">60</span> сек
-            </div>
-            <div style="height:6px"></div>
-            <button class="lp-btn lp-btn-ghost" onclick="goBack()">&#8592; Другой email</button>
-        </div>
+            <!-- Step 2: Code -->
+            <section id="step-code" class="lp-step" style="display:none">
+                <div class="form-eyebrow">Подтверждение</div>
+                <h1 class="lp-h2">Введите код</h1>
+                <p class="lp-lead">Отправили на <strong id="email-show-text"></strong></p>
 
-        <!-- Step 3: Success -->
-        <div id="step-success" class="lp-success">
-            <div class="lp-success-glow">
-                <svg viewBox="0 0 24 24"><polyline points="6 12 10 16 18 8"/></svg>
+                <div class="field">
+                    <label class="form-label" for="code-input">6-значный код</label>
+                    <input class="form-input code-input" type="text" id="code-input"
+                           placeholder="------" maxlength="6"
+                           inputmode="numeric" autocomplete="one-time-code"
+                           aria-describedby="code-error">
+                </div>
+                <div class="lp-error" id="code-error" role="alert" aria-live="polite"></div>
+                <button class="btn-primary" id="verify-btn" type="button" onclick="verifyCode()">Войти →</button>
+
+                <div class="lp-timer" id="timer-block">
+                    Отправить повторно через <span id="timer-sec">60</span> сек
+                </div>
+                <button class="btn-secondary" type="button" onclick="goBack()">← Другой email</button>
+            </section>
+
+            <!-- Step 3: Success -->
+            <section id="step-success" class="lp-success">
+                <div class="lp-success-mark">
+                    <svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 7"/></svg>
+                </div>
+                <div class="form-eyebrow">Готово</div>
+                <h1 class="lp-h2">Добро пожаловать</h1>
+                <p class="lp-lead">Загружаем платформу…</p>
+            </section>
+
+            <!-- Features (kept compact for trust signal) -->
+            <div class="lp-features">
+                <div class="lp-feat"><span class="lp-feat-dot"></span><span id="lp-recipes-count">36+ рецептов</span></div>
+                <div class="lp-feat"><span class="lp-feat-dot"></span>КБЖУ расчёт</div>
+                <div class="lp-feat"><span class="lp-feat-dot"></span>Конструктор тарелки</div>
             </div>
-            <div class="lp-success-title">Добро пожаловать</div>
-            <div class="lp-success-sub">Загружаем платформу...</div>
-        </div>
 
-    </div>
-
-    <div class="lp-features">
-        <div class="lp-feat"><div class="lp-feat-dot"></div><span id="lp-recipes-count">36+ рецептов</span></div>
-        <div class="lp-feat"><div class="lp-feat-dot"></div>КБЖУ расчёт</div>
-        <div class="lp-feat"><div class="lp-feat-dot"></div>Конструктор тарелки</div>
+        </main>
     </div>
 </div>
 
@@ -508,7 +457,7 @@
         if (_legalEl) {
             _legalEl.innerHTML = 'Продолжая, вы соглашаетесь с '
                 + '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener">офертой</a> и '
-                + '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener">политикой обработки данных</a>';
+                + '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener">политикой обработки данных</a>.';
         }
     }
     if (Auth.isLoggedIn()) {
@@ -572,16 +521,21 @@
 
     function showError(id, msg) {
         var el = document.getElementById(id);
-        el.textContent = msg; el.style.display = 'block';
+        el.textContent = msg;
+        el.classList.add('is-visible');
     }
-    function hideError(id) { document.getElementById(id).style.display = 'none'; }
+    function hideError(id) {
+        var el = document.getElementById(id);
+        el.classList.remove('is-visible');
+        el.textContent = '';
+    }
 
     function setLoading(btnId, loading) {
         var btn = document.getElementById(btnId);
         if (loading) {
             btn.disabled = true;
             btn.dataset.text = btn.textContent;
-            btn.innerHTML = '<span class="lp-spinner"></span>Отправка...';
+            btn.innerHTML = '<span class="lp-spinner"></span>Отправка…';
         } else {
             btn.disabled = false;
             btn.textContent = btn.dataset.text || 'Отправить';
@@ -618,7 +572,7 @@
         step2.style.display = 'block';
         step2.style.animation = 'none';
         requestAnimationFrame(function() {
-            step2.style.animation = 'fadeUp .35s ease both';
+            step2.style.animation = 'fadeUp .32s ease both';
             document.getElementById('code-input').focus();
         });
         startTimer();
@@ -643,7 +597,7 @@
 
     async function resendCode() {
         var block = document.getElementById('timer-block');
-        block.innerHTML = 'Отправка...';
+        block.innerHTML = 'Отправка…';
         try {
             var res = await fetch(API_BASE + '/auth/send-code', {
                 method: 'POST',
@@ -676,7 +630,7 @@
             document.getElementById('step-code').style.display = 'none';
             var success = document.getElementById('step-success');
             success.style.display = 'block';
-            success.style.animation = 'fadeUp .35s ease both';
+            success.style.animation = 'fadeUp .32s ease both';
             setTimeout(function() { location.href = _returnUrl; }, 900);
         } catch (e) {
             showError('code-error', 'Ошибка сети');
@@ -691,7 +645,7 @@
         var s1 = document.getElementById('step-email');
         s1.style.display = 'block';
         s1.style.animation = 'none';
-        requestAnimationFrame(function() { s1.style.animation = 'fadeUp .35s ease both'; });
+        requestAnimationFrame(function() { s1.style.animation = 'fadeUp .32s ease both'; });
         document.getElementById('email-input').focus();
     }
 
