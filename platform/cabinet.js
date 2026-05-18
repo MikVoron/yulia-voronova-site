@@ -750,31 +750,67 @@
 			const hist = Plate.getHistory();
 			const el = document.getElementById('history-body');
 			if (!hist.length) {
-				el.innerHTML = '<div class="hist-empty">История пока пуста.<br>Сохраните тарелку из главного меню.</div>';
+				el.innerHTML = '<div class="hist-empty"><div class="hist-empty-mark">История пуста</div>Сохраните тарелку из&nbsp;главного меню.</div>';
 				return;
 			}
-			el.innerHTML = hist.map((entry, idx) => {
+
+			// Группировка по дням
+			const groups = {};
+			const groupOrder = [];
+			hist.forEach((entry, idx) => {
 				const d = new Date(entry.date);
-				const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-				const timeStr = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-				const t = entry.totals || {};
-				const items = entry.items || [];
-				return `<div class="hist-entry" id="he-${idx}">
-                <div class="hist-entry-head" onclick="toggleHist(${idx})">
-                    <div>
-                        <div class="hist-date">${dateStr}, ${timeStr}</div>
-                        <div class="hist-macros">${t.kcal || 0} ккал · Б${t.protein || 0} · Ж${t.fat || 0} · У${t.carbs || 0}</div>
-                    </div>
-                    <span class="hist-arrow">▾</span>
-                </div>
-                <div class="hist-items">
-                    ${items.map(it => `<div class="hist-item">
-                        <span class="hist-item-emoji">${it.emoji || '🍴'}</span>
-                        <span class="hist-item-name">${it.name}</span>
-                        <span class="hist-item-kcal">${it.kcal || 0} ккал</span>
-                    </div>`).join('')}
-                </div>
-            </div>`;
+				const dayKey = d.toLocaleDateString('ru-RU', { year: 'numeric', month: '2-digit', day: '2-digit' });
+				if (!groups[dayKey]) {
+					groups[dayKey] = { date: d, entries: [], dayKey };
+					groupOrder.push(dayKey);
+				}
+				groups[dayKey].entries.push({ entry, idx });
+			});
+
+			el.innerHTML = groupOrder.map(dayKey => {
+				const g = groups[dayKey];
+				const d = g.date;
+				const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+				const weekday = d.toLocaleDateString('ru-RU', { weekday: 'long' });
+				const weekdayCap = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+				const dayKcal = g.entries.reduce((sum, { entry }) => sum + (Number((entry.totals || {}).kcal) || 0), 0);
+
+				const mealsHtml = g.entries.map(({ entry, idx }) => {
+					const t = entry.totals || {};
+					const items = entry.items || [];
+					const timeStr = new Date(entry.date).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+					const chips = [
+						Number(t.protein) ? `<span class="macro-chip prot">Б · ${t.protein}</span>` : '',
+						Number(t.fat)     ? `<span class="macro-chip fat">Ж · ${t.fat}</span>` : '',
+						Number(t.carbs)   ? `<span class="macro-chip carb">У · ${t.carbs}</span>` : '',
+						Number(t.fiber)   ? `<span class="macro-chip fib">К · ${t.fiber}</span>` : ''
+					].filter(Boolean).join('');
+					const itemsHtml = items.map(it => `<div class="meal-item">
+						<div class="meal-item-thumb">${escHtml(String(it.emoji || '🍴'))}</div>
+						<div class="meal-item-name"><b>${escHtml(String(it.name || ''))}</b></div>
+						<div class="meal-item-kcal">${Number(it.kcal) || 0} ккал</div>
+					</div>`).join('');
+					return `<article class="meal" id="he-${idx}">
+						<button class="meal-head" type="button" onclick="toggleHist(${idx})">
+							<span class="meal-time">${timeStr}</span>
+							<span class="meal-macros">${chips}</span>
+							<span class="meal-kcal">${Number(t.kcal) || 0}<small>ккал</small></span>
+							<span class="meal-chev">▾</span>
+						</button>
+						<div class="meal-body">
+							<div class="meal-items">${itemsHtml}</div>
+						</div>
+					</article>`;
+				}).join('');
+
+				return `<div class="day-block">
+					<div class="day-head">
+						<span class="day-date">${dateStr}</span>
+						<span class="day-weekday">${weekdayCap}</span>
+						<span class="day-total">Итого · <b>${dayKcal} ккал</b></span>
+					</div>
+					${mealsHtml}
+				</div>`;
 			}).join('');
 		}
 
@@ -785,16 +821,29 @@
 		renderHistory();
 
 		// ── ИЗБРАННЫЕ ─────────────────────────────────────────────────────────────
+		let _favFilter = 'all';
+
+		function filterFavs(catId) {
+			_favFilter = catId;
+			document.querySelectorAll('#fav-filters .fav-chip').forEach(btn => {
+				btn.classList.toggle('active', btn.dataset.cat === catId);
+			});
+			_renderFavGrid();
+		}
+
 		function renderFavorites() {
 			renderCabSummaryStats();
 			const ids = Favorites.get();
 			const grid = document.getElementById('fav-grid');
+			const filtersEl = document.getElementById('fav-filters');
 			if (!ids.length) {
+				if (filtersEl) filtersEl.innerHTML = '';
 				grid.innerHTML = '<div class="fav-empty">Нет избранных рецептов.<br>Нажмите ♡ на карточке рецепта.</div>';
 				return;
 			}
 			const dishes = ids.map(id => RECIPES[id]).filter(Boolean);
 			if (ids.length && !dishes.length && isContentError()) {
+				if (filtersEl) filtersEl.innerHTML = '';
 				grid.innerHTML = '<div class="fav-empty" style="text-align:center">' +
 					'<div style="font-size:32px;margin-bottom:8px">📡</div>' +
 					'Не удалось загрузить рецепты<br>' +
@@ -802,7 +851,62 @@
 					'</div>';
 				return;
 			}
-			grid.innerHTML = dishes.map(d => recipeCardHtml(d)).join('');
+			// Build category filter chips from actual favourited recipes
+			if (filtersEl) {
+				const usedCatIds = [...new Set(dishes.map(d => (d.categories && d.categories[0]) || d.cat).filter(Boolean))];
+				if (usedCatIds.length > 1) {
+					const chips = [{ id: 'all', name: 'Все' }, ...usedCatIds.map(id => ({ id, name: (CATEGORIES[id] || {}).name || id }))];
+					filtersEl.innerHTML = chips.map(c =>
+						`<button class="fav-chip${_favFilter === c.id ? ' active' : ''}" data-cat="${escHtml(c.id)}" type="button" onclick="filterFavs('${escHtml(c.id)}')">${escHtml(c.name)}</button>`
+					).join('');
+				} else {
+					filtersEl.innerHTML = '';
+				}
+			}
+			_renderFavGrid(dishes);
+		}
+
+		function _renderFavGrid(dishes) {
+			if (!dishes) {
+				const ids = Favorites.get();
+				dishes = ids.map(id => RECIPES[id]).filter(Boolean);
+			}
+			const grid = document.getElementById('fav-grid');
+			const filtered = _favFilter === 'all' ? dishes : dishes.filter(d => {
+				const primary = (d.categories && d.categories[0]) || d.cat;
+				return primary === _favFilter;
+			});
+			if (!filtered.length) {
+				grid.innerHTML = '<div class="fav-empty">Нет рецептов в этой категории.</div>';
+				return;
+			}
+			grid.innerHTML = filtered.map(d => favCardHtml(d)).join('');
+		}
+
+		function favCardHtml(d) {
+			const _id = encodeURIComponent(d.id);
+			const _name = escHtml(d.name || '');
+			const _photo = escHtml(d.photo || '');
+			const _emoji = escHtml(d.emoji || '🍴');
+			const _imgPos = escHtml(d.imgPosition || '');
+			const _kcal = Number(d.kcal) || 0;
+			const primaryCatId = (d.categories && d.categories[0]) || d.cat;
+			const catName = primaryCatId ? escHtml((CATEGORIES[primaryCatId] || {}).name || primaryCatId) : '';
+			const photoHtml = _photo
+				? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
+				: `<div class="recipe-card-emoji">${_emoji}</div>`;
+			return `<button class="fav-card" type="button" onclick="goToRecipe('${_id}')">
+				<div class="fav-card-media">
+					${photoHtml}
+					<button class="fav-card-bookmark active" type="button" id="fav-${_id}"
+						onclick="event.stopPropagation();toggleFav('${_id}')" aria-label="Убрать из избранного">♥</button>
+				</div>
+				${catName ? `<div class="fav-card-eyebrow">${catName}</div>` : ''}
+				<div class="fav-card-body">
+					<div class="fav-card-title">${_name}</div>
+				</div>
+				${_kcal ? `<div class="fav-card-foot"><span class="fav-card-kcal-lab">ккал</span><span class="fav-card-kcal-val">${_kcal}</span></div>` : ''}
+			</button>`;
 		}
 
 		// ── ЗАМЕТКИ ───────────────────────────────────────────────────────────────
@@ -823,37 +927,37 @@
 				Notes.add(text);
 			}
 			ta.value = '';
-			document.querySelector('.btn-green[onclick="addNote()"]').textContent = 'Сохранить';
+			document.getElementById('notes-save-btn').textContent = 'Сохранить';
 			renderNotesList();
 		}
 
 		function renderNotesList() {
 			const notes = Notes.get();
 			const el = document.getElementById('notes-list');
-			if (!notes.length) { el.innerHTML = ''; return; }
+			const metaEl = document.querySelector('.cab-note-list-meta');
+			if (!notes.length) {
+				el.innerHTML = '<div class="cab-notes-empty">Заметок пока нет.<br>Напишите первую!</div>';
+				if (metaEl) metaEl.textContent = '';
+				return;
+			}
 			const plural = n => n === 1 ? '1 заметка' : n <= 4 ? n + ' заметки' : n + ' заметок';
-			el.innerHTML = `<div style="font-size:13px;color:var(--text-3);font-weight:600;margin-bottom:14px">${plural(notes.length)}</div>` +
-				notes.map(n => {
-					const d = new Date(n.updated || n.date);
-					const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-					const timeStr = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-					return `<div class="hist-entry" id="note-${n.id}">
-                    <div class="hist-entry-head" onclick="toggleNote(${n.id})">
-                        <div>
-                            <div class="hist-date">${n.title}</div>
-                            <div class="hist-macros">${dateStr} · ${timeStr}</div>
-                        </div>
-                        <div style="display:flex;align-items:center;gap:8px">
-                            <button style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;padding:4px"
-                                onclick="event.stopPropagation();editNote(${n.id})">Изменить</button>
-                            <button style="font-size:12px;color:var(--text-3);background:none;border:none;cursor:pointer;padding:4px"
-                                onclick="event.stopPropagation();deleteNote(${n.id})">✕</button>
-                            <span class="hist-arrow">▾</span>
-                        </div>
-                    </div>
-                    <div class="hist-items" style="white-space:pre-wrap;font-size:13px;color:var(--text-2);line-height:1.6">${escHtml(n.text)}</div>
-                </div>`;
-				}).join('');
+			if (metaEl) metaEl.textContent = plural(notes.length);
+			el.innerHTML = notes.map(n => {
+				const d = new Date(n.updated || n.date);
+				const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+				const timeStr = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+				return `<div class="cab-note-item" id="note-${n.id}">
+					<div class="cab-note-head">
+						<span class="cab-note-date">${dateStr} · ${timeStr}</span>
+						<div class="cab-note-actions">
+							<button type="button" onclick="editNote(${n.id})">Изменить</button>
+							<button type="button" onclick="deleteNote(${n.id})">✕</button>
+						</div>
+					</div>
+					<div class="cab-note-title">${escHtml(n.title || '')}</div>
+					<div class="cab-note-body">${escHtml(n.text)}</div>
+				</div>`;
+			}).join('');
 		}
 
 		function toggleNote(id) {
@@ -864,7 +968,7 @@
 			if (!note) return;
 			editingNoteId = id;
 			document.getElementById('notes-ta').value = note.text;
-			document.querySelector('.btn-green[onclick="addNote()"]').textContent = 'Обновить';
+			document.getElementById('notes-save-btn').textContent = 'Обновить';
 			document.getElementById('notes-ta').scrollIntoView({ behavior: 'smooth', block: 'start' });
 			document.getElementById('notes-ta').focus();
 		}
@@ -1069,42 +1173,44 @@
 			}
 		}
 
+		// Maps API category → thread tag CSS class + display label
+		const FB_THREAD_TAG = { wish: 'wish', recipe: 'idea', problem: 'bug' };
+		const FB_THREAD_LABEL = { wish: 'Пожелание', recipe: 'Идея', problem: 'Проблема' };
+
 		function renderFeedbackHistory(all) {
 			const el = document.getElementById('fb-sent-list');
 			if (!all || !all.length) { el.innerHTML = ''; return; }
-			const counter = all.length + ' ' + (all.length === 1 ? 'обращение' : all.length < 5 ? 'обращения' : 'обращений');
-			el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
-				+ '<div style="font-size:14px;font-weight:700;color:var(--text)">Ваши обращения</div>'
-				+ '<span style="font-size:12px;color:var(--text-3);font-weight:600">' + counter + '</span></div>'
-				+ all.map(f => {
-					const d = new Date(f.created_at);
-					const ds = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-					const ts = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-					const badgeCls = FB_BADGE[f.category] || 'fb-badge-wish';
-					const statusHtml = f.status === 'answered'
-						? '<div class="fb-ticket-status fb-st-answered">Ответ получен</div>'
-						: '<div class="fb-ticket-status fb-st-new">На рассмотрении</div>';
-					let replyHtml = '';
-					if (f.admin_reply) {
-						const rd = new Date(f.admin_replied_at);
-						const rds = rd.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-						const rts = rd.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-						replyHtml = '<div class="fb-reply">'
-							+ '<img class="fb-reply-mark" src="' + SITE_BASE + '/images/YV-blog.webp" alt="Юлия Воронова">'
-							+ '<div class="fb-reply-body">'
-							+ '<div class="fb-reply-title">Ответ Юлии</div>'
-							+ '<p>' + escHtml(f.admin_reply) + '</p>'
-							+ '<time>' + rds + ', ' + rts + '</time>'
-							+ '</div></div>';
-					}
-					return '<article class="fb-ticket">'
-						+ '<div class="fb-ticket-head">'
-						+ '<span class="fb-badge ' + badgeCls + '">' + (FB_LABELS[f.category] || f.category) + '</span>'
-						+ '<time>' + ds + ', ' + ts + '</time>'
+			el.innerHTML = all.map(f => {
+				const d = new Date(f.created_at);
+				const ds = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+				const ts = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+				const tagCls = FB_THREAD_TAG[f.category] || 'wish';
+				const tagLabel = FB_THREAD_LABEL[f.category] || (FB_LABELS[f.category] || f.category);
+				const statusHtml = f.status === 'answered'
+					? ''
+					: '<div class="thread-status wait">На рассмотрении</div>';
+				let replyHtml = '';
+				if (f.admin_reply) {
+					const rd = new Date(f.admin_replied_at);
+					const rds = rd.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+					const rts = rd.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+					replyHtml = '<div class="thread-reply">'
+						+ '<div class="thread-reply-head">'
+						+ '<div class="thread-reply-ava">Ю</div>'
+						+ '<span class="thread-reply-name">Юлия Воронова</span>'
+						+ '<span class="thread-reply-date">' + rds + ', ' + rts + '</span>'
 						+ '</div>'
-						+ '<p class="fb-ticket-text">' + escHtml(f.text) + '</p>'
-						+ statusHtml
-						+ replyHtml
-						+ '</article>';
-				}).join('');
+						+ '<p class="thread-reply-text">' + escHtml(f.admin_reply) + '</p>'
+						+ '</div>';
+				}
+				return '<article class="thread">'
+					+ '<div class="thread-head">'
+					+ '<span class="thread-tag ' + tagCls + '">' + tagLabel + '</span>'
+					+ statusHtml
+					+ '<span class="thread-date">' + ds + ', ' + ts + '</span>'
+					+ '</div>'
+					+ '<p class="thread-msg">' + escHtml(f.text) + '</p>'
+					+ replyHtml
+					+ '</article>';
+			}).join('');
 		}
