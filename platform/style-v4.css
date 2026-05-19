@@ -2591,25 +2591,25 @@ img { display: block; max-width: 100%; }
         grid-template-columns: 40px 1fr auto;
         gap: 8px;
     }
-    /* Явно прибиваем по колонкам, чтобы исключить auto-placement-сюрпризы
-       при разных состояниях видимости (.sp-nav / .sp-brand-ava). */
-    .sp-burger { grid-column: 1; }
-    .sp-brand  { grid-column: 2; }
-    .sp-utils  { grid-column: 3; }
-    /* Бургер — borderless ghost-button (iOS-конвенция), чтобы визуально
-       не сливался с «карточными» кнопками профиля и тарелки. */
+    /* Явно прибиваем по колонкам с !important — чтобы пробить любые
+       старые правила, кэш или auto-placement, которые могут мешать. */
+    .sp-burger { grid-column: 1 / 2 !important; }
+    .sp-brand  { grid-column: 2 / 3 !important; justify-self: center !important; }
+    .sp-utils  { grid-column: 3 / 4 !important; justify-self: end !important; }
+    /* Бургер — акцентный fill, белая иконка, нельзя пропустить.
+       Контрастирует с белыми «карточками» профиля и тарелки. */
     .sp-burger {
-        display: inline-flex; align-items: center; justify-content: center;
+        display: inline-flex !important;
+        align-items: center; justify-content: center;
         width: 40px; height: 40px;
-        border: none;
-        background: transparent; padding: 0;
+        border: 1px solid var(--accent);
+        background: var(--accent); padding: 0;
         cursor: pointer; flex-shrink: 0;
-        color: var(--text);
-        margin-left: -8px; /* подтягиваем к левому краю v-wrap */
+        color: #fff;
     }
-    .sp-burger:hover { color: var(--accent); }
-    .sp-burger svg { width: 26px; height: 26px; }
-    .sp-burger svg line { stroke-width: 2.4; }
+    .sp-burger:hover { background: var(--text); border-color: var(--text); }
+    .sp-burger svg { width: 22px; height: 22px; }
+    .sp-burger svg line { stroke-width: 2.6; stroke: #fff; }
     /* На внутренних страницах back-btn заменяет бургер в левом слоте (spec §2). */
     .sp-header .vh-back-btn { display: inline-flex; }
     .sp-brand { gap: 0; min-width: 0; justify-self: center; }
