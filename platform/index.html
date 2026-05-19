@@ -836,8 +836,9 @@
 				align-self: center;
 				margin-top: 4px;
 			}
-			/* «Открыть рецепт» — на мобиле сразу оранжевый (hover-состояние desktop). */
-			.sp-new-card-cta { color: var(--accent); border-top-color: var(--accent); }
+			/* «Открыть рецепт» — на мобиле сразу оранжевый текст (hover-состояние desktop).
+			   Линию-разделитель оставляем чёрной — оранжевая визуально слишком кричала. */
+			.sp-new-card-cta { color: var(--accent); }
 			/* Внутри секции «Новое» отделяем текстовые новости от featured-рецепта:
 			   тонкий разделитель + sub-eyebrow «Обновления». Только на mobile —
 			   на desktop secция уже визуально разнесена в 2 колонки. */
@@ -1278,7 +1279,6 @@
 			<section class="sp-new-block" id="new-block">
 				<div class="sp-sec-head">
 					<h2 class="sp-sec-title">Новое</h2>
-					<a class="sp-sec-link" id="new-block-all" href="category.html">Все рецепты →</a>
 				</div>
 				<div class="sp-new-grid">
 					<div class="sp-new-feature" id="new-feature"></div>
@@ -1920,13 +1920,16 @@
 				: '';
 
 			const onclick = locked ? `showLockedMsg('${_id}')` : `location.href='recipe.html?id=${_id}&from=${_cat}'`;
-			const eyebrow = 'Новый рецепт' + (item.date ? ' · ' + item.date : '');
+			// Без префикса «Новый рецепт» (повторяет название секции «Новое»).
+			// Год и «г.» обрезаем — на главной показываем только день+месяц.
+			const eyebrow = (item.date || '').replace(/\s*\d{4}\s*г\.?$/, '').trim();
 
+			// Бейдж «Новинка» здесь не рисуем — повторяет название секции «Новое».
+			// На карточках рецептов в других местах (категории/featured listings) бейдж остаётся.
 			return `<button class="sp-new-card${locked ? ' locked' : ''}" type="button" onclick="${onclick}">
 				<div class="sp-new-card-media">
 					${photoHtml}
 					<div class="card-badge-stack">
-						${item.badge ? '<div class="card-new-badge">' + escHtml(String(item.badge)) + '</div>' : ''}
 						${lockBadge}${freeBadge}
 					</div>
 				</div>
