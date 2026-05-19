@@ -754,6 +754,9 @@
             var statusBadge = f.status === 'answered'
                 ? '<span class="st-badge st-confirmed">Отвечено</span>'
                 : '<span class="st-badge st-trial">Новое</span>';
+            var hiddenBadge = f.user_deleted_at
+                ? '<span class="st-badge" style="background:#e8e6e0;color:#6b6b6b" title="Пользователь скрыл обращение из своего ЛК. В базе оно сохранено.">Скрыто пользователем</span>'
+                : '';
             var replyBlock = '';
             if (f.admin_reply) {
                 replyBlock = '<div style="margin-top:10px;padding:10px;background:#edf6ee;border-radius:8px;font-size:13px;color:#333;line-height:1.5">'
@@ -765,10 +768,11 @@
             var actions = f.status === 'new'
                 ? '<button class="adm-btn adm-btn-confirm" onclick="openFbReply(' + f.id + ')" style="font-size:12px;padding:6px 12px">Ответить</button>'
                 : '<button class="adm-btn" onclick="openFbReply(' + f.id + ')" style="font-size:12px;padding:6px 12px">Изменить ответ</button>';
-            return '<div style="padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:#fff">'
-                + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+            var rowStyle = f.user_deleted_at ? 'padding:14px;border:1px dashed var(--border);border-radius:10px;margin-bottom:8px;background:#faf9f6;opacity:.85' : 'padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:#fff';
+            return '<div style="' + rowStyle + '">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap">'
                 + '<div><strong style="font-size:13px">' + esc(f.display_name || f.email) + '</strong>' + (f.display_name ? '<br><span style="font-size:11px;color:var(--text-3)">' + esc(f.email) + '</span>' : '') + ' · <span style="font-size:12px;color:var(--text-3)">' + catLabel + '</span></div>'
-                + '<div style="display:flex;align-items:center;gap:8px">' + statusBadge + '<span style="font-size:11px;color:var(--text-3)">' + fmtDateTime(f.created_at) + '</span></div>'
+                + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + statusBadge + hiddenBadge + '<span style="font-size:11px;color:var(--text-3)">' + fmtDateTime(f.created_at) + '</span></div>'
                 + '</div>'
                 + '<div style="font-size:14px;color:var(--text);line-height:1.6;white-space:pre-wrap">' + esc(f.text) + '</div>'
                 + replyBlock

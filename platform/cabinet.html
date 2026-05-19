@@ -878,6 +878,13 @@
 		.thread-status::before { content: ''; width: 6px; height: 6px; background: currentColor; border-radius: 50%; }
 		.thread-status.wait { color: var(--text-3); }
 		.thread-date { margin-left: auto; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--text-3); }
+		.thread-hide {
+			background: none; border: none; padding: 4px 0; cursor: pointer;
+			font-family: inherit; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+			color: var(--text-3); transition: color .15s;
+		}
+		.thread-hide:hover:not(:disabled) { color: var(--accent); }
+		.thread-hide:disabled { opacity: .5; cursor: default; }
 		.thread-msg { font-family: var(--serif); font-size: 16px; line-height: 1.5; font-style: italic; color: var(--text); margin: 0 0 14px; }
 		.thread-reply { margin-left: 24px; padding: 16px 18px 16px 22px; background: #fffaf6; border-left: 3px solid var(--accent); }
 		.thread-reply-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }

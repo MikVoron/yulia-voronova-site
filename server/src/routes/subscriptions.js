@@ -118,10 +118,10 @@ async function subscriptionRoutes(fastify) {
     return result.rows[0];
   });
 
-  // GET /feedback — обращения текущего пользователя
+  // GET /feedback — обращения текущего пользователя (без скрытых им самим)
   fastify.get('/feedback', { preHandler: authenticate }, async (req) => {
     const result = await db.query(
-      'SELECT id, category, text, status, admin_reply, admin_replied_at, reply_seen, created_at FROM feedback_messages WHERE user_id=$1 ORDER BY created_at DESC',
+      'SELECT id, category, text, status, admin_reply, admin_replied_at, reply_seen, created_at FROM feedback_messages WHERE user_id=$1 AND user_deleted_at IS NULL ORDER BY created_at DESC',
       [req.user.sub]
     );
     return result.rows;
@@ -130,9 +130,22 @@ async function subscriptionRoutes(fastify) {
   // POST /feedback/mark-seen — пометить ответы как просмотренные
   fastify.post('/feedback/mark-seen', { preHandler: authenticate }, async (req) => {
     await db.query(
-      "UPDATE feedback_messages SET reply_seen=true WHERE user_id=$1 AND status='answered' AND reply_seen=false",
+      "UPDATE feedback_messages SET reply_seen=true WHERE user_id=$1 AND status='answered' AND reply_seen=false AND user_deleted_at IS NULL",
       [req.user.sub]
     );
+    return { ok: true };
+  });
+
+  // DELETE /feedback/:id — soft-delete на стороне пользователя
+  // В БД запись остаётся (user_deleted_at), админ продолжает её видеть
+  fastify.delete('/feedback/:id', { preHandler: authenticate }, async (req, reply) => {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: 'Некорректный id' });
+    const result = await db.query(
+      'UPDATE feedback_messages SET user_deleted_at=now(), updated_at=now() WHERE id=$1 AND user_id=$2 AND user_deleted_at IS NULL RETURNING id',
+      [id, req.user.sub]
+    );
+    if (!result.rows.length) return reply.status(404).send({ error: 'Обращение не найдено' });
     return { ok: true };
   });
 }

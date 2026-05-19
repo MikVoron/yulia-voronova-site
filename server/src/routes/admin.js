@@ -212,7 +212,7 @@ async function adminRoutes(fastify) {
     params.push(limit);
     params.push(offset);
     const result = await db.query(
-      `SELECT f.id, f.user_id, f.category, f.text, f.status, f.admin_reply, f.admin_replied_at, f.created_at, u.email, u.display_name
+      `SELECT f.id, f.user_id, f.category, f.text, f.status, f.admin_reply, f.admin_replied_at, f.created_at, f.user_deleted_at, u.email, u.display_name
        FROM feedback_messages f JOIN users u ON u.id = f.user_id${where}
        ORDER BY f.created_at DESC
        LIMIT $${params.length - 1} OFFSET $${params.length}`,

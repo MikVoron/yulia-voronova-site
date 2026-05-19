@@ -1299,14 +1299,33 @@
 						+ readMark
 						+ '</div>';
 				}
-				return '<article class="thread">'
+				return '<article class="thread" data-fb-id="' + f.id + '">'
 					+ '<div class="thread-head">'
 					+ '<span class="thread-tag ' + tagCls + '">' + tagLabel + '</span>'
 					+ statusHtml
 					+ '<span class="thread-date">' + ds + ', ' + ts + '</span>'
+					+ '<button type="button" class="thread-hide" title="Скрыть обращение" aria-label="Скрыть обращение" onclick="hideFeedback(' + f.id + ', this)">Скрыть</button>'
 					+ '</div>'
 					+ '<p class="thread-msg">' + escHtml(f.text) + '</p>'
 					+ replyHtml
 					+ '</article>';
 			}).join('');
+		}
+
+		async function hideFeedback(id, btn) {
+			if (!confirm('Скрыть это обращение из списка? В базе оно сохранится, но вы его больше не увидите.')) return;
+			if (btn) { btn.disabled = true; btn.textContent = '...'; }
+			try {
+				const res = await Auth.api('/feedback/' + id, { method: 'DELETE' });
+				if (!res.ok) {
+					alert('Не удалось скрыть обращение');
+					if (btn) { btn.disabled = false; btn.textContent = 'Скрыть'; }
+					return;
+				}
+				// Перерисовать список, чтобы корректно обновился счётчик и пустое состояние
+				loadFeedbackHistory();
+			} catch {
+				alert('Ошибка сети');
+				if (btn) { btn.disabled = false; btn.textContent = 'Скрыть'; }
+			}
 		}
