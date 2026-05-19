@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-19-burger-5" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-19-burger-6" id="vcss">
 	<style>
 		main {
 			padding-bottom: 80px;
@@ -835,6 +835,21 @@
 				display: inline-flex;
 				align-self: center;
 				margin-top: 4px;
+			}
+			/* «Открыть рецепт» — на мобиле сразу оранжевый (hover-состояние desktop). */
+			.sp-new-card-cta { color: var(--accent); border-top-color: var(--accent); }
+			/* Внутри секции «Новое» отделяем текстовые новости от featured-рецепта:
+			   тонкий разделитель + sub-eyebrow «Обновления». Только на mobile —
+			   на desktop secция уже визуально разнесена в 2 колонки. */
+			.sp-new-list { padding-top: 20px; border-top: 1px solid var(--text); position: relative; }
+			.sp-new-list::before {
+				content: 'Обновления';
+				display: block;
+				font: 800 10px/1 var(--sans);
+				letter-spacing: .14em;
+				text-transform: uppercase;
+				color: var(--text-2);
+				margin-bottom: 14px;
 			}
 		}
 

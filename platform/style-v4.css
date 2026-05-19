@@ -2566,7 +2566,7 @@ img { display: block; max-width: 100%; }
    На desktop остаётся текстовая пилюля «Войти». */
 .sp-profile-guest-icon {
     display: none; flex-shrink: 0; color: var(--text);
-    width: 22px; height: 22px;
+    width: 24px; height: 24px;
 }
 .sp-profile.is-guest:hover .sp-profile-guest-icon { color: #fff; }
 
@@ -2611,7 +2611,7 @@ img { display: block; max-width: 100%; }
         color: #fff;
     }
     .sp-burger:hover { background: var(--text); border-color: var(--text); }
-    .sp-burger svg { width: 22px; height: 22px; }
+    .sp-burger svg { width: 24px; height: 24px; }
     .sp-burger svg line { stroke-width: 2.6; stroke: #fff; }
     /* На внутренних страницах back-btn заменяет бургер в левом слоте (spec §2). */
     .sp-header .vh-back-btn { display: inline-flex; }
@@ -2622,10 +2622,14 @@ img { display: block; max-width: 100%; }
     .sp-nav { display: none; }
     .sp-utils { gap: 8px; width: auto; }
     .sp-plate { width: 40px; height: 40px; }
+    /* Одинаковый размер внутренней иконки для плэйта и аватара профиля —
+       обе 24×24 в 40×40 квадратном фрейме, единый editorial-padding. */
+    .sp-plate .sp-plate-svg { width: 24px; height: 24px; }
     .sp-profile {
         padding: 0; width: 40px; min-height: 40px;
         border-radius: 0; justify-content: center;
     }
+    .sp-profile .v-user-avatar { width: 24px; height: 24px; font-size: 11px; }
     .sp-profile .sp-profile-name { display: none; }
     .sp-profile.is-guest { padding: 0; width: 40px; justify-content: center; }
     /* Текст «Войти» уходит в sr-only (визуально скрыт, доступен screenreader/long-press). */
