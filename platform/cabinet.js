@@ -489,6 +489,10 @@
 		function resetPayWizard() {
 			_selectedPlan = null;
 			document.getElementById('pay-success').style.display = 'none';
+			// Гарантируем, что план-карточки отрисованы. loadEarlyBird() пропускается
+			// для active-подписки, поэтому при «Продлить» grid мог быть пустым.
+			var planGrid = document.getElementById('pay-plan-grid');
+			if (planGrid && !planGrid.children.length) renderPlanCards();
 			document.querySelectorAll('.pay-plan-card').forEach(function(c) { c.classList.remove('selected'); });
 			document.getElementById('pay-next-1').disabled = true;
 			document.getElementById('pay-form').style.display = 'flex';
@@ -975,8 +979,8 @@
 				<div class="fav-card-body">
 					<div class="fav-card-title">${_name}</div>
 					${metaHtml}
+					${_kcal ? `<div class="fav-card-foot"><span class="fav-card-kcal-lab">Калорийность</span><span class="fav-card-kcal-val">${_kcal}<small>ккал</small></span></div>` : ''}
 				</div>
-				${_kcal ? `<div class="fav-card-foot"><span class="fav-card-kcal-lab">Калорийность</span><span class="fav-card-kcal-val">${_kcal}<small>ккал</small></span></div>` : ''}
 			</article>`;
 		}
 
@@ -1275,13 +1279,24 @@
 					const rd = new Date(f.admin_replied_at);
 					const rds = rd.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
 					const rts = rd.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+					// «Прочитано Юлией» — используем admin_replied_at как момент прочтения
+					// (если есть ответ, значит сообщение прочитано). Для отдельного read-state
+					// backend должен отдавать read_at/viewed_at — сейчас этого поля нет.
+					const readMark = '<div class="thread-reply-foot">'
+						+ '<span class="thread-read">'
+						+ '<svg viewBox="0 0 18 12"><path d="M0 6.4l1.4-1.4L5 8.6 11.6 2l1.4 1.4L5 11.4 0 6.4zm9 0l1.4-1.4 2.6 2.6L18 2l-.4 1.4-7 7L9 6.4z"/></svg>'
+						+ 'Прочитано Юлией'
+						+ '</span>'
+						+ '<span class="thread-read when">· ' + rds + ', ' + rts + '</span>'
+						+ '</div>';
 					replyHtml = '<div class="thread-reply">'
 						+ '<div class="thread-reply-head">'
-						+ '<div class="thread-reply-ava">Ю</div>'
-						+ '<span class="thread-reply-name">Юлия Воронова</span>'
+						+ '<div class="thread-reply-ava"><img src="' + SITE_BASE + '/images/YV-blog.webp" alt="Юлия Воронова"></div>'
+						+ '<span class="thread-reply-name">Ответ Юлии</span>'
 						+ '<span class="thread-reply-date">' + rds + ', ' + rts + '</span>'
 						+ '</div>'
 						+ '<p class="thread-reply-text">' + escHtml(f.admin_reply) + '</p>'
+						+ readMark
 						+ '</div>';
 				}
 				return '<article class="thread">'
