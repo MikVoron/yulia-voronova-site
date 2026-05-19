@@ -429,15 +429,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // ─── ACTIVE NAV LINK ─────────────────────────────────────────────────────────
 // Подсвечивает текущую ссылку в .sp-nav по URL текущей страницы.
-// index.html  → «Главная»; category.html?cat=X → ссылка с cat=X;
-// recipe.html → пытается определить категорию рецепта (из data-cat
-// атрибута на body или активной категории в URL — если есть).
+// index.html  → «Главная»
+// category.html?cat=X     → ссылка с cat=X
+// recipe.html?from=X      → ссылка с cat=X (категория, из которой пришли)
+// recipe.html без from    → опционально data-cat на <body>
 document.addEventListener('DOMContentLoaded', function () {
     const nav = document.querySelector('.sp-nav');
     if (!nav) return;
     const path = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
     const params = new URLSearchParams(location.search);
     const cat = params.get('cat');
+    const from = params.get('from');
     const links = nav.querySelectorAll('a');
     let matched = null;
     links.forEach(function(a) {
@@ -450,9 +452,10 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (path === 'category.html' && cat && hCat === cat) {
             matched = a;
         } else if (path === 'recipe.html') {
-            // Опционально: если у <body> есть data-cat — подсветить ту же категорию
-            const bodyCat = document.body.getAttribute('data-cat');
-            if (bodyCat && hCat === bodyCat) matched = a;
+            // 1) из ?from= (нав-ссылки рецептов везде передают from)
+            // 2) fallback: data-cat на <body> если кто-то его выставит
+            const targetCat = from || document.body.getAttribute('data-cat');
+            if (targetCat && hCat === targetCat) matched = a;
         }
     });
     if (matched) matched.classList.add('active');
