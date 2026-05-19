@@ -457,22 +457,23 @@
 		.news-toggle-btn {
 			display: inline-flex;
 			align-items: center;
-			gap: 6px;
-			margin-top: 14px;
-			padding: 8px 16px;
+			gap: 8px;
+			margin-top: 16px;
+			padding: 10px 4px;
 			background: transparent;
-			border: 1px solid var(--border);
-			border-radius: 999px;
+			border: none;
+			border-radius: 0;
 			cursor: pointer;
-			font: 600 12px/1 var(--sans);
-			color: var(--text-2);
-			letter-spacing: .02em;
-			transition: var(--tr);
+			font: 800 11px/1 var(--sans);
+			letter-spacing: .14em;
+			text-transform: uppercase;
+			color: var(--text);
+			transition: color var(--tr);
 		}
 
 		.news-toggle-btn:hover {
-			background: var(--bg-alt);
-			color: var(--text);
+			background: transparent;
+			color: var(--accent);
 		}
 
 		.news-toggle-btn .arr {
