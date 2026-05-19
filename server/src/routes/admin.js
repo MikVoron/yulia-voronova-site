@@ -1,6 +1,6 @@
 const db = require('../db');
 const { requireAdmin } = require('../middleware');
-const { sendPaymentConfirmed, sendSubscriptionExtended, sendFeedbackReply } = require('../email');
+const { sendPaymentConfirmed, sendPaymentRejected, sendSubscriptionExtended, sendFeedbackReply } = require('../email');
 const audit = require('../audit');
 
 async function adminRoutes(fastify) {
@@ -56,13 +56,14 @@ async function adminRoutes(fastify) {
       const p = payment.rows[0];
       // UPSERT подписку: продлить существующую или создать новую
       const sub = await client.query('SELECT * FROM subscriptions WHERE user_id=$1', [p.user_id]);
+      let newUntil;
       if (sub.rows.length) {
         const current = sub.rows[0];
         const baseDate = (current.status === 'active' && new Date(current.active_until) > new Date()) ? new Date(current.active_until) : new Date();
-        const newUntil = new Date(baseDate.getTime() + days * 86400000);
+        newUntil = new Date(baseDate.getTime() + days * 86400000);
         await client.query("UPDATE subscriptions SET status='active', active_until=$2, updated_at=now() WHERE user_id=$1", [p.user_id, newUntil]);
       } else {
-        const newUntil = new Date(Date.now() + days * 86400000);
+        newUntil = new Date(Date.now() + days * 86400000);
         await client.query(
           "INSERT INTO subscriptions (user_id, status, active_until) VALUES ($1, 'active', $2)",
           [p.user_id, newUntil]
@@ -74,7 +75,7 @@ async function adminRoutes(fastify) {
       const payEmail = userRes.rows.length ? userRes.rows[0].email : null;
       audit.log('payment_confirm', { userId: req.user.sub, email: payEmail, detail: 'payment#' + id + ' +' + days + 'd', ip: req.ip });
       if (payEmail) {
-        sendPaymentConfirmed(payEmail, days).catch(e => fastify.log.error(e, 'Payment confirmed email error'));
+        sendPaymentConfirmed(payEmail, days, newUntil).catch(e => fastify.log.error(e, 'Payment confirmed email error'));
       }
       return { ok: true, message: 'Подписка активирована на ' + days + ' дней' };
     } catch (e) {
@@ -89,8 +90,22 @@ async function adminRoutes(fastify) {
   fastify.post('/admin/payments/:id/reject', { preHandler: requireAdmin }, async (req, reply) => {
     const { id } = req.params;
     const { comment } = req.body || {};
-    await db.query("UPDATE payments SET status='rejected', admin_comment=$2, updated_at=now() WHERE id=$1", [id, comment || 'Отклонено']);
-    audit.log('payment_reject', { userId: req.user.sub, detail: 'payment#' + id, ip: req.ip });
+    const adminComment = comment || 'Отклонено';
+    const updated = await db.query(
+      "UPDATE payments SET status='rejected', admin_comment=$2, updated_at=now() WHERE id=$1 AND status='pending' RETURNING user_id",
+      [id, adminComment]
+    );
+    if (!updated.rows.length) {
+      const exists = await db.query('SELECT status FROM payments WHERE id=$1', [id]);
+      if (!exists.rows.length) return reply.status(404).send({ error: 'Платёж не найден' });
+      return reply.status(409).send({ error: 'Платёж уже обработан (статус: ' + exists.rows[0].status + ')' });
+    }
+    const userRes = await db.query('SELECT email FROM users WHERE id=$1', [updated.rows[0].user_id]);
+    const userEmail = userRes.rows.length ? userRes.rows[0].email : null;
+    audit.log('payment_reject', { userId: req.user.sub, email: userEmail, detail: 'payment#' + id, ip: req.ip });
+    if (userEmail) {
+      sendPaymentRejected(userEmail, adminComment).catch(e => fastify.log.error(e, 'Payment rejected email error'));
+    }
     return { ok: true };
   });
 

@@ -118,21 +118,44 @@ async function sendSubscriptionExtended(to, days, activeUntil) {
 }
 
 // ── 5. Оплата подтверждена ──
-async function sendPaymentConfirmed(to, days) {
+async function sendPaymentConfirmed(to, days, activeUntil) {
+  const untilStr = activeUntil
+    ? new Date(activeUntil).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : '';
   const body =
     '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Оплата подтверждена!</h2>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
-    + 'Ваша оплата подтверждена. Подписка на платформу <strong>Умная тарелка</strong> активирована на <strong>'
-    + days + ' дней</strong>.</p>'
+    + 'Ваша оплата подтверждена. Подписка на платформу <strong>Умная тарелка</strong> активирована/продлена на <strong>'
+    + days + ' дн.</strong>' + (untilStr ? ' — до <strong>' + untilStr + '</strong>' : '') + '</p>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
     + 'Все рецепты, конструктор тарелки и другие возможности теперь полностью доступны.</p>'
-    + btn('Перейти на платформу', '' + PLATFORM_URL + '/')
+    + btn('Перейти в личный кабинет', PLATFORM_URL + '/cabinet.html')
     + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
     + 'Спасибо за доверие!</p>';
   await send(to, 'Оплата подтверждена — Умная тарелка', wrap(body));
 }
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'pay@voronova.online';
+// ── 5c. Платёж отклонён ──
+async function sendPaymentRejected(to, reason) {
+  const reasonHtml = reason && String(reason).trim()
+    ? '<div style="padding:14px;background:#faf8f5;border-radius:10px;border:1px solid #eee;margin:0 0 16px;font-size:14px;color:#444;line-height:1.6;white-space:pre-wrap">'
+      + String(reason).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>'
+    : '';
+  const body =
+    '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Платёж не подтверждён</h2>'
+    + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
+    + 'К сожалению, мы не смогли подтвердить ваш платёж на платформе <strong>Умная тарелка</strong>.</p>'
+    + (reasonHtml ? '<p style="font-size:14px;color:#777;margin:0 0 6px">Комментарий администратора:</p>' + reasonHtml : '')
+    + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
+    + 'Если оплата уже была совершена — пришлите, пожалуйста, корректный скриншот перевода через личный кабинет, и мы перепроверим. '
+    + 'Если у вас остались вопросы, напишите нам через раздел «Связь» в кабинете.</p>'
+    + btn('Открыть личный кабинет', PLATFORM_URL + '/cabinet.html')
+    + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
+    + 'Спасибо за понимание!</p>';
+  await send(to, 'Платёж не подтверждён — Умная тарелка', wrap(body));
+}
+
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'hello@voronova.online';
 
 async function sendPaymentNotification(userEmail, amount, paymentDate, hasScreenshot) {
   const body =
@@ -238,6 +261,7 @@ module.exports = {
   sendTrialExpired,
   sendSubscriptionExpired,
   sendPaymentConfirmed,
+  sendPaymentRejected,
   sendSubscriptionExtended,
   sendPaymentNotification,
   sendNewUserNotification,
