@@ -123,8 +123,11 @@ img { display: block; max-width: 100%; }
     transition: background var(--tr);
 }
 .user-dd-item:hover { background: var(--bg-alt); }
+.user-dd-icon { width: 16px; height: 16px; flex-shrink: 0; color: var(--text-3); }
+.user-dd-item:hover .user-dd-icon { color: var(--accent); }
 .user-dd-sep { height: 1px; background: var(--border); margin: 4px 0; }
 .user-dd-logout { color: #c0392b; }
+.user-dd-logout .user-dd-icon { color: #c0392b; }
 
 /* Farewell overlay — editorial card (Logout Modal V1) */
 .farewell-overlay {
@@ -2640,28 +2643,28 @@ img { display: block; max-width: 100%; }
         white-space: nowrap !important;
     }
     .sp-profile.is-guest .sp-profile-guest-icon { display: inline-flex; }
-    /* Mobile profile menu: compact drawer from the avatar side.
-       The accent rail appears first, then the menu reveals left-to-right. */
+    /* Mobile profile menu: compact drawer от стороны аватара (правый край).
+       Акцентный рельс прилегает к аватару, меню раскрывается справа налево. */
     .sp-header .user-dropdown {
         position: fixed;
         top: 76px;
-        left: 24px;
-        right: auto;
+        right: 16px;
+        left: auto;
         width: min(260px, calc(100vw - 48px));
         min-width: 0;
         max-width: calc(100vw - 48px);
-        border-radius: 0 10px 10px 0;
-        border-left: 4px solid var(--accent);
+        border-radius: 10px 0 0 10px;
+        border-right: 4px solid var(--accent);
         z-index: 3000;
-        transform-origin: left top;
-        transform: translate3d(-14px, 0, 0);
-        clip-path: inset(0 calc(100% - 10px) 0 0 round 0 10px 10px 0);
+        transform-origin: right top;
+        transform: translate3d(14px, 0, 0);
+        clip-path: inset(0 0 0 calc(100% - 10px) round 10px 0 0 10px);
         transition: opacity .18s ease, transform .24s cubic-bezier(.2,.8,.2,1),
                     clip-path .24s cubic-bezier(.2,.8,.2,1);
     }
     .sp-header .user-dropdown.open {
         transform: translate3d(0, 0, 0);
-        clip-path: inset(0 0 0 0 round 0 10px 10px 0);
+        clip-path: inset(0 0 0 0 round 10px 0 0 10px);
     }
     .sp-profile-dot { top: -2px; right: -2px; }
 }
