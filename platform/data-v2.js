@@ -427,6 +427,37 @@ document.addEventListener('DOMContentLoaded', function () {
     Feedback.refresh();
 });
 
+// ─── ACTIVE NAV LINK ─────────────────────────────────────────────────────────
+// Подсвечивает текущую ссылку в .sp-nav по URL текущей страницы.
+// index.html  → «Главная»; category.html?cat=X → ссылка с cat=X;
+// recipe.html → пытается определить категорию рецепта (из data-cat
+// атрибута на body или активной категории в URL — если есть).
+document.addEventListener('DOMContentLoaded', function () {
+    const nav = document.querySelector('.sp-nav');
+    if (!nav) return;
+    const path = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    const params = new URLSearchParams(location.search);
+    const cat = params.get('cat');
+    const links = nav.querySelectorAll('a');
+    let matched = null;
+    links.forEach(function(a) {
+        const href = a.getAttribute('href') || '';
+        const hPath = (href.split('?')[0].split('/').pop() || '').toLowerCase();
+        const hParams = new URLSearchParams((href.split('?')[1] || ''));
+        const hCat = hParams.get('cat');
+        if (path === 'index.html' || path === '' || path === '/') {
+            if (hPath === 'index.html' && !hCat) matched = a;
+        } else if (path === 'category.html' && cat && hCat === cat) {
+            matched = a;
+        } else if (path === 'recipe.html') {
+            // Опционально: если у <body> есть data-cat — подсветить ту же категорию
+            const bodyCat = document.body.getAttribute('data-cat');
+            if (bodyCat && hCat === bodyCat) matched = a;
+        }
+    });
+    if (matched) matched.classList.add('active');
+});
+
 // ─── FAVORITES ───────────────────────────────────────────────────────────────
 const Favorites = {
     _key()        { return Auth._userKey('fav_recipes'); },

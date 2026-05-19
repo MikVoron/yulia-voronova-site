@@ -2499,14 +2499,41 @@ img { display: block; max-width: 100%; }
     /* overflow не hidden: hidden обрезал все ссылки когда 1fr вычислялся узким */
 }
 .sp-nav a {
+    position: relative;
     font-size: 11px; font-weight: 600;
     letter-spacing: .08em; text-transform: uppercase;
     color: var(--text-2); padding: 6px 0; white-space: nowrap;
-    border-bottom: 2px solid transparent;
-    transition: color var(--tr), border-color var(--tr);
+    transition: color var(--tr);
+}
+/* Hover: slide-in underline (left → right), оранжевый цвет */
+.sp-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 100%; height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform .26s cubic-bezier(.2, .8, .2, 1);
+    pointer-events: none;
 }
 .sp-nav a:hover { color: var(--accent); }
-.sp-nav a.active { color: var(--text); border-bottom-color: var(--text); }
+.sp-nav a:hover::after { transform: scaleX(1); }
+/* Active: оранжевая точка под центром ссылки. Активная ссылка не
+   реагирует на hover (статус уже обозначен точкой). */
+.sp-nav a.active { color: var(--text); }
+.sp-nav a.active::before {
+    content: '';
+    position: absolute;
+    left: 50%; bottom: -7px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+.sp-nav a.active:hover { color: var(--text); }
+.sp-nav a.active:hover::after { transform: scaleX(0); }
 
 .sp-utils { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; justify-self: end; width: 140px; justify-content: flex-end; }
 
