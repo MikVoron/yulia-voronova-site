@@ -2559,6 +2559,13 @@ img { display: block; max-width: 100%; }
     letter-spacing: .08em; text-transform: uppercase;
     color: var(--text); max-width: none;
 }
+/* Иконка-человечек для гостя — показываем только в мобильном режиме (см. @media ниже).
+   На desktop остаётся текстовая пилюля «Войти». */
+.sp-profile-guest-icon {
+    display: none; flex-shrink: 0; color: var(--text);
+    width: 22px; height: 22px;
+}
+.sp-profile.is-guest:hover .sp-profile-guest-icon { color: #fff; }
 
 .sp-burger { display: none; }
 
@@ -2605,10 +2612,15 @@ img { display: block; max-width: 100%; }
         border-radius: 0; justify-content: center;
     }
     .sp-profile .sp-profile-name { display: none; }
-    .sp-profile.is-guest { padding: 0; width: 40px; }
+    .sp-profile.is-guest { padding: 0; width: 40px; justify-content: center; }
+    /* Текст «Войти» уходит в sr-only (визуально скрыт, доступен screenreader/long-press). */
     .sp-profile.is-guest .sp-profile-name {
-        display: inline-flex; font-size: 9px; max-width: none;
+        position: absolute !important; width: 1px !important; height: 1px !important;
+        padding: 0 !important; margin: 0 !important;
+        overflow: hidden !important; clip: rect(0 0 0 0); clip-path: inset(50%);
+        white-space: nowrap !important;
     }
+    .sp-profile.is-guest .sp-profile-guest-icon { display: inline-flex; }
     /* Dropdown профиля: на mobile фиксируем под header, чтобы не уезжал за viewport.
        Header на mobile — 60px (см. .sp-header-inner выше), плюс 10px отступ. */
     .sp-header .user-dropdown {
