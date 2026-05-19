@@ -307,36 +307,68 @@
 		// ── ПОДПИСКА ──────────────────────────────────────────────────────────────
 		const SUB_LABELS = { trial: 'Пробный период', active: 'Активна', expired: 'Истекла' };
 
+		function renderFallbackSubCard() {
+			var wrap = document.getElementById('sub-status-wrap');
+			if (!wrap) return;
+			const ctaText = 'Оформить подписку';
+			wrap.innerHTML = '<div class="sub-card">'
+				+ '<div>'
+				+ '<div class="sub-status-row"><span class="status-pill expired">Нет подписки</span></div>'
+				+ '<h3 class="sub-headline">Доступ к&nbsp;рецептам</h3>'
+				+ '<div class="sub-active-until">Оформите подписку, чтобы открыть все рецепты и&nbsp;сайдбар БЖУ.</div>'
+				+ '</div>'
+				+ '<div class="sub-actions-col">'
+				+ '<button type="button" id="sub-renew-btn" class="btn btn-orange sub-action-btn" '
+				+ 'data-cta-default="' + ctaText + '" onclick="togglePaySection()">' + ctaText + '</button>'
+				+ '</div>'
+				+ '</div>';
+		}
+
 		async function loadSubscription() {
 			try {
 				const res = await Auth.api('/subscription');
-				if (!res.ok) return;
+				if (!res.ok) { renderFallbackSubCard(); loadPaymentHistory(); return false; }
 				const data = await res.json();
 				const wrap = document.getElementById('sub-status-wrap');
 				const badge = data.status || 'none';
-				const badgeClass = ['trial', 'active'].includes(badge) ? badge : 'expired';
+				const pillClass = badge === 'active' ? '' : (badge === 'trial' ? ' trial' : ' expired');
 				const label = SUB_LABELS[badge] || 'Нет подписки';
+				const earlyBadge = data.isEarlyBird ? '<span class="sub-badge early-bird">Друг Умной тарелки</span>' : '';
 				let untilStr = '';
-				if (badge === 'active' && data.activeUntil) {
-					untilStr = 'Активна до ' + new Date(data.activeUntil).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+				if (data.activeUntil) {
+					untilStr = new Date(data.activeUntil).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 				}
-				var earlyBadge = data.isEarlyBird ? '<span class="sub-badge early-bird">Друг Умной тарелки</span>' : '';
-				wrap.innerHTML = '<div class="sub-status-card">'
-					+ '<span class="sub-badge ' + badgeClass + '">' + label + '</span>' + earlyBadge
-					+ (data.daysLeft !== undefined ? '<div class="sub-days">Осталось: ' + data.daysLeft + ' ' + pluralDays(data.daysLeft) + '</div>' : '')
-					+ (untilStr ? '<div class="sub-until">' + untilStr + '</div>' : '')
+				// Editorial sub-card: status pill + plan text + serif headline + until date + actions col
+				const headlineHtml = data.daysLeft !== undefined
+					? '<h3 class="sub-headline">Осталось&nbsp;<b>' + data.daysLeft + '&nbsp;' + pluralDays(data.daysLeft) + '</b></h3>'
+					: '<h3 class="sub-headline">' + escHtml(label) + '</h3>';
+				const untilHtml = untilStr
+					? '<div class="sub-active-until">Доступ к рецептам и&nbsp;сайдбару БЖУ — до&nbsp;<b>' + escHtml(untilStr) + '</b></div>'
+					: '';
+				const planText = badge === 'active' ? 'Тариф «Месяц»' : (badge === 'trial' ? 'Пробный период' : '');
+				const planHtml = planText ? '<span class="sub-plan">' + escHtml(planText) + '</span>' : '';
+				const ctaText = badge === 'active' ? 'Продлить подписку' : 'Оформить подписку';
+				const actionsHtml = '<div class="sub-actions-col">'
+					+ '<button type="button" id="sub-renew-btn" class="btn btn-orange sub-action-btn" '
+					+ 'data-cta-default="' + escHtml(ctaText) + '" onclick="togglePaySection()">'
+					+ escHtml(ctaText) + '</button>'
+					+ '</div>';
+				wrap.innerHTML = '<div class="sub-card">'
+					+ '<div>'
+					+ '<div class="sub-status-row"><span class="status-pill' + pillClass + '">' + escHtml(label) + '</span>' + planHtml + earlyBadge + '</div>'
+					+ headlineHtml + untilHtml
+					+ '</div>'
+					+ actionsHtml
 					+ '</div>';
 
-				// Hide payment section if subscription is active
+				// For active subscription: hide early-bird, keep pay-section accessible (renewal via sub-renew-btn)
 				if (badge === 'active') {
 					var ebCard = document.getElementById('early-bird-card');
-					var paySection = document.querySelector('.pay-section');
 					if (ebCard) ebCard.style.display = 'none';
-					if (paySection) paySection.style.display = 'none';
 					loadPaymentHistory();
 					return true;
 				}
-			} catch (e) { /* ignore */ }
+			} catch (e) { renderFallbackSubCard(); }
 
 			loadPaymentHistory();
 			return false;
@@ -557,29 +589,40 @@
 
 		function _renderPendingBlock(pending) {
 			var section = document.querySelector('.pay-section');
-			var toggleBtn = document.getElementById('pay-toggle-btn');
 			var details = document.getElementById('pay-details');
+			var cardBtn = document.getElementById('sub-renew-btn');
 			var block = document.getElementById('pay-pending-block');
 			if (!pending) {
 				if (block) block.remove();
-				if (toggleBtn) toggleBtn.style.display = '';
+				if (cardBtn) {
+					cardBtn.disabled = false;
+					cardBtn.style.opacity = '';
+					cardBtn.style.cursor = '';
+					cardBtn.style.pointerEvents = '';
+					cardBtn.removeAttribute('title');
+				}
 				return;
 			}
-			if (toggleBtn) toggleBtn.style.display = 'none';
+			// Pending — блокируем in-card CTA + сворачиваем wizard
+			if (cardBtn) {
+				cardBtn.disabled = true;
+				cardBtn.style.opacity = '.55';
+				cardBtn.style.cursor = 'not-allowed';
+				cardBtn.style.pointerEvents = 'none';
+				cardBtn.title = 'Дождитесь подтверждения текущего платежа';
+			}
 			if (details) details.style.display = 'none';
 			if (!section) return;
 			if (!block) {
 				block = document.createElement('div');
 				block.id = 'pay-pending-block';
-				section.insertBefore(block, toggleBtn || section.firstChild);
+				section.insertBefore(block, section.firstChild);
 			}
 			var d = pending.created_at ? new Date(pending.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : '';
-			block.innerHTML = '<div style="padding:14px 16px;border-radius:12px;background:#fff8e1;border:1px solid #ffe082;">'
-				+ '<div style="font-size:14px;font-weight:700;color:#7a5a00;margin-bottom:6px">У вас есть платёж на проверке</div>'
-				+ '<div style="font-size:13px;color:var(--text-2);line-height:1.5;margin-bottom:10px">'
-				+ 'Платёж от ' + escHtml(d) + ' на ' + escHtml(String(pending.amount || '')) + ' ₽ ожидает подтверждения. '
-				+ 'Обычно подтверждаем в течение 30 минут.</div>'
-				+ '<div style="font-size:13px;color:var(--text-3);line-height:1.5">' + supportContactHtml() + '</div>'
+			block.innerHTML = '<div class="pay-pending-card">'
+				+ '<div class="pay-pending-eyebrow">Платёж на проверке</div>'
+				+ '<div class="pay-pending-text">Платёж от&nbsp;<b>' + escHtml(d) + '</b> на&nbsp;<b>' + escHtml(String(pending.amount || '')) + '&nbsp;₽</b> ожидает подтверждения. Обычно подтверждаем в&nbsp;течение 30&nbsp;минут.</div>'
+				+ '<div class="pay-pending-support">' + supportContactHtml() + '</div>'
 				+ '</div>';
 		}
 
@@ -588,10 +631,15 @@
 			if (!note) {
 				note = document.createElement('div');
 				note.id = 'pay-history-support';
-				note.style.cssText = 'margin-top:14px;font-size:12px;color:var(--text-3);line-height:1.5;text-align:center';
+				note.className = 'cab-support-note';
+				note.style.cssText = 'margin-top:32px';
 				parent.parentNode.insertBefore(note, parent.nextSibling);
 			}
-			note.innerHTML = supportContactHtml();
+			var hasChat = SUPPORT_CONTACT.url && SUPPORT_CONTACT.url !== '#';
+			var btnHtml = hasChat
+				? '<button type="button" class="btn btn-ghost" onclick="openTawk()" style="padding:12px 22px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0;font-size:11px;white-space:nowrap">Написать в&nbsp;поддержку</button>'
+				: '';
+			note.innerHTML = '<div class="cab-support-note-text">' + supportContactHtml() + '</div>' + btnHtml;
 			_injectLegalLinks(note);
 		}
 
@@ -646,41 +694,49 @@
 				_renderPendingBlock(pending);
 				var el = document.getElementById('pay-history');
 				if (!payments.length) { el.innerHTML = ''; _injectHistorySupportNote(el); return; }
-				el.innerHTML = '<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px">История платежей</div>'
+				var payCount = payments.length;
+				var payMeta = payCount + ' ' + (payCount === 1 ? 'операция' : payCount < 5 ? 'операции' : 'операций');
+				el.innerHTML = '<div class="cab-sec-title-row" style="margin-top:36px">'
+					+ '<h2 class="cab-sec-title">История платежей</h2>'
+					+ '<span class="cab-sec-title-meta">' + payMeta + '</span></div>'
+					+ '<div class="pay-list">'
 					+ payments.map(function (p) {
-						var d = new Date(p.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+						var dateStr = new Date(p.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
 						var statusClass = p.status || 'pending';
 						var rejectReason = (p.status === 'rejected' && p.admin_comment)
-							? '<div class="pay-hist-reject-reason">Причина: ' + escHtml(p.admin_comment) + '</div>'
+							? '<div class="pay-hist-reject-reason" style="margin-top:6px;padding:8px 12px;background:#fff5f5;border-left:3px solid #dc3545;font-size:12px;color:#721c24">Причина: ' + escHtml(p.admin_comment) + '</div>'
 							: (p.admin_comment ? '<div style="font-size:12px;color:var(--text-2);margin-top:4px">' + escHtml(p.admin_comment) + '</div>' : '');
-						return '<div class="pay-hist-item' + (p.status === 'rejected' ? ' rejected' : '') + '">'
-							+ '<div><div style="font-size:14px;font-weight:600;color:var(--text)">' + p.amount + ' ₽</div>'
-							+ '<div style="font-size:12px;color:var(--text-3);margin-top:2px">' + d
-							+ (p.sender_name ? ' · ' + escHtml(p.sender_name) : '') + '</div>'
+						return '<div class="pay-row">'
+							+ '<div class="pay-amount-val">' + escHtml(String(p.amount)) + '<span class="pay-cur"> ₽</span></div>'
+							+ '<div class="pay-info-col">'
+							+ '<div class="pay-date-str">' + escHtml(dateStr) + '</div>'
+							+ (p.sender_name ? '<div class="pay-meta-str"><b>' + escHtml(p.sender_name) + '</b></div>' : '')
 							+ rejectReason
 							+ '</div>'
-							+ '<span class="pay-hist-status ' + statusClass + '">' + (PAY_STATUS_LABELS[p.status] || p.status) + '</span>'
+							+ '<span class="pay-status-pill ' + statusClass + '">' + escHtml(PAY_STATUS_LABELS[p.status] || p.status) + '</span>'
 							+ '</div>';
-					}).join('');
+					}).join('')
+					+ '</div>';
 				_injectHistorySupportNote(el);
 			} catch (e) { /* ignore */ }
 		}
 
 		function togglePaySection() {
 			var details = document.getElementById('pay-details');
-			var btn = document.getElementById('pay-toggle-btn');
-			if (details.style.display === 'none') {
+			var btn = document.getElementById('pay-toggle-btn');         // standalone (hidden)
+			var cardBtn = document.getElementById('sub-renew-btn');      // in sub-card
+			if (details.style.display === 'none' || !details.style.display) {
 				details.style.display = 'block';
 				details.style.animation = 'fadeUp .3s ease both';
 				document.querySelector('.pay-steps').style.display = 'flex';
 				resetPayWizard();
-				btn.textContent = 'Скрыть';
-				btn.className = 'btn btn-ghost';
-				btn.style.width = '100%';
+				if (btn) { btn.textContent = 'Скрыть'; btn.className = 'btn btn-ghost'; btn.style.width = '100%'; }
+				if (cardBtn) cardBtn.textContent = 'Скрыть';
+				setTimeout(function () { details.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80);
 			} else {
 				details.style.display = 'none';
-				btn.textContent = 'Оформить подписку';
-				btn.className = 'btn btn-orange';
+				if (btn) { btn.textContent = 'Оформить подписку'; btn.className = 'btn btn-orange'; }
+				if (cardBtn) cardBtn.textContent = cardBtn.dataset.ctaDefault || 'Оформить подписку';
 			}
 		}
 
@@ -895,6 +951,18 @@
 			const photoHtml = _photo
 				? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}','fav-card-media-placeholder')"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
 				: `<div class="fav-card-media-placeholder">${_emoji}</div>`;
+			// Meta row: время · сложность · порции
+			const _diffLabels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
+			const metaParts = [
+				d.time   ? escHtml('⏱ ' + d.time + ' мин') : '',
+				_diffLabels[d.diff] ? escHtml(_diffLabels[d.diff]) : '',
+				d.servings ? escHtml(d.servings + ' порц.') : ''
+			].filter(Boolean);
+			const metaHtml = metaParts.length
+				? '<div class="fav-card-meta">' + metaParts.map((p, i) =>
+					'<span>' + p + '</span>' + (i < metaParts.length - 1 ? '<span class="dot"></span>' : '')
+				).join('') + '</div>'
+				: '';
 			return `<article class="fav-card" role="button" tabindex="0"
 					onclick="goToRecipe('${_id}')"
 					onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();goToRecipe('${_id}')}">
@@ -906,8 +974,9 @@
 				</div>
 				<div class="fav-card-body">
 					<div class="fav-card-title">${_name}</div>
+					${metaHtml}
 				</div>
-				${_kcal ? `<div class="fav-card-foot"><span class="fav-card-kcal-lab">ккал</span><span class="fav-card-kcal-val">${_kcal}</span></div>` : ''}
+				${_kcal ? `<div class="fav-card-foot"><span class="fav-card-kcal-lab">Калорийность</span><span class="fav-card-kcal-val">${_kcal}<small>ккал</small></span></div>` : ''}
 			</article>`;
 		}
 
@@ -953,7 +1022,7 @@
 						<span class="cab-note-date">${dateStr} · ${timeStr}</span>
 						<div class="cab-note-actions">
 							<button type="button" onclick="editNote(${n.id})">Изменить</button>
-							<button type="button" onclick="deleteNote(${n.id})">✕</button>
+							<button type="button" class="del" onclick="deleteNote(${n.id})">Удалить</button>
 						</div>
 					</div>
 					<div class="cab-note-title">${escHtml(n.title || '')}</div>
@@ -1181,8 +1250,18 @@
 
 		function renderFeedbackHistory(all) {
 			const el = document.getElementById('fb-sent-list');
-			if (!all || !all.length) { el.innerHTML = ''; return; }
-			el.innerHTML = all.map(f => {
+			if (!all || !all.length) {
+				el.innerHTML = '<div class="threads-empty">'
+					+ '<div class="threads-empty-mark">Пока пусто</div>'
+					+ '<h3 class="threads-empty-title">Здесь появятся ваши обращения</h3>'
+					+ '<p>Напишите Юлии в&nbsp;форме выше&nbsp;— пожелание, идею рецепта или сообщение о&nbsp;проблеме. Ответ придёт сюда и&nbsp;на&nbsp;почту.</p>'
+					+ '</div>';
+				return;
+			}
+			const n = all.length;
+			const counter = n + ' ' + (n === 1 ? 'обращение' : n < 5 ? 'обращения' : 'обращений');
+			const head = '<div class="threads-head"><h3 class="threads-title">Ваши обращения</h3><span class="threads-meta">' + counter + '</span></div>';
+			el.innerHTML = head + all.map(f => {
 				const d = new Date(f.created_at);
 				const ds = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
 				const ts = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });

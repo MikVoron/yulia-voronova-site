@@ -890,8 +890,129 @@
 		.thread-reply-date { margin-left: auto; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
 		.thread-reply-text { font-size: 14px; color: var(--text); line-height: 1.55; margin: 0; }
 
+		/* ── MEAL BODY INDENT (align items under macros column) ────────── */
+		.meal-body { padding: 0 4px 16px 96px; }
+
+		/* ── FAV CARD META dots ──────────────────────────────────────── */
+		.fav-card-meta span { display: inline-flex; align-items: center; gap: 5px; }
+		.fav-card-meta .dot { width: 3px; height: 3px; background: var(--text-3); border-radius: 50%; display: inline-block; }
+
+		/* ── THREADS HEAD (Связь — Ваши обращения) ──────────────────── */
+		.threads-head {
+			margin-top: 48px;
+			display: flex; align-items: baseline; justify-content: space-between;
+			gap: 16px; padding-bottom: 12px; margin-bottom: 20px;
+			border-bottom: 2px solid var(--text);
+		}
+		.threads-title { font-family: var(--serif); font-size: 24px; font-weight: 700; letter-spacing: -.01em; margin: 0; }
+		.threads-meta { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--text-3); }
+
+		/* ── SEG DOTS (цветные точки типа обращения) ────────────────── */
+		.seg-dot { width: 7px; height: 7px; flex-shrink: 0; display: inline-block; margin-right: 4px; }
+		.seg-dot.wish { background: #e8c547; }
+		.seg-dot.idea { background: var(--g-prot); }
+		.seg-dot.bug  { background: var(--accent); }
+
+		/* ── SUB CARD (editorial подписка) ──────────────────────────── */
+		.sub-card {
+			display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: center;
+			padding: 28px 30px; border: 1px solid var(--border);
+			background: linear-gradient(180deg, #fffaf6 0%, #fff 100%);
+			margin-bottom: 28px;
+		}
+		.sub-status-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+		.status-pill {
+			display: inline-flex; align-items: center; gap: 6px;
+			padding: 5px 11px 5px 9px; font-size: 10px; font-weight: 800;
+			letter-spacing: .16em; text-transform: uppercase;
+			background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-bd);
+		}
+		.status-pill::before { content: ''; width: 6px; height: 6px; background: currentColor; border-radius: 50%; }
+		.status-pill.trial  { background: #fff3cd; color: #856404; border-color: #ffc107; }
+		.status-pill.expired { background: #fbe3e6; color: #8a1a1a; border-color: #f5c6cb; }
+		.sub-plan { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--text-3); }
+		.sub-headline {
+			font-family: var(--serif); font-size: 34px; font-weight: 700;
+			line-height: 1.05; letter-spacing: -.02em; margin: 0 0 8px;
+		}
+		.sub-headline b { color: var(--accent); font-weight: 700; }
+		.sub-active-until { font-size: 13px; color: var(--text-2); }
+		.sub-active-until b { color: var(--text); font-weight: 700; }
+		.sub-actions-col { display: flex; flex-direction: column; gap: 8px; min-width: 190px; align-items: stretch; }
+		.sub-action-btn {
+			padding: 14px 22px; letter-spacing: .12em; text-transform: uppercase;
+			font-weight: 800; border-radius: 0; min-width: 200px; font-size: 12px;
+			white-space: nowrap;
+		}
+
+		/* ── PENDING PAYMENT CARD (editorial) ───────────────────────── */
+		.pay-pending-card {
+			padding: 18px 22px; margin-bottom: 20px;
+			background: #fff8e1; border: 1px solid #ffe082;
+			border-left: 3px solid #b85e00;
+		}
+		.pay-pending-eyebrow {
+			font-size: 10px; font-weight: 800; letter-spacing: .16em;
+			text-transform: uppercase; color: #7a5a00; margin-bottom: 8px;
+		}
+		.pay-pending-text { font-size: 13.5px; color: var(--text-2); line-height: 1.55; margin-bottom: 10px; }
+		.pay-pending-text b { color: var(--text); font-weight: 700; }
+		.pay-pending-support {
+			font-size: 12px; color: var(--text-3); line-height: 1.5;
+			padding-top: 10px; border-top: 1px solid rgba(184,94,0,.18);
+		}
+		.pay-pending-support a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+
+		/* ── FEEDBACK EMPTY STATE (нет обращений) ────────────────────── */
+		.threads-empty {
+			margin-top: 48px; padding: 40px 20px;
+			border-top: 2px solid var(--text);
+			text-align: center; color: var(--text-3);
+		}
+		.threads-empty-mark {
+			font-size: 10px; font-weight: 800; letter-spacing: .2em;
+			text-transform: uppercase; color: var(--accent); margin-bottom: 14px;
+		}
+		.threads-empty-title {
+			font-family: var(--serif); font-size: 24px; font-weight: 700;
+			color: var(--text); margin: 0 0 8px; letter-spacing: -.01em;
+		}
+		.threads-empty p { font-size: 13.5px; max-width: 360px; margin: 0 auto; line-height: 1.55; }
+
+		/* ── PAY TABLE (editorial история платежей) ─────────────────── */
+		.pay-list { display: flex; flex-direction: column; }
+		.pay-row {
+			display: grid; grid-template-columns: auto 1fr auto;
+			gap: 24px; align-items: center;
+			padding: 18px 4px; border-bottom: 1px solid var(--border);
+		}
+		.pay-row:first-child { border-top: 1px solid var(--border); }
+		.pay-amount-val {
+			font-family: var(--serif); font-size: 22px; font-weight: 700;
+			letter-spacing: -.01em; color: var(--text); min-width: 100px; white-space: nowrap;
+		}
+		.pay-amount-val .pay-cur { font-size: 14px; color: var(--text-3); margin-left: 2px; font-family: var(--sans); font-weight: 700; }
+		.pay-info-col { min-width: 0; }
+		.pay-date-str { font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--text-3); margin-bottom: 3px; }
+		.pay-meta-str { font-size: 13px; color: var(--text-2); }
+		.pay-meta-str b { color: var(--text); font-weight: 700; }
+		.pay-status-pill {
+			display: inline-flex; align-items: center; gap: 6px;
+			padding: 5px 11px 5px 9px; font-size: 10px; font-weight: 800;
+			letter-spacing: .14em; text-transform: uppercase; white-space: nowrap;
+		}
+		.pay-status-pill::before { content: ''; width: 6px; height: 6px; background: currentColor; border-radius: 50%; }
+		.pay-status-pill.confirmed { background: #eef8ee; color: #2d7a2d; border: 1px solid #90d090; }
+		.pay-status-pill.pending   { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+		.pay-status-pill.rejected  { background: #fbe3e6; color: #8a1a1a; border: 1px solid #f5c6cb; }
+
 		/* ── RESPONSIVE ────────────────────────────────────────────────── */
 		@media (max-width: 760px) {
+			.sub-card { grid-template-columns: 1fr; padding: 22px; gap: 18px; }
+			.sub-actions-col { min-width: 0; }
+			.pay-row { grid-template-columns: 1fr auto; gap: 10px 16px; }
+			.pay-amount-val { min-width: 0; }
+			.meal-body { padding: 0 4px 16px 0; }
 			.cab-hero {
 				padding: 26px 22px;
 				grid-template-columns: 1fr;
@@ -1086,10 +1207,14 @@
 				</div>
 
 				<div class="pay-section">
-					<button class="btn btn-orange" id="pay-toggle-btn" onclick="togglePaySection()" type="button" style="width:100%;padding:16px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;border-radius:0">
+					<button class="btn btn-orange" id="pay-toggle-btn" onclick="togglePaySection()" type="button" style="display:none;width:100%;padding:16px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;border-radius:0" aria-hidden="true">
 						Оформить подписку
 					</button>
 					<div id="pay-details" style="display:none;margin-top:24px">
+						<div class="cab-sec-title-row" style="margin-top:8px">
+							<h2 class="cab-sec-title">Оформление подписки</h2>
+							<span class="cab-sec-title-meta">3 шага</span>
+						</div>
 
 						<!-- Шаги -->
 						<div class="pay-steps">
@@ -1185,7 +1310,7 @@
 			<!-- История тарелок -->
 			<section class="cab-tab-panel" id="panel-history">
 				<div class="cab-sec-title-row">
-					<h2 class="cab-sec-title">История тарелок</h2>
+					<h2 class="cab-sec-title">Журнал тарелок</h2>
 					<span class="cab-sec-title-meta">Архив ваших блюд</span>
 				</div>
 				<div id="history-body"></div>
@@ -1248,9 +1373,9 @@
 
 				<div style="font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--text-3);margin-bottom:10px">Тип обращения</div>
 				<div class="cab-seg fb-cats" id="fb-cats">
-					<button class="fb-cat active" type="button" onclick="pickFbCat(this)" data-cat="wish">Пожелание</button>
-					<button class="fb-cat" type="button" onclick="pickFbCat(this)" data-cat="recipe">Идея рецепта</button>
-					<button class="fb-cat" type="button" onclick="pickFbCat(this)" data-cat="problem">Проблема</button>
+					<button class="fb-cat active" type="button" onclick="pickFbCat(this)" data-cat="wish"><span class="seg-dot wish"></span>Пожелание</button>
+					<button class="fb-cat" type="button" onclick="pickFbCat(this)" data-cat="recipe"><span class="seg-dot idea"></span>Идея рецепта</button>
+					<button class="fb-cat" type="button" onclick="pickFbCat(this)" data-cat="problem"><span class="seg-dot bug"></span>Проблема</button>
 				</div>
 				<textarea class="fb-textarea" id="fb-text" placeholder="Опишите вашу идею, пожелание или проблему…" style="margin-top:16px"></textarea>
 				<div class="fb-actions" style="justify-content:space-between;align-items:center">
