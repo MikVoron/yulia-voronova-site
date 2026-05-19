@@ -129,7 +129,7 @@ async function sendPaymentConfirmed(to, days, activeUntil) {
     + days + ' дн.</strong>' + (untilStr ? ' — до <strong>' + untilStr + '</strong>' : '') + '</p>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
     + 'Все рецепты, конструктор тарелки и другие возможности теперь полностью доступны.</p>'
-    + btn('Перейти в личный кабинет', PLATFORM_URL + '/cabinet.html')
+    + btn('Перейти в личный кабинет', PLATFORM_URL + '/cabinet.html?tab=subscription')
     + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
     + 'Спасибо за доверие!</p>';
   await send(to, 'Оплата подтверждена — Умная тарелка', wrap(body));
@@ -149,7 +149,7 @@ async function sendPaymentRejected(to, reason) {
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
     + 'Если оплата уже была совершена — пришлите, пожалуйста, корректный скриншот перевода через личный кабинет, и мы перепроверим. '
     + 'Если у вас остались вопросы, напишите нам через раздел «Связь» в кабинете.</p>'
-    + btn('Открыть личный кабинет', PLATFORM_URL + '/cabinet.html')
+    + btn('Открыть личный кабинет', PLATFORM_URL + '/cabinet.html?tab=subscription')
     + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">'
     + 'Спасибо за понимание!</p>';
   await send(to, 'Платёж не подтверждён — Умная тарелка', wrap(body));
