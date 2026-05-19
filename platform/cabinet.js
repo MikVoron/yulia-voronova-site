@@ -1242,6 +1242,8 @@
 				if (hasUnseen) {
 					Auth.api('/feedback/mark-seen', { method: 'POST' }).catch(() => {});
 					document.getElementById('fb-unseen-badge').style.display = 'none';
+					// Снять глобальный индикатор «новый ответ Юлии» в шапке.
+					if (typeof Feedback !== 'undefined' && Feedback.clear) Feedback.clear();
 				}
 			} catch {
 				el.innerHTML = '';

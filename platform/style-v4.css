@@ -2511,8 +2511,29 @@ img { display: block; max-width: 100%; }
     font: inherit; min-height: 40px;
     transition: border-color var(--tr);
     flex-shrink: 0;
+    position: relative;
 }
 .sp-profile:hover { border-color: var(--accent); }
+.sp-profile[data-fb-unseen="1"] { border-color: var(--accent); }
+/* Индикатор новых ответов Юлии на аватаре профиля.
+   Поведение: точка с цифрой (или 9+). Не на иконке тарелки. */
+.sp-profile-dot {
+    position: absolute;
+    top: -4px; right: -4px;
+    min-width: 16px; height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--accent); color: #fff;
+    font-size: 9px; font-weight: 800; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 2px solid #fff;
+    pointer-events: none;
+    box-sizing: content-box;
+}
+.sp-profile-dot[hidden] { display: none !important; }
+.user-dd-item[hidden],
+.user-dd-sep[hidden] { display: none !important; }
+.user-dd-feedback { color: var(--accent); font-weight: 700; }
 .sp-profile .v-user-avatar {
     width: 32px; height: 32px; border-radius: 50%;
     background: var(--accent); color: #fff;
@@ -2588,6 +2609,18 @@ img { display: block; max-width: 100%; }
     .sp-profile.is-guest .sp-profile-name {
         display: inline-flex; font-size: 9px; max-width: none;
     }
+    /* Dropdown профиля: на mobile фиксируем под header, чтобы не уезжал за viewport.
+       Header на mobile — 60px (см. .sp-header-inner выше), плюс 10px отступ. */
+    .sp-header .user-dropdown {
+        position: fixed;
+        top: 70px;
+        left: 12px; right: 12px;
+        width: auto;
+        min-width: 0;
+        max-width: none;
+        z-index: 3000;
+    }
+    .sp-profile-dot { top: -2px; right: -2px; }
 }
 
 /* FOUC prevention: make body visible once CSS is loaded */

@@ -372,6 +372,61 @@ const Auth = {
     }
 };
 
+// ─── FEEDBACK NOTIFICATIONS ──────────────────────────────────────────────────
+// Глобальный индикатор «есть новый ответ Юлии» в шапке всех страниц платформы.
+// Подсветка строится по hooks (#sp-profile-dot, #user-dd-feedback, #user-dd-feedback-sep)
+// — если их нет на странице (например, header другой), Feedback.refresh() просто молчит.
+// Гость → запроса не делаем, 401 игнорируется по Auth.api.
+const Feedback = {
+    async loadUnseen() {
+        if (!Auth.getToken()) return 0;
+        try {
+            const res = await Auth.api('/feedback');
+            if (!res.ok) return 0;
+            const all = await res.json();
+            if (!Array.isArray(all)) return 0;
+            return all.filter(function (f) { return f && f.status === 'answered' && !f.reply_seen; }).length;
+        } catch (e) { return 0; }
+    },
+    _apply(n) {
+        const dot = document.getElementById('sp-profile-dot');
+        const badge = document.getElementById('user-badge');
+        const mi = document.getElementById('user-dd-feedback');
+        const sep = document.getElementById('user-dd-feedback-sep');
+        if (n > 0) {
+            if (dot) { dot.hidden = false; dot.textContent = n > 9 ? '9+' : String(n); }
+            if (badge) {
+                badge.setAttribute('data-fb-unseen', '1');
+                badge.setAttribute('title', 'Есть новый ответ Юлии');
+            }
+            if (mi) mi.hidden = false;
+            if (sep) sep.hidden = false;
+        } else {
+            if (dot) { dot.hidden = true; dot.textContent = ''; }
+            if (badge) {
+                badge.removeAttribute('data-fb-unseen');
+                badge.removeAttribute('title');
+            }
+            if (mi) mi.hidden = true;
+            if (sep) sep.hidden = true;
+        }
+    },
+    async refresh() {
+        const n = await this.loadUnseen();
+        this._apply(n);
+        return n;
+    },
+    clear() { this._apply(0); }
+};
+
+// Авто-обновление индикатора профиля. Если у пользователя нет токена — молчим
+// (никаких 401, никаких лишних запросов для гостей).
+document.addEventListener('DOMContentLoaded', function () {
+    if (!Auth.isLoggedIn()) return;
+    if (!document.getElementById('user-badge')) return;
+    Feedback.refresh();
+});
+
 // ─── FAVORITES ───────────────────────────────────────────────────────────────
 const Favorites = {
     _key()        { return Auth._userKey('fav_recipes'); },

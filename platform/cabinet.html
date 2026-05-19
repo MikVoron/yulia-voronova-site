@@ -30,6 +30,8 @@
 			text-transform: uppercase; color: var(--text-3);
 		}
 		.cab-breadcrumb b { color: var(--text); font-weight: 700; }
+		.cab-breadcrumb a { color: inherit; text-decoration: none; transition: color .15s; }
+		.cab-breadcrumb a:hover { color: var(--accent); }
 
 		/* ── HERO ─────────────────────────────────────────────────────── */
 		.cab-hero {
@@ -1188,8 +1190,11 @@
 						<button class="sp-profile" id="user-badge" onclick="toggleUserMenu(event)" type="button">
 							<span class="v-user-avatar" id="u-ava" aria-hidden="true">?</span>
 							<span class="sp-profile-name" id="u-name">Войти</span>
+							<span class="sp-profile-dot" id="sp-profile-dot" hidden aria-label="Новый ответ Юлии"></span>
 						</button>
 						<div class="user-dropdown" id="user-dropdown">
+							<a href="cabinet.html?tab=feedback" class="user-dd-item user-dd-feedback" id="user-dd-feedback" hidden>Новый ответ Юлии</a>
+							<div class="user-dd-sep" id="user-dd-feedback-sep" hidden></div>
 							<a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
 							<div class="user-dd-sep"></div>
 							<button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
@@ -1204,7 +1209,7 @@
 
 	<main class="cab-main">
 		<div class="v-wrap">
-			<div class="cab-breadcrumb">Главная · <b>Личный кабинет</b></div>
+			<div class="cab-breadcrumb"><a href="index.html">Главная</a> · <b>Личный кабинет</b></div>
 		</div>
 
 		<!-- HERO -->

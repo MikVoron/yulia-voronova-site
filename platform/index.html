@@ -1184,8 +1184,11 @@
 						<button class="sp-profile" id="user-badge" onclick="onUserBadgeClick(event)" type="button">
 							<span class="v-user-avatar" id="u-ava" aria-hidden="true">?</span>
 							<span class="sp-profile-name" id="u-name">Войти</span>
+							<span class="sp-profile-dot" id="sp-profile-dot" hidden aria-label="Новый ответ Юлии"></span>
 						</button>
 						<div class="user-dropdown" id="user-dropdown">
+							<a href="cabinet.html?tab=feedback" class="user-dd-item user-dd-feedback" id="user-dd-feedback" hidden>Новый ответ Юлии</a>
+							<div class="user-dd-sep" id="user-dd-feedback-sep" hidden></div>
 							<a href="cabinet.html" class="user-dd-item">👤 Мой кабинет</a>
 							<div class="user-dd-sep"></div>
 							<button class="user-dd-item user-dd-logout" onclick="doLogout()">🚪 Выйти</button>
