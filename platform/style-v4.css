@@ -109,11 +109,36 @@ img { display: block; max-width: 100%; }
     border-radius: 0; box-shadow: var(--sh-l);
     min-width: 200px; z-index: 300;
     opacity: 0; pointer-events: none;
-    transform: translateY(-6px) scale(.97);
-    transition: opacity .18s ease, transform .18s ease;
+    transform: perspective(800px) rotateX(-8deg) translateY(-6px);
+    transform-origin: top center;
+    transition: opacity .22s ease, transform .28s cubic-bezier(.2, .8, .2, 1);
     overflow: hidden;
 }
-.user-dropdown.open { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+.user-dropdown.open {
+    opacity: 1; pointer-events: auto;
+    transform: perspective(800px) rotateX(0) translateY(0);
+}
+/* Stagger reveal пунктов: появляются по очереди после открытия окна.
+   :nth-child позиции стабильны — feedback (1), sep (2), кабинет (3),
+   sep (4), logout (5). Даже если feedback скрыт, его слот сохраняется. */
+.user-dropdown .user-dd-item {
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity .2s ease, transform .2s ease;
+}
+.user-dropdown.open .user-dd-item {
+    opacity: 1;
+    transform: translateY(0);
+}
+.user-dropdown.open .user-dd-item:nth-child(1) { transition-delay: 120ms; }
+.user-dropdown.open .user-dd-item:nth-child(3) { transition-delay: 170ms; }
+.user-dropdown.open .user-dd-item:nth-child(5) { transition-delay: 220ms; }
+@media (prefers-reduced-motion: reduce) {
+    .user-dropdown,
+    .user-dropdown .user-dd-item { transition-duration: .01ms !important; transition-delay: 0 !important; transform: none !important; }
+    .user-dropdown.open,
+    .user-dropdown.open .user-dd-item { transform: none !important; }
+}
 .user-dd-item {
     display: flex; align-items: center; gap: 10px;
     width: 100%; padding: 12px 16px;
