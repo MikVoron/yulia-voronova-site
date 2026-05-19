@@ -2344,7 +2344,7 @@
 			const all = Object.values(RECIPES);
 			if (!all.length) { aside.style.display = 'none'; return; }
 			let r = all.find(function (x) { return x.isSeasonal; });
-			let label = 'Рецепт недели';
+			let label = 'Сезонный рецепт';
 			if (!r) {
 				// Fallback: 2-й по свежести, чтобы hero-фото и featured в #new-block
 				// не показывали один и тот же рецепт. Если в БД <2 рецептов — берём первый.
