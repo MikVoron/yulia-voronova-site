@@ -2621,16 +2621,28 @@ img { display: block; max-width: 100%; }
         white-space: nowrap !important;
     }
     .sp-profile.is-guest .sp-profile-guest-icon { display: inline-flex; }
-    /* Dropdown профиля: на mobile фиксируем под header, чтобы не уезжал за viewport.
-       Header на mobile — 60px (см. .sp-header-inner выше), плюс 10px отступ. */
+    /* Mobile profile menu: compact drawer from the avatar side.
+       The accent rail appears first, then the menu reveals left-to-right. */
     .sp-header .user-dropdown {
         position: fixed;
-        top: 70px;
-        left: 12px; right: 12px;
-        width: auto;
+        top: 76px;
+        left: 24px;
+        right: auto;
+        width: min(260px, calc(100vw - 48px));
         min-width: 0;
-        max-width: none;
+        max-width: calc(100vw - 48px);
+        border-radius: 0 10px 10px 0;
+        border-left: 4px solid var(--accent);
         z-index: 3000;
+        transform-origin: left top;
+        transform: translate3d(-14px, 0, 0);
+        clip-path: inset(0 calc(100% - 10px) 0 0 round 0 10px 10px 0);
+        transition: opacity .18s ease, transform .24s cubic-bezier(.2,.8,.2,1),
+                    clip-path .24s cubic-bezier(.2,.8,.2,1);
+    }
+    .sp-header .user-dropdown.open {
+        transform: translate3d(0, 0, 0);
+        clip-path: inset(0 0 0 0 round 0 10px 10px 0);
     }
     .sp-profile-dot { top: -2px; right: -2px; }
 }
