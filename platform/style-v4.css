@@ -1887,10 +1887,13 @@ img { display: block; max-width: 100%; }
     .filter-sep { display: none; }
     .v-header-logo-compact-text { display: none; }
     .v-header-logo-text { font-size: 18px; }
-    /* LK icon to the left on mobile */
+    /* LK icon to the left on mobile (LEGACY .v-header-inner шапка только).
+       ВАЖНО: scoping к .v-header-inner родителю обязателен, иначе правило
+       выдёргивает .v-user-wrap из любой другой шапки (.sp-header), и профиль
+       уезжает в левый край вместо своей grid-cell. */
     .v-header-inner { position: relative; }
-    .v-user-wrap,
-    a.v-icon-btn#lk-btn {
+    .v-header-inner .v-user-wrap,
+    .v-header-inner a.v-icon-btn#lk-btn {
         position: absolute;
         left: 16px;
         top: 50%;
