@@ -2586,7 +2586,10 @@ img { display: block; max-width: 100%; }
     background: #fff;
     border: 1px solid var(--border); border-radius: 0;
     cursor: pointer; color: var(--text-2);
-    font: inherit; min-height: 40px;
+    /* height (не min-height): фиксируем 40px, чтобы рамка профиля совпадала с
+       квадратом тарелки .sp-plate. min-height позволял боксу расти под аватар +
+       line-height имени, из-за чего рамка ЛК была выше тарелки. */
+    font: inherit; height: 40px; line-height: 1;
     transition: border-color var(--tr);
     flex-shrink: 0;
     position: relative;
