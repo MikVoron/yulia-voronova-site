@@ -395,14 +395,15 @@
 		.bal-success-modal-box {
 			position: relative;
 			background: #fff;
-			border-radius: 18px;
-			box-shadow: 0 24px 60px rgba(0, 0, 0, .25);
+			border: 1px solid var(--border);
+			border-radius: 0;
+			box-shadow: 0 24px 60px rgba(0, 0, 0, .22);
 			padding: 28px 24px 22px;
 			max-width: 380px;
 			width: 100%;
 			text-align: center;
-			transform: scale(.92) translateY(10px);
-			transition: transform .22s cubic-bezier(.2, .9, .3, 1.2);
+			transform: scale(.96) translateY(8px);
+			transition: transform .24s cubic-bezier(.2, .8, .2, 1);
 		}
 		.bal-success-sparkles {
 			position: absolute;
@@ -417,15 +418,25 @@
 			transform: scale(1) translateY(0);
 		}
 		.bal-success-modal-title {
-			font-size: 20px;
-			font-weight: 800;
+			font-family: var(--serif);
+			font-size: 22px;
+			font-weight: 700;
 			color: #2e7d32;
 			margin-bottom: 8px;
-			line-height: 1.25;
+			line-height: 1.2;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+		}
+		.bal-success-modal-title svg {
+			width: 1.05em;
+			height: 1.05em;
+			flex-shrink: 0;
 		}
 		.bal-success-modal-text {
 			font-size: 14px;
-			color: #555;
+			color: var(--text-2);
 			line-height: 1.45;
 			margin-bottom: 20px;
 		}
@@ -439,7 +450,7 @@
 			color: #fff;
 			border: none;
 			padding: 13px 18px;
-			border-radius: 12px;
+			border-radius: 0;
 			font-size: 15px;
 			font-weight: 700;
 			cursor: pointer;
@@ -452,17 +463,22 @@
 		}
 		.bal-success-modal-secondary {
 			background: transparent;
-			color: #666;
+			color: var(--text-2);
 			border: none;
 			padding: 10px 18px;
-			border-radius: 10px;
+			border-radius: 0;
 			font-size: 14px;
 			font-weight: 600;
 			cursor: pointer;
+			text-decoration: underline;
+			text-decoration-color: transparent;
+			text-underline-offset: 3px;
+			transition: color .2s ease, text-decoration-color .2s ease;
 		}
 		.bal-success-modal-secondary:hover,
 		.bal-success-modal-secondary:focus-visible {
-			color: #222;
+			color: var(--text);
+			text-decoration-color: currentColor;
 			outline: none;
 		}
 		@media (max-width: 480px) {
@@ -896,7 +912,7 @@
 		aria-labelledby="bal-success-title" aria-describedby="bal-success-text">
 		<div class="bal-success-modal-box">
 			<div id="bal-sparkle-container" class="bal-sparkle-wrap bal-success-sparkles" aria-hidden="true"></div>
-			<div class="bal-success-modal-title" id="bal-success-title">✅ Блюдо сбалансировано!</div>
+			<div class="bal-success-modal-title" id="bal-success-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Блюдо сбалансировано!</div>
 			<div class="bal-success-modal-text" id="bal-success-text">Добавьте его в тарелку — это полноценный приём пищи.</div>
 			<div class="bal-success-modal-actions">
 				<button class="bal-success-modal-primary" id="bal-success-primary" type="button"
@@ -911,10 +927,10 @@
 	<div class="bal-success-modal-overlay" id="bal-warn-modal" role="dialog" aria-modal="true"
 		aria-labelledby="bal-warn-title" aria-describedby="bal-warn-text">
 		<div class="bal-success-modal-box">
-			<div class="bal-success-modal-title" id="bal-warn-title" style="color:#b45309">⚠️ Тарелка не сбалансирована</div>
+			<div class="bal-success-modal-title" id="bal-warn-title" style="color:#b45309"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4 2.7 20h18.6L12 4z"/><line x1="12" y1="10" x2="12" y2="14"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Тарелка не сбалансирована</div>
 			<div class="bal-success-modal-text" id="bal-warn-text">
 				Чтобы блюдо стало полноценным приёмом пищи, выберите обязательные группы добавок в сайдбаре.
-				<div id="bal-warn-missing" style="margin-top:8px;font-size:13px;color:#666"></div>
+				<div id="bal-warn-missing" style="margin-top:8px;font-size:13px;color:var(--text-3)"></div>
 			</div>
 			<div class="bal-success-modal-actions">
 				<button class="bal-success-modal-primary" id="bal-warn-primary" type="button"
