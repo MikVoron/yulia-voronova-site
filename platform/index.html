@@ -140,6 +140,11 @@
 			gap: 48px; align-items: center;
 			padding: 56px 0 64px;
 			background: #fff;
+			/* .anim (fadeUp, fill-mode both) оставляет transform: translateY(0) →
+			   постоянный stacking-контекст. Без z-index дропдаун поиска (z:1001)
+			   заперт внутри hero и его перекрывает картинка #new-block. */
+			position: relative;
+			z-index: 20;
 		}
 		.sp-hero-text { min-width: 0; }
 		.sp-hero-eyebrow {
