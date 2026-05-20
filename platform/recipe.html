@@ -286,10 +286,12 @@
 			transform: translateX(-50%) translateY(0);
 		}
 
+		/* Сбалансировано = «готово»: заливка акцентом (палитра «Апельсин»),
+		   контрастна outline-состоянию «Добавки». */
 		.bal-mini-status.success {
-			background: #e8f5e9;
-			border-color: #a5d6a7;
-			color: #2e7d32;
+			background: var(--accent);
+			border-color: var(--accent);
+			color: #fff;
 		}
 
 		.bal-mini-progress {
@@ -2736,7 +2738,7 @@
 			const labelEl = document.getElementById('bal-mini-label');
 			if (balanced) {
 				el.classList.add('success');
-				if (progressEl) progressEl.textContent = '✅';
+				if (progressEl) progressEl.textContent = '✓';
 				if (labelEl) labelEl.textContent = 'Сбалансировано';
 			} else {
 				el.classList.remove('success');
