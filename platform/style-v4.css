@@ -2563,10 +2563,13 @@ img { display: block; max-width: 100%; }
 /* Унифицированная inline-SVG иконка тарелки (см. Plate Icon Final, Variant 1).
    Используется и в кнопке #plate-btn (.sp-plate / .vh-plate-btn), и в заголовках модалок. */
 .sp-plate-svg { display: block; flex-shrink: 0; }
-/* Унификация размеров иконок в хедере: плэйт-SVG = аватар профиля (.v-user-avatar)
-   = 32×32 внутри 40×40 фрейма. На мобиле обе ужимаются до 24×24 (см. @media ≤767px).
+/* Унификация размеров иконок в хедере: видимый круг тарелки = аватар профиля 32px.
+   SVG имеет viewBox 0 0 22 22 с кругом r=10 (1px инсет с каждой стороны), поэтому при
+   рендере 32px реальный круг был бы ~29px и казался меньше аватара. Рендерим 33px,
+   чтобы внешний край обводки круга совпал с 32px-аватаром (.v-user-avatar).
+   На мобиле обе ужимаются (см. @media ≤767px).
    Scoped to .sp-plate — модальные заголовки используют .sp-plate-svg в своём размере. */
-.sp-plate .sp-plate-svg { width: 32px; height: 32px; }
+.sp-plate .sp-plate-svg { width: 33px; height: 33px; }
 .sp-plate .plate-count {
     position: absolute; top: -6px; right: -6px;
     min-width: 18px; height: 18px; padding: 0 4px;
@@ -2694,9 +2697,9 @@ img { display: block; max-width: 100%; }
     .sp-nav { display: none; }
     .sp-utils { gap: 8px; width: auto; }
     .sp-plate { width: 40px; height: 40px; }
-    /* Одинаковый размер внутренней иконки для плэйта и аватара профиля —
-       обе 24×24 в 40×40 квадратном фрейме, единый editorial-padding. */
-    .sp-plate .sp-plate-svg { width: 24px; height: 24px; }
+    /* Видимый круг тарелки = аватар 24px. SVG рендерим 25px из-за инсета viewBox
+       (см. комментарий в desktop-блоке .sp-plate .sp-plate-svg). */
+    .sp-plate .sp-plate-svg { width: 25px; height: 25px; }
     .sp-profile {
         padding: 0; width: 40px; min-height: 40px;
         border-radius: 0; justify-content: center;
