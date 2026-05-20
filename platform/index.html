@@ -190,6 +190,9 @@
 			   hero становится на ~18px выше, и левая колонка/поиск дёргаются. */
 			line-height: 17px; min-height: 17px;
 		}
+		/* Префикс-ярлык в подписи hero («Сезонный рецепт») — акцентом, чтобы
+		   связать крупное фото с рубрикой, не вешая плашку на само изображение. */
+		.sp-hero-caption .sp-cap-tag { color: var(--accent); }
 
 		/* Loading-state для hero-aside: media и caption уже занимают своё
 		   место (aspect-ratio + min-height), а shimmer делает их визуально
@@ -2413,7 +2416,7 @@
 			media.innerHTML = _photo
 				? '<img src="' + escHtml(_photo) + '" alt="' + _name + '" loading="eager" fetchpriority="high" onerror="imgFallback(this,\'' + _emoji + '\')">'
 				: '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:72px">' + _emoji + '</div>';
-			cap.textContent = label + ' — ' + (r.name || '');
+			cap.innerHTML = '<span class="sp-cap-tag">' + escHtml(label) + '</span> — ' + escHtml(String(r.name || ''));
 			aside.classList.remove('is-loading');
 
 			const locked = (typeof Auth !== 'undefined' && typeof Auth.canViewRecipe === 'function')
