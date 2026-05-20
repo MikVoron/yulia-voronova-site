@@ -1397,7 +1397,7 @@
 			<div class="modal-handle"></div>
 			<div class="modal-header">
 				<div class="modal-title"><svg class="sp-plate-svg" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="10" fill="#fff" stroke="var(--text)" stroke-width="1.4"/><path d="M11 1 A10 10 0 0 0 11 21 Z" fill="var(--accent)"/><path d="M11 1 A10 10 0 0 1 21 11 L11 11 Z" fill="var(--text)"/><line x1="11" y1="1" x2="11" y2="21" stroke="#fff" stroke-width="1.2"/><line x1="11" y1="11" x2="21" y2="11" stroke="#fff" stroke-width="1.2"/></svg> Моя тарелка</div>
-				<button class="modal-close" onclick="closePlate()">✕</button>
+				<button class="modal-close" onclick="closePlate()"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
 			</div>
 			<div class="modal-body" id="plate-body"></div>
 			<div class="modal-footer" id="plate-footer" style="display:none">
@@ -2704,7 +2704,7 @@
 						<div class="pv1-item-meta">${Number(item.kcal) || 0} ккал · Б ${Number(item.protein) || 0} · Ж ${Number(item.fat) || 0} · У ${Number(item.carbs) || 0} · Кл ${Number(item.fiber) || 0}</div>
 						${additionsHtml}
 					</div>
-					<button class="pv1-item-del" onclick="removeItem(${Number(i)})" aria-label="Удалить">✕</button>
+					<button class="pv1-item-del" onclick="removeItem(${Number(i)})" aria-label="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
 				</div>`;
 			}).join('');
 

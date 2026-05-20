@@ -1136,7 +1136,7 @@
                         <div class="pv1-item-name">${escHtml(String(item.name || ''))}</div>
                         <div class="pv1-item-meta">${Number(item.kcal) || 0} ккал · Б ${Number(item.protein) || 0} · Ж ${Number(item.fat) || 0} · У ${Number(item.carbs) || 0} · Кл ${Number(item.fiber) || 0}</div>
                     </div>
-                    <button class="pv1-item-del" onclick="removePlateItem(${Number(i)})" aria-label="Удалить">✕</button>
+                    <button class="pv1-item-del" onclick="removePlateItem(${Number(i)})" aria-label="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
                 </div>`).join('');
 				body.innerHTML = `<div class="pv1-items">${list}</div>
                 <div class="pv1-totals">

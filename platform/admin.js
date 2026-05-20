@@ -398,7 +398,7 @@
                 + '</div>'
                 + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">'
                 + '<button class="adm-btn" onclick="editNews(' + n.id + ')" style="font-size:12px;padding:6px 10px">✏️</button>'
-                + '<button class="adm-btn adm-btn-reject" onclick="deleteNews(' + n.id + ')" style="font-size:12px;padding:6px 10px">✕</button>'
+                + '<button class="adm-btn adm-btn-reject" onclick="deleteNews(' + n.id + ')" style="font-size:12px;padding:6px 10px"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>'
                 + '</div></div>';
         }).join('');
     }
@@ -542,7 +542,7 @@
                 + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px;flex-wrap:wrap;justify-content:flex-end">'
                 + seasonalBtn
                 + '<button class="adm-btn" onclick="openRecipeEditor(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px" title="Открыть в редакторе">✏️</button>'
-                + '<button class="adm-btn adm-btn-reject" onclick="deleteRecipe(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px">✕</button>'
+                + '<button class="adm-btn adm-btn-reject" onclick="deleteRecipe(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>'
                 + '</div></div>';
         }).join('');
     }

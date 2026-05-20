@@ -1483,6 +1483,9 @@ img { display: block; max-width: 100%; }
 .modal-title { font-size: 16px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; }
 /* .modal-plate-icon удалён вместе с устаревшим .vh-slice* — иконка
    тарелки в заголовке модалок теперь рендерится inline-SVG (.sp-plate-svg). */
+/* Единая иконка-крестик (inline-SVG). Размер 1em — наследует font-size
+   кнопки-родителя, поэтому заменяет глиф ✕ без правок сайзинга каждой кнопки. */
+.icon-x { width: 1em; height: 1em; display: inline-block; vertical-align: middle; flex-shrink: 0; pointer-events: none; }
 .modal-close {
     width: 32px; height: 32px; border-radius: 50%; background: var(--bg-alt);
     font-size: 16px; display: flex; align-items: center; justify-content: center;
