@@ -36,7 +36,7 @@
 			position: absolute; inset: 0;
 			background: rgba(17,17,17,.4);
 			opacity: 0;
-			transition: opacity .25s ease;
+			transition: opacity .28s cubic-bezier(.2, .8, .2, 1);
 			pointer-events: auto;
 		}
 		.sp-drawer.open .sp-drawer-back { opacity: 1; }
@@ -47,7 +47,7 @@
 			background: #fff;
 			border-right: 1px solid var(--border);
 			transform: translateX(-100%);
-			transition: transform .25s ease;
+			transition: transform .28s cubic-bezier(.2, .8, .2, 1);
 			display: flex; flex-direction: column;
 			pointer-events: auto;
 		}
@@ -66,8 +66,10 @@
 			width: 36px; height: 36px;
 			border: 1px solid var(--border); background: #fff;
 			display: flex; align-items: center; justify-content: center;
-			cursor: pointer; font-size: 14px; padding: 0;
+			cursor: pointer; padding: 0;
+			color: var(--text);
 		}
+		.sp-drawer-close svg { width: 16px; height: 16px; display: block; }
 		.sp-drawer-close:hover { border-color: var(--accent); color: var(--accent); }
 		.sp-drawer-nav {
 			padding: 8px 0;
@@ -75,14 +77,47 @@
 			overflow-y: auto;
 		}
 		.sp-drawer-nav a {
+			position: relative;
 			padding: 14px 20px;
 			font-family: var(--serif);
 			font-size: 17px; font-weight: 700;
 			color: var(--text); text-decoration: none;
 			border-bottom: 1px solid #f2efe9;
+			transition: background var(--tr), color var(--tr);
 		}
 		.sp-drawer-nav a:hover { background: var(--bg-alt); color: var(--accent); }
+		/* Active: вертикальная оранжевая полоска слева (mobile-drawer паттерн,
+		   перекликается с accent-рельсом в user-dropdown). */
 		.sp-drawer-nav a.active { color: var(--accent); }
+		.sp-drawer-nav a.active::before {
+			content: '';
+			position: absolute;
+			left: 0; top: 0; bottom: 0;
+			width: 3px;
+			background: var(--accent);
+		}
+		/* Stagger reveal: пункты «вытекают» сверху вниз при открытии drawer.
+		   Keyframe (не transition) — чтобы delay не мешал hover-переходам. */
+		.sp-drawer-nav a { opacity: 0; }
+		.sp-drawer.open .sp-drawer-nav a {
+			animation: drawerItemIn .32s cubic-bezier(.2, .8, .2, 1) forwards;
+		}
+		.sp-drawer.open .sp-drawer-nav a:nth-child(1) { animation-delay: 100ms; }
+		.sp-drawer.open .sp-drawer-nav a:nth-child(2) { animation-delay: 140ms; }
+		.sp-drawer.open .sp-drawer-nav a:nth-child(3) { animation-delay: 180ms; }
+		.sp-drawer.open .sp-drawer-nav a:nth-child(4) { animation-delay: 220ms; }
+		.sp-drawer.open .sp-drawer-nav a:nth-child(5) { animation-delay: 260ms; }
+		.sp-drawer.open .sp-drawer-nav a:nth-child(6) { animation-delay: 300ms; }
+		.sp-drawer.open .sp-drawer-nav a:nth-child(7) { animation-delay: 340ms; }
+		.sp-drawer.open .sp-drawer-nav a:nth-child(n+8) { animation-delay: 380ms; }
+		@keyframes drawerItemIn {
+			from { opacity: 0; transform: translateX(-8px); }
+			to   { opacity: 1; transform: translateX(0); }
+		}
+		@media (prefers-reduced-motion: reduce) {
+			.sp-drawer-back, .sp-drawer-panel { transition-duration: .01ms !important; }
+			.sp-drawer.open .sp-drawer-nav a { animation: none !important; opacity: 1 !important; }
+		}
 
 		/* CTA close-крестик — spec §3.5 */
 		.sp-cta-strip { position: relative; }
@@ -1224,7 +1259,7 @@
 		<aside class="sp-drawer-panel" role="dialog" aria-label="Разделы">
 			<div class="sp-drawer-head">
 				<span class="sp-drawer-title">Разделы</span>
-				<button class="sp-drawer-close" type="button" onclick="closeDrawer()" aria-label="Закрыть">✕</button>
+				<button class="sp-drawer-close" type="button" onclick="closeDrawer()" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
 			</div>
 			<nav class="sp-drawer-nav" id="sp-drawer-nav">
 				<a class="active" href="index.html">Главная</a>
@@ -2440,7 +2475,7 @@
 			if (!dr) return;
 			dr.classList.remove('open');
 			document.body.style.overflow = '';
-			setTimeout(function () { if (!dr.classList.contains('open')) dr.setAttribute('hidden', ''); }, 260);
+			setTimeout(function () { if (!dr.classList.contains('open')) dr.setAttribute('hidden', ''); }, 300);
 		}
 		document.addEventListener('keydown', function (e) {
 			if (e.key === 'Escape') {
