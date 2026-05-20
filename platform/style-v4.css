@@ -1807,6 +1807,16 @@ img { display: block; max-width: 100%; }
     z-index: 50;
 }
 .sticky-add-inner { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+/* Sticky-CTA «Добавить в тарелку» — editorial-язык (как .pv1-cta): прямые углы,
+   UPPERCASE + letter-spacing, жирнее. Фон остаётся акцентным оранжевым (primary-акция).
+   Hover орандж→чёрный зеркалит модальную .pv1-cta (чёрная→оранжевая). */
+#add-btn {
+    border-radius: 0;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    font-weight: 800;
+}
+#add-btn:hover { background: var(--text); }
 
 /* ── CHAT FAB ────────────────────────────────────────── */
 /* .chat-fab — defined below with icon support */
@@ -2553,6 +2563,10 @@ img { display: block; max-width: 100%; }
 /* Унифицированная inline-SVG иконка тарелки (см. Plate Icon Final, Variant 1).
    Используется и в кнопке #plate-btn (.sp-plate / .vh-plate-btn), и в заголовках модалок. */
 .sp-plate-svg { display: block; flex-shrink: 0; }
+/* Унификация размеров иконок в хедере: плэйт-SVG = аватар профиля (.v-user-avatar)
+   = 32×32 внутри 40×40 фрейма. На мобиле обе ужимаются до 24×24 (см. @media ≤767px).
+   Scoped to .sp-plate — модальные заголовки используют .sp-plate-svg в своём размере. */
+.sp-plate .sp-plate-svg { width: 32px; height: 32px; }
 .sp-plate .plate-count {
     position: absolute; top: -6px; right: -6px;
     min-width: 18px; height: 18px; padding: 0 4px;
