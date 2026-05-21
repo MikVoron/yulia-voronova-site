@@ -2691,8 +2691,17 @@ img { display: block; max-width: 100%; }
     .sp-burger:hover { background: var(--text); border-color: var(--text); }
     .sp-burger svg { width: 24px; height: 24px; }
     .sp-burger svg line { stroke-width: 2.6; stroke: #fff; }
-    /* На внутренних страницах back-btn заменяет бургер в левом слоте (spec §2). */
-    .sp-header .vh-back-btn { display: inline-flex; }
+    /* На внутренних страницах back-btn заменяет бургер в левом слоте (spec §2).
+       Жёстко прибиваем в строку 1 / колонку 1: фиксированные grid-координаты
+       размещают элемент мимо auto-placement-курсора и сбрасываем order:1 из
+       старой flex-шапки (.vh-back-btn) — иначе кнопку выкидывает в неявный
+       2-й ряд под хедером. */
+    .sp-header .vh-back-btn {
+        display: inline-flex;
+        grid-column: 1 / 2 !important;
+        grid-row: 1 !important;
+        order: 0 !important;
+    }
     .sp-brand { gap: 0; min-width: 0; justify-self: center; }
     .sp-brand-ava { display: none; }
     .sp-brand-eyebrow { display: none; }
