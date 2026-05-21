@@ -10,7 +10,7 @@
     <link rel="canonical" href="https://voronova.online/smartplate.html">
     <meta property="og:title" content="Умная тарелка скоро откроется | Юлия Воронова">
     <meta property="og:description" content="Анонс проекта «Умная тарелка»: платформа, которая помогает собирать сбалансированный рацион на основе готовых рецептов.">
-    <meta property="og:image" content="https://voronova.online/images/news-smartplate-login.webp">
+    <meta property="og:image" content="https://voronova.online/images/login.webp">
     <meta property="og:url" content="https://voronova.online/smartplate.html">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ru_RU">
@@ -18,7 +18,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Умная тарелка скоро откроется | Юлия Воронова">
     <meta name="twitter:description" content="Анонс проекта «Умная тарелка»: платформа для сборки цельного и сбалансированного рациона без ручных расчётов.">
-    <meta name="twitter:image" content="https://voronova.online/images/news-smartplate-login.webp">
+    <meta name="twitter:image" content="https://voronova.online/images/login.webp">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -322,6 +322,16 @@
             width: 100%;
             height: auto;
             border-radius: 12px;
+            border: 1px solid rgba(216, 202, 182, 0.5);
+        }
+
+        /* Вертикальный скрин телефона — не растягиваем на всю ширину,
+           держим «телефонную» пропорцию по центру карточки. */
+        .smartplate-news-shot--phone img {
+            width: auto;
+            max-width: 230px;
+            max-height: 460px;
+            margin: 0 auto;
         }
 
         .smartplate-news-shot figcaption {
@@ -426,17 +436,24 @@
                             <div class="smartplate-news-list">
                                 <article class="smartplate-news-item">
                                     <figure class="smartplate-news-shot">
-                                        <img src="images/news-smartplate-login.webp" alt="Экран авторизации платформы Умная тарелка" loading="lazy" width="492" height="720">
+                                        <img src="images/login.webp" alt="Экран авторизации платформы Умная тарелка" loading="lazy" width="1000" height="761">
                                         <figcaption>Первая новость</figcaption>
                                     </figure>
                                     <p>Страница авторизации уже готова, и почти весь бекенд проекта тоже готов.</p>
                                 </article>
                                 <article class="smartplate-news-item">
                                     <figure class="smartplate-news-shot">
-                                        <img src="images/news-smartplate-feed.webp" alt="Главный экран платформы Умная тарелка с новостями и рецептами" loading="lazy" width="295" height="640">
+                                        <img src="images/cutlets.webp" alt="Каталог рецептов платформы Умная тарелка с фильтрами" loading="lazy" width="1000" height="834">
                                         <figcaption>Вторая новость</figcaption>
                                     </figure>
-                                    <p>На скрине показана часть главного экрана платформы. Это входная точка, где будут новые рецепты и новости, ваша текущая сбалансированная тарелка и другая полезная информация.</p>
+                                    <p>Готов каталог рецептов с фильтрами по времени, сложности, способу приготовления и аллергенам — блюда легко искать и сравнивать.</p>
+                                </article>
+                                <article class="smartplate-news-item">
+                                    <figure class="smartplate-news-shot smartplate-news-shot--phone">
+                                        <img src="images/mobile.webp" alt="Экран рецепта платформы Умная тарелка на телефоне с балансом тарелки" loading="lazy" width="590" height="1280">
+                                        <figcaption>Третья новость</figcaption>
+                                    </figure>
+                                    <p>Рецепт на телефоне: видеоинструкция, баланс тарелки по группам продуктов и кнопка «Добавить в тарелку» — всё под рукой.</p>
                                 </article>
                             </div>
                         </article>
