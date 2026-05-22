@@ -2611,6 +2611,15 @@ img { display: block; max-width: 100%; }
     opacity: 1; visibility: visible; pointer-events: auto;
     transform: translateX(-50%) translateY(0);
 }
+/* Невидимый «мостик» над панелью закрывает 10px-зазор между триггером и
+   панелью: без него при переводе курсора с пункта на меню терялся :hover и
+   дропдаун закрывался до клика (Bug: hover-переход). Мостик — часть .sp-nav-panel
+   (внутри .sp-nav-dd), поэтому :hover остаётся непрерывным. pointer-events
+   наследуется от панели (none, пока закрыта → не мешает клику по фону). */
+.sp-nav-panel::before {
+    content: ''; position: absolute;
+    left: 0; right: 0; top: -14px; height: 14px;
+}
 /* Hover-раскрытие только для устройств с настоящим ховером (desktop-указатель).
    На тач click-логика из header-nav.js управляет классом .open. */
 @media (hover: hover) and (pointer: fine) {
