@@ -322,7 +322,21 @@ const Auth = {
             + '</div></div>';
         document.body.appendChild(overlay);
     },
-    async refreshToken() {
+    // Single-flight refresh. Refresh-токены на сервере РОТИРУЮТСЯ (одноразовые:
+    // /auth/refresh удаляет старую refresh_session и выдаёт новую). Если на
+    // странице несколько запросов одновременно ловят 401 (кабинет: /subscription,
+    // /favorites, /feedback, /auth/me и т.д.), каждый звал бы свой /auth/refresh
+    // с одной и той же cookie → первый удаляет сессию, остальные получают 401
+    // «Сессия истекла» (+ clearCookie). Итог: часть запросов падает, ЛК
+    // показывает «Нет подписки»/пустые списки, хотя данные есть. Поэтому держим
+    // ОДИН общий in-flight refresh: все параллельные вызовы ждут его.
+    _refreshInFlight: null,
+    refreshToken() {
+        if (this._refreshInFlight) return this._refreshInFlight;
+        this._refreshInFlight = this._doRefresh().finally(() => { this._refreshInFlight = null; });
+        return this._refreshInFlight;
+    },
+    async _doRefresh() {
         try {
             const res = await fetch(API_BASE + '/auth/refresh', { method: 'POST', credentials: 'include' });
             if (!res.ok) return false;
