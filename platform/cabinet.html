@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-21-back-btn-slot" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-22-ingredient-nav" id="vcss">
 	<style>
 		/* ──────────────────────────────────────────────────────────────
 		   CABINET — editorial redesign (Account Page Redesign.html)
@@ -1157,8 +1157,12 @@
 	<header class="sp-header" id="hdr">
 		<div class="v-wrap">
 			<div class="sp-header-inner">
-				<button class="vh-back-btn" type="button" onclick="location.href='index.html'" aria-label="На главную">
-					<svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+				<button class="sp-burger" type="button" aria-label="Меню" onclick="openDrawer()">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+						<line x1="3" y1="6" x2="21" y2="6" />
+						<line x1="3" y1="12" x2="21" y2="12" />
+						<line x1="3" y1="18" x2="21" y2="18" />
+					</svg>
 				</button>
 				<a href="index.html" class="sp-brand">
 					<span class="sp-brand-ava" aria-hidden="true"></span>
@@ -1168,12 +1172,18 @@
 					</span>
 				</a>
 				<nav class="sp-nav" id="sp-nav" aria-label="Разделы">
-					<a href="index.html">Главная</a>
-					<a href="category.html?cat=breakfasts">Завтраки</a>
-					<a href="category.html?cat=mains">Основные блюда</a>
-					<a href="category.html?cat=pancakes">Блины / Оладьи</a>
-					<a href="category.html?cat=spreads">Намазки</a>
-					<a href="category.html?cat=sauces">Соусы</a>
+					<div class="sp-nav-dd" data-dd="recipes">
+						<button class="sp-nav-trigger" type="button" aria-haspopup="true" aria-expanded="false">Рецепты<span class="sp-nav-caret" aria-hidden="true"></span></button>
+						<div class="sp-nav-panel sp-nav-panel--recipes" role="menu">
+							<a class="sp-nav-panel-all" role="menuitem" href="category.html">Все рецепты</a>
+						</div>
+					</div>
+					<div class="sp-nav-dd" data-dd="ingredients">
+						<button class="sp-nav-trigger" type="button" aria-haspopup="true" aria-expanded="false">Ингредиенты<span class="sp-nav-caret" aria-hidden="true"></span></button>
+						<div class="sp-nav-panel sp-nav-panel--ingredients" role="menu"></div>
+					</div>
+					<a class="sp-nav-link" data-nav="favorites" href="cabinet.html?tab=favorites">Избранное</a>
+					<a class="sp-nav-link" href="https://voronova.online/#tariffs">Консультации</a>
 				</nav>
 				<div class="sp-utils">
 					<button class="sp-plate" id="plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
@@ -1205,6 +1215,18 @@
 			</div>
 		</div>
 	</header>
+
+	<!-- DRAWER (mobile nav) — общий с index; наполняется header-nav.js -->
+	<div class="sp-drawer" id="sp-drawer" hidden>
+		<div class="sp-drawer-back" onclick="closeDrawer()"></div>
+		<aside class="sp-drawer-panel" role="dialog" aria-label="Разделы">
+			<div class="sp-drawer-head">
+				<span class="sp-drawer-title">Разделы</span>
+				<button class="sp-drawer-close" type="button" onclick="closeDrawer()" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+			</div>
+			<nav class="sp-drawer-nav" id="sp-drawer-nav"></nav>
+		</aside>
+	</div>
 
 	<input type="file" id="ava-upload" accept="image/*" style="display:none" onchange="handleAvatarUpload(this)">
 
@@ -1583,8 +1605,10 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=1780040200"></script>
-	<script src="cabinet.js"></script>
+	<script src="data-v2.js?v=2026052201"></script>
+	<script src="ingredients.js?v=1"></script>
+	<script src="header-nav.js?v=1"></script>
+	<script src="cabinet.js?v=2026052201"></script>
 
 	<!-- Tawk.to -->
 	<script>

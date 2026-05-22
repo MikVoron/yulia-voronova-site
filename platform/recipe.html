@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-21-back-btn-slot" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-22-ingredient-nav" id="vcss">
 	<style>
 		.sublist-items {
 			display: flex;
@@ -839,11 +839,12 @@
 	<header class="sp-header" id="hdr">
 		<div class="v-wrap">
 			<div class="sp-header-inner">
-				<button class="vh-back-btn" id="back-btn" type="button" aria-label="Назад">
-					<svg viewBox="0 0 24 24">
-						<path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+				<button class="sp-burger" type="button" aria-label="Меню" onclick="openDrawer()">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+						<line x1="3" y1="6" x2="21" y2="6" />
+						<line x1="3" y1="12" x2="21" y2="12" />
+						<line x1="3" y1="18" x2="21" y2="18" />
 					</svg>
-					<span id="back-label" style="display:none"></span>
 				</button>
 				<a href="index.html" class="sp-brand">
 					<span class="sp-brand-ava" aria-hidden="true"></span>
@@ -853,12 +854,18 @@
 					</span>
 				</a>
 				<nav class="sp-nav" id="sp-nav" aria-label="Разделы">
-					<a href="index.html">Главная</a>
-					<a href="category.html?cat=breakfasts">Завтраки</a>
-					<a href="category.html?cat=mains">Основные блюда</a>
-					<a href="category.html?cat=pancakes">Блины / Оладьи</a>
-					<a href="category.html?cat=spreads">Намазки</a>
-					<a href="category.html?cat=sauces">Соусы</a>
+					<div class="sp-nav-dd" data-dd="recipes">
+						<button class="sp-nav-trigger active" type="button" aria-haspopup="true" aria-expanded="false">Рецепты<span class="sp-nav-caret" aria-hidden="true"></span></button>
+						<div class="sp-nav-panel sp-nav-panel--recipes" role="menu">
+							<a class="sp-nav-panel-all" role="menuitem" href="category.html">Все рецепты</a>
+						</div>
+					</div>
+					<div class="sp-nav-dd" data-dd="ingredients">
+						<button class="sp-nav-trigger" type="button" aria-haspopup="true" aria-expanded="false">Ингредиенты<span class="sp-nav-caret" aria-hidden="true"></span></button>
+						<div class="sp-nav-panel sp-nav-panel--ingredients" role="menu"></div>
+					</div>
+					<a class="sp-nav-link" data-nav="favorites" href="cabinet.html?tab=favorites">Избранное</a>
+					<a class="sp-nav-link" href="https://voronova.online/#tariffs">Консультации</a>
 				</nav>
 				<div class="sp-utils">
 					<button class="sp-plate" id="plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
@@ -890,6 +897,18 @@
 			</div>
 		</div>
 	</header>
+
+	<!-- DRAWER (mobile nav) — общий с index; наполняется header-nav.js -->
+	<div class="sp-drawer" id="sp-drawer" hidden>
+		<div class="sp-drawer-back" onclick="closeDrawer()"></div>
+		<aside class="sp-drawer-panel" role="dialog" aria-label="Разделы">
+			<div class="sp-drawer-head">
+				<span class="sp-drawer-title">Разделы</span>
+				<button class="sp-drawer-close" type="button" onclick="closeDrawer()" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+			</div>
+			<nav class="sp-drawer-nav" id="sp-drawer-nav"></nav>
+		</aside>
+	</div>
 
 	<!-- STICKY MINI BALANCE STATUS -->
 	<div id="bal-mini-status" class="bal-mini-status" onclick="scrollToBalanceBanner()" onkeydown="handleMiniStatusKey(event)" role="button" tabindex="0" aria-label="Прогресс баланса — перейти к добавкам">
@@ -967,7 +986,9 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=1780040200"></script>
+	<script src="data-v2.js?v=2026052201"></script>
+	<script src="ingredients.js?v=1"></script>
+	<script src="header-nav.js?v=1"></script>
 	<script>
 		const _accessReady = Auth.checkAccess({ allowGuest: true });
 		updatePlateIcon();
@@ -1010,28 +1031,18 @@
 			document.getElementById('user-dropdown').classList.toggle('open');
 		}
 
-		// Editorial header nav (parity с index/category). До 5 категорий, активная — текущий
-		// раздел рецепта (если задан); active всегда виден, даже если выпадает из топ-5.
+		// Навигация хедера — единый билдер (header-nav.js). На странице рецепта
+		// активен продуктовый контекст «Рецепты».
 		function renderHeaderNav(activeCatId) {
-			const nav = document.getElementById('sp-nav');
-			if (!nav) return;
-			const cats = (typeof CATEGORIES === 'object') ? Object.values(CATEGORIES) : [];
-			if (!cats.length) return;
-			const items = cats.slice(0, 5);
-			if (activeCatId && !items.some(function (c) { return c.id === activeCatId; })) {
-				const found = cats.find(function (c) { return c.id === activeCatId; });
-				if (found) items[items.length - 1] = found;
+			if (window.SP_HEADER && typeof window.SP_HEADER.render === 'function') {
+				window.SP_HEADER.render({ activeCat: activeCatId || null, activeNav: 'recipes' });
 			}
-			const homeCls = activeCatId ? '' : ' class="active"';
-			nav.innerHTML = '<a' + homeCls + ' href="index.html">Главная</a>' +
-				items.map(function (c) {
-					const cls = c.id === activeCatId ? ' class="active"' : '';
-					return '<a' + cls + ' href="category.html?cat=' + encodeURIComponent(c.id) + '">' + escHtml(String(c.name || '')) + '</a>';
-				}).join('');
 		}
+		// Ранний рендер: дропдаун «Ингредиенты» и ссылки не зависят от API.
+		renderHeaderNav();
 		document.addEventListener('click', function (e) {
 			const wrap = document.getElementById('user-wrap');
-			if (wrap && !wrap.contains(e.target)) document.getElementById('user-dropdown').classList.remove('open');
+			if (wrap && !wrap.contains(e.target)) { const dd = document.getElementById('user-dropdown'); if (dd) dd.classList.remove('open'); }
 		});
 		function doLogout() {
 			document.getElementById('user-dropdown').classList.remove('open');
@@ -1271,31 +1282,37 @@
 			r = RECIPES[recipeId];
 			cat = (fromCat && fromCat !== 'plate' && fromCat !== 'search') ? CATEGORIES[fromCat] : null;
 
-			// Back button
+			// Back button. На мобильном хедере стрелка «Назад» заменена бургером
+			// (drawer), поэтому элемент #back-btn может отсутствовать — весь блок
+			// под guard, чтобы не падать. Контекст «откуда пришли» остаётся в
+			// хлебных крошках (mid) ниже.
 			const backBtn = document.getElementById('back-btn');
 			const parent = (parentRecipeId && parentRecipeId !== recipeId && RECIPES[parentRecipeId]) ? RECIPES[parentRecipeId] : null;
-			if (isAdminPreview && recipeId) {
-				const editorUrl = 'recipe-editor.html?id=' + encodeURIComponent(recipeId);
-				backBtn.onclick = () => location.href = editorUrl;
-				document.getElementById('back-label').textContent = 'Редактор';
-			} else if (parent) {
-				const parentUrl = recipeLink(parentRecipeId);
-				backBtn.onclick = () => location.href = parentUrl;
-				document.getElementById('back-label').textContent = parent.name;
-			} else if (fromCat === 'plate') {
-				backBtn.onclick = () => location.href = 'index.html';
-				document.getElementById('back-label').textContent = 'Тарелка';
-			} else if (fromCat === 'search') {
-				if (searchQ) {
-					const searchUrl = 'category.html?q=' + encodeURIComponent(searchQ);
-					backBtn.onclick = () => location.href = searchUrl;
-					document.getElementById('back-label').textContent = 'Поиск';
-				} else {
+			if (backBtn) {
+				const backLabel = document.getElementById('back-label');
+				if (isAdminPreview && recipeId) {
+					const editorUrl = 'recipe-editor.html?id=' + encodeURIComponent(recipeId);
+					backBtn.onclick = () => location.href = editorUrl;
+					if (backLabel) backLabel.textContent = 'Редактор';
+				} else if (parent) {
+					const parentUrl = recipeLink(parentRecipeId);
+					backBtn.onclick = () => location.href = parentUrl;
+					if (backLabel) backLabel.textContent = parent.name;
+				} else if (fromCat === 'plate') {
 					backBtn.onclick = () => location.href = 'index.html';
+					if (backLabel) backLabel.textContent = 'Тарелка';
+				} else if (fromCat === 'search') {
+					if (searchQ) {
+						const searchUrl = 'category.html?q=' + encodeURIComponent(searchQ);
+						backBtn.onclick = () => location.href = searchUrl;
+						if (backLabel) backLabel.textContent = 'Поиск';
+					} else {
+						backBtn.onclick = () => location.href = 'index.html';
+					}
+				} else {
+					backBtn.onclick = () => fromCat ? location.href = 'category.html?cat=' + fromCat : location.href = 'index.html';
+					if (cat && backLabel) backLabel.textContent = cat.name;
 				}
-			} else {
-				backBtn.onclick = () => fromCat ? location.href = 'category.html?cat=' + fromCat : location.href = 'index.html';
-				if (cat) document.getElementById('back-label').textContent = cat.name;
 			}
 
 			if (!r) {

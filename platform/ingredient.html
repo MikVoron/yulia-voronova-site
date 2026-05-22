@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Категория — Конструктор питания</title>
+    <title>Рецепты по ингредиенту — Умная тарелка</title>
     <link rel="icon" type="image/svg+xml" href="plate-favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -260,13 +260,13 @@
             </a>
             <nav class="sp-nav" id="sp-nav" aria-label="Разделы">
                 <div class="sp-nav-dd" data-dd="recipes">
-                    <button class="sp-nav-trigger active" type="button" aria-haspopup="true" aria-expanded="false">Рецепты<span class="sp-nav-caret" aria-hidden="true"></span></button>
+                    <button class="sp-nav-trigger" type="button" aria-haspopup="true" aria-expanded="false">Рецепты<span class="sp-nav-caret" aria-hidden="true"></span></button>
                     <div class="sp-nav-panel sp-nav-panel--recipes" role="menu">
                         <a class="sp-nav-panel-all" role="menuitem" href="category.html">Все рецепты</a>
                     </div>
                 </div>
                 <div class="sp-nav-dd" data-dd="ingredients">
-                    <button class="sp-nav-trigger" type="button" aria-haspopup="true" aria-expanded="false">Ингредиенты<span class="sp-nav-caret" aria-hidden="true"></span></button>
+                    <button class="sp-nav-trigger active" type="button" aria-haspopup="true" aria-expanded="false">Ингредиенты<span class="sp-nav-caret" aria-hidden="true"></span></button>
                     <div class="sp-nav-panel sp-nav-panel--ingredients" role="menu"></div>
                 </div>
                 <a class="sp-nav-link" data-nav="favorites" href="cabinet.html?tab=favorites">Избранное</a>
@@ -326,29 +326,7 @@
              чтобы верх страницы не fadeUp-ил и не исчезал на first paint. -->
         <div class="cat-hero" id="cat-hero"></div>
 
-        <!-- Filters — .anim снят, чтобы не моргали при появлении hero. -->
-        <div class="filter-outer">
-        <div class="filter-scroll-wrap">
-        <div class="filter-bar" id="filter-row">
-            <button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" onclick="toggleFGroup(this)">
-                <span class="fg-label">Время</span>
-                <svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg>
-            </button>
-            <button class="fgroup-btn" id="fg-diff-btn" data-label="Сложность" data-drop="fg-diff-drop" onclick="toggleFGroup(this)">
-                <span class="fg-label">Сложность</span>
-                <svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg>
-            </button>
-            <div class="filter-sep"></div>
-            <button class="filter-chip" data-f="popular" onclick="togglePopular(this)">⭐ Популярные</button>
-            <button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
-            <button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
-            <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
-            <button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
-            <button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Бобовые</button>
-        </div>
-        </div>
-        <button class="filter-clear" onclick="clearFilters()">↺ Сбросить</button>
-        </div>
+        <!-- Ingredient page: фильтров нет — выборка задаётся самим ингредиентом. -->
 
         <!-- Dish list -->
         <div class="cat-count-row">
@@ -441,48 +419,41 @@
     // как loadContent() сходит в API. Юзер сразу видит «Завтраки», а не пустоту.
     // После loadContent().then() ниже хук перерисует hero/crumbs данными из API
     // (имя/описание/аватар) — позиция и габариты блока совпадают, рывка нет.
-    (function renderFallbackHero() {
-        var p = new URLSearchParams(location.search);
-        var q = (p.get('q') || '').trim();
-        var id = p.get('cat') || (q ? '' : 'breakfasts');
+    // Ингредиент из ?id=. Справочник (SP_INGREDIENTS) уже загружен синхронно
+    // выше (ingredients.js), поэтому заголовок рисуем сразу, без ожидания API.
+    var ING_ID = (new URLSearchParams(location.search).get('id') || '').trim();
+    var ING = (window.SP_INGREDIENTS && SP_INGREDIENTS.getIngredient(ING_ID)) || null;
+    var ING_UNKNOWN = !ING;   // неизвестный/пустой id → состояние ошибки (ТЗ §12.6)
+
+    (function renderIngredientHero() {
         var hero = document.getElementById('cat-hero');
         var crumbs = document.getElementById('cat-crumbs');
-        if (q) {
+        if (ING_UNKNOWN) {
+            document.title = 'Ингредиент не найден — Умная тарелка';
             if (hero) hero.innerHTML =
                 '<div class="cat-hero-row">' +
-                '<div class="cat-hero-ava">🔍</div>' +
-                '<div><div class="cat-hero-name">Поиск</div></div></div>';
+                '<div class="cat-hero-ava">🤔</div>' +
+                '<div><div class="cat-hero-name">Ингредиент не найден</div>' +
+                '<div class="cat-hero-desc">Проверьте ссылку или вернитесь в меню «Ингредиенты».</div></div></div>';
             if (crumbs) crumbs.innerHTML =
-                '<a href="index.html">Главная</a>' +
-                '<span class="crumb-sep">›</span>' +
-                '<span class="crumb-current">Поиск</span>';
+                '<a href="index.html">Главная</a><span class="crumb-sep">›</span>' +
+                '<span class="crumb-current">Ингредиент</span>';
             return;
         }
-        // Источник истины — таблица categories в БД (поле description).
-        // Эти строки должны 1:1 совпадать с тем, что вернёт /content/categories,
-        // иначе текст «прыгает» после loadContent(). Менять — синхронно в БД и здесь.
-        var FB = {
-            breakfasts: { name: 'Завтраки',         desc: 'Каши, омлеты, бутерброды и сырники для энергичного утра' },
-            mains:      { name: 'Основные блюда',   desc: 'Сытные обеды и ужины — супы, борщ, котлеты, плов и паста' },
-            pancakes:   { name: 'Блины / Оладьи',   desc: 'Веганские блины и оладьи из цельных продуктов' },
-            spreads:    { name: 'Намазки',          desc: 'Хумус и паштеты — для бутербродов и перекусов' },
-            sauces:     { name: 'Соусы',            desc: 'Кремовые соусы и заправки — из кешью, бобовых и запечённых овощей' }
-        };
-        var fb = FB[id];
-        if (!fb) return;
-        document.title = fb.name + ' — Конструктор питания';
+        document.title = ING.name + ' — Умная тарелка';
         if (hero) hero.innerHTML =
             '<div class="cat-hero-row">' +
             '<div class="cat-hero-ava cat-hero-ava--logo">' +
-            '<img src="https://voronova.online/images/icons/logo-small.png" alt="Юлия Воронова">' +
-            '</div>' +
-            '<div><div class="cat-hero-name">' + fb.name + '</div>' +
-            '<div class="cat-hero-desc">' + fb.desc + '</div></div></div>';
+            '<img src="https://voronova.online/images/icons/logo-small.png" alt="Юлия Воронова"></div>' +
+            '<div><div class="cat-hero-name">' + escHtml(String(ING.name)) + '</div>' +
+            '<div class="cat-hero-desc">Рецепты на основе этого ингредиента</div></div></div>';
         if (crumbs) crumbs.innerHTML =
-            '<a href="index.html">Главная</a>' +
-            '<span class="crumb-sep">›</span>' +
-            '<span class="crumb-current">' + fb.name + '</span>';
+            '<a href="index.html">Главная</a><span class="crumb-sep">›</span>' +
+            '<span class="crumb-current">' + escHtml(String(ING.name)) + '</span>';
     })();
+
+    // Ранний рендер навигации (Ингредиенты подсвечены) — не зависит от API.
+    renderHeaderNav();
 
     loadContent().then(function() {
         if (isContentError()) {
@@ -491,42 +462,16 @@
             showApiError(dishList);
             return;
         }
-        // Editorial header parity: подсвечиваем текущий раздел (или просто «Главная» в режиме поиска).
-        renderHeaderNav(searchQuery ? null : catId);
-        if (searchQuery) {
-            document.title = 'Поиск «' + searchQuery + '» — Конструктор питания';
-            var total = (typeof searchRecipes === 'function') ? searchRecipes(searchQuery).length : 0;
-            document.getElementById('cat-hero').innerHTML =
-                '<div class="cat-hero-row">' +
-                '<div class="cat-hero-ava">🔍</div>' +
-                '<div><div class="cat-hero-name">Поиск: «' + escHtml(searchQuery) + '»</div>' +
-                '<div class="cat-hero-desc">Всего найдено: ' + pluralR(total) + '</div></div></div>';
-            var crumbsEl = document.getElementById('cat-crumbs');
-            if (crumbsEl) {
-                crumbsEl.innerHTML = '<a href="index.html">Главная</a>' +
-                    '<span class="crumb-sep">›</span>' +
-                    '<span class="crumb-current">Поиск</span>';
-            }
-        } else {
-            cat = getCategory(catId);
-            if (cat) {
-                document.title = cat.name + ' — Конструктор питания';
-                var crumbsEl = document.getElementById('cat-crumbs');
-                if (crumbsEl) {
-                    crumbsEl.innerHTML = '<a href="index.html">Главная</a>' +
-                        '<span class="crumb-sep">›</span>' +
-                        '<span class="crumb-current">' + escHtml(String(cat.name)) + '</span>';
-                }
-                var catAvatars = typeof CAT_AVATARS !== 'undefined' ? CAT_AVATARS : {};
-                var avaUrl = (typeof getCategoryPhoto === 'function' ? getCategoryPhoto(catId, catAvatars[catId]) : catAvatars[catId]) || '';
-                var avaImg = avaUrl
-                    ? '<div class="cat-hero-ava"><img src="' + escHtml(String(avaUrl)) + '" alt="' + escHtml(String(cat.name)) + '" onerror="this.parentElement.textContent=\'' + escHtml(String(cat.emoji)) + '\'"></div>'
-                    : '<div class="cat-hero-ava">' + escHtml(String(cat.emoji)) + '</div>';
-                document.getElementById('cat-hero').innerHTML =
-                    '<div class="cat-hero-row">' + avaImg +
-                    '<div><div class="cat-hero-name">' + escHtml(String(cat.name)) + '</div>' +
-                    '<div class="cat-hero-desc">' + escHtml(String(cat.desc)) + '</div></div></div>';
-            }
+        renderHeaderNav();   // повторно — теперь с категориями в дропдауне «Рецепты»
+        // Неизвестный ингредиент: страница не падает, показываем сообщение (ТЗ §12.6).
+        if (ING_UNKNOWN) {
+            const dishList = document.getElementById('dish-list');
+            dishList.removeAttribute('aria-busy');
+            dishList.innerHTML =
+                '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">Ингредиент не найден.</div>';
+            const cl = document.getElementById('count-label');
+            if (cl) cl.textContent = '';
+            return;
         }
         Auth.checkAccess({ allowGuest: true }).then(function() {
             if (Auth.isLoggedIn()) {
@@ -597,54 +542,34 @@
         setTimeout(() => { Auth.logout(); location.href = 'login.html'; }, 1800);
     }
 
-    // Навигация хедера — единый билдер (header-nav.js). На странице категории
-    // активен продуктовый контекст «Рецепты».
-    function renderHeaderNav(activeCatId) {
+    // Навигация хедера — единый билдер (header-nav.js). На ingredient-странице
+    // активен пункт «Ингредиенты».
+    function renderHeaderNav() {
         if (window.SP_HEADER && typeof window.SP_HEADER.render === 'function') {
-            window.SP_HEADER.render({ activeCat: activeCatId || null, activeNav: null });
+            window.SP_HEADER.render({ activeCat: null, activeNav: 'ingredients' });
         }
     }
-    // Ранний рендер: дропдаун «Ингредиенты» и ссылки не зависят от API.
-    renderHeaderNav(new URLSearchParams(location.search).get('cat') || null);
 
-    const params = new URLSearchParams(location.search);
-    const searchQuery = (params.get('q') || '').trim();
-    const catId = params.get('cat') || (searchQuery ? '' : 'breakfasts');
-    let cat = null;
-    const activeFilters = {};
-
-    function applyFilters(dishes, filters) {
-        let list = dishes;
-        if (filters.time) {
-            if (filters.time === 'over60') list = list.filter(d => d.time > 60);
-            else list = list.filter(d => d.time <= filters.time);
-        }
-        if (filters.difficulty) list = list.filter(d => d.diff === filters.difficulty);
-        if (filters.gluten)  list = list.filter(d => (d.tags||[]).includes('без глютена'));
-        if (filters.plant)   list = list.filter(d => (d.tags||[]).includes('растительный'));
-        if (filters.fish)    list = list.filter(d => (d.tags||[]).includes('рыбное'));
-        if (filters.noSoy)   list = list.filter(d => (d.tags||[]).includes('без сои'));
-        if (filters.legumes) list = list.filter(d => (d.tags||[]).includes('бобовые'));
-        return list;
-    }
+    // Выборка рецептов по основному ингредиенту: фильтруем RECIPES по
+    // mainIngredients (кураторская привязка), сортируем по sortOrder.
+    // Доступ не трогаем — buildDishCard сам решает locked/free (ТЗ §12.5).
     function getDishesForView() {
-        if (searchQuery) {
-            const matched = (typeof searchRecipes === 'function') ? searchRecipes(searchQuery) : [];
-            return applyFilters(matched, activeFilters);
-        }
-        return getCategoryDishes(catId, activeFilters);
+        if (!ING_ID) return [];
+        return Object.keys(RECIPES)
+            .map(function (k) { return RECIPES[k]; })
+            .filter(function (d) {
+                return d && Array.isArray(d.mainIngredients) && d.mainIngredients.indexOf(ING_ID) !== -1;
+            })
+            .sort(function (a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0); });
     }
 
-    // Restore filters from index.html navigation
-    (function restoreFilters() {
-        const saved = sessionStorage.getItem('platform_filters');
-        if (!saved) return;
-        sessionStorage.removeItem('platform_filters');
-        try {
-            const f = JSON.parse(saved);
-            Object.assign(activeFilters, f);
-        } catch(e) { return; }
-    })();
+    // Инертные заглушки: на ingredient-странице нет поиска/категории/фильтров,
+    // но клонированный из category.html код (popular-патч, syncFilterUI,
+    // goToRecipe, skeleton) ссылается на эти имена. Пустые значения = безопасный
+    // no-op для этого мёртвого кода без ReferenceError.
+    const searchQuery = '';
+    const catId = '';
+    const activeFilters = {};
 
     const CAT_PHOTOS = {
         breakfasts: SITE_BASE + '/images/blog/random-pic-blog-5..webp',
@@ -840,9 +765,7 @@
         document.getElementById('dish-list').removeAttribute('aria-busy');
         document.getElementById('count-label').textContent = pluralR(dishes.length);
         if (!dishes.length) {
-            const emptyMsg = searchQuery
-                ? 'По запросу «' + escHtml(searchQuery) + '» ничего не найдено.'
-                : 'Ничего не найдено. Измените фильтры.';
+            const emptyMsg = 'Пока нет рецептов с этим ингредиентом.';
             document.getElementById('dish-list').innerHTML =
                 '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">' + emptyMsg + '</div>';
             return;
@@ -936,11 +859,8 @@
     })();
 
     function goToRecipe(id) {
-        if (searchQuery) {
-            location.href = `recipe.html?id=${encodeURIComponent(id)}&from=search&q=${encodeURIComponent(searchQuery)}`;
-        } else {
-            location.href = `recipe.html?id=${encodeURIComponent(id)}&from=${encodeURIComponent(catId)}`;
-        }
+        // from=ingredient:<id> — чтобы recipe.html знал, что пришли со страницы ингредиента.
+        location.href = `recipe.html?id=${encodeURIComponent(id)}&from=${encodeURIComponent('ingredient:' + ING_ID)}`;
     }
 
     function showLockedMsg(recipeId) {

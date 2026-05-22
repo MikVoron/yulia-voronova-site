@@ -2548,6 +2548,110 @@ img { display: block; max-width: 100%; }
 .sp-nav a.active:hover { color: var(--text); }
 .sp-nav a.active:hover::after { transform: scaleX(0); }
 
+/* ── Nav dropdowns (Рецепты / Ингредиенты) — NYT-ориентир, стиль SmartPlate ──
+   Строятся в header-nav.js. Триггеры/ссылки наследуют типографику .sp-nav a.
+   Панели абсолютные внутри .sp-nav-dd (relative); хедер не клипает (overflow
+   не задан), панель выше sticky-слоя (z-index > .sp-header). */
+.sp-nav-dd { position: relative; display: inline-flex; align-items: center; }
+
+.sp-nav-trigger,
+.sp-nav-link {
+    position: relative;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--text-2); padding: 6px 0; white-space: nowrap;
+    background: none; border: 0; cursor: pointer; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: color var(--tr);
+}
+.sp-nav-trigger::after,
+.sp-nav-link::after {
+    content: ''; position: absolute; left: 0; bottom: 0;
+    width: 100%; height: 2px; background: var(--accent);
+    transform: scaleX(0); transform-origin: left center;
+    transition: transform .26s cubic-bezier(.2,.8,.2,1); pointer-events: none;
+}
+.sp-nav-trigger:hover,
+.sp-nav-link:hover { color: var(--accent); }
+.sp-nav-trigger:hover::after,
+.sp-nav-link:hover::after,
+.sp-nav-dd.open .sp-nav-trigger::after { transform: scaleX(1); }
+
+/* Активный продуктовый контекст: точка под пунктом (как у .sp-nav a.active). */
+.sp-nav-trigger.active,
+.sp-nav-link.active { color: var(--text); }
+.sp-nav-trigger.active::before,
+.sp-nav-link.active::before {
+    content: ''; position: absolute; left: 50%; bottom: -7px;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent); transform: translateX(-50%); pointer-events: none;
+}
+
+/* Каретка ▾ — поворачивается при открытии */
+.sp-nav-caret {
+    width: 0; height: 0; margin-top: 1px;
+    border-left: 3.5px solid transparent; border-right: 3.5px solid transparent;
+    border-top: 4px solid currentColor;
+    transition: transform var(--tr); flex-shrink: 0;
+}
+.sp-nav-dd.open .sp-nav-caret { transform: rotate(180deg); }
+
+/* Панель дропдауна */
+.sp-nav-panel {
+    position: absolute; top: calc(100% + 10px); left: 50%;
+    transform: translateX(-50%) translateY(-6px);
+    background: #fff; border: 1px solid var(--border);
+    box-shadow: 0 14px 40px rgba(26,44,61,.13);
+    padding: 18px 20px; z-index: 200;
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity .18s ease, transform .2s cubic-bezier(.2,.8,.2,1);
+    max-width: calc(100vw - 32px);
+}
+.sp-nav-dd.open .sp-nav-panel {
+    opacity: 1; visibility: visible; pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+/* Hover-раскрытие только для устройств с настоящим ховером (desktop-указатель).
+   На тач click-логика из header-nav.js управляет классом .open. */
+@media (hover: hover) and (pointer: fine) {
+    .sp-nav-dd:hover .sp-nav-panel {
+        opacity: 1; visibility: visible; pointer-events: auto;
+        transform: translateX(-50%) translateY(0);
+    }
+    .sp-nav-dd:hover .sp-nav-caret { transform: rotate(180deg); }
+    .sp-nav-dd:hover .sp-nav-trigger { color: var(--accent); }
+    .sp-nav-dd:hover .sp-nav-trigger::after { transform: scaleX(1); }
+}
+
+/* Ссылки внутри панелей */
+.sp-nav-panel a {
+    display: block; padding: 7px 10px;
+    font-size: 13px; font-weight: 500; letter-spacing: 0; text-transform: none;
+    color: var(--text); white-space: nowrap; text-decoration: none;
+    transition: background var(--tr), color var(--tr);
+}
+.sp-nav-panel a::after { display: none; }
+.sp-nav-panel a:hover { background: var(--bg-alt); color: var(--accent); }
+
+/* «Все рецепты» — выделенная строка над сеткой категорий */
+.sp-nav-panel-all {
+    font-weight: 700 !important;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 6px; padding-bottom: 9px !important;
+}
+
+/* Рецепты: категории в 2 колонки */
+.sp-nav-cols { display: grid; grid-template-columns: repeat(2, minmax(140px, 1fr)); gap: 0 14px; }
+
+/* Ингредиенты: группы по колонкам */
+.sp-nav-groups { display: flex; gap: 26px; align-items: flex-start; }
+.sp-nav-group { min-width: 130px; }
+.sp-nav-group-title {
+    display: block; padding: 4px 10px 7px;
+    font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--text-3); border-bottom: 1px solid var(--border); margin-bottom: 4px;
+}
+
 .sp-utils { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; justify-self: end; width: 140px; justify-content: flex-end; }
 
 .sp-plate {
@@ -2649,6 +2753,58 @@ img { display: block; max-width: 100%; }
 .sp-profile.is-guest:hover .sp-profile-guest-icon { color: #fff; }
 
 .sp-burger { display: none; }
+
+/* ── DRAWER (mobile nav) — общий для category/recipe/cabinet/ingredient ──────
+   Бургер открывает выдвижное меню разделов (openDrawer в header-nav.js).
+   index.html держит собственную идентичную копию этих правил инлайн. */
+.sp-drawer { position: fixed; inset: 0; z-index: 200; display: flex; pointer-events: none; }
+.sp-drawer[hidden] { display: none; }
+.sp-drawer-back {
+    position: absolute; inset: 0; background: rgba(17,17,17,.4);
+    opacity: 0; transition: opacity .28s cubic-bezier(.2,.8,.2,1); pointer-events: auto;
+}
+.sp-drawer.open .sp-drawer-back { opacity: 1; }
+.sp-drawer-panel {
+    position: relative; z-index: 1; width: min(320px, 86vw); height: 100%;
+    background: #fff; border-right: 1px solid var(--border);
+    transform: translateX(-100%); transition: transform .28s cubic-bezier(.2,.8,.2,1);
+    display: flex; flex-direction: column; pointer-events: auto;
+}
+.sp-drawer.open .sp-drawer-panel { transform: translateX(0); }
+.sp-drawer-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 20px; border-bottom: 1px solid var(--border);
+}
+.sp-drawer-title {
+    font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--text);
+}
+.sp-drawer-close {
+    width: 36px; height: 36px; border: 1px solid var(--border); background: #fff;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; color: var(--text);
+}
+.sp-drawer-close svg { width: 16px; height: 16px; display: block; }
+.sp-drawer-close:hover { border-color: var(--accent); color: var(--accent); }
+.sp-drawer-nav { padding: 8px 0; display: flex; flex-direction: column; overflow-y: auto; }
+.sp-drawer-nav a {
+    position: relative; padding: 14px 20px;
+    font-family: var(--serif); font-size: 17px; font-weight: 700;
+    color: var(--text); text-decoration: none; border-bottom: 1px solid #f2efe9;
+    transition: background var(--tr), color var(--tr);
+}
+.sp-drawer-nav a:hover { background: var(--bg-alt); color: var(--accent); }
+.sp-drawer-nav a.active { color: var(--accent); }
+.sp-drawer-nav a.active::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent);
+}
+/* Заголовки секций (Рецепты / Ингредиенты / Ещё) и подгрупп (Овощи / Бобовые). */
+.sp-drawer-section {
+    padding: 16px 20px 6px;
+    font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3);
+}
+.sp-drawer-subhead {
+    padding: 10px 20px 2px;
+    font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3);
+}
 
 /* Back-button (внутренние страницы): тот же класс .vh-back-btn, но переоформлен
    под editorial-стиль внутри .sp-header. */

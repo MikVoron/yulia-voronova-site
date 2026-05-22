@@ -1,6 +1,16 @@
 		Auth.requireAuth();
 		const _cabAccess = Auth.checkAccess();
-		loadContent();
+
+		// Навигация хедера — единый билдер (header-nav.js). В кабинете активен
+		// пункт «Избранное», когда открыта вкладка избранного (?tab=favorites).
+		function renderHeaderNav() {
+			if (window.SP_HEADER && typeof window.SP_HEADER.render === 'function') {
+				var tab = new URLSearchParams(location.search).get('tab');
+				window.SP_HEADER.render({ activeCat: null, activeNav: tab === 'favorites' ? 'favorites' : null });
+			}
+		}
+		renderHeaderNav();  // ранний рендер: ингредиенты/ссылки не зависят от API
+		loadContent().then(function () { renderHeaderNav(); }).catch(function () {});
 		updatePlateIcon();
 
 		// Источник контактов поддержки — единая точка правки.
@@ -74,7 +84,7 @@
 		}
 		document.addEventListener('click', function (e) {
 			const wrap = document.getElementById('user-wrap');
-			if (wrap && !wrap.contains(e.target)) document.getElementById('user-dropdown').classList.remove('open');
+			if (wrap && !wrap.contains(e.target)) { const dd = document.getElementById('user-dropdown'); if (dd) dd.classList.remove('open'); }
 		});
 		function doLogout() {
 			document.getElementById('user-dropdown').classList.remove('open');

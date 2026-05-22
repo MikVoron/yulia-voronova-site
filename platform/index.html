@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-21-back-btn-slot" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-22-ingredient-nav" id="vcss">
 	<style>
 		main {
 			padding-bottom: 80px;
@@ -86,6 +86,18 @@
 			transition: background var(--tr), color var(--tr);
 		}
 		.sp-drawer-nav a:hover { background: var(--bg-alt); color: var(--accent); }
+		/* Заголовки секций (Рецепты / Ингредиенты / Ещё) и подгрупп ингредиентов
+		   (Овощи / Бобовые) внутри drawer — не ссылки, видны сразу. */
+		.sp-drawer-section {
+			padding: 16px 20px 6px;
+			font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+			color: var(--text-3);
+		}
+		.sp-drawer-subhead {
+			padding: 10px 20px 2px;
+			font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+			color: var(--text-3);
+		}
 		/* Active: вертикальная оранжевая полоска слева (mobile-drawer паттерн,
 		   перекликается с accent-рельсом в user-dropdown). */
 		.sp-drawer-nav a.active { color: var(--accent); }
@@ -1220,12 +1232,20 @@
 						<!-- Nav (desktop). Статический fallback виден с first paint;
 				     renderHeaderNav() обновляет после loadContent(). -->
 				<nav class="sp-nav" id="sp-nav" aria-label="Разделы">
-					<a class="active" href="index.html">Главная</a>
-					<a href="category.html?cat=breakfasts">Завтраки</a>
-					<a href="category.html?cat=mains">Основные блюда</a>
-					<a href="category.html?cat=pancakes">Блины / Оладьи</a>
-					<a href="category.html?cat=spreads">Намазки</a>
-					<a href="category.html?cat=sauces">Соусы</a>
+					<!-- Статический fallback (first paint). SP_HEADER.render() заменит
+					     дропдауны актуальными категориями/ингредиентами после loadContent(). -->
+					<div class="sp-nav-dd" data-dd="recipes">
+						<button class="sp-nav-trigger" type="button" aria-haspopup="true" aria-expanded="false">Рецепты<span class="sp-nav-caret" aria-hidden="true"></span></button>
+						<div class="sp-nav-panel sp-nav-panel--recipes" role="menu">
+							<a class="sp-nav-panel-all" role="menuitem" href="category.html">Все рецепты</a>
+						</div>
+					</div>
+					<div class="sp-nav-dd" data-dd="ingredients">
+						<button class="sp-nav-trigger" type="button" aria-haspopup="true" aria-expanded="false">Ингредиенты<span class="sp-nav-caret" aria-hidden="true"></span></button>
+						<div class="sp-nav-panel sp-nav-panel--ingredients" role="menu"></div>
+					</div>
+					<a class="sp-nav-link" data-nav="favorites" href="cabinet.html?tab=favorites">Избранное</a>
+					<a class="sp-nav-link" href="https://voronova.online/#tariffs">Консультации</a>
 				</nav>
 
 				<!-- Utilities (plate + profile). Hooks preserved: #plate-btn, .plate-count, #user-badge, #u-ava, #u-name, #user-wrap, #user-dropdown, onUserBadgeClick. -->
@@ -1477,7 +1497,9 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=1780040200"></script>
+	<script src="data-v2.js?v=2026052201"></script>
+	<script src="ingredients.js?v=1"></script>
+	<script src="header-nav.js?v=1"></script>
 	<script>
 		function escHtml(s) {
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -1490,6 +1512,11 @@
 		// Skeleton в #recommended-block СРАЗУ — место зарезервировано до того,
 		// как loadContent() резолвится. Реальные карточки заполнит renderRecommended().
 		_renderRecommendedSkeleton();
+
+		// Ранний рендер навигации: Ингредиенты/Избранное/Консультации не зависят
+		// от API — показываем сразу. loadContent().then() ниже перерисует с
+		// категориями. Так меню работает даже если контент не загрузился.
+		renderHeaderNav();
 
 		loadContent().then(function () {
 			if (isContentError()) {
@@ -2447,27 +2474,16 @@
 		// Показываем до 5 разделов (по дизайну) в desktop-nav + полный список в drawer (mobile).
 		// activeCatId (optional): подсветить раздел; если cat не входит в первые 5 — заменяем
 		// последний элемент, чтобы active всегда был виден.
+		// Навигация хедера строится единым билдером (header-nav.js) из общего
+		// источника категорий + справочника ингредиентов. На главной активного
+		// продуктового контекста нет (логотип = домой).
 		function renderHeaderNav(activeCatId) {
-			const nav = document.getElementById('sp-nav');
-			const drawerNav = document.getElementById('sp-drawer-nav');
-			const cats = (typeof CATEGORIES === 'object') ? Object.values(CATEGORIES) : [];
-			if (!cats.length) return;
-			const homeCls = activeCatId ? '' : ' class="active"';
-			const items = cats.slice(0, 5);
-			if (activeCatId && !items.some(function (c) { return c.id === activeCatId; })) {
-				const found = cats.find(function (c) { return c.id === activeCatId; });
-				if (found) items[items.length - 1] = found;
+			if (global_SP_HEADER_ready()) {
+				window.SP_HEADER.render({ activeCat: activeCatId || null, activeNav: null });
 			}
-			function row(c) {
-				const cls = c.id === activeCatId ? ' class="active"' : '';
-				return '<a' + cls + ' href="category.html?cat=' + encodeURIComponent(c.id) + '">' + escHtml(String(c.name || '')) + '</a>';
-			}
-			if (nav) {
-				nav.innerHTML = '<a' + homeCls + ' href="index.html">Главная</a>' + items.map(row).join('');
-			}
-			if (drawerNav) {
-				drawerNav.innerHTML = '<a' + homeCls + ' href="index.html">Главная</a>' + cats.map(row).join('');
-			}
+		}
+		function global_SP_HEADER_ready() {
+			return !!(window.SP_HEADER && typeof window.SP_HEADER.render === 'function');
 		}
 
 		// Mobile drawer — открывает/закрывает шторку категорий. Backdrop клик закрывает.
@@ -2800,7 +2816,8 @@
 		document.addEventListener('click', function (e) {
 			const wrap = document.getElementById('user-wrap');
 			if (wrap && !wrap.contains(e.target)) {
-				document.getElementById('user-dropdown').classList.remove('open');
+				const dd = document.getElementById('user-dropdown');
+				if (dd) dd.classList.remove('open');
 			}
 		});
 

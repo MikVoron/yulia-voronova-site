@@ -80,6 +80,7 @@ async function contentRoutes(fastify) {
               r.kcal, r.protein, r.fat, r.carbs, r.fiber, r.tags, r.photo, r.img_position, r.quote,
               r.ingredients, r.steps, r.note, r.vk_video, r.yt_video, r.dzen_video,
               r.add_protein, r.add_fat, r.add_carbs, r.add_fiber, r.auto_addons, r.is_soup,
+              r.main_ingredients,
               r.portion_grams, r.sort_order, r.created_at,
               COALESCE(
                 (SELECT array_agg(rc.category_id ORDER BY (rc.category_id = r.cat) DESC, rc.category_id)
@@ -362,8 +363,8 @@ async function contentRoutes(fastify) {
       `INSERT INTO recipes (id, cat, name, emoji, time_min, time_label, difficulty, servings, is_free, access_level,
           kcal, protein, fat, carbs, fiber, tags, photo, img_position, quote,
           ingredients, steps, note, vk_video, yt_video, dzen_video, add_protein, add_fat, add_carbs, add_fiber,
-          portion_grams, sort_order, is_published, auto_addons, is_soup)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34)
+          portion_grams, sort_order, is_published, auto_addons, is_soup, main_ingredients)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35)
        RETURNING *`,
       [
         r.id, primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, timeLabel, r.difficulty || 'easy',
@@ -375,7 +376,10 @@ async function contentRoutes(fastify) {
         JSON.stringify(r.add_protein || []), JSON.stringify(r.add_fat || []),
         JSON.stringify(r.add_carbs || []), JSON.stringify(r.add_fiber || []),
         r.portion_grams || 300, r.sort_order || 0, r.is_published === true,
-        JSON.stringify(r.auto_addons || {}), r.is_soup === true
+        JSON.stringify(r.auto_addons || {}), r.is_soup === true,
+        // main_ingredients (TEXT[]): кураторская навигационная привязка, не состав.
+        // POST: пришёл массив → сохраняем; иначе пустой массив.
+        Array.isArray(r.main_ingredients) ? r.main_ingredients : []
       ]
     );
     // Write to recipe_categories
@@ -408,8 +412,9 @@ async function contentRoutes(fastify) {
           kcal=$10, protein=$11, fat=$12, carbs=$13, fiber=$14, tags=$15,
           photo=$16, img_position=$17, quote=$18, ingredients=$19, steps=$20, note=$21,
           vk_video=$22, yt_video=$23, dzen_video=$24, add_protein=$25, add_fat=$26, add_carbs=$27, add_fiber=$28,
-          portion_grams=$29, sort_order=$30, is_published=$31, auto_addons=$32, is_soup=$33, updated_at=now()
-       WHERE id=$34 RETURNING *`,
+          portion_grams=$29, sort_order=$30, is_published=$31, auto_addons=$32, is_soup=$33,
+          main_ingredients=COALESCE($34::text[], main_ingredients), updated_at=now()
+       WHERE id=$35 RETURNING *`,
       [
         primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, timeLabel, r.difficulty || 'easy',
         r.servings || 4, is_free, access_level,
@@ -420,7 +425,14 @@ async function contentRoutes(fastify) {
         JSON.stringify(r.add_protein || []), JSON.stringify(r.add_fat || []),
         JSON.stringify(r.add_carbs || []), JSON.stringify(r.add_fiber || []),
         r.portion_grams || 300, r.sort_order || 0, r.is_published === true,
-        JSON.stringify(r.auto_addons || {}), r.is_soup === true, req.params.id
+        JSON.stringify(r.auto_addons || {}), r.is_soup === true,
+        // main_ingredients: защита от стирания старыми путями сохранения (§11.6).
+        // Поле пришло в теле → используем (массив, либо [] = явная очистка).
+        // Поля нет (quick-admin и пр.) → null → COALESCE сохранит текущее значение.
+        ('main_ingredients' in r)
+          ? (Array.isArray(r.main_ingredients) ? r.main_ingredients : [])
+          : null,
+        req.params.id
       ]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });

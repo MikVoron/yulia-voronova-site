@@ -758,6 +758,9 @@ function _mapRecipe(r) {
         addFiber: r.add_fiber || [],
         autoAddons: r.auto_addons || {},
         isSoup: r.is_soup === true,
+        // Кураторские основные ингредиенты для навигационных выборок (ingredient.html).
+        // НЕ состав рецепта. Источник — recipes.main_ingredients (TEXT[]).
+        mainIngredients: r.main_ingredients || [],
         sortOrder: r.sort_order || 0,
         added: r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : null,
         addedTs: r.created_at ? new Date(r.created_at).getTime() : 0,
