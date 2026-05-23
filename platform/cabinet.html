@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-nav-allrecipes" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-ui-fixes" id="vcss">
 	<style>
 		/* ──────────────────────────────────────────────────────────────
 		   CABINET — editorial redesign (Account Page Redesign.html)
@@ -1293,7 +1293,7 @@
 							<div class="cab-kpi-row">
 								<span class="cab-kpi-val" id="cab-favorites-count">0</span>
 							</div>
-							<span class="cab-kpi-hint">Рецептов отмечено ♡</span>
+							<span class="cab-kpi-hint">Рецептов сохранено</span>
 						</div>
 					</div>
 				</div>
@@ -1463,7 +1463,7 @@
 					<div class="cab-note-compose">
 						<div class="cab-sec-title-row">
 							<h2 class="cab-sec-title">Новая заметка</h2>
-							<span class="cab-sec-title-meta">Только для вас</span>
+							<span class="cab-sec-title-meta">Видите только вы</span>
 						</div>
 						<textarea class="notes-textarea" id="notes-ta" placeholder="Идеи рецептов, цели, наблюдения о питании…"></textarea>
 						<div class="cab-note-compose-foot">
@@ -1489,7 +1489,7 @@
 						<div class="cab-hero-eyebrow">Помогите нам стать лучше</div>
 						<h2 class="cab-feedback-hero-title">Что добавить или улучшить?</h2>
 						<p class="cab-feedback-hero-sub">
-							Расскажите, чего вам не&nbsp;хватает, что можно улучшить или какой рецепт добавить. Ваш отзыв отправится <b>напрямую Юлии</b>&nbsp;— отвечает лично, обычно в&nbsp;течение дня.
+							Расскажите, чего вам не&nbsp;хватает, что можно улучшить или какой рецепт добавить. Ваш отзыв отправится <b>напрямую Юлии</b>&nbsp;— отвечает лично, обычно в&nbsp;течение дня. Ответ появится здесь и&nbsp;придёт также на&nbsp;почту.
 						</p>
 					</div>
 					<div class="cab-julia-card">
@@ -1508,8 +1508,7 @@
 					<button class="fb-cat" type="button" onclick="pickFbCat(this)" data-cat="problem"><span class="seg-dot bug"></span>Проблема</button>
 				</div>
 				<textarea class="fb-textarea" id="fb-text" placeholder="Опишите вашу идею, пожелание или проблему…" style="margin-top:16px"></textarea>
-				<div class="fb-actions" style="justify-content:space-between;align-items:center">
-					<span class="fb-hint" style="margin-top:0">Сообщение придёт <b>напрямую Юлии</b>. Ответ появится здесь и&nbsp;на&nbsp;почту.</span>
+				<div class="fb-actions" style="justify-content:flex-end;align-items:center">
 					<button class="btn btn-orange" type="button" onclick="sendFeedback()" style="padding:12px 26px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0;flex-shrink:0">Отправить</button>
 				</div>
 				<div class="fb-sent" id="fb-sent-list"></div>
@@ -1608,7 +1607,7 @@
 	<script src="data-v2.js?v=2026052202"></script>
 	<script src="ingredients.js?v=1"></script>
 	<script src="header-nav.js?v=1"></script>
-	<script src="cabinet.js?v=2026052204"></script>
+	<script src="cabinet.js?v=2026052301"></script>
 
 	<!-- Tawk.to -->
 	<script>

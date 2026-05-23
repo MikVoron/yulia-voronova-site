@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-nav-allrecipes" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-ui-fixes" id="vcss">
 	<style>
 		.sublist-items {
 			display: flex;
@@ -538,8 +538,6 @@
 			color: var(--text); font-weight: 700;
 			text-transform: none; letter-spacing: 0;
 			max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-			border-bottom: 1.5px solid var(--accent);
-			padding-bottom: 1px;
 		}
 		@media (max-width: 767px) {
 			.recipe-crumbs .crumb-current { max-width: 140px; }
@@ -2157,7 +2155,7 @@
                     <button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">🔕</span></button>
                     <div class="bal-banner-label">Баланс блюда</div>
                     <div class="bal-banner-title">Сделайте приём пищи полноценным</div>
-                    <div class="bal-banner-sub">Добавьте недостающие группы — КБЖУ и калории пересчитаются автоматически.</div>
+                    <div class="bal-banner-sub">Добавьте недостающие группы — КБЖУ пересчитается автоматически.</div>
                     <div class="bal-progress">${balProgressHtml}</div>
                 </div>
                 <div class="bal-wizard-head" id="bal-wizard-head">
@@ -2732,7 +2730,7 @@
                                 <span class="bal-progress-status" id="bal-pst-${c.key}">${done ? 'выбрано' : 'требуется'}</span>
                             </div>`;
 						}).join('');
-						banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-label">Баланс блюда</div><div class="bal-banner-title">Сделайте приём пищи полноценным</div><div class="bal-banner-sub">Добавьте недостающие группы — КБЖУ и калории пересчитаются автоматически.</div><div class="bal-progress">${items}</div>`;
+						banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-label">Баланс блюда</div><div class="bal-banner-title">Сделайте приём пищи полноценным</div><div class="bal-banner-sub">Добавьте недостающие группы — КБЖУ пересчитается автоматически.</div><div class="bal-progress">${items}</div>`;
 						_celebrationShown = false;
 					}
 				}

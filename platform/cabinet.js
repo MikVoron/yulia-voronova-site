@@ -926,7 +926,7 @@
 			const filtersEl = document.getElementById('fav-filters');
 			if (!ids.length) {
 				if (filtersEl) filtersEl.innerHTML = '';
-				grid.innerHTML = '<div class="fav-empty">Нет избранных рецептов.<br>Нажмите ♡ на карточке рецепта.</div>';
+				grid.innerHTML = '<div class="fav-empty">Нет избранных рецептов.<br>Нажмите на закладку на карточке рецепта.</div>';
 				return;
 			}
 			const dishes = ids.map(id => RECIPES[id]).filter(Boolean);
@@ -1002,7 +1002,7 @@
 					${photoHtml}
 					${catName ? `<div class="fav-card-eyebrow">${catName}</div>` : ''}
 					<button class="fav-card-bookmark active" type="button" id="fav-${_id}"
-						onclick="event.stopPropagation();toggleFav('${_id}')" aria-label="Убрать из избранного">♥</button>
+						onclick="event.stopPropagation();toggleFav('${_id}')" aria-label="Убрать из избранного"><svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg></button>
 				</div>
 				<div class="fav-card-body">
 					<div class="fav-card-title">${_name}</div>

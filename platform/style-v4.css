@@ -2486,11 +2486,7 @@ img { display: block; max-width: 100%; }
     text-decoration: none; color: inherit; flex-shrink: 0;
     justify-self: start;
 }
-.sp-brand-ava {
-    width: 44px; height: 44px;
-    background: url('https://voronova.online/images/icons/logo-small.png') center/contain no-repeat;
-    flex-shrink: 0;
-}
+.sp-brand-ava { display: none; }
 .sp-brand-meta { display: flex; flex-direction: column; line-height: 1; min-width: 0; }
 .sp-brand-eyebrow {
     font-size: 10px; font-weight: 600;
