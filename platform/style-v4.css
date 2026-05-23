@@ -2532,21 +2532,11 @@ img { display: block; max-width: 100%; }
 }
 .sp-nav a:hover { color: var(--accent); }
 .sp-nav a:hover::after { transform: scaleX(1); }
-/* Active: оранжевая точка под центром ссылки. Активная ссылка не
-   реагирует на hover (статус уже обозначен точкой). */
+/* Active: постоянная оранжевая линия снизу (тот же ::after, что и hover, уже
+   раскрытый). Active:hover не запускает новой анимации — линия одна и стабильна. */
 .sp-nav a.active { color: var(--text); }
-.sp-nav a.active::before {
-    content: '';
-    position: absolute;
-    left: 50%; bottom: -7px;
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--accent);
-    transform: translateX(-50%);
-    pointer-events: none;
-}
+.sp-nav a.active::after { transform: scaleX(1); }
 .sp-nav a.active:hover { color: var(--text); }
-.sp-nav a.active:hover::after { transform: scaleX(0); }
 
 /* ── Nav dropdowns (Рецепты / Ингредиенты) — NYT-ориентир, стиль SmartPlate ──
    Строятся в header-nav.js. Триггеры/ссылки наследуют типографику .sp-nav a.
@@ -2577,15 +2567,12 @@ img { display: block; max-width: 100%; }
 .sp-nav-link:hover::after,
 .sp-nav-dd.open .sp-nav-trigger::after { transform: scaleX(1); }
 
-/* Активный продуктовый контекст: точка под пунктом (как у .sp-nav a.active). */
+/* Активный продуктовый контекст: постоянная оранжевая линия снизу (тот же
+   ::after, что и hover/open, уже раскрытый) — как у .sp-nav a.active. */
 .sp-nav-trigger.active,
 .sp-nav-link.active { color: var(--text); }
-.sp-nav-trigger.active::before,
-.sp-nav-link.active::before {
-    content: ''; position: absolute; left: 50%; bottom: -7px;
-    width: 5px; height: 5px; border-radius: 50%;
-    background: var(--accent); transform: translateX(-50%); pointer-events: none;
-}
+.sp-nav-trigger.active::after,
+.sp-nav-link.active::after { transform: scaleX(1); }
 
 /* Каретка ▾ — поворачивается при открытии */
 .sp-nav-caret {
@@ -2655,10 +2642,12 @@ img { display: block; max-width: 100%; }
 /* Ингредиенты: группы по колонкам */
 .sp-nav-groups { display: flex; gap: 26px; align-items: flex-start; }
 .sp-nav-group { min-width: 130px; }
+/* Заголовки групп ингредиентов — акцентные (var(--accent)), чтобы визуально
+   отделяться от нейтральных ссылок ингредиентов. Сами ссылки не трогаем. */
 .sp-nav-group-title {
-    display: block; padding: 4px 10px 7px;
-    font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-    color: var(--text-3); border-bottom: 1px solid var(--border); margin-bottom: 4px;
+    display: block; padding: 4px 10px 8px;
+    font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--accent); border-bottom: 1px solid var(--border); margin-bottom: 7px;
 }
 
 .sp-utils { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; justify-self: end; width: 140px; justify-content: flex-end; }
@@ -2811,8 +2800,8 @@ img { display: block; max-width: 100%; }
     font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3);
 }
 .sp-drawer-subhead {
-    padding: 10px 20px 2px;
-    font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3);
+    padding: 12px 20px 2px;
+    font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--accent);
 }
 
 /* Back-button (внутренние страницы): тот же класс .vh-back-btn, но переоформлен

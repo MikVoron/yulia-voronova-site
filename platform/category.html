@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
     <style>body{visibility:hidden}</style>
-    <link rel="stylesheet" href="style-v4.css?v=2026-05-22-dropdown-hover" id="vcss">
+    <link rel="stylesheet" href="style-v4.css?v=2026-05-23-nav-allrecipes" id="vcss">
     <style>
         /* ── HERO (Variant 1 — фото слева, editorial-серьёзная типографика) ── */
         .cat-hero {
@@ -444,7 +444,9 @@
     (function renderFallbackHero() {
         var p = new URLSearchParams(location.search);
         var q = (p.get('q') || '').trim();
-        var id = p.get('cat') || (q ? '' : 'breakfasts');
+        var catP = (p.get('cat') || '').trim();
+        var allMode = !q && !catP;   // category.html без cat/q = каталог «Все рецепты»
+        var id = catP;
         var hero = document.getElementById('cat-hero');
         var crumbs = document.getElementById('cat-crumbs');
         if (q) {
@@ -456,6 +458,21 @@
                 '<a href="index.html">Главная</a>' +
                 '<span class="crumb-sep">›</span>' +
                 '<span class="crumb-current">Поиск</span>';
+            return;
+        }
+        if (allMode) {
+            document.title = 'Все рецепты — Конструктор питания';
+            if (hero) hero.innerHTML =
+                '<div class="cat-hero-row">' +
+                '<div class="cat-hero-ava cat-hero-ava--logo">' +
+                '<img src="https://voronova.online/images/icons/logo-small.png" alt="Юлия Воронова">' +
+                '</div>' +
+                '<div><div class="cat-hero-name">Все рецепты</div>' +
+                '<div class="cat-hero-desc">Все блюда платформы — завтраки, основные блюда, намазки и соусы в одном каталоге</div></div></div>';
+            if (crumbs) crumbs.innerHTML =
+                '<a href="index.html">Главная</a>' +
+                '<span class="crumb-sep">›</span>' +
+                '<span class="crumb-current">Все рецепты</span>';
             return;
         }
         // Источник истины — таблица categories в БД (поле description).
@@ -597,21 +614,30 @@
         setTimeout(() => { Auth.logout(); location.href = 'login.html'; }, 1800);
     }
 
-    // Навигация хедера — единый билдер (header-nav.js). На странице категории
-    // активен продуктовый контекст «Рецепты».
+    // Режим страницы определяется параметрами URL:
+    //   ?q=<query>  → результаты поиска
+    //   ?cat=<id>   → конкретная категория
+    //   (без обоих) → каталог «Все рецепты» (карточки всех категорий)
+    const params = new URLSearchParams(location.search);
+    const searchQuery = (params.get('q') || '').trim();
+    const catParam = (params.get('cat') || '').trim();
+    const isAllMode = !searchQuery && !catParam;
+    const catId = catParam;   // '' в режимах поиска и «Все рецепты»
+    let cat = null;
+    const activeFilters = {};
+
+    // Навигация хедера — единый билдер (header-nav.js). «Рецепты» подсвечиваем
+    // в конкретной категории и в режиме «Все рецепты»; в поиске — без подсветки.
     function renderHeaderNav(activeCatId) {
         if (window.SP_HEADER && typeof window.SP_HEADER.render === 'function') {
-            window.SP_HEADER.render({ activeCat: activeCatId || null, activeNav: null });
+            window.SP_HEADER.render({
+                activeCat: activeCatId || null,
+                activeNav: (isAllMode && !activeCatId) ? 'recipes' : null
+            });
         }
     }
     // Ранний рендер: дропдаун «Ингредиенты» и ссылки не зависят от API.
-    renderHeaderNav(new URLSearchParams(location.search).get('cat') || null);
-
-    const params = new URLSearchParams(location.search);
-    const searchQuery = (params.get('q') || '').trim();
-    const catId = params.get('cat') || (searchQuery ? '' : 'breakfasts');
-    let cat = null;
-    const activeFilters = {};
+    renderHeaderNav(catId || null);
 
     function applyFilters(dishes, filters) {
         let list = dishes;
@@ -631,6 +657,12 @@
         if (searchQuery) {
             const matched = (typeof searchRecipes === 'function') ? searchRecipes(searchQuery) : [];
             return applyFilters(matched, activeFilters);
+        }
+        if (isAllMode) {
+            // Каталог «Все рецепты»: уникальные рецепты из всех категорий (RECIPES
+            // ключуется по id, поэтому дубли исключены), фильтры — по полному списку.
+            const all = (typeof RECIPES !== 'undefined') ? Object.values(RECIPES).filter(Boolean) : [];
+            return applyFilters(all, activeFilters);
         }
         return getCategoryDishes(catId, activeFilters);
     }
@@ -854,7 +886,7 @@
     }
     // Initial render deferred to loadContent().then() — показываем skeleton-карточки,
     // пока данные не пришли. Геометрия = реальной карточке, без layout shift.
-    renderRecipeSkeletons(SKELETON_COUNTS[catId] || 4);
+    renderRecipeSkeletons(isAllMode ? 8 : (SKELETON_COUNTS[catId] || 4));
 
     // ── LOAD API RATINGS for Popular filter + accurate pills ────────────
     const _apiRatings = {}; // recipeId → { avg, count }
@@ -938,6 +970,8 @@
     function goToRecipe(id) {
         if (searchQuery) {
             location.href = `recipe.html?id=${encodeURIComponent(id)}&from=search&q=${encodeURIComponent(searchQuery)}`;
+        } else if (isAllMode) {
+            location.href = `recipe.html?id=${encodeURIComponent(id)}&from=all`;
         } else {
             location.href = `recipe.html?id=${encodeURIComponent(id)}&from=${encodeURIComponent(catId)}`;
         }

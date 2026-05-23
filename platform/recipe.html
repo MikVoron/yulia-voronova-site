@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-22-dropdown-hover" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-nav-allrecipes" id="vcss">
 	<style>
 		.sublist-items {
 			display: flex;
@@ -1309,6 +1309,9 @@
 					} else {
 						backBtn.onclick = () => location.href = 'index.html';
 					}
+				} else if (fromCat === 'all') {
+					backBtn.onclick = () => location.href = 'category.html';
+					if (backLabel) backLabel.textContent = 'Все рецепты';
 				} else {
 					backBtn.onclick = () => fromCat ? location.href = 'category.html?cat=' + fromCat : location.href = 'index.html';
 					if (cat && backLabel) backLabel.textContent = cat.name;
