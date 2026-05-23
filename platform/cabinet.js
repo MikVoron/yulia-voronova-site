@@ -10,7 +10,19 @@
 			}
 		}
 		renderHeaderNav();  // ранний рендер: ингредиенты/ссылки не зависят от API
-		loadContent().then(function () { renderHeaderNav(); }).catch(function () {});
+		loadContent().then(function () {
+			renderHeaderNav();
+			// RECIPES готовы. Если активна вкладка, которая строит карточки из
+			// RECIPES (Избранные/История), перерисовать её: при входе через
+			// ?tab=favorites renderFavorites() отрабатывал ДО загрузки RECIPES и
+			// показывал «Нет рецептов в этой категории» без повторного рендера.
+			try {
+				var favP = document.getElementById('panel-favorites');
+				if (favP && favP.classList.contains('active') && typeof renderFavorites === 'function') renderFavorites();
+				var histP = document.getElementById('panel-history');
+				if (histP && histP.classList.contains('active') && typeof renderHistory === 'function') renderHistory();
+			} catch (e) { /* не блокируем остальную инициализацию */ }
+		}).catch(function () {});
 		updatePlateIcon();
 
 		// Источник контактов поддержки — единая точка правки.
