@@ -528,8 +528,6 @@ img { display: block; max-width: 100%; }
     flex-direction: column;
 }
 .recipe-card:hover {
-    box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 12px 32px rgba(26,26,26,.1);
-    transform: translateY(-2px);
     opacity: 1; color: inherit;
 }
 .recipe-card__media {
