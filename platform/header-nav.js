@@ -6,7 +6,8 @@
  * существующие: window.CATEGORIES (категории SmartPlate) + SP_INGREDIENTS
  * (справочник ingredients.js).
  *
- * Состав (ТЗ §3): Рецепты ▾ | Ингредиенты ▾ | Избранное | Консультации.
+ * Состав: Главная | Рецепты ▾ | Ингредиенты ▾ | Избранное | Консультации.
+ *   • Главная         — index.html.
  *   • Рецепты ▾     — «Все рецепты» + все категории (2 колонки).
  *   • Ингредиенты ▾ — ингредиенты по группам (колонки).
  *   • Избранное     — cabinet.html?tab=favorites (гость → login c return).
@@ -16,7 +17,7 @@
  *
  * Использование на странице (после loadContent(), когда CATEGORIES готовы):
  *   SP_HEADER.render({ activeCat: 'mains', activeNav: null });
- *   activeNav ∈ {'recipes','ingredients','favorites', null}.
+ *   activeNav ∈ {'home','recipes','ingredients','favorites', null}.
  *
  * Подключать ПОСЛЕ ingredients.js. Глобал — window.SP_HEADER.
  * ───────────────────────────────────────────────────────────────────────── */
@@ -24,6 +25,7 @@
   'use strict';
 
   var CONSULT_URL = 'https://voronova.online/#tariffs';
+  var HOME_URL = 'index.html';
   var ALL_RECIPES_URL = 'category.html';
   var FAVORITES_TARGET = 'cabinet.html?tab=favorites';
 
@@ -67,6 +69,7 @@
   // ── Desktop nav (#sp-nav) ──────────────────────────────────────────────────
   function buildDesktop(opts) {
     var cats = getCategories();
+    var homeActive = opts.activeNav === 'home';
     var recipesActive = !!opts.activeCat || opts.activeNav === 'recipes';
     var ingActive = opts.activeNav === 'ingredients';
     var favActive = opts.activeNav === 'favorites';
@@ -94,6 +97,7 @@
       '</div>';
 
     return '' +
+      '<a class="sp-nav-link' + (homeActive ? ' active' : '') + '" data-nav="home" href="' + HOME_URL + '">Главная</a>' +
       '<div class="sp-nav-dd" data-dd="recipes">' +
         '<button class="sp-nav-trigger' + (recipesActive ? ' active' : '') + '" type="button" aria-haspopup="true" aria-expanded="false">Рецепты<span class="sp-nav-caret" aria-hidden="true"></span></button>' +
         recipesPanel +
@@ -122,6 +126,8 @@
     }).join('');
 
     return '' +
+      '<span class="sp-drawer-section">Навигация</span>' +
+      '<a class="' + (opts.activeNav === 'home' ? 'active' : '') + '" data-nav="home" href="' + HOME_URL + '">Главная</a>' +
       '<span class="sp-drawer-section">Рецепты</span>' +
       '<a href="' + ALL_RECIPES_URL + '">Все рецепты</a>' +
       catLinks +

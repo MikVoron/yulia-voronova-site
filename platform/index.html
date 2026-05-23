@@ -1251,6 +1251,7 @@
 				<nav class="sp-nav" id="sp-nav" aria-label="Разделы">
 					<!-- Статический fallback (first paint). SP_HEADER.render() заменит
 					     дропдауны актуальными категориями/ингредиентами после loadContent(). -->
+					<a class="sp-nav-link active" data-nav="home" href="index.html">Главная</a>
 					<div class="sp-nav-dd" data-dd="recipes">
 						<button class="sp-nav-trigger" type="button" aria-haspopup="true" aria-expanded="false">Рецепты<span class="sp-nav-caret" aria-hidden="true"></span></button>
 						<div class="sp-nav-panel sp-nav-panel--recipes" role="menu">
@@ -1516,7 +1517,7 @@
 
 	<script src="data-v2.js?v=2026052202"></script>
 	<script src="ingredients.js?v=1"></script>
-	<script src="header-nav.js?v=1"></script>
+	<script src="header-nav.js?v=2-home-link"></script>
 	<script>
 		function escHtml(s) {
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -2496,7 +2497,7 @@
 		// продуктового контекста нет (логотип = домой).
 		function renderHeaderNav(activeCatId) {
 			if (global_SP_HEADER_ready()) {
-				window.SP_HEADER.render({ activeCat: activeCatId || null, activeNav: null });
+				window.SP_HEADER.render({ activeCat: activeCatId || null, activeNav: 'home' });
 			}
 		}
 		function global_SP_HEADER_ready() {
