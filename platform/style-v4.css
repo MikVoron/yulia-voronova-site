@@ -118,9 +118,7 @@ img { display: block; max-width: 100%; }
     opacity: 1; pointer-events: auto;
     transform: perspective(800px) rotateX(0) translateY(0);
 }
-/* Stagger reveal пунктов: появляются по очереди после открытия окна.
-   :nth-child позиции стабильны — feedback (1), sep (2), кабинет (3),
-   sep (4), logout (5). Даже если feedback скрыт, его слот сохраняется. */
+/* Stagger reveal пунктов: позиции стабильны, даже если feedback скрыт. */
 .user-dropdown .user-dd-item {
     opacity: 0;
     transform: translateY(-4px);
@@ -131,8 +129,13 @@ img { display: block; max-width: 100%; }
     transform: translateY(0);
 }
 .user-dropdown.open .user-dd-item:nth-child(1) { transition-delay: 120ms; }
-.user-dropdown.open .user-dd-item:nth-child(3) { transition-delay: 170ms; }
-.user-dropdown.open .user-dd-item:nth-child(5) { transition-delay: 220ms; }
+.user-dropdown.open .user-dd-item:nth-child(3) { transition-delay: 140ms; }
+.user-dropdown.open .user-dd-item:nth-child(5) { transition-delay: 155ms; }
+.user-dropdown.open .user-dd-item:nth-child(6) { transition-delay: 170ms; }
+.user-dropdown.open .user-dd-item:nth-child(7) { transition-delay: 185ms; }
+.user-dropdown.open .user-dd-item:nth-child(8) { transition-delay: 200ms; }
+.user-dropdown.open .user-dd-item:nth-child(9) { transition-delay: 215ms; }
+.user-dropdown.open .user-dd-item:nth-child(11) { transition-delay: 230ms; }
 @media (prefers-reduced-motion: reduce) {
     .user-dropdown,
     .user-dropdown .user-dd-item { transition-duration: .01ms !important; transition-delay: 0 !important; transform: none !important; }
@@ -148,6 +151,8 @@ img { display: block; max-width: 100%; }
     transition: background var(--tr);
 }
 .user-dd-item:hover { background: var(--bg-alt); }
+.user-dd-subitem { padding-left: 42px; font-size: 13px; color: var(--text-2); }
+.user-dd-subitem:hover { color: var(--text); }
 .user-dd-icon { width: 16px; height: 16px; flex-shrink: 0; color: var(--text-3); }
 .user-dd-item:hover .user-dd-icon { color: var(--accent); }
 .user-dd-sep { height: 1px; background: var(--border); margin: 4px 0; }
@@ -2936,6 +2941,8 @@ img { display: block; max-width: 100%; }
         width: min(260px, calc(100vw - 48px));
         min-width: 0;
         max-width: calc(100vw - 48px);
+        max-height: calc(100vh - 96px);
+        overflow-y: auto;
         border-radius: 0;
         border-right: 4px solid var(--accent);
         z-index: 3000;

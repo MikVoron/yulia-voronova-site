@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-nyt-hover-navfix-flatcards" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-account-menu" id="vcss">
 	<style>
 		main {
 			padding-bottom: 80px;
@@ -158,7 +158,22 @@
 			position: relative;
 			z-index: 20;
 		}
-		.sp-hero-text { min-width: 0; }
+		.sp-hero-text { min-width: 0; position: relative; }
+		.sp-hero-favorites {
+			display: none;
+			width: 42px; height: 42px;
+			align-items: center; justify-content: center;
+			border: 1px solid var(--border); background: #fff;
+			color: var(--text); text-decoration: none;
+			transition: border-color .18s ease, color .18s ease;
+		}
+		.sp-hero-favorites svg {
+			width: 19px; height: 19px; fill: none; stroke: currentColor;
+			stroke-width: 1.7; stroke-linejoin: round;
+		}
+		@media (hover: hover) and (pointer: fine) {
+			.sp-hero-favorites:hover { color: var(--accent); border-color: var(--accent); }
+		}
 		.sp-hero-eyebrow {
 			font-size: 11px; font-weight: 700;
 			letter-spacing: .12em; text-transform: uppercase;
@@ -388,6 +403,10 @@
 				grid-template-columns: 1fr;
 				gap: 20px; padding: 24px 0 36px;
 			}
+			.sp-hero-favorites {
+				display: inline-flex; position: absolute; top: 0; right: 0;
+			}
+			.sp-hero-eyebrow { padding-right: 54px; }
 			.sp-hero-aside { order: -1; }
 			.sp-hero-title { font-size: 30px; }
 			.sp-hero-sub { font-size: 14px; margin-bottom: 22px; }
@@ -1290,6 +1309,12 @@
 							<div class="user-dd-sep" id="user-dd-feedback-sep" hidden></div>
 							<a href="cabinet.html" class="user-dd-item"><svg class="user-dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>Мой кабинет</a>
 							<div class="user-dd-sep"></div>
+							<a href="cabinet.html?tab=subscription" class="user-dd-item user-dd-subitem">Подписка</a>
+							<a href="cabinet.html?tab=favorites" class="user-dd-item user-dd-subitem">Избранные</a>
+							<a href="cabinet.html?tab=history" class="user-dd-item user-dd-subitem">История</a>
+							<a href="cabinet.html?tab=notes" class="user-dd-item user-dd-subitem">Заметки</a>
+							<a href="cabinet.html?tab=feedback" class="user-dd-item user-dd-subitem">Связь</a>
+							<div class="user-dd-sep"></div>
 							<button class="user-dd-item user-dd-logout" onclick="doLogout()"><svg class="user-dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Выйти</button>
 						</div>
 					</div>
@@ -1320,6 +1345,9 @@
 			<!-- HERO (editorial, per SmartPlate Homepage Mockup) -->
 			<section class="sp-hero anim" id="intro-block">
 				<div class="sp-hero-text">
+					<a class="sp-hero-favorites" id="hero-favorites-link" href="cabinet.html?tab=favorites" aria-label="Открыть избранные рецепты">
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+					</a>
 					<div class="sp-hero-eyebrow" id="sp-hero-eyebrow">Сегодня</div>
 					<h1 class="sp-hero-title" id="sp-hero-title">Полезно,<br>вкусно,<br>по делу.</h1>
 					<p class="sp-hero-sub" id="sp-hero-sub">Персональный помощник в сбалансированном питании. Рецепты, подобранные нутрициологом — с расчётом КБЖУ, заменами продуктов и пошаговыми инструкциями.</p>
@@ -1517,7 +1545,7 @@
 
 	<script src="data-v2.js?v=2026052202"></script>
 	<script src="ingredients.js?v=1"></script>
-	<script src="header-nav.js?v=2-home-link"></script>
+	<script src="header-nav.js?v=3-account-menu"></script>
 	<script>
 		function escHtml(s) {
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -2498,6 +2526,10 @@
 		function renderHeaderNav(activeCatId) {
 			if (global_SP_HEADER_ready()) {
 				window.SP_HEADER.render({ activeCat: activeCatId || null, activeNav: 'home' });
+				const heroFavorites = document.getElementById('hero-favorites-link');
+				if (heroFavorites && typeof window.SP_HEADER.favoritesHref === 'function') {
+					heroFavorites.href = window.SP_HEADER.favoritesHref();
+				}
 			}
 		}
 		function global_SP_HEADER_ready() {

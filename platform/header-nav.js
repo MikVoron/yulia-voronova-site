@@ -134,7 +134,6 @@
       '<span class="sp-drawer-section">Ингредиенты</span>' +
       ingHtml +
       '<span class="sp-drawer-section">Ещё</span>' +
-      '<a data-nav="favorites" href="' + favoritesHref() + '">Избранное</a>' +
       '<a href="' + CONSULT_URL + '">Консультации</a>';
   }
 
