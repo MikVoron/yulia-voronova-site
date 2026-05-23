@@ -12,17 +12,14 @@
 		renderHeaderNav();  // ранний рендер: ингредиенты/ссылки не зависят от API
 		loadContent().then(function () {
 			renderHeaderNav();
-			// RECIPES готовы. Если активна вкладка, которая строит карточки из
-			// RECIPES (Избранные/История), перерисовать её: при входе через
-			// ?tab=favorites renderFavorites() отрабатывал ДО загрузки RECIPES и
-			// показывал «Нет рецептов в этой категории» без повторного рендера.
-			try {
-				var favP = document.getElementById('panel-favorites');
-				if (favP && favP.classList.contains('active') && typeof renderFavorites === 'function') renderFavorites();
-				var histP = document.getElementById('panel-history');
-				if (histP && histP.classList.contains('active') && typeof renderHistory === 'function') renderHistory();
-			} catch (e) { /* не блокируем остальную инициализацию */ }
-		}).catch(function () {});
+			// RECIPES готовы. Перерисовываем активную RECIPES-зависимую вкладку
+			// (Избранные/История): при прямом входе ?tab=favorites она отрендерилась
+			// в инициализации ДО загрузки рецептов и показала пусто.
+			var favP = document.getElementById('panel-favorites');
+			if (favP && favP.classList.contains('active') && typeof renderFavorites === 'function') renderFavorites();
+			var histP = document.getElementById('panel-history');
+			if (histP && histP.classList.contains('active') && typeof renderHistory === 'function') renderHistory();
+		});
 		updatePlateIcon();
 
 		// Источник контактов поддержки — единая точка правки.
@@ -315,6 +312,15 @@
 			if (name === 'notes') loadNotes();
 			if (name === 'feedback') loadFeedbackHistory();
 		}
+
+		// Состояние вкладки «Избранные». ДОЛЖНО быть объявлено/инициализировано до
+		// обработчика ?tab= ниже: при прямом входе cabinet.html?tab=favorites
+		// switchTab('favorites') → renderFavorites → _renderFavGrid читают _favFilter
+		// синхронно во время инициализации. Если объявление ниже — ReferenceError
+		// (TDZ) рушит весь init кабинета. Раньше favorites открывали кликом (async,
+		// после инициализации), поэтому баг был латентным; ссылка «Избранное» в
+		// хедере (?tab=favorites) его проявила.
+		let _favFilter = 'all';
 
 		// Handle ?tab= query param (e.g. from paywall redirect)
 		(function() {
@@ -903,7 +909,7 @@
 		renderHistory();
 
 		// ── ИЗБРАННЫЕ ─────────────────────────────────────────────────────────────
-		let _favFilter = 'all';
+		// _favFilter объявлена выше, до обработчика ?tab= (см. инициализацию) — иначе TDZ.
 
 		function filterFavs(catId) {
 			_favFilter = catId;
