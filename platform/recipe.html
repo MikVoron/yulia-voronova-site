@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-account-menu" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-mobile-drawer" id="vcss">
 	<style>
 		.sublist-items {
 			display: flex;
@@ -906,9 +906,9 @@
 	<!-- DRAWER (mobile nav) — общий с index; наполняется header-nav.js -->
 	<div class="sp-drawer" id="sp-drawer" hidden>
 		<div class="sp-drawer-back" onclick="closeDrawer()"></div>
-		<aside class="sp-drawer-panel" role="dialog" aria-label="Разделы">
+		<aside class="sp-drawer-panel" role="dialog" aria-label="Меню сайта">
 			<div class="sp-drawer-head">
-				<span class="sp-drawer-title">Разделы</span>
+				<span class="sp-drawer-title">Меню</span>
 				<button class="sp-drawer-close" type="button" onclick="closeDrawer()" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
 			</div>
 			<nav class="sp-drawer-nav" id="sp-drawer-nav"></nav>
@@ -993,7 +993,7 @@
 
 	<script src="data-v2.js?v=2026052202"></script>
 	<script src="ingredients.js?v=1"></script>
-	<script src="header-nav.js?v=3-account-menu"></script>
+	<script src="header-nav.js?v=4-mobile-drawer"></script>
 	<script>
 		const _accessReady = Auth.checkAccess({ allowGuest: true });
 		updatePlateIcon();

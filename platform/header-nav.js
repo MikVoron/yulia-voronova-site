@@ -113,6 +113,7 @@
   // ── Mobile drawer (#sp-drawer-nav) ─────────────────────────────────────────
   function buildDrawer(opts) {
     var cats = getCategories();
+    var recipesActive = !!opts.activeCat || opts.activeNav === 'recipes';
     var catLinks = cats.map(function (c) {
       return '<a href="category.html?cat=' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a>';
     }).join('');
@@ -126,19 +127,26 @@
     }).join('');
 
     return '' +
-      '<span class="sp-drawer-section">Навигация</span>' +
       '<a class="' + (opts.activeNav === 'home' ? 'active' : '') + '" data-nav="home" href="' + HOME_URL + '">Главная</a>' +
-      '<span class="sp-drawer-section">Рецепты</span>' +
-      '<a href="' + ALL_RECIPES_URL + '">Все рецепты</a>' +
-      catLinks +
-      '<span class="sp-drawer-section">Ингредиенты</span>' +
-      ingHtml +
-      '<span class="sp-drawer-section">Ещё</span>' +
+      '<a class="' + (recipesActive ? 'active' : '') + '" data-nav="recipes" href="' + ALL_RECIPES_URL + '">Все рецепты</a>' +
+      '<div class="sp-drawer-accordion">' +
+        '<button class="sp-drawer-toggle" type="button" aria-expanded="false" aria-controls="sp-drawer-categories">' +
+          '<span>Категории</span><span class="sp-drawer-plus" aria-hidden="true"></span>' +
+        '</button>' +
+        '<div class="sp-drawer-content" id="sp-drawer-categories" hidden>' + catLinks + '</div>' +
+      '</div>' +
+      '<div class="sp-drawer-accordion">' +
+        '<button class="sp-drawer-toggle" type="button" aria-expanded="false" aria-controls="sp-drawer-ingredients">' +
+          '<span>Ингредиенты</span><span class="sp-drawer-plus" aria-hidden="true"></span>' +
+        '</button>' +
+        '<div class="sp-drawer-content" id="sp-drawer-ingredients" hidden>' + ingHtml + '</div>' +
+      '</div>' +
       '<a href="' + CONSULT_URL + '">Консультации</a>';
   }
 
   // ── Dropdown-взаимодействия (вешаются один раз) ────────────────────────────
   var wired = false;
+  var drawerWired = false;
   function wire(nav) {
     if (wired || !nav) return;
     wired = true;
@@ -173,6 +181,27 @@
     });
   }
 
+  function wireDrawer(drawer) {
+    if (drawerWired || !drawer) return;
+    drawerWired = true;
+    drawer.addEventListener('click', function (e) {
+      var toggle = e.target.closest('.sp-drawer-toggle');
+      if (!toggle) return;
+      e.preventDefault();
+      var willOpen = toggle.getAttribute('aria-expanded') !== 'true';
+      drawer.querySelectorAll('.sp-drawer-toggle').forEach(function (other) {
+        other.setAttribute('aria-expanded', 'false');
+        var otherPanel = document.getElementById(other.getAttribute('aria-controls'));
+        if (otherPanel) otherPanel.hidden = true;
+      });
+      if (willOpen) {
+        toggle.setAttribute('aria-expanded', 'true');
+        var panel = document.getElementById(toggle.getAttribute('aria-controls'));
+        if (panel) panel.hidden = false;
+      }
+    });
+  }
+
   function render(opts) {
     opts = opts || {};
     var nav = document.getElementById('sp-nav');
@@ -181,7 +210,10 @@
       wire(nav);
     }
     var drawer = document.getElementById('sp-drawer-nav');
-    if (drawer) drawer.innerHTML = buildDrawer(opts);
+    if (drawer) {
+      drawer.innerHTML = buildDrawer(opts);
+      wireDrawer(drawer);
+    }
   }
 
   // ── Mobile drawer open/close ───────────────────────────────────────────────

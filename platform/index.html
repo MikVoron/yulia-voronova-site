@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-account-menu" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-mobile-drawer" id="vcss">
 	<style>
 		main {
 			padding-bottom: 80px;
@@ -86,6 +86,29 @@
 			transition: background var(--tr), color var(--tr);
 		}
 		.sp-drawer-nav a:hover { background: var(--bg-alt); color: var(--accent); }
+		.sp-drawer-toggle {
+			width: 100%; padding: 14px 20px; border: 0; border-bottom: 1px solid #f2efe9;
+			background: #fff; display: flex; align-items: center; justify-content: space-between;
+			font-family: var(--serif); font-size: 17px; font-weight: 700;
+			color: var(--text); cursor: pointer; text-align: left;
+			transition: background var(--tr), color var(--tr);
+		}
+		.sp-drawer-toggle:hover,
+		.sp-drawer-toggle[aria-expanded="true"] { background: var(--bg-alt); color: var(--accent); }
+		.sp-drawer-plus { position: relative; width: 14px; height: 14px; flex: 0 0 auto; }
+		.sp-drawer-plus::before,
+		.sp-drawer-plus::after {
+			content: ''; position: absolute; left: 0; top: 6px; width: 14px; height: 1.5px;
+			background: currentColor; transition: transform .18s ease;
+		}
+		.sp-drawer-plus::after { transform: rotate(90deg); }
+		.sp-drawer-toggle[aria-expanded="true"] .sp-drawer-plus::after { transform: rotate(0); }
+		.sp-drawer-content { display: flex; flex-direction: column; background: #faf8f5; }
+		.sp-drawer-content[hidden] { display: none; }
+		.sp-drawer-content a {
+			padding: 12px 20px 12px 32px; font-family: var(--sans); font-size: 14px; font-weight: 600;
+		}
+		.sp-drawer-content .sp-drawer-subhead { padding: 14px 20px 3px 32px; }
 		/* Заголовки секций (Рецепты / Ингредиенты / Ещё) и подгрупп ингредиентов
 		   (Овощи / Бобовые) внутри drawer — не ссылки, видны сразу. */
 		.sp-drawer-section {
@@ -405,7 +428,9 @@
 			}
 			.sp-hero-favorites {
 				display: inline-flex; position: absolute; top: 0; right: 0;
+				background: var(--accent); border-color: var(--accent); color: #fff;
 			}
+			.sp-hero-favorites svg { fill: currentColor; stroke: currentColor; }
 			.sp-hero-eyebrow { padding-right: 54px; }
 			.sp-hero-aside { order: -1; }
 			.sp-hero-title { font-size: 30px; }
@@ -1327,9 +1352,9 @@
 	<!-- DRAWER (mobile categories nav, spec §2) -->
 	<div class="sp-drawer" id="sp-drawer" hidden>
 		<div class="sp-drawer-back" onclick="closeDrawer()"></div>
-		<aside class="sp-drawer-panel" role="dialog" aria-label="Разделы">
+		<aside class="sp-drawer-panel" role="dialog" aria-label="Меню сайта">
 			<div class="sp-drawer-head">
-				<span class="sp-drawer-title">Разделы</span>
+				<span class="sp-drawer-title">Меню</span>
 				<button class="sp-drawer-close" type="button" onclick="closeDrawer()" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
 			</div>
 			<nav class="sp-drawer-nav" id="sp-drawer-nav">
@@ -1545,7 +1570,7 @@
 
 	<script src="data-v2.js?v=2026052202"></script>
 	<script src="ingredients.js?v=1"></script>
-	<script src="header-nav.js?v=3-account-menu"></script>
+	<script src="header-nav.js?v=4-mobile-drawer"></script>
 	<script>
 		function escHtml(s) {
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
