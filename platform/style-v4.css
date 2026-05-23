@@ -2588,7 +2588,8 @@ img { display: block; max-width: 100%; }
    курсор (или ведёт фокус с клавиатуры) на ДРУГОЙ пункт, либо открыт ЧУЖОЙ
    dropdown, постоянная линия активного раздела временно убирается — линия одна
    и находится только у вовлечённого пункта. Уходит курсор/фокус — линия
-   возвращается активному разделу. Решение чисто на CSS через :has().
+   возвращается активному разделу. Решение чисто на CSS через :has(), без
+   вложенных :has() (такие селекторы невалидны и отбрасываются браузером).
    Условие в :has() исключает .active, поэтому hover/focus/открытие самого
    активного пункта НЕ запускает retract → линия стабильна, без повторной
    анимации и без второй линии. Мобильный drawer не использует .sp-nav — не
@@ -2605,16 +2606,16 @@ img { display: block; max-width: 100%; }
         .sp-nav-link:not(.active):hover,
         .sp-nav-trigger:not(.active):focus-visible,
         .sp-nav-link:not(.active):focus-visible,
-        .sp-nav-dd:has(.sp-nav-trigger:not(.active)):hover,
-        .sp-nav-dd:has(.sp-nav-trigger:not(.active)).open
+        .sp-nav-dd:hover .sp-nav-trigger:not(.active),
+        .sp-nav-dd.open .sp-nav-trigger:not(.active)
     ) .sp-nav-trigger.active::after,
     .sp-nav:has(
         .sp-nav-trigger:not(.active):hover,
         .sp-nav-link:not(.active):hover,
         .sp-nav-trigger:not(.active):focus-visible,
         .sp-nav-link:not(.active):focus-visible,
-        .sp-nav-dd:has(.sp-nav-trigger:not(.active)):hover,
-        .sp-nav-dd:has(.sp-nav-trigger:not(.active)).open
+        .sp-nav-dd:hover .sp-nav-trigger:not(.active),
+        .sp-nav-dd.open .sp-nav-trigger:not(.active)
     ) .sp-nav-link.active::after {
         transform: scaleX(0);
     }
