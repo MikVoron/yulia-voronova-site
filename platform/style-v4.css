@@ -2805,7 +2805,7 @@ img { display: block; max-width: 100%; }
 /* ── DRAWER (mobile nav) — общий для category/recipe/cabinet/ingredient ──────
    Бургер открывает выдвижное меню разделов (openDrawer в header-nav.js).
    index.html держит собственную идентичную копию этих правил инлайн. */
-.sp-drawer { position: fixed; inset: 0; z-index: 200; display: flex; pointer-events: none; }
+.sp-drawer { position: fixed; inset: 0; z-index: 200; display: flex; pointer-events: none; overscroll-behavior: none; }
 .sp-drawer[hidden] { display: none; }
 .sp-drawer-back {
     position: absolute; inset: 0; background: rgba(17,17,17,.54);
@@ -2816,7 +2816,7 @@ img { display: block; max-width: 100%; }
     position: relative; z-index: 1; width: min(320px, 86vw); height: 100%;
     background: #fff; border-right: 1px solid var(--border);
     transform: translateX(-100%); transition: transform .28s cubic-bezier(.2,.8,.2,1);
-    display: flex; flex-direction: column; pointer-events: auto;
+    display: flex; flex-direction: column; pointer-events: auto; overscroll-behavior: contain;
 }
 .sp-drawer.open .sp-drawer-panel { transform: translateX(0); }
 .sp-drawer-head {
@@ -2832,7 +2832,7 @@ img { display: block; max-width: 100%; }
 }
 .sp-drawer-close svg { width: 16px; height: 16px; display: block; }
 .sp-drawer-close:hover { border-color: var(--accent); color: var(--accent); }
-.sp-drawer-nav { padding: 8px 0; display: flex; flex-direction: column; overflow-y: auto; }
+.sp-drawer-nav { padding: 8px 0; display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .sp-drawer-nav a {
     position: relative; padding: 14px 20px;
     font-family: var(--serif); font-size: 17px; font-weight: 700;

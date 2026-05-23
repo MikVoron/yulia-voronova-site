@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-mobile-drawer-polish" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-mobile-drawer-scroll-lock" id="vcss">
 	<style>
 		main {
 			padding-bottom: 80px;
@@ -30,6 +30,7 @@
 			position: fixed; inset: 0; z-index: 200;
 			display: flex;
 			pointer-events: none;
+			overscroll-behavior: none;
 		}
 		.sp-drawer[hidden] { display: none; }
 		.sp-drawer-back {
@@ -50,6 +51,7 @@
 			transition: transform .28s cubic-bezier(.2, .8, .2, 1);
 			display: flex; flex-direction: column;
 			pointer-events: auto;
+			overscroll-behavior: contain;
 		}
 		.sp-drawer.open .sp-drawer-panel { transform: translateX(0); }
 		.sp-drawer-head {
@@ -75,6 +77,8 @@
 			padding: 8px 0;
 			display: flex; flex-direction: column;
 			overflow-y: auto;
+			overscroll-behavior: contain;
+			-webkit-overflow-scrolling: touch;
 		}
 		.sp-drawer-nav a {
 			position: relative;
@@ -1576,7 +1580,7 @@
 
 	<script src="data-v2.js?v=2026052202"></script>
 	<script src="ingredients.js?v=1"></script>
-	<script src="header-nav.js?v=4-mobile-drawer"></script>
+	<script src="header-nav.js?v=5-mobile-drawer-scroll-lock"></script>
 	<script>
 		function escHtml(s) {
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -2568,18 +2572,51 @@
 		}
 
 		// Mobile drawer — открывает/закрывает шторку категорий. Backdrop клик закрывает.
+		let _drawerScrollY = 0;
+		let _drawerBodyStyles = null;
+		function lockDrawerScroll() {
+			if (_drawerBodyStyles) return;
+			const body = document.body;
+			_drawerScrollY = window.scrollY || window.pageYOffset || 0;
+			_drawerBodyStyles = {
+				overflow: body.style.overflow,
+				position: body.style.position,
+				top: body.style.top,
+				left: body.style.left,
+				right: body.style.right,
+				width: body.style.width
+			};
+			body.style.overflow = 'hidden';
+			body.style.position = 'fixed';
+			body.style.top = '-' + _drawerScrollY + 'px';
+			body.style.left = '0';
+			body.style.right = '0';
+			body.style.width = '100%';
+		}
+		function unlockDrawerScroll() {
+			if (!_drawerBodyStyles) return;
+			const body = document.body;
+			body.style.overflow = _drawerBodyStyles.overflow;
+			body.style.position = _drawerBodyStyles.position;
+			body.style.top = _drawerBodyStyles.top;
+			body.style.left = _drawerBodyStyles.left;
+			body.style.right = _drawerBodyStyles.right;
+			body.style.width = _drawerBodyStyles.width;
+			_drawerBodyStyles = null;
+			window.scrollTo(0, _drawerScrollY);
+		}
 		function openDrawer() {
 			const dr = document.getElementById('sp-drawer');
 			if (!dr) return;
 			dr.removeAttribute('hidden');
 			requestAnimationFrame(function () { dr.classList.add('open'); });
-			document.body.style.overflow = 'hidden';
+			lockDrawerScroll();
 		}
 		function closeDrawer() {
 			const dr = document.getElementById('sp-drawer');
 			if (!dr) return;
 			dr.classList.remove('open');
-			document.body.style.overflow = '';
+			unlockDrawerScroll();
 			setTimeout(function () { if (!dr.classList.contains('open')) dr.setAttribute('hidden', ''); }, 300);
 		}
 		document.addEventListener('keydown', function (e) {

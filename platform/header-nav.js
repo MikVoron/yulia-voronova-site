@@ -220,18 +220,51 @@
   // Общие для всех страниц, где есть #sp-drawer (бургер вызывает onclick="openDrawer()").
   // index.html объявляет свои одноимённые функции инлайн позже и переопределяет эти —
   // логика идентична, поэтому конфликта нет.
+  var drawerScrollY = 0;
+  var drawerBodyStyles = null;
+  function lockDrawerScroll() {
+    if (drawerBodyStyles) return;
+    var body = document.body;
+    drawerScrollY = global.scrollY || global.pageYOffset || 0;
+    drawerBodyStyles = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width
+    };
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.top = '-' + drawerScrollY + 'px';
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.width = '100%';
+  }
+  function unlockDrawerScroll() {
+    if (!drawerBodyStyles) return;
+    var body = document.body;
+    body.style.overflow = drawerBodyStyles.overflow;
+    body.style.position = drawerBodyStyles.position;
+    body.style.top = drawerBodyStyles.top;
+    body.style.left = drawerBodyStyles.left;
+    body.style.right = drawerBodyStyles.right;
+    body.style.width = drawerBodyStyles.width;
+    drawerBodyStyles = null;
+    global.scrollTo(0, drawerScrollY);
+  }
   function openDrawer() {
     var dr = document.getElementById('sp-drawer');
     if (!dr) return;
     dr.removeAttribute('hidden');
     requestAnimationFrame(function () { dr.classList.add('open'); });
-    document.body.style.overflow = 'hidden';
+    lockDrawerScroll();
   }
   function closeDrawer() {
     var dr = document.getElementById('sp-drawer');
     if (!dr) return;
     dr.classList.remove('open');
-    document.body.style.overflow = '';
+    unlockDrawerScroll();
     setTimeout(function () {
       if (!dr.classList.contains('open')) dr.setAttribute('hidden', '');
     }, 300);
