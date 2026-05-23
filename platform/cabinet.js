@@ -12,9 +12,11 @@
 		renderHeaderNav();  // ранний рендер: ингредиенты/ссылки не зависят от API
 		loadContent().then(function () {
 			renderHeaderNav();
-			// RECIPES готовы. Перерисовываем активную RECIPES-зависимую вкладку
+			// RECIPES готовы (или content-error — loadContent резолвится в обоих случаях).
+			// Снимаем loading-флаг и перерисовываем активную RECIPES-зависимую вкладку
 			// (Избранные/История): при прямом входе ?tab=favorites она отрендерилась
-			// в инициализации ДО загрузки рецептов и показала пусто.
+			// в инициализации ДО загрузки рецептов и показала skeleton.
+			_recipesReady = true;
 			var favP = document.getElementById('panel-favorites');
 			if (favP && favP.classList.contains('active') && typeof renderFavorites === 'function') renderFavorites();
 			var histP = document.getElementById('panel-history');
@@ -149,9 +151,16 @@
 		_cabAccess.then(function() {
 			return Favorites.load();
 		}).then(function() {
+			// Серверное избранное синхронизировано — снимаем loading-флаг.
+			_favoritesReady = true;
 			if (typeof renderCabSummaryStats === 'function') renderCabSummaryStats();
 			if (document.getElementById('panel-favorites') && document.getElementById('panel-favorites').classList.contains('active')) renderFavorites();
-		}).catch(function() {});
+		}).catch(function() {
+			// Доступ/синхронизация не удались — всё равно снимаем loading-флаг,
+			// иначе вкладка «Избранные» зависнет в skeleton навсегда.
+			_favoritesReady = true;
+			if (document.getElementById('panel-favorites') && document.getElementById('panel-favorites').classList.contains('active')) renderFavorites();
+		});
 		_cabAccess.then(function() {
 			return Notes.load();
 		}).then(function() {
@@ -321,6 +330,18 @@
 		// после инициализации), поэтому баг был латентным; ссылка «Избранное» в
 		// хедере (?tab=favorites) его проявила.
 		let _favFilter = 'all';
+
+		// Loading-state вкладки «Избранные». ОБЯЗАТЕЛЬНО объявить/инициализировать
+		// здесь — до обработчика ?tab= ниже (та же причина, что и _favFilter: при
+		// прямом входе cabinet.html?tab=favorites switchTab('favorites') →
+		// renderFavorites выполняется синхронно в инициализации, читает эти флаги;
+		// объявление ниже = TDZ ReferenceError рушит весь init).
+		//   _recipesReady   — RECIPES загружены (loadContent резолвнулся);
+		//   _favoritesReady — серверное избранное синхронизировано (Favorites.load).
+		// Пока хоть один false → renderFavorites рисует skeleton, а НЕ empty-state.
+		// Пустой массив избранного считается валидным empty ТОЛЬКО когда оба true.
+		let _recipesReady = false;
+		let _favoritesReady = false;
 
 		// Handle ?tab= query param (e.g. from paywall redirect)
 		(function() {
@@ -919,11 +940,45 @@
 			_renderFavGrid();
 		}
 
-		function renderFavorites() {
-			renderCabSummaryStats();
-			const ids = Favorites.get();
+		// Skeleton-карточки на время загрузки. Геометрия = реальной .fav-card,
+		// чтобы не было layout shift при подмене. Декоративные (aria-hidden),
+		// контейнер помечается aria-busy. Палитра/shimmer — см. CSS в cabinet.html
+		// (общие .sk-line/.is-skeleton, согласованы со skeleton из category.html).
+		function _renderFavSkeletons() {
 			const grid = document.getElementById('fav-grid');
 			const filtersEl = document.getElementById('fav-filters');
+			if (filtersEl) filtersEl.innerHTML = '';
+			if (!grid) return;
+			grid.setAttribute('aria-busy', 'true');
+			const widths = [['88%', '58%'], ['78%', '50%'], ['92%', '46%']];
+			grid.innerHTML = Array.from({ length: 3 }, (_, i) => {
+				const [w1, w2] = widths[i % widths.length];
+				return '<div class="fav-card is-skeleton" aria-hidden="true">'
+					+   '<div class="fav-card-media"></div>'
+					+   '<div class="fav-card-body">'
+					+     '<span class="sk-line sk-line--title" style="width:' + w1 + '"></span>'
+					+     '<span class="sk-line" style="width:' + w2 + ';margin-top:10px;height:11px"></span>'
+					+     '<div class="fav-card-foot">'
+					+       '<span class="sk-line" style="width:30%;height:10px"></span>'
+					+       '<span class="sk-line" style="width:22%;height:16px"></span>'
+					+     '</div>'
+					+   '</div>'
+					+ '</div>';
+			}).join('');
+		}
+
+		function renderFavorites() {
+			renderCabSummaryStats();
+			const grid = document.getElementById('fav-grid');
+			const filtersEl = document.getElementById('fav-filters');
+			// Loading-state: пока не готовы RECIPES и/или серверное избранное —
+			// показываем skeleton, а не ложный «Нет избранных рецептов».
+			if (!_recipesReady || !_favoritesReady) {
+				_renderFavSkeletons();
+				return;
+			}
+			if (grid) grid.removeAttribute('aria-busy');
+			const ids = Favorites.get();
 			if (!ids.length) {
 				if (filtersEl) filtersEl.innerHTML = '';
 				grid.innerHTML = '<div class="fav-empty">Нет избранных рецептов.<br>Нажмите на закладку на карточке рецепта.</div>';
