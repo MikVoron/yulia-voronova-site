@@ -611,6 +611,19 @@ img { display: block; max-width: 100%; }
 }
 .featured-card .recipe-card-time-note { font-size: 12px; margin: -2px 0 10px; }
 
+/* ── NYT-hover: при наведении текстовая часть карточки рецепта мягко бледнеет.
+   Фото (zoom), закладка и бейджи лежат в *-media и не затрагиваются. Skeleton
+   (.is-skeleton) исключён. Эффект — единый паттерн для всех карточек рецептов
+   (.recipe-card / .featured-card здесь; .sp-card — index.html; .fav-card —
+   cabinet.html), одинаковая интенсивность (.55) и скорость (.25s). Только
+   устройства с настоящим hover. .cat-card НЕ затронут. */
+.recipe-card__body,
+.featured-card-body { transition: opacity .25s ease; }
+@media (hover: hover) and (pointer: fine) {
+    .recipe-card:not(.is-skeleton):not(.locked):hover .recipe-card__body,
+    .featured-card:not(.is-skeleton):not(.locked):hover .featured-card-body { opacity: .55; }
+}
+
 /* Locked recipe cards (trial) */
 .recipe-card.locked, .featured-card.locked { opacity: .55; }
 .recipe-card.locked .recipe-card__media img,
@@ -2569,6 +2582,43 @@ img { display: block; max-width: 100%; }
 .sp-nav-link.active { color: var(--text); }
 .sp-nav-trigger.active::after,
 .sp-nav-link.active::after { transform: scaleX(1); }
+
+/* ── Единый активный акцент в desktop-навигации ──────────────────────────────
+   Оранжевая линия — единственный «текущий» акцент. Пока пользователь наводит
+   курсор (или ведёт фокус с клавиатуры) на ДРУГОЙ пункт, либо открыт ЧУЖОЙ
+   dropdown, постоянная линия активного раздела временно убирается — линия одна
+   и находится только у вовлечённого пункта. Уходит курсор/фокус — линия
+   возвращается активному разделу. Решение чисто на CSS через :has().
+   Условие в :has() исключает .active, поэтому hover/focus/открытие самого
+   активного пункта НЕ запускает retract → линия стабильна, без повторной
+   анимации и без второй линии. Мобильный drawer не использует .sp-nav — не
+   затронут. */
+@media (hover: hover) and (pointer: fine) {
+    /* focus-visible с клавиатуры ведёт себя как hover */
+    .sp-nav-trigger:focus-visible,
+    .sp-nav-link:focus-visible { color: var(--accent); }
+    .sp-nav-trigger:focus-visible::after,
+    .sp-nav-link:focus-visible::after { transform: scaleX(1); }
+
+    .sp-nav:has(
+        .sp-nav-trigger:not(.active):hover,
+        .sp-nav-link:not(.active):hover,
+        .sp-nav-trigger:not(.active):focus-visible,
+        .sp-nav-link:not(.active):focus-visible,
+        .sp-nav-dd:has(.sp-nav-trigger:not(.active)):hover,
+        .sp-nav-dd:has(.sp-nav-trigger:not(.active)).open
+    ) .sp-nav-trigger.active::after,
+    .sp-nav:has(
+        .sp-nav-trigger:not(.active):hover,
+        .sp-nav-link:not(.active):hover,
+        .sp-nav-trigger:not(.active):focus-visible,
+        .sp-nav-link:not(.active):focus-visible,
+        .sp-nav-dd:has(.sp-nav-trigger:not(.active)):hover,
+        .sp-nav-dd:has(.sp-nav-trigger:not(.active)).open
+    ) .sp-nav-link.active::after {
+        transform: scaleX(0);
+    }
+}
 
 /* Каретка ▾ — поворачивается при открытии */
 .sp-nav-caret {

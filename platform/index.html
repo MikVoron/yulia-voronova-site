@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-ui-fixes" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-nyt-hover" id="vcss">
 	<style>
 		main {
 			padding-bottom: 80px;
@@ -203,6 +203,7 @@
 			font-size: 11px; font-weight: 600;
 			letter-spacing: .08em; text-transform: uppercase;
 			color: var(--text-3);
+			transition: opacity .25s ease;
 			/* Резерв под 1 строку caption — иначе при появлении текста
 			   hero становится на ~18px выше, и левая колонка/поиск дёргаются. */
 			line-height: 17px; min-height: 17px;
@@ -210,6 +211,9 @@
 		/* Префикс-ярлык в подписи hero («Сезонный рецепт») — акцентом, чтобы
 		   связать крупное фото с рубрикой, не вешая плашку на само изображение. */
 		.sp-hero-caption .sp-cap-tag { color: var(--accent); }
+		@media (hover: hover) and (pointer: fine) {
+			.sp-hero-aside:not(.is-loading):not(.locked):hover .sp-hero-caption { opacity: .55; }
+		}
 
 		/* Loading-state для hero-aside: media и caption уже занимают своё
 		   место (aspect-ratio + min-height), а shimmer делает их визуально
@@ -789,7 +793,13 @@
 			content: ''; position: absolute; inset: 0;
 			background: rgba(0,0,0,.18); z-index: 1;
 		}
-		.sp-new-card-body { padding: 18px 0 0; }
+		.sp-new-card-body { padding: 18px 0 0; transition: opacity .25s ease; }
+		/* NYT-hover: текст карточки нового рецепта бледнеет; фото (zoom) и бейджи
+		   в .sp-new-card-media не трогаем. .locked (paywall) исключена. Единый
+		   паттерн с .recipe-card / .sp-card / .fav-card (.55, .25s). */
+		@media (hover: hover) and (pointer: fine) {
+			.sp-new-card:not(.locked):hover .sp-new-card-body { opacity: .55; }
+		}
 		.sp-new-card-eyebrow {
 			font-size: 11px; font-weight: 800;
 			letter-spacing: .14em; text-transform: uppercase;
@@ -1017,6 +1027,13 @@
 			transition: transform .35s ease;
 		}
 		.sp-card:hover .sp-card-media img { transform: scale(1.04); }
+		/* NYT-hover: текст бледнеет, фото/бейджи (в .sp-card-media) не трогаем.
+		   Та же интенсивность/скорость, что у .recipe-card в style-v4.css.
+		   .locked (paywall) исключена — её читаемость и так приглушена. */
+		.sp-card-body { transition: opacity .25s ease; }
+		@media (hover: hover) and (pointer: fine) {
+			.sp-card:not(.is-skeleton):not(.locked):hover .sp-card-body { opacity: .55; }
+		}
 		.sp-card-body {
 			display: flex; flex-direction: column; flex: 1;
 			padding: 16px 0 0;

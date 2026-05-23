@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-ui-fixes" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-nyt-hover" id="vcss">
 	<style>
 		/* ──────────────────────────────────────────────────────────────
 		   CABINET — editorial redesign (Account Page Redesign.html)
@@ -802,7 +802,13 @@
 			background: #fff; padding: 4px 8px; font-size: 9px; font-weight: 800;
 			letter-spacing: .16em; text-transform: uppercase; color: var(--text); border: 1px solid var(--text); z-index: 2;
 		}
-		.fav-card-body { padding: 14px 16px 16px; display: flex; flex-direction: column; flex: 1; gap: 6px; }
+		.fav-card-body { padding: 14px 16px 16px; display: flex; flex-direction: column; flex: 1; gap: 6px; transition: opacity .25s ease; }
+		/* NYT-hover: текст бледнеет; фото/закладка/eyebrow (в .fav-card-media) не
+		   трогаем. Skeleton (.is-skeleton) и .locked исключены. Та же
+		   интенсивность/скорость, что у .recipe-card. */
+		@media (hover: hover) and (pointer: fine) {
+			.fav-card:not(.is-skeleton):not(.locked):hover .fav-card-body { opacity: .55; }
+		}
 		.fav-card-title {
 			font-family: var(--serif); font-size: 19px; font-weight: 700;
 			line-height: 1.2; letter-spacing: -.005em; color: var(--text); margin: 0;
