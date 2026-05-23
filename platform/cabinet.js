@@ -310,7 +310,15 @@
 		}
 
 		// ── TABS ──────────────────────────────────────────────────────────────────
+		function updateCompactTabMode(name) {
+			var main = document.querySelector('.cab-main');
+			if (!main) return;
+			main.classList.toggle('is-content-tab',
+				name === 'favorites' || name === 'history' || name === 'notes' || name === 'feedback');
+		}
+
 		function switchTab(name, btn) {
+			updateCompactTabMode(name);
 			document.querySelectorAll('.cab-tab').forEach(b => b.classList.remove('active'));
 			document.querySelectorAll('.cab-tab-panel').forEach(p => p.classList.remove('active'));
 			btn.classList.add('active');
