@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-mobile-drawer" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-mobile-drawer-polish" id="vcss">
 	<style>
 		main {
 			padding-bottom: 80px;
@@ -34,7 +34,7 @@
 		.sp-drawer[hidden] { display: none; }
 		.sp-drawer-back {
 			position: absolute; inset: 0;
-			background: rgba(17,17,17,.4);
+			background: rgba(17,17,17,.54);
 			opacity: 0;
 			transition: opacity .28s cubic-bezier(.2, .8, .2, 1);
 			pointer-events: auto;
@@ -89,7 +89,7 @@
 		.sp-drawer-toggle {
 			width: 100%; padding: 14px 20px; border: 0; border-bottom: 1px solid #f2efe9;
 			background: #fff; display: flex; align-items: center; justify-content: space-between;
-			font-family: var(--serif); font-size: 17px; font-weight: 700;
+			font-family: var(--serif); font-size: 18px; font-weight: 700;
 			color: var(--text); cursor: pointer; text-align: left;
 			transition: background var(--tr), color var(--tr);
 		}
@@ -108,7 +108,13 @@
 		.sp-drawer-content a {
 			padding: 12px 20px 12px 32px; font-family: var(--sans); font-size: 14px; font-weight: 600;
 		}
-		.sp-drawer-content .sp-drawer-subhead { padding: 14px 20px 3px 32px; }
+		.sp-drawer-content .sp-drawer-subhead {
+			display: block; margin: 14px 20px 2px 32px; padding: 12px 0 6px;
+			border-top: 2px solid var(--text);
+			font-size: 11px; font-weight: 800; letter-spacing: .12em;
+			text-transform: uppercase; color: var(--text);
+		}
+		.sp-drawer-content .sp-drawer-subhead:first-child { margin-top: 8px; }
 		/* Заголовки секций (Рецепты / Ингредиенты / Ещё) и подгрупп ингредиентов
 		   (Овощи / Бобовые) внутри drawer — не ссылки, видны сразу. */
 		.sp-drawer-section {
@@ -428,7 +434,7 @@
 			}
 			.sp-hero-favorites {
 				display: inline-flex; position: absolute; top: 0; right: 0;
-				background: var(--accent); border-color: var(--accent); color: #fff;
+				background: #fff; border-color: var(--border); color: var(--accent);
 			}
 			.sp-hero-favorites svg { fill: currentColor; stroke: currentColor; }
 			.sp-hero-eyebrow { padding-right: 54px; }
