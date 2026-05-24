@@ -2520,6 +2520,9 @@ img { display: block; max-width: 100%; }
     gap: 24px;
     min-height: 96px;
     padding: 18px 0 12px;
+    max-width: 1040px;
+    margin-left: auto;
+    margin-right: auto;
 }
 .sp-masthead .sp-burger   { display: none; }
 /* grid-row: 1 обязателен — #user-wrap в DOM идёт после brand/plate, и без
