@@ -2483,13 +2483,7 @@ img { display: block; max-width: 100%; }
 }
 /* Spec §2: на скролле без тени — оставляем только нижнюю границу. */
 .sp-header.scrolled { }
-.sp-header-inner {
-    height: 72px;
-    display: grid;
-    grid-template-columns: 260px minmax(0, 1fr) 140px;
-    align-items: center;
-    gap: 18px;
-}
+
 /* Все страницы: и шапка, и основной контент — одна переменная --page-wrap.
    Правила ниже оставлены для явности; реально base .v-wrap уже задаёт то же.
    sp-home переопределяет (более высокая специфичность) на случай, если
@@ -2497,30 +2491,66 @@ img { display: block; max-width: 100%; }
 .sp-home .v-wrap    { max-width: var(--page-wrap); }
 .sp-header .v-wrap  { max-width: var(--page-wrap); }
 
-.sp-brand {
-    display: inline-flex; align-items: center; gap: 12px;
-    text-decoration: none; color: inherit; flex-shrink: 0;
-    justify-self: start;
+/* ── Ряд 1: тёмная авторская полоса (B4 editorial masthead) ──────────────── */
+.sp-author-strip {
+    background: #161616;
+    height: 34px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
 }
-.sp-brand-ava { display: none; }
-.sp-brand-meta { display: flex; flex-direction: column; line-height: 1; min-width: 0; }
-.sp-brand-eyebrow {
-    font-size: 10px; font-weight: 600;
-    letter-spacing: .08em; text-transform: uppercase;
-    color: var(--text-3); margin-bottom: 5px; white-space: nowrap;
+.sp-author-name {
+    font-family: var(--serif); font-style: italic; font-weight: 700;
+    font-size: 13px; color: #fff; letter-spacing: .01em;
+}
+.sp-author-sep { color: var(--accent); font-weight: 800; }
+.sp-author-role {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
+    color: rgba(255,255,255,.7);
+}
+
+/* ── Ряд 2: masthead — профиль слева, бренд по центру, тарелка справа ─────── */
+.sp-masthead {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 24px;
+    min-height: 96px;
+    padding: 18px 0 12px;
+}
+.sp-masthead .sp-burger   { display: none; }
+/* grid-row: 1 обязателен — #user-wrap в DOM идёт после brand/plate, и без
+   явной строки auto-placement выносит профиль во вторую строку masthead. */
+.sp-masthead .v-user-wrap { grid-column: 1 / 2; grid-row: 1; justify-self: start; }
+.sp-masthead .sp-brand    { grid-column: 2 / 3; grid-row: 1; justify-self: center; }
+.sp-masthead .sp-plate    { grid-column: 3 / 4; grid-row: 1; justify-self: end; }
+
+.sp-brand {
+    display: inline-flex; flex-direction: column; align-items: center; gap: 8px;
+    text-decoration: none; color: inherit;
+}
+.sp-masthead-rule {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+.sp-masthead-line { width: 50px; height: 1px; background: var(--text-3); }
+.sp-masthead-badge {
+    font-size: 9.5px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--text-3); white-space: nowrap;
 }
 .sp-brand-title {
-    font-family: var(--serif);
-    font-size: 22px; font-weight: 700;
-    color: var(--text); line-height: 1; letter-spacing: -.01em;
+    font-family: var(--serif); font-weight: 700;
+    font-size: 40px; line-height: .95; letter-spacing: -.022em;
+    color: var(--text);
 }
 .sp-brand-accent { color: var(--accent); }
 
+/* ── Ряд 3: нижняя desktop-навигация ─────────────────────────────────────── */
+.sp-subnav-row { border-top: 1px solid var(--border); }
+.sp-subnav-row .v-wrap { max-width: var(--page-wrap); }
+
 .sp-nav {
     display: flex; align-items: center;
-    gap: 18px; justify-content: center;
-    min-width: 0;
-    justify-self: stretch; width: 100%;
+    gap: 26px; justify-content: center;
+    min-width: 0; width: 100%;
+    padding: 11px 0;
     /* overflow не hidden: hidden обрезал все ссылки когда 1fr вычислялся узким */
 }
 .sp-nav a {
@@ -2902,18 +2932,40 @@ img { display: block; max-width: 100%; }
 .sp-header .vh-back-btn:hover { border-color: var(--accent); color: var(--accent); }
 .sp-header .vh-back-btn svg { width: 18px; height: 18px; fill: currentColor; }
 
+/* Tablet (768–1023px): masthead остаётся трёхрядным, но ужимаем типографику и
+   отступы — иначе у авторизованного пользователя с длинным именем профиля
+   левая колонка распирает ряд. */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .sp-masthead { gap: 14px; padding: 14px 0 10px; min-height: 84px; }
+    .sp-brand-title { font-size: 34px; }
+    .sp-masthead-line { width: 32px; }
+    .sp-masthead-badge { letter-spacing: .16em; }
+    .sp-nav { gap: 18px; }
+    /* Имя профиля усечётся многоточием и не будет толкать бренд из центра. */
+    .sp-masthead .sp-profile-name { max-width: 84px; }
+}
+
 /* Mobile (≤ 767px) */
 @media (max-width: 767px) {
-    .sp-header-inner {
-        height: 60px;
-        grid-template-columns: 40px 1fr auto;
+    /* Тёмная авторская полоса остаётся видимой, чуть ниже. */
+    .sp-author-strip { height: 30px; gap: 8px; padding: 0 12px; }
+    .sp-author-name { font-size: 11.5px; }
+    .sp-author-role { font-size: 9.5px; letter-spacing: .18em; }
+
+    /* Masthead схлопывается в один компактный ряд:
+       [бургер | бренд | тарелка + профиль]. */
+    .sp-masthead {
+        grid-template-columns: 40px 1fr auto auto;
         gap: 8px;
+        min-height: 0;
+        padding: 8px 0;
     }
     /* Явно прибиваем по колонкам с !important — чтобы пробить любые
        старые правила, кэш или auto-placement, которые могут мешать. */
-    .sp-burger { grid-column: 1 / 2 !important; }
-    .sp-brand  { grid-column: 2 / 3 !important; justify-self: center !important; }
-    .sp-utils  { grid-column: 3 / 4 !important; justify-self: end !important; }
+    .sp-masthead .sp-burger   { grid-column: 1 / 2 !important; grid-row: 1 !important; justify-self: start !important; }
+    .sp-masthead .sp-brand    { grid-column: 2 / 3 !important; grid-row: 1 !important; justify-self: center !important; }
+    .sp-masthead .sp-plate    { grid-column: 3 / 4 !important; grid-row: 1 !important; justify-self: end !important; }
+    .sp-masthead .v-user-wrap { grid-column: 4 / 5 !important; grid-row: 1 !important; justify-self: end !important; }
     /* Бургер — акцентный fill, белая иконка, нельзя пропустить.
        Контрастирует с белыми «карточками» профиля и тарелки. */
     .sp-burger {
@@ -2928,23 +2980,12 @@ img { display: block; max-width: 100%; }
     .sp-burger:hover { background: var(--text); border-color: var(--text); }
     .sp-burger svg { width: 24px; height: 24px; }
     .sp-burger svg line { stroke-width: 2.6; stroke: #fff; }
-    /* На внутренних страницах back-btn заменяет бургер в левом слоте (spec §2).
-       Жёстко прибиваем в строку 1 / колонку 1: фиксированные grid-координаты
-       размещают элемент мимо auto-placement-курсора и сбрасываем order:1 из
-       старой flex-шапки (.vh-back-btn) — иначе кнопку выкидывает в неявный
-       2-й ряд под хедером. */
-    .sp-header .vh-back-btn {
-        display: inline-flex;
-        grid-column: 1 / 2 !important;
-        grid-row: 1 !important;
-        order: 0 !important;
-    }
+    /* Slogan-капитель с линиями и нижний sub-nav скрыты — навигация в drawer. */
+    .sp-masthead-rule { display: none; }
     .sp-brand { gap: 0; min-width: 0; justify-self: center; }
-    .sp-brand-ava { display: none; }
-    .sp-brand-eyebrow { display: none; }
     .sp-brand-title { font-size: 20px; }
+    .sp-subnav-row { display: none; }
     .sp-nav { display: none; }
-    .sp-utils { gap: 8px; width: auto; }
     .sp-plate { width: 40px; height: 40px; }
     /* Видимый круг тарелки = аватар 24px. SVG рендерим 25px из-за инсета viewBox
        (см. комментарий в desktop-блоке .sp-plate .sp-plate-svg). */
@@ -2968,13 +3009,13 @@ img { display: block; max-width: 100%; }
        Акцентный рельс прилегает к аватару, меню раскрывается справа налево. */
     .sp-header .user-dropdown {
         position: fixed;
-        top: 76px;
+        top: 92px;
         right: 16px;
         left: auto;
         width: min(260px, calc(100vw - 48px));
         min-width: 0;
         max-width: calc(100vw - 48px);
-        max-height: calc(100vh - 96px);
+        max-height: calc(100vh - 112px);
         overflow-y: auto;
         border-radius: 0;
         border-right: 4px solid var(--accent);
