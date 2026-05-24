@@ -2998,7 +2998,8 @@ img { display: block; max-width: 100%; }
     transition: background var(--tr);
 }
 .sp-drawer-search-submit:hover,
-.sp-drawer-search-submit:active { background: var(--accent); }
+.sp-drawer-search-submit:active,
+.sp-drawer-search-submit.is-submitting { background: var(--accent); }
 
 /* Back-button (внутренние страницы): тот же класс .vh-back-btn, но переоформлен
    под editorial-стиль внутри .sp-header. */

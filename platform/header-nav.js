@@ -196,15 +196,24 @@
     drawerWired = true;
     // Поиск рецептов в drawer: пустой запрос — no-op, иначе переход на
     // существующий маршрут результатов. Никаких live-results/AJAX.
+    // Короткий feedback (.is-submitting → оранжевая кнопка) ~100ms перед
+    // переходом, чтобы tap был заметен на мобильном. Флаг блокирует двойной submit.
+    var searchSubmitting = false;
     drawer.addEventListener('submit', function (e) {
       var form = e.target.closest('.sp-drawer-search');
       if (!form) return;
       e.preventDefault();
+      if (searchSubmitting) return;
       var input = form.querySelector('.sp-drawer-search-input');
       var q = input ? input.value.trim() : '';
       if (!q) return;
-      if (typeof global.closeDrawer === 'function') global.closeDrawer();
-      global.location.href = 'category.html?q=' + encodeURIComponent(q);
+      searchSubmitting = true;
+      var submit = form.querySelector('.sp-drawer-search-submit');
+      if (submit) submit.classList.add('is-submitting');
+      setTimeout(function () {
+        if (typeof global.closeDrawer === 'function') global.closeDrawer();
+        global.location.href = 'category.html?q=' + encodeURIComponent(q);
+      }, 100);
     });
     drawer.addEventListener('click', function (e) {
       var toggle = e.target.closest('.sp-drawer-toggle');
