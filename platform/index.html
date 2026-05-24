@@ -134,23 +134,30 @@
 		/* Поиск рецептов в drawer — NYT-clean; submit ведёт на category.html?q=...
 		   (header-nav.js). Отдельные классы, не конфликтуют с #hero-search. */
 		.sp-drawer-search {
+			position: relative;
 			display: flex; align-items: stretch;
 			margin: 12px 20px 10px; border: 1px solid var(--border); background: #fff;
 		}
 		.sp-drawer-search:focus-within { border-color: var(--accent); }
+		.sp-drawer-search-icon {
+			position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+			width: 17px; height: 17px; color: var(--text-3); pointer-events: none;
+		}
 		.sp-drawer-search-input {
 			flex: 1 1 auto; min-width: 0; border: 0; background: none;
-			padding: 11px 14px; font-family: var(--sans); font-size: 15px; color: var(--text);
+			padding: 11px 52px 11px 40px; font-family: var(--sans); font-size: 15px; color: var(--text);
 		}
 		.sp-drawer-search-input::placeholder { color: var(--text-3); }
 		.sp-drawer-search-input:focus { outline: none; }
 		.sp-drawer-search-submit {
-			flex: 0 0 auto; width: 44px; border: 0; border-left: 1px solid var(--border);
-			background: #fff; color: var(--text); font-size: 18px; line-height: 1; cursor: pointer;
+			position: absolute; top: 50%; right: 6px; transform: translateY(-50%);
+			width: 36px; height: 36px; border: 0;
+			background: var(--text); color: #fff; font-size: 18px; line-height: 1; cursor: pointer;
 			display: flex; align-items: center; justify-content: center;
-			transition: color var(--tr);
+			transition: background var(--tr);
 		}
-		.sp-drawer-search-submit:hover { color: var(--accent); }
+		.sp-drawer-search-submit:hover,
+		.sp-drawer-search-submit:active { background: var(--accent); }
 		/* Active: вертикальная оранжевая полоска слева (mobile-drawer паттерн,
 		   перекликается с accent-рельсом в user-dropdown). */
 		.sp-drawer-nav a.active { color: var(--accent); }
