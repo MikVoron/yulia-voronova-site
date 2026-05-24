@@ -2494,17 +2494,22 @@ img { display: block; max-width: 100%; }
 /* ── Ряд 1: тёмная авторская полоса (B4 editorial masthead) ──────────────── */
 .sp-author-strip {
     background: #161616;
-    height: 34px;
+    color: #fff;
+    height: 38px;
     display: flex; align-items: center; justify-content: center; gap: 12px;
 }
 .sp-author-name {
-    font-family: var(--serif); font-style: italic; font-weight: 700;
-    font-size: 13px; color: #fff; letter-spacing: .01em;
+    font-family: var(--sans); font-size: 11.5px; font-weight: 700;
+    letter-spacing: .22em; text-transform: uppercase; color: #fff;
 }
-.sp-author-sep { color: var(--accent); font-weight: 800; }
+.sp-author-sep {
+    font-family: var(--sans); font-size: 12px; line-height: 1;
+    color: var(--accent); font-weight: 800;
+}
 .sp-author-role {
-    font-size: 10.5px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
-    color: rgba(255,255,255,.7);
+    font-family: var(--sans); font-size: 11.5px; font-weight: 500;
+    letter-spacing: .22em; text-transform: uppercase;
+    color: rgba(255,255,255,.6);
 }
 
 /* ── Ряд 2: masthead — профиль слева, бренд по центру, тарелка справа ─────── */
@@ -2949,8 +2954,8 @@ img { display: block; max-width: 100%; }
 @media (max-width: 767px) {
     /* Тёмная авторская полоса остаётся видимой, чуть ниже. */
     .sp-author-strip { height: 30px; gap: 8px; padding: 0 12px; }
-    .sp-author-name { font-size: 11.5px; }
-    .sp-author-role { font-size: 9.5px; letter-spacing: .18em; }
+    .sp-author-name,
+    .sp-author-role { font-size: 10px; letter-spacing: .18em; }
 
     /* Masthead схлопывается в один компактный ряд:
        [бургер | бренд | тарелка + профиль]. */
