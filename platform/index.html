@@ -86,19 +86,19 @@
 			font-family: var(--serif);
 			font-size: 17px; font-weight: 700;
 			color: var(--text); text-decoration: none;
-			border-bottom: 1px solid #f2efe9;
-			transition: background var(--tr), color var(--tr);
+			border-bottom: 1px solid var(--border);
+			transition: color var(--tr);
 		}
-		.sp-drawer-nav a:hover { background: var(--bg-alt); color: var(--accent); }
+		.sp-drawer-nav a:hover { color: var(--accent); }
 		.sp-drawer-toggle {
-			width: 100%; padding: 14px 20px; border: 0; border-bottom: 1px solid #f2efe9;
+			width: 100%; padding: 14px 20px; border: 0; border-bottom: 1px solid var(--border);
 			background: #fff; display: flex; align-items: center; justify-content: space-between;
 			font-family: var(--serif); font-size: 18px; font-weight: 700;
 			color: var(--text); cursor: pointer; text-align: left;
-			transition: background var(--tr), color var(--tr);
+			transition: color var(--tr);
 		}
 		.sp-drawer-toggle:hover,
-		.sp-drawer-toggle[aria-expanded="true"] { background: var(--bg-alt); color: var(--accent); }
+		.sp-drawer-toggle[aria-expanded="true"] { color: var(--accent); }
 		.sp-drawer-plus { position: relative; width: 14px; height: 14px; flex: 0 0 auto; }
 		.sp-drawer-plus::before,
 		.sp-drawer-plus::after {
@@ -107,14 +107,14 @@
 		}
 		.sp-drawer-plus::after { transform: rotate(90deg); }
 		.sp-drawer-toggle[aria-expanded="true"] .sp-drawer-plus::after { transform: rotate(0); }
-		.sp-drawer-content { display: flex; flex-direction: column; background: #faf8f5; }
+		.sp-drawer-content { display: flex; flex-direction: column; background: #fff; }
 		.sp-drawer-content[hidden] { display: none; }
 		.sp-drawer-content a {
 			padding: 12px 20px 12px 32px; font-family: var(--sans); font-size: 14px; font-weight: 600;
 		}
 		.sp-drawer-content .sp-drawer-subhead {
 			display: block; margin: 14px 20px 2px 32px; padding: 12px 0 6px;
-			border-top: 2px solid var(--text);
+			border-top: 1px solid var(--border);
 			font-size: 11px; font-weight: 800; letter-spacing: .12em;
 			text-transform: uppercase; color: var(--text);
 		}
@@ -129,8 +129,28 @@
 		.sp-drawer-subhead {
 			padding: 12px 20px 2px;
 			font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
-			color: var(--accent);
+			color: var(--text);
 		}
+		/* Поиск рецептов в drawer — NYT-clean; submit ведёт на category.html?q=...
+		   (header-nav.js). Отдельные классы, не конфликтуют с #hero-search. */
+		.sp-drawer-search {
+			display: flex; align-items: stretch;
+			margin: 12px 20px 10px; border: 1px solid var(--border); background: #fff;
+		}
+		.sp-drawer-search:focus-within { border-color: var(--accent); }
+		.sp-drawer-search-input {
+			flex: 1 1 auto; min-width: 0; border: 0; background: none;
+			padding: 11px 14px; font-family: var(--sans); font-size: 15px; color: var(--text);
+		}
+		.sp-drawer-search-input::placeholder { color: var(--text-3); }
+		.sp-drawer-search-input:focus { outline: none; }
+		.sp-drawer-search-submit {
+			flex: 0 0 auto; width: 44px; border: 0; border-left: 1px solid var(--border);
+			background: #fff; color: var(--text); font-size: 18px; line-height: 1; cursor: pointer;
+			display: flex; align-items: center; justify-content: center;
+			transition: color var(--tr);
+		}
+		.sp-drawer-search-submit:hover { color: var(--accent); }
 		/* Active: вертикальная оранжевая полоска слева (mobile-drawer паттерн,
 		   перекликается с accent-рельсом в user-dropdown). */
 		.sp-drawer-nav a.active { color: var(--accent); }

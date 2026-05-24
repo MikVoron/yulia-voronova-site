@@ -126,7 +126,16 @@
       return '<span class="sp-drawer-subhead">' + esc(g.name) + '</span>' + items;
     }).join('');
 
+    // Простой поиск рецептов: submit ведёт на существующий маршрут
+    // category.html?q=... (страница results уже обрабатывает q). Без live-выдачи.
+    var searchForm =
+      '<form class="sp-drawer-search" role="search">' +
+        '<input class="sp-drawer-search-input" type="search" placeholder="Найти рецепт" autocomplete="off" aria-label="Найти рецепт">' +
+        '<button class="sp-drawer-search-submit" type="submit" aria-label="Искать">→</button>' +
+      '</form>';
+
     return '' +
+      searchForm +
       '<a class="' + (opts.activeNav === 'home' ? 'active' : '') + '" data-nav="home" href="' + HOME_URL + '">Главная</a>' +
       '<a class="' + (recipesActive ? 'active' : '') + '" data-nav="recipes" href="' + ALL_RECIPES_URL + '">Все рецепты</a>' +
       '<div class="sp-drawer-accordion">' +
@@ -184,6 +193,18 @@
   function wireDrawer(drawer) {
     if (drawerWired || !drawer) return;
     drawerWired = true;
+    // Поиск рецептов в drawer: пустой запрос — no-op, иначе переход на
+    // существующий маршрут результатов. Никаких live-results/AJAX.
+    drawer.addEventListener('submit', function (e) {
+      var form = e.target.closest('.sp-drawer-search');
+      if (!form) return;
+      e.preventDefault();
+      var input = form.querySelector('.sp-drawer-search-input');
+      var q = input ? input.value.trim() : '';
+      if (!q) return;
+      if (typeof global.closeDrawer === 'function') global.closeDrawer();
+      global.location.href = 'category.html?q=' + encodeURIComponent(q);
+    });
     drawer.addEventListener('click', function (e) {
       var toggle = e.target.closest('.sp-drawer-toggle');
       if (!toggle) return;
