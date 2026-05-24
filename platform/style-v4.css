@@ -159,6 +159,27 @@ img { display: block; max-width: 100%; }
 .user-dd-logout { color: #c0392b; }
 .user-dd-logout .user-dd-icon { color: #c0392b; }
 
+/* Desktop-меню личного кабинета — NYT-clean, в один стиль с nav-панелями.
+   Только desktop (≥768px); мобильное меню профиля (@media ≤767px) не трогаем:
+   позиция, slide/clip-path, рельс у аватара и JS-поведение остаются как есть. */
+@media (min-width: 768px) {
+    .user-dropdown {
+        min-width: 220px;
+        box-shadow: 0 6px 22px rgba(26,44,61,.08);
+    }
+    .user-dropdown .user-dd-item {
+        padding: 11px 20px;
+        /* Сохраняем reveal-анимацию пунктов (opacity/transform) + добавляем color. */
+        transition: opacity .2s ease, transform .2s ease, color var(--tr);
+    }
+    /* Hover — только смена цвета текста на акцент, без цветной подложки. */
+    .user-dropdown .user-dd-item:hover { background: none; color: var(--accent); }
+    .user-dropdown .user-dd-sep { background: var(--border); margin: 6px 0; }
+    /* «Выйти» сохраняет отличимое красное состояние; hover не уводим в accent. */
+    .user-dropdown .user-dd-logout:hover { background: none; color: #a93226; }
+    .user-dropdown .user-dd-logout:hover .user-dd-icon { color: #a93226; }
+}
+
 /* Farewell overlay — editorial card (Logout Modal V1) */
 .farewell-overlay {
     position: fixed; inset: 0;
@@ -2676,8 +2697,8 @@ img { display: block; max-width: 100%; }
     position: absolute; top: calc(100% + 10px); left: 50%;
     transform: translateX(-50%) translateY(-6px);
     background: #fff; border: 1px solid var(--border);
-    box-shadow: 0 14px 40px rgba(26,44,61,.13);
-    padding: 18px 20px; z-index: 200;
+    box-shadow: 0 6px 22px rgba(26,44,61,.08);
+    padding: 24px 28px; z-index: 200;
     opacity: 0; visibility: hidden; pointer-events: none;
     transition: opacity .18s ease, transform .2s cubic-bezier(.2,.8,.2,1);
     max-width: calc(100vw - 32px);
@@ -2715,27 +2736,52 @@ img { display: block; max-width: 100%; }
     transition: background var(--tr), color var(--tr);
 }
 .sp-nav-panel a::after { display: none; }
-.sp-nav-panel a:hover { background: var(--bg-alt); color: var(--accent); }
+.sp-nav-panel a:hover { color: var(--accent); }
 
-/* «Все рецепты» — выделенная строка над сеткой категорий */
+/* «Все рецепты» — editorial-строка над сеткой категорий: тёмный текст,
+   uppercase, короткая оранжевая линия снизу как небольшой акцент (вместо
+   полноширинной разделительной границы). */
 .sp-nav-panel-all {
+    position: relative;
+    color: var(--text) !important;
     font-weight: 700 !important;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 6px; padding-bottom: 9px !important;
+    text-transform: uppercase; letter-spacing: .07em; font-size: 12px !important;
+    margin-bottom: 12px; padding-bottom: 11px !important;
+}
+/* Специфичность ≥ .sp-nav-panel a::after (которое глушит underline ссылок),
+   иначе короткая линия будет скрыта (display:none). */
+.sp-nav-panel a.sp-nav-panel-all::after {
+    display: block; content: '';
+    position: absolute; left: 10px; bottom: 0;
+    width: 26px; height: 2px; background: var(--accent);
 }
 
-/* Рецепты: категории в 2 колонки */
-.sp-nav-cols { display: grid; grid-template-columns: repeat(2, minmax(140px, 1fr)); gap: 0 14px; }
+/* Рецепты: категории в 2 колонки, на широком desktop — больше колонок (до 4). */
+.sp-nav-cols { display: grid; grid-template-columns: repeat(2, minmax(150px, 1fr)); gap: 2px 32px; }
+@media (min-width: 1280px) {
+    .sp-nav-panel--recipes .sp-nav-cols { grid-template-columns: repeat(3, minmax(150px, 1fr)); }
+}
+@media (min-width: 1440px) {
+    .sp-nav-panel--recipes .sp-nav-cols { grid-template-columns: repeat(4, minmax(150px, 1fr)); }
+}
 
-/* Ингредиенты: группы по колонкам */
-.sp-nav-groups { display: flex; gap: 26px; align-items: flex-start; }
+/* Ингредиенты: 5 групп в одну строку, больше воздуха между колонками.
+   На узком desktop/tablet (≤1180px) 5×min-width + gap + padding не помещаются
+   в viewport — разрешаем перенос и сжимаем gap/колонки, чтобы панель (max-width
+   calc(100vw-32px)) не выходила за экран на 768/1024px. На ≥1280px — одна строка. */
+.sp-nav-groups { display: flex; gap: 36px; align-items: flex-start; }
 .sp-nav-group { min-width: 130px; }
-/* Заголовки групп ингредиентов — акцентные (var(--accent)), чтобы визуально
-   отделяться от нейтральных ссылок ингредиентов. Сами ссылки не трогаем. */
+@media (min-width: 768px) and (max-width: 1180px) {
+    .sp-nav-groups { flex-wrap: wrap; gap: 16px 24px; }
+    .sp-nav-group { min-width: 120px; }
+}
+/* Заголовки групп ингредиентов — тёмный editorial-текст (var(--text)),
+   uppercase, без декоративной плашки (убраны акцентный цвет и нижняя граница).
+   Сами ссылки не трогаем. */
 .sp-nav-group-title {
     display: block; padding: 4px 10px 8px;
-    font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--accent); border-bottom: 1px solid var(--border); margin-bottom: 7px;
+    font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--text); margin-bottom: 7px;
 }
 
 .sp-utils { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; justify-self: end; width: 140px; justify-content: flex-end; }
