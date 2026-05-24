@@ -287,13 +287,26 @@
 			letter-spacing: .08em; text-transform: uppercase;
 			color: var(--text-3);
 			transition: opacity .25s ease;
-			/* Резерв под 1 строку caption — иначе при появлении текста
-			   hero становится на ~18px выше, и левая колонка/поиск дёргаются. */
-			line-height: 17px; min-height: 17px;
+			/* Резерв под 2 строки caption (ярлык + название) — иначе при появлении
+			   текста hero подрастает и левая колонка/поиск дёргаются. */
+			line-height: 17px; min-height: 44px;
 		}
-		/* Префикс-ярлык в подписи hero («Сезонный рецепт») — акцентом, чтобы
-		   связать крупное фото с рубрикой, не вешая плашку на само изображение. */
-		.sp-hero-caption .sp-cap-tag { color: var(--accent); }
+		/* На узких ширинах длинное название переносится на 2 строки — увеличиваем
+		   резерв высоты, чтобы hero не прыгал после loading-state. */
+		@media (max-width: 1023px) {
+			.sp-hero-caption { min-height: 68px; }
+		}
+		/* Префикс-ярлык в подписи hero («Сезонный рецепт») — отдельной строкой,
+		   акцентом, чтобы связать крупное фото с рубрикой, не вешая плашку. */
+		.sp-hero-caption .sp-cap-tag { display: block; color: var(--accent); }
+		/* Название сезонного рецепта — отдельная строка, serif, тёмное, обычный
+		   регистр (сброс uppercase родителя), как небольшой editorial-заголовок. */
+		.sp-hero-caption .sp-cap-title {
+			display: block; margin-top: 3px;
+			font-family: var(--serif); color: var(--text);
+			text-transform: none; letter-spacing: normal;
+			font-weight: 600; font-size: 18px; line-height: 1.25;
+		}
 		@media (hover: hover) and (pointer: fine) {
 			.sp-hero-aside:not(.is-loading):not(.locked):hover .sp-hero-caption { opacity: .55; }
 		}
@@ -2579,7 +2592,8 @@
 			media.innerHTML = _photo
 				? '<img src="' + escHtml(_photo) + '" alt="' + _name + '" loading="eager" fetchpriority="high" onerror="imgFallback(this,\'' + _emoji + '\')">'
 				: '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:72px">' + _emoji + '</div>';
-			cap.innerHTML = '<span class="sp-cap-tag">' + escHtml(label) + '</span> — ' + escHtml(String(r.name || ''));
+			cap.innerHTML = '<span class="sp-cap-tag">' + escHtml(label) + '</span>'
+				+ '<span class="sp-cap-title">' + escHtml(String(r.name || '')) + '</span>';
 			aside.classList.remove('is-loading');
 
 			const locked = (typeof Auth !== 'undefined' && typeof Auth.canViewRecipe === 'function')
