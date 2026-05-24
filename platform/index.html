@@ -219,6 +219,13 @@
 			position: relative;
 			z-index: 20;
 		}
+		/* Desktop (≥1024px): умеренно уплотняем вертикальный ритм главной — hero
+		   ближе к нижней навигации. Композиция, размеры заголовка/картинки и вид
+		   hero-search не меняются; планшет и mobile (≤767px) не затрагиваются.
+		   Парный override для .sp-new-block — ниже его базового правила. */
+		@media (min-width: 1024px) {
+			.sp-hero { padding: 20px 0 40px; }
+		}
 		.sp-hero-text { min-width: 0; position: relative; }
 		.sp-hero-favorites {
 			display: none;
@@ -838,6 +845,11 @@
 		   Правая — лента новостей (date / title / desc / divider).
 		   На мобиле — single column. */
 		.sp-new-block { margin-top: 36px; }
+		/* Desktop (≥1024px): «Новое» ближе к hero (−16px). Ниже базового правила,
+		   чтобы override применялся при равной специфичности. */
+		@media (min-width: 1024px) {
+			.sp-new-block { margin-top: 20px; }
+		}
 		.sp-new-grid {
 			display: grid;
 			grid-template-columns: 1.55fr 1fr;
