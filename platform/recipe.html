@@ -737,12 +737,33 @@
 
 		/* JULIA TIP: editorial quote.
 		   Scoped to .recipe-main so sublist tips keep the original bubble. */
+		.recipe-main .julia-tip { align-items: stretch; }
 		.recipe-main .julia-tip-bubble {
 			background: var(--bg-alt) !important; border-radius: 0 !important;
 			border-left: 3px solid var(--accent); box-shadow: none !important;
-			padding: 24px 24px 18px !important;
+			padding: 16px 24px 18px !important;
 		}
 		.recipe-main .julia-tip-bubble::before { display: none !important; }
+		.recipe-main .julia-tip-byline {
+			display: flex; align-items: center; gap: 10px;
+			margin-bottom: 12px;
+		}
+		.recipe-main .julia-tip-ava {
+			width: 38px; height: 38px; margin: 0;
+			border: 1px solid var(--border); box-shadow: none;
+		}
+		.recipe-main .julia-tip-author {
+			display: flex; flex-direction: column; gap: 2px;
+			font-family: var(--sans); text-align: left;
+		}
+		.recipe-main .julia-tip-author-name {
+			font-size: 11px; line-height: 1.2; font-weight: 700;
+			letter-spacing: .1em; text-transform: uppercase; color: var(--text);
+		}
+		.recipe-main .julia-tip-author-role {
+			font-size: 10px; line-height: 1.2; font-weight: 500;
+			letter-spacing: .08em; text-transform: uppercase; color: var(--text-3);
+		}
 		.recipe-main .julia-tip-text {
 			font-family: var(--serif) !important; font-size: 16px !important;
 			font-style: italic !important; text-align: left !important;
@@ -2428,8 +2449,14 @@
                         </span>
                     </div>
                     ${r.quote ? `<div class="julia-tip" style="margin-top:0;margin-bottom:18px">
-                        <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
                         <div class="julia-tip-bubble">
+                            <div class="julia-tip-byline">
+                                <img src="https://voronova.online/images/YV-small.webp" alt="Юлия Воронова" class="julia-tip-ava" onerror="this.style.display='none'">
+                                <div class="julia-tip-author">
+                                    <span class="julia-tip-author-name">Юлия Воронова</span>
+                                    <span class="julia-tip-author-role">Нутрициолог</span>
+                                </div>
+                            </div>
                             <div class="julia-tip-text">«${escHtml(r.quote)}»</div>
                         </div>
                     </div>` : ''}
