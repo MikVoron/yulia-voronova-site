@@ -304,28 +304,47 @@
 		.bal-mini-status.success .bal-mini-progress { color: inherit; }
 
 		.bal-mini-sound-btn {
-			width: 28px;
-			height: 28px;
+			width: 30px;
+			height: 30px;
 			border-radius: 0;
-			border: 1px solid var(--border);
-			background: #fff;
+			border: 0;
+			border-left: 1px solid var(--border);
+			background: transparent;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			cursor: pointer;
-			font-size: 13px;
+			color: var(--text-3);
 			padding: 0;
 			flex-shrink: 0;
-			transition: background-color .2s, border-color .2s;
+			transition: background-color .2s, color .2s, border-color .2s;
 		}
 
 		.bal-mini-sound-btn:hover {
-			border-color: var(--accent);
+			background: var(--bg-alt);
+			color: var(--text);
+		}
+
+		.bal-mini-sound-btn:focus-visible {
+			outline: 2px solid var(--accent);
+			outline-offset: -2px;
 		}
 
 		.bal-mini-sound-btn.on {
 			background: var(--accent-l);
-			border-color: var(--accent);
+			border-left-color: var(--accent);
+			color: var(--accent);
+		}
+
+		.bal-sound-icon {
+			width: 17px;
+			height: 17px;
+			display: block;
+			fill: none;
+			stroke: currentColor;
+			stroke-width: 1.7;
+			stroke-linecap: round;
+			stroke-linejoin: round;
 		}
 
 		/* ── Collapsed add-on groups (show-more) ────────── */
@@ -337,21 +356,44 @@
 			display: inline-flex;
 			align-items: center;
 			gap: 6px;
-			padding: 6px 12px;
-			background: rgba(255, 255, 255, .85);
-			border: 1px solid var(--border);
-			border-radius: 999px;
-			font-size: 12px;
-			font-weight: 600;
-			color: var(--text-2);
+			min-height: 32px;
+			padding: 7px 12px;
+			background: #fff;
+			border: 1px solid var(--text-3);
+			border-radius: 0;
+			font-size: 10px;
+			font-weight: 700;
+			letter-spacing: .1em;
+			text-transform: uppercase;
+			color: var(--text);
 			cursor: pointer;
 			transition: background .15s, border-color .15s, color .15s;
 		}
 
-		.bal-group-toggle:hover {
-			background: #fff;
+		.bal-group-toggle:hover,
+		.bal-group-toggle:focus-visible {
+			background: var(--accent-l);
 			border-color: var(--accent);
 			color: var(--accent);
+		}
+
+		.bal-group-toggle:focus-visible {
+			outline: 2px solid var(--accent);
+			outline-offset: 2px;
+		}
+
+		.bal-group-toggle-caret {
+			width: 7px;
+			height: 7px;
+			margin-left: 3px;
+			border-right: 1.5px solid currentColor;
+			border-bottom: 1.5px solid currentColor;
+			transform: rotate(45deg) translateY(-2px);
+			transition: transform .15s ease;
+		}
+
+		.bal-group-toggle.is-expanded .bal-group-toggle-caret {
+			transform: rotate(225deg) translateY(-2px);
 		}
 
 		.bal-group-toggle-dot {
@@ -947,7 +989,7 @@
 		<span class="bal-mini-progress" id="bal-mini-progress">0 / 0</span>
 		<span class="bal-mini-label" id="bal-mini-label">Не сбалансировано</span>
 		<button type="button" class="bal-mini-sound-btn" id="bal-mini-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений">
-			<span id="bal-mini-sound-icon">🔕</span>
+			<span id="bal-mini-sound-icon"><svg class="bal-sound-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 10a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 22h4"></path><path d="M4 4l16 16"></path></svg></span>
 		</button>
 	</div>
 
@@ -2211,7 +2253,7 @@
 			const sidebarHtml = hasAdditions ? `
             <div class="bal-sidebar anim anim-d2" id="bal-sidebar" data-wizard-step="0">
                 <div id="bal-banner" class="bal-banner bal-banner-warn">
-                    <button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">🔕</span></button>
+                    <button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">${balanceSoundIconMarkup(_soundEnabled)}</span></button>
                     <div class="bal-banner-label">Баланс блюда</div>
                     <div class="bal-banner-title">Сделайте приём пищи полноценным</div>
                     <div class="bal-banner-sub">Добавьте недостающие группы — КБЖУ пересчитается автоматически.</div>
@@ -2532,9 +2574,10 @@
 			const openCls = _accordionOpen[prefix] ? ' open' : '';
 			const toggleHtml = shouldCollapse
 				? `<div class="bal-group-toggle-wrap">
-                    <button type="button" class="bal-group-toggle" onclick="event.stopPropagation();toggleGroupExpand('${prefix}')">
+                    <button type="button" class="bal-group-toggle${expanded ? ' is-expanded' : ''}" onclick="event.stopPropagation();toggleGroupExpand('${prefix}')">
                         ${expanded ? 'Свернуть' : 'Показать ещё ' + (items.length - GROUP_COLLAPSE_LIMIT)}
                         ${(!expanded && _hasHiddenSelected(prefix, items)) ? '<span class="bal-group-toggle-dot" title="В скрытой части есть выбранное"></span>' : ''}
+                        <span class="bal-group-toggle-caret" aria-hidden="true"></span>
                     </button>
                 </div>`
 				: '';
@@ -2766,7 +2809,7 @@
 			// Update banner
 			const banner = document.getElementById('bal-banner');
 			if (banner) {
-				const soundBtnHtml = `<button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">🔕</span></button>`;
+				const soundBtnHtml = `<button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">${balanceSoundIconMarkup(_soundEnabled)}</span></button>`;
 				if (allDone) {
 					banner.className = 'bal-banner bal-banner-success';
 					banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-label">Баланс блюда</div><div class="bal-banner-title">Блюдо сбалансировано</div><div class="bal-banner-sub">Добавьте его в тарелку — это полноценный приём пищи.</div>`;
@@ -2844,16 +2887,28 @@
 			const miniIcon = document.getElementById('bal-mini-sound-icon');
 			const bannerBtn = document.getElementById('bal-banner-sound-btn');
 			const bannerIcon = document.getElementById('bal-banner-sound-icon');
+			const iconMarkup = balanceSoundIconMarkup(on);
 			if (miniBtn) {
 				miniBtn.classList.toggle('on', on);
 				miniBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+				miniBtn.setAttribute('aria-label', on ? 'Звук включён. Выключить' : 'Звук выключен. Включить');
+				miniBtn.title = on ? 'Звук включён' : 'Звук выключен';
 			}
-			if (miniIcon) miniIcon.textContent = on ? '🔔' : '🔕';
+			if (miniIcon) miniIcon.innerHTML = iconMarkup;
 			if (bannerBtn) {
 				bannerBtn.classList.toggle('on', on);
 				bannerBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+				bannerBtn.setAttribute('aria-label', on ? 'Звук включён. Выключить' : 'Звук выключен. Включить');
+				bannerBtn.title = on ? 'Звук включён' : 'Звук выключен';
 			}
-			if (bannerIcon) bannerIcon.textContent = on ? '🔔' : '🔕';
+			if (bannerIcon) bannerIcon.innerHTML = iconMarkup;
+		}
+
+		function balanceSoundIconMarkup(on) {
+			const slash = on ? '' : '<path d="M4 4l16 16"></path>';
+			return '<svg class="bal-sound-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+				'<path d="M18 10a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>' +
+				'<path d="M10 22h4"></path>' + slash + '</svg>';
 		}
 
 		// Unlocks BOTH the MP3 element and a WebAudio context inside a user gesture.
