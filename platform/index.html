@@ -480,6 +480,12 @@
 		/* ── MOBILE (≤ 767px) ──────────────────────────────────────── */
 		/* Mobile overrides — header-часть теперь в style-v4.css; здесь только hero/cat. */
 		@media (max-width: 767px) {
+			/* Suppress the iOS horizontal rubber-band drag on the homepage only. */
+			html,
+			body.sp-home {
+				overscroll-behavior-x: none;
+			}
+
 			.sp-hero {
 				grid-template-columns: 1fr;
 				gap: 20px; padding: 24px 0 36px;

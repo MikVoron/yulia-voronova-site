@@ -364,8 +364,21 @@
 		}
 
 		@media (max-width: 767px) {
+			:root {
+				--recipe-mobile-header-height: 87px;
+			}
+			body.v-page {
+				padding-top: var(--recipe-mobile-header-height);
+			}
+			.sp-header {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				width: 100%;
+			}
 			.bal-mini-status {
-				top: 66px;
+				top: calc(var(--recipe-mobile-header-height) + 8px);
 				font-size: 12.5px;
 				padding: 6px 8px 6px 12px;
 			}
@@ -3061,6 +3074,11 @@
 			const banner = document.getElementById('bal-banner');
 			if (!mini || !banner || !_balRequired.length) {
 				if (mini) mini.classList.remove('show');
+				return;
+			}
+			// On mobile this status is persistent: it must stay reachable while reading/cooking.
+			if (window.matchMedia && window.matchMedia('(max-width: 767px)').matches) {
+				mini.classList.add('show');
 				return;
 			}
 			if (!('IntersectionObserver' in window)) {
