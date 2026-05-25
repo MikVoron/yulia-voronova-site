@@ -54,6 +54,7 @@
     { id: 'green-lentils', name: 'Зелёная чечевица',  group: 'legumes' },
     { id: 'red-lentils',   name: 'Красная чечевица',  group: 'legumes' },
     { id: 'mung-beans',    name: 'Маш',               group: 'legumes' },
+    { id: 'tofu',          name: 'Тофу',              group: 'legumes' },
     // Крупы и паста
     { id: 'buckwheat',   name: 'Гречка', group: 'grains' },
     { id: 'rice',        name: 'Рис',    group: 'grains' },
