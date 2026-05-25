@@ -751,7 +751,7 @@ function _mapRecipe(r) {
     const accessLevel = r.access_level || (r.is_free ? 'free' : 'pro');
     return {
         id: r.id, cat: r.cat, categories: r.categories || (r.cat ? [r.cat] : []), name: r.name, emoji: r.emoji || '🍴',
-        time: r.time_min || 30, timeLabel: r.time_label || null, diff: r.difficulty || 'easy', servings: r.servings || 4, portionGrams: r.portion_grams || 300,
+        time: r.time_min || 30, timeLabel: r.time_label || null, diff: r.difficulty || 'easy', servings: r.servings || 4, portionGrams: r.portion_grams == null ? null : Number(r.portion_grams),
         accessLevel,
         free: accessLevel === 'free',
         isSeasonal: r.is_seasonal === true,
