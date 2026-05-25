@@ -90,7 +90,7 @@ AI **ничего не просит в формате JSON**: парсит вс�
 | `portion_grams` | int \| null | Грамм в одной порции. |
 | `is_free` | bool | `true` = триал, `false` = Pro. По умолчанию `false`, если пользователь не сказал. |
 | `kcal`, `protein`, `fat`, `carbs`, `fiber` | int \| null | КБЖУ на порцию. Только явные цифры. |
-| `tags` | string[] | PostgreSQL `TEXT[]`, напр. `ARRAY['без глютена', 'растительное']`. |
+| `tags` | string[] | PostgreSQL `TEXT[]`, напр. `ARRAY['без глютена', 'растительное']`. Канонический тег для растительных рецептов: `растительное`; не использовать `растительный`. В интерфейсе кнопка фильтра подписана `Растительные`. |
 | `photo` | string | Cover: `images/recipes/{slug}/{slug}-cover.webp` или `-final.webp` (если cover == final). |
 | `quote` | string \| null | Цитата автора в полном виде. Не сокращать. |
 | `note` | string \| null | Заметка/совет. |

@@ -667,7 +667,7 @@
         }
         if (filters.difficulty) list = list.filter(d => d.diff === filters.difficulty);
         if (filters.gluten)  list = list.filter(d => (d.tags||[]).includes('без глютена'));
-        if (filters.plant)   list = list.filter(d => (d.tags||[]).includes('растительный'));
+        if (filters.plant)   list = list.filter(d => (d.tags||[]).includes('растительное'));
         if (filters.fish)    list = list.filter(d => (d.tags||[]).includes('рыбное'));
         if (filters.noSoy)   list = list.filter(d => (d.tags||[]).includes('без сои'));
         if (filters.legumes) list = list.filter(d => (d.tags||[]).includes('бобовые'));

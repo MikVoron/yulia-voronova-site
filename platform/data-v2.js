@@ -856,7 +856,7 @@ function getCategoryDishes(catId, filters = {}) {
     }
     if (filters.difficulty) dishes = dishes.filter(d => d.diff === filters.difficulty);
     if (filters.gluten)  dishes = dishes.filter(d => (d.tags||[]).includes('без глютена'));
-    if (filters.plant)   dishes = dishes.filter(d => (d.tags||[]).includes('растительный'));
+    if (filters.plant)   dishes = dishes.filter(d => (d.tags||[]).includes('растительное'));
     if (filters.fish)    dishes = dishes.filter(d => (d.tags||[]).includes('рыбное'));
     if (filters.noSoy)   dishes = dishes.filter(d => (d.tags||[]).includes('без сои'));
     if (filters.legumes) dishes = dishes.filter(d => (d.tags||[]).includes('бобовые'));

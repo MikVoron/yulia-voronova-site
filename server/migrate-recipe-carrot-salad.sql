@@ -14,7 +14,7 @@ INSERT INTO recipes (
   '🥗',
   10, '10–15 минут', 'easy', 2, false,
   195, 7, 4, 21, 6, 250,
-  ARRAY['растительный', 'без сои', 'без глютена'],
+  ARRAY['растительное', 'без сои', 'без глютена'],
   'images/recipes/carrot-cucumber-pepper-salad/carrot-cucumber-pepper-salad-cover.webp',
   'Чтобы салат был свежим и ароматным, аккуратно смешивайте овощи с соусом непосредственно перед подачей.',
   '[
