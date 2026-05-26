@@ -574,24 +574,24 @@
 		.recipe-crumbs {
 			display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
 			margin: 0 0 16px;
-			font-family: var(--font); font-size: 12px; font-weight: 600;
-			letter-spacing: .04em;
+			font-family: var(--font); font-size: 11px; font-weight: 500;
+			letter-spacing: 0;
 		}
 		.recipe-crumbs a,
 		.recipe-crumbs button {
-			color: var(--text-2); background: none; border: none; padding: 0;
+			color: var(--text-3); background: none; border: none; padding: 0;
 			font: inherit; cursor: pointer; text-decoration: none;
-			text-transform: uppercase; letter-spacing: inherit;
+			text-transform: none; letter-spacing: inherit;
 			transition: color .15s;
 		}
 		.recipe-crumbs a:hover,
 		.recipe-crumbs button:hover { color: var(--accent); }
 		.recipe-crumbs .crumb-sep {
-			color: var(--text-3); font-weight: 500; font-size: 11px;
+			color: var(--text-3); font-weight: 500; font-size: 10px;
 			text-transform: none;
 		}
 		.recipe-crumbs .crumb-current {
-			color: var(--text); font-weight: 700;
+			color: var(--text-2); font-weight: 600;
 			text-transform: none; letter-spacing: 0;
 			max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 		}
