@@ -882,10 +882,9 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 0;
-    border: 1px solid var(--beige);
-    background: var(--white);
+    border: none;
+    background: transparent;
     cursor: pointer;
-    transition: border-color 0.24s ease;
     margin-left: 10px;
     text-decoration: none;
     flex-shrink: 0;
@@ -895,15 +894,23 @@ body {
     display: none;
 }
 
-.header-user-btn:hover {
-    border-color: #e8400a;
+.header-user-btn:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.88);
+    outline-offset: 3px;
 }
 
 .header-user-btn svg {
     display: block;
-    width: 33px;
-    height: 33px;
+    width: 36px;
+    height: 36px;
     flex-shrink: 0;
+    filter: drop-shadow(0 2px 5px rgba(44, 44, 44, 0.14));
+    transition: transform 0.22s ease, filter 0.22s ease;
+}
+
+.header-user-btn:hover svg {
+    transform: rotate(7deg) scale(1.06);
+    filter: drop-shadow(0 4px 8px rgba(44, 44, 44, 0.2));
 }
 
 /* РЈР±РёСЂР°РµРј РїРѕРґС‡РµСЂРєРёРІР°РЅРёРµ Сѓ Р»РѕРіРѕС‚РёРїР° (РєРѕРіРґР° РѕРЅ СЃСЃС‹Р»РєР°) */
