@@ -7,6 +7,7 @@ const BLOG_FILE = path.join(__dirname, '..', 'blog.html');
 const SITEMAP_FILE = path.join(__dirname, '..', 'sitemap.xml');
 const BLOG_IMAGES_DIR = path.join(__dirname, '..', 'images', 'blog');
 const VK_LINKS_FILE = path.join(__dirname, '..', 'data', 'blog-vk-links.json');
+const DZEN_LINKS_FILE = path.join(__dirname, '..', 'data', 'blog-dzen-links.json');
 const MAX_POSTS = 6;
 const TELEGRAM_SERVICE_POST_PATTERNS = [
     /^Channel name was changed to\b/i,
@@ -18,6 +19,14 @@ const TELEGRAM_SERVICE_POST_PATTERNS = [
 function loadVkLinks() {
     try {
         return JSON.parse(fs.readFileSync(VK_LINKS_FILE, 'utf8'));
+    } catch (e) {
+        return {};
+    }
+}
+
+function loadDzenLinks() {
+    try {
+        return JSON.parse(fs.readFileSync(DZEN_LINKS_FILE, 'utf8'));
     } catch (e) {
         return {};
     }
@@ -186,14 +195,16 @@ async function fetchPostsData() {
 
 const TG_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>`;
 const VK_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.066 13.394c.49.483 1.007.952 1.404 1.526.176.253.344.513.456.808.158.42.015.882-.366.906l-2.398-.001c-.618.051-1.113-.196-1.541-.609-.338-.326-.65-.673-.972-1.01-.135-.141-.276-.269-.44-.372-.31-.195-.58-.126-.753.207-.177.338-.217.71-.239 1.084-.03.534-.232.674-.766.697-1.143.05-2.227-.12-3.23-.673-.883-.486-1.556-1.188-2.137-1.98-.954-1.3-1.696-2.735-2.363-4.207-.194-.428-.05-.66.417-.668.776-.013 1.553-.011 2.329-.002.31.004.518.19.642.473.394.904.862 1.762 1.416 2.563.148.214.299.428.513.582.244.176.43.118.546-.158.075-.18.107-.372.123-.565.052-.633.059-1.266-.01-1.897-.042-.39-.241-.643-.631-.709-.2-.033-.17-.099-.073-.199.145-.149.282-.242.554-.242h2.043c.322.064.393.209.437.532l.002 2.27c-.004.148.074.587.341.685.215.075.357-.109.486-.244.577-.606.989-1.316 1.342-2.126.132-.299.25-.608.363-.918.084-.23.215-.343.471-.337l2.597.003c.077 0 .155 0 .23.013.375.065.478.231.361.593-.185.571-.537 1.045-.888 1.516-.37.497-.762.976-1.13 1.474-.331.448-.305.672.09 1.052z"/></svg>`;
+const DZEN_SVG = `<svg width="18" height="18" viewBox="0 0 129 129" fill="currentColor" aria-hidden="true"><path d="M128.389 62.7804C128.389 62.1406 127.869 61.6108 127.229 61.5808C104.266 60.7111 90.2906 57.782 80.5136 48.0051C70.7167 38.2081 67.7976 24.2225 66.9279 1.20969C66.9079 0.569886 66.3781 0.0500488 65.7283 0.0500488H63.0491C62.4093 0.0500488 61.8795 0.569886 61.8495 1.20969C60.9797 24.2125 58.0607 38.2081 48.2637 48.0051C38.4768 57.792 24.5111 60.7111 1.54831 61.5808C0.908509 61.6008 0.388672 62.1306 0.388672 62.7804V65.4596C0.388672 66.0994 0.908509 66.6292 1.54831 66.6592C24.5111 67.529 38.4868 70.458 48.2637 80.235C58.0407 90.0119 60.9597 103.958 61.8395 126.88C61.8595 127.52 62.3893 128.04 63.0391 128.04H65.7283C66.3681 128.04 66.8979 127.52 66.9279 126.88C67.8076 103.958 70.7267 90.0119 80.5036 80.235C90.2906 70.448 104.256 67.529 127.219 66.6592C127.859 66.6392 128.379 66.1094 128.379 65.4596V62.7804H128.389Z"/></svg>`;
 
-function articleCardTemplate(post, index, vkLinks) {
+function articleCardTemplate(post, index, vkLinks, dzenLinks) {
     const title = escapeHtml(extractTitle(post.plainText));
     const body = extractBody(post.plainText);
     const preview = body ? escapeHtml(truncateText(body, PREVIEW_LENGTH)) : '';
     const dateFormatted = formatDateRu(post.dateISO);
     const postUrl = `https://t.me/${CHANNEL}/${post.postNumber}`;
     const vkUrl = vkLinks && vkLinks[String(post.postNumber)];
+    const dzenUrl = dzenLinks && dzenLinks[String(post.postNumber)];
 
     const badgeHtml = index === 0
         ? `<span class="blog-badge-new">Новый пост</span>`
@@ -215,6 +226,19 @@ function articleCardTemplate(post, index, vkLinks) {
     const vkIconHtml = vkUrl
         ? `\n\t\t\t\t\t\t\t<a href="${vkUrl}" target="_blank" rel="noopener" class="blog-cta-icon" aria-label="Читать во VK">${VK_SVG}</a>`
         : '';
+    const ctaHtml = dzenUrl && vkUrl
+        ? `<div class="blog-cta-row blog-cta-row--sources">
+							<a href="${postUrl}" target="_blank" rel="noopener" class="blog-source-link" aria-label="Читать в Telegram">${TG_SVG}<span>Telegram</span></a>
+							<a href="${vkUrl}" target="_blank" rel="noopener" class="blog-source-link" aria-label="Читать во VK">${VK_SVG}<span>VK</span></a>
+							<a href="${dzenUrl}" target="_blank" rel="noopener" class="blog-source-link" aria-label="Читать в Дзене">${DZEN_SVG}<span>Дзен</span></a>
+						</div>`
+        : `<div class="blog-cta-row">
+							<a href="${postUrl}" target="_blank" rel="noopener" class="btn-read-more">
+								Читать
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+							</a>
+							<a href="${postUrl}" target="_blank" rel="noopener" class="blog-cta-icon" aria-label="Читать в Telegram">${TG_SVG}</a>${vkIconHtml}
+						</div>`;
 
     return `\t\t\t<!-- Пост ${index + 1} -->
 \t\t\t\t<article class="blog-article-card${index === 0 ? ' latest' : ''}${!imageSrc ? ' no-image' : ''}" data-post="${post.postNumber}">${badgeHtml ? `\n\t\t\t\t\t${badgeHtml}` : ''}${imageBlock}
@@ -222,13 +246,7 @@ function articleCardTemplate(post, index, vkLinks) {
 ${dateRow}
 \t\t\t\t\t\t<h3 class="blog-card-title">${title}</h3>
 ${preview ? `\t\t\t\t\t\t<p class="blog-card-text">${preview}</p>` : ''}
-\t\t\t\t\t\t<div class="blog-cta-row">
-\t\t\t\t\t\t\t<a href="${postUrl}" target="_blank" rel="noopener" class="btn-read-more">
-\t\t\t\t\t\t\t\tЧитать
-\t\t\t\t\t\t\t\t<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-\t\t\t\t\t\t\t</a>
-\t\t\t\t\t\t\t<a href="${postUrl}" target="_blank" rel="noopener" class="blog-cta-icon" aria-label="Читать в Telegram">${TG_SVG}</a>${vkIconHtml}
-\t\t\t\t\t\t</div>
+\t\t\t\t\t\t${ctaHtml}
 \t\t\t\t\t</div>
 \t\t\t\t</article>`;
 }
@@ -297,8 +315,9 @@ function updateBlogHtml(posts) {
     }
 
     const vkLinks = loadVkLinks();
+    const dzenLinks = loadDzenLinks();
     const divider = `${nl}\t\t\t\t<hr class="blog-divider">${nl}${nl}`;
-    const cards = posts.map((p, i) => articleCardTemplate(p, i, vkLinks)).join(divider);
+    const cards = posts.map((p, i) => articleCardTemplate(p, i, vkLinks, dzenLinks)).join(divider);
     const before = html.substring(0, startIdx);
     const after = html.substring(endIdx);
     const newGrid = startMarker + nl + cards + nl + `\t\t\t</div>${nl}${nl}\t\t\t`;

@@ -13843,6 +13843,50 @@ button[class*="btn-"]:hover,
     fill: currentColor;
 }
 
+.blog-cta-row--sources {
+    width: 100%;
+    gap: 6px;
+}
+
+.blog-source-link {
+    min-width: 0;
+    height: 36px;
+    flex: 1 1 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 7px;
+    border: 1px solid var(--beige);
+    border-radius: 30px;
+    background-color: var(--cream);
+    color: var(--dark-text);
+    font-family: var(--font-playfair);
+    font-size: 11px;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.blog-source-link:hover {
+    background-color: var(--beige);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+}
+
+.blog-source-link:focus-visible {
+    outline: 2px solid var(--sage-green, #8a9a8d);
+    outline-offset: 2px;
+}
+
+.blog-source-link svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
 .blog-channel-link {
     display: flex;
     flex-direction: column;
