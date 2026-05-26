@@ -142,14 +142,14 @@
 			text-transform: uppercase; color: var(--text-3);
 			height: 30px; line-height: 1.45;
 		}
-		.cab-kpi-row { display: flex; align-items: baseline; gap: 10px; height: 52px; }
+		.cab-kpi-row { display: flex; align-items: flex-start; gap: 10px; height: 52px; }
 		.cab-kpi-val {
 			font-family: var(--serif); font-size: 44px; font-weight: 700;
 			line-height: 1; color: var(--text); letter-spacing: -.02em;
 		}
 		.cab-kpi-unit {
 			font-size: 13px; font-weight: 600; color: var(--text-2);
-			letter-spacing: .04em;
+			letter-spacing: .04em; padding-top: 29px;
 		}
 		.cab-kpi-hint { height: 38px; font-size: 12px; line-height: 1.45; color: var(--text-3); }
 		.cab-kpi-export {
@@ -161,14 +161,16 @@
 		}
 
 		.cab-weight-input {
-			width: 110px; padding: 0;
+			width: 110px; height: 52px; box-sizing: border-box; padding: 0;
 			font-family: var(--serif); font-size: 44px; font-weight: 700;
 			color: var(--text); text-align: left;
 			background: transparent; border: none;
 			border-bottom: 2px solid var(--border);
 			outline: none; transition: border-color .2s;
-			line-height: 1; letter-spacing: -.02em;
+			line-height: 1; letter-spacing: -.02em; appearance: textfield;
 		}
+		.cab-weight-input::-webkit-outer-spin-button,
+		.cab-weight-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 		.cab-weight-input:focus { border-bottom-color: var(--accent); }
 
 		/* ── TABS ─────────────────────────────────────────────────────── */
@@ -1461,6 +1463,7 @@
 							<span class="cab-kpi-label">Норма воды сегодня</span>
 							<div class="cab-kpi-row">
 								<span class="cab-kpi-val" id="water-val"></span>
+								<span class="cab-kpi-unit" id="water-unit"></span>
 							</div>
 							<span class="cab-kpi-hint" id="water-glasses-badge"></span>
 						</div>
@@ -1825,7 +1828,7 @@
 	<script src="data-v2.js?v=2026052601"></script>
 	<script src="ingredients.js?v=2"></script>
 	<script src="header-nav.js?v=5-mobile-drawer-scroll-lock"></script>
-	<script src="cabinet.js?v=2026052603"></script>
+	<script src="cabinet.js?v=2026052604"></script>
 
 	<!-- Tawk.to -->
 	<script>

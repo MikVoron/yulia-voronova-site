@@ -291,11 +291,13 @@
 		function updateWaterNorm(w) {
 			const norm = document.getElementById('water-norm');
 			const val = document.getElementById('water-val');
+			const unit = document.getElementById('water-unit');
 			if (!norm || !val) return;
 			const ml = Math.round(w * 30);
 			const liters = (ml / 1000).toFixed(1);
-			val.textContent = ml >= 1000 ? liters + ' л' : ml + ' мл';
-			norm.style.display = 'block';
+			val.textContent = ml >= 1000 ? liters : ml;
+			if (unit) unit.textContent = ml >= 1000 ? 'л' : 'мл';
+			norm.style.display = 'grid';
 			const badge = document.getElementById('water-glasses-badge');
 			if (badge) {
 				const glasses = Math.round(ml / 250);
