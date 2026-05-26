@@ -883,14 +883,14 @@
 			text-align: left;
 			background: none;
 			border: none;
-			cursor: pointer;
 			padding: 0;
 			width: 100%;
 			color: inherit;
 			font: inherit;
 		}
-		.sp-new-card.locked { cursor: pointer; opacity: .92; }
+		.sp-new-card.locked { opacity: .92; }
 		.sp-new-card-media {
+			display: block;
 			position: relative;
 			aspect-ratio: 16/10;
 			background: var(--bg-alt);
@@ -901,18 +901,14 @@
 			object-fit: cover; display: block;
 			transition: transform .55s ease;
 		}
-		.sp-new-card:hover .sp-new-card-media img { transform: scale(1.02); }
+		/* Зум только при наведении на само фото (не на всю карточку) — CTA при этом
+		   не затрагивается (см. ТЗ: hover CTA изолирован от hover карточки). */
+		.sp-new-card-media:hover img { transform: scale(1.02); }
 		.sp-new-card.locked .sp-new-card-media::after {
 			content: ''; position: absolute; inset: 0;
 			background: rgba(0,0,0,.18); z-index: 1;
 		}
-		.sp-new-card-body { padding: 18px 0 0; transition: opacity .25s ease; }
-		/* NYT-hover: текст карточки нового рецепта бледнеет; фото (zoom) и бейджи
-		   в .sp-new-card-media не трогаем. .locked (paywall) исключена. Единый
-		   паттерн с .recipe-card / .sp-card / .fav-card (.55, .25s). */
-		@media (hover: hover) and (pointer: fine) {
-			.sp-new-card:not(.locked):hover .sp-new-card-body { opacity: .55; }
-		}
+		.sp-new-card-body { padding: 18px 0 0; }
 		.sp-new-card-eyebrow {
 			font-size: 11px; font-weight: 800;
 			letter-spacing: .14em; text-transform: uppercase;
@@ -926,6 +922,25 @@
 			letter-spacing: -.01em;
 			color: var(--text);
 			margin: 0 0 10px;
+		}
+		.sp-new-card-title-link { color: inherit; text-decoration: none; transition: color var(--tr); }
+		.sp-new-card-title-link:visited { color: inherit; }
+		.sp-new-card-title-link:hover,
+		.sp-new-card-title-link:visited:hover { color: var(--accent); }
+		/* Строка рейтинга: фикс-высота → нет скачка, когда после загрузки
+		   _apiRatings «Новый рецепт» сменяется звёздами. */
+		.sp-new-card-rating {
+			display: flex; align-items: center; gap: 8px;
+			min-height: 20px; margin: 0 0 12px;
+			font: 600 12.5px/1 var(--sans); color: var(--text-3);
+		}
+		.sp-new-card-rating .stars { display: inline-flex; gap: 2px; color: var(--accent); }
+		.sp-new-card-rating .stars svg { width: 15px; height: 15px; display: block; }
+		.sp-new-card-rating .star-empty { color: #d8d2ca; }
+		.sp-new-card-rating .num { color: var(--text); font-weight: 700; }
+		.sp-new-card-rating .rating-new {
+			font: 800 11px/1 var(--sans); letter-spacing: .1em;
+			text-transform: uppercase; color: var(--text-3);
 		}
 		.sp-new-card-desc {
 			font-size: 14px;
@@ -951,19 +966,27 @@
 			display: inline-block; transform: translateX(-7px);
 			font-weight: 700;
 		}
-		/* CTA — full-width: border-top тянется на всю ширину карточки.
-		   В покое — чёрный, на hover — оранжевый. */
+		/* CTA V2 — отдельная ссылка-кнопка: квадратная (border-radius:0), капс,
+		   чёрная как submit в login.html. Свой hover/focus, НЕ зависит от hover
+		   карточки. Без подчёркивания во всех состояниях. */
 		.sp-new-card-cta {
-			display: flex; align-items: center; gap: 6px;
-			padding-top: 14px;
-			font: 700 11px/1 var(--sans);
-			letter-spacing: .14em;
+			display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+			padding: 13px 24px;
+			font: 700 12px/1 var(--sans);
+			letter-spacing: .1em;
 			text-transform: uppercase;
-			color: var(--text);
-			border-top: 1px solid var(--text);
-			transition: color var(--tr);
+			color: #fff;
+			background: var(--text);
+			border-radius: 0;
+			text-decoration: none;
+			transition: opacity var(--tr);
 		}
-		.sp-new-card:hover .sp-new-card-cta { color: var(--accent); }
+		.sp-new-card-cta,
+		.sp-new-card-cta:hover,
+		.sp-new-card-cta:focus-visible,
+		.sp-new-card-cta:visited { text-decoration: none; }
+		.sp-new-card-cta:hover { opacity: .82; }
+		.sp-new-card-cta:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 		/* News list (right column) */
 		.sp-new-list { display: flex; flex-direction: column; }
@@ -1015,9 +1038,6 @@
 				align-self: center;
 				margin-top: 4px;
 			}
-			/* «Открыть рецепт» — на мобиле сразу оранжевый текст (hover-состояние desktop).
-			   Линию-разделитель оставляем чёрной — оранжевая визуально слишком кричала. */
-			.sp-new-card-cta { color: var(--accent); }
 			/* Внутри секции «Новое» отделяем текстовые новости от featured-рецепта:
 			   тонкий разделитель + sub-eyebrow «Обновления». Только на mobile —
 			   на desktop secция уже визуально разнесена в 2 колонки. */
@@ -2121,9 +2141,19 @@
 			const _timeStr = escHtml(_timeMeta.short);
 			const _servings = Number(d.servings) || 0;
 			const _kcal = Number(d.kcal) || 0;
-			const _protein = Number(d.protein) || 0;
-			const _fat = Number(d.fat) || 0;
-			const _carbs = Number(d.carbs) || 0;
+			// Рейтинг из уже загруженного _apiRatings (без отдельного запроса).
+			const _rv = (_apiRatings && _apiRatings[d.id]) ? _apiRatings[d.id] : null;
+			const _avg = _rv && Number(_rv.avg) > 0 ? Number(_rv.avg) : 0;
+			const _count = _rv ? (Number(_rv.count) || 0) : 0;
+			const _starFull = Math.max(1, Math.min(5, Math.round(_avg)));
+			let _starsSvg = '';
+			for (let i = 1; i <= 5; i++) {
+				_starsSvg += '<svg class="' + (i <= _starFull ? '' : 'star-empty') + '" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.5 1.6 6.7L12 17l-6.2 3.6 1.6-6.7L2.2 8.9l6.9-.6z"/></svg>';
+			}
+			const _revWord = (function (n) { n = Math.abs(n) % 100; const n1 = n % 10; if (n > 10 && n < 20) return 'отзывов'; if (n1 > 1 && n1 < 5) return 'отзыва'; if (n1 === 1) return 'отзыв'; return 'отзывов'; })(_count);
+			const ratingHtml = _avg > 0
+				? '<div class="sp-new-card-rating"><span class="stars">' + _starsSvg + '</span><span class="num">' + _avg.toFixed(1) + '</span>' + (_count ? '<span>· ' + _count + ' ' + _revWord + '</span>' : '') + '</div>'
+				: '<div class="sp-new-card-rating"><span class="rating-new">Новый рецепт</span></div>';
 			const _quoteRaw = String(d.quote || '').replace(/^[«"']|[»"']$/g, '').trim();
 			const _desc = _quoteRaw ? escHtml(_quoteRaw.length > 160 ? _quoteRaw.slice(0, 158).replace(/\s+\S*$/, '') + '…' : _quoteRaw) : '';
 
@@ -2140,34 +2170,36 @@
 				? '<div class="free-badge">Бесплатно</div>'
 				: '';
 
-			const onclick = locked ? `showLockedMsg('${_id}')` : `location.href='recipe.html?id=${_id}&from=${_cat}'`;
+			const _href = 'recipe.html?id=' + _id + '&from=' + _cat;
+			// locked: ссылки не навигируют, а открывают paywall-сообщение.
+			const _lockAttr = locked ? ' onclick="event.preventDefault();showLockedMsg(\'' + _id + '\')"' : '';
 			// Без префикса «Новый рецепт» (повторяет название секции «Новое»).
 			// Год и «г.» обрезаем — на главной показываем только день+месяц.
 			const eyebrow = (item.date || '').replace(/\s*\d{4}\s*г\.?$/, '').trim();
 
 			// Бейдж «Новинка» здесь не рисуем — повторяет название секции «Новое».
 			// На карточках рецептов в других местах (категории/featured listings) бейдж остаётся.
-			return `<button class="sp-new-card${locked ? ' locked' : ''}" type="button" onclick="${onclick}">
-				<div class="sp-new-card-media">
+			return `<article class="sp-new-card${locked ? ' locked' : ''}">
+				<a class="sp-new-card-media" href="${_href}" tabindex="-1" aria-hidden="true"${_lockAttr}>
 					${photoHtml}
 					<div class="card-badge-stack">
 						${lockBadge}${freeBadge}
 					</div>
-				</div>
+				</a>
 				<div class="sp-new-card-body">
 					<div class="sp-new-card-eyebrow">${escHtml(eyebrow)}</div>
-					<h3 class="sp-new-card-title">${_name}</h3>
+					<h3 class="sp-new-card-title"><a class="sp-new-card-title-link" href="${_href}"${_lockAttr}>${_name}</a></h3>
+					${ratingHtml}
 					${_desc ? `<p class="sp-new-card-desc">${_desc}</p>` : ''}
 					<div class="sp-new-card-meta">
 						<span>${_timeStr}</span>
 						${_diff ? `<span>${_diff}</span>` : ''}
 						${_servings ? `<span>${_servings} порц.</span>` : ''}
 						<span class="kcal">${_kcal} ккал</span>
-						<span>Б ${_protein} / Ж ${_fat} / У ${_carbs}</span>
 					</div>
-					<span class="sp-new-card-cta">Открыть рецепт →</span>
+					<a class="sp-new-card-cta" href="${_href}"${_lockAttr}>Открыть рецепт →</a>
 				</div>
-			</button>`;
+			</article>`;
 		}
 
 		// Item в правой ленте новостей: дата → title → desc. Заголовок/описание
@@ -2793,6 +2825,23 @@
 				// от того, успел ли renderRecommended поставить таймер.
 				if (typeof _renderRecommendedInner === 'function') {
 					_renderRecommendedInner();
+				}
+				// Featured-карточка «Новое»: если у новинки уже есть оценки —
+				// переотрисуем её со звёздами. Высота строки рейтинга фиксирована
+				// (.sp-new-card-rating min-height), поэтому скачка не будет.
+				const _featEl = document.getElementById('new-feature');
+				if (_featEl && _featEl.firstElementChild && typeof renderNewFeatureCard === 'function') {
+					let _featItem = null;
+					if (typeof NEWS_FEED !== 'undefined' && Array.isArray(NEWS_FEED)) {
+						_featItem = NEWS_FEED.find(function (i) { return i.type === 'recipe'; }) || null;
+					}
+					if (!_featItem && typeof _latestRecipeId === 'function') {
+						const _lid = _latestRecipeId();
+						if (_lid && RECIPES[_lid]) {
+							_featItem = { type: 'recipe', id: _lid, badge: 'Новинка', date: _spFormatNewsDate(RECIPES[_lid].added || RECIPES[_lid].addedTs) };
+						}
+					}
+					if (_featItem) _featEl.innerHTML = renderNewFeatureCard(_featItem);
 				}
 			} catch (e) { /* silent */ }
 		})();
