@@ -1101,6 +1101,10 @@
 				+ '<table><thead><tr><th>Дата</th><th>Тарелка</th><th>Прием пищи</th><th style="text-align:right">Ккал</th></tr></thead><tbody>' + rows + '</tbody></table>'
 				+ '<footer>Умная тарелка Юлии Вороновой · voronova.online</footer></body></html>');
 			popup.document.close();
+			popup.onafterprint = function() {
+				popup.close();
+				window.focus();
+			};
 			popup.focus();
 			setTimeout(function() { popup.print(); }, 250);
 		}
