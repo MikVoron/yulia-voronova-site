@@ -873,55 +873,37 @@ body {
     transform: none;
 }
 
-/* User Icon in Header */
+/* SmartPlate icon in public header */
 .header-user-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    width: 48px;
-    height: 48px;
-    border-radius: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.24);
-    background: linear-gradient(160deg, #ff925d 0%, #ff5f2f 100%);
-    color: var(--white);
+    width: 40px;
+    height: 40px;
+    border-radius: 0;
+    border: 1px solid var(--beige);
+    background: var(--white);
     cursor: pointer;
-    transition: transform 0.24s ease, box-shadow 0.24s ease, filter 0.24s ease;
+    transition: border-color 0.24s ease;
     margin-left: 10px;
     text-decoration: none;
-    box-shadow: 0 14px 30px rgba(255, 101, 49, 0.34);
-    transform: rotate(-4deg);
+    flex-shrink: 0;
 }
 
 .header-user-btn::before {
-    content: "";
-    position: absolute;
-    inset: -6px;
-    border-radius: 22px;
-    border: 1px dashed rgba(255, 255, 255, 0.34);
-    pointer-events: none;
+    display: none;
 }
 
 .header-user-btn:hover {
-    filter: saturate(1.05) brightness(1.04);
-    transform: rotate(-4deg) translateY(-2px) scale(1.04);
-    box-shadow: 0 18px 34px rgba(255, 101, 49, 0.4);
+    border-color: #e8400a;
 }
 
 .header-user-btn svg {
-    transition: transform 0.3s ease;
-}
-
-.header-user-btn:hover svg {
-    transform: scale(1.12);
-}
-
-.page-home .header-user-btn {
-    color: var(--white);
-}
-
-.page-home .header-user-btn:hover {
-    box-shadow: 0 18px 34px rgba(255, 101, 49, 0.4);
+    display: block;
+    width: 33px;
+    height: 33px;
+    flex-shrink: 0;
 }
 
 /* РЈР±РёСЂР°РµРј РїРѕРґС‡РµСЂРєРёРІР°РЅРёРµ Сѓ Р»РѕРіРѕС‚РёРїР° (РєРѕРіРґР° РѕРЅ СЃСЃС‹Р»РєР°) */
