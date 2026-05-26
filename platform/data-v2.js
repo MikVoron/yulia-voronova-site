@@ -569,6 +569,35 @@ const Notes = {
 const Plate = {
     _key()  { return Auth._userKey('plate_items'); },
     _hkey() { return Auth._userKey('plate_history'); },
+    _mealTypes: { breakfast: 'Завтрак', lunch: 'Обед', dinner: 'Ужин', snack: 'Перекус' },
+    _safeMealType(value) {
+        return Object.prototype.hasOwnProperty.call(this._mealTypes, value) ? value : '';
+    },
+    _historySignature(entry) {
+        const items = Array.isArray(entry.items) ? entry.items.map(function(item) {
+            return [item.recipeId || '', item.name || '', Number(item.kcal) || 0, Number(item.protein) || 0, Number(item.fat) || 0, Number(item.carbs) || 0, Number(item.fiber) || 0];
+        }) : [];
+        const t = entry.totals || {};
+        return JSON.stringify([items, Number(t.kcal) || 0, Number(t.protein) || 0, Number(t.fat) || 0, Number(t.carbs) || 0, Number(t.fiber) || 0]);
+    },
+    _dedupeHistory(history) {
+        const sorted = (Array.isArray(history) ? history : []).filter(function(entry) {
+            return entry && Array.isArray(entry.items) && entry.items.length;
+        }).slice().sort(function(a, b) {
+            return new Date(b.date) - new Date(a.date);
+        });
+        const kept = [];
+        sorted.forEach((entry) => {
+            entry.mealType = this._safeMealType(entry.mealType);
+            const sig = this._historySignature(entry);
+            const time = new Date(entry.date).getTime();
+            const duplicate = kept.some(function(saved) {
+                return saved.sig === sig && Number.isFinite(time) && Math.abs(saved.time - time) <= 60000;
+            });
+            if (!duplicate) kept.push({ entry, sig, time });
+        });
+        return kept.slice(0, 30).map(function(saved) { return saved.entry; });
+    },
     get()  { try { return JSON.parse(localStorage.getItem(this._key()) || '[]'); } catch { return []; } },
     set(v) { localStorage.setItem(this._key(), JSON.stringify(v)); updatePlateIcon(); },
     add(item) {
@@ -599,23 +628,45 @@ const Plate = {
             fiber:   t.fiber   + (i.fiber   || 0)
         }), { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 });
     },
-    saveHistory() {
+    saveHistory(mealType) {
         const items = this.get();
         if (!items.length) return;
         const totals = this.totals();
+        const date = new Date().toISOString();
+        const safeMealType = this._safeMealType(mealType);
         const h = this.getHistory();
-        h.unshift({ date: new Date().toISOString(), items, totals });
-        localStorage.setItem(this._hkey(), JSON.stringify(h.slice(0, 30)));
+        h.unshift({ date, items, totals, mealType: safeMealType });
+        localStorage.setItem(this._hkey(), JSON.stringify(this._dedupeHistory(h)));
         this.clear();
         // Sync save to server
         if (Auth.getToken()) {
             Auth.api('/plate/history', {
                 method: 'POST',
-                body: JSON.stringify({ items, totals })
+                body: JSON.stringify({ date, items, totals, mealType: safeMealType })
             }).catch(function() {});
         }
     },
-    getHistory() { try { return JSON.parse(localStorage.getItem(this._hkey()) || '[]'); } catch { return []; } },
+    getHistory() {
+        try {
+            return this._dedupeHistory(JSON.parse(localStorage.getItem(this._hkey()) || '[]'));
+        } catch {
+            return [];
+        }
+    },
+    setHistoryMealType(date, mealType) {
+        const safeMealType = this._safeMealType(mealType);
+        const h = this.getHistory().map(function(entry) {
+            if (entry.date === date) return { ...entry, mealType: safeMealType };
+            return entry;
+        });
+        localStorage.setItem(this._hkey(), JSON.stringify(h));
+        if (Auth.getToken()) {
+            Auth.api('/plate/history/meal-type', {
+                method: 'PUT',
+                body: JSON.stringify({ date, mealType: safeMealType })
+            }).catch(function() {});
+        }
+    },
     /** Sync current plate to server (fire-and-forget) */
     _syncToServer() {
         if (!Auth.getToken()) return;
@@ -675,9 +726,9 @@ const Plate = {
                 var map = {};
                 sHist.forEach(function(h) { map[h.date] = h; });
                 localHistory.forEach(function(h) { if (!map[h.date]) map[h.date] = h; });
-                var merged = Object.values(map).sort(function(a, b) {
+                var merged = self._dedupeHistory(Object.values(map).sort(function(a, b) {
                     return new Date(b.date) - new Date(a.date);
-                }).slice(0, 30);
+                }));
                 localStorage.setItem(self._hkey(), JSON.stringify(merged));
                 // Find local-only entries to sync up
                 var serverDates = {};
@@ -693,6 +744,25 @@ const Plate = {
         }).catch(function() {});
     }
 };
+
+function plateMealTypePickerHtml() {
+    return '<div class="pv1-meal-type">'
+        + '<label for="plate-meal-type">Прием пищи <span>необязательно</span></label>'
+        + '<select id="plate-meal-type">'
+        + '<option value="" selected>Не указывать</option>'
+        + '<option value="breakfast">Завтрак</option>'
+        + '<option value="lunch">Обед</option>'
+        + '<option value="dinner">Ужин</option>'
+        + '<option value="snack">Перекус</option>'
+        + '</select>'
+        + '<small>Можно добавить или изменить позже в истории.</small>'
+        + '</div>';
+}
+
+function getSelectedPlateMealType() {
+    var select = document.getElementById('plate-meal-type');
+    return select ? select.value : '';
+}
 
 
 function updatePlateIcon() {

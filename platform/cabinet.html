@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-mobile-drawer-scroll-lock" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-26-history" id="vcss">
 	<style>
 		/* ──────────────────────────────────────────────────────────────
 		   CABINET — editorial redesign (Account Page Redesign.html)
@@ -150,6 +150,13 @@
 			letter-spacing: .04em;
 		}
 		.cab-kpi-hint { font-size: 12px; color: var(--text-3); }
+		.cab-kpi-export {
+			margin-top: auto; padding: 8px 0 0;
+			display: inline-flex; align-items: center; gap: 7px; align-self: flex-start;
+			border: none; border-bottom: 1px solid var(--accent); background: transparent;
+			color: var(--accent); cursor: pointer;
+			font-size: 10px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase;
+		}
 
 		.cab-weight-input {
 			width: 110px; padding: 0;
@@ -722,6 +729,74 @@
 		.meal-item-name { font-size: 13px; color: var(--text); }
 		.meal-item-name b { font-weight: 700; }
 		.meal-item-kcal { font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--text-2); white-space: nowrap; }
+		.hist-export {
+			display: none; margin: 0 0 26px; padding: 20px;
+			border: 1px solid var(--border); background: #faf8f5;
+		}
+		.hist-export.open { display: block; }
+		.hist-export-title {
+			font-family: var(--serif); font-size: 20px; font-weight: 700; margin: 0 0 16px;
+		}
+		.hist-export-controls {
+			display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr auto;
+			gap: 10px; align-items: end;
+		}
+		.hist-export-field label {
+			display: block; margin-bottom: 6px; color: var(--text-3);
+			font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+		}
+		.hist-export-field select, .hist-export-field input {
+			width: 100%; height: 42px; padding: 0 11px;
+			border: 1px solid var(--border); background: #fff;
+			font-family: var(--sans); font-size: 13px; color: var(--text);
+		}
+		.hist-export-btn {
+			height: 42px; padding: 0 16px; border: 1px solid var(--accent);
+			background: var(--accent); color: #fff; cursor: pointer;
+			font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+		}
+		.hist-export-help {
+			margin: 13px 0 0; color: var(--text-2); font-size: 12px; line-height: 1.55;
+		}
+		.hist-card {
+			border: 1px solid var(--border); margin-top: 12px; background: #fff;
+		}
+		.hist-card-row {
+			display: grid; grid-template-columns: 94px 1fr auto;
+			gap: 18px; padding: 18px 19px 17px; align-items: stretch;
+		}
+		.hist-time-col {
+			padding-right: 18px; border-right: 1px solid var(--border);
+		}
+		.hist-time-col .meal-time { display: block; font-size: 22px; }
+		.hist-meal-type {
+			margin-top: 9px; width: 100%; padding: 5px 4px;
+			border: 1px dashed var(--border); background: #fff; color: var(--text-3);
+			font: 800 9px var(--sans); letter-spacing: .05em; text-transform: uppercase;
+		}
+		.hist-meal-type.has-value {
+			background: var(--accent-l); border-style: solid; border-color: #f3c4b6; color: var(--accent);
+		}
+		.hist-info-title {
+			margin: 0 0 7px; font-size: 16px; font-weight: 700;
+		}
+		.hist-info-summary {
+			margin-bottom: 12px; color: var(--text-2); font-size: 12px; line-height: 1.5;
+		}
+		.hist-side {
+			min-width: 122px; text-align: right;
+			display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+		}
+		.hist-details {
+			display: inline-flex; align-items: center; gap: 8px;
+			padding: 8px 10px; border: 1px solid var(--border); background: #fff;
+			color: var(--text-2); cursor: pointer; font: 800 10px var(--sans);
+			letter-spacing: .09em; text-transform: uppercase;
+		}
+		.hist-card.open .hist-details { color: var(--text); border-color: var(--text); }
+		.hist-card.open .hist-details span { transform: rotate(180deg); }
+		.hist-card .meal-body { padding: 0 19px 17px 131px; }
+		.hist-card.open .meal-body { display: block; }
 
 		/* ── ЗАМЕТКИ — двухколоночный layout ─────────────────────────── */
 		.cab-notes-layout {
@@ -1071,7 +1146,16 @@
 
 			/* ── HERO ──────────────────────────────────────────────────── */
 			.cab-hero { padding: 26px 20px; grid-template-columns: 1fr; gap: 20px; }
-			.cab-main.is-content-tab .cab-hero-wrap { display: none; }
+			.cab-main.is-content-tab .cab-hero-wrap { display: block; }
+			.cab-main.is-content-tab .cab-hero {
+				display: block; padding: 0; border: none; background: transparent;
+			}
+			.cab-main.is-content-tab .cab-hero-ava,
+			.cab-main.is-content-tab .cab-hero-eyebrow,
+			.cab-main.is-content-tab .cab-hero-name-row,
+			.cab-main.is-content-tab .cab-hero-meta,
+			.cab-main.is-content-tab .cab-name-edit-row { display: none !important; }
+			.cab-main.is-content-tab .cab-kpi-strip { margin-top: 0; }
 			.cab-hero-ava { width: 88px; height: 88px; }
 			.cab-hero-ava .cab-ava { font-size: 36px; }
 			.cab-name { font-size: 36px; }
@@ -1083,6 +1167,11 @@
 			.cab-kpi:last-child { border-bottom: none; }
 			.cab-kpi-val, .cab-weight-input { font-size: 38px; }
 			.cab-weight-input { width: 96px; }
+			.cab-main.tab-subscription .cab-kpi:not(.kpi-base),
+			.cab-main.tab-history .cab-kpi:not(.kpi-history),
+			.cab-main.tab-favorites .cab-kpi:not(.kpi-favorites) { display: none !important; }
+			.cab-main.tab-notes .cab-hero-wrap,
+			.cab-main.tab-feedback .cab-hero-wrap { display: none; }
 
 			/* ── TABS: горизонтальный scroll, компактные ─────────────── */
 			.cab-tab-panel { padding: 22px 18px; }
@@ -1123,17 +1212,24 @@
 			.pay-info-col { grid-area: info; }
 
 			/* ── ИСТОРИЯ ТАРЕЛОК: meal-head в 2 ряда ──────────────────── */
-			.meal-head {
-				grid-template-columns: auto 1fr auto;
-				grid-template-areas: "time kcal chev" "macros macros macros";
-				padding: 14px 4px; gap: 8px 14px;
+			.hist-card-row {
+				grid-template-columns: 1fr auto; gap: 12px; padding: 15px;
 			}
-			.meal-time { grid-area: time; font-size: 18px; min-width: 0; }
-			.meal-kcal { grid-area: kcal; font-size: 18px; justify-self: end; }
-			.meal-chev { grid-area: chev; }
-			.meal-macros { grid-area: macros; gap: 4px; }
+			.hist-time-col {
+				grid-column: 1 / -1; display: flex; gap: 11px; align-items: center;
+				padding: 0 0 11px; border-right: none; border-bottom: 1px solid var(--border);
+			}
+			.hist-time-col .meal-time { font-size: 18px; min-width: 0; }
+			.hist-meal-type { margin-top: 0; width: auto; }
+			.hist-side { min-width: 94px; }
+			.hist-card .meal-body { padding: 0 15px 14px; }
+			.hist-export-controls { grid-template-columns: 1fr 1fr; }
+			.hist-export-field:first-child, .hist-export-field:nth-child(4), .hist-export-btn {
+				grid-column: 1 / -1;
+			}
+			.hist-export-btn { width: 100%; }
+			.meal-macros { gap: 4px; }
 			.macro-chip { font-size: 10px; padding: 3px 8px 3px 7px; letter-spacing: .02em; }
-			.meal-body { padding: 0 4px 14px 4px; }
 			.day-head { flex-wrap: wrap; gap: 8px; }
 			.day-date { font-size: 18px; }
 			.day-total { width: 100%; margin-left: 0; font-size: 10px; }
@@ -1288,7 +1384,7 @@
 
 	<input type="file" id="ava-upload" accept="image/*" style="display:none" onchange="handleAvatarUpload(this)">
 
-	<main class="cab-main">
+	<main class="cab-main tab-subscription">
 		<div class="v-wrap">
 			<div class="cab-breadcrumb"><a href="index.html">Главная</a> · <b>Личный кабинет</b></div>
 		</div>
@@ -1321,7 +1417,7 @@
 					</div>
 
 					<div class="cab-kpi-strip">
-						<div class="cab-kpi">
+						<div class="cab-kpi kpi-base">
 							<span class="cab-kpi-label">Мой вес</span>
 							<div class="cab-kpi-row">
 								<input type="number" class="cab-weight-input" id="cab-weight" placeholder="—" min="30" max="999" step="0.5" maxlength="3" oninput="if(this.value.length>3)this.value=this.value.slice(0,3);saveWeight(this.value)" onchange="saveWeight(this.value)">
@@ -1330,7 +1426,7 @@
 							<span class="cab-kpi-hint">Введите вес — рассчитаем норму воды</span>
 						</div>
 
-						<div class="cab-kpi" id="water-norm" style="display:none">
+						<div class="cab-kpi kpi-base" id="water-norm" style="display:none">
 							<span class="cab-kpi-label">Норма воды сегодня</span>
 							<div class="cab-kpi-row">
 								<span class="cab-kpi-val" id="water-val"></span>
@@ -1338,15 +1434,15 @@
 							<span class="cab-kpi-hint" id="water-glasses-badge"></span>
 						</div>
 
-						<div class="cab-kpi">
+						<div class="cab-kpi kpi-history">
 							<span class="cab-kpi-label">Собрано тарелок</span>
 							<div class="cab-kpi-row">
 								<span class="cab-kpi-val" id="cab-plates-count">0</span>
 							</div>
-							<span class="cab-kpi-hint">Сохранённые тарелки</span>
+							<button class="cab-kpi-export" type="button" onclick="openHistoryExport()">Выгрузить историю</button>
 						</div>
 
-						<div class="cab-kpi">
+						<div class="cab-kpi kpi-favorites">
 							<span class="cab-kpi-label">В избранном</span>
 							<div class="cab-kpi-row">
 								<span class="cab-kpi-val" id="cab-favorites-count">0</span>
@@ -1500,6 +1596,36 @@
 				<div class="cab-sec-title-row">
 					<h2 class="cab-sec-title">Журнал тарелок</h2>
 					<span class="cab-sec-title-meta">Архив ваших блюд</span>
+				</div>
+				<div class="hist-export" id="hist-export">
+					<h3 class="hist-export-title">Выгрузить Журнал</h3>
+					<div class="hist-export-controls">
+						<div class="hist-export-field">
+							<label for="hist-range">Период</label>
+							<select id="hist-range" onchange="updateHistoryDateRange()">
+								<option value="7">Последние 7 дней</option>
+								<option value="30" selected>Последние 30 дней</option>
+								<option value="custom">Выбрать даты</option>
+							</select>
+						</div>
+						<div class="hist-export-field">
+							<label for="hist-from">С</label>
+							<input type="date" id="hist-from">
+						</div>
+						<div class="hist-export-field">
+							<label for="hist-to">По</label>
+							<input type="date" id="hist-to">
+						</div>
+						<div class="hist-export-field">
+							<label for="hist-format">Формат</label>
+							<select id="hist-format">
+								<option value="pdf" selected>PDF</option>
+								<option value="csv">CSV</option>
+							</select>
+						</div>
+						<button class="hist-export-btn" type="button" onclick="exportHistory()">Скачать</button>
+					</div>
+					<p class="hist-export-help"><b>PDF</b> удобен для просмотра или отправки специалисту. <b>CSV</b> подойдет для анализа в таблице.</p>
 				</div>
 				<div id="history-body"></div>
 			</section>
@@ -1662,10 +1788,10 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=2026052202"></script>
+	<script src="data-v2.js?v=2026052601"></script>
 	<script src="ingredients.js?v=2"></script>
 	<script src="header-nav.js?v=5-mobile-drawer-scroll-lock"></script>
-	<script src="cabinet.js?v=2026052303"></script>
+	<script src="cabinet.js?v=2026052601"></script>
 
 	<!-- Tawk.to -->
 	<script>

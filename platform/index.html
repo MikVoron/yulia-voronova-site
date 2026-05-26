@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-23-mobile-drawer-scroll-lock" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-26-history" id="vcss">
 	<style>
 		main {
 			padding-bottom: 80px;
@@ -1602,6 +1602,7 @@
 			</div>
 			<div class="modal-body" id="plate-body"></div>
 			<div class="modal-footer" id="plate-footer" style="display:none">
+				<div id="plate-meal-picker"></div>
 				<button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlate()">Сохранить в историю</button>
 			</div>
 		</div>
@@ -1670,7 +1671,7 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=2026052202"></script>
+	<script src="data-v2.js?v=2026052601"></script>
 	<script src="ingredients.js?v=2"></script>
 	<script src="header-nav.js?v=5-mobile-drawer-scroll-lock"></script>
 	<script>
@@ -3011,6 +3012,7 @@
                 </div>
             </div>`;
 			footer.style.display = 'block';
+			document.getElementById('plate-meal-picker').innerHTML = plateMealTypePickerHtml();
 		}
 
 		function removeItem(i) { Plate.remove(i); renderPlateModal(); updatePlateIcon(); renderPlateInline(); }
@@ -3024,7 +3026,7 @@
 				.then(() => showToast('📋 Список скопирован!'))
 				.catch(() => showToast('Не удалось скопировать'));
 		}
-		function savePlate() { Plate.saveHistory(); renderPlateModal(); renderPlateInline(); showToast('Тарелка сохранена в историю 🎉'); }
+		function savePlate() { Plate.saveHistory(getSelectedPlateMealType()); renderPlateModal(); renderPlateInline(); showToast('Тарелка сохранена в историю 🎉'); }
 
 		// ── INLINE PLATE SUMMARY ─────────────────────────────────────────────
 		// Компактный summary над "Новое". Управление тарелкой — в модалке openPlate().

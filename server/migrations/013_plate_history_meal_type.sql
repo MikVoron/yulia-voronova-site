@@ -1,0 +1,2 @@
+ALTER TABLE plate_history
+  ADD COLUMN IF NOT EXISTS meal_type VARCHAR(16);

@@ -313,6 +313,8 @@
 		function updateCompactTabMode(name) {
 			var main = document.querySelector('.cab-main');
 			if (!main) return;
+			main.classList.remove('tab-subscription', 'tab-history', 'tab-favorites', 'tab-notes', 'tab-feedback');
+			main.classList.add('tab-' + name);
 			main.classList.toggle('is-content-tab',
 				name === 'favorites' || name === 'history' || name === 'notes' || name === 'feedback');
 		}
@@ -896,24 +898,49 @@
 					const t = entry.totals || {};
 					const items = entry.items || [];
 					const timeStr = new Date(entry.date).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+					const primaryName = items.length ? String(items[0].name || 'Тарелка') : 'Тарелка';
+					const mealSummary = items.length === 1
+						? '1 блюдо'
+						: items.length + ' блюда: ' + items.map(function(it) { return String(it.name || ''); }).join(', ');
+					const mealType = Plate._safeMealType(entry.mealType);
 					const chips = [
 						Number(t.protein) ? `<span class="macro-chip prot">Б · ${t.protein}</span>` : '',
 						Number(t.fat)     ? `<span class="macro-chip fat">Ж · ${t.fat}</span>` : '',
 						Number(t.carbs)   ? `<span class="macro-chip carb">У · ${t.carbs}</span>` : '',
-						Number(t.fiber)   ? `<span class="macro-chip fib">К · ${t.fiber}</span>` : ''
+						Number(t.fiber)   ? `<span class="macro-chip fib">Клетч. · ${t.fiber}</span>` : ''
 					].filter(Boolean).join('');
+					const mealOptions = [
+						['', '+ Прием пищи'],
+						['breakfast', 'Завтрак'],
+						['lunch', 'Обед'],
+						['dinner', 'Ужин'],
+						['snack', 'Перекус']
+					].map(function(opt) {
+						return `<option value="${opt[0]}"${mealType === opt[0] ? ' selected' : ''}>${opt[1]}</option>`;
+					}).join('');
 					const itemsHtml = items.map(it => `<div class="meal-item">
 						<div class="meal-item-thumb">${escHtml(String(it.emoji || '🍴'))}</div>
 						<div class="meal-item-name"><b>${escHtml(String(it.name || ''))}</b></div>
 						<div class="meal-item-kcal">${Number(it.kcal) || 0} ккал</div>
 					</div>`).join('');
-					return `<article class="meal" id="he-${idx}">
-						<button class="meal-head" type="button" onclick="toggleHist(${idx})">
-							<span class="meal-time">${timeStr}</span>
-							<span class="meal-macros">${chips}</span>
-							<span class="meal-kcal">${Number(t.kcal) || 0}<small>ккал</small></span>
-							<span class="meal-chev">▾</span>
-						</button>
+					return `<article class="hist-card${idx === 0 ? ' open' : ''}" id="he-${idx}">
+						<div class="hist-card-row">
+							<div class="hist-time-col">
+								<span class="meal-time">${timeStr}</span>
+								<select class="hist-meal-type${mealType ? ' has-value' : ''}" aria-label="Прием пищи" onchange="setHistoryMealType('${encodeURIComponent(entry.date)}',this.value)">
+									${mealOptions}
+								</select>
+							</div>
+							<div class="hist-info">
+								<h3 class="hist-info-title">${escHtml(primaryName)}</h3>
+								<div class="hist-info-summary">${escHtml(mealSummary)}</div>
+								<div class="meal-macros">${chips}</div>
+							</div>
+							<div class="hist-side">
+								<span class="meal-kcal">${Number(t.kcal) || 0}<small>ккал</small></span>
+								<button class="hist-details" type="button" onclick="toggleHist(${idx})">Детали <span>⌄</span></button>
+							</div>
+						</div>
 						<div class="meal-body">
 							<div class="meal-items">${itemsHtml}</div>
 						</div>
@@ -933,6 +960,128 @@
 
 		function toggleHist(idx) {
 			document.getElementById('he-' + idx).classList.toggle('open');
+		}
+
+		function setHistoryMealType(encodedDate, mealType) {
+			Plate.setHistoryMealType(decodeURIComponent(encodedDate), mealType);
+			renderHistory();
+		}
+
+		function openHistoryExport() {
+			const historyBtn = document.querySelector('.cab-tab[onclick*="history"]');
+			if (historyBtn && !historyBtn.classList.contains('active')) switchTab('history', historyBtn);
+			const panel = document.getElementById('hist-export');
+			panel.classList.add('open');
+			updateHistoryDateRange();
+			panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}
+
+		function updateHistoryDateRange() {
+			const select = document.getElementById('hist-range');
+			const from = document.getElementById('hist-from');
+			const to = document.getElementById('hist-to');
+			if (!select || !from || !to) return;
+			const end = new Date();
+			if (select.value !== 'custom') {
+				const start = new Date(end);
+				start.setDate(end.getDate() - Number(select.value) + 1);
+				from.value = historyInputDate(start);
+				to.value = historyInputDate(end);
+			}
+			from.disabled = select.value !== 'custom';
+			to.disabled = select.value !== 'custom';
+		}
+
+		function historyInputDate(date) {
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			return year + '-' + month + '-' + day;
+		}
+
+		function getHistoryForExport() {
+			const fromValue = document.getElementById('hist-from').value;
+			const toValue = document.getElementById('hist-to').value;
+			const from = fromValue ? new Date(fromValue + 'T00:00:00') : null;
+			const to = toValue ? new Date(toValue + 'T23:59:59.999') : null;
+			return Plate.getHistory().filter(function(entry) {
+				const date = new Date(entry.date);
+				return (!from || date >= from) && (!to || date <= to);
+			});
+		}
+
+		function historyMealLabel(value) {
+			return Plate._mealTypes[Plate._safeMealType(value)] || '';
+		}
+
+		function downloadHistoryCsv(entries) {
+			const rows = [['Дата', 'Время', 'Прием пищи', 'Главное блюдо', 'Состав', 'Ккал', 'Белки, г', 'Жиры, г', 'Углеводы, г', 'Клетчатка, г', 'Источник']];
+			entries.forEach(function(entry) {
+				const d = new Date(entry.date);
+				const items = entry.items || [];
+				const t = entry.totals || {};
+				rows.push([
+					d.toLocaleDateString('ru-RU'),
+					d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+					historyMealLabel(entry.mealType),
+					items[0] ? String(items[0].name || '') : '',
+					items.map(function(item) { return String(item.name || ''); }).join('; '),
+					Number(t.kcal) || 0, Number(t.protein) || 0, Number(t.fat) || 0,
+					Number(t.carbs) || 0, Number(t.fiber) || 0, 'Умная тарелка Юлии Вороновой'
+				]);
+			});
+			const csv = '\uFEFF' + rows.map(function(row) {
+				return row.map(function(cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(';');
+			}).join('\n');
+			const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = 'umnaya-tarelka_history_' + document.getElementById('hist-from').value + '_' + document.getElementById('hist-to').value + '.csv';
+			link.click();
+			URL.revokeObjectURL(url);
+		}
+
+		function printHistoryPdf(entries) {
+			const popup = window.open('', '_blank');
+			if (!popup) {
+				if (typeof showToast === 'function') showToast('Разрешите всплывающее окно для сохранения PDF');
+				return;
+			}
+			const rows = entries.map(function(entry) {
+				const date = new Date(entry.date);
+				const items = entry.items || [];
+				const t = entry.totals || {};
+				return '<tr><td>' + escHtml(date.toLocaleDateString('ru-RU')) + '<br><small>' + escHtml(date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })) + '</small></td>'
+					+ '<td><b>' + escHtml(items[0] ? String(items[0].name || '') : '') + '</b><br><small>' + escHtml(items.map(function(item) { return String(item.name || ''); }).join(', ')) + '</small></td>'
+					+ '<td>' + escHtml(historyMealLabel(entry.mealType) || '-') + '</td>'
+					+ '<td class="num">' + (Number(t.kcal) || 0) + '</td></tr>';
+			}).join('');
+			const period = document.getElementById('hist-from').value + ' - ' + document.getElementById('hist-to').value;
+			popup.document.write('<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Журнал тарелок</title><style>'
+				+ 'body{font-family:Arial,sans-serif;color:#221f1c;margin:42px}header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid #221f1c;padding-bottom:15px}'
+				+ 'header b{font-family:Georgia,serif;font-size:27px}header b i{font-style:normal;color:#e8400a}header span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#777}'
+				+ 'h1{font:700 30px Georgia,serif;margin:34px 0 8px}.period{font-size:13px;color:#666;margin-bottom:28px}'
+				+ 'table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;border-bottom:1px solid #221f1c;padding:10px 8px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#777}'
+				+ 'td{border-bottom:1px solid #e5e1dc;padding:12px 8px;vertical-align:top}small{color:#666}.num{font:700 18px Georgia,serif;color:#e8400a;text-align:right}'
+				+ 'footer{margin-top:34px;padding-top:12px;border-top:1px solid #e5e1dc;text-align:center;color:#777;font-size:11px}'
+				+ '@media print{body{margin:22mm 16mm}}</style></head><body>'
+				+ '<header><b>Умная <i>тарелка</i></b><span>Юлия Воронова</span></header>'
+				+ '<h1>Журнал тарелок</h1><div class="period">' + escHtml(period) + ' · сформировано на voronova.online</div>'
+				+ '<table><thead><tr><th>Дата</th><th>Тарелка</th><th>Прием пищи</th><th style="text-align:right">Ккал</th></tr></thead><tbody>' + rows + '</tbody></table>'
+				+ '<footer>Умная тарелка Юлии Вороновой · voronova.online</footer></body></html>');
+			popup.document.close();
+			popup.focus();
+			setTimeout(function() { popup.print(); }, 250);
+		}
+
+		function exportHistory() {
+			const entries = getHistoryForExport();
+			if (!entries.length) {
+				if (typeof showToast === 'function') showToast('За выбранный период нет сохраненных тарелок');
+				return;
+			}
+			if (document.getElementById('hist-format').value === 'csv') downloadHistoryCsv(entries);
+			else printHistoryPdf(entries);
 		}
 
 		renderHistory();
@@ -1240,6 +1389,7 @@
                         <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.fiber) || 0}</div><div class="pv1-tot-key">Клетч., г</div></div>
                     </div>
                 </div>
+                ${plateMealTypePickerHtml()}
                 <div class="pv1-actions">
                     <div class="pv1-actions-row">
                         <button class="pv1-btn" onclick="location.href='index.html'">← На главную</button>
@@ -1261,7 +1411,7 @@
 		function removePlateItem(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
 		function savePlateCabinet() {
 			if (!Plate.count()) return;
-			Plate.saveHistory();
+			Plate.saveHistory(getSelectedPlateMealType());
 			updatePlateIcon();
 			renderHistory();
 			closePlate();
