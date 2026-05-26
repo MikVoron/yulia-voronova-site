@@ -13827,6 +13827,15 @@ button[class*="btn-"]:hover,
     stroke: currentColor;
 }
 
+/* Декоративная изогнутая стрелка от «Читать» к круглым иконкам соцсетей */
+.blog-read-arrow {
+    color: var(--sage-green, #8a9a8d);
+    pointer-events: none;
+    flex-shrink: 0;
+    overflow: visible;
+    margin: -2px -2px 0 0;
+}
+
 .blog-cta-icon {
     width: 36px;
     height: 36px;
@@ -15749,4 +15758,36 @@ button[class*="btn-"]:hover,
 }
 .blog-icon.page-flip {
     animation: page-flip 0.6s ease-out;
+}
+
+
+/* === Mobile (≤767px): соцсети как круглые иконки, единообразно в обоих блоках === */
+@media (max-width: 767px) {
+    /* CTA карточек: скрыть «Читать» + декоративную стрелку */
+    .blog-read-label { display: none; }
+
+    /* Верхний блок «Подписаться» (только .blog-hero-actions, чтобы не задеть
+       нижний блок «Смотреть посты» с тем же классом .blog-platform-links):
+       подписи скрыты, кнопки — круглые иконки */
+    .blog-hero-actions .blog-platform-links {
+        flex-wrap: nowrap;
+        justify-content: center;
+        gap: 12px;
+    }
+    .blog-hero-actions .btn-subscribe {
+        width: 40px;
+        height: 40px;
+        min-width: 0;
+        max-width: none;
+        padding: 0;
+        gap: 0;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .blog-hero-actions .btn-subscribe svg { width: 18px; height: 18px; }
+    .blog-hero-actions .btn-subscribe-label { display: none; }
+
+    /* Единый размер круглых иконок: 40px / промежуток 12px в обоих блоках */
+    .blog-cta-row { gap: 12px; }
+    .blog-cta-icon { width: 40px; height: 40px; }
 }

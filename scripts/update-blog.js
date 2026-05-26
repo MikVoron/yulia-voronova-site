@@ -230,7 +230,7 @@ function articleCardTemplate(post, index, vkLinks, dzenLinks) {
         ? `\n\t\t\t\t\t\t\t<a href="${dzenUrl}" target="_blank" rel="noopener" class="blog-cta-icon" aria-label="Читать в Дзене">${DZEN_SVG}</a>`
         : '';
     const ctaHtml = `<div class="blog-cta-row">
-							<span class="blog-read-label" aria-hidden="true">Читать <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+							<span class="blog-read-label" aria-hidden="true">Читать <svg class="blog-read-arrow" width="30" height="26" viewBox="0 0 38 34" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 17C5 8 19 6 30 20" stroke-linecap="round"/><path d="M23 18 30.5 22 34 13" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
 							<a href="${postUrl}" target="_blank" rel="noopener" class="blog-cta-icon" aria-label="Читать в Telegram">${TG_SVG}</a>${vkIconHtml}${dzenIconHtml}
 						</div>`;
 
