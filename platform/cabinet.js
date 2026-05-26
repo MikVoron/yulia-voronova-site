@@ -910,14 +910,15 @@
 						Number(t.fiber)   ? `<span class="macro-chip fib">Клетч. · ${t.fiber}</span>` : ''
 					].filter(Boolean).join('');
 					const mealOptions = [
-						['', '+ Прием пищи'],
 						['breakfast', 'Завтрак'],
 						['lunch', 'Обед'],
 						['dinner', 'Ужин'],
-						['snack', 'Перекус']
+						['snack', 'Перекус'],
+						['', 'Не указывать']
 					].map(function(opt) {
-						return `<option value="${opt[0]}"${mealType === opt[0] ? ' selected' : ''}>${opt[1]}</option>`;
+						return `<button type="button" onclick="chooseHistoryMealType('${encodeURIComponent(entry.date)}','${opt[0]}')">${opt[1]}</button>`;
 					}).join('');
+					const mealLabel = mealType ? Plate._mealTypes[mealType] + ' ▾' : '+ Прием пищи';
 					const itemsHtml = items.map(it => `<div class="meal-item">
 						<div class="meal-item-thumb">${escHtml(String(it.emoji || '🍴'))}</div>
 						<div class="meal-item-name"><b>${escHtml(String(it.name || ''))}</b></div>
@@ -927,9 +928,10 @@
 						<div class="hist-card-row">
 							<div class="hist-time-col">
 								<span class="meal-time">${timeStr}</span>
-								<select class="hist-meal-type${mealType ? ' has-value' : ''}" aria-label="Прием пищи" onchange="setHistoryMealType('${encodeURIComponent(entry.date)}',this.value)">
-									${mealOptions}
-								</select>
+								<div class="hist-meal-picker${mealType ? ' has-value' : ''}">
+									<button class="hist-meal-button" type="button" aria-haspopup="menu" aria-expanded="false" onclick="toggleHistoryMealMenu(this)">${mealLabel}</button>
+									<div class="hist-meal-menu" role="menu">${mealOptions}</div>
+								</div>
 							</div>
 							<div class="hist-info">
 								<h3 class="hist-info-title">${escHtml(primaryName)}</h3>
@@ -967,13 +969,39 @@
 			renderHistory();
 		}
 
+		function toggleHistoryMealMenu(button) {
+			const picker = button.closest('.hist-meal-picker');
+			const willOpen = !picker.classList.contains('open');
+			closeHistoryMealMenus();
+			picker.classList.toggle('open', willOpen);
+			button.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+		}
+
+		function closeHistoryMealMenus() {
+			document.querySelectorAll('.hist-meal-picker.open').forEach(function(picker) {
+				picker.classList.remove('open');
+				const button = picker.querySelector('.hist-meal-button');
+				if (button) button.setAttribute('aria-expanded', 'false');
+			});
+		}
+
+		function chooseHistoryMealType(encodedDate, mealType) {
+			closeHistoryMealMenus();
+			setHistoryMealType(encodedDate, mealType);
+		}
+
 		function openHistoryExport() {
 			const historyBtn = document.querySelector('.cab-tab[onclick*="history"]');
 			if (historyBtn && !historyBtn.classList.contains('active')) switchTab('history', historyBtn);
 			const panel = document.getElementById('hist-export');
+			if (!panel.classList.contains('open')) updateHistoryDateRange();
 			panel.classList.add('open');
-			updateHistoryDateRange();
 			panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}
+
+		function closeHistoryExport() {
+			const panel = document.getElementById('hist-export');
+			if (panel) panel.classList.remove('open');
 		}
 
 		function updateHistoryDateRange() {
@@ -988,8 +1016,11 @@
 				from.value = historyInputDate(start);
 				to.value = historyInputDate(end);
 			}
-			from.disabled = select.value !== 'custom';
-			to.disabled = select.value !== 'custom';
+		}
+
+		function useCustomHistoryRange() {
+			const select = document.getElementById('hist-range');
+			if (select) select.value = 'custom';
 		}
 
 		function historyInputDate(date) {
@@ -1083,6 +1114,17 @@
 			if (document.getElementById('hist-format').value === 'csv') downloadHistoryCsv(entries);
 			else printHistoryPdf(entries);
 		}
+
+		document.addEventListener('click', function(event) {
+			if (!event.target.closest('.hist-meal-picker')) closeHistoryMealMenus();
+		});
+
+		document.addEventListener('keydown', function(event) {
+			if (event.key === 'Escape') {
+				closeHistoryMealMenus();
+				closeHistoryExport();
+			}
+		});
 
 		renderHistory();
 

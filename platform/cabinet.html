@@ -139,8 +139,9 @@
 		.cab-kpi-label {
 			font-size: 10px; font-weight: 800; letter-spacing: .18em;
 			text-transform: uppercase; color: var(--text-3);
+			min-height: 28px; line-height: 1.45;
 		}
-		.cab-kpi-row { display: flex; align-items: baseline; gap: 10px; }
+		.cab-kpi-row { display: flex; align-items: baseline; gap: 10px; min-height: 48px; }
 		.cab-kpi-val {
 			font-family: var(--serif); font-size: 44px; font-weight: 700;
 			line-height: 1; color: var(--text); letter-spacing: -.02em;
@@ -149,9 +150,9 @@
 			font-size: 13px; font-weight: 600; color: var(--text-2);
 			letter-spacing: .04em;
 		}
-		.cab-kpi-hint { font-size: 12px; color: var(--text-3); }
+		.cab-kpi-hint { min-height: 34px; font-size: 12px; line-height: 1.45; color: var(--text-3); }
 		.cab-kpi-export {
-			margin-top: auto; padding: 8px 0 0;
+			min-height: 34px; padding: 3px 0 0;
 			display: inline-flex; align-items: center; gap: 7px; align-self: flex-start;
 			border: none; border-bottom: 1px solid var(--accent); background: transparent;
 			color: var(--accent); cursor: pointer;
@@ -730,13 +731,28 @@
 		.meal-item-name b { font-weight: 700; }
 		.meal-item-kcal { font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--text-2); white-space: nowrap; }
 		.hist-export {
-			display: none; margin: 0 0 26px; padding: 20px;
+			position: relative; margin: 0 0 0; padding: 0 20px;
 			border: 1px solid var(--border); background: #faf8f5;
+			max-height: 0; opacity: 0; overflow: hidden; visibility: hidden;
+			transform: translateY(-6px);
+			transition: max-height .28s ease, opacity .2s ease, transform .25s ease, padding .25s ease, margin .25s ease, visibility 0s linear .28s;
 		}
-		.hist-export.open { display: block; }
+		.hist-export.open {
+			margin-bottom: 26px; padding: 20px;
+			max-height: 560px; opacity: 1; visibility: visible; transform: translateY(0);
+			transition-delay: 0s;
+		}
 		.hist-export-title {
-			font-family: var(--serif); font-size: 20px; font-weight: 700; margin: 0 0 16px;
+			font-family: var(--serif); font-size: 20px; font-weight: 700; margin: 0 0 16px; padding-right: 36px;
 		}
+		.hist-export-close {
+			position: absolute; top: 16px; right: 16px;
+			width: 30px; height: 30px; border: 1px solid transparent; background: transparent;
+			color: var(--text-3); cursor: pointer; display: grid; place-items: center;
+			transition: border-color .15s, color .15s, transform .25s;
+		}
+		.hist-export-close:hover { border-color: var(--border); color: var(--accent); transform: rotate(90deg); }
+		.hist-export-close svg { width: 16px; height: 16px; display: block; }
 		.hist-export-controls {
 			display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr auto;
 			gap: 10px; align-items: end;
@@ -769,14 +785,28 @@
 			padding-right: 18px; border-right: 1px solid var(--border);
 		}
 		.hist-time-col .meal-time { display: block; font-size: 22px; }
-		.hist-meal-type {
-			margin-top: 9px; width: 100%; padding: 5px 4px;
-			border: 1px dashed var(--border); background: #fff; color: var(--text-3);
-			font: 800 9px var(--sans); letter-spacing: .05em; text-transform: uppercase;
+		.hist-meal-picker {
+			display: inline-flex; position: relative; margin-top: 9px;
 		}
-		.hist-meal-type.has-value {
+		.hist-meal-button {
+			padding: 5px 7px; border: 1px dashed var(--border); background: #fff;
+			color: var(--text-3); font: 800 9px var(--sans); letter-spacing: .07em;
+			text-transform: uppercase; cursor: pointer; white-space: nowrap;
+		}
+		.hist-meal-picker.has-value .hist-meal-button {
 			background: var(--accent-l); border-style: solid; border-color: #f3c4b6; color: var(--accent);
 		}
+		.hist-meal-menu {
+			display: none; position: absolute; top: calc(100% + 5px); left: 0; z-index: 4;
+			min-width: 142px; padding: 5px; background: #fff; border: 1px solid var(--border);
+			box-shadow: 0 8px 22px rgba(34,31,28,.12);
+		}
+		.hist-meal-picker.open .hist-meal-menu { display: block; }
+		.hist-meal-menu button {
+			display: block; width: 100%; padding: 8px 9px; border: 0; background: transparent;
+			color: var(--text); text-align: left; font-family: var(--sans); font-size: 11px; cursor: pointer;
+		}
+		.hist-meal-menu button:hover { color: var(--accent); background: var(--accent-l); }
 		.hist-info-title {
 			margin: 0 0 7px; font-size: 16px; font-weight: 700;
 		}
@@ -1220,7 +1250,7 @@
 				padding: 0 0 11px; border-right: none; border-bottom: 1px solid var(--border);
 			}
 			.hist-time-col .meal-time { font-size: 18px; min-width: 0; }
-			.hist-meal-type { margin-top: 0; width: auto; }
+			.hist-meal-picker { margin-top: 0; width: auto; }
 			.hist-side { min-width: 94px; }
 			.hist-card .meal-body { padding: 0 15px 14px; }
 			.hist-export-controls { grid-template-columns: 1fr 1fr; }
@@ -1598,6 +1628,9 @@
 					<span class="cab-sec-title-meta">Архив ваших блюд</span>
 				</div>
 				<div class="hist-export" id="hist-export">
+					<button class="hist-export-close" type="button" onclick="closeHistoryExport()" aria-label="Закрыть выгрузку">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+					</button>
 					<h3 class="hist-export-title">Выгрузить Журнал</h3>
 					<div class="hist-export-controls">
 						<div class="hist-export-field">
@@ -1610,11 +1643,11 @@
 						</div>
 						<div class="hist-export-field">
 							<label for="hist-from">С</label>
-							<input type="date" id="hist-from">
+							<input type="date" id="hist-from" onchange="useCustomHistoryRange()">
 						</div>
 						<div class="hist-export-field">
 							<label for="hist-to">По</label>
-							<input type="date" id="hist-to">
+							<input type="date" id="hist-to" onchange="useCustomHistoryRange()">
 						</div>
 						<div class="hist-export-field">
 							<label for="hist-format">Формат</label>
@@ -1791,7 +1824,7 @@
 	<script src="data-v2.js?v=2026052601"></script>
 	<script src="ingredients.js?v=2"></script>
 	<script src="header-nav.js?v=5-mobile-drawer-scroll-lock"></script>
-	<script src="cabinet.js?v=2026052601"></script>
+	<script src="cabinet.js?v=2026052602"></script>
 
 	<!-- Tawk.to -->
 	<script>
