@@ -224,7 +224,7 @@
 		   hero-search не меняются; планшет и mobile (≤767px) не затрагиваются.
 		   Парный override для .sp-new-block — ниже его базового правила. */
 		@media (min-width: 1024px) {
-			.sp-hero { padding: 20px 0 40px; }
+			.sp-hero { padding: 20px 0 22px; }
 		}
 		.sp-hero-text { min-width: 0; position: relative; }
 		.sp-hero-favorites {
@@ -256,9 +256,10 @@
 			margin: 0 0 18px;
 		}
 		.sp-hero-sub {
-			font-size: 16px; line-height: 1.55;
-			color: var(--text-2);
-			max-width: 50ch; margin: 0 0 28px;
+			font-size: 18px; line-height: 1.55;
+			font-weight: 500;
+			color: var(--text);
+			max-width: 50ch; margin: 0 0 24px;
 		}
 		.sp-hero-aside {
 			display: flex; flex-direction: column;
@@ -498,7 +499,7 @@
 			.sp-hero-eyebrow { padding-right: 54px; }
 			.sp-hero-aside { order: -1; }
 			.sp-hero-title { font-size: 30px; }
-			.sp-hero-sub { font-size: 14px; margin-bottom: 22px; }
+			.sp-hero-sub { font-size: 14px; font-weight: 400; color: var(--text-2); margin-bottom: 22px; }
 
 			.sp-home .sp-cats-section { padding-block: 28px; }
 			.sp-home .cat-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
@@ -867,7 +868,7 @@
 		/* Desktop (≥1024px): «Новое» ближе к hero (−16px). Ниже базового правила,
 		   чтобы override применялся при равной специфичности. */
 		@media (min-width: 1024px) {
-			.sp-new-block { margin-top: 20px; }
+			.sp-new-block { margin-top: 8px; }
 		}
 		.sp-new-grid {
 			display: grid;
