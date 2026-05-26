@@ -226,18 +226,12 @@ function articleCardTemplate(post, index, vkLinks, dzenLinks) {
     const vkIconHtml = vkUrl
         ? `\n\t\t\t\t\t\t\t<a href="${vkUrl}" target="_blank" rel="noopener" class="blog-cta-icon" aria-label="Читать во VK">${VK_SVG}</a>`
         : '';
-    const ctaHtml = dzenUrl && vkUrl
-        ? `<div class="blog-cta-row blog-cta-row--sources">
-							<a href="${postUrl}" target="_blank" rel="noopener" class="blog-source-link" aria-label="Читать в Telegram">${TG_SVG}<span>Telegram</span></a>
-							<a href="${vkUrl}" target="_blank" rel="noopener" class="blog-source-link" aria-label="Читать во VK">${VK_SVG}<span>VK</span></a>
-							<a href="${dzenUrl}" target="_blank" rel="noopener" class="blog-source-link" aria-label="Читать в Дзене">${DZEN_SVG}<span>Дзен</span></a>
-						</div>`
-        : `<div class="blog-cta-row">
-							<a href="${postUrl}" target="_blank" rel="noopener" class="btn-read-more">
-								Читать
-								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-							</a>
-							<a href="${postUrl}" target="_blank" rel="noopener" class="blog-cta-icon" aria-label="Читать в Telegram">${TG_SVG}</a>${vkIconHtml}
+    const dzenIconHtml = dzenUrl
+        ? `\n\t\t\t\t\t\t\t<a href="${dzenUrl}" target="_blank" rel="noopener" class="blog-cta-icon" aria-label="Читать в Дзене">${DZEN_SVG}</a>`
+        : '';
+    const ctaHtml = `<div class="blog-cta-row">
+							<span class="blog-read-label" aria-hidden="true">Читать <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+							<a href="${postUrl}" target="_blank" rel="noopener" class="blog-cta-icon" aria-label="Читать в Telegram">${TG_SVG}</a>${vkIconHtml}${dzenIconHtml}
 						</div>`;
 
     return `\t\t\t<!-- Пост ${index + 1} -->
