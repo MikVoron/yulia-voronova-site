@@ -165,16 +165,31 @@
 		}
 
 		.cab-weight-input {
-			width: 110px; height: 52px; box-sizing: border-box; padding: 0;
+			/* Та же метрика, что .cab-kpi-val, чтобы значение веса стояло на одной
+			   линии с остальными KPI. Высоту НЕ фиксируем: input сам сжимается до
+			   line-box (44px), иначе текст центрируется и «55» уезжает вниз. */
+			/* Ширина: фолбэк под «999,5» (5 знаков с .5) для браузеров без field-sizing
+			   (Safari). Где field-sizing есть — поле хугает контент (см. @supports ниже),
+			   поэтому линия focus в типичных значениях заметно короче прежних 110px. */
+			width: 4.75ch; box-sizing: content-box; padding: 0;
 			font-family: var(--serif); font-size: 44px; font-weight: 700;
 			color: var(--text); text-align: left;
 			background: transparent; border: none;
-			border-bottom: 2px solid var(--border);
+			/* Прозрачная линия резервирует место — линия на hover/focus не сдвигает контент. */
+			border-bottom: 2px solid transparent;
 			outline: none; transition: border-color .2s;
 			line-height: 1; letter-spacing: -.02em; appearance: textfield;
 		}
+		/* Поле растёт под содержимое: «55» → короткая линия, дробные/3-значные не
+		   обрезаются. width:auto обязателен — иначе явная ширина перебьёт field-sizing.
+		   max-width страхует от слишком длинной линии на крайних значениях. */
+		@supports (field-sizing: content) {
+			.cab-weight-input { field-sizing: content; width: auto; min-width: 1.5ch; max-width: 5.5ch; }
+		}
 		.cab-weight-input::-webkit-outer-spin-button,
 		.cab-weight-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+		/* Вариант A: в покое линии нет, аффорданс редактирования — на hover/focus. */
+		.cab-weight-input:hover,
 		.cab-weight-input:focus { border-bottom-color: var(--accent); }
 
 		/* ── TABS ─────────────────────────────────────────────────────── */
@@ -1202,7 +1217,6 @@
 			.cab-kpi-strip { grid-template-columns: 1fr; gap: 10px; }
 			.cab-kpi { padding: 18px 22px; }
 			.cab-kpi-val, .cab-weight-input { font-size: 38px; }
-			.cab-weight-input { width: 96px; }
 			.cab-main.tab-subscription .cab-kpi:not(.kpi-base),
 			.cab-main.tab-history .cab-kpi:not(.kpi-history),
 			.cab-main.tab-favorites .cab-kpi:not(.kpi-favorites) { display: none !important; }
@@ -1456,14 +1470,14 @@
 						<div class="cab-kpi kpi-base">
 							<span class="cab-kpi-label"><svg class="cab-kpi-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a4 4 0 0 1 4 4c0 1.5-.8 2.5-1.5 3.5C16 12 19 14 19 18a7 7 0 0 1-14 0c0-4 3-6 4.5-7.5C8.8 9.5 8 8.5 8 7a4 4 0 0 1 4-4z"/></svg>Мой вес</span>
 							<div class="cab-kpi-row">
-								<input type="number" class="cab-weight-input" id="cab-weight" placeholder="—" min="30" max="999" step="0.5" maxlength="3" oninput="if(this.value.length>3)this.value=this.value.slice(0,3);saveWeight(this.value)" onchange="saveWeight(this.value)">
+								<input type="number" class="cab-weight-input" id="cab-weight" placeholder="—" min="30" max="300" step="0.5" inputmode="decimal" oninput="previewWeight(this.value)" onblur="commitWeight(this)">
 								<span class="cab-kpi-unit">кг</span>
 							</div>
 							<span class="cab-kpi-hint">Введите вес — рассчитаем норму воды</span>
 						</div>
 
 						<div class="cab-kpi kpi-base" id="water-norm" style="display:none">
-							<span class="cab-kpi-label"><svg class="cab-kpi-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>Норма воды сегодня</span>
+							<span class="cab-kpi-label"><svg class="cab-kpi-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>Норма воды</span>
 							<div class="cab-kpi-row">
 								<span class="cab-kpi-val" id="water-val"></span>
 								<span class="cab-kpi-unit" id="water-unit"></span>
@@ -1831,7 +1845,7 @@
 	<script src="data-v2.js?v=2026052601"></script>
 	<script src="ingredients.js?v=2"></script>
 	<script src="header-nav.js?v=5-mobile-drawer-scroll-lock"></script>
-	<script src="cabinet.js?v=2026052604"></script>
+	<script src="cabinet.js?v=2026052701"></script>
 
 	<!-- Tawk.to -->
 	<script>

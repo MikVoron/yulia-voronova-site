@@ -246,11 +246,38 @@
 			img.src = URL.createObjectURL(file);
 		}
 
-		function saveWeight(v) {
+		// Допустимо: 30–300 кг и только шаг 0.5 (как step в разметке).
+		// n*2 — целое только для кратных 0.5 (.5 точно представима в float),
+		// поэтому 55 и 55.5 проходят, а 55.3 / 29.5 / 300.5 — нет.
+		function isValidWeight(n) {
+			return n >= 30 && n <= 300 && Number.isInteger(n * 2);
+		}
+		// Во время набора (oninput): живой пересчёт воды для валидного значения,
+		// БЕЗ записи в localStorage. Иначе промежуточный префикс (напр. «55.» при
+		// наборе «55.3») затёр бы сохранённый вес. Невалидное — игнорируем.
+		function previewWeight(v) {
 			const n = parseFloat(v);
-			if (n >= 30 && n <= 300) {
+			if (isValidWeight(n)) updateWaterNorm(n);
+		}
+		// Фиксация на blur: валидное — сохраняем и пересчитываем; невалидное —
+		// откатываем поле к последнему сохранённому (и воду), а если сохранённого
+		// нет — очищаем поле и скрываем карточку воды.
+		function commitWeight(el) {
+			const n = parseFloat(el.value);
+			if (isValidWeight(n)) {
+				el.value = n;  // нормализуем отображение («045» → «45», «55,5»→«55.5»)
 				localStorage.setItem(Auth._userKey('user_weight'), n);
 				updateWaterNorm(n);
+				return;
+			}
+			const saved = localStorage.getItem(Auth._userKey('user_weight'));
+			if (saved !== null && saved !== '') {
+				el.value = saved;
+				updateWaterNorm(parseFloat(saved));
+			} else {
+				el.value = '';
+				const norm = document.getElementById('water-norm');
+				if (norm) norm.style.display = 'none';
 			}
 		}
 		// ── Newsletter toggle ─────────────────────────────
