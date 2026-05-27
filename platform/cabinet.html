@@ -188,6 +188,12 @@
 		}
 		.cab-weight-input::-webkit-outer-spin-button,
 		.cab-weight-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+		/* Оптическая коррекция: браузер даёт number-input более высокий line-box (~59px
+		   vs 44px у .cab-kpi-val) и центрирует текст, из-за чего «55» садится ~3.5px ниже
+		   соседних span-значений. Поднимаем число и его «кг» на ту же величину, чтобы
+		   вес встал на одну линию с 1.6/8/2 и взаимное положение с единицей сохранилось. */
+		.cab-weight-input,
+		.cab-weight-input + .cab-kpi-unit { transform: translateY(-3.5px); }
 		/* Вариант A: в покое линии нет, аффорданс редактирования — на hover/focus. */
 		.cab-weight-input:hover,
 		.cab-weight-input:focus { border-bottom-color: var(--accent); }
