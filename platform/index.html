@@ -2945,6 +2945,8 @@
 			}
 
 			const t = Plate.totals();
+			const hydrationWeight = getPlateWeight();
+			const hydrationWater = Math.round(hydrationWeight * 30);
 			const ingCount = items.reduce((n, it) => n + ((it.ingredients && it.ingredients.length) || 0), 0);
 			const list = items.map((item, i) => {
 				const adds = item.additions || [];
@@ -2994,12 +2996,12 @@
                 </span>
                 <span class="hydration-label">Ваш вес</span>
                 <span class="hydration-input-wrap">
-                    <input class="hydration-input" type="number" id="w-inp" value="60" min="30" max="200" oninput="updateWater()" aria-label="Ваш вес в килограммах">
+                    <input class="hydration-input" type="number" id="w-inp" value="${hydrationWeight}" min="30" max="300" step="0.5" oninput="updateWater()" onblur="commitPlateWeight()" aria-label="Ваш вес в килограммах">
                     <span class="hydration-unit">кг</span>
                 </span>
                 <span class="hydration-arrow" aria-hidden="true">→</span>
                 <span class="hydration-label">Норма воды</span>
-                <span class="hydration-target"><span id="w-res">1800</span><small>мл</small></span>
+                <span class="hydration-target"><span id="w-res">${hydrationWater}</span><small>мл</small></span>
             </div>
             <div class="shop" id="shop-block">
                 <div class="shop-head">
@@ -3016,9 +3018,26 @@
 		}
 
 		function removeItem(i) { Plate.remove(i); renderPlateModal(); updatePlateIcon(); renderPlateInline(); }
+		function getPlateWeight() {
+			const saved = parseFloat(localStorage.getItem(Auth._userKey('user_weight')));
+			return Number.isFinite(saved) && saved >= 30 && saved <= 300 && Number.isInteger(saved * 2) ? saved : 60;
+		}
 		function updateWater() {
-			const w = parseInt(document.getElementById('w-inp').value) || 60;
-			document.getElementById('w-res').textContent = (w * 30);
+			const w = parseFloat(document.getElementById('w-inp').value);
+			if (!Number.isFinite(w) || w < 30 || w > 300) return;
+			document.getElementById('w-res').textContent = Math.round(w * 30);
+		}
+		function commitPlateWeight() {
+			const input = document.getElementById('w-inp');
+			const w = parseFloat(input.value);
+			if (Number.isFinite(w) && w >= 30 && w <= 300 && Number.isInteger(w * 2)) {
+				input.value = w;
+				localStorage.setItem(Auth._userKey('user_weight'), String(w));
+				updateWater();
+				return;
+			}
+			input.value = getPlateWeight();
+			updateWater();
 		}
 		function doShare() { shareShoppingList(); }
 		function doCopy() {
