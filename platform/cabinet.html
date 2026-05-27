@@ -123,25 +123,29 @@
 		.cab-kpi-strip {
 			margin-top: 28px;
 			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-			border: 1px solid var(--border);
-			background: #faf8f5;
-			overflow: hidden;
+			grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+			gap: 14px;
 		}
 		.cab-kpi {
 			padding: 22px 26px;
 			display: grid; grid-template-rows: 30px 52px 38px; gap: 8px;
 			align-content: start;
-			border-right: 1px solid var(--border);
-			border-bottom: 1px solid var(--border);
-			margin-right: -1px;
-			margin-bottom: -1px;
+			background: #fff;
+			border: 1px solid var(--border);
+			border-top: 3px solid var(--text);
+			transition: border-top-color .18s, box-shadow .18s;
 		}
+		@media (hover: hover) and (pointer: fine) {
+			.cab-kpi:hover { border-top-color: var(--accent); box-shadow: 0 6px 18px rgba(34,31,28,.07); }
+		}
+		.cab-kpi.kpi-base:focus-within { border-top-color: var(--accent); box-shadow: 0 6px 18px rgba(34,31,28,.07); }
 		.cab-kpi-label {
+			display: flex; align-items: center; gap: 7px;
 			font-size: 10px; font-weight: 800; letter-spacing: .18em;
 			text-transform: uppercase; color: var(--text-3);
 			height: 30px; line-height: 1.45;
 		}
+		.cab-kpi-ico { width: 15px; height: 15px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.7; }
 		.cab-kpi-row { display: flex; align-items: flex-start; gap: 10px; height: 52px; }
 		.cab-kpi-val {
 			font-family: var(--serif); font-size: 44px; font-weight: 700;
@@ -1194,10 +1198,9 @@
 			.cab-name { font-size: 36px; }
 			.cab-hero-name-row { flex-direction: row; align-items: center; }
 
-			/* ── KPI: вертикальная полоса ─────────────────────────────── */
-			.cab-kpi-strip { grid-template-columns: 1fr; }
-			.cab-kpi { padding: 18px 22px; border-right: none; border-bottom: 1px solid var(--border); margin: 0; }
-			.cab-kpi:last-child { border-bottom: none; }
+			/* ── KPI: одна колонка отдельных карточек ─────────────────── */
+			.cab-kpi-strip { grid-template-columns: 1fr; gap: 10px; }
+			.cab-kpi { padding: 18px 22px; }
 			.cab-kpi-val, .cab-weight-input { font-size: 38px; }
 			.cab-weight-input { width: 96px; }
 			.cab-main.tab-subscription .cab-kpi:not(.kpi-base),
@@ -1451,7 +1454,7 @@
 
 					<div class="cab-kpi-strip">
 						<div class="cab-kpi kpi-base">
-							<span class="cab-kpi-label">Мой вес</span>
+							<span class="cab-kpi-label"><svg class="cab-kpi-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a4 4 0 0 1 4 4c0 1.5-.8 2.5-1.5 3.5C16 12 19 14 19 18a7 7 0 0 1-14 0c0-4 3-6 4.5-7.5C8.8 9.5 8 8.5 8 7a4 4 0 0 1 4-4z"/></svg>Мой вес</span>
 							<div class="cab-kpi-row">
 								<input type="number" class="cab-weight-input" id="cab-weight" placeholder="—" min="30" max="999" step="0.5" maxlength="3" oninput="if(this.value.length>3)this.value=this.value.slice(0,3);saveWeight(this.value)" onchange="saveWeight(this.value)">
 								<span class="cab-kpi-unit">кг</span>
@@ -1460,7 +1463,7 @@
 						</div>
 
 						<div class="cab-kpi kpi-base" id="water-norm" style="display:none">
-							<span class="cab-kpi-label">Норма воды сегодня</span>
+							<span class="cab-kpi-label"><svg class="cab-kpi-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>Норма воды сегодня</span>
 							<div class="cab-kpi-row">
 								<span class="cab-kpi-val" id="water-val"></span>
 								<span class="cab-kpi-unit" id="water-unit"></span>
@@ -1469,15 +1472,15 @@
 						</div>
 
 						<div class="cab-kpi kpi-history">
-							<span class="cab-kpi-label">Собрано тарелок</span>
+							<span class="cab-kpi-label"><svg class="cab-kpi-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>Собрано тарелок</span>
 							<div class="cab-kpi-row">
 								<span class="cab-kpi-val" id="cab-plates-count">0</span>
 							</div>
-							<button class="cab-kpi-export" type="button" onclick="openHistoryExport()">Выгрузить историю</button>
+							<button class="cab-kpi-export" type="button" onclick="openHistoryExport()">Выгрузить журнал →</button>
 						</div>
 
 						<div class="cab-kpi kpi-favorites">
-							<span class="cab-kpi-label">В избранном</span>
+							<span class="cab-kpi-label"><svg class="cab-kpi-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.3-7-9.3A3.7 3.7 0 0 1 12 7a3.7 3.7 0 0 1 7-1.3c0 5-7 9.3-7 9.3z"/></svg>В избранном</span>
 							<div class="cab-kpi-row">
 								<span class="cab-kpi-val" id="cab-favorites-count">0</span>
 							</div>
