@@ -1888,6 +1888,39 @@ img { display: block; max-width: 100%; }
 }
 #v2-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* ── APP CONFIRM (showAppConfirm в data-v2.js) ───────────
+   Фирменный confirm на базе .modal-overlay/.modal-box. Кнопки
+   в editorial-стиле (sharp, caps), как в balance-модалках рецепта. */
+.modal-overlay.app-confirm { align-items: center; }
+.app-confirm-box {
+    width: calc(100% - 32px); max-width: 380px;
+    border-radius: 0; border: 1px solid var(--border);
+    padding: 26px 24px 22px; text-align: center;
+}
+@media (min-width: 768px) {
+    .app-confirm-box { width: 380px; border-radius: 0; }
+}
+.app-confirm-title {
+    font-size: 15px; font-weight: 800; letter-spacing: .04em;
+    color: var(--text); line-height: 1.35; margin-bottom: 10px;
+}
+.app-confirm-text {
+    font-size: 14px; color: var(--text-2); line-height: 1.5; margin-bottom: 20px;
+}
+.app-confirm-actions { display: flex; flex-direction: column; gap: 10px; }
+.app-confirm-btn {
+    padding: 13px 16px; border-radius: 0; font-family: inherit;
+    font-size: 12px; font-weight: 800; letter-spacing: .12em;
+    text-transform: uppercase; cursor: pointer;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.app-confirm-ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+.app-confirm-ok:hover, .app-confirm-ok:focus-visible { background: var(--text); border-color: var(--text); outline: none; }
+.app-confirm-ok.is-danger { background: #c0392b; border-color: #c0392b; }
+.app-confirm-ok.is-danger:hover, .app-confirm-ok.is-danger:focus-visible { background: #a5281b; border-color: #a5281b; }
+.app-confirm-cancel { background: #fff; color: var(--text); border: 1px solid var(--text); }
+.app-confirm-cancel:hover, .app-confirm-cancel:focus-visible { background: var(--text); color: #fff; outline: none; }
+
 /* ── JULIA STRIP ─────────────────────────────────────── */
 .julia-strip {
     display: flex; align-items: flex-start; gap: 20px;

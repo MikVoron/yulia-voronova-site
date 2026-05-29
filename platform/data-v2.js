@@ -1033,6 +1033,73 @@ function showToast(msg, ms = 2800) {
     el._t = setTimeout(() => el.classList.remove('show'), ms);
 }
 
+// ─── CONFIRM (фирменный, вместо нативного confirm()) ──────────────────────────
+// Возвращает Promise<boolean>. Закрытие: Esc / клик по backdrop / Отмена → false,
+// подтверждающая кнопка → true. Фокус ставится на главную кнопку и
+// восстанавливается на элемент, который был активен до открытия.
+// Использует общий паттерн .modal-overlay/.modal-box (style-v4.css).
+function showAppConfirm(opts = {}) {
+    const {
+        title = 'Подтвердите действие',
+        text = '',
+        confirmText = 'Подтвердить',
+        cancelText = 'Отмена',
+        danger = false,
+    } = opts;
+    return new Promise(resolve => {
+        const prevFocus = document.activeElement;
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay app-confirm';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.innerHTML =
+            '<div class="modal-box app-confirm-box">' +
+                '<div class="app-confirm-title"></div>' +
+                (text ? '<div class="app-confirm-text"></div>' : '') +
+                '<div class="app-confirm-actions">' +
+                    '<button type="button" class="app-confirm-btn app-confirm-cancel"></button>' +
+                    '<button type="button" class="app-confirm-btn app-confirm-ok' + (danger ? ' is-danger' : '') + '"></button>' +
+                '</div>' +
+            '</div>';
+        overlay.querySelector('.app-confirm-title').textContent = title;
+        if (text) overlay.querySelector('.app-confirm-text').textContent = text;
+        const okBtn = overlay.querySelector('.app-confirm-ok');
+        const cancelBtn = overlay.querySelector('.app-confirm-cancel');
+        okBtn.textContent = confirmText;
+        cancelBtn.textContent = cancelText;
+
+        let done = false;
+        function close(result) {
+            if (done) return;
+            done = true;
+            document.removeEventListener('keydown', onKey, true);
+            overlay.classList.remove('open');
+            setTimeout(() => {
+                overlay.remove();
+                if (prevFocus && typeof prevFocus.focus === 'function') {
+                    try { prevFocus.focus(); } catch {}
+                }
+            }, 260);
+            resolve(result);
+        }
+        function onKey(e) {
+            if (e.key === 'Escape') { e.preventDefault(); close(false); }
+        }
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(false); });
+        okBtn.addEventListener('click', () => close(true));
+        cancelBtn.addEventListener('click', () => close(false));
+        document.addEventListener('keydown', onKey, true);
+
+        document.body.appendChild(overlay);
+        // двойной rAF — гарантирует transition при добавлении класса .open
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            overlay.classList.add('open');
+            // для деструктивных действий фокус на «Отмена», чтобы случайный Enter не подтвердил
+            (danger ? cancelBtn : okBtn).focus();
+        }));
+    });
+}
+
 // ─── SHOPPING LIST ────────────────────────────────────────────────────────────
 function buildShoppingList() {
     const items = Plate.get();

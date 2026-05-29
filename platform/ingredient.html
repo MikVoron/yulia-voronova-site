@@ -1074,7 +1074,14 @@
     }
 
     window.deleteCatReview = async function(id, isAdmin) {
-        if (!confirm('Удалить отзыв?')) return;
+        const ok = await showAppConfirm({
+            title: 'Удалить отзыв?',
+            text: 'Это действие нельзя отменить.',
+            confirmText: 'Удалить',
+            cancelText: 'Отмена',
+            danger: true
+        });
+        if (!ok) return;
         try {
             const endpoint = isAdmin ? '/admin/reviews/' : '/content/reviews/';
             const res = await Auth.api(endpoint + id, { method: 'DELETE' });

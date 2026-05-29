@@ -1519,7 +1519,7 @@
 				});
 				if (!res.ok) {
 					const data = await res.json();
-					alert(data.error || 'Ошибка отправки');
+					showToast(data.error || 'Ошибка отправки');
 					btn.disabled = false; btn.textContent = 'Отправить';
 					return;
 				}
@@ -1527,7 +1527,7 @@
 				btn.disabled = false; btn.textContent = 'Отправить';
 				loadFeedbackHistory();
 			} catch {
-				alert('Ошибка сети');
+				showToast('Ошибка сети');
 				btn.disabled = false; btn.textContent = 'Отправить';
 			}
 		}
@@ -1708,7 +1708,7 @@
 				});
 				if (!res.ok) {
 					const data = await res.json().catch(() => ({}));
-					alert(data.error || 'Ошибка отправки');
+					showToast(data.error || 'Ошибка отправки');
 					submitBtn.disabled = false; submitBtn.textContent = 'Отправить';
 					return;
 				}
@@ -1716,42 +1716,55 @@
 				submitBtn.disabled = false; submitBtn.textContent = 'Отправить';
 				loadFeedbackHistory();
 			} catch {
-				alert('Ошибка сети');
+				showToast('Ошибка сети');
 				submitBtn.disabled = false; submitBtn.textContent = 'Отправить';
 			}
 		}
 
 		async function closeFeedbackThread(id, btn) {
-			if (!confirm('Отметить вопрос решённым? Продолжить диалог в этом обращении уже не получится.')) return;
+			const ok = await showAppConfirm({
+				title: 'Отметить вопрос решённым?',
+				text: 'Продолжить диалог в этом обращении уже не получится.',
+				confirmText: 'Отметить решённым',
+				cancelText: 'Отмена'
+			});
+			if (!ok) return;
 			if (btn) { btn.disabled = true; }
 			try {
 				const res = await Auth.api('/feedback/' + id + '/close', { method: 'POST' });
 				if (!res.ok) {
-					alert('Не удалось закрыть обращение');
+					showToast('Не удалось закрыть обращение');
 					if (btn) { btn.disabled = false; }
 					return;
 				}
 				loadFeedbackHistory();
 			} catch {
-				alert('Ошибка сети');
+				showToast('Ошибка сети');
 				if (btn) { btn.disabled = false; }
 			}
 		}
 
 		async function hideFeedback(id, btn) {
-			if (!confirm('Скрыть это обращение из списка? В базе оно сохранится, но вы его больше не увидите.')) return;
+			const ok = await showAppConfirm({
+				title: 'Скрыть обращение из списка?',
+				text: 'В базе оно сохранится, но вы его больше не увидите.',
+				confirmText: 'Скрыть',
+				cancelText: 'Отмена',
+				danger: true
+			});
+			if (!ok) return;
 			if (btn) { btn.disabled = true; btn.textContent = '...'; }
 			try {
 				const res = await Auth.api('/feedback/' + id, { method: 'DELETE' });
 				if (!res.ok) {
-					alert('Не удалось скрыть обращение');
+					showToast('Не удалось скрыть обращение');
 					if (btn) { btn.disabled = false; btn.textContent = 'Скрыть'; }
 					return;
 				}
 				// Перерисовать список, чтобы корректно обновился счётчик и пустое состояние
 				loadFeedbackHistory();
 			} catch {
-				alert('Ошибка сети');
+				showToast('Ошибка сети');
 				if (btn) { btn.disabled = false; btn.textContent = 'Скрыть'; }
 			}
 		}
