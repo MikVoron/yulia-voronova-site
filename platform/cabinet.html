@@ -1080,6 +1080,68 @@
 		.thread-read svg { width: 11px; height: 11px; fill: currentColor; }
 		.thread-read.when { color: var(--text-3); font-weight: 700; letter-spacing: .1em; }
 
+		/* Статусы треда */
+		.thread-status.reply { color: var(--accent); }
+		.thread-status.done  { color: #476b4c; }
+
+		/* Сообщение пользователя-уточнение (после первого) */
+		.thread-followup {
+			margin: 12px 0 12px 24px; padding: 14px 16px;
+			background: #faf8f5; border-left: 3px solid var(--text-3);
+		}
+		.thread-followup-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+		.thread-followup-name {
+			font-size: 10px; font-weight: 800; letter-spacing: .16em;
+			text-transform: uppercase; color: var(--text);
+		}
+		.thread-followup-date {
+			margin-left: auto; font-size: 10px; font-weight: 700;
+			letter-spacing: .12em; text-transform: uppercase; color: var(--text-3);
+		}
+		.thread-followup-text {
+			font-family: var(--serif); font-size: 15px; line-height: 1.55;
+			font-style: italic; color: var(--text); margin: 0;
+		}
+
+		/* Действия и inline-форма уточнения */
+		.thread-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+		.thread-action {
+			border: 1px solid var(--text); background: #fff; color: var(--text);
+			font-family: inherit; font-size: 11px; font-weight: 800;
+			letter-spacing: .14em; text-transform: uppercase;
+			padding: 10px 16px; border-radius: 0; cursor: pointer;
+			transition: background .15s, color .15s;
+		}
+		.thread-action:hover:not(:disabled) { background: var(--text); color: #fff; }
+		.thread-action:disabled { opacity: .5; cursor: default; }
+		.thread-action.thread-action-quiet {
+			border-color: var(--border); color: var(--text-3);
+		}
+		.thread-action.thread-action-quiet:hover:not(:disabled) {
+			background: #faf8f5; color: var(--text); border-color: var(--text-3);
+		}
+		.thread-action.thread-action-primary {
+			background: var(--text); color: #fff;
+		}
+		.thread-action.thread-action-primary:hover:not(:disabled) {
+			background: var(--accent); border-color: var(--accent);
+		}
+		.thread-inline-form { display: none; margin-top: 14px; }
+		.thread-inline-form.open { display: block; }
+		.thread-inline-input {
+			width: 100%; min-height: 90px; resize: vertical;
+			padding: 12px 14px; font: inherit; font-size: 14px; line-height: 1.5;
+			color: var(--text); background: #fff;
+			border: 1px solid var(--border); border-radius: 0;
+		}
+		.thread-inline-input:focus { border-color: var(--accent); outline: none; }
+		.thread-inline-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; }
+		@media (max-width: 720px) {
+			.thread-followup { margin-left: 0; }
+			.thread-actions { gap: 8px; }
+			.thread-action { flex: 1; padding: 10px 8px; font-size: 10px; letter-spacing: .08em; text-align: center; }
+		}
+
 		/* ── MEAL BODY INDENT (align items under macros column) ────────── */
 		.meal-body { padding: 0 4px 16px 96px; }
 
@@ -1848,10 +1910,10 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=2026052601"></script>
+	<script src="data-v2.js?v=2026052901"></script>
 	<script src="ingredients.js?v=2"></script>
 	<script src="header-nav.js?v=5-mobile-drawer-scroll-lock"></script>
-	<script src="cabinet.js?v=2026052701"></script>
+	<script src="cabinet.js?v=2026052901"></script>
 
 	<!-- Tawk.to -->
 	<script>

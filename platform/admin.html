@@ -648,8 +648,9 @@
     <div class="adm-section" id="sec-feedback">
         <div class="adm-section-title">Обращения пользователей</div>
         <div style="margin-bottom:16px">
-            <button class="adm-btn" style="margin-right:4px" onclick="loadFeedback('new')" id="fb-filter-new">Новые</button>
-            <button class="adm-btn" onclick="loadFeedback('answered')" id="fb-filter-answered">Отвеченные</button>
+            <button class="adm-btn" style="margin-right:4px" onclick="loadFeedback('waiting_admin')" id="fb-filter-waiting_admin">Ждут ответа</button>
+            <button class="adm-btn" onclick="loadFeedback('waiting_user')" id="fb-filter-waiting_user">Юлия ответила</button>
+            <button class="adm-btn" onclick="loadFeedback('closed')" id="fb-filter-closed">Решённые</button>
             <button class="adm-btn" onclick="loadFeedback('all')" id="fb-filter-all">Все</button>
         </div>
         <div id="feedback-list">
@@ -659,17 +660,18 @@
 
     <!-- Feedback reply modal -->
     <div class="adm-modal-bg" id="fb-reply-modal">
-        <div class="adm-modal" style="max-width:500px">
+        <div class="adm-modal" style="max-width:600px">
             <div class="adm-modal-title">Ответить на обращение</div>
             <input type="hidden" id="fb-reply-id">
             <div style="padding:12px;background:var(--bg);border-radius:8px;margin-bottom:12px;font-size:13px;color:var(--text-2);line-height:1.5" id="fb-reply-original"></div>
+            <div style="max-height:280px;overflow-y:auto;margin-bottom:12px;padding:4px" id="fb-reply-thread"></div>
             <div class="adm-modal-field">
-                <label class="adm-modal-label">Текст ответа</label>
-                <textarea class="adm-modal-input" id="fb-reply-text" rows="4" style="resize:vertical" placeholder="Введите ответ..."></textarea>
+                <label class="adm-modal-label">Новое сообщение</label>
+                <textarea class="adm-modal-input" id="fb-reply-text" rows="4" style="resize:vertical" placeholder="Ваш ответ пользователю..."></textarea>
             </div>
             <div class="adm-modal-actions">
                 <button class="adm-btn adm-btn-reject" onclick="closeFbReplyModal()">Отмена</button>
-                <button class="adm-btn adm-btn-confirm" id="fb-reply-submit" onclick="submitFbReply()">Отправить ответ</button>
+                <button class="adm-btn adm-btn-confirm" id="fb-reply-submit" onclick="submitFbReply()">Отправить</button>
             </div>
         </div>
     </div>
@@ -820,7 +822,7 @@
 <!-- Toast -->
 <div class="adm-toast" id="adm-toast"></div>
 
-<script src="data-v2.js?v=2026052601"></script>
-<script src="admin.js"></script>
+<script src="data-v2.js?v=2026052901"></script>
+<script src="admin.js?v=2026052901"></script>
 </body>
 </html>

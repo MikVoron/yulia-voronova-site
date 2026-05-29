@@ -60,7 +60,7 @@
         if (tab === 'news') loadNews();
         if (tab === 'recipes') loadRecipesList();
         if (tab === 'categories') loadCategoriesList();
-        if (tab === 'feedback') loadFeedback('new');
+        if (tab === 'feedback') loadFeedback('waiting_admin');
         if (tab === 'audit') loadAudit();
     };
 
@@ -714,7 +714,7 @@
 
     // ── Feedback ──────────────────────────────────────────────────────────────
     var allFeedback = [];
-    var fbFilter = 'new';
+    var fbFilter = 'waiting_admin';
     var fbPage = 1;
     var fbHasMore = false;
     var FB_CAT_LABELS = { wish: 'Пожелание', recipe: 'Идея рецепта', problem: 'Проблема' };
@@ -746,36 +746,63 @@
         loadFeedback(fbFilter, true);
     };
 
+    var FB_STATUS_BADGE = {
+        waiting_admin: { cls: 'st-trial', label: 'Ждёт ответа' },
+        new:           { cls: 'st-trial', label: 'Новое' },
+        waiting_user:  { cls: 'st-confirmed', label: 'Юлия ответила' },
+        answered:      { cls: 'st-confirmed', label: 'Отвечено' },
+        closed:        { cls: '', label: 'Решено' }
+    };
+
+    function renderFeedbackThreadHtml(messages) {
+        if (!messages || !messages.length) return '';
+        return messages.map(function(m) {
+            var isUser = m.sender_type === 'user';
+            var who = isUser ? 'Пользователь' : 'Юлия';
+            var bg = isUser ? '#faf9f6' : '#edf6ee';
+            var fg = isUser ? '#6b6b6b' : '#476b4c';
+            return '<div style="margin-bottom:8px;padding:10px;background:' + bg + ';border-radius:8px;font-size:13px;color:#333;line-height:1.5">'
+                + '<div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:4px">'
+                + '<strong style="font-size:11px;color:' + fg + ';text-transform:uppercase;letter-spacing:.05em">' + who + '</strong>'
+                + '<span style="font-size:11px;color:#777">' + fmtDateTime(m.created_at) + '</span>'
+                + '</div>'
+                + '<div style="white-space:pre-wrap">' + esc(m.text) + '</div>'
+                + '</div>';
+        }).join('');
+    }
+
     function renderFeedback(items) {
         var el = document.getElementById('feedback-list');
         if (!items.length) { el.innerHTML = '<div class="adm-empty">Нет обращений</div>'; return; }
         var html = items.map(function(f) {
             var catLabel = FB_CAT_LABELS[f.category] || f.category;
-            var statusBadge = f.status === 'answered'
-                ? '<span class="st-badge st-confirmed">Отвечено</span>'
-                : '<span class="st-badge st-trial">Новое</span>';
+            var st = FB_STATUS_BADGE[f.status] || { cls: '', label: f.status };
+            var statusBadge = '<span class="st-badge ' + st.cls + '">' + st.label + '</span>';
             var hiddenBadge = f.user_deleted_at
                 ? '<span class="st-badge" style="background:#e8e6e0;color:#6b6b6b" title="Пользователь скрыл обращение из своего ЛК. В базе оно сохранено.">Скрыто пользователем</span>'
                 : '';
-            var replyBlock = '';
-            if (f.admin_reply) {
-                replyBlock = '<div style="margin-top:10px;padding:10px;background:#edf6ee;border-radius:8px;font-size:13px;color:#333;line-height:1.5">'
-                    + '<strong style="font-size:11px;color:#476b4c;text-transform:uppercase;letter-spacing:.05em">Ответ:</strong><br>'
-                    + esc(f.admin_reply)
-                    + '<div style="font-size:11px;color:#777;margin-top:6px">' + fmtDateTime(f.admin_replied_at) + '</div>'
-                    + '</div>';
+            var threadHtml = renderFeedbackThreadHtml(f.messages);
+            var needsReply = (f.status === 'waiting_admin' || f.status === 'new');
+            var isClosed = f.status === 'closed';
+            var actions = '';
+            if (!isClosed) {
+                var actionLabel = needsReply ? 'Ответить' : 'Дописать';
+                var actionCls = needsReply ? 'adm-btn adm-btn-confirm' : 'adm-btn';
+                actions = '<button class="' + actionCls + '" onclick="openFbReply(' + f.id + ')" style="font-size:12px;padding:6px 12px">' + actionLabel + '</button>';
             }
-            var actions = f.status === 'new'
-                ? '<button class="adm-btn adm-btn-confirm" onclick="openFbReply(' + f.id + ')" style="font-size:12px;padding:6px 12px">Ответить</button>'
-                : '<button class="adm-btn" onclick="openFbReply(' + f.id + ')" style="font-size:12px;padding:6px 12px">Изменить ответ</button>';
-            var rowStyle = f.user_deleted_at ? 'padding:14px;border:1px dashed var(--border);border-radius:10px;margin-bottom:8px;background:#faf9f6;opacity:.85' : 'padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:#fff';
+            var msgCount = (f.msg_count != null ? f.msg_count : (f.messages ? f.messages.length : 0));
+            var msgCountLabel = msgCount > 1 ? ' · ' + msgCount + ' сообщ.' : '';
+            var rowStyle = f.user_deleted_at
+                ? 'padding:14px;border:1px dashed var(--border);border-radius:10px;margin-bottom:8px;background:#faf9f6;opacity:.85'
+                : 'padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:#fff';
+            if (needsReply) rowStyle += ';border-left:3px solid var(--accent)';
+            var lastUpdate = f.updated_at || f.created_at;
             return '<div style="' + rowStyle + '">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap">'
-                + '<div><strong style="font-size:13px">' + esc(f.display_name || f.email) + '</strong>' + (f.display_name ? '<br><span style="font-size:11px;color:var(--text-3)">' + esc(f.email) + '</span>' : '') + ' · <span style="font-size:12px;color:var(--text-3)">' + catLabel + '</span></div>'
-                + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + statusBadge + hiddenBadge + '<span style="font-size:11px;color:var(--text-3)">' + fmtDateTime(f.created_at) + '</span></div>'
+                + '<div><strong style="font-size:13px">' + esc(f.display_name || f.email) + '</strong>' + (f.display_name ? '<br><span style="font-size:11px;color:var(--text-3)">' + esc(f.email) + '</span>' : '') + ' · <span style="font-size:12px;color:var(--text-3)">' + catLabel + msgCountLabel + '</span></div>'
+                + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + statusBadge + hiddenBadge + '<span style="font-size:11px;color:var(--text-3)">' + fmtDateTime(lastUpdate) + '</span></div>'
                 + '</div>'
-                + '<div style="font-size:14px;color:var(--text);line-height:1.6;white-space:pre-wrap">' + esc(f.text) + '</div>'
-                + replyBlock
+                + threadHtml
                 + '<div style="margin-top:10px">' + actions + '</div>'
                 + '</div>';
         }).join('');
@@ -788,11 +815,15 @@
     window.openFbReply = function(id) {
         var f = allFeedback.find(function(x) { return x.id === id; });
         if (!f) return;
+        if (f.status === 'closed') {
+            showToast('Обращение закрыто пользователем — ответить нельзя');
+            return;
+        }
         document.getElementById('fb-reply-id').value = id;
         document.getElementById('fb-reply-original').innerHTML =
-            '<strong>' + esc(f.display_name || f.email) + '</strong>' + (f.display_name ? '<br><span style="font-size:11px;color:var(--text-3)">' + esc(f.email) + '</span>' : '') + ' · ' + (FB_CAT_LABELS[f.category] || f.category)
-            + '<br><br>' + esc(f.text);
-        document.getElementById('fb-reply-text').value = f.admin_reply || '';
+            '<strong>' + esc(f.display_name || f.email) + '</strong>' + (f.display_name ? '<br><span style="font-size:11px;color:var(--text-3)">' + esc(f.email) + '</span>' : '') + ' · ' + (FB_CAT_LABELS[f.category] || f.category);
+        document.getElementById('fb-reply-thread').innerHTML = renderFeedbackThreadHtml(f.messages);
+        document.getElementById('fb-reply-text').value = '';
         document.getElementById('fb-reply-modal').classList.add('open');
     };
 

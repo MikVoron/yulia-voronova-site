@@ -173,14 +173,19 @@ async function sendPaymentNotification(userEmail, amount, paymentDate, hasScreen
   await send(ADMIN_EMAIL, 'Новый платёж от ' + userEmail, wrap(body));
 }
 
-async function sendFeedback(userEmail, category, text) {
+async function sendFeedback(userEmail, category, text, opts) {
   const labels = { wish: 'Пожелание', recipe: 'Идея рецепта', problem: 'Проблема' };
   const label = labels[category] || category;
-  const body =
-    '<p style="font-size:14px;color:#111;margin:0 0 8px"><strong>Категория:</strong> ' + label + '</p>'
+  const isFollowUp = !!(opts && opts.followUp);
+  const subjectPrefix = isFollowUp ? 'Уточнение' : label;
+  const intro = isFollowUp
+    ? '<p style="font-size:14px;color:#111;margin:0 0 8px"><strong>Пользователь добавил уточнение в обращение #' + (opts.feedbackId || '') + '</strong></p>'
+    : '';
+  const body = intro
+    + '<p style="font-size:14px;color:#111;margin:0 0 8px"><strong>Категория:</strong> ' + label + '</p>'
     + '<p style="font-size:14px;color:#111;margin:0 0 8px"><strong>От:</strong> ' + userEmail + '</p>'
     + '<p style="font-size:14px;color:#111;margin:0;white-space:pre-wrap">' + text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>';
-  await send('hello@voronova.online', '[Умная тарелка] ' + label + ' от ' + userEmail, wrap(body));
+  await send('hello@voronova.online', '[Умная тарелка] ' + subjectPrefix + ' от ' + userEmail, wrap(body));
 }
 
 // ── 6b. Новый пользователь зарегистрирован (уведомление админу) ──
@@ -251,6 +256,7 @@ async function sendFeedbackReply(to, category, originalText, replyText) {
     + '<p style="font-size:15px;color:#111;font-weight:700;margin:16px 0 8px">Ответ Юлии:</p>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px;white-space:pre-wrap">'
     + replyText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>'
+    + '<p style="font-size:14px;color:#777;line-height:1.6;margin:0 0 16px">Если остались вопросы, вы можете продолжить диалог в разделе «Связь» личного кабинета.</p>'
     + btn('Открыть личный кабинет', '' + PLATFORM_URL + '/cabinet.html');
   await send(to, 'Ответ на ваше обращение — Умная тарелка', wrap(body));
 }

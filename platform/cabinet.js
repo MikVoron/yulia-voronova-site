@@ -1532,13 +1532,26 @@
 			}
 		}
 
+		// Считает непрочитанные сообщения от Юлии (admin без seen_at) в видимых тредах
+		function countUnseenAdminMessages(all) {
+			if (!all) return 0;
+			let n = 0;
+			for (const f of all) {
+				if (!f.messages) continue;
+				for (const m of f.messages) {
+					if (m.sender_type === 'admin' && !m.seen_at) n++;
+				}
+			}
+			return n;
+		}
+
 		// Загрузить счётчик непрочитанных ответов для бейджа (при загрузке страницы)
 		async function loadFeedbackBadge() {
 			try {
 				const res = await Auth.api('/feedback');
 				if (!res.ok) return;
 				const all = await res.json();
-				const unseen = all.filter(f => f.status === 'answered' && !f.reply_seen).length;
+				const unseen = countUnseenAdminMessages(all);
 				const badge = document.getElementById('fb-unseen-badge');
 				if (unseen > 0) { badge.textContent = unseen; badge.style.display = ''; }
 				else { badge.style.display = 'none'; }
@@ -1553,12 +1566,9 @@
 				if (!res.ok) { el.innerHTML = ''; return; }
 				const all = await res.json();
 				renderFeedbackHistory(all);
-				// Пометить ответы как просмотренные
-				const hasUnseen = all.some(f => f.status === 'answered' && !f.reply_seen);
-				if (hasUnseen) {
+				if (countUnseenAdminMessages(all) > 0) {
 					Auth.api('/feedback/mark-seen', { method: 'POST' }).catch(() => {});
 					document.getElementById('fb-unseen-badge').style.display = 'none';
-					// Снять глобальный индикатор «новый ответ Юлии» в шапке.
 					if (typeof Feedback !== 'undefined' && Feedback.clear) Feedback.clear();
 				}
 			} catch {
@@ -1569,6 +1579,19 @@
 		// Maps API category → thread tag CSS class + display label
 		const FB_THREAD_TAG = { wish: 'wish', recipe: 'idea', problem: 'bug' };
 		const FB_THREAD_LABEL = { wish: 'Пожелание', recipe: 'Идея', problem: 'Проблема' };
+
+		function fbStatusLabel(status, hasAdminReply) {
+			if (status === 'closed') return { cls: 'done', text: 'Вопрос решён' };
+			if (status === 'waiting_admin' || status === 'new') return { cls: 'wait', text: 'Ждёт ответа Юлии' };
+			if (status === 'waiting_user' || status === 'answered') return { cls: 'reply', text: hasAdminReply ? 'Юлия ответила' : 'Ответ получен' };
+			return null;
+		}
+
+		function fmtFbDate(iso) {
+			const d = new Date(iso);
+			return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
+				+ ', ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+		}
 
 		function renderFeedbackHistory(all) {
 			const el = document.getElementById('fb-sent-list');
@@ -1581,53 +1604,138 @@
 				return;
 			}
 			const n = all.length;
-			const counter = n + ' ' + (n === 1 ? 'обращение' : n < 5 ? 'обращения' : 'обращений');
+			const counter = n + ' ' + (n === 1 ? 'обращение' : n < 5 ? 'обращения' : 'обращений');
 			const head = '<div class="threads-head"><h3 class="threads-title">Ваши обращения</h3><span class="threads-meta">' + counter + '</span></div>';
-			el.innerHTML = head + all.map(f => {
-				const d = new Date(f.created_at);
-				const ds = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-				const ts = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-				const tagCls = FB_THREAD_TAG[f.category] || 'wish';
-				const tagLabel = FB_THREAD_LABEL[f.category] || (FB_LABELS[f.category] || f.category);
-				const statusHtml = f.status === 'answered'
-					? ''
-					: '<div class="thread-status wait">На рассмотрении</div>';
-				let replyHtml = '';
-				if (f.admin_reply) {
-					const rd = new Date(f.admin_replied_at);
-					const rds = rd.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-					const rts = rd.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-					// «Прочитано Юлией» — используем admin_replied_at как момент прочтения
-					// (если есть ответ, значит сообщение прочитано). Для отдельного read-state
-					// backend должен отдавать read_at/viewed_at — сейчас этого поля нет.
-					const readMark = '<div class="thread-reply-foot">'
-						+ '<span class="thread-read">'
-						+ '<svg viewBox="0 0 18 12"><path d="M0 6.4l1.4-1.4L5 8.6 11.6 2l1.4 1.4L5 11.4 0 6.4zm9 0l1.4-1.4 2.6 2.6L18 2l-.4 1.4-7 7L9 6.4z"/></svg>'
-						+ 'Прочитано Юлией'
-						+ '</span>'
-						+ '<span class="thread-read when">· ' + rds + ', ' + rts + '</span>'
-						+ '</div>';
-					replyHtml = '<div class="thread-reply">'
+			el.innerHTML = head + all.map(f => renderFeedbackThread(f)).join('');
+		}
+
+		function renderFeedbackThread(f) {
+			const msgs = (f.messages && f.messages.length)
+				? f.messages
+				: [{ sender_type: 'user', text: '', created_at: f.created_at }];
+			const tagCls = FB_THREAD_TAG[f.category] || 'wish';
+			const tagLabel = FB_THREAD_LABEL[f.category] || (FB_LABELS[f.category] || f.category);
+			const lastAdmin = [...msgs].reverse().find(m => m.sender_type === 'admin');
+			const status = fbStatusLabel(f.status, !!lastAdmin);
+			const statusHtml = status ? '<div class="thread-status ' + status.cls + '">' + status.text + '</div>' : '';
+			const headDate = fmtFbDate(f.created_at);
+
+			let body = '';
+			let userIdx = 0;
+			for (const m of msgs) {
+				if (m.sender_type === 'user') {
+					const isFirst = userIdx === 0;
+					userIdx++;
+					if (isFirst) {
+						body += '<p class="thread-msg">' + escHtml(m.text) + '</p>';
+					} else {
+						body += '<div class="thread-followup">'
+							+ '<div class="thread-followup-head">'
+							+ '<span class="thread-followup-name">Вы</span>'
+							+ '<span class="thread-followup-date">' + fmtFbDate(m.created_at) + '</span>'
+							+ '</div>'
+							+ '<p class="thread-followup-text">' + escHtml(m.text) + '</p>'
+							+ '</div>';
+					}
+				} else if (m.sender_type === 'admin') {
+					body += '<div class="thread-reply">'
 						+ '<div class="thread-reply-head">'
 						+ '<div class="thread-reply-ava"><img src="' + SITE_BASE + '/images/YV-blog.webp" alt="Юлия Воронова"></div>'
 						+ '<span class="thread-reply-name">Ответ Юлии</span>'
-						+ '<span class="thread-reply-date">' + rds + ', ' + rts + '</span>'
+						+ '<span class="thread-reply-date">' + fmtFbDate(m.created_at) + '</span>'
 						+ '</div>'
-						+ '<p class="thread-reply-text">' + escHtml(f.admin_reply) + '</p>'
-						+ readMark
+						+ '<p class="thread-reply-text">' + escHtml(m.text) + '</p>'
 						+ '</div>';
 				}
-				return '<article class="thread" data-fb-id="' + f.id + '">'
-					+ '<div class="thread-head">'
-					+ '<span class="thread-tag ' + tagCls + '">' + tagLabel + '</span>'
-					+ statusHtml
-					+ '<span class="thread-date">' + ds + ', ' + ts + '</span>'
-					+ '<button type="button" class="thread-hide" title="Скрыть обращение" aria-label="Скрыть обращение" onclick="hideFeedback(' + f.id + ', this)">Скрыть</button>'
+			}
+
+			let actions = '';
+			const canFollowUp = (f.status === 'waiting_user' || f.status === 'answered') && !!lastAdmin;
+			if (canFollowUp) {
+				actions = '<div class="thread-actions">'
+					+ '<button type="button" class="thread-action" onclick="openFeedbackReply(' + f.id + ')">Задать уточнение</button>'
+					+ '<button type="button" class="thread-action thread-action-quiet" onclick="closeFeedbackThread(' + f.id + ', this)">Спасибо, вопрос решён</button>'
 					+ '</div>'
-					+ '<p class="thread-msg">' + escHtml(f.text) + '</p>'
-					+ replyHtml
-					+ '</article>';
-			}).join('');
+					+ '<form class="thread-inline-form" data-fb-form="' + f.id + '" onsubmit="submitFeedbackReply(event, ' + f.id + ')">'
+					+ '<textarea class="thread-inline-input" maxlength="2000" placeholder="Ваше уточнение..." required></textarea>'
+					+ '<div class="thread-inline-actions">'
+					+ '<button type="button" class="thread-action thread-action-quiet" onclick="closeFeedbackReplyForm(' + f.id + ')">Отменить</button>'
+					+ '<button type="submit" class="thread-action thread-action-primary">Отправить</button>'
+					+ '</div>'
+					+ '</form>';
+			}
+
+			return '<article class="thread" data-fb-id="' + f.id + '">'
+				+ '<div class="thread-head">'
+				+ '<span class="thread-tag ' + tagCls + '">' + tagLabel + '</span>'
+				+ statusHtml
+				+ '<span class="thread-date">' + headDate + '</span>'
+				+ '<button type="button" class="thread-hide" title="Скрыть обращение" aria-label="Скрыть обращение" onclick="hideFeedback(' + f.id + ', this)">Скрыть</button>'
+				+ '</div>'
+				+ body
+				+ actions
+				+ '</article>';
+		}
+
+		function openFeedbackReply(id) {
+			const form = document.querySelector('[data-fb-form="' + id + '"]');
+			if (!form) return;
+			form.classList.add('open');
+			const ta = form.querySelector('textarea');
+			if (ta) ta.focus();
+		}
+
+		function closeFeedbackReplyForm(id) {
+			const form = document.querySelector('[data-fb-form="' + id + '"]');
+			if (!form) return;
+			form.classList.remove('open');
+			const ta = form.querySelector('textarea');
+			if (ta) ta.value = '';
+		}
+
+		async function submitFeedbackReply(ev, id) {
+			ev.preventDefault();
+			const form = ev.target;
+			const ta = form.querySelector('textarea');
+			const submitBtn = form.querySelector('button[type="submit"]');
+			const text = (ta && ta.value || '').trim();
+			if (!text) { if (ta) ta.focus(); return; }
+			submitBtn.disabled = true; submitBtn.textContent = 'Отправка...';
+			try {
+				const res = await Auth.api('/feedback/' + id + '/messages', {
+					method: 'POST',
+					body: JSON.stringify({ text })
+				});
+				if (!res.ok) {
+					const data = await res.json().catch(() => ({}));
+					alert(data.error || 'Ошибка отправки');
+					submitBtn.disabled = false; submitBtn.textContent = 'Отправить';
+					return;
+				}
+				ta.value = '';
+				submitBtn.disabled = false; submitBtn.textContent = 'Отправить';
+				loadFeedbackHistory();
+			} catch {
+				alert('Ошибка сети');
+				submitBtn.disabled = false; submitBtn.textContent = 'Отправить';
+			}
+		}
+
+		async function closeFeedbackThread(id, btn) {
+			if (!confirm('Отметить вопрос решённым? Продолжить диалог в этом обращении уже не получится.')) return;
+			if (btn) { btn.disabled = true; }
+			try {
+				const res = await Auth.api('/feedback/' + id + '/close', { method: 'POST' });
+				if (!res.ok) {
+					alert('Не удалось закрыть обращение');
+					if (btn) { btn.disabled = false; }
+					return;
+				}
+				loadFeedbackHistory();
+			} catch {
+				alert('Ошибка сети');
+				if (btn) { btn.disabled = false; }
+			}
 		}
 
 		async function hideFeedback(id, btn) {

@@ -97,40 +97,177 @@ async function subscriptionRoutes(fastify) {
     return { subscribed: !!subscribed };
   });
 
-  // POST /feedback — обратная связь от пользователя
+  // ===== Обращения (feedback) — треды/диалоги =====
+  // Статусы: waiting_admin | waiting_user | closed
+  // Диалог хранится в feedback_thread_messages; feedback_messages — шапка.
+  // Старые поля text/admin_reply/admin_replied_at/reply_seen в шапке — deprecated,
+  // оставлены для исторической совместимости. Новый код их не использует как источник правды.
+
+  const FEEDBACK_TEXT_LIMIT = 2000;
+  const FEEDBACK_CATEGORIES = ['wish', 'recipe', 'problem'];
+
+  // POST /feedback — создать обращение (шапка + первое сообщение пользователя)
   fastify.post('/feedback', {
     preHandler: authenticate,
     config: { rateLimit: { max: 5, timeWindow: '1 hour' } }
   }, async (req, reply) => {
     const { category, text } = req.body || {};
     if (!text || !text.trim()) return reply.status(400).send({ error: 'Введите текст' });
-    if (text.length > 2000) return reply.status(400).send({ error: 'Слишком длинный текст' });
-    const cat = ['wish', 'recipe', 'problem'].includes(category) ? category : 'wish';
+    if (text.length > FEEDBACK_TEXT_LIMIT) return reply.status(400).send({ error: 'Слишком длинный текст' });
+    const cat = FEEDBACK_CATEGORIES.includes(category) ? category : 'wish';
     const trimmed = text.trim();
     const email = req.user.email;
-    // Сохраняем в БД
-    const result = await db.query(
-      'INSERT INTO feedback_messages (user_id, category, text) VALUES ($1,$2,$3) RETURNING *',
-      [req.user.sub, cat, trimmed]
-    );
-    // Email админу (не блокируем ответ)
+
+    const client = await db.pool.connect();
+    let feedbackId;
+    try {
+      await client.query('BEGIN');
+      // Шапка: text дублируем (deprecated-поле), чтобы старые админ-инструменты не падали
+      const ins = await client.query(
+        `INSERT INTO feedback_messages (user_id, category, text, status)
+         VALUES ($1, $2, $3, 'waiting_admin')
+         RETURNING id, category, status, created_at, updated_at`,
+        [req.user.sub, cat, trimmed]
+      );
+      feedbackId = ins.rows[0].id;
+      await client.query(
+        `INSERT INTO feedback_thread_messages (feedback_id, sender_type, sender_id, text)
+         VALUES ($1, 'user', $2, $3)`,
+        [feedbackId, req.user.sub, trimmed]
+      );
+      await client.query('COMMIT');
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+
     sendFeedback(email, cat, trimmed).catch(e => fastify.log.error(e, 'Feedback email error'));
-    return result.rows[0];
+
+    return await loadFeedbackThread(feedbackId, req.user.sub);
   });
 
-  // GET /feedback — обращения текущего пользователя (без скрытых им самим)
-  fastify.get('/feedback', { preHandler: authenticate }, async (req) => {
+  // POST /feedback/:id/messages — уточнение пользователя в существующем обращении
+  fastify.post('/feedback/:id/messages', {
+    preHandler: authenticate,
+    config: { rateLimit: { max: 20, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: 'Некорректный id' });
+    const { text } = req.body || {};
+    if (!text || !text.trim()) return reply.status(400).send({ error: 'Введите текст' });
+    if (text.length > FEEDBACK_TEXT_LIMIT) return reply.status(400).send({ error: 'Слишком длинный текст' });
+    const trimmed = text.trim();
+
+    // Проверка владельца, статуса и soft-delete
+    const head = await db.query(
+      `SELECT id, user_id, category, status, user_deleted_at
+         FROM feedback_messages WHERE id=$1`,
+      [id]
+    );
+    if (!head.rows.length || head.rows[0].user_id !== req.user.sub) {
+      return reply.status(404).send({ error: 'Обращение не найдено' });
+    }
+    if (head.rows[0].user_deleted_at) {
+      return reply.status(404).send({ error: 'Обращение не найдено' });
+    }
+    if (head.rows[0].status === 'closed') {
+      return reply.status(409).send({ error: 'Обращение закрыто. Создайте новое.' });
+    }
+
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query(
+        `INSERT INTO feedback_thread_messages (feedback_id, sender_type, sender_id, text)
+         VALUES ($1, 'user', $2, $3)`,
+        [id, req.user.sub, trimmed]
+      );
+      await client.query(
+        `UPDATE feedback_messages SET status='waiting_admin', updated_at=now() WHERE id=$1`,
+        [id]
+      );
+      await client.query('COMMIT');
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+
+    // Email админу о новом сообщении пользователя в существующем обращении
+    sendFeedback(req.user.email, head.rows[0].category, trimmed, { followUp: true, feedbackId: id })
+      .catch(e => fastify.log.error(e, 'Feedback follow-up email error'));
+
+    return await loadFeedbackThread(id, req.user.sub);
+  });
+
+  // POST /feedback/:id/close — пользователь отмечает вопрос решённым
+  fastify.post('/feedback/:id/close', { preHandler: authenticate }, async (req, reply) => {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: 'Некорректный id' });
     const result = await db.query(
-      'SELECT id, category, text, status, admin_reply, admin_replied_at, reply_seen, created_at FROM feedback_messages WHERE user_id=$1 AND user_deleted_at IS NULL ORDER BY created_at DESC',
+      `UPDATE feedback_messages
+          SET status='closed', updated_at=now()
+        WHERE id=$1 AND user_id=$2 AND user_deleted_at IS NULL
+        RETURNING id`,
+      [id, req.user.sub]
+    );
+    if (!result.rows.length) return reply.status(404).send({ error: 'Обращение не найдено' });
+    return await loadFeedbackThread(id, req.user.sub);
+  });
+
+  // GET /feedback — обращения текущего пользователя с тредами
+  fastify.get('/feedback', { preHandler: authenticate }, async (req) => {
+    const heads = await db.query(
+      `SELECT id, category, status, created_at, updated_at
+         FROM feedback_messages
+        WHERE user_id=$1 AND user_deleted_at IS NULL
+        ORDER BY updated_at DESC, created_at DESC`,
       [req.user.sub]
     );
-    return result.rows;
+    if (!heads.rows.length) return [];
+    const ids = heads.rows.map(r => r.id);
+    const msgs = await db.query(
+      `SELECT id, feedback_id, sender_type, text, seen_at, created_at
+         FROM feedback_thread_messages
+        WHERE feedback_id = ANY($1::int[])
+        ORDER BY created_at ASC, id ASC`,
+      [ids]
+    );
+    const byThread = new Map();
+    for (const m of msgs.rows) {
+      if (!byThread.has(m.feedback_id)) byThread.set(m.feedback_id, []);
+      byThread.get(m.feedback_id).push({
+        id: m.id,
+        sender_type: m.sender_type,
+        text: m.text,
+        seen_at: m.seen_at,
+        created_at: m.created_at,
+      });
+    }
+    return heads.rows.map(h => ({
+      id: h.id,
+      category: h.category,
+      status: h.status,
+      created_at: h.created_at,
+      updated_at: h.updated_at,
+      messages: byThread.get(h.id) || [],
+    }));
   });
 
-  // POST /feedback/mark-seen — пометить ответы как просмотренные
+  // POST /feedback/mark-seen — пометить непросмотренные admin-сообщения как просмотренные
   fastify.post('/feedback/mark-seen', { preHandler: authenticate }, async (req) => {
     await db.query(
-      "UPDATE feedback_messages SET reply_seen=true WHERE user_id=$1 AND status='answered' AND reply_seen=false AND user_deleted_at IS NULL",
+      `UPDATE feedback_thread_messages m
+          SET seen_at = now()
+         FROM feedback_messages f
+        WHERE m.feedback_id = f.id
+          AND f.user_id = $1
+          AND f.user_deleted_at IS NULL
+          AND m.sender_type = 'admin'
+          AND m.seen_at IS NULL`,
       [req.user.sub]
     );
     return { ok: true };
@@ -148,6 +285,24 @@ async function subscriptionRoutes(fastify) {
     if (!result.rows.length) return reply.status(404).send({ error: 'Обращение не найдено' });
     return { ok: true };
   });
+
+  // Хелпер: подгрузить один тред владельца (используется как ответ POST-эндпоинтов)
+  async function loadFeedbackThread(id, userId) {
+    const head = await db.query(
+      `SELECT id, category, status, created_at, updated_at
+         FROM feedback_messages WHERE id=$1 AND user_id=$2`,
+      [id, userId]
+    );
+    if (!head.rows.length) return null;
+    const msgs = await db.query(
+      `SELECT id, sender_type, text, seen_at, created_at
+         FROM feedback_thread_messages
+        WHERE feedback_id=$1
+        ORDER BY created_at ASC, id ASC`,
+      [id]
+    );
+    return { ...head.rows[0], messages: msgs.rows };
+  }
 }
 
 module.exports = subscriptionRoutes;

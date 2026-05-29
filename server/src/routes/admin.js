@@ -184,16 +184,21 @@ async function adminRoutes(fastify) {
     }
   });
 
-  // GET /admin/feedback — обращения с пагинацией
+  // GET /admin/feedback — обращения с пагинацией и тредами
+  // Сортировка: waiting_admin/new сверху, дальше по updated_at DESC.
   fastify.get('/admin/feedback', { preHandler: requireAdmin }, async (req) => {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
     const offset = (page - 1) * limit;
     const status = req.query.status || null;
 
+    // Совместимость с legacy 'new': при фильтре waiting_admin включаем оба статуса,
+    // иначе бейдж и список рассинхронизируются, пока в БД ещё могут оставаться 'new'.
     let where = '';
     const params = [];
-    if (status) {
+    if (status === 'waiting_admin') {
+      where = " WHERE f.status IN ('waiting_admin','new')";
+    } else if (status) {
       params.push(status);
       where = ' WHERE f.status=$' + params.length;
     }
@@ -203,44 +208,115 @@ async function adminRoutes(fastify) {
     );
     const total = parseInt(countResult.rows[0].count);
 
-    // count new for badge
-    const newCountResult = await db.query(
-      "SELECT COUNT(*) FROM feedback_messages WHERE status='new'"
+    // Счётчик «требует ответа» для бейджа (включая legacy 'new')
+    const pendingCountResult = await db.query(
+      "SELECT COUNT(*) FROM feedback_messages WHERE status IN ('waiting_admin','new')"
     );
-    const totalNew = parseInt(newCountResult.rows[0].count);
+    const totalNew = parseInt(pendingCountResult.rows[0].count);
 
     params.push(limit);
     params.push(offset);
     const result = await db.query(
-      `SELECT f.id, f.user_id, f.category, f.text, f.status, f.admin_reply, f.admin_replied_at, f.created_at, f.user_deleted_at, u.email, u.display_name
-       FROM feedback_messages f JOIN users u ON u.id = f.user_id${where}
-       ORDER BY f.created_at DESC
-       LIMIT $${params.length - 1} OFFSET $${params.length}`,
+      `SELECT f.id, f.user_id, f.category, f.status, f.created_at, f.updated_at, f.user_deleted_at,
+              u.email, u.display_name,
+              (SELECT COUNT(*) FROM feedback_thread_messages WHERE feedback_id = f.id) AS msg_count
+         FROM feedback_messages f
+         JOIN users u ON u.id = f.user_id${where}
+         ORDER BY CASE WHEN f.status IN ('waiting_admin','new') THEN 0 ELSE 1 END,
+                  f.updated_at DESC, f.created_at DESC
+        LIMIT $${params.length - 1} OFFSET $${params.length}`,
       params
     );
-    return { rows: result.rows, total, totalNew, page, limit, hasMore: offset + result.rows.length < total };
+
+    const ids = result.rows.map(r => r.id);
+    const byThread = new Map();
+    if (ids.length) {
+      const msgs = await db.query(
+        `SELECT id, feedback_id, sender_type, sender_id, text, seen_at, created_at
+           FROM feedback_thread_messages
+          WHERE feedback_id = ANY($1::int[])
+          ORDER BY created_at ASC, id ASC`,
+        [ids]
+      );
+      for (const m of msgs.rows) {
+        if (!byThread.has(m.feedback_id)) byThread.set(m.feedback_id, []);
+        byThread.get(m.feedback_id).push({
+          id: m.id,
+          sender_type: m.sender_type,
+          sender_id: m.sender_id,
+          text: m.text,
+          seen_at: m.seen_at,
+          created_at: m.created_at,
+        });
+      }
+    }
+    const rows = result.rows.map(r => ({
+      ...r,
+      msg_count: Number(r.msg_count) || 0,
+      messages: byThread.get(r.id) || [],
+    }));
+    return { rows, total, totalNew, page, limit, hasMore: offset + rows.length < total };
   });
 
-  // POST /admin/feedback/:id/reply — ответ админа на обращение
+  // POST /admin/feedback/:id/reply — ответ Юлии (добавляет сообщение в тред)
   fastify.post('/admin/feedback/:id/reply', {
     preHandler: requireAdmin,
     config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
   }, async (req, reply) => {
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: 'Некорректный id' });
     const { reply: replyText } = req.body || {};
     if (!replyText || !replyText.trim()) return reply.status(400).send({ error: 'Введите текст ответа' });
     if (replyText.length > 5000) return reply.status(400).send({ error: 'Слишком длинный ответ' });
-    const result = await db.query(
-      `UPDATE feedback_messages SET admin_reply=$2, admin_replied_at=now(), admin_id=$3, status='answered', reply_seen=false, updated_at=now()
-       WHERE id=$1 RETURNING *`,
-      [id, replyText.trim(), req.user.sub]
+    const trimmed = replyText.trim();
+
+    const client = await db.pool.connect();
+    let head;
+    try {
+      await client.query('BEGIN');
+      const headRes = await client.query(
+        `SELECT id, user_id, category, status FROM feedback_messages WHERE id=$1 FOR UPDATE`,
+        [id]
+      );
+      if (!headRes.rows.length) {
+        await client.query('ROLLBACK');
+        return reply.status(404).send({ error: 'Обращение не найдено' });
+      }
+      head = headRes.rows[0];
+      if (head.status === 'closed') {
+        await client.query('ROLLBACK');
+        return reply.status(409).send({ error: 'Обращение закрыто пользователем. Ответить нельзя.' });
+      }
+      await client.query(
+        `INSERT INTO feedback_thread_messages (feedback_id, sender_type, sender_id, text)
+         VALUES ($1, 'admin', $2, $3)`,
+        [id, req.user.sub, trimmed]
+      );
+      await client.query(
+        `UPDATE feedback_messages
+            SET status='waiting_user', updated_at=now()
+          WHERE id=$1`,
+        [id]
+      );
+      await client.query('COMMIT');
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+
+    // Первое сообщение пользователя — для контекста в письме
+    const firstUserMsg = await db.query(
+      `SELECT text FROM feedback_thread_messages
+        WHERE feedback_id=$1 AND sender_type='user'
+        ORDER BY created_at ASC, id ASC LIMIT 1`,
+      [id]
     );
-    if (!result.rows.length) return reply.status(404).send({ error: 'Обращение не найдено' });
-    // Email пользователю
-    const userRow = await db.query('SELECT email FROM users WHERE id=$1', [result.rows[0].user_id]);
+    const userRow = await db.query('SELECT email FROM users WHERE id=$1', [head.user_id]);
     const userEmail = userRow.rows[0]?.email;
     if (userEmail) {
-      sendFeedbackReply(userEmail, result.rows[0].category, result.rows[0].text, replyText.trim())
+      sendFeedbackReply(userEmail, head.category, firstUserMsg.rows[0]?.text || '', trimmed)
         .catch(e => fastify.log.error(e, 'Feedback reply email error'));
     }
     audit.log('feedback_reply', { userId: req.user.sub, detail: 'feedback#' + id, ip: req.ip });

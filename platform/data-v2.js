@@ -399,7 +399,22 @@ const Feedback = {
             if (!res.ok) return 0;
             const all = await res.json();
             if (!Array.isArray(all)) return 0;
-            return all.filter(function (f) { return f && f.status === 'answered' && !f.reply_seen; }).length;
+            // Считаем непрочитанные сообщения от Юлии (admin без seen_at) по всем тредам.
+            // Backward compat: если бэкенд не отдал messages (старая сессия) — fallback на reply_seen.
+            var n = 0;
+            for (var i = 0; i < all.length; i++) {
+                var f = all[i];
+                if (!f) continue;
+                if (Array.isArray(f.messages)) {
+                    for (var j = 0; j < f.messages.length; j++) {
+                        var m = f.messages[j];
+                        if (m && m.sender_type === 'admin' && !m.seen_at) n++;
+                    }
+                } else if (f.status === 'answered' && !f.reply_seen) {
+                    n++;
+                }
+            }
+            return n;
         } catch (e) { return 0; }
     },
     _apply(n) {
