@@ -2922,11 +2922,11 @@ img { display: block; max-width: 100%; }
     display: inline-flex; align-items: center; justify-content: center;
     position: relative; cursor: pointer; padding: 0;
     border-radius: 0;
-    transition: transform .26s cubic-bezier(.34, 1.56, .64, 1);
+    transition: transform .26s cubic-bezier(.34, 1.56, .64, 1), border-color var(--tr);
     flex-shrink: 0;
 }
-/* Hover: упругий зум (variant «pop»), без смены рамки/фона. */
-.sp-plate:hover { transform: scale(1.1); }
+/* Hover: упругий зум (variant «pop») + чуть более тёмная рамка. */
+.sp-plate:hover { transform: scale(1.1); border-color: #c9c9c9; }
 /* Унифицированная inline-SVG иконка тарелки (см. Plate Icon Final, Variant 1).
    Используется и в кнопке #plate-btn (.sp-plate / .vh-plate-btn), и в заголовках модалок. */
 .sp-plate-svg { display: block; flex-shrink: 0; }
@@ -2957,12 +2957,12 @@ img { display: block; max-width: 100%; }
        квадратом тарелки .sp-plate. min-height позволял боксу расти под аватар +
        line-height имени, из-за чего рамка ЛК была выше тарелки. */
     font: inherit; height: 40px; line-height: 1;
-    transition: transform .26s cubic-bezier(.34, 1.56, .64, 1), background var(--tr);
+    transition: transform .26s cubic-bezier(.34, 1.56, .64, 1), border-color var(--tr), background var(--tr);
     flex-shrink: 0;
     position: relative;
 }
-/* Hover: упругий зум (variant «pop»), синхронно с .sp-plate. */
-.sp-profile:hover { transform: scale(1.1); }
+/* Hover: упругий зум (variant «pop») + чуть более тёмная рамка, синхронно с .sp-plate. */
+.sp-profile:hover { transform: scale(1.1); border-color: #c9c9c9; }
 .sp-profile[data-fb-unseen="1"] { border-color: var(--accent); }
 /* Индикатор новых ответов Юлии на аватаре профиля.
    Поведение: точка с цифрой (или 9+). Не на иконке тарелки. */
