@@ -422,16 +422,26 @@ img { display: block; max-width: 100%; }
 .card-fav-btn:active { transform: scale(.88); }
 .card-fav-btn svg { width: 16px; height: 16px; }
 .card-fav-btn.active {
-    background: var(--accent);
+    background: #fff;
     border-color: var(--accent);
 }
-.card-fav-btn.active svg { fill: #fff; stroke: #fff; }
+.card-fav-btn.active svg { fill: var(--accent); stroke: var(--accent); }
 .card-fav-btn:not(.active) svg { fill: none; stroke: var(--text); stroke-width: 2; }
 .card-fav-btn:hover,
 .card-fav-btn:focus-visible {
     background: #fff;
     border-color: var(--text);
     outline: none;
+}
+.card-fav-btn.active:hover,
+.card-fav-btn.active:focus-visible {
+    border-color: var(--accent);
+    background: #fff;
+}
+.card-fav-btn.active:hover svg,
+.card-fav-btn.active:focus-visible svg {
+    fill: var(--accent);
+    stroke: var(--accent);
 }
 
 /* ── LK ICON BUTTON ──────────────────────────────────── */
@@ -591,16 +601,26 @@ img { display: block; max-width: 100%; }
 .recipe-card__bookmark:active { transform: scale(.88); }
 .recipe-card__bookmark svg { width: 15px; height: 15px; }
 .recipe-card__bookmark.active {
-    background: var(--accent);
+    background: #fff;
     border-color: var(--accent);
 }
-.recipe-card__bookmark.active svg { fill: #fff; stroke: #fff; }
+.recipe-card__bookmark.active svg { fill: var(--accent); stroke: var(--accent); }
 .recipe-card__bookmark:not(.active) svg { fill: none; stroke: #1a1a1a; }
 .recipe-card__bookmark:hover,
 .recipe-card__bookmark:focus-visible {
     background: #fff;
     border-color: var(--text);
     outline: none;
+}
+.recipe-card__bookmark.active:hover,
+.recipe-card__bookmark.active:focus-visible {
+    border-color: var(--accent);
+    background: #fff;
+}
+.recipe-card__bookmark.active:hover svg,
+.recipe-card__bookmark.active:focus-visible svg {
+    fill: var(--accent);
+    stroke: var(--accent);
 }
 .recipe-card__body { padding: 16px 16px 18px; display: flex; flex-direction: column; flex: 1; }
 .recipe-card__title {
