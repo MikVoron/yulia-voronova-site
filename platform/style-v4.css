@@ -411,18 +411,24 @@ img { display: block; max-width: 100%; }
 /* ── FAVORITE BUTTON on recipe cards ─────────────────── */
 .card-fav-btn {
     position: absolute; top: 8px; right: 8px;
-    width: 28px; height: 28px; border-radius: 50%;
-    background: rgba(255,255,255,.88); border: none;
+    width: 32px; height: 32px; border-radius: 0;
+    background: rgba(255,255,255,.92); border: 1px solid rgba(26,26,26,.18);
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; z-index: 2; padding: 0;
     pointer-events: all;
     -webkit-tap-highlight-color: transparent;
-    transition: transform .15s;
+    transition: background .15s, border-color .15s, color .15s, transform .15s;
 }
 .card-fav-btn:active { transform: scale(.88); }
 .card-fav-btn svg { width: 16px; height: 16px; }
 .card-fav-btn.active svg { fill: var(--accent); stroke: var(--accent); }
-.card-fav-btn:not(.active) svg { fill: none; stroke: #888; stroke-width: 2; }
+.card-fav-btn:not(.active) svg { fill: none; stroke: var(--text); stroke-width: 2; }
+.card-fav-btn:hover,
+.card-fav-btn:focus-visible {
+    background: #fff;
+    border-color: var(--text);
+    outline: none;
+}
 
 /* ── LK ICON BUTTON ──────────────────────────────────── */
 .v-icon-btn {
@@ -569,19 +575,25 @@ img { display: block; max-width: 100%; }
 .recipe-card:hover .recipe-card__media img { transform: scale(1.04); }
 .recipe-card__bookmark {
     position: absolute; top: 10px; right: 10px;
-    width: 34px; height: 34px; border-radius: 50%;
+    width: 34px; height: 34px; border-radius: 0;
     background: rgba(255,255,255,.95);
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,.15);
-    border: none; cursor: pointer; z-index: 2; padding: 0;
+    box-shadow: 0 8px 18px rgba(0,0,0,.12);
+    border: 1px solid rgba(26,26,26,.16); cursor: pointer; z-index: 2; padding: 0;
     pointer-events: all;
     -webkit-tap-highlight-color: transparent;
-    transition: transform .15s;
+    transition: background .15s, border-color .15s, transform .15s;
 }
 .recipe-card__bookmark:active { transform: scale(.88); }
 .recipe-card__bookmark svg { width: 15px; height: 15px; }
 .recipe-card__bookmark.active svg { fill: #1a1a1a; stroke: #1a1a1a; }
 .recipe-card__bookmark:not(.active) svg { fill: none; stroke: #1a1a1a; }
+.recipe-card__bookmark:hover,
+.recipe-card__bookmark:focus-visible {
+    background: #fff;
+    border-color: var(--text);
+    outline: none;
+}
 .recipe-card__body { padding: 16px 16px 18px; display: flex; flex-direction: column; flex: 1; }
 .recipe-card__title {
     font-family: 'Cormorant Garamond', Georgia, serif;
@@ -745,18 +757,30 @@ img { display: block; max-width: 100%; }
 .photo-overlay {
     position: absolute; bottom: 0; left: 0; right: 0;
     display: flex; align-items: flex-end; justify-content: space-between;
-    padding: 7px 8px;
-    background: linear-gradient(to top, rgba(0,0,0,.52) 0%, transparent 100%);
+    padding: 8px;
+    background: linear-gradient(to top, rgba(0,0,0,.42) 0%, transparent 100%);
     pointer-events: none;
 }
 .photo-rating-pill {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: rgba(0,0,0,.48); border-radius: 20px;
+    display: inline-flex; align-items: center; gap: 6px;
+    min-height: 30px;
+    background: rgba(17,17,17,.86); border-radius: 0;
     padding: 5px 10px; pointer-events: all; cursor: pointer;
-    border: none; -webkit-tap-highlight-color: transparent;
+    border: 1px solid rgba(255,255,255,.22); -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 8px 18px rgba(0,0,0,.18);
+    transition: background .15s, border-color .15s;
 }
-.photo-rating-pill .pr-star { color: #f5c542; font-size: 16px; line-height: 1; }
-.photo-rating-pill .pr-val  { color: #fff; font-size: 13px; font-weight: 700; }
+.photo-rating-pill:hover,
+.photo-rating-pill:focus-visible {
+    background: var(--text);
+    border-color: rgba(255,255,255,.5);
+    outline: none;
+}
+.photo-rating-pill .pr-star { color: #f5c542; font-size: 15px; line-height: 1; }
+.photo-rating-pill .pr-val  {
+    color: #fff; font-size: 11px; font-weight: 800;
+    letter-spacing: .08em; text-transform: uppercase;
+}
 
 /* Stars popup */
 .rating-popup {
@@ -781,20 +805,29 @@ img { display: block; max-width: 100%; }
 
 /* Comment button */
 .photo-comment-btn {
-    display: flex; align-items: center; gap: 4px;
-    background: rgba(255,255,255,.9);
-    border: none; border-radius: 100px;
-    padding: 5px 9px;
-    font-size: 11px; font-weight: 700; color: var(--text-2);
+    display: flex; align-items: center; gap: 6px;
+    min-height: 30px;
+    background: rgba(255,255,255,.94);
+    border: 1px solid rgba(26,26,26,.16); border-radius: 0;
+    padding: 5px 10px;
+    font-size: 11px; font-weight: 800; letter-spacing: .04em;
+    color: var(--text);
     pointer-events: all; cursor: pointer; flex-shrink: 0;
     position: relative;
     -webkit-tap-highlight-color: transparent;
-    transition: background .15s;
+    transition: background .15s, border-color .15s;
+    box-shadow: 0 8px 18px rgba(0,0,0,.12);
 }
-.photo-comment-btn svg { width: 12px; height: 12px; fill: var(--text-3); flex-shrink: 0; }
+.photo-comment-btn:hover,
+.photo-comment-btn:focus-visible {
+    background: #fff;
+    border-color: var(--text);
+    outline: none;
+}
+.photo-comment-btn svg { width: 13px; height: 13px; fill: var(--text); flex-shrink: 0; }
 .photo-comment-badge {
     background: var(--accent); color: white;
-    border-radius: 100px; min-width: 15px; height: 15px;
+    border-radius: 0; min-width: 16px; height: 16px;
     font-size: 9px; font-weight: 800;
     display: inline-flex; align-items: center; justify-content: center; padding: 0 3px;
 }
