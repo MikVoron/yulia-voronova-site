@@ -97,7 +97,7 @@ img { display: block; max-width: 100%; }
    Картинка заполняет круглый аватар одинаково на всех страницах платформы. */
 .v-user-avatar-img {
     width: 100%; height: 100%; display: block;
-    object-fit: cover; object-position: center;
+    object-fit: cover; object-position: center 62%;
     border-radius: 50%;
 }
 
@@ -2872,13 +2872,14 @@ img { display: block; max-width: 100%; }
     width: 26px; height: 2px; background: var(--accent);
 }
 
-/* Рецепты: категории в 2 колонки, на широком desktop — больше колонок (до 4). */
+/* Рецепты: группы категорий в 4 смысловые колонки. */
 .sp-nav-cols { display: grid; grid-template-columns: repeat(2, minmax(150px, 1fr)); gap: 2px 32px; }
+.sp-nav-col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 @media (min-width: 1280px) {
-    .sp-nav-panel--recipes .sp-nav-cols { grid-template-columns: repeat(3, minmax(150px, 1fr)); }
+    .sp-nav-panel--recipes .sp-nav-cols { grid-template-columns: repeat(4, minmax(135px, 1fr)); }
 }
 @media (min-width: 1440px) {
-    .sp-nav-panel--recipes .sp-nav-cols { grid-template-columns: repeat(4, minmax(150px, 1fr)); }
+    .sp-nav-panel--recipes .sp-nav-cols { grid-template-columns: repeat(4, minmax(145px, 1fr)); }
 }
 
 /* Ингредиенты: 5 групп в одну строку, больше воздуха между колонками.

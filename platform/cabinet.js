@@ -1368,6 +1368,7 @@
 			renderNotesList();
 		}
 		function escHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+		function escAttr(s) { return escHtml(s); }
 
 		function imgFallback(img, emoji, cls) {
 			img.onerror = null;
@@ -1613,6 +1614,7 @@
 			const msgs = (f.messages && f.messages.length)
 				? f.messages
 				: [{ sender_type: 'user', text: '', created_at: f.created_at }];
+			const userAvatar = feedbackUserAvatarHtml();
 			const tagCls = FB_THREAD_TAG[f.category] || 'wish';
 			const tagLabel = FB_THREAD_LABEL[f.category] || (FB_LABELS[f.category] || f.category);
 			const lastAdmin = [...msgs].reverse().find(m => m.sender_type === 'admin');
@@ -1627,14 +1629,22 @@
 					const isFirst = userIdx === 0;
 					userIdx++;
 					if (isFirst) {
-						body += '<p class="thread-msg">' + escHtml(m.text) + '</p>';
+						body += '<div class="thread-msg">'
+							+ userAvatar
+							+ '<div class="thread-user-body">'
+							+ '<p class="thread-user-text">' + escHtml(m.text) + '</p>'
+							+ '</div>'
+							+ '</div>';
 					} else {
 						body += '<div class="thread-followup">'
+							+ userAvatar
+							+ '<div class="thread-user-body">'
 							+ '<div class="thread-followup-head">'
 							+ '<span class="thread-followup-name">Вы</span>'
 							+ '<span class="thread-followup-date">' + fmtFbDate(m.created_at) + '</span>'
 							+ '</div>'
 							+ '<p class="thread-followup-text">' + escHtml(m.text) + '</p>'
+							+ '</div>'
 							+ '</div>';
 					}
 				} else if (m.sender_type === 'admin') {
@@ -1675,6 +1685,16 @@
 				+ body
 				+ actions
 				+ '</article>';
+		}
+
+		function feedbackUserAvatarHtml() {
+			const avatar = Auth.getAvatar && Auth.getAvatar();
+			if (avatar) {
+				return '<span class="thread-user-ava"><img src="' + escAttr(avatar) + '" alt=""></span>';
+			}
+			const user = Auth.getUser && Auth.getUser();
+			const fallback = (Auth.getDisplayName && Auth.getDisplayName()) || (user && (user.name || user.email)) || '?';
+			return '<span class="thread-user-ava">' + escHtml(String(fallback).trim().charAt(0).toUpperCase() || '?') + '</span>';
 		}
 
 		function openFeedbackReply(id) {

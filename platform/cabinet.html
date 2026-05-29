@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-29-cabinet-polish" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-29-feedback-avatar-nav" id="vcss">
 	<style>
 		/* ──────────────────────────────────────────────────────────────
 		   CABINET — editorial redesign (Account Page Redesign.html)
@@ -58,7 +58,7 @@
 			border: none;
 		}
 		.cab-hero-ava .cab-ava img {
-			width: 100%; height: 100%; object-fit: cover; display: block;
+			width: 100%; height: 100%; object-fit: cover; object-position: center 62%; display: block;
 		}
 		.cab-hero-ava-edit {
 			position: absolute; right: -8px; bottom: -8px;
@@ -1056,17 +1056,36 @@
 		.thread-hide:hover:not(:disabled) { color: var(--accent); }
 		.thread-hide:disabled { opacity: .5; cursor: default; }
 		.thread-msg {
+			display: grid; grid-template-columns: 32px 1fr; gap: 10px;
 			font-family: var(--sans); font-size: 15px; line-height: 1.55;
 			font-weight: 700; color: var(--text); margin: 0 0 14px;
 			padding: 14px 16px; background: #faf8f5; border-left: 3px solid var(--text);
 		}
+		.thread-user-ava {
+			width: 32px; height: 32px; border-radius: 50%; overflow: hidden;
+			background: var(--text); color: #fff; flex-shrink: 0;
+			display: inline-flex; align-items: center; justify-content: center;
+			font-size: 12px; font-weight: 800; line-height: 1; text-transform: uppercase;
+		}
+		.thread-user-ava img,
+		.thread-reply-ava img { width: 100%; height: 100%; object-fit: cover; object-position: center 62%; display: block; }
+		.thread-user-body { min-width: 0; }
+		.thread-user-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+		.thread-user-name {
+			font-size: 10px; font-weight: 800; letter-spacing: .16em;
+			text-transform: uppercase; color: var(--text);
+		}
+		.thread-user-date {
+			margin-left: auto; font-size: 10px; font-weight: 700;
+			letter-spacing: .12em; text-transform: uppercase; color: var(--text-3);
+		}
+		.thread-user-text { margin: 0; }
 		.thread-reply { margin-left: 24px; padding: 16px 18px 16px 22px; background: #fffaf6; border-left: 3px solid var(--accent); }
 		.thread-reply-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 		.thread-reply-ava {
 			width: 32px; height: 32px; border-radius: 50%; overflow: hidden;
 			background: #dccaaa; flex-shrink: 0;
 		}
-		.thread-reply-ava img { width: 100%; height: 100%; object-fit: cover; display: block; }
 		.thread-reply-name { font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
 		.thread-reply-date { margin-left: auto; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
 		.thread-reply-text { font-size: 15px; color: var(--text); line-height: 1.55; margin: 0 0 10px; }
@@ -1088,6 +1107,7 @@
 
 		/* Сообщение пользователя-уточнение (после первого) */
 		.thread-followup {
+			display: grid; grid-template-columns: 32px 1fr; gap: 10px;
 			margin: 12px 0 12px 24px; padding: 14px 16px;
 			background: #faf8f5; border-left: 3px solid var(--text-3);
 		}
@@ -1375,6 +1395,9 @@
 			.threads-title { font-size: 20px; }
 			.thread { padding: 16px 0; }
 			.thread-msg { font-size: 14px; }
+			.thread-msg,
+			.thread-followup { grid-template-columns: 28px 1fr; gap: 8px; }
+			.thread-user-ava { width: 28px; height: 28px; font-size: 11px; }
 			.thread-head { gap: 8px; }
 			.thread-date { width: 100%; margin-left: 0; }
 			.thread-reply { margin-left: 0; padding: 14px 14px 14px 16px; }
@@ -1914,7 +1937,7 @@
 
 	<script src="data-v2.js?v=2026052902"></script>
 	<script src="ingredients.js?v=2"></script>
-	<script src="header-nav.js?v=5-mobile-drawer-scroll-lock"></script>
+	<script src="header-nav.js?v=2026-05-29-feedback-avatar-nav"></script>
 	<script src="cabinet.js?v=2026052902"></script>
 
 	<!-- Tawk.to -->

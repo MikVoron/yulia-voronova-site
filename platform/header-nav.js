@@ -28,6 +28,16 @@
   var HOME_URL = 'index.html';
   var ALL_RECIPES_URL = 'category.html';
   var FAVORITES_TARGET = 'cabinet.html?tab=favorites';
+  var RECIPE_GROUPS = [
+    ['breakfasts', 'mains', 'cutlets'],
+    ['salads', 'sides', 'pancakes'],
+    ['spreads', 'sauces', 'breads'],
+    ['bases', 'drinks']
+  ];
+  var RECIPE_ORDER = RECIPE_GROUPS.reduce(function (acc, group, groupIdx) {
+    group.forEach(function (id, itemIdx) { acc[id] = groupIdx * 10 + itemIdx; });
+    return acc;
+  }, {});
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -58,6 +68,9 @@
     var arr = Object.keys(C).map(function (k) { return C[k]; })
       .filter(function (c) { return c && c.id; });
     arr.sort(function (a, b) {
+      var oa = Object.prototype.hasOwnProperty.call(RECIPE_ORDER, a.id) ? RECIPE_ORDER[a.id] : 999;
+      var ob = Object.prototype.hasOwnProperty.call(RECIPE_ORDER, b.id) ? RECIPE_ORDER[b.id] : 999;
+      if (oa !== ob) return oa - ob;
       var sa = (a.sort_order != null) ? a.sort_order : 0;
       var sb = (b.sort_order != null) ? b.sort_order : 0;
       if (sa !== sb) return sa - sb;
@@ -74,14 +87,27 @@
     var ingActive = opts.activeNav === 'ingredients';
     var favActive = opts.activeNav === 'favorites';
 
-    var catLinks = cats.map(function (c) {
+    var catsById = {};
+    cats.forEach(function (c) { catsById[c.id] = c; });
+    var used = {};
+    var catCols = RECIPE_GROUPS.map(function (group) {
+      var links = group.map(function (id) {
+        var c = catsById[id];
+        if (!c) return '';
+        used[id] = true;
+        return '<a role="menuitem" href="category.html?cat=' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a>';
+      }).join('');
+      return '<div class="sp-nav-col">' + links + '</div>';
+    });
+    var extraLinks = cats.filter(function (c) { return !used[c.id]; }).map(function (c) {
       return '<a role="menuitem" href="category.html?cat=' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a>';
     }).join('');
+    if (extraLinks) catCols.push('<div class="sp-nav-col">' + extraLinks + '</div>');
 
     var recipesPanel =
       '<div class="sp-nav-panel sp-nav-panel--recipes" role="menu">' +
         '<a class="sp-nav-panel-all" role="menuitem" href="' + ALL_RECIPES_URL + '">Все рецепты</a>' +
-        '<div class="sp-nav-cols">' + catLinks + '</div>' +
+        '<div class="sp-nav-cols">' + catCols.join('') + '</div>' +
       '</div>';
 
     var groups = (global.SP_INGREDIENTS && global.SP_INGREDIENTS.byGroup()) || [];
