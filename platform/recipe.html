@@ -1078,7 +1078,7 @@
 				<button class="bal-success-modal-primary" id="bal-success-primary" type="button"
 					onclick="confirmBalanceSuccessAdd()">+ Добавить в тарелку</button>
 				<button class="bal-success-modal-secondary" type="button"
-					onclick="hideBalanceSuccessModal('secondary')">Продолжить</button>
+					onclick="hideBalanceSuccessModal('secondary')">Не добавлять</button>
 			</div>
 		</div>
 	</div>
@@ -2885,7 +2885,6 @@
 					banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-label">Баланс блюда</div><div class="bal-banner-title">Блюдо сбалансировано</div><div class="bal-banner-sub">Добавьте его в тарелку — это полноценный приём пищи.</div>`;
 					if (!_celebrationShown) {
 						_celebrationShown = true;
-						showToast('Блюдо сбалансировано ✅');
 						playBalanceSound();
 						showBalanceSuccessModal();
 					}
@@ -3051,6 +3050,7 @@
 		// ── Balance success modal ──────────────────────────────────────────
 		let _balSuccessAutoHideTimer = null;
 		let _balSuccessPrevFocus = null;
+		let _balSuccessStickyPrevVisibility = '';
 
 		function showBalanceSuccessModal() {
 			const asIng = new URLSearchParams(location.search).get('asIngredient') === '1';
@@ -3062,11 +3062,15 @@
 			overlay.classList.add('show');
 			overlay.addEventListener('click', _balSuccessBackdropHandler);
 			document.addEventListener('keydown', _balSuccessKeyHandler);
+			const stickyAdd = document.getElementById('sticky-add');
+			if (stickyAdd) {
+				_balSuccessStickyPrevVisibility = stickyAdd.style.visibility || '';
+				stickyAdd.style.visibility = 'hidden';
+			}
 			spawnSparkles();
 			const primary = document.getElementById('bal-success-primary');
 			if (primary) setTimeout(() => { try { primary.focus(); } catch (e) { } }, 50);
 			clearTimeout(_balSuccessAutoHideTimer);
-			_balSuccessAutoHideTimer = setTimeout(() => hideBalanceSuccessModal('timeout'), 3000);
 		}
 
 		function hideBalanceSuccessModal(reason) {
@@ -3078,6 +3082,8 @@
 			document.removeEventListener('keydown', _balSuccessKeyHandler);
 			clearTimeout(_balSuccessAutoHideTimer);
 			_balSuccessAutoHideTimer = null;
+			const stickyAdd = document.getElementById('sticky-add');
+			if (stickyAdd) stickyAdd.style.visibility = _balSuccessStickyPrevVisibility;
 			const sparkleHost = document.getElementById('bal-sparkle-container');
 			if (sparkleHost) sparkleHost.innerHTML = '';
 			if (_balSuccessPrevFocus && typeof _balSuccessPrevFocus.focus === 'function') {
