@@ -2921,10 +2921,15 @@ img { display: block; max-width: 100%; }
     display: inline-flex; align-items: center; justify-content: center;
     position: relative; cursor: pointer; padding: 0;
     border-radius: 0;
-    transition: border-color var(--tr);
+    transition: background-color var(--tr), border-color var(--tr), box-shadow var(--tr), transform var(--tr);
     flex-shrink: 0;
 }
-.sp-plate:hover { border-color: var(--accent); }
+.sp-plate:hover {
+    background: #fff8f4;
+    border-color: rgba(232,64,10,.2);
+    box-shadow: 0 8px 22px rgba(232,64,10,.12), inset 0 -2px 0 var(--accent);
+    transform: translateY(-1px);
+}
 /* Унифицированная inline-SVG иконка тарелки (см. Plate Icon Final, Variant 1).
    Используется и в кнопке #plate-btn (.sp-plate / .vh-plate-btn), и в заголовках модалок. */
 .sp-plate-svg { display: block; flex-shrink: 0; }
@@ -2935,6 +2940,11 @@ img { display: block; max-width: 100%; }
    На мобиле обе ужимаются (см. @media ≤767px).
    Scoped to .sp-plate — модальные заголовки используют .sp-plate-svg в своём размере. */
 .sp-plate .sp-plate-svg { width: 33px; height: 33px; }
+.sp-plate .sp-plate-svg { transition: transform var(--tr), filter var(--tr); }
+.sp-plate:hover .sp-plate-svg {
+    transform: rotate(-6deg) scale(1.06);
+    filter: drop-shadow(0 3px 5px rgba(232,64,10,.2));
+}
 .sp-plate .plate-count {
     position: absolute; top: -6px; right: -6px;
     min-width: 18px; height: 18px; padding: 0 4px;
@@ -2955,11 +2965,16 @@ img { display: block; max-width: 100%; }
        квадратом тарелки .sp-plate. min-height позволял боксу расти под аватар +
        line-height имени, из-за чего рамка ЛК была выше тарелки. */
     font: inherit; height: 40px; line-height: 1;
-    transition: border-color var(--tr);
+    transition: background-color var(--tr), border-color var(--tr), box-shadow var(--tr), transform var(--tr);
     flex-shrink: 0;
     position: relative;
 }
-.sp-profile:hover { border-color: var(--accent); }
+.sp-profile:hover {
+    background: #fff8f4;
+    border-color: rgba(232,64,10,.2);
+    box-shadow: 0 8px 22px rgba(232,64,10,.12), inset 0 -2px 0 var(--accent);
+    transform: translateY(-1px);
+}
 .sp-profile[data-fb-unseen="1"] { border-color: var(--accent); }
 /* Индикатор новых ответов Юлии на аватаре профиля.
    Поведение: точка с цифрой (или 9+). Не на иконке тарелки. */
@@ -2986,12 +3001,36 @@ img { display: block; max-width: 100%; }
     font-size: 13px; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
     overflow: hidden; flex-shrink: 0; border: none;
+    transition: transform var(--tr), box-shadow var(--tr);
+}
+.sp-profile:hover .v-user-avatar {
+    transform: scale(1.06);
+    box-shadow: 0 3px 8px rgba(232,64,10,.22);
 }
 .sp-profile-name {
     font-size: 13px; font-weight: 600; color: var(--text);
     max-width: 120px; overflow: hidden; text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+/* Hover variant B: ink-style, calmer than the active warm-lift variant above.
+   Add .sp-hover-ink to .sp-header to compare it on the same markup. */
+.sp-header.sp-hover-ink .sp-plate,
+.sp-header.sp-hover-ink .sp-profile {
+    border-color: transparent;
+    box-shadow: inset 0 0 0 1px var(--border);
+}
+.sp-header.sp-hover-ink .sp-plate:hover,
+.sp-header.sp-hover-ink .sp-profile:hover {
+    background: #111;
+    border-color: transparent;
+    color: #fff;
+    box-shadow: inset 0 0 0 1px #111, 0 8px 18px rgba(17,17,17,.16);
+    transform: translateY(-1px);
+}
+.sp-header.sp-hover-ink .sp-profile:hover .sp-profile-name,
+.sp-header.sp-hover-ink .sp-profile:hover .sp-profile-guest-icon { color: #fff; }
+.sp-header.sp-hover-ink .sp-plate:hover .plate-count { border-color: #111; }
 .sp-profile.is-guest {
     padding: 0 18px;
     border-color: var(--text); background: #fff;

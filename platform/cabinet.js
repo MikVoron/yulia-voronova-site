@@ -1598,7 +1598,7 @@
 			if (!all || !all.length) {
 				el.innerHTML = '<div class="threads-empty">'
 					+ '<div class="threads-empty-mark">Пока пусто</div>'
-					+ '<h3 class="threads-empty-title">Здесь появятся ваши обращения</h3>'
+					+ '<h3 class="threads-empty-title">Здесь появятся Ваши обращения</h3>'
 					+ '<p>Напишите Юлии в&nbsp;форме выше&nbsp;— пожелание, идею рецепта или сообщение о&nbsp;проблеме. Ответ придёт сюда и&nbsp;на&nbsp;почту.</p>'
 					+ '</div>';
 				return;
@@ -1641,7 +1641,7 @@
 					body += '<div class="thread-reply">'
 						+ '<div class="thread-reply-head">'
 						+ '<div class="thread-reply-ava"><img src="' + SITE_BASE + '/images/YV-blog.webp" alt="Юлия Воронова"></div>'
-						+ '<span class="thread-reply-name">Ответ Юлии</span>'
+						+ '<span class="thread-reply-name">Юлия</span>'
 						+ '<span class="thread-reply-date">' + fmtFbDate(m.created_at) + '</span>'
 						+ '</div>'
 						+ '<p class="thread-reply-text">' + escHtml(m.text) + '</p>'
@@ -1747,7 +1747,7 @@
 		async function hideFeedback(id, btn) {
 			const ok = await showAppConfirm({
 				title: 'Скрыть обращение из списка?',
-				text: 'В базе оно сохранится, но вы его больше не увидите.',
+				text: 'В базе оно сохранится, но Вы его больше не увидите.',
 				confirmText: 'Скрыть',
 				cancelText: 'Отмена',
 				danger: true

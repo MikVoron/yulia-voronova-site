@@ -253,12 +253,12 @@ async function sendFeedbackReply(to, category, originalText, replyText) {
     + '<p style="font-size:14px;color:#777;margin:0 0 4px">Категория: <strong>' + label + '</strong></p>'
     + '<div style="padding:14px;background:#faf8f5;border-radius:10px;border:1px solid #eee;margin:12px 0;font-size:14px;color:#444;line-height:1.6;white-space:pre-wrap">'
     + originalText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>'
-    + '<p style="font-size:15px;color:#111;font-weight:700;margin:16px 0 8px">Ответ Юлии:</p>'
+    + '<p style="font-size:15px;color:#111;font-weight:700;margin:16px 0 8px">Юлия:</p>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px;white-space:pre-wrap">'
     + replyText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>'
-    + '<p style="font-size:14px;color:#777;line-height:1.6;margin:0 0 16px">Если остались вопросы, вы можете продолжить диалог в разделе «Связь» личного кабинета.</p>'
+    + '<p style="font-size:14px;color:#777;line-height:1.6;margin:0 0 16px">Если остались вопросы, Вы можете продолжить диалог в разделе «Связь» личного кабинета.</p>'
     + btn('Открыть личный кабинет', '' + PLATFORM_URL + '/cabinet.html');
-  await send(to, 'Ответ на ваше обращение — Умная тарелка', wrap(body));
+  await send(to, 'Ответ на Ваше обращение — Умная тарелка', wrap(body));
 }
 
 module.exports = {
