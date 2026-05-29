@@ -1890,8 +1890,10 @@ img { display: block; max-width: 100%; }
 /* ── TOAST ───────────────────────────────────────────── */
 #v2-toast {
     position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
-    background: var(--text); color: white; padding: 11px 20px;
-    border-radius: var(--r-f); font-size: 13px; font-weight: 700;
+    background: var(--text); color: white; padding: 12px 18px;
+    border-radius: 0; border: 1px solid rgba(255,255,255,.18);
+    font-size: 12px; font-weight: 700; line-height: 1.35;
+    letter-spacing: .06em; text-transform: uppercase;
     z-index: 9999; opacity: 0; pointer-events: none;
     transition: opacity .25s, transform .25s; white-space: nowrap;
     box-shadow: var(--sh-l);
