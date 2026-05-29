@@ -719,17 +719,27 @@ img { display: block; max-width: 100%; }
     padding: 3px 10px; font-size: 11px; font-weight: 600;
 }
 .recipe-preview .rp-cta-block {
-    background: linear-gradient(180deg, #fff8f1 0%, #fff 100%);
-    border: 1px solid rgba(232, 64, 10, .15);
-    border-radius: 16px; padding: 32px 24px; text-align: center; margin-top: 8px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 0; padding: 32px 24px; text-align: center; margin-top: 8px;
 }
-.recipe-preview .rp-cta-icon { font-size: 36px; margin-bottom: 10px; }
+.recipe-preview .rp-cta-icon { color: var(--accent); margin-bottom: 12px; display: flex; justify-content: center; }
+.recipe-preview .rp-cta-icon svg { width: 36px; height: 36px; }
 .recipe-preview .rp-cta-title {
     font-family: 'Playfair Display', var(--serif);
     font-size: 19px; font-weight: 600; color: var(--text);
-    line-height: 1.3; margin-bottom: 16px;
+    line-height: 1.3; margin-bottom: 18px;
 }
-.recipe-preview .rp-cta-btn { display: inline-block; padding: 12px 28px; font-size: 15px; font-weight: 600; }
+.recipe-preview .rp-cta-btn {
+    display: inline-block; background: var(--accent); color: #fff;
+    border: 1px solid var(--accent); padding: 13px 32px; border-radius: 0;
+    font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    text-decoration: none; cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+}
+.recipe-preview .rp-cta-btn:hover, .recipe-preview .rp-cta-btn:focus-visible {
+    background: var(--text); border-color: var(--text); outline: none;
+}
 
 /* ── PHOTO OVERLAY (rating + comments) ──────────────── */
 .photo-overlay {
@@ -1920,6 +1930,58 @@ img { display: block; max-width: 100%; }
 .app-confirm-ok.is-danger:hover, .app-confirm-ok.is-danger:focus-visible { background: #a5281b; border-color: #a5281b; }
 .app-confirm-cancel { background: #fff; color: var(--text); border: 1px solid var(--text); }
 .app-confirm-cancel:hover, .app-confirm-cancel:focus-visible { background: var(--text); color: #fff; outline: none; }
+
+/* ── LOCKED TOAST (paywall на карточках, showLockedMsg в data-v2.js) ──
+   Sharp-вариант с CTA-ссылкой. Тёмный фон как у #v2-toast, без скруглений. */
+.locked-toast {
+    position: fixed; bottom: 80px; left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--text); color: #fff; padding: 12px 20px;
+    font-size: 13px; font-weight: 600; line-height: 1.4; text-align: center;
+    max-width: 360px; z-index: 9999; box-shadow: var(--sh-l);
+    opacity: 0; pointer-events: auto;
+    transition: opacity .25s ease, transform .25s ease;
+}
+.locked-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.locked-toast-link { color: #fff; text-decoration: underline; font-weight: 700; }
+@media (max-width: 480px) { .locked-toast { max-width: calc(100vw - 32px); } }
+
+/* ── PAYWALL OVERLAY (Auth._showPaywall в data-v2.js) ──
+   Editorial-стиль: sharp-кнопки, caps, переменные. Заголовок — Playfair
+   (как заголовки рецептов/страниц). Иконки — inline stroke-SVG. */
+.paywall-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+    padding: 20px;
+}
+.paywall-card { text-align: center; max-width: 400px; width: 100%; }
+.paywall-icon { color: var(--accent); margin-bottom: 16px; display: flex; justify-content: center; }
+.paywall-icon svg { width: 48px; height: 48px; }
+.paywall-title {
+    font-family: 'Playfair Display', var(--serif);
+    font-size: 28px; color: var(--text); line-height: 1.2; margin: 0 0 12px;
+}
+.paywall-text { color: var(--text-2); font-size: 15px; line-height: 1.5; margin: 0 0 24px; }
+.paywall-actions { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.paywall-btn {
+    display: inline-block; background: var(--accent); color: #fff;
+    border: 1px solid var(--accent); padding: 13px 32px; border-radius: 0;
+    font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: .12em;
+    text-transform: uppercase; text-decoration: none; cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+}
+.paywall-btn:hover, .paywall-btn:focus-visible { background: var(--text); border-color: var(--text); outline: none; }
+.paywall-link { color: var(--text-3); font-size: 13px; text-decoration: underline; }
+.paywall-link:hover { color: var(--accent); }
+.paywall-legal { margin-top: 24px; font-size: 11px; color: var(--text-3); line-height: 1.5; }
+.paywall-legal a { color: var(--text-3); text-decoration: underline; }
+.paywall-legal a:hover { color: var(--accent); }
+@media (max-width: 480px) {
+    .paywall-title { font-size: 24px; }
+    .paywall-btn { width: 100%; max-width: 280px; }
+}
 
 /* ── JULIA STRIP ─────────────────────────────────────── */
 .julia-strip {

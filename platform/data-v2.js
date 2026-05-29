@@ -288,38 +288,41 @@ const Auth = {
         if (main) { main.style.filter = 'blur(8px)'; main.style.pointerEvents = 'none'; main.style.userSelect = 'none'; }
         const overlay = document.createElement('div');
         overlay.id = 'paywall-overlay';
+        overlay.className = 'paywall-overlay';
         const isNetworkError = reason === 'error';
         const isExpired = reason === 'expired' || reason === 'cancelled';
+        // Тонкие stroke-SVG в стиле modal/balance-модалок (вместо emoji).
+        const LOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+        const NET_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><line x1="12" y1="20" x2="12.01" y2="20"/><line x1="2" y1="2" x2="22" y2="22"/></svg>';
         let icon, title, text, actionHtml;
         if (isNetworkError) {
-            icon = '📡';
+            icon = NET_SVG;
             title = 'Не удалось связаться с сервером';
             text = 'Проверьте подключение к интернету и попробуйте снова. Если проблема не исчезнет — напишите нам.';
-            actionHtml = '<button onclick="location.reload()" style="display:inline-block;background:var(--accent,#e8734a);color:#fff;border:none;padding:14px 32px;border-radius:12px;font-weight:600;font-size:16px;cursor:pointer">Повторить</button>';
+            actionHtml = '<button class="paywall-btn" onclick="location.reload()">Повторить</button>';
         } else {
-            icon = '🔒';
+            icon = LOCK_SVG;
             title = isExpired ? 'Подписка истекла' : 'Нужна подписка';
             text = isExpired
                 ? 'Продлите подписку, чтобы продолжить пользоваться рецептами и конструктором тарелки.'
                 : 'Оформите подписку, чтобы получить доступ к рецептам и конструктору тарелки.';
             var ret = this._currentReturnUrl();
             var subHref = 'cabinet.html?tab=subscription' + (ret ? '&return=' + encodeURIComponent(ret) : '');
-            actionHtml = '<a href="' + subHref + '" style="display:inline-block;background:var(--accent,#e8734a);color:#fff;padding:14px 32px;border-radius:12px;font-weight:600;text-decoration:none;font-size:16px">Оформить подписку</a>'
-                + '<br><a href="cabinet.html" style="display:inline-block;margin-top:12px;color:#888;font-size:13px;text-decoration:underline">Личный кабинет</a>';
+            actionHtml = '<a class="paywall-btn" href="' + subHref + '">Оформить подписку</a>'
+                + '<a class="paywall-link" href="cabinet.html">Личный кабинет</a>';
         }
-        var policyLink = '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Политика обработки персональных данных</a>';
-        var offerLink = '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener" style="color:#aaa;text-decoration:underline">Оферта</a>';
+        var policyLink = '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener">Политика обработки персональных данных</a>';
+        var offerLink = '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener">Оферта</a>';
         var legalLinks = LEGAL_OFFER_ENABLED ? (offerLink + ' · ' + policyLink) : policyLink;
         var legalHtml = isNetworkError ? '' :
-            '<div style="margin-top:24px;font-size:11px;color:#aaa;line-height:1.5">' + legalLinks + '</div>';
-        overlay.innerHTML = '<div style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.85);padding:20px">'
-            + '<div style="text-align:center;max-width:400px">'
-            + '<div style="font-size:48px;margin-bottom:16px">' + icon + '</div>'
-            + '<h2 style="font-family:Playfair Display,serif;font-size:28px;color:#1a1a1a;margin-bottom:12px">' + title + '</h2>'
-            + '<p style="color:#666;font-size:15px;line-height:1.5;margin-bottom:24px">' + text + '</p>'
-            + actionHtml
+            '<div class="paywall-legal">' + legalLinks + '</div>';
+        overlay.innerHTML = '<div class="paywall-card">'
+            + '<div class="paywall-icon">' + icon + '</div>'
+            + '<h2 class="paywall-title">' + title + '</h2>'
+            + '<p class="paywall-text">' + text + '</p>'
+            + '<div class="paywall-actions">' + actionHtml + '</div>'
             + legalHtml
-            + '</div></div>';
+            + '</div>';
         document.body.appendChild(overlay);
     },
     // Single-flight refresh. Refresh-токены на сервере РОТИРУЮТСЯ (одноразовые:
@@ -1098,6 +1101,31 @@ function showAppConfirm(opts = {}) {
             (danger ? cancelBtn : okBtn).focus();
         }));
     });
+}
+
+// ─── LOCKED TOAST (paywall на карточках рецептов) ─────────────────────────────
+// Единый helper для index/category/ingredient (раньше дублировался в 3 файлах).
+// Тосту нужна HTML-ссылка (CTA), поэтому это не showToast (тот ставит textContent).
+function showLockedMsg(recipeId) {
+    const esc = s => String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const r = (recipeId && typeof RECIPES !== 'undefined') ? RECIPES[recipeId] : null;
+    const cta = (r && typeof Auth !== 'undefined') ? Auth.recipePaywallCta(r) : null;
+    const existing = document.getElementById('locked-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.id = 'locked-toast';
+    toast.className = 'locked-toast';
+    toast.innerHTML = cta
+        ? esc(cta.title) + ' <a class="locked-toast-link" href="' + esc(cta.href) + '">' + esc(cta.btn) + '</a>'
+        : 'Этот рецепт доступен по подписке. <a class="locked-toast-link" href="cabinet.html">Оформить</a>';
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 250);
+    }, 5000);
 }
 
 // ─── SHOPPING LIST ────────────────────────────────────────────────────────────

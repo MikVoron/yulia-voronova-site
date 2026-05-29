@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-29-ingredients-menu" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-29-paywall" id="vcss">
 	<style>
 		main {
 			padding-bottom: 80px;
@@ -1672,7 +1672,7 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=2026052901"></script>
+	<script src="data-v2.js?v=2026052903"></script>
 	<script src="ingredients.js?v=2"></script>
 	<script src="header-nav.js?v=5-mobile-drawer-scroll-lock"></script>
 	<script>
@@ -2742,22 +2742,7 @@
 			if (block) block.style.display = 'none';
 		}
 
-		function showLockedMsg(recipeId) {
-			const r = recipeId ? RECIPES[recipeId] : null;
-			const cta = r ? Auth.recipePaywallCta(r) : null;
-			const existing = document.getElementById('locked-toast');
-			if (existing) existing.remove();
-			const toast = document.createElement('div');
-			toast.id = 'locked-toast';
-			if (cta) {
-				toast.innerHTML = escHtml(cta.title) + ' <a href="' + escHtml(cta.href) + '" style="color:#fff;text-decoration:underline">' + escHtml(cta.btn) + '</a>';
-			} else {
-				toast.innerHTML = 'Этот рецепт доступен по подписке. <a href="cabinet.html" style="color:#fff;text-decoration:underline">Оформить</a>';
-			}
-			Object.assign(toast.style, { position: 'fixed', bottom: '80px', left: '50%', transform: 'translateX(-50%)', background: '#333', color: '#fff', padding: '12px 20px', borderRadius: '12px', fontSize: '14px', zIndex: '9999', textAlign: 'center', maxWidth: '360px' });
-			document.body.appendChild(toast);
-			setTimeout(() => toast.remove(), 5000);
-		}
+		// showLockedMsg() централизован в data-v2.js (общий для index/category/ingredient)
 
 		function goToCategory(catId) {
 			const hasFilters = Object.values(activeFilters).some(v => v);
