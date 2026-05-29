@@ -2793,8 +2793,21 @@ img { display: block; max-width: 100%; }
 .sp-nav-groups { display: flex; gap: 36px; align-items: flex-start; }
 .sp-nav-group { min-width: 130px; }
 @media (min-width: 768px) and (max-width: 1180px) {
-    .sp-nav-groups { flex-wrap: wrap; gap: 16px 24px; }
-    .sp-nav-group { min-width: 120px; }
+    .sp-nav-panel--ingredients {
+        width: min(720px, calc(100vw - 32px));
+        max-height: calc(100vh - 180px);
+        overflow-y: auto;
+    }
+    .sp-nav-groups {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px 24px;
+    }
+    .sp-nav-group { min-width: 0; }
+}
+@media (min-width: 768px) and (max-width: 860px) {
+    .sp-nav-panel--ingredients { width: calc(100vw - 32px); }
+    .sp-nav-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 /* Заголовки групп ингредиентов — тёмный editorial-текст (var(--text)),
    uppercase, без декоративной плашки (убраны акцентный цвет и нижняя граница).
