@@ -629,9 +629,9 @@
 		   stays at the original style-v4.css size. */
 		.recipe-main .recipe-title {
 			font-family: var(--serif) !important;
-			font-size: clamp(28px, 4vw, 42px) !important;
+			font-size: clamp(40px, 4.8vw, 62px) !important;
 			font-weight: 700 !important;
-			line-height: 1.1 !important;
+			line-height: .95 !important;
 			letter-spacing: -0.02em !important;
 			color: var(--text) !important;
 			margin-bottom: 12px !important;
@@ -942,7 +942,7 @@
 		}
 		@media (max-width: 767px) {
 			.recipe-hero-img { aspect-ratio: 4/3 !important; }
-			.recipe-main .recipe-title { font-size: clamp(24px, 6vw, 32px) !important; }
+			.recipe-main .recipe-title { font-size: clamp(34px, 9vw, 44px) !important; }
 			.kbzhu-cell .kbzhu-val { font-size: 18px !important; }
 			.kbzhu-cell { padding: 12px 6px !important; }
 		}
@@ -2414,6 +2414,19 @@
             <div class="recipe-layout">
                 <div class="recipe-main anim">
                     <nav class="recipe-crumbs" aria-label="Хлебные крошки">${crumbsHtml}</nav>
+                    <h1 class="recipe-title">${escHtml(r.name)}</h1>
+                    <div class="recipe-meta-row" id="recipe-stars-row">
+                        <span class="recipe-meta-stars">
+                            ${starsRow}
+                            <span id="recipe-voter-count" style="color:var(--text-3)">(${voterCount})</span>
+                        </span>
+                    </div>
+                    <div class="recipe-badges">
+                        <span class="recipe-badge">${typeof timeIcon === 'function' ? timeIcon() : ''}${r.timeLabel ? escHtml(r.timeLabel) : Number(r.time) + ' мин'}</span>
+                        <span class="recipe-badge">${typeof diffIcon === 'function' ? diffIcon(r.diff) : ''}${escHtml(diff)}</span>
+                        <span class="recipe-badge">🍽 ${Number(r.servings || 4)} ${(()=>{const n=Number(r.servings||4),m10=n%10,m100=n%100;if(m10===1&&m100!==11)return 'порция';if([2,3,4].includes(m10)&&![12,13,14].includes(m100))return 'порции';return 'порций';})()}${portionDetail ? ` <span style="font-weight:500;color:var(--text-2)">(${escHtml(portionDetail)})</span>` : ''}</span>
+                        ${dateStr ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">Рецепт добавлен: ${escHtml(dateStr)}</span>` : ''}
+                    </div>
                     <div class="recipe-hero-img">
                         <img src="${escHtml(photoUrl(r.photo) || PHOTO_BY_CAT[r.cat] || PHOTO_FALLBACK)}"
                              alt="${escHtml(r.name)}"
@@ -2436,19 +2449,6 @@
                                 Отзывы
                             </button>
                         </div>
-                    </div>
-                    <div class="recipe-badges">
-                        <span class="recipe-badge">${typeof timeIcon === 'function' ? timeIcon() : ''}${r.timeLabel ? escHtml(r.timeLabel) : Number(r.time) + ' мин'}</span>
-                        <span class="recipe-badge">${typeof diffIcon === 'function' ? diffIcon(r.diff) : ''}${escHtml(diff)}</span>
-                        <span class="recipe-badge">🍽 ${Number(r.servings || 4)} ${(()=>{const n=Number(r.servings||4),m10=n%10,m100=n%100;if(m10===1&&m100!==11)return 'порция';if([2,3,4].includes(m10)&&![12,13,14].includes(m100))return 'порции';return 'порций';})()}${portionDetail ? ` <span style="font-weight:500;color:var(--text-2)">(${escHtml(portionDetail)})</span>` : ''}</span>
-                        ${dateStr ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">Рецепт добавлен: ${escHtml(dateStr)}</span>` : ''}
-                    </div>
-                    <h1 class="recipe-title">${escHtml(r.name)}</h1>
-                    <div class="recipe-meta-row" id="recipe-stars-row">
-                        <span class="recipe-meta-stars">
-                            ${starsRow}
-                            <span id="recipe-voter-count" style="color:var(--text-3)">(${voterCount})</span>
-                        </span>
                     </div>
                     ${r.quote ? `<div class="julia-tip" style="margin-top:0;margin-bottom:18px">
                         <div class="julia-tip-bubble">
