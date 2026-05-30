@@ -603,6 +603,13 @@
 		   Старые .v-header / vh-* overrides здесь больше не нужны. */
 
 		/* ── NYT Cooking–style recipe page overrides ─────── */
+		:root {
+			--recipe-sidebar-top: 168px;
+		}
+		.recipe-sidebar {
+			top: var(--recipe-sidebar-top) !important;
+			max-height: calc(100dvh - var(--recipe-sidebar-top) - 18px) !important;
+		}
 
 		/* HERO: editorial crop, no rounding */
 		.recipe-hero-img {
@@ -1222,6 +1229,23 @@
 
 		window.addEventListener('scroll', () =>
 			document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
+
+		(function initRecipeSidebarOffset() {
+			const root = document.documentElement;
+			function update() {
+				const header = document.getElementById('hdr');
+				if (!header || window.matchMedia('(max-width: 1024px)').matches) {
+					root.style.removeProperty('--recipe-sidebar-top');
+					return;
+				}
+				const top = Math.max(96, Math.round(header.getBoundingClientRect().height + 16));
+				root.style.setProperty('--recipe-sidebar-top', `${top}px`);
+			}
+			update();
+			window.addEventListener('resize', update, { passive: true });
+			window.addEventListener('load', update, { passive: true });
+			if (window.visualViewport) window.visualViewport.addEventListener('resize', update, { passive: true });
+		})();
 
 		// iOS browser chrome changes the visible viewport while scrolling. Keep fixed
 		// recipe overlays below its current top edge instead of letting the header hide behind it.
