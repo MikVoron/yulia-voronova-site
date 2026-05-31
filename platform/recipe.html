@@ -3819,8 +3819,9 @@
 		function recipeGroceryText() {
 			const items = recipeGroceryItems();
 			return [
-				'УМНАЯ ТАРЕЛКА',
+				'УМНАЯ ТАРЕЛКА Юлии Вороновой',
 				'Список покупок',
+				'────────────',
 				'',
 				`Рецепт: ${r.name}`,
 				`На ${recipeServingsLabel()}`,
@@ -3828,7 +3829,7 @@
 				'Что купить:',
 				...items.map(item => `□ ${item.name}`),
 				'',
-				'Собрано в приложении SmartPlate'
+				'Приятных покупок!'
 			].join('\n');
 		}
 
