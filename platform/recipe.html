@@ -2520,9 +2520,12 @@
                     </div>
                     <div class="kbzhu-disclaimer">Расчёт примерный: значения могут немного отличаться в зависимости от продукта, бренда и жирности</div>
 
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:8px">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:20px;margin-bottom:8px;flex-wrap:wrap">
                         <div class="v-section-title">Ингредиенты</div>
-                        <button class="recipe-share-btn" type="button" onclick="openRecipeGroceryList()">Список покупок</button>
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                            <button class="recipe-share-btn" type="button" onclick="shareRecipe()">Поделиться</button>
+                            <button class="recipe-share-btn" type="button" onclick="openRecipeGroceryList()">Список покупок</button>
+                        </div>
                     </div>
                     <div class="ing-list">${ingHtml}</div>
                     ${r.photo ? `<img class="step-photo-img" src="${escHtml(photoUrl(derivePhoto(r.photo, 'start')))}" alt="Ингредиенты" loading="lazy" onerror="this.style.display='none'" style="margin-top:16px;border-radius:12px;width:100%">` : ''}
@@ -3856,6 +3859,26 @@
 			].join('\n');
 		}
 
+		function recipeShareUrl() {
+			const url = new URL('recipe.html', window.location.href);
+			url.searchParams.set('id', (r && r.id) || recipeId || '');
+			return url.toString();
+		}
+
+		function shareRecipe() {
+			if (!r) return;
+			const title = r.name || 'Рецепт';
+			const url = recipeShareUrl();
+			const text = 'Рецепт: ' + title;
+			if (navigator.share) {
+				navigator.share({ title, text, url }).catch(() => {});
+				return;
+			}
+			navigator.clipboard.writeText(url)
+				.then(() => showToast('Ссылка на рецепт скопирована'))
+				.catch(() => showToast('Не удалось скопировать ссылку'));
+		}
+
 		function renderRecipeGroceryList() {
 			const title = document.getElementById('recipe-grocery-title');
 			const body = document.getElementById('recipe-grocery-body');
@@ -3983,7 +4006,7 @@
 				}
 
 				if (!reviews.length) {
-					list.innerHTML = '<div style="font-size:13px;color:var(--text-3)">Пока нет отзывов. Будьте первым!</div>';
+					list.innerHTML = '<div style="font-size:13px;color:var(--text-3)">Отзывов ещё нет. Поделитесь своим впечатлением.</div>';
 					return;
 				}
 
