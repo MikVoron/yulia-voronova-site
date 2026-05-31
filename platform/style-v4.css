@@ -1654,9 +1654,25 @@ img { display: block; max-width: 100%; }
     width: 14px;
     height: 14px;
     margin-top: 4px;
+    padding: 0;
+    background: transparent;
+    border: none;
     border-right: 2px solid var(--text);
     border-bottom: 2px solid var(--text);
     transform: rotate(45deg);
+    transition: transform .2s ease, border-color .2s ease;
+}
+.grocery-modal-chevron:hover,
+.grocery-modal-chevron:focus-visible {
+    border-color: var(--accent);
+    outline: none;
+}
+.grocery-modal.is-collapsed .grocery-modal-chevron {
+    margin-top: 8px;
+    transform: rotate(-45deg);
+}
+.grocery-modal.is-collapsed .grocery-modal-body {
+    display: none;
 }
 .grocery-modal-title {
     display: flex;

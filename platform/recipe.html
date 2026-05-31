@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-31-grocery-modal" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-31-grocery-modal-2" id="vcss">
 	<style>
 		.sublist-items {
 			display: flex;
@@ -1130,7 +1130,7 @@
 			<div class="grocery-modal-head">
 				<div class="grocery-modal-kicker">Список покупок <span>|</span> 1 рецепт</div>
 				<div class="grocery-modal-recipe-row">
-					<span class="grocery-modal-chevron" aria-hidden="true"></span>
+					<button class="grocery-modal-chevron" type="button" onclick="toggleRecipeGroceryList()" aria-label="Свернуть список" aria-expanded="true"></button>
 					<div class="grocery-modal-title" id="recipe-grocery-title"></div>
 					<button class="grocery-modal-remove-all" type="button" onclick="removeAllRecipeGroceryItems()">Убрать всё</button>
 				</div>
@@ -3793,6 +3793,16 @@
 		}
 
 		let _groceryRemovedIndexes = new Set();
+		let _groceryCollapsed = false;
+
+		function recipeServingsLabel() {
+			const servings = Number(r && r.servings || 4);
+			const m10 = servings % 10, m100 = servings % 100;
+			let word = 'порций';
+			if (m10 === 1 && m100 !== 11) word = 'порция';
+			else if ([2, 3, 4].includes(m10) && ![12, 13, 14].includes(m100)) word = 'порции';
+			return `${servings} ${word}`;
+		}
 
 		function recipeGroceryItems() {
 			if (!r) return [];
@@ -3808,34 +3818,33 @@
 
 		function recipeGroceryText() {
 			const items = recipeGroceryItems();
-			const servings = Number(r && r.servings || 4);
-			const portionsWord = (() => {
-				const m10 = servings % 10, m100 = servings % 100;
-				if (m10 === 1 && m100 !== 11) return 'порция';
-				if ([2, 3, 4].includes(m10) && ![12, 13, 14].includes(m100)) return 'порции';
-				return 'порций';
-			})();
 			return [
-				`Список покупок: ${r.name}`,
-				`${servings} ${portionsWord}`,
+				'УМНАЯ ТАРЕЛКА',
+				'Список покупок',
 				'',
-				...items.map(item => `- ${item.name}`)
+				`Рецепт: ${r.name}`,
+				`На ${recipeServingsLabel()}`,
+				'',
+				'Что купить:',
+				...items.map(item => `□ ${item.name}`),
+				'',
+				'Собрано в приложении SmartPlate'
 			].join('\n');
 		}
 
 		function renderRecipeGroceryList() {
 			const title = document.getElementById('recipe-grocery-title');
 			const body = document.getElementById('recipe-grocery-body');
+			const overlay = document.getElementById('recipe-grocery-overlay');
+			const toggle = document.querySelector('.grocery-modal-chevron');
 			if (!title || !body || !r) return;
-			const servings = Number(r.servings || 4);
-			const portionsWord = (() => {
-				const m10 = servings % 10, m100 = servings % 100;
-				if (m10 === 1 && m100 !== 11) return 'порция';
-				if ([2, 3, 4].includes(m10) && ![12, 13, 14].includes(m100)) return 'порции';
-				return 'порций';
-			})();
 			const items = recipeGroceryItems();
-			title.innerHTML = `${escHtml(r.name)}<span>${servings} ${portionsWord}</span>`;
+			if (overlay) overlay.classList.toggle('is-collapsed', _groceryCollapsed);
+			if (toggle) {
+				toggle.setAttribute('aria-expanded', String(!_groceryCollapsed));
+				toggle.setAttribute('aria-label', _groceryCollapsed ? 'Развернуть список' : 'Свернуть список');
+			}
+			title.innerHTML = `${escHtml(r.name)}<span>${recipeServingsLabel()}</span>`;
 			body.innerHTML = items.length
 				? items.map(item => `<div class="grocery-modal-item">
 					<span>${escHtml(item.name)}</span>
@@ -3847,6 +3856,7 @@
 		function openRecipeGroceryList() {
 			if (!r) return;
 			_groceryRemovedIndexes = new Set();
+			_groceryCollapsed = false;
 			renderRecipeGroceryList();
 			const overlay = document.getElementById('recipe-grocery-overlay');
 			if (!overlay) return;
@@ -3862,6 +3872,11 @@
 
 		function closeRecipeGroceryIfOutside(e) {
 			if (e.target === document.getElementById('recipe-grocery-overlay')) closeRecipeGroceryList();
+		}
+
+		function toggleRecipeGroceryList() {
+			_groceryCollapsed = !_groceryCollapsed;
+			renderRecipeGroceryList();
 		}
 
 		function removeRecipeGroceryItem(i) {
