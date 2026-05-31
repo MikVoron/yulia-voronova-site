@@ -636,11 +636,12 @@
 		   stays at the original style-v4.css size. */
 		.recipe-main .recipe-title {
 			font-family: var(--serif) !important;
-			font-size: clamp(29px, 4vw, 40px) !important;
+			font-size: clamp(30px, 3.2vw, 38px) !important;
 			font-weight: 700 !important;
-			line-height: 1.04 !important;
+			line-height: 1.08 !important;
 			letter-spacing: -0.02em !important;
 			color: var(--text) !important;
+			max-width: 720px !important;
 			margin-bottom: 12px !important;
 		}
 
@@ -1682,9 +1683,9 @@
 			// Normalize: trim, lowercase, collapse inner whitespace, strip leading punctuation
 			const norm = swap.trim().toLowerCase().replace(/\s+/g, ' ');
 			if (!norm) return false;
-			// Match "можно без него" exactly, or as a prefix followed by punctuation/space
-			// (e.g. "можно без него.", "можно без него, по желанию")
-			return /^можно без него(?:[\s.,!;:—-].*)?$/.test(norm);
+			// Match "можно без него/неё/нее/них" (любой род/число), либо как префикс,
+			// за которым идёт пунктуация/пробел (e.g. "можно без неё.", "можно без них, по желанию")
+			return /^можно без (?:не(?:го|ё|е)|них)(?:[\s.,!;:—-].*)?$/.test(norm);
 		}
 		function normalizeNutritionDelta(raw) {
 			if (!raw || typeof raw !== 'object') return null;
@@ -2231,7 +2232,7 @@
 					};
 				}
 				const actionBtn = optional
-					? `<button class="ing-optout-btn" id="ing-optout-btn-${i}" onclick="optOutIngredient(${i})">можно без него</button>`
+					? `<button class="ing-optout-btn" id="ing-optout-btn-${i}" onclick="optOutIngredient(${i})">${swap}</button>`
 					: (swap ? `<button class="ing-swap-btn" id="ing-swap-btn-${i}" onclick="toggleSwap(${i})">чем заменить?</button>` : '');
 				const swapTip = (swap && !optional)
 					? `<div class="ing-swap-tip" id="swap-${i}">${renderSwapOptions(swap, i, name)}</div>`

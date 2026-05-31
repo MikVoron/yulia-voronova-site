@@ -1966,7 +1966,7 @@
         if (typeof text !== 'string') return false;
         var norm = text.trim().toLowerCase().replace(/\s+/g, ' ');
         if (!norm) return false;
-        return /^можно без него(?:[\s.,!;:—-].*)?$/.test(norm);
+        return /^можно без (?:не(?:го|ё|е)|них)(?:[\s.,!;:—-].*)?$/.test(norm);
     }
 
     function refreshIngredientOptionalUi(item) {

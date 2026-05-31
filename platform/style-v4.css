@@ -965,8 +965,9 @@ img { display: block; max-width: 100%; }
 .ing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 .ing-name { flex: 1; color: var(--text); }
 .ing-swap-btn {
-    font-size: 10px; font-weight: 700; padding: 3px 9px;
-    border-radius: var(--r-f); background: var(--accent-l);
+    font-size: 10px; font-weight: 700; padding: 4px 10px;
+    text-transform: uppercase; letter-spacing: .08em;
+    border-radius: 0; background: var(--accent-l);
     color: var(--accent); border: 1px solid var(--accent);
     cursor: pointer; white-space: nowrap; transition: var(--tr); flex-shrink: 0;
 }
@@ -986,7 +987,7 @@ img { display: block; max-width: 100%; }
 }
 .ing-swap-option {
     font-size: 12px; font-weight: 600; padding: 6px 12px;
-    border-radius: var(--r-f); background: #fff; color: var(--accent);
+    border-radius: 0; background: #fff; color: var(--accent);
     border: 1px solid var(--accent); cursor: pointer;
     transition: var(--tr); text-align: left;
 }
@@ -1003,8 +1004,9 @@ img { display: block; max-width: 100%; }
 }
 .ing-swap-revert:hover { color: var(--accent); border-color: var(--accent); }
 .ing-optout-btn {
-    font-size: 10px; font-weight: 700; padding: 3px 9px;
-    border-radius: var(--r-f); background: transparent;
+    font-size: 10px; font-weight: 700; padding: 4px 10px;
+    text-transform: uppercase; letter-spacing: .08em;
+    border-radius: 0; background: transparent;
     color: var(--text-3); border: 1px dashed var(--text-3);
     cursor: pointer; white-space: nowrap; transition: var(--tr); flex-shrink: 0;
 }
@@ -1015,8 +1017,9 @@ img { display: block; max-width: 100%; }
 }
 .ing-dot-muted { background: var(--text-3); opacity: .5; }
 .ing-restore-btn {
-    font-size: 10px; font-weight: 700; padding: 3px 9px;
-    border-radius: var(--r-f); background: var(--accent-l);
+    font-size: 10px; font-weight: 700; padding: 4px 10px;
+    text-transform: uppercase; letter-spacing: .08em;
+    border-radius: 0; background: var(--accent-l);
     color: var(--accent); border: 1px solid var(--accent);
     cursor: pointer; white-space: nowrap; transition: var(--tr); flex-shrink: 0;
 }
