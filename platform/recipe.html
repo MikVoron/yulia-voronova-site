@@ -1916,14 +1916,16 @@
 			const rid = findRecipeForSwapText(partText);
 			const displayPart = swapDisplayLabel(partText, rid);
 
-			// Build new display name, preserving the amount suffix after the first " — "
+			// Build new display name, preserving the amount suffix after the first separator.
+			// Separator is " — " (legacy) or ": " (new editorial format, name-first).
 			const origText = info.origName || '';
-			const dashMatch = origText.match(/\s[—–\-]\s/);
+			const dashMatch = origText.match(/\s[—–\-]\s|:\s/);
 			const amountPart = dashMatch ? origText.substring(origText.indexOf(dashMatch[0])) : '';
 			// Skip appending amountPart if the replacement text already carries a measure
-			// (e.g. "Консервированная фасоль — 300 г", "Тофу (50 г)", "Йогурт 100 г").
+			// (e.g. "Консервированная фасоль — 300 г", "Тамари: 1 ст. л.", "Тофу (50 г)", "Йогурт 100 г").
 			const displayPartHasAmount =
 				/\s[—–\-]\s/.test(displayPart) ||
+				/:\s*\d/.test(displayPart) ||
 				/\([^)]*\d[^)]*\)/.test(displayPart) ||
 				/\d+\s*(г|мл|кг|ст\.?\s*л\.?|ч\.?\s*л\.?)\b/i.test(displayPart);
 			const effectiveAmount = displayPartHasAmount ? '' : amountPart;

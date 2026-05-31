@@ -359,8 +359,9 @@ function parseIngredient(nameStr) {
     }
     result.query = foodName;
   } else {
-    // Try pattern: "Продукт — 250 г" (name first, then dash + amount)
-    const dashMatch = raw.match(/^(.+?)\s*[—–-]\s*(\d+(?:[.,]\d+)?)\s*(г|гр|грамм|кг|мл|л|ст\.?\s*л\.?|ч\.?\s*л\.?|шт\.?)\s*\.?\s*$/i);
+    // Try pattern: "Продукт: 250 г" / "Продукт — 250 г" (name first, then separator + amount).
+    // Separator class `[:—–-]` — colon first, hyphen last to avoid a range (R2).
+    const dashMatch = raw.match(/^(.+?)\s*[:—–-]\s*(\d+(?:[.,]\d+)?)\s*(г|гр|грамм|кг|мл|л|ст\.?\s*л\.?|ч\.?\s*л\.?|шт\.?)\s*\.?\s*$/i);
     if (dashMatch) {
       const foodName = dashMatch[1].trim();
       const num = parseFloat(dashMatch[2].replace(',', '.'));
