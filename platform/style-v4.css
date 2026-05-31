@@ -1724,6 +1724,62 @@ img { display: block; max-width: 100%; }
     font-size: 16px;
     line-height: 1.4;
 }
+.grocery-modal-check {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+    text-align: left;
+    cursor: default;
+}
+.grocery-modal-checkmark {
+    display: none;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    border: 1px solid var(--text);
+    background: #fff;
+    position: relative;
+}
+.grocery-modal-check[aria-pressed="true"] {
+    color: var(--text-3);
+}
+.grocery-modal-check[aria-pressed="true"] .grocery-modal-check-label {
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+}
+.grocery-modal-check[aria-pressed="true"] .grocery-modal-checkmark {
+    background: var(--text);
+    border-color: var(--text);
+}
+.grocery-modal-check[aria-pressed="true"] .grocery-modal-checkmark::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 11px;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(45deg);
+}
+.grocery-modal.is-shop-mode .grocery-modal-check {
+    cursor: pointer;
+}
+.grocery-modal.is-shop-mode .grocery-modal-checkmark {
+    display: inline-block;
+}
+.grocery-modal.is-shop-mode .grocery-modal-remove {
+    display: none;
+}
 .grocery-modal-remove {
     width: 28px;
     height: 28px;
@@ -1751,8 +1807,8 @@ img { display: block; max-width: 100%; }
 }
 .grocery-modal-footer {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
     padding: 18px 20px 20px;
     background: #fff;
     border-top: 1px solid var(--border);

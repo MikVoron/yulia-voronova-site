@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-31-grocery-modal-2" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-05-31-grocery-modal-3" id="vcss">
 	<style>
 		.sublist-items {
 			display: flex;
@@ -1138,6 +1138,7 @@
 			<div class="grocery-modal-body" id="recipe-grocery-body"></div>
 			<div class="grocery-modal-footer">
 				<button class="grocery-modal-btn grocery-modal-btn-ghost" type="button" onclick="copyRecipeGroceryList()">Скопировать</button>
+				<button class="grocery-modal-btn grocery-modal-btn-ghost" id="grocery-shop-mode-btn" type="button" onclick="toggleGroceryShopMode()" aria-pressed="false">В магазине</button>
 				<button class="grocery-modal-btn grocery-modal-btn-primary" type="button" onclick="closeRecipeGroceryList()">Готово</button>
 			</div>
 		</div>
@@ -3794,6 +3795,28 @@
 
 		let _groceryRemovedIndexes = new Set();
 		let _groceryCollapsed = false;
+		let _groceryShopMode = false;
+		let _groceryCheckedIndexes = new Set();
+
+		function recipeGroceryStorageKey() {
+			return 'sp_grocery_checked_' + String((r && r.id) || recipeId || 'current');
+		}
+
+		function loadRecipeGroceryChecked() {
+			try {
+				const raw = localStorage.getItem(recipeGroceryStorageKey());
+				const list = raw ? JSON.parse(raw) : [];
+				_groceryCheckedIndexes = new Set(Array.isArray(list) ? list.map(Number).filter(Number.isFinite) : []);
+			} catch (_) {
+				_groceryCheckedIndexes = new Set();
+			}
+		}
+
+		function saveRecipeGroceryChecked() {
+			try {
+				localStorage.setItem(recipeGroceryStorageKey(), JSON.stringify(Array.from(_groceryCheckedIndexes)));
+			} catch (_) { }
+		}
 
 		function recipeServingsLabel() {
 			const servings = Number(r && r.servings || 4);
@@ -3827,7 +3850,7 @@
 				`На ${recipeServingsLabel()}`,
 				'',
 				'Что купить:',
-				...items.map(item => `□ ${item.name}`),
+				...items.map(item => `${_groceryCheckedIndexes.has(item.index) ? '☑' : '□'} ${item.name}`),
 				'',
 				'Приятных покупок!'
 			].join('\n');
@@ -3838,17 +3861,26 @@
 			const body = document.getElementById('recipe-grocery-body');
 			const overlay = document.getElementById('recipe-grocery-overlay');
 			const toggle = document.querySelector('.grocery-modal-chevron');
+			const modeBtn = document.getElementById('grocery-shop-mode-btn');
 			if (!title || !body || !r) return;
 			const items = recipeGroceryItems();
 			if (overlay) overlay.classList.toggle('is-collapsed', _groceryCollapsed);
+			if (overlay) overlay.classList.toggle('is-shop-mode', _groceryShopMode);
 			if (toggle) {
 				toggle.setAttribute('aria-expanded', String(!_groceryCollapsed));
 				toggle.setAttribute('aria-label', _groceryCollapsed ? 'Развернуть список' : 'Свернуть список');
 			}
+			if (modeBtn) {
+				modeBtn.textContent = _groceryShopMode ? 'Редактировать' : 'В магазине';
+				modeBtn.setAttribute('aria-pressed', String(_groceryShopMode));
+			}
 			title.innerHTML = `${escHtml(r.name)}<span>${recipeServingsLabel()}</span>`;
 			body.innerHTML = items.length
 				? items.map(item => `<div class="grocery-modal-item">
-					<span>${escHtml(item.name)}</span>
+					<button type="button" class="grocery-modal-check" onclick="toggleRecipeGroceryChecked(${Number(item.index)})" aria-pressed="${_groceryCheckedIndexes.has(item.index) ? 'true' : 'false'}" aria-label="${_groceryCheckedIndexes.has(item.index) ? 'Отметить как не куплено' : 'Отметить как куплено'}">
+						<span class="grocery-modal-checkmark" aria-hidden="true"></span>
+						<span class="grocery-modal-check-label">${escHtml(item.name)}</span>
+					</button>
 					<button type="button" class="grocery-modal-remove" onclick="removeRecipeGroceryItem(${Number(item.index)})" aria-label="Убрать из списка"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
 				</div>`).join('')
 				: '<div class="grocery-modal-empty">Все ингредиенты убраны из списка.</div>';
@@ -3858,6 +3890,8 @@
 			if (!r) return;
 			_groceryRemovedIndexes = new Set();
 			_groceryCollapsed = false;
+			_groceryShopMode = false;
+			loadRecipeGroceryChecked();
 			renderRecipeGroceryList();
 			const overlay = document.getElementById('recipe-grocery-overlay');
 			if (!overlay) return;
@@ -3880,13 +3914,32 @@
 			renderRecipeGroceryList();
 		}
 
+		function toggleGroceryShopMode() {
+			_groceryShopMode = !_groceryShopMode;
+			renderRecipeGroceryList();
+		}
+
+		function toggleRecipeGroceryChecked(i) {
+			if (!_groceryShopMode) return;
+			const index = Number(i);
+			if (_groceryCheckedIndexes.has(index)) _groceryCheckedIndexes.delete(index);
+			else _groceryCheckedIndexes.add(index);
+			saveRecipeGroceryChecked();
+			renderRecipeGroceryList();
+		}
+
 		function removeRecipeGroceryItem(i) {
-			_groceryRemovedIndexes.add(Number(i));
+			const index = Number(i);
+			_groceryRemovedIndexes.add(index);
+			_groceryCheckedIndexes.delete(index);
+			saveRecipeGroceryChecked();
 			renderRecipeGroceryList();
 		}
 
 		function removeAllRecipeGroceryItems() {
 			(r.ingredients || []).forEach((_, i) => _groceryRemovedIndexes.add(i));
+			_groceryCheckedIndexes.clear();
+			saveRecipeGroceryChecked();
 			renderRecipeGroceryList();
 		}
 
