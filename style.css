@@ -1037,16 +1037,15 @@ body {
 
 .hero-role {
     display: block;
-    width: fit-content;
     max-width: 100%;
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid rgba(255, 255, 255, 0.55);
-    font-family: var(--font-montserrat);
-    font-size: 20px;
+    margin-top: 18px;
+    padding-left: 18px;
+    border-left: 3px solid rgba(255, 255, 255, 0.58);
+    font-family: var(--font-cormorant);
+    font-size: clamp(24px, 2.7vw, 32px);
     font-weight: 400;
-    line-height: 1.45;
-    letter-spacing: 0.04em;
+    line-height: 1.16;
+    letter-spacing: 0.015em;
 }
 
 @media (min-width: 1025px) and (max-width: 1200px) {
@@ -1084,7 +1083,7 @@ body {
     font-weight: 300;
     line-height: 1.4;
     margin: 8px 0 30px;
-    color: inherit;
+    color: #55635b;
     min-height: 70px; /* Reserve space to prevent CLS */
     opacity: 0;
     transform: translateY(20px);
@@ -1686,6 +1685,69 @@ button[class*="btn-"]:hover,
     line-height: 1.8;
     color: var(--dark-text);
     opacity: 0.85;
+}
+
+.home-help-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 18px;
+    max-width: 1040px;
+    margin: 28px auto 0;
+}
+
+.home-help-card {
+    position: relative;
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+    min-height: 230px;
+    padding: 24px 24px 26px;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(139, 166, 139, 0.22);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.home-help-card:nth-child(4) {
+    grid-column: 2 / span 2;
+}
+
+.home-help-card:nth-child(5) {
+    grid-column: 4 / span 2;
+}
+
+.home-help-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--sage-green);
+    box-shadow: 0 12px 28px rgba(139, 166, 139, 0.14);
+}
+
+.home-help-number {
+    font-family: var(--font-cormorant);
+    font-size: 48px;
+    font-weight: 300;
+    line-height: 1;
+    color: rgba(154, 184, 158, 0.38);
+    margin-bottom: 18px;
+}
+
+.home-help-card h3 {
+    font-family: var(--font-cormorant);
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.18;
+    color: var(--dark-text);
+    margin-bottom: 12px;
+}
+
+.home-help-card p {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--dark-text);
+    opacity: 0.76;
+    margin: 0;
 }
 
 .section-title {
@@ -12317,9 +12379,9 @@ button[class*="btn-"]:hover,
     }
 
     .hero-role {
-        font-size: 16px;
-        margin-top: 10px;
-        padding-top: 10px;
+        font-size: 22px;
+        margin-top: 12px;
+        padding-left: 14px;
     }
 
     .hero-subtitle {
@@ -12341,6 +12403,18 @@ button[class*="btn-"]:hover,
     .services-columns {
         grid-template-columns: repeat(2, 1fr);
         gap: 30px;
+    }
+
+    .home-help-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-width: 760px;
+        gap: 18px;
+    }
+
+    .home-help-card,
+    .home-help-card:nth-child(4),
+    .home-help-card:nth-child(5) {
+        grid-column: auto;
     }
 
     .services-columns .service-column:last-child {
@@ -12643,24 +12717,36 @@ button[class*="btn-"]:hover,
         font-size: 22px;
         line-height: 1.5;
         color: var(--dark-text);
-        margin: 0;
+        margin: 0 0 18px;
+    }
+
+    .hero-name {
+        display: block;
+        font-weight: 400;
+        margin: 0 0 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(95, 111, 98, 0.2);
     }
 
     .hero-role {
         width: auto;
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top-color: rgba(95, 111, 98, 0.22);
-        font-size: 15px;
-        line-height: 1.5;
-        letter-spacing: 0.02em;
+        margin: 0 auto;
+        padding: 0;
+        border: 0;
+        font-family: var(--font-cormorant);
+        font-size: 21px;
+        font-weight: 400;
+        line-height: 1.25;
+        letter-spacing: 0;
+        text-transform: none;
     }
 
     .hero-subtitle {
         font-size: 20px;
         line-height: 1.5;
-        margin: 8px 0 0;
-        color: inherit;
+        margin: 24px 0 0;
+        color: var(--dark-text);
+        text-align: center;
     }
 
     .hero-cta {
@@ -12712,6 +12798,22 @@ button[class*="btn-"]:hover,
         gap: 20px;
     }
 
+    .home-help-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 22px;
+    }
+
+    .home-help-card {
+        min-height: auto;
+        padding: 22px 20px 24px;
+    }
+
+    .home-help-number {
+        font-size: 40px;
+        margin-bottom: 14px;
+    }
+
     .service-column {
         width: 100%;
         max-width: 400px;
@@ -12729,6 +12831,15 @@ button[class*="btn-"]:hover,
 
     .service-column h3 {
         font-size: 24px;
+    }
+
+    .home-help-card h3 {
+        font-size: 22px;
+    }
+
+    .home-help-card p {
+        font-size: 13px;
+        line-height: 1.55;
     }
 
     /* First Meeting - РґРёР·Р°Р№РЅ РєР°Рє РЅР° РґРµСЃРєС‚РѕРїРµ */
@@ -13268,7 +13379,7 @@ button[class*="btn-"]:hover,
     }
 
     .hero-role {
-        font-size: 14px;
+        font-size: 19px;
     }
 
     .section-title {

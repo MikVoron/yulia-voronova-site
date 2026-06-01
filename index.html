@@ -309,20 +309,20 @@
 		}
 
 		.hero-role {
-			width: fit-content;
 			max-width: 100%;
-			margin-top: 14px;
-			padding-top: 14px;
-			border-top: 1px solid rgba(255, 255, 255, 0.55);
-			font-size: 1.05rem;
+			margin-top: 18px;
+			padding-left: 18px;
+			border-left: 3px solid rgba(255, 255, 255, 0.58);
+			font-family: var(--font-cormorant);
+			font-size: clamp(24px, 2.7vw, 32px);
 			font-weight: 400;
-			line-height: 1.45;
-			letter-spacing: 0.04em
+			line-height: 1.16;
+			letter-spacing: 0.015em
 		}
 
 		.hero-subtitle {
 			font-size: 1.1rem;
-			color: #666;
+			color: #55635b;
 			line-height: 1.7;
 			margin-bottom: 20px
 		}
@@ -374,33 +374,40 @@
 
 			.hero-title {
 				font-size: 1.8rem;
-				margin-bottom: 25px
+				margin-bottom: 18px
 			}
 
 			.hero-name {
+				display: block;
 				font-size: 2rem;
-				font-weight: 200;
+				font-weight: 400;
 				color: var(--text-dark);
-				margin-bottom: 8px
+				margin: 0 0 16px;
+				padding-bottom: 14px;
+				border-bottom: 1px solid rgba(95, 111, 98, 0.2)
 			}
 
 			.hero-role {
 				width: auto;
-				margin-top: 12px;
-				padding-top: 12px;
-				border-top-color: rgba(95, 111, 98, 0.22);
-				font-size: 1rem;
-				font-weight: 500;
-				color: var(--sage-green);
+				margin: 0 auto;
+				padding: 0;
+				border: 0;
+				font-family: var(--font-cormorant);
+				font-size: 21px;
+				font-weight: 400;
+				color: var(--text-dark);
 				text-transform: none;
-				letter-spacing: 0.02em
+				line-height: 1.25;
+				letter-spacing: 0
 			}
 
 			.hero-subtitle {
-				margin-top: 20px;
+				margin-top: 24px;
 				font-size: 1rem;
-				border-top: 1px solid rgba(156, 176, 126, 0.3);
-				padding-top: 20px
+				color: var(--text-dark);
+				border-top: 0;
+				padding-top: 0;
+				text-align: center
 			}
 
 			.hero-tag {
@@ -612,16 +619,31 @@
 		<section class="services-range defer-render">
 			<div class="container">
 				<h2 class="section-title script-text">Онлайн-консультации по питанию и здоровью</h2>
-				<div class="services-columns">
-					<div class="service-column">
-						<div class="service-icon-small service-icon-food"></div>
-						<h3 class="script-text">Питание</h3>
-						<p>Бережно подстрою питание под ваши цели - будь то стройность, энергия или поддержка организма при хронических состояниях. Мы не будем всё запрещать, а научимся адаптировать ваши любимые блюда, сделав их сбалансированными.</p>
+				<div class="home-help-grid">
+					<div class="home-help-card">
+						<span class="home-help-number">01</span>
+						<h3>Сбалансированное питание без сложных схем</h3>
+						<p>Разбираем ваш текущий рацион и постепенно приводим его к балансу по белкам, жирам, углеводам, клетчатке и режиму питания.</p>
 					</div>
-					<div class="service-column">
-						<div class="service-icon-small service-icon-habits"></div>
-						<h3 class="script-text">Дети и Семья</h3>
-						<p>Помогаю скорректировать детское меню и мягко перевести всю семью на общий здоровый рацион. Мы подберем посильные шаги, которые подойдут именно вам - еда станет сбалансированной для каждого, а у мамы появится время на отдых.</p>
+					<div class="home-help-card">
+						<span class="home-help-number">02</span>
+						<h3>Самочувствие, ЖКТ и ресурс</h3>
+						<p>Смотрим, как питание, режим и привычки могут быть связаны со вздутием, тяжестью, утомляемостью и другими жалобами.</p>
+					</div>
+					<div class="home-help-card">
+						<span class="home-help-number">03</span>
+						<h3>Бережное снижение веса</h3>
+						<p>Работаем с рационом и пищевыми привычками без жёстких диет, запретов и лишнего давления.</p>
+					</div>
+					<div class="home-help-card">
+						<span class="home-help-number">04</span>
+						<h3>Детское питание и избирательность в еде</h3>
+						<p>Помогаю мягко расширять рацион ребёнка, знакомить с новыми продуктами и снижать напряжение вокруг еды.</p>
+					</div>
+					<div class="home-help-card">
+						<span class="home-help-number">05</span>
+						<h3>Рацион для всей семьи</h3>
+						<p>Помогаю выстроить питание по одному меню, чтобы оно подходило и взрослым, и детям - с учётом возраста, привычек и образа жизни.</p>
 					</div>
 				</div>
 			</div>
