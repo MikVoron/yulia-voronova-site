@@ -141,8 +141,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Don't switch if clicking on a link/button
                     if (e.target.closest('a, button')) return;
 
-                    // Remove popular from all cards
-                    tariffCards.forEach(c => c.classList.remove('popular'));
+                    // Remove popular only from cards within the same panel/grid
+                    const scope = card.closest('.tariffs-grid');
+                    if (!scope) return;
+                    scope.querySelectorAll('.tariff-card-collapsible').forEach(c => c.classList.remove('popular'));
 
                     // Add popular to clicked card
                     card.classList.add('popular');
@@ -156,14 +158,27 @@ document.addEventListener('DOMContentLoaded', () => {
 // Tariffs Stack Carousel - стопка карточек
 document.addEventListener('DOMContentLoaded', () => {
     if (window.innerWidth <= 768) {
-        const tariffsGrid = document.querySelector('.tariffs-grid');
-        const leftArrow = document.querySelector('.tariffs-arrow-left');
-        const rightArrow = document.querySelector('.tariffs-arrow-right');
-        const cards = document.querySelectorAll('.tariff-card-collapsible');
-        const dots = document.querySelectorAll('.tariff-dot');
+        // Каждая панель аудитории (Взрослые / Дети / Семья) — отдельная стопка
+        document.querySelectorAll('.tariffs-grid').forEach((tariffsGrid) => {
+            const wrapper = tariffsGrid.closest('.tariffs-carousel-wrapper') || tariffsGrid.parentElement;
+            const leftArrow = wrapper.querySelector('.tariffs-arrow-left');
+            const rightArrow = wrapper.querySelector('.tariffs-arrow-right');
+            const cards = tariffsGrid.querySelectorAll('.tariff-card-collapsible');
+            const dots = wrapper.querySelectorAll('.tariff-dot');
 
-        if (tariffsGrid && cards.length > 0) {
+            if (cards.length === 0) return;
+
             let currentIndex = 0; // Start with the first tariff card on mobile
+
+            // Обновление состояния стрелок
+            const updateArrowsState = () => {
+                if (leftArrow) {
+                    leftArrow.classList.toggle('disabled', currentIndex <= 0);
+                }
+                if (rightArrow) {
+                    rightArrow.classList.toggle('disabled', currentIndex >= cards.length - 1);
+                }
+            };
 
             // Функция обновления стопки карточек
             const updateStack = (index) => {
@@ -207,16 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateArrowsState();
             };
 
-            // Обновление состояния стрелок
-            const updateArrowsState = () => {
-                if (leftArrow) {
-                    leftArrow.classList.toggle('disabled', currentIndex <= 0);
-                }
-                if (rightArrow) {
-                    rightArrow.classList.toggle('disabled', currentIndex >= cards.length - 1);
-                }
-            };
-
             // Клик по точкам
             dots.forEach((dot, i) => {
                 dot.addEventListener('click', () => {
@@ -243,21 +248,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
+        });
 
-            // Свайп по карточкам тарифов
-            // Показываем/скрываем стрелки при видимости секции тарифов
-            // Стрелки появляются когда карточки видны на экране
-            const tariffsSection = document.querySelector('.tariffs');
-            if (tariffsSection && 'IntersectionObserver' in window) {
-                const arrowsObserver = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        tariffsSection.classList.toggle('arrows-visible', entry.isIntersecting);
-                    });
-                }, {
-                    threshold: 0.3
+        // Показываем стрелки, когда видна сетка любой активной панели.
+        // Скрытые панели (display:none) не пересекаются, поэтому стрелки
+        // зависят только от видимой вкладки и не пропадают при переключении.
+        const tariffsSection = document.querySelector('.tariffs');
+        const grids = document.querySelectorAll('.tariffs-grid');
+        if (tariffsSection && grids.length && 'IntersectionObserver' in window) {
+            const visibleGrids = new Set();
+            const arrowsObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        visibleGrids.add(entry.target);
+                    } else {
+                        visibleGrids.delete(entry.target);
+                    }
                 });
-                arrowsObserver.observe(tariffsGrid);
-            }
+                tariffsSection.classList.toggle('arrows-visible', visibleGrids.size > 0);
+            }, {
+                threshold: 0.3
+            });
+            grids.forEach(grid => arrowsObserver.observe(grid));
         }
     }
 });
@@ -712,8 +724,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Инициализация: присваиваем уникальные ID и ЯВНО закрываем все карточки
     const allCards = document.querySelectorAll('.tariff-card-collapsible');
-    const tariffsGrid = document.querySelector('.tariffs-grid');
-    console.log('Found cards:', allCards.length);
 
     allCards.forEach((card, index) => {
         card.setAttribute('data-card-id', index);
@@ -766,10 +776,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Убираем класс с grid
-        if (tariffsGrid) {
-            tariffsGrid.classList.remove('has-open-card');
-        }
+        // Убираем класс со всех grid
+        document.querySelectorAll('.tariffs-grid').forEach((grid) => {
+            grid.classList.remove('has-open-card');
+        });
 
         if (cardsToRestoreTransition.length) {
             requestAnimationFrame(() => {
@@ -826,9 +836,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             currentlyOpenCardId = clickedCardId;
 
-            // Добавляем класс на grid
-            if (tariffsGrid) {
-                tariffsGrid.classList.add('has-open-card');
+            // Добавляем класс на grid этой карточки
+            const clickedGrid = clickedCard.closest('.tariffs-grid');
+            if (clickedGrid) {
+                clickedGrid.classList.add('has-open-card');
             }
 
             // Прокручиваем к карточке на мобильном
@@ -849,6 +860,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             toggleCard(this);
+        });
+    });
+});
+
+// Tariff audience tabs (Взрослые / Дети / Семья)
+document.addEventListener('DOMContentLoaded', () => {
+    const audTabs = document.querySelectorAll('.tariff-aud-tab');
+    if (!audTabs.length) return;
+
+    audTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const aud = tab.getAttribute('data-aud');
+
+            audTabs.forEach(t => {
+                const isActive = t === tab;
+                t.classList.toggle('active', isActive);
+                t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
+
+            document.querySelectorAll('.tariff-panel').forEach(panel => {
+                panel.classList.toggle('active', panel.getAttribute('data-aud') === aud);
+            });
+
+            // Закрываем любые раскрытые карточки при переключении вкладки
+            if (typeof window.closeAllTariffCards === 'function') {
+                window.closeAllTariffCards();
+            }
         });
     });
 });

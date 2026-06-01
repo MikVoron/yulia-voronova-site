@@ -128,8 +128,8 @@
 					"@type": "Offer",
 					"itemOffered": {
 						"@type": "Service",
-						"name": "Разовая консультация",
-						"description": "Первые шаги. Одна онлайн-встреча 60-90 минут. Анализ рациона, разбор анализов, индивидуальные рекомендации."
+						"name": "Разовая консультация (взрослые)",
+						"description": "Одна онлайн-встреча. Разбор рациона, режима и привычек, индивидуальный план питания, письменные рекомендации, поддержка в чате 7 дней."
 					},
 					"price": "4000",
 					"priceCurrency": "RUB",
@@ -139,8 +139,8 @@
 					"@type": "Offer",
 					"itemOffered": {
 						"@type": "Service",
-						"name": "Консультация 1+1",
-						"description": "Оптимальный выбор. Две онлайн-встречи по 60-90 минут с интервалом 4-6 недель. Сборник рецептов в подарок."
+						"name": "Консультация 1+1 (взрослые)",
+						"description": "Две онлайн-встречи с повторной консультацией через 4-5 недель. Корректировка плана, поддержка в чате. Сборник рецептов в подарок."
 					},
 					"price": "7000",
 					"priceCurrency": "RUB",
@@ -150,10 +150,54 @@
 					"@type": "Offer",
 					"itemOffered": {
 						"@type": "Service",
-						"name": "За руку",
-						"description": "Устойчивые перемены. Месяц сопровождения: 4 онлайн-встречи, личная поддержка в рабочее время, детальный разбор анализов и рациона."
+						"name": "За руку (взрослые)",
+						"description": "Месяц сопровождения: 4 онлайн-встречи раз в неделю по 60 минут, поэтапная корректировка рациона, поддержка в чате. Сборник рецептов в подарок."
 					},
 					"price": "12000",
+					"priceCurrency": "RUB",
+					"url": "https://voronova.online/#tariffs"
+				},
+				{
+					"@type": "Offer",
+					"itemOffered": {
+						"@type": "Service",
+						"name": "Разовая консультация (дети)",
+						"description": "Разбор питания ребёнка с учётом возраста, режима дня, сада и школы. Письменные рекомендации, поддержка в чате 7 дней."
+					},
+					"price": "5000",
+					"priceCurrency": "RUB",
+					"url": "https://voronova.online/#tariffs"
+				},
+				{
+					"@type": "Offer",
+					"itemOffered": {
+						"@type": "Service",
+						"name": "Консультация 1+1 (дети)",
+						"description": "Первичная консультация по питанию ребёнка и повторная встреча через 4-5 недель с корректировкой плана. Поддержка в чате."
+					},
+					"price": "9000",
+					"priceCurrency": "RUB",
+					"url": "https://voronova.online/#tariffs"
+				},
+				{
+					"@type": "Offer",
+					"itemOffered": {
+						"@type": "Service",
+						"name": "Разовая консультация (семья)",
+						"description": "Разбор семейного рациона, решения с учётом возраста ребёнка и потребностей взрослых. Письменные рекомендации, поддержка в чате 7 дней."
+					},
+					"price": "5500",
+					"priceCurrency": "RUB",
+					"url": "https://voronova.online/#tariffs"
+				},
+				{
+					"@type": "Offer",
+					"itemOffered": {
+						"@type": "Service",
+						"name": "Консультация 1+1 (семья)",
+						"description": "Разбор семейного рациона и повторная встреча через 4-5 недель с корректировкой плана. Поддержка в чате."
+					},
+					"price": "9500",
 					"priceCurrency": "RUB",
 					"url": "https://voronova.online/#tariffs"
 				}
@@ -690,125 +734,303 @@
 				<h2 class="section-title script-text">Выберите свой комфортный темп</h2>
 				<p class="tariffs-subtitle">До консультации я попрошу вас заполнить небольшую анкету.</p>
 
-				<div class="tariffs-carousel-wrapper">
-					<button class="tariffs-arrow tariffs-arrow-left" aria-label="Предыдущий">
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-							<path d="M15 18l-6-6 6-6" />
-						</svg>
-					</button>
-					<div class="tariffs-grid">
-						<!-- Тариф 1: Разовая консультация -->
-						<div class="tariff-card-collapsible">
-							<div class="tariff-card-preview">
-								<div class="tariff-header-compact">
-									<h3 class="tariff-name-compact">РАЗОВАЯ КОНСУЛЬТАЦИЯ</h3>
-									<p class="tariff-subtitle-compact">Первые шаги</p>
-									<p class="tariff-duration-compact">Формат: онлайн<br>
-										Одна встреча 60-90 минут</p>
-								</div>
-								<div class="tariff-price-compact">
-									<span class="price-amount-compact">4 000</span>
-									<span class="price-currency-compact">₽</span>
-								</div>
-								<button class="expand-indicator-line">
-									<span class="line-text">Подробнее</span>
-								</button>
-							</div>
-							<div class="tariff-details">
-								<div class="tariff-description">
+				<!-- Табы аудиторий -->
+				<div class="tariff-aud-tabs" role="tablist" aria-label="Категории тарифов">
+					<button class="tariff-aud-tab active" type="button" data-aud="adults" role="tab" aria-selected="true">Взрослые</button>
+					<button class="tariff-aud-tab" type="button" data-aud="kids" role="tab" aria-selected="false">Дети</button>
+					<button class="tariff-aud-tab" type="button" data-aud="family" role="tab" aria-selected="false">Семья</button>
+				</div>
 
+				<!-- Панель: Взрослые -->
+				<div class="tariff-panel active" data-aud="adults" role="tabpanel">
+					<div class="tariffs-carousel-wrapper">
+						<button class="tariffs-arrow tariffs-arrow-left" aria-label="Предыдущий">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M15 18l-6-6 6-6" />
+							</svg>
+						</button>
+						<div class="tariffs-grid">
+							<!-- Взрослые · Разовая консультация -->
+							<div class="tariff-card-collapsible">
+								<div class="tariff-card-preview">
+									<div class="tariff-header-compact">
+										<h3 class="tariff-name-compact">РАЗОВАЯ КОНСУЛЬТАЦИЯ</h3>
+										<p class="tariff-subtitle-compact">Первые шаги</p>
+										<p class="tariff-duration-compact">Формат: онлайн<br>
+											Одна встреча 60-90 минут</p>
+									</div>
+									<div class="tariff-price-compact">
+										<span class="price-amount-compact">4 000</span>
+										<span class="price-currency-compact">₽</span>
+									</div>
+									<button class="expand-indicator-line">
+										<span class="line-text">Подробнее</span>
+									</button>
 								</div>
-								<h4 class="features-title">Что вы получите:</h4>
-								<ul class="tariff-features">
-									<li>Найдем связь между вашим рационом, образом жизни и симптомами</li>
-									<li>Проанализируем анкету и дневник питания за 3-5 дней</li>
-									<li>Разберем уже имеющиеся анализы или составим список рекомендуемых</li>
-									<li>Поддержка в чате в течение недели</li>
-									<li>Письменные индивидуальные рекомендации - чёткий план по питанию и образу жизни</li>
-								</ul>
+								<div class="tariff-details">
+									<h4 class="features-title">Что вы получите:</h4>
+									<ul class="tariff-features">
+										<li>Разбор вашего рациона и понятные рекомендации, что можно улучшить.</li>
+										<li>Обсуждение режима сна, движения и привычек, которые могут влиять на самочувствие.</li>
+										<li>Индивидуальный план питания с учетом ваших целей и особенностей здоровья.</li>
+										<li>Разбор симптомов, чтобы понять, на что стоит обратить внимание и нужно ли обратиться к врачу.</li>
+										<li>Четкие письменные рекомендации.</li>
+										<li>Поддержку в чате в течение 7 дней — я буду на связи и отвечу на ваши вопросы.</li>
+									</ul>
+								</div>
+								<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed" target="_blank" rel="noopener noreferrer">Записаться на консультацию</a>
 							</div>
-							<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed" target="_blank" rel="noopener noreferrer">Записаться на консультацию</a>
+
+							<!-- Взрослые · 1+1 (популярный) -->
+							<div class="tariff-card-collapsible popular">
+								<span class="popular-badge">Чаще выбирают</span>
+								<div class="tariff-card-preview">
+									<div class="tariff-header-compact">
+										<h3 class="tariff-name-compact">КОНСУЛЬТАЦИЯ 1+1</h3>
+										<p class="tariff-subtitle-compact">Оптимальный выбор</p>
+										<p class="tariff-duration-compact">Формат: онлайн<br>
+											Две встречи по 60-90 минут</p>
+									</div>
+									<div class="tariff-price-compact">
+										<span class="price-amount-compact">7 000</span>
+										<span class="price-currency-compact">₽</span>
+									</div>
+									<button class="expand-indicator-line">
+										<span class="line-text">Подробнее</span>
+									</button>
+								</div>
+								<div class="tariff-details">
+									<h4 class="features-title">Что вы получите:</h4>
+									<ul class="tariff-features">
+										<li>Разбор вашего рациона и понятные рекомендации, что можно улучшить.</li>
+										<li>Обсуждение режима сна, движения и привычек, которые могут влиять на самочувствие.</li>
+										<li>Индивидуальный план питания с учетом ваших целей и особенностей здоровья.</li>
+										<li>Разбор симптомов, чтобы понять, на что стоит обратить внимание и нужно ли обратиться к врачу.</li>
+										<li>Четкие письменные рекомендации.</li>
+										<li>Поддержку в чате в течение 5 дней после консультации — я буду на связи и отвечу на ваши вопросы.</li>
+									</ul>
+									<h4 class="features-title">Повторная консультация через 4–5 недель:</h4>
+									<ul class="tariff-features">
+										<li>Обсудим ваши успехи и то, как новый ритм вписался в жизнь.</li>
+										<li>Разберем сложности, если что-то не получилось внедрить с первого раза.</li>
+										<li>Скорректируем план, чтобы вы продолжали двигаться к своей цели.</li>
+										<li><strong>БОНУС!</strong> Сборник моих собственных рецептов в подарок!</li>
+									</ul>
+								</div>
+								<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed" target="_blank" rel="noopener noreferrer">Записаться на консультацию</a>
+							</div>
+
+							<!-- Взрослые · За руку -->
+							<div class="tariff-card-collapsible">
+								<div class="tariff-card-preview">
+									<div class="tariff-header-compact">
+										<h3 class="tariff-name-compact">ЗА РУКУ</h3>
+										<p class="tariff-subtitle-compact">Устойчивые перемены</p>
+										<p class="tariff-duration-compact">Формат: онлайн <br>
+											Один месяц <br>(возможно продление)</p>
+									</div>
+									<div class="tariff-price-compact">
+										<span class="price-amount-compact">12 000</span>
+										<span class="price-currency-compact">₽</span>
+									</div>
+									<button class="expand-indicator-line">
+										<span class="line-text">Подробнее</span>
+									</button>
+								</div>
+								<div class="tariff-details">
+									<h4 class="features-title">Что вы получите:</h4>
+									<ul class="tariff-features">
+										<li>Четыре онлайн-встречи 1 раз в неделю, по 60 минут.</li>
+										<li>Поэтапную корректировку рациона с учетом вашего самочувствия и жизненного ритма.</li>
+										<li>Разбор внутренних барьеров, которые мешают двигаться к цели спокойно и без срывов.</li>
+										<li>Мою поддержку в чате в рабочее время по вопросам питания и образа жизни: помогу с любым выбором — от продуктов в магазине до блюд в ресторане.</li>
+										<li>Фокус на привычках, которые останутся с вами надолго и помогут удерживать результат.</li>
+										<li><strong>БОНУС!</strong> Сборник моих собственных рецептов в подарок!</li>
+									</ul>
+								</div>
+								<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed" target="_blank" rel="noopener noreferrer">Записаться на консультацию</a>
+							</div>
 						</div>
-
-						<!-- Тариф 2: Консультация 1+1 (популярный) -->
-						<div class="tariff-card-collapsible popular">
-							<span class="popular-badge">Чаще выбирают</span>
-							<div class="tariff-card-preview">
-								<div class="tariff-header-compact">
-									<h3 class="tariff-name-compact">КОНСУЛЬТАЦИЯ 1+1</h3>
-									<p class="tariff-subtitle-compact">Оптимальный выбор</p>
-									<p class="tariff-duration-compact">Формат: онлайн<br>
-										Две встречи по 60-90 минут</p>
-								</div>
-								<div class="tariff-price-compact">
-									<span class="price-amount-compact">7 000</span>
-									<span class="price-currency-compact">₽</span>
-								</div>
-								<button class="expand-indicator-line">
-									<span class="line-text">Подробнее</span>
-								</button>
-							</div>
-							<div class="tariff-details">
-								<h4 class="features-title">Первая встреча:</h4>
-								<ul class="tariff-features">
-									<li>Найдем связь между вашим рационом, образом жизни и симптомами</li>
-									<li>Проанализируем анкету и дневник питания за 3-5 дней</li>
-									<li>Разберем уже имеющиеся анализы и составим список рекомендуемых</li>
-									<li>Поддержка в чате в течение недели</li>
-									<li>Письменные индивидуальные рекомендации</li>
-								</ul>
-								<h4 class="features-title">Вторая встреча через 4-6 недель:</h4>
-								<ul class="tariff-features">
-									<li>Оценим перемены в самочувствии и результаты повторных анализов</li>
-									<li>Скорректируем наши шаги и составим новые рекомендации</li>
-									<li><strong>БОНУС!</strong> Сборник моих собственных рецептов в подарок!</li>
-								</ul>
-							</div>
-							<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed" target="_blank" rel="noopener noreferrer">Записаться на консультацию</a>
-						</div>
-
-						<!-- Тариф 3: За руку -->
-						<div class="tariff-card-collapsible">
-							<div class="tariff-card-preview">
-								<div class="tariff-header-compact">
-									<h3 class="tariff-name-compact">ЗА РУКУ</h3>
-									<p class="tariff-subtitle-compact">Устойчивые перемены</p>
-									<p class="tariff-duration-compact">Формат: онлайн <br>
-										Один месяц <br>(возможно продление)</p>
-								</div>
-								<div class="tariff-price-compact">
-									<span class="price-amount-compact">12 000</span>
-									<span class="price-currency-compact">₽</span>
-								</div>
-								<button class="expand-indicator-line">
-									<span class="line-text">Подробнее</span>
-								</button>
-							</div>
-							<div class="tariff-details">
-								<h4 class="features-title">Что вы получите:</h4>
-								<ul class="tariff-features">
-									<li>Четыре онлайн-встречи (1 раз в неделю, продолжительность 30-60 минут)</li>
-									<li>Детальный разбор вашего состояния: от анализов до персонального рациона</li>
-									<li>Личное сопровождение: я на связи в рабочее время</li>
-									<li>Гибкий подход: корректируем план питания, если это необходимо</li>
-									<li>Живой формат: ваше самочувствие и удобство - главный приоритет</li>
-									<li>Письменные индивидуальные рекомендации</li>
-									<li><strong>БОНУС!</strong> Сборник моих собственных рецептов в подарок!</li>
-								</ul>
-							</div>
-							<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed" target="_blank" rel="noopener noreferrer">Записаться на консультацию</a>
+						<button class="tariffs-arrow tariffs-arrow-right" aria-label="Следующий">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M9 18l6-6-6-6" />
+							</svg>
+						</button>
+						<!-- Точки-индикаторы -->
+						<div class="tariffs-dots">
+							<span class="tariff-dot" data-index="0"></span>
+							<span class="tariff-dot" data-index="1"></span>
+							<span class="tariff-dot" data-index="2"></span>
 						</div>
 					</div>
-					<button class="tariffs-arrow tariffs-arrow-right" aria-label="Следующий">
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-							<path d="M9 18l6-6-6-6" />
-						</svg>
-					</button>
-					<!-- Точки-индикаторы -->
-					<div class="tariffs-dots">
-						<span class="tariff-dot" data-index="0"></span>
-						<span class="tariff-dot" data-index="1"></span>
-						<span class="tariff-dot" data-index="2"></span>
+				</div>
+
+				<!-- Панель: Дети -->
+				<div class="tariff-panel" data-aud="kids" role="tabpanel">
+					<div class="tariffs-carousel-wrapper">
+						<button class="tariffs-arrow tariffs-arrow-left" aria-label="Предыдущий">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M15 18l-6-6 6-6" />
+							</svg>
+						</button>
+						<div class="tariffs-grid tariffs-grid--two">
+							<!-- Дети · Разовая консультация -->
+							<div class="tariff-card-collapsible">
+								<div class="tariff-card-preview">
+									<div class="tariff-header-compact">
+										<h3 class="tariff-name-compact">РАЗОВАЯ КОНСУЛЬТАЦИЯ</h3>
+										<p class="tariff-subtitle-compact">Первые шаги</p>
+										<p class="tariff-duration-compact">Формат: онлайн<br>
+											Одна встреча 60-90 минут</p>
+									</div>
+									<div class="tariff-price-compact">
+										<span class="price-amount-compact">5 000</span>
+										<span class="price-currency-compact">₽</span>
+									</div>
+									<button class="expand-indicator-line">
+										<span class="line-text">Подробнее</span>
+									</button>
+								</div>
+								<div class="tariff-details">
+									<h4 class="features-title">Что вы получите:</h4>
+									<ul class="tariff-features">
+										<li>Разбор питания ребенка.</li>
+										<li>Понимание, хватает ли в рационе разнообразия и основных групп продуктов.</li>
+										<li>Рекомендации с учетом возраста, режима дня, сада, школы и привычек ребенка.</li>
+										<li>Подсказки, как мягко работать с избирательностью в еде, тягой к сладкому и частыми перекусами.</li>
+										<li>Письменные рекомендации по итогам консультации.</li>
+										<li>Поддержку в чате в течение 7 дней после консультации — я буду на связи и отвечу на ваши вопросы.</li>
+									</ul>
+								</div>
+								<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed" target="_blank" rel="noopener noreferrer">Записаться на консультацию</a>
+							</div>
+
+							<!-- Дети · 1+1 (популярный) -->
+							<div class="tariff-card-collapsible popular">
+								<span class="popular-badge">Чаще выбирают</span>
+								<div class="tariff-card-preview">
+									<div class="tariff-header-compact">
+										<h3 class="tariff-name-compact">КОНСУЛЬТАЦИЯ 1+1</h3>
+										<p class="tariff-subtitle-compact">Оптимальный выбор</p>
+										<p class="tariff-duration-compact">Формат: онлайн<br>
+											Две встречи по 60-90 минут</p>
+									</div>
+									<div class="tariff-price-compact">
+										<span class="price-amount-compact">9 000</span>
+										<span class="price-currency-compact">₽</span>
+									</div>
+									<button class="expand-indicator-line">
+										<span class="line-text">Подробнее</span>
+									</button>
+								</div>
+								<div class="tariff-details">
+									<h4 class="features-title">Что вы получите:</h4>
+									<ul class="tariff-features">
+										<li>Первичную консультацию с разбором питания ребенка.</li>
+										<li>Рекомендации с учетом возраста, режима дня, сада, школы и привычек.</li>
+										<li>Подсказки, как мягко работать с избирательностью в еде, тягой к сладкому и частыми перекусами.</li>
+										<li>Письменные рекомендации после первой встречи.</li>
+										<li>Поддержку в чате в течение 5 дней после консультации — я буду на связи и отвечу на ваши вопросы.</li>
+										<li>Повторную встречу через 4–5 недель, чтобы обсудить изменения и при необходимости скорректировать план.</li>
+									</ul>
+								</div>
+								<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed" target="_blank" rel="noopener noreferrer">Записаться на консультацию</a>
+							</div>
+						</div>
+						<button class="tariffs-arrow tariffs-arrow-right" aria-label="Следующий">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M9 18l6-6-6-6" />
+							</svg>
+						</button>
+						<!-- Точки-индикаторы -->
+						<div class="tariffs-dots">
+							<span class="tariff-dot" data-index="0"></span>
+							<span class="tariff-dot" data-index="1"></span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Панель: Семья -->
+				<div class="tariff-panel" data-aud="family" role="tabpanel">
+					<div class="tariffs-carousel-wrapper">
+						<button class="tariffs-arrow tariffs-arrow-left" aria-label="Предыдущий">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M15 18l-6-6 6-6" />
+							</svg>
+						</button>
+						<div class="tariffs-grid tariffs-grid--two">
+							<!-- Семья · Разовая консультация -->
+							<div class="tariff-card-collapsible">
+								<div class="tariff-card-preview">
+									<div class="tariff-header-compact">
+										<h3 class="tariff-name-compact">РАЗОВАЯ КОНСУЛЬТАЦИЯ</h3>
+										<p class="tariff-subtitle-compact">Первые шаги</p>
+										<p class="tariff-duration-compact">Формат: онлайн<br>
+											Одна встреча 60-90 минут</p>
+									</div>
+									<div class="tariff-price-compact">
+										<span class="price-amount-compact">5 500</span>
+										<span class="price-currency-compact">₽</span>
+									</div>
+									<button class="expand-indicator-line">
+										<span class="line-text">Подробнее</span>
+									</button>
+								</div>
+								<div class="tariff-details">
+									<h4 class="features-title">Что вы получите:</h4>
+									<ul class="tariff-features">
+										<li>Разбор привычного семейного рациона.</li>
+										<li>Рекомендации, как сделать питание более удобным и сбалансированным для всей семьи.</li>
+										<li>Подбор решений с учетом возраста ребенка и потребностей взрослых (в том числе по здоровью).</li>
+										<li>Письменные рекомендации по итогам консультации.</li>
+										<li>Поддержку в чате в течение 7 дней после консультации — я буду на связи и отвечу на ваши вопросы.</li>
+									</ul>
+								</div>
+								<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed" target="_blank" rel="noopener noreferrer">Записаться на консультацию</a>
+							</div>
+
+							<!-- Семья · 1+1 (популярный) -->
+							<div class="tariff-card-collapsible popular">
+								<span class="popular-badge">Чаще выбирают</span>
+								<div class="tariff-card-preview">
+									<div class="tariff-header-compact">
+										<h3 class="tariff-name-compact">КОНСУЛЬТАЦИЯ 1+1</h3>
+										<p class="tariff-subtitle-compact">Оптимальный выбор</p>
+										<p class="tariff-duration-compact">Формат: онлайн<br>
+											Две встречи по 60-90 минут</p>
+									</div>
+									<div class="tariff-price-compact">
+										<span class="price-amount-compact">9 500</span>
+										<span class="price-currency-compact">₽</span>
+									</div>
+									<button class="expand-indicator-line">
+										<span class="line-text">Подробнее</span>
+									</button>
+								</div>
+								<div class="tariff-details">
+									<h4 class="features-title">Что вы получите:</h4>
+									<ul class="tariff-features">
+										<li>Разбор привычного семейного рациона.</li>
+										<li>Рекомендации, как сделать питание более удобным и сбалансированным для всей семьи.</li>
+										<li>Подбор решений с учетом возраста ребенка и потребностей взрослых (в том числе по здоровью).</li>
+										<li>Письменные рекомендации по итогам консультации.</li>
+										<li>Поддержку в чате в течение 5 дней после консультации — я буду на связи и отвечу на ваши вопросы.</li>
+										<li>Повторную встречу через 4–5 недель, чтобы обсудить результаты и при необходимости скорректировать план.</li>
+									</ul>
+								</div>
+								<a href="https://t.me/YuliaVoronova78" class="btn-tariff-fixed" target="_blank" rel="noopener noreferrer">Записаться на консультацию</a>
+							</div>
+						</div>
+						<button class="tariffs-arrow tariffs-arrow-right" aria-label="Следующий">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M9 18l6-6-6-6" />
+							</svg>
+						</button>
+						<!-- Точки-индикаторы -->
+						<div class="tariffs-dots">
+							<span class="tariff-dot" data-index="0"></span>
+							<span class="tariff-dot" data-index="1"></span>
+						</div>
 					</div>
 				</div>
 			</div>

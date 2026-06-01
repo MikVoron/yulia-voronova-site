@@ -3479,7 +3479,7 @@ button[class*="btn-"]:hover,
     font-size: 1.1rem;
     color: var(--dark-text);
     opacity: 0.8;
-    margin-bottom: 60px;
+    margin-bottom: 36px;
 }
 
 .tariffs-grid {
@@ -4054,6 +4054,65 @@ button[class*="btn-"]:hover,
     color: var(--dark-text);
     opacity: 0.8;
     line-height: 1.6;
+}
+
+/* ============================================
+   Табы аудиторий тарифов (Взрослые / Дети / Семья)
+   ============================================ */
+.tariff-aud-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    max-width: 560px;
+    margin: 0 auto 64px;
+    background: var(--cream);
+    border-radius: 50px;
+    padding: 6px;
+}
+
+.tariff-aud-tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--font-montserrat);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--dark-sage);
+    padding: 14px 10px;
+    border-radius: 44px;
+    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tariff-aud-tab:hover {
+    color: var(--dark-text);
+}
+
+.tariff-aud-tab.active {
+    background: var(--sage-green);
+    color: var(--white);
+    box-shadow: 0 4px 14px rgba(154, 184, 158, 0.35);
+}
+
+.tariff-panel {
+    display: none;
+}
+
+.tariff-panel.active {
+    display: block;
+    animation: tariffPanelFade 0.4s ease;
+}
+
+@keyframes tariffPanelFade {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* Сетка из двух тарифов (Дети, Семья) — по центру */
+.tariffs-grid.tariffs-grid--two {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 760px;
 }
 
 .features-title {
@@ -13065,6 +13124,19 @@ button[class*="btn-"]:hover,
         letter-spacing: 1px;
         top: -12px;
         right: 20px;
+    }
+
+    /* Табы аудиторий на мобильном */
+    .tariff-aud-tabs {
+        max-width: 100%;
+        margin-bottom: 46px;
+        gap: 4px;
+    }
+
+    .tariff-aud-tab {
+        font-size: 13px;
+        padding: 12px 6px;
+        letter-spacing: 0;
     }
 
     /* Tariffs carousel wrapper СЃ СЃС‚СЂРµР»РєР°РјРё */
