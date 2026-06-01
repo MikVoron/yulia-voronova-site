@@ -1332,6 +1332,10 @@
 		let _stepperMode = false;
 		let _stepperIdx = 0;
 		let _stepperDone = [];
+		const stepperIcons = {
+			step: '<svg viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M2 12a10 10 0 1 1 20 0c0 3.2-1.5 5.1-3.2 6.7-.9.8-1.8 1.6-2.3 2.3H7.5c-.5-.7-1.4-1.5-2.3-2.3C3.5 17.1 2 15.2 2 12z"/></svg>',
+			list: '<svg viewBox="0 0 24 24"><path d="M8 5h12"/><path d="M8 12h12"/><path d="M8 19h12"/><path d="M3.5 5h.01"/><path d="M3.5 12h.01"/><path d="M3.5 19h.01"/></svg>'
+		};
 
 		function initStepsUI() {
 			_stepsCollapsed = true;
@@ -1354,7 +1358,7 @@
 				if (expandBtn) expandBtn.hidden = true;
 				stepper.hidden = false;
 				if (modeLabel) modeLabel.textContent = 'Списком';
-				if (modeIcon) modeIcon.textContent = '📋';
+				if (modeIcon) modeIcon.innerHTML = stepperIcons.list;
 				if (modeBtn) modeBtn.classList.add('on');
 				renderStepperCurrent();
 			} else {
@@ -1373,7 +1377,7 @@
 					if (arrow) arrow.textContent = _stepsCollapsed ? '▾' : '▴';
 				}
 				if (modeLabel) modeLabel.textContent = 'Пошагово';
-				if (modeIcon) modeIcon.textContent = '👣';
+				if (modeIcon) modeIcon.innerHTML = stepperIcons.step;
 				if (modeBtn) modeBtn.classList.remove('on');
 			}
 		}
@@ -1407,8 +1411,7 @@
 			wrap.innerHTML = _stepsHtmlArr[_stepperIdx] || '';
 			const cur = document.getElementById('stepper-current-n');
 			if (cur) cur.textContent = String(_stepperIdx + 1);
-			const fill = document.getElementById('stepper-bar-fill');
-			if (fill) fill.style.width = (((_stepperIdx + 1) / _stepsHtmlArr.length) * 100) + '%';
+			renderStepperProgress();
 			const done = !!_stepperDone[_stepperIdx];
 			const cb = document.getElementById('stepper-done-cb');
 			if (cb) {
@@ -1421,6 +1424,18 @@
 			const next = document.getElementById('stepper-next');
 			if (prev) prev.disabled = _stepperIdx === 0;
 			if (next) next.disabled = _stepperIdx >= _stepsHtmlArr.length - 1;
+		}
+		function renderStepperProgress() {
+			const bar = document.getElementById('stepper-bar');
+			if (!bar || !_stepsHtmlArr.length) return;
+			bar.innerHTML = _stepsHtmlArr.map((_, i) => {
+				const cls = [
+					'stepper-bar-segment',
+					_stepperDone[i] ? 'is-done' : '',
+					i === _stepperIdx ? 'is-current' : ''
+				].filter(Boolean).join(' ');
+				return '<span class="' + cls + '"></span>';
+			}).join('');
 		}
 		function stepperPrev() {
 			if (_stepperIdx > 0) { _stepperIdx--; renderStepperCurrent(); }
@@ -1436,6 +1451,7 @@
 			const wrap = document.getElementById('stepper-current');
 			const item = wrap && wrap.querySelector('.step-item');
 			if (item) item.classList.toggle('is-done', done);
+			renderStepperProgress();
 			cb.setAttribute('aria-label', 'Шаг ' + (_stepperIdx + 1) + (done ? ' выполнен' : ' не выполнен'));
 		}
 		function stepPhotoCarouselMove(btn, dir) {
@@ -2462,7 +2478,16 @@
             <div class="recipe-layout">
                 <div class="recipe-main anim">
                     <nav class="recipe-crumbs" aria-label="Хлебные крошки">${crumbsHtml}</nav>
-                    <h1 class="recipe-title">${escHtml(r.name)}</h1>
+                    <div class="recipe-title-row">
+                        <h1 class="recipe-title">${escHtml(r.name)}</h1>
+                        <button class="recipe-title-share" type="button" onclick="shareRecipe()" aria-label="Поделиться рецептом" title="Поделиться">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7"/>
+                                <path d="M16 6l-4-4-4 4"/>
+                                <path d="M12 2v13"/>
+                            </svg>
+                        </button>
+                    </div>
                     <div class="recipe-meta-row" id="recipe-stars-row">
                         <span class="recipe-meta-stars">
                             ${starsRow}
@@ -2523,7 +2548,6 @@
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:20px;margin-bottom:8px;flex-wrap:wrap">
                         <div class="v-section-title">Ингредиенты</div>
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                            <button class="recipe-share-btn" type="button" onclick="shareRecipe()">Поделиться</button>
                             <button class="recipe-share-btn" type="button" onclick="openRecipeGroceryList()">Список покупок</button>
                         </div>
                     </div>
@@ -2533,7 +2557,7 @@
                     <div class="steps-head">
                         <div class="v-section-title">Приготовление</div>
                         ${_stepsCount > 1 ? `<button class="steps-mode-btn" id="steps-mode-btn" type="button" onclick="toggleStepperMode()">
-                            <span class="steps-mode-icon" id="steps-mode-icon">👣</span>
+                            <span class="steps-mode-icon" id="steps-mode-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5h12"/><path d="M8 12h12"/><path d="M8 19h12"/><path d="M3.5 5h.01"/><path d="M3.5 12h.01"/><path d="M3.5 19h.01"/></svg></span>
                             <span id="steps-mode-label">Пошагово</span>
                         </button>` : ''}
                     </div>
@@ -2551,7 +2575,7 @@
                     ${_stepsCount > 1 ? `<div class="steps-stepper" id="steps-stepper" hidden>
                         <div class="stepper-progress">
                             <span class="stepper-progress-text">Шаг <span id="stepper-current-n">1</span> из <span id="stepper-total-n">${_stepsCount}</span></span>
-                            <div class="stepper-bar"><div class="stepper-bar-fill" id="stepper-bar-fill"></div></div>
+                            <div class="stepper-bar" id="stepper-bar" aria-hidden="true"></div>
                         </div>
                         <div class="stepper-current" id="stepper-current"></div>
                         <label class="stepper-done">
