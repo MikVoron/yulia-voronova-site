@@ -1021,7 +1021,7 @@ body {
     font-family: var(--font-cormorant);
     font-size: 56px;
     font-weight: 400;
-    line-height: 1.2;
+    line-height: 1.08;
     margin-bottom: 15px;
     margin-top: -40px;
     color: var(--white);
@@ -1029,6 +1029,24 @@ body {
     transform: translateY(30px);
     animation: heroFadeIn 0.8s ease forwards;
     animation-delay: 0.2s;
+}
+
+.hero-name {
+    display: block;
+}
+
+.hero-role {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.55);
+    font-family: var(--font-montserrat);
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.45;
+    letter-spacing: 0.04em;
 }
 
 @media (min-width: 1025px) and (max-width: 1200px) {
@@ -1574,9 +1592,10 @@ button[class*="btn-"]:hover,
 
 .services-columns {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 40px;
-    margin-top: 20px;
+    max-width: 900px;
+    margin: 20px auto 0;
 }
 
 .service-column {
@@ -7323,14 +7342,14 @@ button[class*="btn-"]:hover,
 .help-numbered-grid {
     display: flex;
     flex-direction: column;
-    max-width: 760px;
+    max-width: 860px;
     margin: 0 auto;
 }
 
 .help-numbered-card {
     position: relative;
     display: grid;
-    grid-template-columns: 80px 1fr 120px;
+    grid-template-columns: 80px 1fr;
     align-items: center;
     gap: 0 32px;
     padding: 28px 0;
@@ -7440,10 +7459,19 @@ button[class*="btn-"]:hover,
     }
     .help-numbered-card {
         aspect-ratio: auto;
-        padding: 28px 24px;
+        gap: 0 18px;
+        padding: 24px 0;
     }
     .help-number {
-        font-size: 72px;
+        font-size: 40px;
+    }
+    .help-numbered-card h4 {
+        font-size: 20px;
+        line-height: 1.2;
+    }
+    .help-numbered-card p {
+        font-size: 13px;
+        line-height: 1.55;
     }
 }
 
@@ -12288,6 +12316,12 @@ button[class*="btn-"]:hover,
         color: var(--white);
     }
 
+    .hero-role {
+        font-size: 16px;
+        margin-top: 10px;
+        padding-top: 10px;
+    }
+
     .hero-subtitle {
         font-size: 18px;
         line-height: 1.45;
@@ -12310,8 +12344,8 @@ button[class*="btn-"]:hover,
     }
 
     .services-columns .service-column:last-child {
-        grid-column: span 2;
-        max-width: 400px;
+        grid-column: auto;
+        max-width: none;
         margin: 0 auto;
     }
 
@@ -12610,6 +12644,16 @@ button[class*="btn-"]:hover,
         line-height: 1.5;
         color: var(--dark-text);
         margin: 0;
+    }
+
+    .hero-role {
+        width: auto;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top-color: rgba(95, 111, 98, 0.22);
+        font-size: 15px;
+        line-height: 1.5;
+        letter-spacing: 0.02em;
     }
 
     .hero-subtitle {
@@ -13221,6 +13265,10 @@ button[class*="btn-"]:hover,
     /* Typography */
     .hero-title {
         font-size: 22px;
+    }
+
+    .hero-role {
+        font-size: 14px;
     }
 
     .section-title {

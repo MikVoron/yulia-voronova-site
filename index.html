@@ -300,12 +300,24 @@
 			font-size: 2.5rem;
 			margin-bottom: 20px;
 			font-weight: 600;
-			line-height: 1.2
+			line-height: 1.08
 		}
 
 		.hero-name,
 		.hero-role {
 			display: block
+		}
+
+		.hero-role {
+			width: fit-content;
+			max-width: 100%;
+			margin-top: 14px;
+			padding-top: 14px;
+			border-top: 1px solid rgba(255, 255, 255, 0.55);
+			font-size: 1.05rem;
+			font-weight: 400;
+			line-height: 1.45;
+			letter-spacing: 0.04em
 		}
 
 		.hero-subtitle {
@@ -373,11 +385,15 @@
 			}
 
 			.hero-role {
-				font-size: 1.1rem;
+				width: auto;
+				margin-top: 12px;
+				padding-top: 12px;
+				border-top-color: rgba(95, 111, 98, 0.22);
+				font-size: 1rem;
 				font-weight: 500;
 				color: var(--sage-green);
-				text-transform: uppercase;
-				letter-spacing: 2px
+				text-transform: none;
+				letter-spacing: 0.02em
 			}
 
 			.hero-subtitle {
@@ -507,7 +523,7 @@
 					<div class="hero-text">
 						<h1 class="hero-title">
 							<span class="hero-name">Юлия Воронова</span>
-							<span class="hero-role">доказательный нутрициолог</span>
+							<span class="hero-role">Нутрициолог,<br> консультант по семейному и детскому питанию</span>
 						</h1>
 						<p class="hero-subtitle">Выстраиваю рацион для для вас, вашего ребёнка или всей семьи.
 							Вместе найдем комфортный формат и решения, которые подходят именно вашему образу жизни - без ограничений, БАДов и лишнего стресса.</p>
@@ -585,7 +601,7 @@
 						<img src="images/icons/progress.png" alt="Отслеживание прогресса положительных изменений в питании и привычках клиента" class="card-icon" loading="lazy" decoding="async" fetchpriority="low" width="60" height="60">
 						<div class="grid-overlay light">
 							<h3 class="progress-title">Ваш результат</h3>
-							<p>Полноценное питание становится естественным. Вы спокойны за себя и семью, а дети едят без слез и давления.</p>
+							<p>Сбалансированное питание становится естественным. Вы спокойны за себя и семью, а дети едят без слез и давления.</p>
 						</div>
 					</div>
 				</div>
@@ -600,17 +616,12 @@
 					<div class="service-column">
 						<div class="service-icon-small service-icon-food"></div>
 						<h3 class="script-text">Питание</h3>
-						<p>Бережно подстрою питание под ваши цели - будь то стройность, энергия или женское здоровье. Мы не будем всё запрещать, а научимся адаптировать ваши любимые блюда, сделав их полезными.</p>
-					</div>
-					<div class="service-column">
-						<div class="service-icon-small service-icon-medical"></div>
-						<h3 class="script-text">Анализы и дефициты</h3>
-						<p>Помогу разобраться, какие показатели стоит проверить именно вам, исходя из ваших жалоб, и расшифрую результаты, чтобы мы могли восполнить дефициты.</p>
+						<p>Бережно подстрою питание под ваши цели - будь то стройность, энергия или поддержка организма при хронических состояниях. Мы не будем всё запрещать, а научимся адаптировать ваши любимые блюда, сделав их сбалансированными.</p>
 					</div>
 					<div class="service-column">
 						<div class="service-icon-small service-icon-habits"></div>
-						<h3 class="script-text">Здоровые привычки</h3>
-						<p>Помогу вам бережно внедрить привычки, которые влияют на самочувствие не меньше, чем еда - это работа со стрессом, качественный сон и движение в удовольствие.</p>
+						<h3 class="script-text">Дети и Семья</h3>
+						<p>Помогаю скорректировать детское меню и мягко перевести всю семью на общий здоровый рацион. Мы подберем посильные шаги, которые подойдут именно вам - еда станет сбалансированной для каждого, а у мамы появится время на отдых.</p>
 					</div>
 				</div>
 			</div>
@@ -627,7 +638,7 @@
 							<div class="step-marker"></div>
 							<div class="step-content">
 								<h3>Общаемся</h3>
-								<p>Ставим реалистичные цели</p>
+								<p>Обсуждаем ваш запрос</p>
 							</div>
 						</div>
 						<div class="step-item">
@@ -881,147 +892,6 @@
 			</button>
 		</div>
 
-		<!-- Lead Section -->
-		<section class="lead-section">
-			<div class="container">
-				<h2 class="section-title script-text">Сомневаетесь?</h2>
-				<p class="lead-subtitle">Выберите то, что вас беспокоит - и я подберу решение именно для вас</p>
-
-				<!-- Кнопки-сценарии -->
-				<div class="lead-scenarios" id="leadScenarios">
-					<button class="lead-scenario-btn" data-scenario="Хочу снизить вес">
-						<span class="lead-scenario-icon"><svg viewBox="0 0 24 24" fill="none">
-								<path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V18a1 1 0 0 1-2 0v-1.07A8 8 0 0 1 4 9a1 1 0 0 1 2 0 6 6 0 0 0 6 6 6 6 0 0 0 6-6 1 1 0 0 1 2 0 8 8 0 0 1-7 7.93z" fill="currentColor" />
-							</svg></span>
-						<span class="lead-scenario-text">
-							<span class="lead-scenario-title">Хочу снизить вес</span>
-							<span class="lead-scenario-desc">Подберём рацион и устраним причины набора веса</span>
-						</span>
-						<span class="lead-scenario-btn-arrow">→</span>
-					</button>
-					<button class="lead-scenario-btn" data-scenario="Проблемы со сном и энергией">
-						<span class="lead-scenario-icon"><svg viewBox="0 0 24 24" fill="none">
-								<path d="M12 3a9 9 0 1 0 9 9 9 9 0 0 0-9-9zm0 16a7 7 0 1 1 7-7 7 7 0 0 1-7 7zm1-11h-2v5l4 2.5.75-1.23L13 12.5V8z" fill="currentColor" />
-							</svg></span>
-						<span class="lead-scenario-text">
-							<span class="lead-scenario-title">Проблемы со сном и энергией</span>
-							<span class="lead-scenario-desc">Питание напрямую влияет на качество сна и уровень сил</span>
-						</span>
-						<span class="lead-scenario-btn-arrow">→</span>
-					</button>
-					<button class="lead-scenario-btn" data-scenario="Переедание / тяга к сладкому">
-						<span class="lead-scenario-icon"><svg viewBox="0 0 24 24" fill="none">
-								<path d="M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.46L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26 1.44 1.42 2.43 2.89 2.43 5.29v8.05zM1 21.99V21h15.03v.99c0 .55-.45 1-1.01 1H2.01c-.56 0-1.01-.45-1.01-1zm15.03-7c0-4.5-6.72-5.5-7.52-5.5-.73 0-7.51 1-7.51 5.5h15.03z" fill="currentColor" />
-							</svg></span>
-						<span class="lead-scenario-text">
-							<span class="lead-scenario-title">Переедание / тяга к сладкому</span>
-							<span class="lead-scenario-desc">Разберёмся с пищевым поведением и эмоциональным перееданием</span>
-						</span>
-						<span class="lead-scenario-btn-arrow">→</span>
-					</button>
-					<button class="lead-scenario-btn" data-scenario="Снизить холестерин">
-						<span class="lead-scenario-icon"><svg viewBox="0 0 24 24" fill="none">
-								<path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z" fill="currentColor" />
-							</svg></span>
-						<span class="lead-scenario-text">
-							<span class="lead-scenario-title">Снизить холестерин</span>
-							<span class="lead-scenario-desc">Скорректируем питание и снизим сердечно-сосудистые риски</span>
-						</span>
-						<span class="lead-scenario-btn-arrow">→</span>
-					</button>
-					<button class="lead-scenario-btn" data-scenario="Скорректировать дефициты">
-						<span class="lead-scenario-icon"><svg viewBox="0 0 24 24" fill="none">
-								<path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" fill="currentColor" />
-							</svg></span>
-						<span class="lead-scenario-text">
-							<span class="lead-scenario-title">Скорректировать дефициты</span>
-							<span class="lead-scenario-desc">Разберёмся с анализами и восполним нехватку витаминов и минералов</span>
-						</span>
-						<span class="lead-scenario-btn-arrow">→</span>
-					</button>
-					<button class="lead-scenario-btn lead-scenario-custom" data-scenario="custom">
-						<span class="lead-scenario-icon"><svg viewBox="0 0 24 24" fill="none">
-								<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor" />
-							</svg></span>
-						<span class="lead-scenario-text">
-							<span class="lead-scenario-title">Свой вариант</span>
-							<span class="lead-scenario-desc">Опишите своими словами — я разберусь</span>
-						</span>
-						<span class="lead-scenario-btn-arrow">→</span>
-					</button>
-				</div>
-
-				<!-- Форма (скрыта по умолчанию) -->
-				<div class="lead-form-wrap" id="leadFormWrap" hidden>
-					<button type="button" class="lead-change-btn" id="leadChangeBtn">← Изменить выбор</button>
-					<form class="lead-form" id="leadForm" action="https://api.web3forms.com/submit" method="POST">
-						<input type="hidden" name="access_key" value="8ef42372-869f-4c26-8be7-74ffe9feebc3">
-						<input type="checkbox" name="botcheck" style="display:none">
-						<input type="hidden" name="subject" value="Новая заявка с сайта — персональный запрос">
-						<input type="hidden" name="request" id="leadScenarioInput">
-						<textarea name="details" id="leadConcern" placeholder="Коротко опишите, что вас беспокоит *" class="lead-input lead-textarea" rows="3" hidden></textarea>
-						<input type="text" name="name" placeholder="Ваше имя *" required class="lead-input" autocomplete="given-name">
-						<input type="number" name="age" placeholder="Возраст (необязательно)" min="1" max="120" class="lead-input" autocomplete="age">
-						<input type="text" name="contact" placeholder="Как с вами связаться? (Telegram, WhatsApp, email...)" required class="lead-input" autocomplete="off">
-						<button type="submit" class="lead-submit-btn">Отправить заявку</button>
-						<p class="lead-privacy">Нажимая кнопку, вы соглашаетесь с <a href="personal-data-processing-policy.html" target="_blank" rel="noopener noreferrer">Политикой обработки персональных данных</a></p>
-					</form>
-					<div class="lead-success" id="leadSuccess" hidden>
-						<p class="lead-success-text">Спасибо! Юлия свяжется с вами в ближайшее время.</p>
-					</div>
-				</div>
-			</div>
-		</section>
-
-		<!-- Остались вопросы? -->
-		<section class="contact-section" id="contact">
-			<div class="container">
-				<h2 class="section-title script-text">Остались вопросы?</h2>
-				<p class="contact-subtitle">Свяжитесь со мной удобным способом</p>
-
-				<div class="contact-options">
-					<!-- Телеграм виджет -->
-					<div class="telegram-chat-widget">
-						<div class="telegram-chat-input">
-							<span class="telegram-placeholder"><span class="tg-prefix">Напишите мне в Телеграм </span>@YuliaVoronova78</span>
-						</div>
-						<a href="https://t.me/YuliaVoronova78" class="telegram-send-btn" target="_blank" rel="noopener noreferrer" aria-label="Написать в Telegram">
-							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor" />
-							</svg>
-						</a>
-					</div>
-
-					<div class="contact-divider">
-						<span>или</span>
-					</div>
-
-					<!-- Email форма -->
-					<form action="https://api.web3forms.com/submit" method="POST" class="contact-email-form" id="contact-form">
-						<input type="hidden" name="access_key" value="88b78c43-b948-4c57-bddc-5e15238da35c">
-						<input type="checkbox" name="botcheck" style="display:none">
-						<input type="hidden" name="subject" value="Вопрос с сайта">
-
-						<div class="form-row">
-							<input type="email" name="email" placeholder="Ваш email" required class="contact-input" autocomplete="email" pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}" title="Введите корректный email, например: name@example.com">
-						</div>
-						<div class="form-row">
-							<textarea name="message" placeholder="Ваш вопрос..." rows="3" required class="contact-textarea"></textarea>
-						</div>
-						<div class="form-row form-privacy">
-							<div class="privacy-tooltip">Необходимо согласие с Политикой обработки данных</div>
-							<label class="privacy-checkbox">
-								<input type="checkbox" name="privacy">
-								<span class="privacy-checkmark"></span>
-								<span class="privacy-text">Я согласен с <a href="personal-data-processing-policy.html" target="_blank" rel="noopener noreferrer">Политикой обработки персональных данных</a></span>
-							</label>
-						</div>
-						<button type="submit" class="contact-submit-btn">Отправить</button>
-					</form>
-				</div>
-			</div>
-		</section>
-
 		<!-- FAQ Section -->
 		<section class="faq defer-render" id="faq">
 			<div class="container">
@@ -1093,6 +963,55 @@
 							<p>Консультация проходит онлайн на удобной для вас платформе. До ее начала, при необходимости, вы заполняете анкеты и дневник питания (или просто присылаете мне фото ваших блюд), чтобы я могла все проанализировать и подготовиться. На консультации мы подробно обсуждаем ваш запрос, разбираем привычки и составляем план действий. По итогу вы получаете письменные рекомендации.</p>
 						</div>
 					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Остались вопросы? -->
+		<section class="contact-section" id="contact">
+			<div class="container">
+				<h2 class="section-title script-text">Остались вопросы?</h2>
+				<p class="contact-subtitle">Свяжитесь со мной удобным способом</p>
+
+				<div class="contact-options">
+					<!-- Телеграм виджет -->
+					<div class="telegram-chat-widget">
+						<div class="telegram-chat-input">
+							<span class="telegram-placeholder"><span class="tg-prefix">Напишите мне в Телеграм </span>@YuliaVoronova78</span>
+						</div>
+						<a href="https://t.me/YuliaVoronova78" class="telegram-send-btn" target="_blank" rel="noopener noreferrer" aria-label="Написать в Telegram">
+							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor" />
+							</svg>
+						</a>
+					</div>
+
+					<div class="contact-divider">
+						<span>или</span>
+					</div>
+
+					<!-- Email форма -->
+					<form action="https://api.web3forms.com/submit" method="POST" class="contact-email-form" id="contact-form">
+						<input type="hidden" name="access_key" value="88b78c43-b948-4c57-bddc-5e15238da35c">
+						<input type="checkbox" name="botcheck" style="display:none">
+						<input type="hidden" name="subject" value="Вопрос с сайта">
+
+						<div class="form-row">
+							<input type="email" name="email" placeholder="Ваш email" required class="contact-input" autocomplete="email" pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}" title="Введите корректный email, например: name@example.com">
+						</div>
+						<div class="form-row">
+							<textarea name="message" placeholder="Ваш вопрос..." rows="3" required class="contact-textarea"></textarea>
+						</div>
+						<div class="form-row form-privacy">
+							<div class="privacy-tooltip">Необходимо согласие с Политикой обработки данных</div>
+							<label class="privacy-checkbox">
+								<input type="checkbox" name="privacy">
+								<span class="privacy-checkmark"></span>
+								<span class="privacy-text">Я согласен с <a href="personal-data-processing-policy.html" target="_blank" rel="noopener noreferrer">Политикой обработки персональных данных</a></span>
+							</label>
+						</div>
+						<button type="submit" class="contact-submit-btn">Отправить</button>
+					</form>
 				</div>
 			</div>
 		</section>
@@ -1189,72 +1108,6 @@
 	</div>
 
 	<script src="main.js" defer></script>
-	<script>
-		(function () {
-			var scenarios = document.getElementById('leadScenarios');
-			var formWrap = document.getElementById('leadFormWrap');
-			var scenarioInput = document.getElementById('leadScenarioInput');
-			var changeBtn = document.getElementById('leadChangeBtn');
-			var form = document.getElementById('leadForm');
-			var success = document.getElementById('leadSuccess');
-			var concernField = document.getElementById('leadConcern');
-			var allBtns = [];
-
-			if (!scenarios) return;
-
-			allBtns = Array.from(scenarios.querySelectorAll('.lead-scenario-btn'));
-
-			scenarios.addEventListener('click', function (e) {
-				var btn = e.target.closest('.lead-scenario-btn');
-				if (!btn) return;
-				var scenario = btn.dataset.scenario;
-				var isCustom = scenario === 'custom';
-				scenarioInput.value = isCustom ? 'Свой вариант' : scenario;
-				allBtns.forEach(function (b) {
-					if (b !== btn) b.style.display = 'none';
-				});
-				btn.classList.add('lead-scenario-selected');
-				concernField.style.display = isCustom ? 'block' : 'none';
-				concernField.required = isCustom;
-				formWrap.removeAttribute('hidden');
-			});
-
-			changeBtn.addEventListener('click', function () {
-				formWrap.setAttribute('hidden', '');
-				allBtns.forEach(function (b) {
-					b.style.display = '';
-					b.classList.remove('lead-scenario-selected');
-				});
-				form.reset();
-				concernField.style.display = 'none';
-				concernField.required = false;
-				success.setAttribute('hidden', '');
-				form.removeAttribute('hidden');
-			});
-
-			form.addEventListener('submit', function (e) {
-				e.preventDefault();
-				var submitBtn = form.querySelector('.lead-submit-btn');
-				submitBtn.disabled = true;
-				submitBtn.textContent = 'Отправляем...';
-				fetch('https://api.web3forms.com/submit', {
-					method: 'POST',
-					body: new FormData(form)
-				}).then(function (res) {
-					if (res.ok) {
-						form.style.display = 'none';
-						success.removeAttribute('hidden');
-					} else {
-						submitBtn.disabled = false;
-						submitBtn.textContent = 'Отправить заявку';
-					}
-				}).catch(function () {
-					submitBtn.disabled = false;
-					submitBtn.textContent = 'Отправить заявку';
-				});
-			});
-		})();
-	</script>
 
 	<script src="analytics.js" defer></script>
 	<noscript>
