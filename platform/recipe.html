@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-31-grocery-modal-3" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-06-01-recipe-actions" id="vcss">
 	<style>
 		.sublist-items {
 			display: flex;
@@ -54,32 +54,39 @@
 			display: flex;
 			align-items: center;
 			gap: 7px;
-			padding: 8px 16px;
-			border-radius: 10px;
-			border: 2px solid var(--border);
-			background: var(--bg-alt);
-			font-size: 13px;
-			font-weight: 600;
-			color: var(--text-2);
+			min-height: 34px;
+			padding: 8px 12px;
+			border-radius: 0;
+			border: 1px solid var(--text);
+			background: #fff;
+			color: var(--text);
+			font: 800 10px/1.15 var(--sans);
+			letter-spacing: .11em;
+			text-transform: uppercase;
 			cursor: pointer;
-			transition: all .2s;
+			transition: background .2s ease, border-color .2s ease, color .2s ease, opacity .2s ease;
+			-webkit-tap-highlight-color: transparent;
 		}
 
-		.video-tab:hover {
-			border-color: var(--tab-color);
-			color: var(--tab-color);
+		.video-tab:hover,
+		.video-tab:focus-visible {
+			background: var(--text);
+			border-color: var(--text);
+			color: #fff;
+			outline: none;
 		}
 
 		.video-tab.active {
-			border-color: var(--tab-color);
-			background: var(--tab-color);
+			border-color: var(--accent);
+			background: var(--accent);
 			color: #fff;
 		}
 
 		.video-tab-icon {
 			display: flex;
-			width: 18px;
-			height: 18px;
+			width: 14px;
+			height: 14px;
+			flex-shrink: 0;
 		}
 
 		.video-tab-icon svg {
@@ -149,13 +156,12 @@
 
 		@media (max-width: 480px) {
 			.video-tab {
-				padding: 7px 12px;
-				font-size: 12px;
+				padding: 8px 10px;
 			}
 
 			.video-tab-icon {
-				width: 15px;
-				height: 15px;
+				width: 13px;
+				height: 13px;
 			}
 
 			.video-play-btn {
