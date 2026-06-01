@@ -1380,7 +1380,7 @@ button[class*="btn-"]:hover,
     font-family: var(--font-playfair);
     font-size: 18px;
     color: var(--white);
-    line-height: 1.6;
+    line-height: 1.45;
 }
 
 .grid-item.first-card:hover .first-card-content,
@@ -13245,12 +13245,23 @@ button[class*="btn-"]:hover,
         min-height: 250px;
     }
 
+    .grid-overlay {
+        padding: 22px 22px 24px;
+    }
+
+    .grid-item:hover .grid-overlay,
+    .grid-item.tapped .grid-overlay {
+        padding: 22px 22px 24px;
+    }
+
     .grid-overlay h3 {
         font-size: 18px;
+        margin-bottom: 6px;
     }
 
     .grid-overlay p {
-        font-size: 17px;
+        font-size: 15px;
+        line-height: 1.38;
     }
 
     /* First card */
@@ -13258,8 +13269,13 @@ button[class*="btn-"]:hover,
         font-size: 20px;
     }
 
+    .first-card-hover {
+        padding: 26px 24px;
+    }
+
     .first-card-hover p {
-        font-size: 18px;
+        font-size: 15px;
+        line-height: 1.42;
     }
 
     /* About page */
