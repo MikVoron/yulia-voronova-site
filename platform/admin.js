@@ -465,6 +465,44 @@
     var allCategories = [];          // full category objects from API
     var CAT_NAMES = {};              // populated from /content/categories on init
 
+    function getRecipeAccessLevel(r) {
+        return r.access_level || (r.is_free ? 'free' : 'pro');
+    }
+
+    function recipeHasVideo(r) {
+        return !!(r.vk_video || r.yt_video || r.dzen_video);
+    }
+
+    function recipeHasPhoto(r) {
+        return typeof r.photo === 'string' && r.photo.trim().length > 0;
+    }
+
+    function recipeHasNutrition(r) {
+        return ['kcal', 'protein', 'fat', 'carbs'].every(function(key) {
+            var value = Number(r[key]);
+            return Number.isFinite(value) && value > 0;
+        });
+    }
+
+    function hasAutoAddonsRule(rule) {
+        if (!rule || typeof rule !== 'object') return false;
+        return Object.keys(rule).some(function(key) {
+            var slot = rule[key];
+            return slot && typeof slot === 'object' && Object.keys(slot).length > 0;
+        });
+    }
+
+    function recipeHasAutoAddons(r) {
+        if (hasAutoAddonsRule(r.auto_addons)) return true;
+        if (r.is_soup) return true;
+        if ((r.name || '').toLowerCase().indexOf('плов') !== -1) return true;
+        var rc = r.categories || (r.cat ? [r.cat] : []);
+        return rc.some(function(catId) {
+            var cat = allCategories.find(function(c) { return c.id === catId; });
+            return cat && hasAutoAddonsRule(cat.auto_addons);
+        });
+    }
+
     function loadCategoriesMeta() {
         return api('/content/categories').then(function(cats) {
             allCategories = cats || [];
@@ -505,9 +543,32 @@
 
     function applyRecipeFilters() {
         var q = document.getElementById('recipe-search').value.toLowerCase();
+        var statusFilter = document.getElementById('recipe-status-filter').value;
+        var accessFilter = document.getElementById('recipe-access-filter').value;
+        var seasonalFilter = document.getElementById('recipe-seasonal-filter').value;
+        var videoFilter = document.getElementById('recipe-video-filter').value;
+        var photoFilter = document.getElementById('recipe-photo-filter').value;
+        var nutritionFilter = document.getElementById('recipe-nutrition-filter').value;
+        var addonsFilter = document.getElementById('recipe-addons-filter').value;
+        var soupFilter = document.getElementById('recipe-soup-filter').value;
         var filtered = allRecipes.filter(function(r) {
             var rc = r.categories || (r.cat ? [r.cat] : []);
             if (recipeCatFilter !== 'all' && rc.indexOf(recipeCatFilter) === -1) return false;
+            if (statusFilter === 'published' && !r.is_published) return false;
+            if (statusFilter === 'unpublished' && r.is_published) return false;
+            if (accessFilter !== 'all' && getRecipeAccessLevel(r) !== accessFilter) return false;
+            if (seasonalFilter === 'seasonal' && !r.is_seasonal) return false;
+            if (seasonalFilter === 'not-seasonal' && r.is_seasonal) return false;
+            if (videoFilter === 'with-video' && !recipeHasVideo(r)) return false;
+            if (videoFilter === 'without-video' && recipeHasVideo(r)) return false;
+            if (photoFilter === 'with-photo' && !recipeHasPhoto(r)) return false;
+            if (photoFilter === 'without-photo' && recipeHasPhoto(r)) return false;
+            if (nutritionFilter === 'nutrition-filled' && !recipeHasNutrition(r)) return false;
+            if (nutritionFilter === 'nutrition-missing' && recipeHasNutrition(r)) return false;
+            if (addonsFilter === 'with-addons' && !recipeHasAutoAddons(r)) return false;
+            if (addonsFilter === 'without-addons' && recipeHasAutoAddons(r)) return false;
+            if (soupFilter === 'soups' && !r.is_soup) return false;
+            if (soupFilter === 'not-soups' && r.is_soup) return false;
             if (q && !r.name.toLowerCase().includes(q) && !r.id.includes(q)) return false;
             return true;
         });
@@ -520,8 +581,10 @@
         el.innerHTML = items.map(function(r) {
             var badge;
             if (!r.is_published) {
-                badge = '<span class="rbadge rbadge-draft">Черновик</span>';
-            } else if (r.is_free) {
+                badge = '<span class="rbadge rbadge-draft">Не опубликован</span>';
+            } else if (getRecipeAccessLevel(r) === 'free') {
+                badge = '<span class="rbadge rbadge-free">Free</span>';
+            } else if (getRecipeAccessLevel(r) === 'trial') {
                 badge = '<span class="rbadge rbadge-trial">Trial</span>';
             } else {
                 badge = '<span class="rbadge rbadge-pro">Pro</span>';
@@ -572,7 +635,7 @@
     };
 
     window.openRecipeEditor = function(id) {
-        location.href = 'recipe-editor.html' + (id ? '?id=' + encodeURIComponent(id) : '');
+        location.href = 'recipe-editor.html?v=20260603-sticky-topbar' + (id ? '&id=' + encodeURIComponent(id) : '');
     };
 
     window.deleteRecipe = function(id) {

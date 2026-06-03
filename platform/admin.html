@@ -251,6 +251,7 @@
             flex-shrink: 0;
         }
         .rbadge-draft { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+        .rbadge-free  { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
         .rbadge-trial { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
         .rbadge-pro   { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
 
@@ -569,6 +570,49 @@
             <button class="adm-btn" style="background:var(--accent);color:#fff" onclick="openRecipeEditor()">+ Новый рецепт</button>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="recipe-cat-filters"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+            <select class="adm-modal-select" id="recipe-status-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Все статусы</option>
+                <option value="published">Опубликованные</option>
+                <option value="unpublished">Неопубликованные</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-access-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Все уровни</option>
+                <option value="free">Free</option>
+                <option value="trial">Trial</option>
+                <option value="pro">Pro</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-seasonal-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Любая сезонность</option>
+                <option value="seasonal">Сезонные</option>
+                <option value="not-seasonal">Не сезонные</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-video-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Любые видео</option>
+                <option value="with-video">С видео</option>
+                <option value="without-video">Без видео</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-photo-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Любые фото</option>
+                <option value="with-photo">С фото</option>
+                <option value="without-photo">Без фото</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-nutrition-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Любые КБЖУ</option>
+                <option value="nutrition-filled">КБЖУ заполнены</option>
+                <option value="nutrition-missing">КБЖУ не заполнены</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-addons-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Любые автодобавки</option>
+                <option value="with-addons">Есть автодобавки</option>
+                <option value="without-addons">Нет автодобавок</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-soup-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Все типы</option>
+                <option value="soups">Супы</option>
+                <option value="not-soups">Не супы</option>
+            </select>
+        </div>
         <input type="text" class="adm-search" id="recipe-search" placeholder="Поиск по названию..." oninput="filterRecipes()">
         <div id="recipes-list"></div>
     </div>
@@ -823,6 +867,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=2026052901"></script>
-<script src="admin.js?v=2026052901"></script>
+<script src="admin.js?v=20260603-recipe-filters"></script>
 </body>
 </html>
