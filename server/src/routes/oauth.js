@@ -76,11 +76,11 @@ async function findOrCreateUser(provider, providerId, email, displayName, fastif
   }
   audit.log('register', { userId: user.id, email, detail: provider, ip });
   if (email) {
-    sendWelcome(email).catch(e => fastify.log.error(e, 'Welcome email error (OAuth)'));
+    sendWelcome(email, trial.grant).catch(e => fastify.log.error(e, 'Welcome email error (OAuth)'));
   }
   sendNewUserNotification(
     { id: user.id, email: email || null },
-    { method: provider, ip, userAgent: ua }
+    { method: provider, ip, userAgent: ua, trialGranted: trial.grant }
   ).catch(e => fastify.log.error(e, 'New user notification error (OAuth)'));
 
   return { user, isNew };

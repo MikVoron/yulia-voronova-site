@@ -90,7 +90,10 @@ async function adminRoutes(fastify) {
   fastify.post('/admin/payments/:id/reject', { preHandler: requireAdmin }, async (req, reply) => {
     const { id } = req.params;
     const { comment } = req.body || {};
-    const adminComment = comment || 'Отклонено';
+    const adminComment = String(comment || '').trim();
+    if (!adminComment) {
+      return reply.status(400).send({ error: 'Укажите причину отклонения платежа' });
+    }
     const updated = await db.query(
       "UPDATE payments SET status='rejected', admin_comment=$2, updated_at=now() WHERE id=$1 AND status='pending' RETURNING user_id",
       [id, adminComment]
@@ -313,10 +316,10 @@ async function adminRoutes(fastify) {
         ORDER BY created_at ASC, id ASC LIMIT 1`,
       [id]
     );
-    const userRow = await db.query('SELECT email FROM users WHERE id=$1', [head.user_id]);
+    const userRow = await db.query('SELECT email, display_name FROM users WHERE id=$1', [head.user_id]);
     const userEmail = userRow.rows[0]?.email;
     if (userEmail) {
-      sendFeedbackReply(userEmail, head.category, firstUserMsg.rows[0]?.text || '', trimmed)
+      sendFeedbackReply(userEmail, head.category, firstUserMsg.rows[0]?.text || '', trimmed, userRow.rows[0]?.display_name)
         .catch(e => fastify.log.error(e, 'Feedback reply email error'));
     }
     audit.log('feedback_reply', { userId: req.user.sub, detail: 'feedback#' + id, ip: req.ip });

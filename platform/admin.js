@@ -326,10 +326,16 @@
 
     window.rejectPayment = function(id) {
         if (!confirm('Отклонить платёж?')) return;
-        var comment = prompt('Причина (необязательно):', '');
+        var comment = prompt('Укажите причину отклонения платежа:', '');
+        if (comment === null) return;
+        comment = comment.trim();
+        if (!comment) {
+            showToast('Причина отклонения обязательна');
+            return;
+        }
         api('/admin/payments/' + id + '/reject', {
             method: 'POST',
-            body: { comment: comment || 'Отклонено' }
+            body: { comment: comment }
         }).then(function() {
             showToast('Платёж отклонён');
             loadPayments('pending');
@@ -978,4 +984,8 @@
 
     // ── Init ──
     loadStats();
+    var initialTab = new URLSearchParams(location.search).get('tab');
+    if (initialTab && document.querySelector('[data-tab="' + initialTab + '"]')) {
+        switchTab(initialTab);
+    }
 })();

@@ -73,10 +73,10 @@ async function authRoutes(fastify) {
         audit.log('trial_denied', { userId, email: lower, detail: trial.reason, ip: req.ip, ua: req.headers['user-agent'] });
       }
       audit.log('register', { userId, email: lower, detail: 'email', ip: req.ip, ua: req.headers['user-agent'] });
-      sendWelcome(lower).catch(e => fastify.log.error(e, 'Welcome email error'));
+      sendWelcome(lower, trial.grant).catch(e => fastify.log.error(e, 'Welcome email error'));
       sendNewUserNotification(
         { id: userId, email: lower },
-        { method: 'email', ip: req.ip, userAgent: req.headers['user-agent'] }
+        { method: 'email', ip: req.ip, userAgent: req.headers['user-agent'], trialGranted: trial.grant }
       ).catch(e => fastify.log.error(e, 'New user notification error'));
     }
     const user = userRes.rows[0];

@@ -265,10 +265,23 @@ async function contentRoutes(fastify) {
   fastify.post('/admin/news', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
     const { type, text, recipe_id, badge, label, is_published } = req.body || {};
     if (!text || !text.trim()) return reply.status(400).send({ error: 'Текст обязателен' });
+    const newsType = type === 'recipe' ? 'recipe' : 'news';
+    let recipeName = null;
+    if (newsType === 'recipe') {
+      if (!recipe_id) return reply.status(400).send({ error: 'Для анонса рецепта укажите ID рецепта' });
+      const recipe = await db.query(
+        'SELECT name FROM recipes WHERE id=$1 AND is_published=true',
+        [recipe_id]
+      );
+      if (!recipe.rows.length) {
+        return reply.status(400).send({ error: 'Опубликованный рецепт с таким ID не найден' });
+      }
+      recipeName = recipe.rows[0].name;
+    }
     const result = await db.query(
       `INSERT INTO news (type, text, recipe_id, badge, label, is_published)
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [type || 'news', text.trim(), recipe_id || null, badge || null, label || null, is_published === true]
+      [newsType, text.trim(), newsType === 'recipe' ? recipe_id : null, badge || null, label || null, is_published === true]
     );
 
     // Send newsletter to all subscribed users (async, don't block response)
@@ -291,7 +304,12 @@ async function contentRoutes(fastify) {
           );
           for (const sub of subscribers.rows) {
             try {
-              await email.sendNewsletter(sub.email, text.trim(), sub.unsubscribe_token);
+              await email.sendNewsletter(sub.email, {
+                type: newsType,
+                text: text.trim(),
+                recipeId: newsType === 'recipe' ? recipe_id : null,
+                recipeName
+              }, sub.unsubscribe_token);
             } catch (e) { console.error('Newsletter send error for', sub.email, ':', e.message); }
           }
           console.log(`Newsletter sent to ${subscribers.rows.length} subscribers for news#${newsId}`);
