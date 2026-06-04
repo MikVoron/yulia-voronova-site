@@ -393,7 +393,7 @@
 		})();
 
 		// ── ПОДПИСКА ──────────────────────────────────────────────────────────────
-		const SUB_LABELS = { trial: 'Пробный период', active: 'Активна', expired: 'Истекла' };
+		const SUB_LABELS = { trial: 'Пробный период', active: 'Активна', expired: 'Завершена' };
 
 		function renderFallbackSubCard() {
 			var wrap = document.getElementById('sub-status-wrap');
@@ -420,17 +420,23 @@
 				const wrap = document.getElementById('sub-status-wrap');
 				const badge = data.status || 'none';
 				const pillClass = badge === 'active' ? '' : (badge === 'trial' ? ' trial' : ' expired');
-				const label = SUB_LABELS[badge] || 'Нет подписки';
+				let label = SUB_LABELS[badge] || 'Нет подписки';
+				if (data.trialNotGranted) label = 'Пробный период не активирован';
+				else if (badge === 'expired' && data.trialEndsAt) label = 'Пробный период завершён';
 				const earlyBadge = data.isEarlyBird ? '<span class="sub-badge early-bird">Друг Умной тарелки</span>' : '';
 				let untilStr = '';
 				if (data.activeUntil) {
 					untilStr = new Date(data.activeUntil).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 				}
 				// Editorial sub-card: status pill + plan text + serif headline + until date + actions col
-				const headlineHtml = data.daysLeft !== undefined
+				const headlineHtml = data.trialNotGranted
+					? '<h3 class="sub-headline">Доступ по&nbsp;подписке</h3>'
+					: data.daysLeft !== undefined && badge !== 'expired'
 					? '<h3 class="sub-headline">Осталось&nbsp;<b>' + data.daysLeft + '&nbsp;' + pluralDays(data.daysLeft) + '</b></h3>'
 					: '<h3 class="sub-headline">' + escHtml(label) + '</h3>';
-				const untilHtml = untilStr
+				const untilHtml = data.trialNotGranted
+					? '<div class="sub-active-until">Бесплатный пробный период уже использовался на этом устройстве или в вашей сети. Оформите подписку, чтобы открыть полный доступ.</div>'
+					: untilStr
 					? '<div class="sub-active-until">Доступ к рецептам и&nbsp;сайдбару БЖУ — до&nbsp;<b>' + escHtml(untilStr) + '</b></div>'
 					: '';
 				const planText = badge === 'active' ? 'Тариф «Месяц»' : (badge === 'trial' ? 'Пробный период' : '');

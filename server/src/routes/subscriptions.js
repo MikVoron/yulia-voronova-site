@@ -17,7 +17,11 @@ async function subscriptionRoutes(fastify) {
   // GET /subscription — статус подписки текущего пользователя
   fastify.get('/subscription', { preHandler: authenticate }, async (req) => {
     const result = await db.query(
-      `SELECT u.role, s.status, s.trial_ends_at, s.active_until, s.created_at
+      `SELECT u.role, s.status, s.trial_ends_at, s.active_until, s.created_at,
+              (s.status = 'expired'
+                AND s.trial_ends_at IS NOT NULL
+                AND s.created_at IS NOT NULL
+                AND s.trial_ends_at <= s.created_at + interval '1 minute') AS trial_not_granted
          FROM users u
          LEFT JOIN subscriptions s ON s.user_id = u.id
         WHERE u.id=$1`,
@@ -42,7 +46,14 @@ async function subscriptionRoutes(fastify) {
     } else if (sub.status === 'active' && sub.active_until) {
       daysLeft = Math.max(0, Math.ceil((new Date(sub.active_until) - now) / 86400000));
     }
-    return { status: sub.status, trialEndsAt: sub.trial_ends_at, activeUntil: sub.active_until, daysLeft, createdAt: sub.created_at };
+    return {
+      status: sub.status,
+      trialEndsAt: sub.trial_ends_at,
+      activeUntil: sub.active_until,
+      daysLeft,
+      createdAt: sub.created_at,
+      trialNotGranted: sub.trial_not_granted === true
+    };
   });
 
   // POST /subscription/payment — пользователь сообщает об оплате
