@@ -144,7 +144,14 @@ async function authRoutes(fastify) {
     try {
       const payload = verifyAccessToken(auth.slice(7));
       const result = await db.query(
-        'SELECT u.*, s.status as sub_status, s.trial_ends_at, s.active_until FROM users u LEFT JOIN subscriptions s ON s.user_id=u.id WHERE u.id=$1',
+        `SELECT u.*, s.status as sub_status, s.trial_ends_at, s.active_until,
+                (s.status = 'expired'
+                  AND s.trial_ends_at IS NOT NULL
+                  AND s.created_at IS NOT NULL
+                  AND s.trial_ends_at <= s.created_at + interval '1 minute') AS trial_not_granted
+           FROM users u
+           LEFT JOIN subscriptions s ON s.user_id=u.id
+          WHERE u.id=$1`,
         [payload.sub]
       );
       if (!result.rows.length) return reply.status(401).send({ error: 'Пользователь не найден' });
@@ -162,7 +169,12 @@ async function authRoutes(fastify) {
       }
       return {
         id: u.id, email: u.email, displayName: u.display_name, avatar: u.avatar || null, role: u.role, createdAt: u.created_at,
-        subscription: { status, trialEndsAt: u.trial_ends_at, activeUntil: u.active_until }
+        subscription: {
+          status,
+          trialEndsAt: u.trial_ends_at,
+          activeUntil: u.active_until,
+          trialNotGranted: u.trial_not_granted === true
+        }
       };
     } catch (e) {
       return reply.status(401).send({ error: 'Токен невалиден' });

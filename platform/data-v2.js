@@ -211,7 +211,7 @@ const Auth = {
             const now = new Date();
             if (sub.status === 'trial' && new Date(sub.trialEndsAt) > now) { this.startAutoRefresh(); return true; }
             if (sub.status === 'active' && new Date(sub.activeUntil) > now) { this.startAutoRefresh(); return true; }
-            this._showPaywall(sub.status); return false;
+            this._showPaywall(sub.trialNotGranted ? 'trial_not_granted' : sub.status); return false;
         } catch {
             // Fail-close: на сетевой ошибке не давать доступ. localStorage-роль
             // не источник истины — реальный admin переавторизуется и пройдёт.
@@ -291,6 +291,7 @@ const Auth = {
         overlay.className = 'paywall-overlay';
         const isNetworkError = reason === 'error';
         const isExpired = reason === 'expired' || reason === 'cancelled';
+        const isTrialNotGranted = reason === 'trial_not_granted';
         // Тонкие stroke-SVG в стиле modal/balance-модалок (вместо emoji).
         const LOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
         const NET_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><line x1="12" y1="20" x2="12.01" y2="20"/><line x1="2" y1="2" x2="22" y2="22"/></svg>';
@@ -302,8 +303,10 @@ const Auth = {
             actionHtml = '<button class="paywall-btn" onclick="location.reload()">Повторить</button>';
         } else {
             icon = LOCK_SVG;
-            title = isExpired ? 'Подписка истекла' : 'Нужна подписка';
-            text = isExpired
+            title = isTrialNotGranted ? 'Пробный период не активирован' : (isExpired ? 'Подписка завершена' : 'Нужна подписка');
+            text = isTrialNotGranted
+                ? 'Бесплатный пробный период уже использовался на этом устройстве или в вашей сети. Оформите подписку, чтобы продолжить пользоваться рецептами и конструктором тарелки.'
+                : isExpired
                 ? 'Продлите подписку, чтобы продолжить пользоваться рецептами и конструктором тарелки.'
                 : 'Оформите подписку, чтобы получить доступ к рецептам и конструктору тарелки.';
             var ret = this._currentReturnUrl();
