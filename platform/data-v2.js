@@ -314,7 +314,7 @@ const Auth = {
             actionHtml = '<a class="paywall-btn" href="' + subHref + '">Оформить подписку</a>'
                 + '<a class="paywall-link" href="cabinet.html">Личный кабинет</a>';
         }
-        var policyLink = '<a href="https://voronova.online/personal-data-processing-policy.html" target="_blank" rel="noopener">Политика обработки персональных данных</a>';
+        var policyLink = '<a href="personal-data-processing-policy.html" target="_blank" rel="noopener">Политика обработки персональных данных</a>';
         var offerLink = '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener">Оферта</a>';
         var legalLinks = LEGAL_OFFER_ENABLED ? (offerLink + ' · ' + policyLink) : policyLink;
         var legalHtml = isNetworkError ? '' :
