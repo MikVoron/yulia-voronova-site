@@ -463,18 +463,7 @@
         var hero = document.getElementById('cat-hero');
         var crumbs = document.getElementById('cat-crumbs');
         if (ING_UNKNOWN) {
-            if (!INGREDIENT_CATALOG_READY && ING_ID) {
-                document.title = 'Загружаем ингредиент — Умная тарелка';
-                if (hero) hero.innerHTML =
-                    '<div class="cat-hero-row">' +
-                    '<div class="cat-hero-ava">…</div>' +
-                    '<div><div class="cat-hero-name">Загружаем ингредиент…</div>' +
-                    '<div class="cat-hero-desc">Проверяем общий справочник ингредиентов.</div></div></div>';
-                if (crumbs) crumbs.innerHTML =
-                    '<a href="index.html">Главная</a><span class="crumb-sep">›</span>' +
-                    '<span class="crumb-current">Ингредиент</span>';
-                return;
-            }
+            if (!INGREDIENT_CATALOG_READY && ING_ID) return;
             document.title = 'Ингредиент не найден — Умная тарелка';
             if (hero) hero.innerHTML =
                 '<div class="cat-hero-row">' +
@@ -517,14 +506,14 @@
             renderUnknownIngredientList();
             return;
         }
-        Auth.checkAccess({ allowGuest: true }).then(function() {
-            if (Auth.isLoggedIn()) {
-                Favorites.load().then(function() { if (typeof renderDishes === 'function') renderDishes(); });
+        if (Auth.isLoggedIn()) {
+            Auth.checkAccess({ allowGuest: true }).catch(function() {}).finally(function() {
+                Favorites.load().catch(function() {}).finally(function() { if (typeof renderDishes === 'function') renderDishes(); });
                 Plate.load();
-            } else if (typeof renderDishes === 'function') {
-                renderDishes();
-            }
-        });
+            });
+        } else if (typeof renderDishes === 'function') {
+            renderDishes();
+        }
     });
     updatePlateIcon();
 
