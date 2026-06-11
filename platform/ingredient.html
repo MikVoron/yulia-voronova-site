@@ -466,7 +466,7 @@
         }
     }
 
-    (function renderIngredientHero() {
+    function renderIngredientHero() {
         ING = (window.SP_INGREDIENTS && SP_INGREDIENTS.getIngredient(ING_ID)) || null;
         ING_UNKNOWN = !ING;
         var hero = document.getElementById('cat-hero');
@@ -495,7 +495,8 @@
         if (crumbs) crumbs.innerHTML =
             '<a href="index.html">Главная</a><span class="crumb-sep">›</span>' +
             '<span class="crumb-current">' + escHtml(String(ING.name)) + '</span>';
-    })();
+    }
+    renderIngredientHero();
 
     // Ранний рендер навигации (Ингредиенты подсвечены) — не зависит от API.
     renderHeaderNav();
