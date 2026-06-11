@@ -457,6 +457,15 @@
         if (cl) cl.textContent = '';
     }
 
+    function renderIngredientError(message) {
+        var dishList = document.getElementById('dish-list');
+        if (dishList) {
+            dishList.removeAttribute('aria-busy');
+            dishList.innerHTML =
+                '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">' + escHtml(message || 'Не удалось показать рецепты.') + '</div>';
+        }
+    }
+
     (function renderIngredientHero() {
         ING = (window.SP_INGREDIENTS && SP_INGREDIENTS.getIngredient(ING_ID)) || null;
         ING_UNKNOWN = !ING;
@@ -555,29 +564,36 @@
                     autoAddons: c.auto_addons || {}
                 };
             });
+        }).catch(function(e) {
+            console.error('Ingredient page content load failed', e);
         });
     }
 
     loadIngredientPageContent().then(function() {
-        renderHeaderNav();   // повторно — теперь с категориями в дропдауне «Рецепты»
+        try { renderHeaderNav(); } catch (e) { console.error('Ingredient nav render failed', e); }
         INGREDIENT_CATALOG_READY = true;
-        renderIngredientHero(); // повторно — теперь с динамическим справочником ингредиентов
+        try { renderIngredientHero(); } catch (e) { console.error('Ingredient hero render failed', e); }
         // Неизвестный ингредиент: страница не падает, показываем сообщение (ТЗ §12.6).
         if (ING_UNKNOWN) {
             renderUnknownIngredientList();
             return;
         }
-        if (typeof renderDishes === 'function') renderDishes();
+        try {
+            if (typeof renderDishes === 'function') renderDishes();
+        } catch (e) {
+            console.error('Ingredient dishes render failed', e);
+            renderIngredientError('Не удалось показать рецепты. Обновите страницу.');
+            return;
+        }
         if (Auth.isLoggedIn()) {
             Auth.checkAccess({ allowGuest: true }).catch(function() {}).finally(function() {
-                Favorites.load().catch(function() {}).finally(function() { if (typeof renderDishes === 'function') renderDishes(); });
-                Plate.load();
+                var favLoad = Favorites && typeof Favorites.load === 'function' ? Favorites.load() : Promise.resolve();
+                Promise.resolve(favLoad).catch(function() {}).finally(function() {
+                    try { if (typeof renderDishes === 'function') renderDishes(); } catch (e) { console.error('Ingredient rerender failed', e); }
+                });
+                try { Plate.load(); } catch (e) {}
             });
         }
-    }).catch(function() {
-        const dishList = document.getElementById('dish-list');
-        dishList.removeAttribute('aria-busy');
-        showApiError(dishList);
     });
     updatePlateIcon();
 
