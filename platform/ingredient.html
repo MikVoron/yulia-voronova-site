@@ -491,13 +491,74 @@
     // Ранний рендер навигации (Ингредиенты подсвечены) — не зависит от API.
     renderHeaderNav();
 
-    loadContent().then(function() {
-        if (isContentError()) {
-            const dishList = document.getElementById('dish-list');
-            dishList.removeAttribute('aria-busy');
-            showApiError(dishList);
-            return;
-        }
+    function fixIngredientPagePhoto(p) {
+        if (!p || typeof p !== 'string') return p || null;
+        if (/^https?:\/\//i.test(p)) return p;
+        if (p.startsWith('/images/')) return SITE_BASE + p;
+        if (p.startsWith('images/')) return SITE_BASE + '/' + p;
+        return p;
+    }
+
+    function mapIngredientPageRecipe(r) {
+        var accessLevel = r.access_level || (r.is_free ? 'free' : 'pro');
+        return {
+            id: r.id,
+            cat: r.cat,
+            categories: r.categories || (r.cat ? [r.cat] : []),
+            name: r.name,
+            emoji: r.emoji || '🍴',
+            time: r.time_min || 30,
+            timeLabel: r.time_label || null,
+            diff: r.difficulty || 'easy',
+            accessLevel: accessLevel,
+            free: accessLevel === 'free',
+            kcal: r.kcal || 0,
+            photo: fixIngredientPagePhoto(r.photo),
+            imgPosition: r.img_position || null,
+            mainIngredients: r.main_ingredients || [],
+            sortOrder: r.sort_order || 0
+        };
+    }
+
+    function fetchJsonOrFallback(url, fallback, opts) {
+        return fetch(url, opts || {}).then(function(res) {
+            return res.ok ? res.json() : fallback;
+        }).catch(function() { return fallback; });
+    }
+
+    function loadIngredientPageContent() {
+        var headers = {};
+        var token = Auth.getToken && Auth.getToken();
+        if (token) headers.Authorization = 'Bearer ' + token;
+        return Promise.all([
+            fetchJsonOrFallback(API_BASE + '/content/recipes', [], { headers: headers }),
+            fetchJsonOrFallback(API_BASE + '/content/ingredients', [], { headers: headers }),
+            fetchJsonOrFallback(API_BASE + '/content/categories', [], { headers: headers })
+        ]).then(function(result) {
+            var recipes = result[0] || [];
+            var ingredients = result[1] || [];
+            var cats = result[2] || [];
+            if (window.SP_INGREDIENTS && typeof SP_INGREDIENTS.addIngredients === 'function') {
+                SP_INGREDIENTS.addIngredients(ingredients);
+            }
+            recipes.forEach(function(r) {
+                try { RECIPES[r.id] = mapIngredientPageRecipe(r); } catch (e) {}
+            });
+            cats.forEach(function(c) {
+                CATEGORIES[c.id] = {
+                    id: c.id,
+                    name: c.name,
+                    emoji: c.emoji,
+                    color: c.color,
+                    desc: c.description || '',
+                    dishes: c.dishes || [],
+                    autoAddons: c.auto_addons || {}
+                };
+            });
+        });
+    }
+
+    loadIngredientPageContent().then(function() {
         renderHeaderNav();   // повторно — теперь с категориями в дропдауне «Рецепты»
         INGREDIENT_CATALOG_READY = true;
         renderIngredientHero(); // повторно — теперь с динамическим справочником ингредиентов
@@ -506,14 +567,17 @@
             renderUnknownIngredientList();
             return;
         }
+        if (typeof renderDishes === 'function') renderDishes();
         if (Auth.isLoggedIn()) {
             Auth.checkAccess({ allowGuest: true }).catch(function() {}).finally(function() {
                 Favorites.load().catch(function() {}).finally(function() { if (typeof renderDishes === 'function') renderDishes(); });
                 Plate.load();
             });
-        } else if (typeof renderDishes === 'function') {
-            renderDishes();
         }
+    }).catch(function() {
+        const dishList = document.getElementById('dish-list');
+        dishList.removeAttribute('aria-busy');
+        showApiError(dishList);
     });
     updatePlateIcon();
 
