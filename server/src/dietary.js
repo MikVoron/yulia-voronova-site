@@ -37,7 +37,6 @@ function expandedExcludedFlags(preferences) {
   const flags = new Set(preferences.excluded_flags);
   if (flags.has('vegetarian')) {
     flags.add('meat');
-    flags.add('fish');
   }
   if (flags.has('vegan')) {
     flags.add('animal_products');

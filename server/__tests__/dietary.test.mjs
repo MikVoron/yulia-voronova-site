@@ -87,12 +87,32 @@ describe('dietary compatibility', () => {
     })).toEqual({ excluded_flags: ['milk'], allow_swaps: false });
   });
 
-  it('expands vegetarian preference to meat and fish conflicts', () => {
-    const recipe = verifiedRecipe({ dietary_flags: ['fish'] });
-    expect(isRecipeCompatible(recipe, {
+  it('treats vegetarian as no meat while allowing fish, milk, and eggs', () => {
+    expect(isRecipeCompatible(verifiedRecipe({ dietary_flags: ['meat'] }), {
       excluded_flags: ['vegetarian'],
       allow_swaps: false,
     })).toBe(false);
+    expect(isRecipeCompatible(verifiedRecipe({ dietary_flags: ['fish'] }), {
+      excluded_flags: ['vegetarian'],
+      allow_swaps: false,
+    })).toBe(true);
+    expect(isRecipeCompatible(verifiedRecipe({ dietary_flags: ['milk'] }), {
+      excluded_flags: ['vegetarian'],
+      allow_swaps: false,
+    })).toBe(true);
+    expect(isRecipeCompatible(verifiedRecipe({ dietary_flags: ['eggs'] }), {
+      excluded_flags: ['vegetarian'],
+      allow_swaps: false,
+    })).toBe(true);
+  });
+
+  it('treats vegan as no animal products including fish, milk, and eggs', () => {
+    ['meat', 'fish', 'milk', 'eggs', 'animal_products'].forEach(flag => {
+      expect(isRecipeCompatible(verifiedRecipe({ dietary_flags: [flag] }), {
+        excluded_flags: ['vegan'],
+        allow_swaps: false,
+      })).toBe(false);
+    });
   });
 
   it('rejects unknown flags in verified swap metadata', () => {
