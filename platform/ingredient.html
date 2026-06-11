@@ -444,6 +444,7 @@
     var ING_ID = (new URLSearchParams(location.search).get('id') || '').trim();
     var ING = (window.SP_INGREDIENTS && SP_INGREDIENTS.getIngredient(ING_ID)) || null;
     var ING_UNKNOWN = !ING;   // неизвестный/пустой id → состояние ошибки (ТЗ §12.6)
+    var INGREDIENT_CATALOG_READY = false;
 
     function renderUnknownIngredientList() {
         var dishList = document.getElementById('dish-list');
@@ -462,6 +463,18 @@
         var hero = document.getElementById('cat-hero');
         var crumbs = document.getElementById('cat-crumbs');
         if (ING_UNKNOWN) {
+            if (!INGREDIENT_CATALOG_READY && ING_ID) {
+                document.title = 'Загружаем ингредиент — Умная тарелка';
+                if (hero) hero.innerHTML =
+                    '<div class="cat-hero-row">' +
+                    '<div class="cat-hero-ava">…</div>' +
+                    '<div><div class="cat-hero-name">Загружаем ингредиент…</div>' +
+                    '<div class="cat-hero-desc">Проверяем общий справочник ингредиентов.</div></div></div>';
+                if (crumbs) crumbs.innerHTML =
+                    '<a href="index.html">Главная</a><span class="crumb-sep">›</span>' +
+                    '<span class="crumb-current">Ингредиент</span>';
+                return;
+            }
             document.title = 'Ингредиент не найден — Умная тарелка';
             if (hero) hero.innerHTML =
                 '<div class="cat-hero-row">' +
@@ -497,6 +510,7 @@
             return;
         }
         renderHeaderNav();   // повторно — теперь с категориями в дропдауне «Рецепты»
+        INGREDIENT_CATALOG_READY = true;
         renderIngredientHero(); // повторно — теперь с динамическим справочником ингредиентов
         // Неизвестный ингредиент: страница не падает, показываем сообщение (ТЗ §12.6).
         if (ING_UNKNOWN) {
