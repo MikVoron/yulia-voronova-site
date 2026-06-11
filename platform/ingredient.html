@@ -430,8 +430,8 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=2026060402"></script>
-<script src="ingredients.js?v=2"></script>
+<script src="data-v2.js?v=20260611-ingredient-catalog"></script>
+<script src="ingredients.js?v=20260611-ingredient-catalog"></script>
 <script src="header-nav.js?v=2026-05-29-feedback-avatar-nav"></script>
 <script>
     // ── SYNC FALLBACK HERO + CRUMBS ─────────────────────────────────────────
@@ -446,6 +446,8 @@
     var ING_UNKNOWN = !ING;   // неизвестный/пустой id → состояние ошибки (ТЗ §12.6)
 
     (function renderIngredientHero() {
+        ING = (window.SP_INGREDIENTS && SP_INGREDIENTS.getIngredient(ING_ID)) || null;
+        ING_UNKNOWN = !ING;
         var hero = document.getElementById('cat-hero');
         var crumbs = document.getElementById('cat-crumbs');
         if (ING_UNKNOWN) {
@@ -483,6 +485,7 @@
             return;
         }
         renderHeaderNav();   // повторно — теперь с категориями в дропдауне «Рецепты»
+        renderIngredientHero(); // повторно — теперь с динамическим справочником ингредиентов
         // Неизвестный ингредиент: страница не падает, показываем сообщение (ТЗ §12.6).
         if (ING_UNKNOWN) {
             const dishList = document.getElementById('dish-list');

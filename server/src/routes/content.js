@@ -55,11 +55,50 @@ function normalizeTimeLabel(v) {
   return trimmed;
 }
 
+const INGREDIENT_ID_RE = /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/;
+
+function normalizeIngredientCatalogItem(body) {
+  const id = String(body?.id || '').trim().toLowerCase();
+  const name = String(body?.name || '').trim();
+  const groupId = String(body?.group_id || body?.group || '').trim().toLowerCase();
+  const sortOrder = Number.isFinite(Number(body?.sort_order)) ? Math.trunc(Number(body.sort_order)) : 1000;
+  if (!INGREDIENT_ID_RE.test(id)) {
+    const err = new Error('id ингредиента: латиница/цифры/дефис, 3–50 символов');
+    err.statusCode = 400;
+    err.field = 'id';
+    throw err;
+  }
+  if (!name || name.length > 80) {
+    const err = new Error('Название ингредиента обязательно, максимум 80 символов');
+    err.statusCode = 400;
+    err.field = 'name';
+    throw err;
+  }
+  if (!INGREDIENT_ID_RE.test(groupId)) {
+    const err = new Error('Группа ингредиента обязательна');
+    err.statusCode = 400;
+    err.field = 'group_id';
+    throw err;
+  }
+  return { id, name, groupId, sortOrder };
+}
+
 async function contentRoutes(fastify) {
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PUBLIC — news + recipes (no auth required)
   // ═══════════════════════════════════════════════════════════════════════════
+
+  // GET /content/ingredients — dynamic catalog entries added from admin.
+  // Static defaults still come from platform/ingredients.js.
+  fastify.get('/content/ingredients', async () => {
+    const result = await db.query(
+      `SELECT id, name, group_id AS "group", sort_order
+         FROM ingredient_catalog
+        ORDER BY group_id, sort_order, name`
+    );
+    return result.rows;
+  });
 
   // GET /content/news — published news, newest first
   fastify.get('/content/news', async (req) => {
@@ -554,6 +593,24 @@ async function contentRoutes(fastify) {
       [req.params.id]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Рецепт не найден' });
+    return result.rows[0];
+  });
+
+  // POST /admin/ingredients — add/update dynamic ingredient catalog entry.
+  fastify.post('/admin/ingredients', { preHandler: [authenticate, requireAdmin] }, async (req) => {
+    const item = normalizeIngredientCatalogItem(req.body || {});
+    const result = await db.query(
+      `INSERT INTO ingredient_catalog (id, name, group_id, sort_order)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (id) DO UPDATE SET
+         name = EXCLUDED.name,
+         group_id = EXCLUDED.group_id,
+         sort_order = EXCLUDED.sort_order,
+         updated_at = now()
+       RETURNING id, name, group_id AS "group", sort_order`,
+      [item.id, item.name, item.groupId, item.sortOrder]
+    );
+    audit.log('ingredient_catalog_upsert', { userId: req.user.sub, detail: 'ingredient:' + item.id, ip: req.ip });
     return result.rows[0];
   });
 

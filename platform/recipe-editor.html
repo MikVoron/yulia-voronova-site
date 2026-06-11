@@ -201,6 +201,24 @@
             font-size: 13px; color: var(--text); padding: 4px 0; cursor: pointer;
         }
         .re-mi-item input { width: 16px; height: 16px; cursor: pointer; }
+        .re-mi-add {
+            display: grid;
+            grid-template-columns: minmax(130px, 1fr) minmax(160px, 1.4fr) minmax(120px, 1fr) auto;
+            gap: 8px;
+            align-items: end;
+            margin-bottom: 16px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+        }
+        .re-mi-add .re-label { display: block; margin-bottom: 5px; }
+        .re-mi-add-status {
+            grid-column: 1 / -1;
+            min-height: 16px;
+            font-size: 11px;
+            color: var(--text-3);
+        }
 
         .re-checkbox-row {
             display: flex;
@@ -1514,6 +1532,22 @@
                 Эти ингредиенты используются только для выборок по ингредиентам (страницы Морковь, Свёкла и т.д.).
                 Они не меняют состав рецепта и не влияют на КБЖУ.
             </div>
+            <div class="re-mi-add">
+                <div>
+                    <label class="re-label" for="re-mi-group">Группа</label>
+                    <select class="re-input" id="re-mi-group"></select>
+                </div>
+                <div>
+                    <label class="re-label" for="re-mi-name">Новый ингредиент</label>
+                    <input class="re-input" id="re-mi-name" placeholder="Напр. Треска">
+                </div>
+                <div>
+                    <label class="re-label" for="re-mi-id">id</label>
+                    <input class="re-input" id="re-mi-id" placeholder="cod">
+                </div>
+                <button type="button" class="re-btn" onclick="addMainIngredientToCatalog()">Добавить</button>
+                <div class="re-mi-add-status" id="re-mi-add-status">Добавление создаёт ингредиент в общем справочнике и сразу отмечает его в рецепте.</div>
+            </div>
             <div id="re-main-ingredients" class="re-mi"></div>
         </div>
 
@@ -1618,8 +1652,8 @@
 <!-- Toast -->
 <div class="re-toast" id="re-toast"></div>
 
-<script src="data-v2.js?v=2026060402"></script>
-<script src="ingredients.js?v=2"></script>
+<script src="data-v2.js?v=20260611-ingredient-catalog"></script>
+<script src="ingredients.js?v=20260611-ingredient-catalog"></script>
 <script>
 (function() {
     // ── Auth check ──
@@ -1734,9 +1768,16 @@
         });
     }
 
-    fetch(API_BASE + '/content/categories').then(function(r) { return r.json(); }).then(function(cats) {
-        allCategoriesEditor = cats || [];
+    Promise.all([
+        fetch(API_BASE + '/content/categories').then(function(r) { return r.json(); }),
+        fetch(API_BASE + '/content/ingredients').then(function(r) { return r.json(); }).catch(function() { return []; })
+    ]).then(function(result) {
+        allCategoriesEditor = result[0] || [];
+        if (window.SP_INGREDIENTS && typeof SP_INGREDIENTS.addIngredients === 'function') {
+            SP_INGREDIENTS.addIngredients(result[1] || []);
+        }
         populateCategoryUI();
+        populateMainIngredientGroupSelect();
     }).catch(function() {}).finally(function() {
         if (editId) {
             loadRecipe(editId);
@@ -1796,6 +1837,16 @@
             }
         }
     });
+
+    (function wireMainIngredientSlug() {
+        var nameEl = document.getElementById('re-mi-name');
+        var idEl = document.getElementById('re-mi-id');
+        if (!nameEl || !idEl) return;
+        nameEl.addEventListener('input', function() {
+            if (idEl.value.trim()) return;
+            idEl.value = slugify(nameEl.value).substring(0, 50);
+        });
+    })();
 
     // ══════════════════════════════════════════════════════════════════════
     // STATUS BADGE
@@ -2487,6 +2538,63 @@
         };
     }
 
+    function populateMainIngredientGroupSelect() {
+        var select = document.getElementById('re-mi-group');
+        if (!select || !window.SP_INGREDIENTS) return;
+        var groups = SP_INGREDIENTS.groups || [];
+        select.innerHTML = groups.map(function(group) {
+            return '<option value="' + escAttr(group.id) + '">' + esc(group.name) + '</option>';
+        }).join('');
+        if (!select.value && groups[0]) select.value = groups[0].id;
+    }
+
+    function currentMainIngredientSelection(extraId) {
+        var selected = collectMainIngredients();
+        if (extraId && selected.indexOf(extraId) === -1) selected.push(extraId);
+        return selected;
+    }
+
+    function setMainIngredientAddStatus(text, isError) {
+        var status = document.getElementById('re-mi-add-status');
+        if (!status) return;
+        status.textContent = text || '';
+        status.style.color = isError ? 'var(--red)' : 'var(--text-3)';
+    }
+
+    window.addMainIngredientToCatalog = function() {
+        var groupEl = document.getElementById('re-mi-group');
+        var nameEl = document.getElementById('re-mi-name');
+        var idEl = document.getElementById('re-mi-id');
+        var group = groupEl ? groupEl.value.trim() : '';
+        var name = nameEl ? nameEl.value.trim() : '';
+        var id = idEl ? idEl.value.trim().toLowerCase() : '';
+        if (!name) { setMainIngredientAddStatus('Введите название ингредиента.', true); return; }
+        if (!id) id = slugify(name).substring(0, 50);
+        if (!/^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/.test(id)) {
+            setMainIngredientAddStatus('id: латиница/цифры/дефис, 3–50 символов. Например: cod.', true);
+            return;
+        }
+        if (!group) { setMainIngredientAddStatus('Выберите группу.', true); return; }
+        if (idEl) idEl.value = id;
+
+        api('/admin/ingredients', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, name: name, group_id: group })
+        }).then(function(saved) {
+            if (!saved || saved.error) throw new Error(saved && saved.error ? saved.error : 'Не удалось добавить ингредиент.');
+            if (window.SP_INGREDIENTS && typeof SP_INGREDIENTS.addIngredient === 'function') {
+                SP_INGREDIENTS.addIngredient(saved);
+            }
+            renderMainIngredients(currentMainIngredientSelection(id));
+            if (nameEl) nameEl.value = '';
+            if (idEl) idEl.value = '';
+            setMainIngredientAddStatus('Добавлено в справочник и отмечено в рецепте: ' + saved.name + '.', false);
+        }).catch(function(err) {
+            setMainIngredientAddStatus((err && err.message) || 'Не удалось добавить ингредиент.', true);
+        });
+    };
+
     // Собирает отмеченные чекбоксы «Основные ингредиенты для выборок».
     function collectMainIngredients() {
         var boxes = document.querySelectorAll('#re-main-ingredients input[type="checkbox"]:checked');
@@ -2507,9 +2615,9 @@
         host.innerHTML = groups.map(function (g) {
             var items = g.items.map(function (it) {
                 var checked = sel[it.id] ? ' checked' : '';
-                return '<label class="re-mi-item"><input type="checkbox" value="' + it.id + '"' + checked + '> ' + it.name + '</label>';
+                return '<label class="re-mi-item"><input type="checkbox" value="' + escAttr(it.id) + '"' + checked + '> ' + esc(it.name) + '</label>';
             }).join('');
-            return '<div class="re-mi-group"><div class="re-mi-group-title">' + g.name + '</div>' + items + '</div>';
+            return '<div class="re-mi-group"><div class="re-mi-group-title">' + esc(g.name) + '</div>' + items + '</div>';
         }).join('');
     }
 

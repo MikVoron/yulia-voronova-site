@@ -889,14 +889,19 @@ async function loadContent() {
         const headers = {};
         const token = Auth.getToken();
         if (token) headers['Authorization'] = 'Bearer ' + token;
-        const [recipesRes, catsRes] = await Promise.all([
+        const [recipesRes, catsRes, ingredientsRes] = await Promise.all([
             fetch(API_BASE + '/content/recipes', { headers }),
-            fetch(API_BASE + '/content/categories', { headers })
+            fetch(API_BASE + '/content/categories', { headers }),
+            fetch(API_BASE + '/content/ingredients', { headers })
         ]);
-        if (!recipesRes.ok || !catsRes.ok) {
+        if (!recipesRes.ok || !catsRes.ok || !ingredientsRes.ok) {
             _contentError = true;
-            console.error('API returned non-OK status', recipesRes.status, catsRes.status);
+            console.error('API returned non-OK status', recipesRes.status, catsRes.status, ingredientsRes.status);
             return;
+        }
+        const ingredients = await ingredientsRes.json();
+        if (window.SP_INGREDIENTS && typeof SP_INGREDIENTS.addIngredients === 'function') {
+            SP_INGREDIENTS.addIngredients(ingredients);
         }
         const data = await recipesRes.json();
         data.forEach(r => {

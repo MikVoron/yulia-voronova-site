@@ -71,8 +71,42 @@
 
   var ITEM_BY_ID  = {};
   var GROUP_BY_ID = {};
-  ITEMS.forEach(function (it) { ITEM_BY_ID[it.id] = it; });
   GROUPS.forEach(function (g) { GROUP_BY_ID[g.id] = g; });
+  ITEMS.forEach(function (it) { ITEM_BY_ID[it.id] = it; });
+
+  function normalizeItem(item) {
+    if (!item || typeof item !== 'object') return null;
+    var id = String(item.id || '').trim().toLowerCase();
+    var name = String(item.name || '').trim();
+    var group = String(item.group || item.group_id || '').trim().toLowerCase();
+    if (!id || !name || !group) return null;
+    return {
+      id: id,
+      name: name,
+      group: group,
+      sort_order: Number.isFinite(Number(item.sort_order)) ? Number(item.sort_order) : 1000
+    };
+  }
+
+  function addIngredient(item) {
+    var normalized = normalizeItem(item);
+    if (!normalized) return null;
+    var existing = ITEM_BY_ID[normalized.id];
+    if (existing) {
+      existing.name = normalized.name;
+      existing.group = normalized.group;
+      existing.sort_order = normalized.sort_order;
+      return existing;
+    }
+    ITEMS.push(normalized);
+    ITEM_BY_ID[normalized.id] = normalized;
+    return normalized;
+  }
+
+  function addIngredients(items) {
+    if (!Array.isArray(items)) return [];
+    return items.map(addIngredient).filter(Boolean);
+  }
 
   // Один ингредиент по id, либо null.
   function getIngredient(id) {
@@ -101,6 +135,14 @@
       if (buckets[it.group]) buckets[it.group].push(it);
       else extras.push(it);
     });
+    Object.keys(buckets).forEach(function (groupId) {
+      buckets[groupId].sort(function (a, b) {
+        return (a.sort_order || 0) - (b.sort_order || 0) || a.name.localeCompare(b.name, 'ru');
+      });
+    });
+    extras.sort(function (a, b) {
+      return (a.sort_order || 0) - (b.sort_order || 0) || a.name.localeCompare(b.name, 'ru');
+    });
     var out = GROUPS
       .map(function (g) { return { id: g.id, name: g.name, items: buckets[g.id] }; })
       .filter(function (g) { return g.items.length > 0; });
@@ -114,6 +156,8 @@
     getIngredient: getIngredient,
     getGroup: getGroup,
     hasIngredient: hasIngredient,
+    addIngredient: addIngredient,
+    addIngredients: addIngredients,
     byGroup: byGroup
   };
 })(typeof window !== 'undefined' ? window : this);
