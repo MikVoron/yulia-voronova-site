@@ -866,6 +866,8 @@ function _mapRecipe(r) {
         // Кураторские основные ингредиенты для навигационных выборок (ingredient.html).
         // НЕ состав рецепта. Источник — recipes.main_ingredients (TEXT[]).
         mainIngredients: r.main_ingredients || [],
+        dietaryFlags: r.dietary_flags || [],
+        dietaryVerified: r.dietary_verified === true,
         sortOrder: r.sort_order || 0,
         added: r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : null,
         addedTs: r.created_at ? new Date(r.created_at).getTime() : 0,
@@ -889,7 +891,7 @@ async function loadContent() {
         if (token) headers['Authorization'] = 'Bearer ' + token;
         const [recipesRes, catsRes] = await Promise.all([
             fetch(API_BASE + '/content/recipes', { headers }),
-            fetch(API_BASE + '/content/categories')
+            fetch(API_BASE + '/content/categories', { headers })
         ]);
         if (!recipesRes.ok || !catsRes.ok) {
             _contentError = true;

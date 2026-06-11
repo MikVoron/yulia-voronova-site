@@ -6,6 +6,7 @@ const require = createRequire(import.meta.url);
 // ── Per-test state read by mockQuery ───────────────────────────────────────
 let userState = { is_blocked: false, role: 'user' };
 let subState = null; // null = no subscription row; or { status, trial_ends_at, active_until }
+let dietaryPreferences = null;
 
 const FREE_RECIPE = {
   id: 'free-1', cat: 'breakfasts', name: 'Free recipe',
@@ -43,6 +44,9 @@ const mockQuery = vi.fn(async (sql /*, params */) => {
   }
   if (/FROM subscriptions WHERE user_id/.test(sql)) {
     return { rows: subState ? [subState] : [] };
+  }
+  if (/SELECT dietary_preferences FROM users WHERE id/.test(sql)) {
+    return { rows: dietaryPreferences ? [{ dietary_preferences: dietaryPreferences }] : [] };
   }
   if (/FROM recipes r WHERE r\.is_published = true/.test(sql)) {
     return { rows: RECIPES.map(r => ({ ...r })) };
@@ -90,7 +94,55 @@ afterAll(async () => { if (app) await app.close(); });
 beforeEach(() => {
   userState = { is_blocked: false, role: 'user' };
   subState = null;
+  dietaryPreferences = null;
   mockQuery.mockClear();
+});
+
+describe('GET /content/recipes dietary filtering', () => {
+  it('keeps unverified recipes visible when a user selects an exclusion', async () => {
+    dietaryPreferences = { excluded_flags: ['milk'], allow_swaps: true };
+    const recipe = {
+      ...FREE_RECIPE,
+      id: 'diet-unverified',
+      dietary_verified: false,
+      dietary_flags: ['milk'],
+    };
+    RECIPES.push(recipe);
+    try {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/content/recipes',
+        headers: { authorization: 'Bearer ' + makeToken() },
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.json().some(r => r.id === recipe.id)).toBe(true);
+    } finally {
+      RECIPES.pop();
+    }
+  });
+
+  it('hides a verified conflicting recipe without a compatible replacement', async () => {
+    dietaryPreferences = { excluded_flags: ['milk'], allow_swaps: true };
+    const recipe = {
+      ...FREE_RECIPE,
+      id: 'diet-blocked',
+      dietary_verified: true,
+      dietary_flags: ['milk'],
+      ingredients: [{ name: 'Cream', dietary_flags: ['milk'] }],
+    };
+    RECIPES.push(recipe);
+    try {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/content/recipes',
+        headers: { authorization: 'Bearer ' + makeToken() },
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.json().some(r => r.id === recipe.id)).toBe(false);
+    } finally {
+      RECIPES.pop();
+    }
+  });
 });
 
 const jwt = require('jsonwebtoken');

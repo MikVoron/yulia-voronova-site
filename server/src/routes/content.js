@@ -2,6 +2,12 @@ const db = require('../db');
 const { authenticate, requireAdmin, optionalAuthenticate, getUserTier, userCanSeeRecipe } = require('../middleware');
 const email = require('../email');
 const audit = require('../audit');
+const {
+  normalizeDietaryFlags,
+  validateVerifiedRecipeDietary,
+  isRecipeCompatible,
+  getUserDietaryPreferences,
+} = require('../dietary');
 
 const ACCESS_LEVELS = ['free', 'trial', 'pro'];
 
@@ -57,12 +63,28 @@ async function contentRoutes(fastify) {
 
   // GET /content/news — published news, newest first
   fastify.get('/content/news', async (req) => {
+    await optionalAuthenticate(req);
+    const dietaryPreferences = await getUserDietaryPreferences(db, req.user?.sub);
     const limit = Math.min(parseInt(req.query.limit) || 10, 50);
     const result = await db.query(
-      'SELECT id, type, text, recipe_id, badge, label, created_at FROM news WHERE is_published = true ORDER BY created_at DESC LIMIT $1',
+      `SELECT n.id, n.type, n.text, n.recipe_id, n.badge, n.label, n.created_at,
+              r.ingredients AS recipe_ingredients,
+              r.dietary_flags AS recipe_dietary_flags,
+              r.dietary_verified AS recipe_dietary_verified
+         FROM news n
+         LEFT JOIN recipes r ON r.id = n.recipe_id
+        WHERE n.is_published = true
+        ORDER BY n.created_at DESC
+        LIMIT $1`,
       [limit]
     );
-    return result.rows;
+    return result.rows
+      .filter(row => row.type !== 'recipe' || isRecipeCompatible({
+        ingredients: row.recipe_ingredients,
+        dietary_flags: row.recipe_dietary_flags,
+        dietary_verified: row.recipe_dietary_verified,
+      }, dietaryPreferences))
+      .map(({ recipe_ingredients, recipe_dietary_flags, recipe_dietary_verified, ...row }) => row);
   });
 
   // GET /content/recipes — all published recipes
@@ -80,7 +102,7 @@ async function contentRoutes(fastify) {
               r.kcal, r.protein, r.fat, r.carbs, r.fiber, r.tags, r.photo, r.img_position, r.quote,
               r.ingredients, r.steps, r.note, r.vk_video, r.yt_video, r.dzen_video,
               r.add_protein, r.add_fat, r.add_carbs, r.add_fiber, r.auto_addons, r.is_soup,
-              r.main_ingredients,
+              r.main_ingredients, r.dietary_flags, r.dietary_verified,
               r.portion_grams, r.sort_order, r.created_at,
               COALESCE(
                 (SELECT array_agg(rc.category_id ORDER BY (rc.category_id = r.cat) DESC, rc.category_id)
@@ -89,7 +111,8 @@ async function contentRoutes(fastify) {
               ) AS categories
        FROM recipes r WHERE r.is_published = true ORDER BY r.sort_order, r.created_at`
     );
-    return result.rows.map(r => {
+    const dietaryPreferences = await getUserDietaryPreferences(db, req.user?.sub);
+    return result.rows.filter(r => isRecipeCompatible(r, dietaryPreferences)).map(r => {
       // Fallback: если access_level пуст (старые данные до миграции) — выводим из is_free
       const level = r.access_level || (r.is_free ? 'free' : 'pro');
       if (userCanSeeRecipe(tier, level)) return r;
@@ -107,18 +130,23 @@ async function contentRoutes(fastify) {
   // GET /content/seasonal — id текущего сезонного рецепта (или null, если не назначен или не опубликован).
   // Сам рецепт уже отдаётся через /content/recipes; здесь возвращаем только указатель,
   // чтобы фронт не парсил весь список.
-  fastify.get('/content/seasonal', async () => {
+  fastify.get('/content/seasonal', async (req) => {
+    await optionalAuthenticate(req);
+    const dietaryPreferences = await getUserDietaryPreferences(db, req.user?.sub);
     const result = await db.query(
-      'SELECT id FROM recipes WHERE is_seasonal = TRUE AND is_published = TRUE LIMIT 1'
+      'SELECT id, ingredients, dietary_flags, dietary_verified FROM recipes WHERE is_seasonal = TRUE AND is_published = TRUE LIMIT 1'
     );
-    return { id: result.rows[0] ? result.rows[0].id : null };
+    const recipe = result.rows[0];
+    return { id: recipe && isRecipeCompatible(recipe, dietaryPreferences) ? recipe.id : null };
   });
 
   // GET /content/categories — all categories (includes auto_addons rules)
-  fastify.get('/content/categories', async () => {
+  fastify.get('/content/categories', async (req) => {
+    await optionalAuthenticate(req);
+    const dietaryPreferences = await getUserDietaryPreferences(db, req.user?.sub);
     const cats = await db.query('SELECT id, name, emoji, color, description, sort_order, auto_addons FROM categories ORDER BY sort_order');
     const recipes = await db.query(
-      `SELECT rc.category_id, r.id
+      `SELECT rc.category_id, r.id, r.ingredients, r.dietary_flags, r.dietary_verified
        FROM recipe_categories rc
        JOIN recipes r ON r.id = rc.recipe_id
        WHERE r.is_published = true
@@ -128,7 +156,7 @@ async function contentRoutes(fastify) {
     for (const c of cats.rows) {
       catMap[c.id] = { ...c, dishes: [] };
     }
-    for (const r of recipes.rows) {
+    for (const r of recipes.rows.filter(r => isRecipeCompatible(r, dietaryPreferences))) {
       if (catMap[r.category_id]) catMap[r.category_id].dishes.push(r.id);
     }
     return Object.values(catMap);
@@ -373,6 +401,8 @@ async function contentRoutes(fastify) {
     let access_level, is_free;
     try { ({ access_level, is_free } = normalizeAccessLevel(r)); }
     catch (e) { return reply.status(e.statusCode || 400).send({ error: e.message, field: e.field || 'access_level' }); }
+    const dietaryError = validateVerifiedRecipeDietary(r);
+    if (dietaryError) return reply.status(400).send({ error: dietaryError, field: 'dietary_flags' });
     // Check id uniqueness
     const exists = await db.query('SELECT id FROM recipes WHERE id=$1', [r.id]);
     if (exists.rows.length) return reply.status(409).send({ error: 'Рецепт с таким id уже существует' });
@@ -381,8 +411,8 @@ async function contentRoutes(fastify) {
       `INSERT INTO recipes (id, cat, name, emoji, time_min, time_label, difficulty, servings, is_free, access_level,
           kcal, protein, fat, carbs, fiber, tags, photo, img_position, quote,
           ingredients, steps, note, vk_video, yt_video, dzen_video, add_protein, add_fat, add_carbs, add_fiber,
-          portion_grams, sort_order, is_published, auto_addons, is_soup, main_ingredients)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35)
+          portion_grams, sort_order, is_published, auto_addons, is_soup, main_ingredients, dietary_flags, dietary_verified)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37)
        RETURNING *`,
       [
         r.id, primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, timeLabel, r.difficulty || 'easy',
@@ -397,7 +427,9 @@ async function contentRoutes(fastify) {
         JSON.stringify(r.auto_addons || {}), r.is_soup === true,
         // main_ingredients (TEXT[]): кураторская навигационная привязка, не состав.
         // POST: пришёл массив → сохраняем; иначе пустой массив.
-        Array.isArray(r.main_ingredients) ? r.main_ingredients : []
+        Array.isArray(r.main_ingredients) ? r.main_ingredients : [],
+        normalizeDietaryFlags(r.dietary_flags),
+        r.dietary_verified === true
       ]
     );
     // Write to recipe_categories
@@ -424,6 +456,8 @@ async function contentRoutes(fastify) {
     let access_level, is_free;
     try { ({ access_level, is_free } = normalizeAccessLevel(r)); }
     catch (e) { return reply.status(e.statusCode || 400).send({ error: e.message, field: e.field || 'access_level' }); }
+    const dietaryError = validateVerifiedRecipeDietary(r);
+    if (dietaryError) return reply.status(400).send({ error: dietaryError, field: 'dietary_flags' });
     const result = await db.query(
       `UPDATE recipes SET cat=$1, name=$2, emoji=$3, time_min=$4, time_label=$5, difficulty=$6, servings=$7,
           is_free=$8, access_level=$9,
@@ -431,8 +465,10 @@ async function contentRoutes(fastify) {
           photo=$16, img_position=$17, quote=$18, ingredients=$19, steps=$20, note=$21,
           vk_video=$22, yt_video=$23, dzen_video=$24, add_protein=$25, add_fat=$26, add_carbs=$27, add_fiber=$28,
           portion_grams=$29, sort_order=$30, is_published=$31, auto_addons=$32, is_soup=$33,
-          main_ingredients=COALESCE($34::text[], main_ingredients), updated_at=now()
-       WHERE id=$35 RETURNING *`,
+          main_ingredients=COALESCE($34::text[], main_ingredients),
+          dietary_flags=COALESCE($35::text[], dietary_flags),
+          dietary_verified=COALESCE($36::boolean, dietary_verified), updated_at=now()
+       WHERE id=$37 RETURNING *`,
       [
         primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, timeLabel, r.difficulty || 'easy',
         r.servings || 4, is_free, access_level,
@@ -450,6 +486,8 @@ async function contentRoutes(fastify) {
         ('main_ingredients' in r)
           ? (Array.isArray(r.main_ingredients) ? r.main_ingredients : [])
           : null,
+        ('dietary_flags' in r) ? normalizeDietaryFlags(r.dietary_flags) : null,
+        ('dietary_verified' in r) ? r.dietary_verified === true : null,
         req.params.id
       ]
     );

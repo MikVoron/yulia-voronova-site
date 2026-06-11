@@ -2,6 +2,7 @@ const db = require('../db');
 const { authenticate } = require('../middleware');
 const { sendPaymentNotification, sendFeedback } = require('../email');
 const audit = require('../audit');
+const { normalizeDietaryPreferences } = require('../dietary');
 
 async function subscriptionRoutes(fastify) {
 
@@ -106,6 +107,22 @@ async function subscriptionRoutes(fastify) {
     const { subscribed } = req.body || {};
     await db.query('UPDATE users SET newsletter_subscribed=$1 WHERE id=$2', [!!subscribed, req.user.sub]);
     return { subscribed: !!subscribed };
+  });
+
+  // GET /subscription/dietary-preferences — recipe visibility preferences
+  fastify.get('/subscription/dietary-preferences', { preHandler: authenticate }, async (req) => {
+    const result = await db.query('SELECT dietary_preferences FROM users WHERE id=$1', [req.user.sub]);
+    return normalizeDietaryPreferences(result.rows[0]?.dietary_preferences);
+  });
+
+  // PUT /subscription/dietary-preferences — replace recipe visibility preferences
+  fastify.put('/subscription/dietary-preferences', { preHandler: authenticate }, async (req) => {
+    const preferences = normalizeDietaryPreferences(req.body);
+    await db.query('UPDATE users SET dietary_preferences=$1::jsonb WHERE id=$2', [
+      JSON.stringify(preferences),
+      req.user.sub,
+    ]);
+    return preferences;
   });
 
   // ===== Обращения (feedback) — треды/диалоги =====

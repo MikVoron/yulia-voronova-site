@@ -641,7 +641,7 @@
     };
 
     window.openRecipeEditor = function(id) {
-        location.href = 'recipe-editor.html?v=20260603-sticky-topbar' + (id ? '&id=' + encodeURIComponent(id) : '');
+        location.href = 'recipe-editor.html?v=20260611-dietary-checkboxes' + (id ? '&id=' + encodeURIComponent(id) : '');
     };
 
     window.deleteRecipe = function(id) {

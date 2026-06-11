@@ -224,6 +224,38 @@
             accent-color: var(--accent);
         }
 
+        .re-dietary-panel {
+            margin-top: 8px;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+        }
+        .re-dietary-checkgrid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px 18px;
+        }
+        .re-dietary-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .re-dietary-check input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+        }
+        .re-dietary-verify {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+        .re-dietary-code-field { display: none; }
+
         /* ── Buttons ── */
         .re-btn {
             padding: 10px 20px;
@@ -1336,6 +1368,29 @@
                 </div>
             </div>
 
+            <div class="re-row re-row-1">
+                <div class="re-field">
+                    <label class="re-label">Диетические признаки рецепта</label>
+                    <input type="text" class="re-input re-dietary-code-field" id="re-dietary-flags" tabindex="-1" aria-hidden="true">
+                    <div class="re-dietary-panel">
+                        <div class="re-dietary-checkgrid" id="re-dietary-checks">
+                            <label class="re-dietary-check"><input type="checkbox" data-recipe-dietary-flag="meat"> Содержит мясо</label>
+                            <label class="re-dietary-check"><input type="checkbox" data-recipe-dietary-flag="fish"> Содержит рыбу</label>
+                            <label class="re-dietary-check"><input type="checkbox" data-recipe-dietary-flag="milk"> Содержит молоко</label>
+                            <label class="re-dietary-check"><input type="checkbox" data-recipe-dietary-flag="eggs"> Содержит яйца</label>
+                            <label class="re-dietary-check"><input type="checkbox" data-recipe-dietary-flag="gluten"> Содержит глютен</label>
+                            <label class="re-dietary-check"><input type="checkbox" data-recipe-dietary-flag="peanuts"> Содержит арахис</label>
+                            <label class="re-dietary-check"><input type="checkbox" data-recipe-dietary-flag="nuts"> Содержит орехи</label>
+                            <label class="re-dietary-check"><input type="checkbox" data-recipe-dietary-flag="animal_products"> Другие продукты животного происхождения</label>
+                        </div>
+                        <div class="re-hint" style="margin-top:10px">Отмечайте только то, что точно есть в рецепте. Фильтрация начнет скрывать рецепт только после включения проверки ниже.</div>
+                        <label class="re-checkbox-label re-dietary-verify">
+                            <input type="checkbox" id="re-dietary-verified"> Разметка проверена и может участвовать в фильтрации
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
                 <label class="re-label" style="margin-bottom:10px;display:block">Видеорецепт</label>
                 <div style="display:flex;flex-direction:column;gap:8px">
@@ -1885,6 +1940,8 @@
         document.getElementById('re-quote').value = r.quote || '';
         document.getElementById('re-note').value = r.note || '';
         document.getElementById('re-tags').value = (r.tags || []).join(', ');
+        setRecipeDietaryFlags(r.dietary_flags || []);
+        document.getElementById('re-dietary-verified').checked = r.dietary_verified === true;
         document.getElementById('re-yt-video').value = r.yt_video || '';
         document.getElementById('re-vk-video').value = r.vk_video || '';
         document.getElementById('re-dzen-video').value = r.dzen_video || '';
@@ -1900,7 +1957,7 @@
         var ingr = r.ingredients || [];
         ingr.forEach(function(item) {
             if (typeof item === 'string') item = { name: item, swap: null };
-            addIngredient(item.name || '', item.swap || '', item.omit_delta || null, item.omit_hint || '');
+            addIngredient(item.name || '', item.swap || '', item.omit_delta || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || []);
         });
 
         // Steps
@@ -1985,11 +2042,17 @@
         }
     }
 
-    window.addIngredient = function(name, swap, omitDelta, omitHint) {
+    window.addIngredient = function(name, swap, omitDelta, omitHint, dietaryFlags, swapOptions) {
         name = name || '';
         swap = swap || '';
         omitDelta = normalizeOmitDeltaForEditor(omitDelta);
         omitHint = (typeof omitHint === 'string' ? omitHint : '').trim();
+        dietaryFlags = Array.isArray(dietaryFlags) ? dietaryFlags.join(', ') : '';
+        swapOptions = Array.isArray(swapOptions) ? swapOptions.map(function(option) {
+            if (!option || !option.name) return '';
+            var flags = Array.isArray(option.dietary_flags) ? option.dietary_flags.join(',') : '';
+            return option.name + (flags ? '|' + flags : '');
+        }).filter(Boolean).join('; ') : '';
         var list = document.getElementById('re-ingredients-list');
         var item = document.createElement('div');
         item.className = 're-list-item';
@@ -2003,6 +2066,14 @@
                 '<div class="re-item-row">' +
                     '<span class="re-item-label-inline">Замена</span>' +
                     '<input class="re-item-input" data-field="swap" placeholder="Чем заменить (необязательно)" value="' + escAttr(swap) + '">' +
+                '</div>' +
+                '<div class="re-item-row">' +
+                    '<span class="re-item-label-inline">Диета</span>' +
+                    '<input class="re-item-input" data-field="dietary_flags" placeholder="Признаки ингредиента: milk, gluten" value="' + escAttr(dietaryFlags) + '">' +
+                '</div>' +
+                '<div class="re-item-row">' +
+                    '<span class="re-item-label-inline">Замены для фильтра</span>' +
+                    '<input class="re-item-input" data-field="swap_options" placeholder="Соус из кешью|nuts; Соус из фасоли" value="' + escAttr(swapOptions) + '">' +
                 '</div>' +
                 '<div class="re-ingredient-omit-box" data-role="omit-box">' +
                     '<label class="re-ingredient-omit-toggle">' +
@@ -2254,6 +2325,50 @@
         return (m ? m[2] : text).trim() || null;
     }
 
+    var DIETARY_FLAG_CODES = ['meat', 'fish', 'milk', 'eggs', 'gluten', 'peanuts', 'nuts', 'animal_products'];
+
+    function parseDietaryFlags(raw) {
+        var out = [];
+        String(raw || '').split(',').forEach(function(value) {
+            var flag = value.trim();
+            if (DIETARY_FLAG_CODES.indexOf(flag) !== -1 && out.indexOf(flag) === -1) out.push(flag);
+        });
+        return out;
+    }
+
+    function setRecipeDietaryFlags(flags) {
+        var normalized = Array.isArray(flags) ? flags : parseDietaryFlags(flags);
+        var field = document.getElementById('re-dietary-flags');
+        if (field) field.value = normalized.join(', ');
+        document.querySelectorAll('[data-recipe-dietary-flag]').forEach(function(input) {
+            input.checked = normalized.indexOf(input.getAttribute('data-recipe-dietary-flag')) !== -1;
+        });
+    }
+
+    function getRecipeDietaryFlags() {
+        var out = [];
+        document.querySelectorAll('[data-recipe-dietary-flag]:checked').forEach(function(input) {
+            var flag = input.getAttribute('data-recipe-dietary-flag');
+            if (DIETARY_FLAG_CODES.indexOf(flag) !== -1 && out.indexOf(flag) === -1) out.push(flag);
+        });
+        var field = document.getElementById('re-dietary-flags');
+        if (field) field.value = out.join(', ');
+        return out;
+    }
+
+    function parseDietarySwapOptions(raw) {
+        var out = [];
+        String(raw || '').split(';').forEach(function(value) {
+            var part = value.trim();
+            if (!part) return;
+            var bits = part.split('|');
+            var name = bits.shift().trim();
+            if (!name) return;
+            out.push({ name: name, dietary_flags: parseDietaryFlags(bits.join(',')) });
+        });
+        return out;
+    }
+
     function collectFormData() {
         // Ingredients
         var ingredients = [];
@@ -2263,6 +2378,12 @@
             if (!name) continue;
             var swap = ingrItems[i].querySelector('[data-field="swap"]').value.trim();
             var ingredient = { name: name, swap: swap || null };
+            var dietaryFlagsInput = ingrItems[i].querySelector('[data-field="dietary_flags"]');
+            var ingredientDietaryFlags = parseDietaryFlags(dietaryFlagsInput ? dietaryFlagsInput.value : '');
+            if (ingredientDietaryFlags.length) ingredient.dietary_flags = ingredientDietaryFlags;
+            var swapOptionsInput = ingrItems[i].querySelector('[data-field="swap_options"]');
+            var dietarySwapOptions = parseDietarySwapOptions(swapOptionsInput ? swapOptionsInput.value : '');
+            if (dietarySwapOptions.length) ingredient.swap_options = dietarySwapOptions;
             var isOptional = swap && isOptionalSwapText(swap);
             var omitToggle = ingrItems[i].querySelector('[data-role="omit-toggle"]');
             if (isOptional && omitToggle && omitToggle.checked) {
@@ -2342,6 +2463,8 @@
             quote: document.getElementById('re-quote').value.trim() || null,
             note: document.getElementById('re-note').value.trim() || null,
             tags: tags,
+            dietary_flags: getRecipeDietaryFlags(),
+            dietary_verified: document.getElementById('re-dietary-verified').checked,
             yt_video: normalizeVideoInput(document.getElementById('re-yt-video').value),
             vk_video: normalizeVideoInput(document.getElementById('re-vk-video').value),
             dzen_video: normalizeVideoInput(document.getElementById('re-dzen-video').value),
@@ -2640,6 +2763,8 @@
             document.getElementById('re-quote').value = r.quote || '';
             document.getElementById('re-note').value = r.note || '';
             document.getElementById('re-tags').value = (r.tags || []).join(', ');
+            setRecipeDietaryFlags(r.dietary_flags || []);
+            document.getElementById('re-dietary-verified').checked = r.dietary_verified === true;
             document.getElementById('re-yt-video').value = r.yt_video || '';
             document.getElementById('re-vk-video').value = r.vk_video || '';
             document.getElementById('re-dzen-video').value = r.dzen_video || '';
@@ -2653,7 +2778,7 @@
             // Ingredients
             (r.ingredients || []).forEach(function(item) {
                 if (typeof item === 'string') item = { name: item };
-                addIngredient(item.name || '', item.swap || '', item.omit_delta || null, item.omit_hint || '');
+                addIngredient(item.name || '', item.swap || '', item.omit_delta || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || []);
             });
 
             // Steps

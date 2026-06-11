@@ -281,6 +281,76 @@
 			}
 		}
 		// ── Newsletter toggle ─────────────────────────────
+		let _dietarySaveTimer = null;
+		let _dietaryLoading = false;
+
+		function dietaryCheckboxFlags(input) {
+			const raw = input.getAttribute('data-dietary-flags') || input.getAttribute('data-dietary-flag') || '';
+			return raw.split(',').map(function(flag) { return flag.trim(); }).filter(Boolean);
+		}
+
+		function collectDietaryPreferences() {
+			const selected = [];
+			document.querySelectorAll('#dietary-options input[type="checkbox"]:checked').forEach(function(input) {
+				dietaryCheckboxFlags(input).forEach(function(flag) {
+					if (selected.indexOf(flag) === -1) selected.push(flag);
+				});
+			});
+			const allowSwaps = document.getElementById('dietary-allow-swaps');
+			return {
+				excluded_flags: selected,
+				allow_swaps: allowSwaps ? allowSwaps.checked : true
+			};
+		}
+
+		function applyDietaryPreferences(preferences) {
+			const selected = Array.isArray(preferences.excluded_flags) ? preferences.excluded_flags : [];
+			document.querySelectorAll('#dietary-options input[type="checkbox"]').forEach(function(input) {
+				const flags = dietaryCheckboxFlags(input);
+				input.checked = flags.length > 0 && flags.every(function(flag) { return selected.indexOf(flag) !== -1; });
+			});
+			const allowSwaps = document.getElementById('dietary-allow-swaps');
+			if (allowSwaps) allowSwaps.checked = preferences.allow_swaps !== false;
+		}
+
+		(async function loadDietaryPreferences() {
+			_dietaryLoading = true;
+			try {
+				const res = await Auth.api('/subscription/dietary-preferences');
+				if (!res.ok) return;
+				applyDietaryPreferences(await res.json());
+			} catch(e) {
+				const status = document.getElementById('dietary-status');
+				if (status) status.textContent = 'Не удалось загрузить настройки.';
+			} finally {
+				_dietaryLoading = false;
+			}
+		})();
+
+		function scheduleDietarySave() {
+			if (_dietaryLoading) return;
+			const status = document.getElementById('dietary-status');
+			if (status) status.textContent = 'Сохраняем настройки…';
+			clearTimeout(_dietarySaveTimer);
+			_dietarySaveTimer = setTimeout(saveDietaryPreferences, 450);
+		}
+
+		async function saveDietaryPreferences() {
+			const status = document.getElementById('dietary-status');
+			try {
+				const res = await Auth.api('/subscription/dietary-preferences', {
+					method: 'PUT',
+					body: JSON.stringify(collectDietaryPreferences())
+				});
+				if (!res.ok) throw new Error('save failed');
+				if (status) status.textContent = 'Сохранено. Обновляем рецепты…';
+				setTimeout(function() { location.reload(); }, 650);
+			} catch(e) {
+				if (status) status.textContent = 'Не удалось сохранить настройки.';
+				showToast('Ошибка сети');
+			}
+		}
+
 		(async function loadNewsletterState() {
 			try {
 				const res = await Auth.api('/subscription/newsletter');
@@ -794,9 +864,15 @@
 				if (!payments.length) { el.innerHTML = ''; _injectHistorySupportNote(el); return; }
 				var payCount = payments.length;
 				var payMeta = payCount + ' ' + (payCount === 1 ? 'операция' : payCount < 5 ? 'операции' : 'операций');
-				el.innerHTML = '<div class="cab-sec-title-row" style="margin-top:36px">'
+				var existingHistory = el.querySelector('.pay-history-disclosure');
+				var historyOpen = existingHistory ? existingHistory.open : payCount === 1;
+				el.innerHTML = '<details class="pay-history-disclosure"' + (historyOpen ? ' open' : '') + '>'
+					+ '<summary class="pay-history-summary">'
 					+ '<h2 class="cab-sec-title">История платежей</h2>'
-					+ '<span class="cab-sec-title-meta">' + payMeta + '</span></div>'
+					+ '<span class="pay-history-summary-meta"><span class="cab-sec-title-meta">' + payMeta + '</span>'
+					+ '<span class="pay-history-action"><span class="pay-history-action-show">Показать операции</span>'
+					+ '<span class="pay-history-action-hide">Скрыть операции</span>'
+					+ '<span class="pay-history-chevron" aria-hidden="true">⌄</span></span></span></summary>'
 					+ '<div class="pay-list">'
 					+ payments.map(function (p) {
 						var dateStr = new Date(p.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -814,7 +890,7 @@
 							+ '<span class="pay-status-pill ' + statusClass + '">' + escHtml(PAY_STATUS_LABELS[p.status] || p.status) + '</span>'
 							+ '</div>';
 					}).join('')
-					+ '</div>';
+					+ '</div></details>';
 				_injectHistorySupportNote(el);
 			} catch (e) { /* ignore */ }
 		}

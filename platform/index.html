@@ -372,6 +372,114 @@
 		.sp-hero .hero-search-submit:hover { background: var(--accent); }
 		.sp-hero .hero-search-results { border-radius: 0; }
 
+		.sp-first-run {
+			display: none;
+			margin: -4px 0 34px;
+			border-top: 2px solid var(--text);
+			border-bottom: 1px solid var(--border);
+			background: #fff;
+		}
+		.sp-first-run-inner {
+			display: grid;
+			grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr) auto;
+			gap: 26px;
+			align-items: center;
+			padding: 22px 0;
+		}
+		.sp-first-run-kicker {
+			margin: 0 0 7px;
+			font-size: 10px;
+			font-weight: 800;
+			letter-spacing: .16em;
+			text-transform: uppercase;
+			color: var(--accent);
+		}
+		.sp-first-run-title {
+			margin: 0;
+			font-family: var(--serif);
+			font-size: 28px;
+			line-height: 1.12;
+			color: var(--text);
+		}
+		.sp-first-run-steps {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 10px;
+		}
+		.sp-first-run-step {
+			display: grid;
+			grid-template-columns: 28px minmax(0, 1fr);
+			gap: 10px;
+			align-items: start;
+			padding: 12px;
+			background: #faf8f5;
+			min-height: 88px;
+		}
+		.sp-first-run-num {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 28px;
+			height: 28px;
+			border: 1px solid var(--text);
+			font-size: 12px;
+			font-weight: 800;
+			color: var(--text);
+		}
+		.sp-first-run-step strong {
+			display: block;
+			margin-bottom: 3px;
+			font-size: 13px;
+			line-height: 1.25;
+			color: var(--text);
+		}
+		.sp-first-run-step > span:not(.sp-first-run-num) {
+			display: block;
+			font-size: 12px;
+			line-height: 1.35;
+			color: var(--text-2);
+		}
+		.sp-first-run-actions {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			align-items: stretch;
+		}
+		.sp-first-run-btn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 44px;
+			padding: 0 18px;
+			background: var(--text);
+			color: #fff;
+			text-decoration: none;
+			border: 1px solid var(--text);
+			font-size: 11px;
+			font-weight: 800;
+			letter-spacing: .12em;
+			text-transform: uppercase;
+			white-space: nowrap;
+			transition: background .18s ease, border-color .18s ease;
+		}
+		.sp-first-run-btn:hover { background: var(--accent); border-color: var(--accent); }
+		.sp-first-run-skip {
+			border: 0;
+			background: transparent;
+			color: var(--text-3);
+			font-size: 12px;
+			text-decoration: underline;
+			cursor: pointer;
+		}
+		@media (max-width: 1023px) {
+			.sp-first-run { margin: 0 0 26px; }
+			.sp-first-run-inner { grid-template-columns: 1fr; gap: 18px; padding: 18px 0; }
+			.sp-first-run-title { font-size: 25px; }
+			.sp-first-run-steps { grid-template-columns: 1fr; }
+			.sp-first-run-step { min-height: 0; }
+			.sp-first-run-actions { align-items: stretch; }
+		}
+
 		/* ── Категории — editorial overrides only on homepage ───── */
 		/* Full-bleed cream-полоса под всю секцию (заголовок + фильтры + сетка).
 		   box-shadow + clip-path растягивают фон до краёв viewport
@@ -1501,6 +1609,33 @@
 				</a>
 			</section>
 
+			<section class="sp-first-run" id="first-run-guide" aria-labelledby="first-run-title">
+				<div class="sp-first-run-inner">
+					<div>
+						<p class="sp-first-run-kicker">Первый шаг</p>
+						<h2 class="sp-first-run-title" id="first-run-title">С чего начать на платформе</h2>
+					</div>
+					<div class="sp-first-run-steps">
+						<div class="sp-first-run-step">
+							<span class="sp-first-run-num">1</span>
+							<span><strong>Выберите рецепт</strong><span>Начните с простого блюда из каталога.</span></span>
+						</div>
+						<div class="sp-first-run-step">
+							<span class="sp-first-run-num">2</span>
+							<span><strong>Добавьте блюдо в тарелку</strong><span>Платформа посчитает КБЖУ и порцию.</span></span>
+						</div>
+						<div class="sp-first-run-step">
+							<span class="sp-first-run-num">3</span>
+							<span><strong>Сохраните день в журнал</strong><span>Так появится история питания.</span></span>
+						</div>
+					</div>
+					<div class="sp-first-run-actions">
+						<a class="sp-first-run-btn" href="#cats-head" onclick="startFirstRunGuide(event)">Начать с рецептов</a>
+						<button class="sp-first-run-skip" type="button" onclick="dismissFirstRunGuide()">Скрыть подсказку</button>
+					</div>
+				</div>
+			</section>
+
 			<!-- Тарелка: компактный summary над "Новое". Полный список и действия — в модалке openPlate(). -->
 			<div id="plate-inline-section" class="sp-plate-summary" style="display:none">
 				<div class="sp-plate-summary-info">
@@ -1716,7 +1851,11 @@
 				renderRecommended();
 				renderCtaStrip();
 				loadNewsFeed();
-				if (Auth.isLoggedIn()) Plate.load();
+				if (Auth.isLoggedIn()) {
+					Plate.load().finally(renderFirstRunGuide);
+				} else {
+					renderFirstRunGuide();
+				}
 			});
 		});
 		const user = Auth.getUser();
@@ -1911,7 +2050,10 @@
 
 		async function loadNewsFeed() {
 			try {
-				const res = await fetch(API_BASE + '/content/news?limit=20');
+				const headers = {};
+				const token = Auth.getToken();
+				if (token) headers['Authorization'] = 'Bearer ' + token;
+				const res = await fetch(API_BASE + '/content/news?limit=20', { headers });
 				if (res.ok) {
 					const data = await res.json();
 					const all = data.map(function (n) {
@@ -2604,6 +2746,34 @@
 				btn.textContent = Auth.isGuest && Auth.isGuest() ? 'Попробовать бесплатно' : 'Оформить подписку';
 			}
 			block.style.display = '';
+		}
+
+		function firstRunGuideKey() {
+			try {
+				if (Auth && typeof Auth._userKey === 'function') return Auth._userKey('first_run_guide_done');
+			} catch (e) { /* ignore */ }
+			return 'smartplate.first_run_guide_done';
+		}
+		function renderFirstRunGuide() {
+			const block = document.getElementById('first-run-guide');
+			if (!block) return;
+			if (!Auth.isLoggedIn || !Auth.isLoggedIn()) { block.style.display = 'none'; return; }
+			try {
+				if (localStorage.getItem(firstRunGuideKey())) { block.style.display = 'none'; return; }
+			} catch (e) { /* private mode — можно показать */ }
+			const hasSavedPlate = !!(Plate && typeof Plate.getHistory === 'function' && Plate.getHistory().length);
+			block.style.display = hasSavedPlate ? 'none' : 'block';
+		}
+		function dismissFirstRunGuide() {
+			const block = document.getElementById('first-run-guide');
+			try { localStorage.setItem(firstRunGuideKey(), '1'); } catch (e) { /* private mode */ }
+			if (block) block.style.display = 'none';
+		}
+		function startFirstRunGuide(e) {
+			if (e) e.preventDefault();
+			dismissFirstRunGuide();
+			const target = document.getElementById('cats-head') || document.getElementById('new-block');
+			if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
 		}
 
 		// Hero photo + caption — берём из сезонного рецепта; fallback на последний опубликованный.
