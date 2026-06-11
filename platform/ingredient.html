@@ -445,6 +445,17 @@
     var ING = (window.SP_INGREDIENTS && SP_INGREDIENTS.getIngredient(ING_ID)) || null;
     var ING_UNKNOWN = !ING;   // неизвестный/пустой id → состояние ошибки (ТЗ §12.6)
 
+    function renderUnknownIngredientList() {
+        var dishList = document.getElementById('dish-list');
+        if (dishList) {
+            dishList.removeAttribute('aria-busy');
+            dishList.innerHTML =
+                '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">Ингредиент не найден. Проверьте ссылку или добавьте ингредиент в редакторе рецепта.</div>';
+        }
+        var cl = document.getElementById('count-label');
+        if (cl) cl.textContent = '';
+    }
+
     (function renderIngredientHero() {
         ING = (window.SP_INGREDIENTS && SP_INGREDIENTS.getIngredient(ING_ID)) || null;
         ING_UNKNOWN = !ING;
@@ -460,6 +471,7 @@
             if (crumbs) crumbs.innerHTML =
                 '<a href="index.html">Главная</a><span class="crumb-sep">›</span>' +
                 '<span class="crumb-current">Ингредиент</span>';
+            renderUnknownIngredientList();
             return;
         }
         document.title = ING.name + ' — Умная тарелка';
@@ -488,12 +500,7 @@
         renderIngredientHero(); // повторно — теперь с динамическим справочником ингредиентов
         // Неизвестный ингредиент: страница не падает, показываем сообщение (ТЗ §12.6).
         if (ING_UNKNOWN) {
-            const dishList = document.getElementById('dish-list');
-            dishList.removeAttribute('aria-busy');
-            dishList.innerHTML =
-                '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">Ингредиент не найден.</div>';
-            const cl = document.getElementById('count-label');
-            if (cl) cl.textContent = '';
+            renderUnknownIngredientList();
             return;
         }
         Auth.checkAccess({ allowGuest: true }).then(function() {
