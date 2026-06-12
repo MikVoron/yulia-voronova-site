@@ -2637,7 +2637,10 @@
                         </div>
                     </div>
                     <div class="ing-list">${ingHtml}</div>
-                    ${r.photo ? `<img class="step-photo-img" src="${escHtml(photoUrl(derivePhoto(r.photo, 'start')))}" alt="Ингредиенты" loading="lazy" onerror="this.style.display='none'" style="margin-top:16px;border-radius:12px;width:100%">` : ''}
+                    ${(() => {
+                        const startPhoto = r.photo ? derivePhoto(r.photo, 'start') : (r.id ? `images/recipes/${r.id}/${r.id}-start.webp` : '');
+                        return startPhoto ? `<img class="step-photo-img" src="${escHtml(photoUrl(startPhoto))}" alt="Ингредиенты" loading="lazy" onerror="this.style.display='none'" style="margin-top:16px;border-radius:12px;width:100%">` : '';
+                    })()}
 
                     <div class="steps-head">
                         <div class="v-section-title">Приготовление</div>
