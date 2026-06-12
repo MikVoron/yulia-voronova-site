@@ -108,7 +108,8 @@ async function authRoutes(fastify) {
       [tokenHash]
     );
     if (!result.rows.length) {
-      reply.clearCookie('refreshToken', { path: '/' });
+      // Do not clear the cookie here: another tab may have just rotated the
+      // same refresh token and set a newer cookie in the browser.
       return reply.status(401).send({ error: 'Сессия истекла' });
     }
     const session = result.rows[0];

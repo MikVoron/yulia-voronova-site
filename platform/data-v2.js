@@ -342,27 +342,45 @@ const Auth = {
         this._refreshInFlight = this._doRefresh().finally(() => { this._refreshInFlight = null; });
         return this._refreshInFlight;
     },
+    _sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    },
     async _doRefresh() {
         try {
             const res = await fetch(API_BASE + '/auth/refresh', { method: 'POST', credentials: 'include' });
-            if (!res.ok) return false;
-            const data = await res.json();
-            this._token = data.accessToken;
-            sessionStorage.setItem(this._ST, data.accessToken);
-            const user = this.getUser();
-            if (user && data.user) {
-                if (data.user.id) user.id = data.user.id;
-                user.name = data.user.displayName || user.name;
-                user.email = data.user.email;
-                if (data.user.role) user.role = data.user.role;
-                localStorage.setItem(this.KEY, JSON.stringify(user));
-                this._syncProfile(data.user);
-                const nameKey = this._userKey('hp_user_name');
-                if (data.user.displayName) localStorage.setItem(nameKey, data.user.displayName);
-                if (data.user.avatar && !this.getAvatar()) this.setAvatar(data.user.avatar);
+            if (!res.ok) {
+                // Cross-tab race: another tab may rotate the one-time refresh
+                // cookie while this request is in flight. Give the browser a
+                // moment to apply the newer cookie, then try once more.
+                if (res.status === 401) {
+                    await this._sleep(500);
+                    const retry = await fetch(API_BASE + '/auth/refresh', { method: 'POST', credentials: 'include' });
+                    if (!retry.ok) return false;
+                    return this._applyRefreshResponse(await retry.json());
+                }
+                return false;
             }
-            return true;
+            const data = await res.json();
+            return this._applyRefreshResponse(data);
         } catch { return false; }
+    },
+    _applyRefreshResponse(data) {
+        if (!data || !data.accessToken) return false;
+        this._token = data.accessToken;
+        sessionStorage.setItem(this._ST, data.accessToken);
+        const user = this.getUser();
+        if (user && data.user) {
+            if (data.user.id) user.id = data.user.id;
+            user.name = data.user.displayName || user.name;
+            user.email = data.user.email;
+            if (data.user.role) user.role = data.user.role;
+            localStorage.setItem(this.KEY, JSON.stringify(user));
+            this._syncProfile(data.user);
+            const nameKey = this._userKey('hp_user_name');
+            if (data.user.displayName) localStorage.setItem(nameKey, data.user.displayName);
+            if (data.user.avatar && !this.getAvatar()) this.setAvatar(data.user.avatar);
+        }
+        return true;
     },
     // Проактивный refresh — не даём токену протухнуть
     _refreshTimer: null,
