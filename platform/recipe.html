@@ -2342,7 +2342,10 @@
 			const ingHtml = (r.ingredients || []).map((ing, i) => {
 				const name = typeof ing === 'string' ? ing : ing.name;
 				const swap = typeof ing === 'object' ? ing.swap : null;
-				const optional = isOptionalSwap(swap);
+				const omit = typeof ing === 'object' && typeof ing.omit === 'string' ? ing.omit.trim() : '';
+				const optional = !!omit || isOptionalSwap(swap);
+				const swapText = isOptionalSwap(swap) ? null : swap;
+				const omitText = omit || swap;
 				if (optional) {
 					const rawHint = ing && typeof ing === 'object' && typeof ing.omit_hint === 'string' ? ing.omit_hint.trim() : '';
 					_optionalIngredientInfo[i] = {
@@ -2350,11 +2353,12 @@
 						omitHint: rawHint || null
 					};
 				}
-				const actionBtn = optional
-					? `<button class="ing-optout-btn" id="ing-optout-btn-${i}" onclick="optOutIngredient(${i})">${swap}</button>`
-					: (swap ? `<button class="ing-swap-btn" id="ing-swap-btn-${i}" onclick="toggleSwap(${i})">чем заменить?</button>` : '');
-				const swapTip = (swap && !optional)
-					? `<div class="ing-swap-tip" id="swap-${i}">${renderSwapOptions(swap, i, name, ing)}</div>`
+				const actionBtn = [
+					optional ? `<button class="ing-optout-btn" id="ing-optout-btn-${i}" onclick="optOutIngredient(${i})">${omitText}</button>` : '',
+					swapText ? `<button class="ing-swap-btn" id="ing-swap-btn-${i}" onclick="toggleSwap(${i})">чем заменить?</button>` : ''
+				].join('');
+				const swapTip = swapText
+					? `<div class="ing-swap-tip" id="swap-${i}">${renderSwapOptions(swapText, i, name, ing)}</div>`
 					: '';
 				const placeholder = optional
 					? `<div class="ing-item ing-item-excluded" id="ing-placeholder-${i}" style="display:none">

@@ -2009,7 +2009,7 @@
         var ingr = r.ingredients || [];
         ingr.forEach(function(item) {
             if (typeof item === 'string') item = { name: item, swap: null };
-            addIngredient(item.name || '', item.swap || '', item.omit_nutrition || nutritionDeltaToPositive(item.omit_delta) || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || [], item.swap_nutrition || null);
+            addIngredient(item.name || '', item.swap || '', item.omit_nutrition || nutritionDeltaToPositive(item.omit_delta) || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || [], item.swap_nutrition || null, item.omit || '');
         });
 
         // Steps
@@ -2162,6 +2162,7 @@
     function renderSwapReplacementNutritionRows(item, swapNutrition) {
         if (!item) return;
         var swapInput = item.querySelector('[data-field="swap"]');
+        var omitInput = item.querySelector('[data-field="omit"]');
         var singleLabel = item.querySelector('[data-role="swap-replacement-single-label"]');
         var singleGrid = item.querySelector('[data-role="swap-replacement-single-grid"]');
         var multiBox = item.querySelector('[data-role="swap-replacements-box"]');
@@ -2204,14 +2205,14 @@
         var swapNutritionBox = item.querySelector('[data-role="swap-nutrition-box"]');
         var swapNutritionToggle = item.querySelector('[data-role="swap-nutrition-toggle"]');
         if (!swapInput || !omitBox || !omitToggle) return;
-        var enabled = isOptionalSwapText(swapInput.value || '');
+        var enabled = !!(omitInput && omitInput.value.trim()) || isOptionalSwapText(swapInput.value || '');
         omitBox.classList.toggle('open', enabled);
         omitToggle.disabled = !enabled;
         if (!enabled) omitToggle.checked = false;
         if (hintBox) {
             hintBox.classList.toggle('open', enabled);
         }
-        var replacementEnabled = !!(swapInput.value || '').trim() && !enabled;
+        var replacementEnabled = !!(swapInput.value || '').trim() && !isOptionalSwapText(swapInput.value || '');
         if (swapNutritionBox) swapNutritionBox.classList.toggle('open', replacementEnabled);
         if (swapNutritionToggle) {
             swapNutritionToggle.disabled = !replacementEnabled;
@@ -2219,9 +2220,14 @@
         }
     }
 
-    window.addIngredient = function(name, swap, omitNutrition, omitHint, dietaryFlags, swapOptions, swapNutrition) {
+    window.addIngredient = function(name, swap, omitNutrition, omitHint, dietaryFlags, swapOptions, swapNutrition, omitText) {
         name = name || '';
         swap = swap || '';
+        omitText = omitText || '';
+        if (!omitText && isOptionalSwapText(swap)) {
+            omitText = swap;
+            swap = '';
+        }
         omitNutrition = nutritionDeltaToPositive(omitNutrition);
         swapNutrition = normalizeSwapNutritionForEditor(swapNutrition);
         omitHint = (typeof omitHint === 'string' ? omitHint : '').trim();
@@ -2244,6 +2250,10 @@
                 '<div class="re-item-row">' +
                     '<span class="re-item-label-inline">Замена</span>' +
                     '<input class="re-item-input" data-field="swap" placeholder="Чем заменить (необязательно)" value="' + escAttr(swap) + '">' +
+                '</div>' +
+                '<div class="re-item-row">' +
+                    '<span class="re-item-label-inline">Исключение</span>' +
+                    '<input class="re-item-input" data-field="omit" placeholder="Напр.: Можно без него" value="' + escAttr(omitText) + '">' +
                 '</div>' +
                 '<div class="re-item-row">' +
                     '<span class="re-item-label-inline">Диета</span>' +
@@ -2311,6 +2321,11 @@
                 refreshIngredientOptionalUi(item);
                 renderSwapReplacementNutritionRows(item, null);
             });
+        }
+        var omitInput = item.querySelector('[data-field="omit"]');
+        if (omitInput) {
+            omitInput.addEventListener('input', function() { refreshIngredientOptionalUi(item); });
+            omitInput.addEventListener('change', function() { refreshIngredientOptionalUi(item); });
         }
         initDrag(item, list);
         renderSwapReplacementNutritionRows(item, swapNutrition);
@@ -2608,16 +2623,23 @@
             var name = ingrItems[i].querySelector('[data-field="name"]').value.trim();
             if (!name) continue;
             var swap = ingrItems[i].querySelector('[data-field="swap"]').value.trim();
+            var omitInput = ingrItems[i].querySelector('[data-field="omit"]');
+            var omitText = omitInput ? omitInput.value.trim() : '';
+            if (!omitText && isOptionalSwapText(swap)) {
+                omitText = swap;
+                swap = '';
+            }
             var ingredient = { name: name, swap: swap || null };
+            if (omitText) ingredient.omit = omitText;
             var dietaryFlagsInput = ingrItems[i].querySelector('[data-field="dietary_flags"]');
             var ingredientDietaryFlags = parseDietaryFlags(dietaryFlagsInput ? dietaryFlagsInput.value : '');
             if (ingredientDietaryFlags.length) ingredient.dietary_flags = ingredientDietaryFlags;
             var swapOptionsInput = ingrItems[i].querySelector('[data-field="swap_options"]');
             var dietarySwapOptions = parseDietarySwapOptions(swapOptionsInput ? swapOptionsInput.value : '');
             if (dietarySwapOptions.length) ingredient.swap_options = dietarySwapOptions;
-            var isOptional = swap && isOptionalSwapText(swap);
+            var isOptional = !!omitText || (swap && isOptionalSwapText(swap));
             var swapNutritionToggle = ingrItems[i].querySelector('[data-role="swap-nutrition-toggle"]');
-            if (swap && !isOptional && swapNutritionToggle && swapNutritionToggle.checked) {
+            if (swap && !isOptionalSwapText(swap) && swapNutritionToggle && swapNutritionToggle.checked) {
                 var originalNutrition = readIngredientNutrition(ingrItems[i], 'swap-original');
                 var replacementRows = readSwapReplacementRows(ingrItems[i]);
                 var replacementNutrition = replacementRows.length
@@ -3074,7 +3096,7 @@
             // Ingredients
             (r.ingredients || []).forEach(function(item) {
                 if (typeof item === 'string') item = { name: item };
-                addIngredient(item.name || '', item.swap || '', item.omit_nutrition || nutritionDeltaToPositive(item.omit_delta) || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || [], item.swap_nutrition || null);
+                addIngredient(item.name || '', item.swap || '', item.omit_nutrition || nutritionDeltaToPositive(item.omit_delta) || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || [], item.swap_nutrition || null, item.omit || '');
             });
 
             // Steps
@@ -3433,7 +3455,7 @@
             document.getElementById('re-ingredients-list').innerHTML = '';
             r.ingredients.forEach(function(item) {
                 if (typeof item === 'string') item = { name: item };
-                addIngredient(item.name || '', item.swap || '', item.omit_nutrition || nutritionDeltaToPositive(item.omit_delta) || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || [], item.swap_nutrition || null);
+                addIngredient(item.name || '', item.swap || '', item.omit_nutrition || nutritionDeltaToPositive(item.omit_delta) || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || [], item.swap_nutrition || null, item.omit || '');
             });
             filled.push('ingredients');
         }
