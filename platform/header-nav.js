@@ -29,10 +29,10 @@
   var ALL_RECIPES_URL = 'category.html';
   var FAVORITES_TARGET = 'cabinet.html?tab=favorites';
   var RECIPE_GROUPS = [
-    ['breakfasts', 'mains', 'cutlets'],
-    ['salads', 'sides', 'pancakes'],
-    ['spreads', 'sauces', 'breads'],
-    ['bases', 'drinks']
+    ['breakfasts', 'soups', 'mains'],
+    ['cutlets', 'salads', 'sides'],
+    ['pancakes', 'spreads', 'sauces'],
+    ['bases', 'breads', 'drinks']
   ];
   var RECIPE_ORDER = RECIPE_GROUPS.reduce(function (acc, group, groupIdx) {
     group.forEach(function (id, itemIdx) { acc[id] = groupIdx * 10 + itemIdx; });

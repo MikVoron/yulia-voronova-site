@@ -498,9 +498,14 @@
         });
     }
 
+    function isSoupRecipe(r) {
+        var rc = r.categories || (r.cat ? [r.cat] : []);
+        return rc.indexOf('soups') !== -1 || !!r.is_soup;
+    }
+
     function recipeHasAutoAddons(r) {
         if (hasAutoAddonsRule(r.auto_addons)) return true;
-        if (r.is_soup) return true;
+        if (isSoupRecipe(r)) return true;
         if ((r.name || '').toLowerCase().indexOf('плов') !== -1) return true;
         var rc = r.categories || (r.cat ? [r.cat] : []);
         return rc.some(function(catId) {
@@ -573,8 +578,8 @@
             if (nutritionFilter === 'nutrition-missing' && recipeHasNutrition(r)) return false;
             if (addonsFilter === 'with-addons' && !recipeHasAutoAddons(r)) return false;
             if (addonsFilter === 'without-addons' && recipeHasAutoAddons(r)) return false;
-            if (soupFilter === 'soups' && !r.is_soup) return false;
-            if (soupFilter === 'not-soups' && r.is_soup) return false;
+            if (soupFilter === 'soups' && !isSoupRecipe(r)) return false;
+            if (soupFilter === 'not-soups' && isSoupRecipe(r)) return false;
             if (q && !r.name.toLowerCase().includes(q) && !r.id.includes(q)) return false;
             return true;
         });
@@ -641,7 +646,7 @@
     };
 
     window.openRecipeEditor = function(id) {
-        location.href = 'recipe-editor.html?v=20260612-omit-and-swap' + (id ? '&id=' + encodeURIComponent(id) : '');
+        location.href = 'recipe-editor.html?v=20260612-soups-category' + (id ? '&id=' + encodeURIComponent(id) : '');
     };
 
     window.deleteRecipe = function(id) {

@@ -1,6 +1,6 @@
 /**
  * Platform data v2 — Category-based architecture
- * Категории: Завтраки, Основные блюда, Блины/Оладьи, Намазки, Соусы, Салаты, Напитки
+ * Категории: Завтраки, Супы, Горячее, Блины/Оладьи, Намазки, Соусы, Салаты, Напитки
  * Источник рецептов: Гайд растительного питания Юлии Вороновой
  */
 
@@ -939,6 +939,7 @@ async function loadContent() {
             CATEGORIES[c.id] = {
                 id: c.id, name: c.name, emoji: c.emoji, color: c.color,
                 desc: c.description || '',
+                sort_order: c.sort_order,
                 dishes: c.dishes || [],
                 autoAddons: c.auto_addons || {}
             };

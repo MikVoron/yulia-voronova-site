@@ -34,6 +34,11 @@ const PRO_RECIPE = {
   categories: ['mains'],
 };
 const RECIPES = [FREE_RECIPE, PAID_RECIPE, TRIAL_RECIPE, PRO_RECIPE];
+const CATEGORIES = [
+  { id: 'breakfasts', name: 'Завтраки', emoji: '🥣', color: '#fff', description: '', sort_order: 1, auto_addons: {} },
+  { id: 'soups', name: 'Супы', emoji: '🍲', color: '#d97706', description: 'Супы, борщи, щи и бульонные блюда', sort_order: 2, auto_addons: {} },
+  { id: 'mains', name: 'Горячее', emoji: '🍽️', color: '#fff', description: 'Сытные горячие блюда', sort_order: 3, auto_addons: {} },
+];
 
 const mockQuery = vi.fn(async (sql /*, params */) => {
   if (/SELECT is_blocked FROM users WHERE id/.test(sql)) {
@@ -50,6 +55,20 @@ const mockQuery = vi.fn(async (sql /*, params */) => {
   }
   if (/FROM recipes r WHERE r\.is_published = true/.test(sql)) {
     return { rows: RECIPES.map(r => ({ ...r })) };
+  }
+  if (/SELECT id, name, emoji, color, description, sort_order, auto_addons FROM categories ORDER BY sort_order/.test(sql)) {
+    return { rows: CATEGORIES.map(c => ({ ...c })) };
+  }
+  if (/FROM recipe_categories rc\s+JOIN recipes r ON r\.id = rc\.recipe_id\s+WHERE r\.is_published = true/.test(sql)) {
+    return {
+      rows: RECIPES.flatMap(r => (r.categories || [r.cat]).map(category_id => ({
+        category_id,
+        id: r.id,
+        ingredients: r.ingredients,
+        dietary_flags: r.dietary_flags,
+        dietary_verified: r.dietary_verified,
+      }))),
+    };
   }
   return { rows: [] };
 });
@@ -139,6 +158,33 @@ describe('GET /content/recipes dietary filtering', () => {
       });
       expect(res.statusCode).toBe(200);
       expect(res.json().some(r => r.id === recipe.id)).toBe(false);
+    } finally {
+      RECIPES.pop();
+    }
+  });
+});
+
+describe('GET /content/categories', () => {
+  it('keeps soups as a separate category from hot dishes', async () => {
+    const soup = {
+      ...PAID_RECIPE,
+      id: 'soup-test',
+      cat: 'soups',
+      name: 'Soup recipe',
+      is_soup: true,
+      categories: ['soups'],
+    };
+    RECIPES.push(soup);
+    try {
+      const res = await app.inject({ method: 'GET', url: '/content/categories' });
+      expect(res.statusCode).toBe(200);
+      const data = res.json();
+      const soups = data.find(c => c.id === 'soups');
+      const mains = data.find(c => c.id === 'mains');
+      expect(soups.name).toBe('Супы');
+      expect(mains.name).toBe('Горячее');
+      expect(soups.dishes).toContain('soup-test');
+      expect(mains.dishes).not.toContain('soup-test');
     } finally {
       RECIPES.pop();
     }

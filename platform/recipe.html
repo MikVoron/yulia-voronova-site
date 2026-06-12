@@ -1157,9 +1157,9 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=20260612-auth-refresh-race"></script>
+	<script src="data-v2.js?v=20260612-soups-category"></script>
 	<script src="ingredients.js?v=20260611-ingredient-catalog"></script>
-	<script src="header-nav.js?v=2026-05-29-feedback-avatar-nav"></script>
+	<script src="header-nav.js?v=20260612-soups-category"></script>
 	<script>
 		const _accessReady = Auth.checkAccess({ allowGuest: true });
 		updatePlateIcon();
@@ -1235,6 +1235,7 @@
 		// Фото-заглушки по категориям (временно — из блога и гайда)
 		const PHOTO_BY_CAT = {
 			breakfasts: SITE_BASE + '/images/blog/post-290.webp',
+			soups: SITE_BASE + '/images/recipes/red-lentil-mushroom-soup/red-lentil-mushroom-soup-cover.webp',
 			mains: SITE_BASE + '/images/cook-healthy-food.webp',
 			pancakes: SITE_BASE + '/images/blog/random-pic-blog-2.webp',
 			spreads: SITE_BASE + '/images/blog/random-pic-blog-3.webp',
@@ -2212,6 +2213,7 @@
 				const slots = ['protein', 'fat', 'carbs', 'fiber'];
 				const resolved = { protein: [], fat: [], carbs: [], fiber: [] };
 				const rules = {};
+				const recipeCats = recipe.categories || (recipe.cat ? [recipe.cat] : []);
 				function pushCategoryAddons(slot, sourceId) {
 					if (!sourceId || typeof RECIPES === 'undefined') return;
 					Object.values(RECIPES).forEach(rx => {
@@ -2231,7 +2233,6 @@
 					});
 				}
 				// Category-level rules (union across recipe's categories, first-win per slot)
-				const recipeCats = recipe.categories || (recipe.cat ? [recipe.cat] : []);
 				recipeCats.forEach(catId => {
 					const cat = (typeof CATEGORIES !== 'undefined' && CATEGORIES[catId]) || null;
 					const aa = cat && cat.autoAddons || {};
@@ -2256,9 +2257,9 @@
 				});
 				// Name-based rule: every recipe with "Плов" gets salads as Fiber add-ons.
 				if (/\bплов\b/i.test(recipe.name || '')) pushCategoryAddons('fiber', 'salads');
-				// Flag-based rule: is_soup → статический хлеб + рецепт oregano-croutons в Углеводы.
-				// Не использует fromCategory (не тянет всю breads), явный точечный набор.
-				if (recipe.isSoup) {
+				// Category-based soup rule. isSoup stays as legacy fallback until all stored data is migrated.
+				// Do not use fromCategory here: soups need a precise bread + oregano-croutons set, not all breads.
+				if (recipeCats.indexOf('soups') !== -1 || recipe.isSoup) {
 					resolved.carbs.push({
 						name: 'Цельнозерновой хлеб',
 						amount: '1 ломтик',

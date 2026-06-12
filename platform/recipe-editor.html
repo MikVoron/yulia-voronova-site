@@ -1305,8 +1305,8 @@
                 <label class="re-checkbox-label">
                     <input type="checkbox" id="re-published" checked> Опубликован
                 </label>
-                <label class="re-checkbox-label" title="Бизнес-флаг: рецепт — суп. Автоматически добавляет хлеб и сухарики в Углеводы.">
-                    <input type="checkbox" id="re-is-soup"> Суп
+                <label class="re-checkbox-label" title="Legacy-флаг для старых данных. Для новых рецептов выберите категорию «Супы»: хлеб и сухарики добавятся автоматически.">
+                    <input type="checkbox" id="re-is-soup"> Суп (legacy)
                 </label>
             </div>
 
@@ -1652,7 +1652,7 @@
 <!-- Toast -->
 <div class="re-toast" id="re-toast"></div>
 
-<script src="data-v2.js?v=20260612-auth-refresh-race"></script>
+<script src="data-v2.js?v=20260612-soups-category"></script>
 <script src="ingredients.js?v=20260611-ingredient-catalog"></script>
 <script>
 (function() {
@@ -1720,6 +1720,14 @@
 
     var allCategoriesEditor = [];
     var selectedCategoryOrder = [];
+    function syncSoupFlagFromCategories() {
+        var soupFlag = document.getElementById('re-is-soup');
+        if (!soupFlag) return;
+        var byCategory = selectedCategoryOrder.indexOf('soups') !== -1;
+        if (byCategory) soupFlag.checked = true;
+        soupFlag.disabled = byCategory;
+    }
+
     function populateCategoryUI() {
         // Categories stay checkbox-only in UI; we preserve the primary category via selectedCategoryOrder[0].
         var catBox = document.getElementById('re-cat');
@@ -1766,6 +1774,7 @@
                 row.style.borderColor = 'transparent';
             }
         });
+        syncSoupFlagFromCategories();
     }
 
     Promise.all([
@@ -1894,6 +1903,7 @@
             chk.checked = isMember;
         });
         refreshCategoryRowState();
+        syncSoupFlagFromCategories();
     }
 
     function clearError(id) {
@@ -1986,7 +1996,8 @@
         document.getElementById('re-free').checked = r.is_free;
         const _alSel = document.getElementById('re-access-level');
         if (_alSel) _alSel.value = r.access_level || (r.is_free ? 'free' : 'pro');
-        document.getElementById('re-is-soup').checked = !!r.is_soup;
+        document.getElementById('re-is-soup').checked = !!r.is_soup || getCategories().indexOf('soups') !== -1;
+        syncSoupFlagFromCategories();
         document.getElementById('re-photo').value = r.photo || '';
         document.getElementById('re-img-position').value = r.img_position || '';
         document.getElementById('re-quote').value = r.quote || '';
@@ -2702,11 +2713,12 @@
         }
 
         var tags = document.getElementById('re-tags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
+        var categories = getCategories();
 
         return {
             id: document.getElementById('re-id').value.trim(),
-            categories: getCategories(),
-            cat: getCategories()[0] || '',
+            categories: categories,
+            cat: categories[0] || '',
             name: document.getElementById('re-name').value.trim(),
             emoji: document.getElementById('re-emoji').value || '🍴',
             time_min: parseInt(document.getElementById('re-time').value) || 30,
@@ -2734,7 +2746,7 @@
             access_level: (document.getElementById('re-access-level') && document.getElementById('re-access-level').value) || 'pro',
             is_free: document.getElementById('re-free').checked,
             is_published: document.getElementById('re-published').checked,
-            is_soup: document.getElementById('re-is-soup').checked,
+            is_soup: categories.indexOf('soups') !== -1 || document.getElementById('re-is-soup').checked,
             ingredients: ingredients,
             steps: steps,
             add_protein: collectAddPanel('protein'),
@@ -3076,7 +3088,8 @@
             document.getElementById('re-free').checked = !!r.is_free;
             const _alSel2 = document.getElementById('re-access-level');
             if (_alSel2) _alSel2.value = r.access_level || (r.is_free ? 'free' : 'pro');
-            document.getElementById('re-is-soup').checked = !!r.is_soup;
+            document.getElementById('re-is-soup').checked = !!r.is_soup || getCategories().indexOf('soups') !== -1;
+            syncSoupFlagFromCategories();
             document.getElementById('re-photo').value = r.photo || '';
             document.getElementById('re-img-position').value = r.img_position || '';
             document.getElementById('re-quote').value = r.quote || '';
