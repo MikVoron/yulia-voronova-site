@@ -2098,11 +2098,94 @@
         if (!raw || typeof raw !== 'object') return null;
         var original = normalizeNutritionForEditor(raw.original);
         var replacement = normalizeNutritionForEditor(raw.replacement);
-        if (!original && !replacement) return null;
+        var replacements = Array.isArray(raw.replacements) ? raw.replacements.map(function(item) {
+            if (!item || typeof item !== 'object') return null;
+            var nutrition = normalizeNutritionForEditor(item.nutrition || item.replacement || item);
+            if (!nutrition) return null;
+            return {
+                name: (typeof item.name === 'string' ? item.name : '').trim(),
+                nutrition: nutrition
+            };
+        }).filter(Boolean) : [];
+        if (!original && !replacement && !replacements.length) return null;
         return {
             original: original || { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 },
-            replacement: replacement || { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 }
+            replacement: replacement || (replacements[0] ? replacements[0].nutrition : { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 }),
+            replacements: replacements
         };
+    }
+
+    function splitSwapAlternativesForEditor(text) {
+        if (!text) return [];
+        var parts = [];
+        var depth = 0;
+        var buf = '';
+        var i = 0;
+        while (i < text.length) {
+            var ch = text[i];
+            if (ch === '(') { depth++; buf += ch; i++; continue; }
+            if (ch === ')') { depth = Math.max(0, depth - 1); buf += ch; i++; continue; }
+            if (depth === 0) {
+                if ((ch === ',' && !(/\d/.test(text[i - 1] || '') && /\d/.test(text[i + 1] || ''))) || ch === ';' || ch === '/') {
+                    if (buf.trim()) parts.push(buf.trim());
+                    buf = '';
+                    i++;
+                    continue;
+                }
+                var orMatch = text.substr(i).match(/^\s+или\s+/i);
+                if (orMatch) {
+                    if (buf.trim()) parts.push(buf.trim());
+                    buf = '';
+                    i += orMatch[0].length;
+                    continue;
+                }
+            }
+            buf += ch;
+            i++;
+        }
+        if (buf.trim()) parts.push(buf.trim());
+        return parts;
+    }
+
+    function findSwapReplacementNutrition(swapNutrition, name, index) {
+        if (!swapNutrition) return null;
+        var list = Array.isArray(swapNutrition.replacements) ? swapNutrition.replacements : [];
+        var norm = (name || '').trim().toLowerCase();
+        for (var i = 0; i < list.length; i++) {
+            if ((list[i].name || '').trim().toLowerCase() === norm) return list[i].nutrition;
+        }
+        if (list[index]) return list[index].nutrition;
+        if (index === 0) return swapNutrition.replacement;
+        return null;
+    }
+
+    function renderSwapReplacementNutritionRows(item, swapNutrition) {
+        if (!item) return;
+        var swapInput = item.querySelector('[data-field="swap"]');
+        var singleLabel = item.querySelector('[data-role="swap-replacement-single-label"]');
+        var singleGrid = item.querySelector('[data-role="swap-replacement-single-grid"]');
+        var multiBox = item.querySelector('[data-role="swap-replacements-box"]');
+        if (!swapInput || !singleLabel || !singleGrid || !multiBox) return;
+        var parts = splitSwapAlternativesForEditor(swapInput.value || '');
+        var useMulti = parts.length > 1;
+        singleLabel.style.display = useMulti ? 'none' : '';
+        singleGrid.style.display = useMulti ? 'none' : '';
+        multiBox.style.display = useMulti ? '' : 'none';
+        if (!useMulti) {
+            multiBox.innerHTML = '';
+            return;
+        }
+        multiBox.innerHTML = parts.map(function(part, index) {
+            var n = findSwapReplacementNutrition(swapNutrition, part, index) || { kcal: '', protein: '', fat: '', carbs: '', fiber: '' };
+            return '<div class="re-item-label-inline" style="margin-top:8px">' + esc(part) + '</div>' +
+                '<div class="re-ingredient-omit-grid" data-role="swap-replacement-row" data-name="' + escAttr(part) + '">' +
+                    '<input class="re-input" data-role="swap-replacement-kcal" type="number" step="1" placeholder="ккал" value="' + escAttr(n.kcal) + '">' +
+                    '<input class="re-input" data-role="swap-replacement-protein" type="number" step="0.1" placeholder="Б" value="' + escAttr(n.protein) + '">' +
+                    '<input class="re-input" data-role="swap-replacement-fat" type="number" step="0.1" placeholder="Ж" value="' + escAttr(n.fat) + '">' +
+                    '<input class="re-input" data-role="swap-replacement-carbs" type="number" step="0.1" placeholder="У" value="' + escAttr(n.carbs) + '">' +
+                    '<input class="re-input" data-role="swap-replacement-fiber" type="number" step="0.1" placeholder="Кл" value="' + escAttr(n.fiber) + '">' +
+                '</div>';
+        }).join('');
     }
 
     function isOptionalSwapText(text) {
@@ -2184,14 +2267,15 @@
                         '<input class="re-input" data-role="swap-original-carbs" type="number" step="0.1" placeholder="У" value="' + (swapNutrition ? swapNutrition.original.carbs : '') + '">' +
                         '<input class="re-input" data-role="swap-original-fiber" type="number" step="0.1" placeholder="Кл" value="' + (swapNutrition ? swapNutrition.original.fiber : '') + '">' +
                     '</div>' +
-                    '<div class="re-item-label-inline" style="margin-top:8px">Замена</div>' +
-                    '<div class="re-ingredient-omit-grid">' +
+                    '<div class="re-item-label-inline" style="margin-top:8px" data-role="swap-replacement-single-label">Замена</div>' +
+                    '<div class="re-ingredient-omit-grid" data-role="swap-replacement-single-grid">' +
                         '<input class="re-input" data-role="swap-replacement-kcal" type="number" step="1" placeholder="ккал" value="' + (swapNutrition ? swapNutrition.replacement.kcal : '') + '">' +
                         '<input class="re-input" data-role="swap-replacement-protein" type="number" step="0.1" placeholder="Б" value="' + (swapNutrition ? swapNutrition.replacement.protein : '') + '">' +
                         '<input class="re-input" data-role="swap-replacement-fat" type="number" step="0.1" placeholder="Ж" value="' + (swapNutrition ? swapNutrition.replacement.fat : '') + '">' +
                         '<input class="re-input" data-role="swap-replacement-carbs" type="number" step="0.1" placeholder="У" value="' + (swapNutrition ? swapNutrition.replacement.carbs : '') + '">' +
                         '<input class="re-input" data-role="swap-replacement-fiber" type="number" step="0.1" placeholder="Кл" value="' + (swapNutrition ? swapNutrition.replacement.fiber : '') + '">' +
                     '</div>' +
+                    '<div data-role="swap-replacements-box"></div>' +
                 '</div>' +
                 '<div class="re-ingredient-omit-box" data-role="omit-box">' +
                     '<label class="re-ingredient-omit-toggle">' +
@@ -2219,10 +2303,17 @@
         list.appendChild(item);
         var swapInput = item.querySelector('[data-field="swap"]');
         if (swapInput) {
-            swapInput.addEventListener('input', function() { refreshIngredientOptionalUi(item); });
-            swapInput.addEventListener('change', function() { refreshIngredientOptionalUi(item); });
+            swapInput.addEventListener('input', function() {
+                refreshIngredientOptionalUi(item);
+                renderSwapReplacementNutritionRows(item, null);
+            });
+            swapInput.addEventListener('change', function() {
+                refreshIngredientOptionalUi(item);
+                renderSwapReplacementNutritionRows(item, null);
+            });
         }
         initDrag(item, list);
+        renderSwapReplacementNutritionRows(item, swapNutrition);
         refreshIngredientOptionalUi(item);
         updateCounts();
     };
@@ -2497,6 +2588,18 @@
         };
     }
 
+    function readSwapReplacementRows(item) {
+        return Array.from(item.querySelectorAll('[data-role="swap-replacement-row"]')).map(function(row) {
+            return {
+                name: row.getAttribute('data-name') || '',
+                nutrition: readIngredientNutrition(row, 'swap-replacement')
+            };
+        }).filter(function(row) {
+            var n = row.nutrition;
+            return row.name || n.kcal || n.protein || n.fat || n.carbs || n.fiber;
+        });
+    }
+
     function collectFormData() {
         // Ingredients
         var ingredients = [];
@@ -2516,11 +2619,15 @@
             var swapNutritionToggle = ingrItems[i].querySelector('[data-role="swap-nutrition-toggle"]');
             if (swap && !isOptional && swapNutritionToggle && swapNutritionToggle.checked) {
                 var originalNutrition = readIngredientNutrition(ingrItems[i], 'swap-original');
-                var replacementNutrition = readIngredientNutrition(ingrItems[i], 'swap-replacement');
+                var replacementRows = readSwapReplacementRows(ingrItems[i]);
+                var replacementNutrition = replacementRows.length
+                    ? replacementRows[0].nutrition
+                    : readIngredientNutrition(ingrItems[i], 'swap-replacement');
                 ingredient.swap_nutrition = {
                     original: originalNutrition,
                     replacement: replacementNutrition
                 };
+                if (replacementRows.length) ingredient.swap_nutrition.replacements = replacementRows;
             }
             var omitToggle = ingrItems[i].querySelector('[data-role="omit-toggle"]');
             if (isOptional && omitToggle && omitToggle.checked) {

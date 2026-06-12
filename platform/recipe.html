@@ -1780,6 +1780,32 @@
 			return { ...delta, hasKbzhu };
 		}
 
+		function normalizeSwapNutritionDeltas(raw) {
+			if (!raw || typeof raw !== 'object' || !Array.isArray(raw.replacements)) return [];
+			return raw.replacements.map(item => {
+				const delta = normalizeSwapNutritionDelta({
+					original: raw.original,
+					replacement: item && (item.nutrition || item.replacement || item)
+				});
+				if (!delta) return null;
+				return {
+					name: item && typeof item.name === 'string' ? item.name.trim() : '',
+					delta: delta
+				};
+			}).filter(Boolean);
+		}
+
+		function findSwapManualDelta(info, partText, index) {
+			if (!info) return null;
+			const list = Array.isArray(info.manualDeltas) ? info.manualDeltas : [];
+			const norm = (partText || '').trim().toLowerCase();
+			for (const item of list) {
+				if ((item.name || '').trim().toLowerCase() === norm) return item.delta;
+			}
+			if (list[index]) return list[index].delta;
+			return (Array.isArray(info.parts) && info.parts.length <= 1) ? (info.manualDelta || null) : null;
+		}
+
 		function isInPlate() {
 			return Plate.get().some(item => item.recipeId === r.id);
 		}
@@ -1907,7 +1933,7 @@
 				if (ch === '(') { depth++; buf += ch; i++; continue; }
 				if (ch === ')') { depth = Math.max(0, depth - 1); buf += ch; i++; continue; }
 				if (depth === 0) {
-					if (ch === ',' || ch === ';' || ch === '/') {
+					if ((ch === ',' && !(/\d/.test(text[i - 1] || '') && /\d/.test(text[i + 1] || ''))) || ch === ';' || ch === '/') {
 						if (buf.trim()) parts.push(buf.trim());
 						buf = ''; i++; continue;
 					}
@@ -1979,7 +2005,8 @@
 				origName: origName,
 				parts: parts,
 				origAmountG: origAmountG,
-				manualDelta: normalizeSwapNutritionDelta(ing && typeof ing === 'object' ? ing.swap_nutrition : null)
+				manualDelta: normalizeSwapNutritionDelta(ing && typeof ing === 'object' ? ing.swap_nutrition : null),
+				manualDeltas: normalizeSwapNutritionDeltas(ing && typeof ing === 'object' ? ing.swap_nutrition : null)
 			};
 			if (parts.length === 0) {
 				return linkify(swapText);
@@ -2038,10 +2065,11 @@
 
 			const replSrc = _resolveNutritionSource(partText);
 			const replLabel = (replSrc && replSrc.kind === 'recipe') ? replSrc.name : displayPart;
-			let delta = info.manualDelta
-				? { ...info.manualDelta, label: replLabel }
+			const manualDelta = findSwapManualDelta(info, partText, j);
+			let delta = manualDelta
+				? { ...manualDelta, label: replLabel }
 				: { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0, label: replLabel, hasKbzhu: false };
-			if (!info.manualDelta && !delta.hasKbzhu) {
+			if (!manualDelta && !delta.hasKbzhu) {
 				// Fallback for older recipes: compute KBZHU delta = replacement − original.
 				// Source priority: RECIPES (linked recipe) → INGREDIENT_DB. If either side
 				// can't be resolved or the amount is unknown, skip delta (rename-only).

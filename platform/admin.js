@@ -641,7 +641,7 @@
     };
 
     window.openRecipeEditor = function(id) {
-        location.href = 'recipe-editor.html?v=20260611-omit-absolute' + (id ? '&id=' + encodeURIComponent(id) : '');
+        location.href = 'recipe-editor.html?v=20260612-multi-swap-nutrition' + (id ? '&id=' + encodeURIComponent(id) : '');
     };
 
     window.deleteRecipe = function(id) {
