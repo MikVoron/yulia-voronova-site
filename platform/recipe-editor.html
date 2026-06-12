@@ -2199,6 +2199,7 @@
     function refreshIngredientOptionalUi(item) {
         if (!item) return;
         var swapInput = item.querySelector('[data-field="swap"]');
+        var omitInput = item.querySelector('[data-field="omit"]');
         var omitBox = item.querySelector('[data-role="omit-box"]');
         var omitToggle = item.querySelector('[data-role="omit-toggle"]');
         var hintBox = item.querySelector('[data-role="omit-hint-box"]');
