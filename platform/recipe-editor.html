@@ -2009,7 +2009,7 @@
         var ingr = r.ingredients || [];
         ingr.forEach(function(item) {
             if (typeof item === 'string') item = { name: item, swap: null };
-            addIngredient(item.name || '', item.swap || '', item.omit_delta || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || []);
+            addIngredient(item.name || '', item.swap || '', item.omit_nutrition || nutritionDeltaToPositive(item.omit_delta) || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || [], item.swap_nutrition || null);
         });
 
         // Steps
@@ -2060,7 +2060,7 @@
     // INGREDIENTS — repeatable rows
     // ══════════════════════════════════════════════════════════════════════
 
-    function normalizeOmitDeltaForEditor(raw) {
+    function normalizeNutritionForEditor(raw) {
         if (!raw || typeof raw !== 'object') return null;
         return {
             kcal: Number(raw.kcal) || 0,
@@ -2068,6 +2068,40 @@
             fat: Number(raw.fat) || 0,
             carbs: Number(raw.carbs) || 0,
             fiber: Number(raw.fiber) || 0
+        };
+    }
+
+    function nutritionDeltaToPositive(raw) {
+        var n = normalizeNutritionForEditor(raw);
+        if (!n) return null;
+        return {
+            kcal: Math.abs(n.kcal),
+            protein: Math.abs(n.protein),
+            fat: Math.abs(n.fat),
+            carbs: Math.abs(n.carbs),
+            fiber: Math.abs(n.fiber)
+        };
+    }
+
+    function nutritionToNegativeDelta(raw) {
+        var n = normalizeNutritionForEditor(raw) || { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 };
+        return {
+            kcal: -Math.abs(n.kcal),
+            protein: -Math.abs(n.protein),
+            fat: -Math.abs(n.fat),
+            carbs: -Math.abs(n.carbs),
+            fiber: -Math.abs(n.fiber)
+        };
+    }
+
+    function normalizeSwapNutritionForEditor(raw) {
+        if (!raw || typeof raw !== 'object') return null;
+        var original = normalizeNutritionForEditor(raw.original);
+        var replacement = normalizeNutritionForEditor(raw.replacement);
+        if (!original && !replacement) return null;
+        return {
+            original: original || { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 },
+            replacement: replacement || { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 }
         };
     }
 
@@ -2084,6 +2118,8 @@
         var omitBox = item.querySelector('[data-role="omit-box"]');
         var omitToggle = item.querySelector('[data-role="omit-toggle"]');
         var hintBox = item.querySelector('[data-role="omit-hint-box"]');
+        var swapNutritionBox = item.querySelector('[data-role="swap-nutrition-box"]');
+        var swapNutritionToggle = item.querySelector('[data-role="swap-nutrition-toggle"]');
         if (!swapInput || !omitBox || !omitToggle) return;
         var enabled = isOptionalSwapText(swapInput.value || '');
         omitBox.classList.toggle('open', enabled);
@@ -2092,12 +2128,19 @@
         if (hintBox) {
             hintBox.classList.toggle('open', enabled);
         }
+        var replacementEnabled = !!(swapInput.value || '').trim() && !enabled;
+        if (swapNutritionBox) swapNutritionBox.classList.toggle('open', replacementEnabled);
+        if (swapNutritionToggle) {
+            swapNutritionToggle.disabled = !replacementEnabled;
+            if (!replacementEnabled) swapNutritionToggle.checked = false;
+        }
     }
 
-    window.addIngredient = function(name, swap, omitDelta, omitHint, dietaryFlags, swapOptions) {
+    window.addIngredient = function(name, swap, omitNutrition, omitHint, dietaryFlags, swapOptions, swapNutrition) {
         name = name || '';
         swap = swap || '';
-        omitDelta = normalizeOmitDeltaForEditor(omitDelta);
+        omitNutrition = nutritionDeltaToPositive(omitNutrition);
+        swapNutrition = normalizeSwapNutritionForEditor(swapNutrition);
         omitHint = (typeof omitHint === 'string' ? omitHint : '').trim();
         dietaryFlags = Array.isArray(dietaryFlags) ? dietaryFlags.join(', ') : '';
         swapOptions = Array.isArray(swapOptions) ? swapOptions.map(function(option) {
@@ -2127,19 +2170,42 @@
                     '<span class="re-item-label-inline">Замены для фильтра</span>' +
                     '<input class="re-item-input" data-field="swap_options" placeholder="Соус из кешью|nuts; Соус из фасоли" value="' + escAttr(swapOptions) + '">' +
                 '</div>' +
+                '<div class="re-ingredient-omit-box" data-role="swap-nutrition-box">' +
+                    '<label class="re-ingredient-omit-toggle">' +
+                        '<input type="checkbox" data-role="swap-nutrition-toggle"' + (swapNutrition ? ' checked' : '') + '>' +
+                        '<span>Замена меняет КБЖУ</span>' +
+                    '</label>' +
+                    '<div class="re-hint">Укажите КБЖУ заменяемого и нового ингредиента. Карточка сама вычтет старый и добавит новый.</div>' +
+                    '<div class="re-item-label-inline" style="margin-top:8px">Заменяемый</div>' +
+                    '<div class="re-ingredient-omit-grid">' +
+                        '<input class="re-input" data-role="swap-original-kcal" type="number" step="1" placeholder="ккал" value="' + (swapNutrition ? swapNutrition.original.kcal : '') + '">' +
+                        '<input class="re-input" data-role="swap-original-protein" type="number" step="0.1" placeholder="Б" value="' + (swapNutrition ? swapNutrition.original.protein : '') + '">' +
+                        '<input class="re-input" data-role="swap-original-fat" type="number" step="0.1" placeholder="Ж" value="' + (swapNutrition ? swapNutrition.original.fat : '') + '">' +
+                        '<input class="re-input" data-role="swap-original-carbs" type="number" step="0.1" placeholder="У" value="' + (swapNutrition ? swapNutrition.original.carbs : '') + '">' +
+                        '<input class="re-input" data-role="swap-original-fiber" type="number" step="0.1" placeholder="Кл" value="' + (swapNutrition ? swapNutrition.original.fiber : '') + '">' +
+                    '</div>' +
+                    '<div class="re-item-label-inline" style="margin-top:8px">Замена</div>' +
+                    '<div class="re-ingredient-omit-grid">' +
+                        '<input class="re-input" data-role="swap-replacement-kcal" type="number" step="1" placeholder="ккал" value="' + (swapNutrition ? swapNutrition.replacement.kcal : '') + '">' +
+                        '<input class="re-input" data-role="swap-replacement-protein" type="number" step="0.1" placeholder="Б" value="' + (swapNutrition ? swapNutrition.replacement.protein : '') + '">' +
+                        '<input class="re-input" data-role="swap-replacement-fat" type="number" step="0.1" placeholder="Ж" value="' + (swapNutrition ? swapNutrition.replacement.fat : '') + '">' +
+                        '<input class="re-input" data-role="swap-replacement-carbs" type="number" step="0.1" placeholder="У" value="' + (swapNutrition ? swapNutrition.replacement.carbs : '') + '">' +
+                        '<input class="re-input" data-role="swap-replacement-fiber" type="number" step="0.1" placeholder="Кл" value="' + (swapNutrition ? swapNutrition.replacement.fiber : '') + '">' +
+                    '</div>' +
+                '</div>' +
                 '<div class="re-ingredient-omit-box" data-role="omit-box">' +
                     '<label class="re-ingredient-omit-toggle">' +
-                        '<input type="checkbox" data-role="omit-toggle"' + (omitDelta ? ' checked' : '') + '>' +
-                        '<span>Меняет КБЖУ при исключении</span>' +
+                        '<input type="checkbox" data-role="omit-toggle"' + (omitNutrition ? ' checked' : '') + '>' +
+                        '<span>Исключаемый ингредиент меняет КБЖУ</span>' +
                     '</label>' +
                     '<div class="re-ingredient-omit-grid">' +
-                        '<input class="re-input" data-role="omit-kcal" type="number" step="1" placeholder="ккал" value="' + (omitDelta ? omitDelta.kcal : '') + '">' +
-                        '<input class="re-input" data-role="omit-protein" type="number" step="0.1" placeholder="Б" value="' + (omitDelta ? omitDelta.protein : '') + '">' +
-                        '<input class="re-input" data-role="omit-fat" type="number" step="0.1" placeholder="Ж" value="' + (omitDelta ? omitDelta.fat : '') + '">' +
-                        '<input class="re-input" data-role="omit-carbs" type="number" step="0.1" placeholder="У" value="' + (omitDelta ? omitDelta.carbs : '') + '">' +
-                        '<input class="re-input" data-role="omit-fiber" type="number" step="0.1" placeholder="Кл" value="' + (omitDelta ? omitDelta.fiber : '') + '">' +
+                        '<input class="re-input" data-role="omit-kcal" type="number" step="1" placeholder="ккал" value="' + (omitNutrition ? omitNutrition.kcal : '') + '">' +
+                        '<input class="re-input" data-role="omit-protein" type="number" step="0.1" placeholder="Б" value="' + (omitNutrition ? omitNutrition.protein : '') + '">' +
+                        '<input class="re-input" data-role="omit-fat" type="number" step="0.1" placeholder="Ж" value="' + (omitNutrition ? omitNutrition.fat : '') + '">' +
+                        '<input class="re-input" data-role="omit-carbs" type="number" step="0.1" placeholder="У" value="' + (omitNutrition ? omitNutrition.carbs : '') + '">' +
+                        '<input class="re-input" data-role="omit-fiber" type="number" step="0.1" placeholder="Кл" value="' + (omitNutrition ? omitNutrition.fiber : '') + '">' +
                     '</div>' +
-                    '<div class="re-hint">Дельта применяется при исключении ингредиента. Для масла это обычно отрицательные значения.</div>' +
+                    '<div class="re-hint">Укажите КБЖУ самого исключаемого ингредиента положительными числами. Карточка сама вычтет их из КБЖУ рецепта.</div>' +
                 '</div>' +
                 '<div class="re-ingredient-omit-box" data-role="omit-hint-box">' +
                     '<div class="re-item-row">' +
@@ -2421,6 +2487,16 @@
         return out;
     }
 
+    function readIngredientNutrition(item, prefix) {
+        return {
+            kcal: parseFloat(item.querySelector('[data-role="' + prefix + '-kcal"]').value) || 0,
+            protein: parseFloat(item.querySelector('[data-role="' + prefix + '-protein"]').value) || 0,
+            fat: parseFloat(item.querySelector('[data-role="' + prefix + '-fat"]').value) || 0,
+            carbs: parseFloat(item.querySelector('[data-role="' + prefix + '-carbs"]').value) || 0,
+            fiber: parseFloat(item.querySelector('[data-role="' + prefix + '-fiber"]').value) || 0
+        };
+    }
+
     function collectFormData() {
         // Ingredients
         var ingredients = [];
@@ -2437,15 +2513,19 @@
             var dietarySwapOptions = parseDietarySwapOptions(swapOptionsInput ? swapOptionsInput.value : '');
             if (dietarySwapOptions.length) ingredient.swap_options = dietarySwapOptions;
             var isOptional = swap && isOptionalSwapText(swap);
+            var swapNutritionToggle = ingrItems[i].querySelector('[data-role="swap-nutrition-toggle"]');
+            if (swap && !isOptional && swapNutritionToggle && swapNutritionToggle.checked) {
+                var originalNutrition = readIngredientNutrition(ingrItems[i], 'swap-original');
+                var replacementNutrition = readIngredientNutrition(ingrItems[i], 'swap-replacement');
+                ingredient.swap_nutrition = {
+                    original: originalNutrition,
+                    replacement: replacementNutrition
+                };
+            }
             var omitToggle = ingrItems[i].querySelector('[data-role="omit-toggle"]');
             if (isOptional && omitToggle && omitToggle.checked) {
-                ingredient.omit_delta = {
-                    kcal: parseFloat(ingrItems[i].querySelector('[data-role="omit-kcal"]').value) || 0,
-                    protein: parseFloat(ingrItems[i].querySelector('[data-role="omit-protein"]').value) || 0,
-                    fat: parseFloat(ingrItems[i].querySelector('[data-role="omit-fat"]').value) || 0,
-                    carbs: parseFloat(ingrItems[i].querySelector('[data-role="omit-carbs"]').value) || 0,
-                    fiber: parseFloat(ingrItems[i].querySelector('[data-role="omit-fiber"]').value) || 0
-                };
+                ingredient.omit_nutrition = readIngredientNutrition(ingrItems[i], 'omit');
+                ingredient.omit_delta = nutritionToNegativeDelta(ingredient.omit_nutrition);
             }
             if (isOptional) {
                 var hintInput = ingrItems[i].querySelector('[data-field="omit_hint"]');
@@ -2887,7 +2967,7 @@
             // Ingredients
             (r.ingredients || []).forEach(function(item) {
                 if (typeof item === 'string') item = { name: item };
-                addIngredient(item.name || '', item.swap || '', item.omit_delta || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || []);
+                addIngredient(item.name || '', item.swap || '', item.omit_nutrition || nutritionDeltaToPositive(item.omit_delta) || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || [], item.swap_nutrition || null);
             });
 
             // Steps
@@ -3246,7 +3326,7 @@
             document.getElementById('re-ingredients-list').innerHTML = '';
             r.ingredients.forEach(function(item) {
                 if (typeof item === 'string') item = { name: item };
-                addIngredient(item.name || '', item.swap || '', item.omit_delta || null, item.omit_hint || '');
+                addIngredient(item.name || '', item.swap || '', item.omit_nutrition || nutritionDeltaToPositive(item.omit_delta) || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || [], item.swap_nutrition || null);
             });
             filled.push('ingredients');
         }
