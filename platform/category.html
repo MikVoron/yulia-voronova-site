@@ -760,11 +760,11 @@
         return n + ' рецептов';
     }
 
-    function buildDishCard(d, photo, diff_labels) {
+    function buildDishCard(d, diff_labels) {
         const _id = String(d.id || '');
         const _name = escHtml(String(d.name || ''));
         const _emoji = escHtml(String(d.emoji || '🍴'));
-        const _photo = escHtml(String(d.photo || photo || ''));
+        const _photo = escHtml(String(d.photo || ''));
         const _imgPos = escHtml(String(d.imgPosition || ''));
         const _diff = escHtml(String(diff_labels[d.diff] || d.diff || ''));
         const _timeMeta = formatTimeMeta(d.time, d.timeLabel);
@@ -903,9 +903,8 @@
                 '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">' + emptyMsg + '</div>';
             return;
         }
-        const photo = (typeof getCategoryPhoto === 'function' ? getCategoryPhoto(catId, CAT_PHOTOS[catId]) : CAT_PHOTOS[catId]) || '';
         const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
-        document.getElementById('dish-list').innerHTML = dishes.map(d => buildDishCard(d, photo, diff_labels)).join('');
+        document.getElementById('dish-list').innerHTML = dishes.map(d => buildDishCard(d, diff_labels)).join('');
         dishes.forEach(d => { updatePopStars(d.id); updateRatingRow(d.id); });
     }
     // Initial render deferred to loadContent().then() — показываем skeleton-карточки,
@@ -957,9 +956,8 @@
                     '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">' + emptyMsg + '</div>';
                 return;
             }
-            const photo = (typeof getCategoryPhoto === 'function' ? getCategoryPhoto(catId, CAT_PHOTOS[catId]) : CAT_PHOTOS[catId]) || '';
             const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
-            document.getElementById('dish-list').innerHTML = dishes.map(d => buildDishCard(d, photo, diff_labels)).join('');
+            document.getElementById('dish-list').innerHTML = dishes.map(d => buildDishCard(d, diff_labels)).join('');
             dishes.forEach(d => { updatePopStars(d.id); updateRatingRow(d.id); });
         } else {
             _origRenderDishes();
