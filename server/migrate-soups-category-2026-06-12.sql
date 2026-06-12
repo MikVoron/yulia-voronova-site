@@ -58,7 +58,12 @@ WHERE is_soup = true
    OR name ILIKE '%борщ%'
    OR name ILIKE '%щи%'
    OR name ILIKE '%уха%'
-   OR name ILIKE '%рассольник%';
+   OR name ILIKE '%рассольник%'
+EXCEPT
+SELECT r.id
+FROM recipes r
+JOIN recipe_categories rc ON rc.recipe_id = r.id
+WHERE rc.category_id IN ('breads', 'bases');
 
 -- 3. Make soups the primary category. Keep is_soup=true as legacy metadata for
 --    old clients and compatibility checks; new UI no longer requires admins to
