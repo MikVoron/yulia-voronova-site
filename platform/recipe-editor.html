@@ -1175,7 +1175,7 @@
 <!-- Top bar -->
 <div class="re-topbar">
     <div class="re-topbar-left">
-        <a href="admin.html" class="re-back">&larr; Админка</a>
+        <a href="admin.html?tab=recipes" class="re-back">&larr; Админка</a>
         <div class="re-topbar-title">Редактор <span>рецепта</span></div>
     </div>
     <div class="re-topbar-actions">
@@ -1644,7 +1644,7 @@
         <div class="re-save-success-actions">
             <a class="re-btn re-btn-primary" id="save-success-open" href="#">Открыть рецепт</a>
             <button class="re-btn re-btn-secondary" onclick="dismissSuccess()">Продолжить редактирование</button>
-            <a class="re-btn re-btn-secondary" href="admin.html">&larr; Вернуться к списку рецептов</a>
+            <a class="re-btn re-btn-secondary" href="admin.html?tab=recipes">&larr; Вернуться к списку рецептов</a>
         </div>
     </div>
 </div>
@@ -3510,7 +3510,7 @@
             if (!confirm('Есть несохранённые изменения. Уйти без сохранения?')) return;
         }
         hasDirtyChanges = false; // prevent beforeunload double-prompt
-        location.href = 'admin.html';
+        location.href = 'admin.html?tab=recipes';
     };
 
     // Clear validation errors on input
