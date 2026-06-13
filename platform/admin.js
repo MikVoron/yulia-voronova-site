@@ -732,15 +732,6 @@
         return cats.indexOf(catId) !== -1;
     }
 
-    function slotAddField(slotKey) {
-        return {
-            protein: 'add_protein',
-            fat: 'add_fat',
-            carbs: 'add_carbs',
-            fiber: 'add_fiber'
-        }[slotKey];
-    }
-
     function ensureAdminRecipesLoaded() {
         if (allRecipes.length) return Promise.resolve(allRecipes);
         return api('/admin/recipes').then(function(data) {
@@ -749,16 +740,11 @@
         }).catch(function() { return []; });
     }
 
-    function addonItemKey(item) {
-        var name = item && item.name ? String(item.name).trim() : '';
-        return name ? 'item:' + name : '';
-    }
-
     function recipeOrderKey(recipe) {
         return recipe && recipe.id ? 'recipe:' + recipe.id : '';
     }
 
-    function getAddonOrderCandidates(slot, targetCatId, sourceCatId, rule) {
+    function getAddonOrderCandidates(sourceCatId) {
         var out = [];
         var seen = {};
         function add(key, label, meta) {
@@ -773,33 +759,11 @@
                 add(recipeOrderKey(r), (r.emoji ? r.emoji + ' ' : '') + (r.name || r.id), 'рецепт');
             });
         }
-        if (rule && Array.isArray(rule.items)) {
-            rule.items.forEach(function(item) {
-                if (!item || !item.name) return;
-                add(addonItemKey(item), item.name + (item.amount ? ' · ' + item.amount : ''), 'добавка без ID');
-            });
-        }
-        var addField = slotAddField(slot.key);
-        if (targetCatId && addField) {
-            allRecipes.forEach(function(r) {
-                if (!r.is_published || !recipeInCategory(r, targetCatId)) return;
-                (r[addField] || []).forEach(function(item) {
-                    if (!item || !item.name) return;
-                    add(addonItemKey(item), item.name + (item.amount ? ' · ' + item.amount : ''), 'добавка без ID');
-                });
-            });
-        }
         return out;
     }
 
-    function currentCategoryAutoAddons() {
-        if (!editingCategoryId) return {};
-        var c = allCategories.find(function(x) { return x.id === editingCategoryId; });
-        return c && c.auto_addons || {};
-    }
-
-    function getAddonOrderItems(slot, targetCatId, sourceCatId, rule) {
-        var candidates = getAddonOrderCandidates(slot, targetCatId, sourceCatId, rule);
+    function getAddonOrderItems(slot, sourceCatId) {
+        var candidates = getAddonOrderCandidates(sourceCatId);
         var hidden = document.getElementById(slot.field + '-order');
         var order = parseAddonOrder(hidden ? hidden.value : '');
         if (!order.length) return candidates;
@@ -809,12 +773,9 @@
         var ordered = [];
         order.forEach(function(key) {
             if (used[key]) return;
+            if (!byKey[key]) return;
             used[key] = true;
-            ordered.push(byKey[key] || {
-                key: key,
-                label: key.replace(/^recipe:/, '').replace(/^item:/, ''),
-                meta: 'не найдено'
-            });
+            ordered.push(byKey[key]);
         });
         candidates.forEach(function(item) {
             if (!used[item.key]) ordered.push(item);
@@ -827,18 +788,16 @@
         if (!slot) return;
         var listEl = document.getElementById(field + '-order-list');
         if (!listEl) return;
-        var targetCatId = editingCategoryId || document.getElementById('cat-id').value.trim();
         var sourceCatId = document.getElementById(field).value;
-        var rule = (currentCategoryAutoAddons()[slot.key] || {});
-        var items = getAddonOrderItems(slot, targetCatId, sourceCatId, rule);
+        var items = getAddonOrderItems(slot, sourceCatId);
         if (!items.length) {
-            listEl.innerHTML = '<div style="font-size:11px;color:var(--text-3);padding:8px 0">Нет добавок для ручного порядка. Выберите категорию-источник или добавьте добавки в рецепты этой категории.</div>';
+            listEl.innerHTML = '<div style="font-size:11px;color:var(--text-3);padding:8px 0">Выберите категорию-источник. Здесь показываются только рецепты с ID; разовые добавки без ID настраиваются в самих рецептах.</div>';
             return;
         }
         var hidden = document.getElementById(field + '-order');
         var hasCustom = !!(hidden && parseAddonOrder(hidden.value).length);
         listEl.innerHTML =
-            '<div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Порядок в сайдбаре. Двигайте названия, ID знать не нужно.</div>' +
+            '<div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Порядок рецептов из категории-источника. Двигайте названия, ID знать не нужно.</div>' +
             items.map(function(item, index) {
                 return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:#fff;margin-bottom:4px">' +
                     '<div style="display:flex;gap:4px;flex-shrink:0">' +
@@ -873,10 +832,8 @@
     window.moveAddonOrder = function(field, index, dir) {
         var slot = AA_SLOTS.find(function(s) { return s.field === field; });
         if (!slot) return;
-        var targetCatId = editingCategoryId || document.getElementById('cat-id').value.trim();
         var sourceCatId = document.getElementById(field).value;
-        var rule = (currentCategoryAutoAddons()[slot.key] || {});
-        var items = getAddonOrderItems(slot, targetCatId, sourceCatId, rule);
+        var items = getAddonOrderItems(slot, sourceCatId);
         var next = index + dir;
         if (next < 0 || next >= items.length) return;
         var tmp = items[index];
