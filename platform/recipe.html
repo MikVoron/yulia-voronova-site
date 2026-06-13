@@ -2214,13 +2214,19 @@
 				const resolved = { protein: [], fat: [], carbs: [], fiber: [] };
 				const rules = {};
 				const recipeCats = recipe.categories || (recipe.cat ? [recipe.cat] : []);
-				function pushCategoryAddons(slot, sourceId) {
+				function normalizeAddonOrder(order) {
+					if (Array.isArray(order)) return order.map(id => String(id || '').trim()).filter(Boolean);
+					if (typeof order === 'string') return order.split(/[\s,;]+/).map(id => id.trim()).filter(Boolean);
+					return [];
+				}
+				function pushCategoryAddons(slot, sourceId, order) {
 					if (!sourceId || typeof RECIPES === 'undefined') return;
+					const pulled = [];
 					Object.values(RECIPES).forEach(rx => {
 						if (rx.id === recipe.id) return;
 						const rxCats = rx.categories || (rx.cat ? [rx.cat] : []);
 						if (rxCats.indexOf(sourceId) === -1) return;
-						resolved[slot].push({
+						pulled.push({
 							name: rx.name,
 							kcal: rx.kcal || 0,
 							protein: rx.protein || 0,
@@ -2231,6 +2237,17 @@
 							_auto: true
 						});
 					});
+					const ids = normalizeAddonOrder(order);
+					if (!ids.length) {
+						resolved[slot].push(...pulled);
+						return;
+					}
+					const rank = new Map();
+					ids.forEach((id, index) => { if (!rank.has(id)) rank.set(id, index); });
+					pulled
+						.map((item, index) => ({ item, index, rank: rank.has(item.recipeId) ? rank.get(item.recipeId) : Number.POSITIVE_INFINITY }))
+						.sort((a, b) => (a.rank - b.rank) || (a.index - b.index))
+						.forEach(entry => resolved[slot].push(entry.item));
 				}
 				// Category-level rules (union across recipe's categories, first-win per slot)
 				recipeCats.forEach(catId => {
@@ -2246,7 +2263,7 @@
 					const rule = rules[s];
 					if (!rule) return;
 					// fromCategory: pull all recipes from target category
-					if (rule.fromCategory) pushCategoryAddons(s, rule.fromCategory);
+					if (rule.fromCategory) pushCategoryAddons(s, rule.fromCategory, rule.order);
 					// items: static add-ons (name/amount/kbju, no recipeId)
 					if (Array.isArray(rule.items)) {
 						rule.items.forEach(it => {

@@ -2844,18 +2844,19 @@
     }
 
     function collectAutoAddons() {
-        // Passthrough non-UI fields (items, etc.) from last loaded auto_addons
-        // so that UI editing fromCategory doesn't wipe statically-defined items.
+        // Passthrough non-UI fields from last loaded auto_addons
+        // so that UI editing fromCategory doesn't wipe existing rule details.
         var slots = ['protein', 'fat', 'carbs', 'fiber'];
         var out = {};
         var prev = window._lastLoadedAutoAddons || {};
         slots.forEach(function(s) {
             var v = document.getElementById('re-aa-' + s).value;
             var prevRule = prev[s] || {};
-            if (v || (Array.isArray(prevRule.items) && prevRule.items.length)) {
+            if (v || (Array.isArray(prevRule.items) && prevRule.items.length) || (Array.isArray(prevRule.order) && prevRule.order.length)) {
                 var rule = {};
                 if (v) rule.fromCategory = v;
                 if (Array.isArray(prevRule.items) && prevRule.items.length) rule.items = prevRule.items;
+                if (Array.isArray(prevRule.order) && prevRule.order.length) rule.order = prevRule.order;
                 out[s] = rule;
             }
         });

@@ -708,6 +708,17 @@
         el.innerHTML = opts;
     }
 
+    function formatAddonOrder(order) {
+        return Array.isArray(order) ? order.filter(Boolean).join('\n') : '';
+    }
+
+    function parseAddonOrder(value) {
+        return String(value || '')
+            .split(/[\s,;]+/)
+            .map(function(id) { return id.trim(); })
+            .filter(Boolean);
+    }
+
     var editingCategoryId = null;
 
     window.openCategoryModal = function() {
@@ -720,7 +731,11 @@
         document.getElementById('cat-color').value = '#999';
         document.getElementById('cat-sort').value = 0;
         document.getElementById('cat-desc').value = '';
-        AA_SLOTS.forEach(function(s) { populateCatSelect(s.field, '', null); });
+        AA_SLOTS.forEach(function(s) {
+            populateCatSelect(s.field, '', null);
+            var orderEl = document.getElementById(s.field + '-order');
+            if (orderEl) orderEl.value = '';
+        });
         document.getElementById('cat-delete-btn').style.display = 'none';
         document.getElementById('category-modal').classList.add('open');
     };
@@ -741,6 +756,8 @@
         AA_SLOTS.forEach(function(s) {
             var r = aa[s.key] || {};
             populateCatSelect(s.field, r.fromCategory || '', id);
+            var orderEl = document.getElementById(s.field + '-order');
+            if (orderEl) orderEl.value = formatAddonOrder(r.order);
         });
         document.getElementById('cat-delete-btn').style.display = 'inline-block';
         document.getElementById('category-modal').classList.add('open');
@@ -762,7 +779,12 @@
         };
         AA_SLOTS.forEach(function(s) {
             var v = document.getElementById(s.field).value;
-            if (v) body.auto_addons[s.key] = { fromCategory: v };
+            var orderEl = document.getElementById(s.field + '-order');
+            var order = parseAddonOrder(orderEl ? orderEl.value : '');
+            if (v) {
+                body.auto_addons[s.key] = { fromCategory: v };
+                if (order.length) body.auto_addons[s.key].order = order;
+            }
         });
         if (!body.id || !body.name) { showToast('ID и название обязательны'); return; }
         var url = editingCategoryId ? '/admin/categories/' + editingCategoryId : '/admin/categories';
