@@ -681,9 +681,11 @@
             var aa = c.auto_addons || {};
             var rules = AA_SLOTS.map(function(s) {
                 var r = aa[s.key];
-                if (!r || (!r.fromCategory && !(Array.isArray(r.order) && r.order.length))) return '';
-                var name = r.fromCategory ? (CAT_NAMES[r.fromCategory] || r.fromCategory) : 'ручной порядок';
-                return '<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#f1f5f9;color:#475569;font-size:10px;font-weight:600;margin:2px 2px 0 0">' + s.label + (r.fromCategory ? ' ← ' : ': ') + esc(name) + '</span>';
+                if (!r || (!r.fromCategory && !(Array.isArray(r.order) && r.order.length) && !(Array.isArray(r.items) && r.items.length))) return '';
+                var name = r.fromCategory ? (CAT_NAMES[r.fromCategory] || r.fromCategory) : 'точный список';
+                var suffix = r.fromCategory ? ' ← ' + esc(name) : ': ' + esc(name);
+                if (Array.isArray(r.items) && r.items.length && r.fromCategory) suffix += ' + точный список';
+                return '<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#f1f5f9;color:#475569;font-size:10px;font-weight:600;margin:2px 2px 0 0">' + s.label + suffix + '</span>';
             }).join('');
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:#fff">'
                 + '<div style="flex:1;min-width:0">'
@@ -813,9 +815,87 @@
             (hasCustom ? '<button type="button" class="adm-btn" style="font-size:11px;padding:5px 9px;margin-top:2px" onclick="resetAddonOrder(\'' + field + '\')">Сбросить ручной порядок</button>' : '');
     }
 
+    function parseExactItems(field) {
+        var el = document.getElementById(field + '-items');
+        if (!el || !el.value.trim()) return [];
+        try {
+            var items = JSON.parse(el.value);
+            return Array.isArray(items) ? items.filter(function(item) {
+                return item && (item.recipeId || item.name);
+            }) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function setExactItems(field, items) {
+        var el = document.getElementById(field + '-items');
+        if (el) el.value = JSON.stringify((items || []).filter(function(item) {
+            return item && (item.recipeId || item.name);
+        }));
+    }
+
+    function recipeById(id) {
+        return allRecipes.find(function(r) { return r.id === id; }) || null;
+    }
+
+    function exactItemLabel(item) {
+        if (!item) return '';
+        if (item.recipeId) {
+            var r = recipeById(item.recipeId);
+            return r ? ((r.emoji ? r.emoji + ' ' : '') + r.name) : item.recipeId;
+        }
+        return item.name + (item.amount ? ' · ' + item.amount : '');
+    }
+
+    function renderExactItems(field) {
+        var listEl = document.getElementById(field + '-items-list');
+        if (!listEl) return;
+        var items = parseExactItems(field);
+        var recipeOptions = '<option value="">Добавить рецепт...</option>' + allRecipes
+            .filter(function(r) { return r.is_published; })
+            .map(function(r) { return '<option value="' + esc(r.id) + '">' + esc((r.emoji ? r.emoji + ' ' : '') + r.name) + '</option>'; })
+            .join('');
+        var rows = items.length
+            ? items.map(function(item, index) {
+                return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:#fff;margin-bottom:4px">' +
+                    '<div style="display:flex;gap:4px;flex-shrink:0">' +
+                    '<button type="button" class="adm-btn" style="font-size:12px;padding:2px 7px" onclick="moveExactItem(\'' + field + '\',' + index + ',-1)"' + (index === 0 ? ' disabled' : '') + '>↑</button>' +
+                    '<button type="button" class="adm-btn" style="font-size:12px;padding:2px 7px" onclick="moveExactItem(\'' + field + '\',' + index + ',1)"' + (index === items.length - 1 ? ' disabled' : '') + '>↓</button>' +
+                    '</div>' +
+                    '<div style="min-width:0;flex:1">' +
+                    '<div style="font-size:12px;font-weight:600;color:var(--text);white-space:normal">' + esc(exactItemLabel(item)) + '</div>' +
+                    '<div style="font-size:10px;color:var(--text-3)">' + (item.recipeId ? 'рецепт из базы' : 'ручная добавка') + '</div>' +
+                    '</div>' +
+                    '<button type="button" class="adm-btn adm-btn-reject" style="font-size:12px;padding:3px 8px" onclick="removeExactItem(\'' + field + '\',' + index + ')">×</button>' +
+                    '</div>';
+            }).join('')
+            : '<div style="font-size:11px;color:var(--text-3);padding:6px 0">Точный список пуст. Используйте его, когда нужны конкретные добавки, а не вся категория.</div>';
+        listEl.innerHTML =
+            '<div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Точный список: конкретные добавки для этого слота. Они показываются вместе с добавками из категории, если категория выбрана.</div>' +
+            rows +
+            '<div style="display:flex;gap:6px;margin-top:6px;align-items:center">' +
+            '<select class="adm-modal-select" id="' + field + '-exact-recipe" style="flex:1;font-size:12px;padding:7px 8px">' + recipeOptions + '</select>' +
+            '<button type="button" class="adm-btn" style="font-size:12px;padding:7px 10px" onclick="addExactRecipe(\'' + field + '\')">Добавить</button>' +
+            '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;align-items:center">' +
+            '<input class="adm-modal-input" id="' + field + '-exact-name" placeholder="Название" style="font-size:12px;padding:7px 8px;flex:2 1 170px">' +
+            '<input class="adm-modal-input" id="' + field + '-exact-amount" placeholder="Кол-во" style="font-size:12px;padding:7px 8px;flex:1 1 78px">' +
+            '<input class="adm-modal-input" id="' + field + '-exact-kcal" placeholder="ккал" type="number" style="font-size:12px;padding:7px 6px;width:54px">' +
+            '<input class="adm-modal-input" id="' + field + '-exact-protein" placeholder="б" type="number" step="0.1" style="font-size:12px;padding:7px 6px;width:46px">' +
+            '<input class="adm-modal-input" id="' + field + '-exact-fat" placeholder="ж" type="number" step="0.1" style="font-size:12px;padding:7px 6px;width:46px">' +
+            '<input class="adm-modal-input" id="' + field + '-exact-carbs" placeholder="у" type="number" step="0.1" style="font-size:12px;padding:7px 6px;width:46px">' +
+            '<input class="adm-modal-input" id="' + field + '-exact-fiber" placeholder="кл" type="number" step="0.1" style="font-size:12px;padding:7px 6px;width:46px">' +
+            '<button type="button" class="adm-btn" style="font-size:12px;padding:7px 10px" onclick="addExactStatic(\'' + field + '\')">Добавить</button>' +
+            '</div>';
+    }
+
     function renderAddonOrderPickers() {
         ensureAdminRecipesLoaded().then(function() {
-            AA_SLOTS.forEach(function(s) { renderAddonOrderPicker(s.field); });
+            AA_SLOTS.forEach(function(s) {
+                renderAddonOrderPicker(s.field);
+                renderExactItems(s.field);
+            });
         });
     }
 
@@ -850,6 +930,55 @@
         renderAddonOrderPicker(field);
     };
 
+    window.addExactRecipe = function(field) {
+        var select = document.getElementById(field + '-exact-recipe');
+        var recipeId = select ? select.value : '';
+        if (!recipeId) return;
+        var items = parseExactItems(field);
+        if (!items.some(function(item) { return item.recipeId === recipeId; })) {
+            items.push({ recipeId: recipeId });
+            setExactItems(field, items);
+        }
+        renderExactItems(field);
+    };
+
+    window.addExactStatic = function(field) {
+        var nameEl = document.getElementById(field + '-exact-name');
+        var name = nameEl ? nameEl.value.trim() : '';
+        if (!name) { showToast('Введите название добавки'); return; }
+        var item = {
+            name: name,
+            amount: (document.getElementById(field + '-exact-amount') || {}).value || '',
+            kcal: parseFloat((document.getElementById(field + '-exact-kcal') || {}).value) || 0,
+            protein: parseFloat((document.getElementById(field + '-exact-protein') || {}).value) || 0,
+            fat: parseFloat((document.getElementById(field + '-exact-fat') || {}).value) || 0,
+            carbs: parseFloat((document.getElementById(field + '-exact-carbs') || {}).value) || 0,
+            fiber: parseFloat((document.getElementById(field + '-exact-fiber') || {}).value) || 0
+        };
+        var items = parseExactItems(field);
+        items.push(item);
+        setExactItems(field, items);
+        renderExactItems(field);
+    };
+
+    window.moveExactItem = function(field, index, dir) {
+        var items = parseExactItems(field);
+        var next = index + dir;
+        if (next < 0 || next >= items.length) return;
+        var tmp = items[index];
+        items[index] = items[next];
+        items[next] = tmp;
+        setExactItems(field, items);
+        renderExactItems(field);
+    };
+
+    window.removeExactItem = function(field, index) {
+        var items = parseExactItems(field);
+        items.splice(index, 1);
+        setExactItems(field, items);
+        renderExactItems(field);
+    };
+
     var editingCategoryId = null;
 
     window.openCategoryModal = function() {
@@ -867,6 +996,7 @@
             wireAddonOrderSelect(s);
             var orderEl = document.getElementById(s.field + '-order');
             if (orderEl) orderEl.value = '';
+            setExactItems(s.field, []);
         });
         document.getElementById('cat-delete-btn').style.display = 'none';
         document.getElementById('category-modal').classList.add('open');
@@ -892,6 +1022,7 @@
             wireAddonOrderSelect(s);
             var orderEl = document.getElementById(s.field + '-order');
             if (orderEl) orderEl.value = formatAddonOrder(r.order);
+            setExactItems(s.field, r.items || []);
         });
         document.getElementById('cat-delete-btn').style.display = 'inline-block';
         document.getElementById('category-modal').classList.add('open');
@@ -916,10 +1047,12 @@
             var v = document.getElementById(s.field).value;
             var orderEl = document.getElementById(s.field + '-order');
             var order = parseAddonOrder(orderEl ? orderEl.value : '');
-            if (v || order.length) {
+            var exactItems = parseExactItems(s.field);
+            if (v || order.length || exactItems.length) {
                 body.auto_addons[s.key] = {};
                 if (v) body.auto_addons[s.key].fromCategory = v;
                 if (order.length) body.auto_addons[s.key].order = order;
+                if (exactItems.length) body.auto_addons[s.key].items = exactItems;
             }
         });
         if (!body.id || !body.name) { showToast('ID и название обязательны'); return; }

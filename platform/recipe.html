@@ -2265,6 +2265,26 @@
 					});
 					return pulled;
 				}
+				function resolveExactAddonItem(it) {
+					if (!it) return null;
+					if (it.recipeId && typeof RECIPES !== 'undefined') {
+						const rx = RECIPES[it.recipeId];
+						if (rx && rx.id !== recipe.id) {
+							return {
+								name: rx.name,
+								kcal: rx.kcal || 0,
+								protein: rx.protein || 0,
+								fat: rx.fat || 0,
+								carbs: rx.carbs || 0,
+								fiber: rx.fiber || 0,
+								recipeId: rx.id,
+								_auto: true
+							};
+						}
+					}
+					if (!it.name) return null;
+					return Object.assign({}, it, { _auto: true });
+				}
 				// Category-level rules (union across recipe's categories, first-win per slot)
 				recipeCats.forEach(catId => {
 					const cat = (typeof CATEGORIES !== 'undefined' && CATEGORIES[catId]) || null;
@@ -2285,8 +2305,8 @@
 					// items: static add-ons (name/amount/kbju, no recipeId)
 					if (Array.isArray(rule.items)) {
 						rule.items.forEach(it => {
-							if (!it || !it.name) return;
-							autoItems.push(Object.assign({}, it, { _auto: true }));
+							const item = resolveExactAddonItem(it);
+							if (item) autoItems.push(item);
 						});
 					}
 					resolved[s].push(...sortAddonItems(autoItems, rule.order));
@@ -2295,7 +2315,11 @@
 				if (/\bплов\b/i.test(recipe.name || '')) resolved.fiber.push(...collectCategoryAddons('salads'));
 				// Category-based soup rule. isSoup stays as legacy fallback until all stored data is migrated.
 				// Do not use fromCategory here: soups need a precise bread + oregano-croutons set, not all breads.
-				if (recipeCats.indexOf('soups') !== -1 || recipe.isSoup) {
+				const hasManagedSoupCarbs = !!(rules.carbs && (
+					rules.carbs.fromCategory ||
+					(Array.isArray(rules.carbs.items) && rules.carbs.items.length)
+				));
+				if ((recipeCats.indexOf('soups') !== -1 || recipe.isSoup) && !hasManagedSoupCarbs) {
 					resolved.carbs.push({
 						name: 'Цельнозерновой хлеб',
 						amount: '1 ломтик',
