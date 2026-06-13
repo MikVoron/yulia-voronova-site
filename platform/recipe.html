@@ -2212,15 +2212,41 @@
 			function _resolveAutoAddons(recipe) {
 				const slots = ['protein', 'fat', 'carbs', 'fiber'];
 				const resolved = { protein: [], fat: [], carbs: [], fiber: [] };
+				const orderRules = { protein: [], fat: [], carbs: [], fiber: [] };
 				const rules = {};
 				const recipeCats = recipe.categories || (recipe.cat ? [recipe.cat] : []);
 				function normalizeAddonOrder(order) {
 					if (Array.isArray(order)) return order.map(id => String(id || '').trim()).filter(Boolean);
-					if (typeof order === 'string') return order.split(/[\s,;]+/).map(id => id.trim()).filter(Boolean);
+					if (typeof order === 'string') return order.split(/[\n,;]+/).map(id => id.trim()).filter(Boolean);
 					return [];
 				}
-				function pushCategoryAddons(slot, sourceId, order) {
-					if (!sourceId || typeof RECIPES === 'undefined') return;
+				function addonOrderKeys(item) {
+					const keys = [];
+					if (item && item.recipeId) {
+						keys.push('recipe:' + item.recipeId);
+						keys.push(String(item.recipeId));
+					}
+					if (item && item.name) {
+						keys.push('item:' + String(item.name).trim());
+						keys.push(String(item.name).trim());
+					}
+					return keys.filter(Boolean);
+				}
+				function sortAddonItems(items, order) {
+					const ids = normalizeAddonOrder(order);
+					if (!ids.length) return items;
+					const rank = new Map();
+					ids.forEach((id, index) => { if (!rank.has(id)) rank.set(id, index); });
+					return items
+						.map((item, index) => {
+							const ranks = addonOrderKeys(item).map(key => rank.has(key) ? rank.get(key) : Number.POSITIVE_INFINITY);
+							return { item, index, rank: Math.min(...ranks) };
+						})
+						.sort((a, b) => (a.rank - b.rank) || (a.index - b.index))
+						.map(entry => entry.item);
+				}
+				function collectCategoryAddons(sourceId) {
+					if (!sourceId || typeof RECIPES === 'undefined') return [];
 					const pulled = [];
 					Object.values(RECIPES).forEach(rx => {
 						if (rx.id === recipe.id) return;
@@ -2237,17 +2263,7 @@
 							_auto: true
 						});
 					});
-					const ids = normalizeAddonOrder(order);
-					if (!ids.length) {
-						resolved[slot].push(...pulled);
-						return;
-					}
-					const rank = new Map();
-					ids.forEach((id, index) => { if (!rank.has(id)) rank.set(id, index); });
-					pulled
-						.map((item, index) => ({ item, index, rank: rank.has(item.recipeId) ? rank.get(item.recipeId) : Number.POSITIVE_INFINITY }))
-						.sort((a, b) => (a.rank - b.rank) || (a.index - b.index))
-						.forEach(entry => resolved[slot].push(entry.item));
+					return pulled;
 				}
 				// Category-level rules (union across recipe's categories, first-win per slot)
 				recipeCats.forEach(catId => {
@@ -2262,18 +2278,21 @@
 				slots.forEach(s => {
 					const rule = rules[s];
 					if (!rule) return;
+					let autoItems = [];
+					orderRules[s] = normalizeAddonOrder(rule.order);
 					// fromCategory: pull all recipes from target category
-					if (rule.fromCategory) pushCategoryAddons(s, rule.fromCategory, rule.order);
+					if (rule.fromCategory) autoItems = autoItems.concat(collectCategoryAddons(rule.fromCategory));
 					// items: static add-ons (name/amount/kbju, no recipeId)
 					if (Array.isArray(rule.items)) {
 						rule.items.forEach(it => {
 							if (!it || !it.name) return;
-							resolved[s].push(Object.assign({}, it, { _auto: true }));
+							autoItems.push(Object.assign({}, it, { _auto: true }));
 						});
 					}
+					resolved[s].push(...sortAddonItems(autoItems, rule.order));
 				});
 				// Name-based rule: every recipe with "Плов" gets salads as Fiber add-ons.
-				if (/\bплов\b/i.test(recipe.name || '')) pushCategoryAddons('fiber', 'salads');
+				if (/\bплов\b/i.test(recipe.name || '')) resolved.fiber.push(...collectCategoryAddons('salads'));
 				// Category-based soup rule. isSoup stays as legacy fallback until all stored data is migrated.
 				// Do not use fromCategory here: soups need a precise bread + oregano-croutons set, not all breads.
 				if (recipeCats.indexOf('soups') !== -1 || recipe.isSoup) {
@@ -2299,6 +2318,7 @@
 						}
 					}
 				}
+				resolved._order = orderRules;
 				return resolved;
 			}
 			function _normAddonName(s) {
@@ -2341,11 +2361,35 @@
 				}
 				return out;
 			}
+			function _sortAddItemsByOrder(items, order) {
+				if (!Array.isArray(order) || !order.length) return items;
+				const rank = new Map();
+				order.forEach((id, index) => { if (!rank.has(id)) rank.set(id, index); });
+				function keys(it) {
+					const out = [];
+					if (it && it.recipeId) {
+						out.push('recipe:' + it.recipeId);
+						out.push(String(it.recipeId));
+					}
+					if (it && it.name) {
+						out.push('item:' + String(it.name).trim());
+						out.push(String(it.name).trim());
+					}
+					return out;
+				}
+				return items
+					.map((item, index) => {
+						const ranks = keys(item).map(key => rank.has(key) ? rank.get(key) : Number.POSITIVE_INFINITY);
+						return { item, index, rank: Math.min(...ranks) };
+					})
+					.sort((a, b) => (a.rank - b.rank) || (a.index - b.index))
+					.map(entry => entry.item);
+			}
 			const _autoAdd = _resolveAutoAddons(r);
-			const addProtein = _mergeAddItems(r.addProtein, _autoAdd.protein);
-			const addFat = _mergeAddItems(r.addFat, _autoAdd.fat);
-			const addCarbs = _mergeAddItems(r.addCarbs, _autoAdd.carbs);
-			const addFiber = _mergeAddItems(r.addFiber, _autoAdd.fiber);
+			const addProtein = _sortAddItemsByOrder(_mergeAddItems(r.addProtein, _autoAdd.protein), _autoAdd._order && _autoAdd._order.protein);
+			const addFat = _sortAddItemsByOrder(_mergeAddItems(r.addFat, _autoAdd.fat), _autoAdd._order && _autoAdd._order.fat);
+			const addCarbs = _sortAddItemsByOrder(_mergeAddItems(r.addCarbs, _autoAdd.carbs), _autoAdd._order && _autoAdd._order.carbs);
+			const addFiber = _sortAddItemsByOrder(_mergeAddItems(r.addFiber, _autoAdd.fiber), _autoAdd._order && _autoAdd._order.fiber);
 			// Сайдбар показывается ТОЛЬКО если хотя бы одно add* поле (после резолва) содержит данные
 			const _hasOwn = (arr) => Array.isArray(arr) && arr.length > 0;
 			const _hasAnyAdd = _hasOwn(addProtein) || _hasOwn(addFat) || _hasOwn(addCarbs) || _hasOwn(addFiber);

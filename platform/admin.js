@@ -681,9 +681,9 @@
             var aa = c.auto_addons || {};
             var rules = AA_SLOTS.map(function(s) {
                 var r = aa[s.key];
-                if (!r || !r.fromCategory) return '';
-                var name = CAT_NAMES[r.fromCategory] || r.fromCategory;
-                return '<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#f1f5f9;color:#475569;font-size:10px;font-weight:600;margin:2px 2px 0 0">' + s.label + ' ← ' + esc(name) + '</span>';
+                if (!r || (!r.fromCategory && !(Array.isArray(r.order) && r.order.length))) return '';
+                var name = r.fromCategory ? (CAT_NAMES[r.fromCategory] || r.fromCategory) : 'ручной порядок';
+                return '<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#f1f5f9;color:#475569;font-size:10px;font-weight:600;margin:2px 2px 0 0">' + s.label + (r.fromCategory ? ' ← ' : ': ') + esc(name) + '</span>';
             }).join('');
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:#fff">'
                 + '<div style="flex:1;min-width:0">'
@@ -708,16 +708,190 @@
         el.innerHTML = opts;
     }
 
+    function normalizeAddonOrderKey(value) {
+        var key = String(value || '').trim();
+        if (!key) return '';
+        if (key.indexOf('recipe:') === 0 || key.indexOf('item:') === 0) return key;
+        if (allRecipes.some(function(r) { return r.id === key; })) return 'recipe:' + key;
+        return key;
+    }
+
     function formatAddonOrder(order) {
-        return Array.isArray(order) ? order.filter(Boolean).join('\n') : '';
+        return Array.isArray(order) ? order.map(normalizeAddonOrderKey).filter(Boolean).join('\n') : '';
     }
 
     function parseAddonOrder(value) {
         return String(value || '')
-            .split(/[\s,;]+/)
-            .map(function(id) { return id.trim(); })
+            .split(/[\n,;]+/)
+            .map(normalizeAddonOrderKey)
             .filter(Boolean);
     }
+
+    function recipeInCategory(recipe, catId) {
+        var cats = recipe.categories || (recipe.cat ? [recipe.cat] : []);
+        return cats.indexOf(catId) !== -1;
+    }
+
+    function slotAddField(slotKey) {
+        return {
+            protein: 'add_protein',
+            fat: 'add_fat',
+            carbs: 'add_carbs',
+            fiber: 'add_fiber'
+        }[slotKey];
+    }
+
+    function ensureAdminRecipesLoaded() {
+        if (allRecipes.length) return Promise.resolve(allRecipes);
+        return api('/admin/recipes').then(function(data) {
+            allRecipes = data || [];
+            return allRecipes;
+        }).catch(function() { return []; });
+    }
+
+    function addonItemKey(item) {
+        var name = item && item.name ? String(item.name).trim() : '';
+        return name ? 'item:' + name : '';
+    }
+
+    function recipeOrderKey(recipe) {
+        return recipe && recipe.id ? 'recipe:' + recipe.id : '';
+    }
+
+    function getAddonOrderCandidates(slot, targetCatId, sourceCatId, rule) {
+        var out = [];
+        var seen = {};
+        function add(key, label, meta) {
+            key = normalizeAddonOrderKey(key);
+            if (!key || seen[key]) return;
+            seen[key] = true;
+            out.push({ key: key, label: label || key, meta: meta || '' });
+        }
+        if (sourceCatId) {
+            allRecipes.forEach(function(r) {
+                if (!r.is_published || !recipeInCategory(r, sourceCatId)) return;
+                add(recipeOrderKey(r), (r.emoji ? r.emoji + ' ' : '') + (r.name || r.id), 'рецепт');
+            });
+        }
+        if (rule && Array.isArray(rule.items)) {
+            rule.items.forEach(function(item) {
+                if (!item || !item.name) return;
+                add(addonItemKey(item), item.name + (item.amount ? ' · ' + item.amount : ''), 'добавка без ID');
+            });
+        }
+        var addField = slotAddField(slot.key);
+        if (targetCatId && addField) {
+            allRecipes.forEach(function(r) {
+                if (!r.is_published || !recipeInCategory(r, targetCatId)) return;
+                (r[addField] || []).forEach(function(item) {
+                    if (!item || !item.name) return;
+                    add(addonItemKey(item), item.name + (item.amount ? ' · ' + item.amount : ''), 'добавка без ID');
+                });
+            });
+        }
+        return out;
+    }
+
+    function currentCategoryAutoAddons() {
+        if (!editingCategoryId) return {};
+        var c = allCategories.find(function(x) { return x.id === editingCategoryId; });
+        return c && c.auto_addons || {};
+    }
+
+    function getAddonOrderItems(slot, targetCatId, sourceCatId, rule) {
+        var candidates = getAddonOrderCandidates(slot, targetCatId, sourceCatId, rule);
+        var hidden = document.getElementById(slot.field + '-order');
+        var order = parseAddonOrder(hidden ? hidden.value : '');
+        if (!order.length) return candidates;
+        var byKey = {};
+        candidates.forEach(function(item) { byKey[item.key] = item; });
+        var used = {};
+        var ordered = [];
+        order.forEach(function(key) {
+            if (used[key]) return;
+            used[key] = true;
+            ordered.push(byKey[key] || {
+                key: key,
+                label: key.replace(/^recipe:/, '').replace(/^item:/, ''),
+                meta: 'не найдено'
+            });
+        });
+        candidates.forEach(function(item) {
+            if (!used[item.key]) ordered.push(item);
+        });
+        return ordered;
+    }
+
+    function renderAddonOrderPicker(field) {
+        var slot = AA_SLOTS.find(function(s) { return s.field === field; });
+        if (!slot) return;
+        var listEl = document.getElementById(field + '-order-list');
+        if (!listEl) return;
+        var targetCatId = editingCategoryId || document.getElementById('cat-id').value.trim();
+        var sourceCatId = document.getElementById(field).value;
+        var rule = (currentCategoryAutoAddons()[slot.key] || {});
+        var items = getAddonOrderItems(slot, targetCatId, sourceCatId, rule);
+        if (!items.length) {
+            listEl.innerHTML = '<div style="font-size:11px;color:var(--text-3);padding:8px 0">Нет добавок для ручного порядка. Выберите категорию-источник или добавьте добавки в рецепты этой категории.</div>';
+            return;
+        }
+        var hidden = document.getElementById(field + '-order');
+        var hasCustom = !!(hidden && parseAddonOrder(hidden.value).length);
+        listEl.innerHTML =
+            '<div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Порядок в сайдбаре. Двигайте названия, ID знать не нужно.</div>' +
+            items.map(function(item, index) {
+                return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:#fff;margin-bottom:4px">' +
+                    '<div style="display:flex;gap:4px;flex-shrink:0">' +
+                    '<button type="button" class="adm-btn" style="font-size:12px;padding:2px 7px" onclick="moveAddonOrder(\'' + field + '\',' + index + ',-1)"' + (index === 0 ? ' disabled' : '') + '>↑</button>' +
+                    '<button type="button" class="adm-btn" style="font-size:12px;padding:2px 7px" onclick="moveAddonOrder(\'' + field + '\',' + index + ',1)"' + (index === items.length - 1 ? ' disabled' : '') + '>↓</button>' +
+                    '</div>' +
+                    '<div style="min-width:0;flex:1">' +
+                    '<div style="font-size:12px;font-weight:600;color:var(--text);white-space:normal">' + esc(item.label) + '</div>' +
+                    (item.meta ? '<div style="font-size:10px;color:var(--text-3)">' + esc(item.meta) + '</div>' : '') +
+                    '</div>' +
+                    '</div>';
+            }).join('') +
+            (hasCustom ? '<button type="button" class="adm-btn" style="font-size:11px;padding:5px 9px;margin-top:2px" onclick="resetAddonOrder(\'' + field + '\')">Сбросить ручной порядок</button>' : '');
+    }
+
+    function renderAddonOrderPickers() {
+        ensureAdminRecipesLoaded().then(function() {
+            AA_SLOTS.forEach(function(s) { renderAddonOrderPicker(s.field); });
+        });
+    }
+
+    function wireAddonOrderSelect(slot) {
+        var el = document.getElementById(slot.field);
+        if (!el) return;
+        el.onchange = function() {
+            var hidden = document.getElementById(slot.field + '-order');
+            if (hidden) hidden.value = '';
+            renderAddonOrderPicker(slot.field);
+        };
+    }
+
+    window.moveAddonOrder = function(field, index, dir) {
+        var slot = AA_SLOTS.find(function(s) { return s.field === field; });
+        if (!slot) return;
+        var targetCatId = editingCategoryId || document.getElementById('cat-id').value.trim();
+        var sourceCatId = document.getElementById(field).value;
+        var rule = (currentCategoryAutoAddons()[slot.key] || {});
+        var items = getAddonOrderItems(slot, targetCatId, sourceCatId, rule);
+        var next = index + dir;
+        if (next < 0 || next >= items.length) return;
+        var tmp = items[index];
+        items[index] = items[next];
+        items[next] = tmp;
+        var hidden = document.getElementById(field + '-order');
+        if (hidden) hidden.value = items.map(function(item) { return item.key; }).join('\n');
+        renderAddonOrderPicker(field);
+    };
+
+    window.resetAddonOrder = function(field) {
+        var hidden = document.getElementById(field + '-order');
+        if (hidden) hidden.value = '';
+        renderAddonOrderPicker(field);
+    };
 
     var editingCategoryId = null;
 
@@ -733,11 +907,13 @@
         document.getElementById('cat-desc').value = '';
         AA_SLOTS.forEach(function(s) {
             populateCatSelect(s.field, '', null);
+            wireAddonOrderSelect(s);
             var orderEl = document.getElementById(s.field + '-order');
             if (orderEl) orderEl.value = '';
         });
         document.getElementById('cat-delete-btn').style.display = 'none';
         document.getElementById('category-modal').classList.add('open');
+        renderAddonOrderPickers();
     };
 
     window.editCategory = function(id) {
@@ -756,11 +932,13 @@
         AA_SLOTS.forEach(function(s) {
             var r = aa[s.key] || {};
             populateCatSelect(s.field, r.fromCategory || '', id);
+            wireAddonOrderSelect(s);
             var orderEl = document.getElementById(s.field + '-order');
             if (orderEl) orderEl.value = formatAddonOrder(r.order);
         });
         document.getElementById('cat-delete-btn').style.display = 'inline-block';
         document.getElementById('category-modal').classList.add('open');
+        renderAddonOrderPickers();
     };
 
     window.closeCategoryModal = function() {
@@ -781,8 +959,9 @@
             var v = document.getElementById(s.field).value;
             var orderEl = document.getElementById(s.field + '-order');
             var order = parseAddonOrder(orderEl ? orderEl.value : '');
-            if (v) {
-                body.auto_addons[s.key] = { fromCategory: v };
+            if (v || order.length) {
+                body.auto_addons[s.key] = {};
+                if (v) body.auto_addons[s.key].fromCategory = v;
                 if (order.length) body.auto_addons[s.key].order = order;
             }
         });
