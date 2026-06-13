@@ -29,7 +29,8 @@
     { id: 'legumes',    name: 'Бобовые' },
     { id: 'grains',     name: 'Крупы и паста' },
     { id: 'mushrooms',  name: 'Грибы' },
-    { id: 'fish',       name: 'Рыба' }
+    { id: 'fish',       name: 'Рыба' },
+    { id: 'poultry',    name: 'Птица' }
   ];
 
   // Ингредиенты. group ссылается на GROUPS[].id.
@@ -66,7 +67,9 @@
     { id: 'mushrooms',   name: 'Грибы',  group: 'mushrooms' },
     // Рыба
     { id: 'salmon',      name: 'Лосось', group: 'fish' },
-    { id: 'tuna',        name: 'Тунец',  group: 'fish' }
+    { id: 'tuna',        name: 'Тунец',  group: 'fish' },
+    // Птица
+    { id: 'chicken',     name: 'Курица', group: 'poultry' }
   ];
 
   var ITEM_BY_ID  = {};
