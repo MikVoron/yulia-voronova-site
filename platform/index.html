@@ -494,9 +494,20 @@
 			grid-template-columns: repeat(4, 1fr);
 			gap: 22px;
 		}
-		.sp-home .cat-card { border-radius: 0; }
+		.sp-home .cat-card {
+			border-radius: 0;
+			background: #fffdf8;
+			border: 1px solid #ebe2d7;
+		}
+		@media (hover: hover) {
+			.sp-home .cat-card:hover {
+				border-color: #d7c7b8;
+				box-shadow: 0 10px 26px rgba(28, 22, 16, .06);
+				transform: translateY(-2px);
+			}
+		}
 		.sp-home .cat-icon-wrap { border-radius: 0; }
-		.sp-home .cat-body { padding: 14px 0 0; }
+		.sp-home .cat-body { padding: 16px 16px 17px; }
 		.sp-home .cat-name {
 			font-family: var(--serif);
 			font-size: 18px; font-weight: 700;
