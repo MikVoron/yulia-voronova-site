@@ -3491,6 +3491,11 @@ button[class*="btn-"]:hover,
     align-items: start; /* РљР°СЂС‚РѕС‡РєРё РЅРµ СЂР°СЃС‚СЏРіРёРІР°СЋС‚СЃСЏ РїРѕ РІС‹СЃРѕС‚Рµ */
 }
 
+.tariffs-grid.has-open-card {
+    margin-top: 22px;
+    margin-bottom: 72px;
+}
+
 .tariff-card {
     background: var(--cream);
     border-radius: 16px;
@@ -3656,6 +3661,11 @@ button[class*="btn-"]:hover,
 .tariff-card-collapsible.popular:hover {
     transform: scale(1.08) translateY(-10px);
     box-shadow: 0 20px 45px rgba(138, 154, 141, 0.3);
+}
+
+.tariffs-grid.has-open-card .tariff-card-collapsible.popular.is-open,
+.tariffs-grid.has-open-card .tariff-card-collapsible.popular.is-open:hover {
+    transform: none;
 }
 
 .tariff-card-preview {
@@ -13067,6 +13077,8 @@ button[class*="btn-"]:hover,
     /* РљРѕРіРґР° РєР°СЂС‚РѕС‡РєР° СЂР°СЃРєСЂС‹С‚Р° - РІС‹СЃРѕС‚Р° РєРѕРЅС‚РµР№РЅРµСЂР° Р°РІС‚Рѕ */
     .tariffs-grid.has-open-card {
         min-height: auto;
+        margin-top: 24px;
+        margin-bottom: 56px;
     }
 
     /* РўРѕС‡РєРё-РёРЅРґРёРєР°С‚РѕСЂС‹ */
