@@ -68,6 +68,7 @@
     // Рыба
     { id: 'salmon',      name: 'Лосось', group: 'fish' },
     { id: 'tuna',        name: 'Тунец',  group: 'fish' },
+    { id: 'shrimp',      name: 'Креветки', group: 'fish' },
     // Птица
     { id: 'chicken',     name: 'Курица', group: 'poultry' }
   ];
