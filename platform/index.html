@@ -435,12 +435,23 @@
 			font-size: clamp(15px, 1.3vw, 17px);
 			line-height: 1.68;
 		}
+		.sp-guest-copy + .sp-guest-copy { margin-top: 10px; }
 		.sp-guest-sign {
 			margin: 18px 0 0;
 			font-family: var(--serif);
 			font-size: 19px;
 			line-height: 1.25;
 			color: var(--text);
+		}
+		.sp-guest-handle {
+			display: block;
+			margin-top: 3px;
+			font-family: var(--sans);
+			font-size: 12px;
+			font-weight: 800;
+			letter-spacing: .08em;
+			text-transform: uppercase;
+			color: var(--accent);
 		}
 		.sp-how-head {
 			padding-top: 28px;
@@ -625,7 +636,7 @@
 		}
 		.sp-how-check {
 			display: grid;
-			grid-template-columns: 16px 1fr auto;
+			grid-template-columns: 8px 1fr;
 			gap: 9px;
 			align-items: center;
 			margin-top: 11px;
@@ -635,9 +646,10 @@
 			text-transform: uppercase;
 		}
 		.sp-how-check i {
-			width: 15px;
-			height: 15px;
-			border: 1px solid var(--text);
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background: var(--accent);
 		}
 		.sp-how-plate {
 			position: absolute;
@@ -1736,6 +1748,16 @@
 			font-size: 13px; color: var(--text-2); margin: 0;
 			line-height: 1.5;
 		}
+		.sp-cta-count {
+			display: inline-block;
+			margin-right: 4px;
+			font-family: var(--serif);
+			font-size: 24px;
+			font-weight: 700;
+			line-height: 1;
+			color: var(--accent);
+		}
+		.sp-cta-text-line { display: block; }
 		.sp-cta-btn {
 			flex-shrink: 0;
 			display: inline-flex; align-items: center; justify-content: center;
@@ -1967,8 +1989,9 @@
 							<p class="sp-guest-kicker">Привет!</p>
 							<h1 class="sp-guest-title" id="guest-onboarding-title">Я Юля Воронова.</h1>
 							<p class="sp-guest-lead"><span>Семейный нутрициолог</span><span>и автор “Умной тарелки”.</span></p>
-							<p class="sp-guest-copy">Здесь я собрала и продолжаю собирать свои лучшие рецепты, проверенные моей семьей. Это не экзотическая “здоровая еда”, а привычные блюда: супы и борщ, котлеты, паста, блины, просто в более здоровой версии. Я адаптировала их так, чтобы они были и вкусными, и полезными одновременно.</p>
-							<p class="sp-guest-sign">Готовьте с удовольствием! Ваша Юля.</p>
+							<p class="sp-guest-copy">Здесь я собрала и продолжаю собирать свои лучшие рецепты, проверенные моей семьей. Это не экзотическая “здоровая еда”, а привычные блюда: супы и борщ, котлеты, паста, блины, просто в более здоровой версии.</p>
+							<p class="sp-guest-copy">Я адаптировала их так, чтобы они были и вкусными, и сбалансированными одновременно.</p>
+							<p class="sp-guest-sign">Готовьте с удовольствием! Ваша Юля.<span class="sp-guest-handle">@voronova_nutrition</span></p>
 						</div>
 					</div>
 
@@ -1976,7 +1999,7 @@
 						<div>
 							<p class="sp-how-kicker">Как работает платформа</p>
 							<h2 class="sp-how-title">От рецепта до готовой тарелки</h2>
-							<p class="sp-how-copy">За пару минут покажу путь: найти блюдо, сделать его сбалансированным, сохранить результат и быстро собрать список покупок.</p>
+							<p class="sp-how-copy">За пару минут покажу путь: найти блюдо, сделать его более сбалансированным, сохранить результат и быстро собрать список покупок.</p>
 						</div>
 					</div>
 
@@ -2003,14 +2026,15 @@
 							<div class="sp-how-visual" aria-hidden="true">
 								<div class="sp-how-balance">
 									<div class="sp-how-bar"><span></span></div>
-									<div class="sp-how-check"><i></i><span>Углеводы</span><b>нужно</b></div>
-									<div class="sp-how-check"><i></i><span>Клетчатка</span><b>нужно</b></div>
+									<div class="sp-how-check"><i></i><span>Белок</span></div>
+									<div class="sp-how-check"><i></i><span>Углеводы</span></div>
+									<div class="sp-how-check"><i></i><span>Клетчатка</span></div>
 								</div>
 							</div>
 							<div class="sp-how-body">
 								<span class="sp-how-step">2</span>
 								<h3>Дополните блюдо</h3>
-								<p>Система покажет, чем дополнить рецепт, и пересчитает КБЖУ.</p>
+								<p>Система покажет, чем дополнить можно рецепт, и пересчитает КБЖУ.</p>
 							</div>
 						</article>
 						<article class="sp-how-card">
@@ -2206,7 +2230,7 @@
 			<section class="sp-block sp-cats-section anim anim-d2" id="cta-strip-block" style="display:none">
 				<div class="sp-cta-strip">
 					<div>
-						<h3>Откройте полную библиотеку рецептов</h3>
+						<h3>Откройте полную интерактивную базу рецептов</h3>
 						<p id="cta-strip-text"></p>
 					</div>
 					<a class="sp-cta-btn" id="cta-strip-btn" href="cabinet.html#subscription">Оформить подписку</a>
@@ -3229,13 +3253,9 @@
 			const n = Object.keys(RECIPES).length;
 			if (!n) { block.style.display = 'none'; return; }
 			const rounded = _roundDownMarketing(n);
-			const prefix = (n >= 5 && rounded < n) ? 'Более ' : '';
-			const m10 = rounded % 10, m100 = rounded % 100;
-			const word = (m100 >= 11 && m100 <= 14) ? 'рецептов'
-				: m10 === 1 ? 'рецепта' // «Более 51 рецепта» — маркетинговый окрас
-				: (m10 >= 2 && m10 <= 4) ? 'рецептов'
-				: 'рецептов';
-			txt.textContent = prefix + rounded + ' ' + word + ', расчёт КБЖУ под ваш профиль, замены продуктов и сезонные подборки.';
+			const countLabel = rounded + '+';
+			txt.innerHTML = '<span class="sp-cta-text-line"><span class="sp-cta-count">' + escHtml(countLabel) + '</span> адаптивных блюд с автоматическим расчётом КБЖУ, заменой продуктов и сезонными рецептами.</span>'
+				+ '<span class="sp-cta-text-line">Управляйте тарелкой сами: сочетайте основные блюда с нужными вам добавками и рецептами.</span>';
 
 			// Гость → ведём на login (триал автоматически), иначе на подписку.
 			if (btn) {
