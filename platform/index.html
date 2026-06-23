@@ -23,194 +23,408 @@
 		/* Shared editorial header (.sp-header*) вынесен в style-v4.css.
 		   Здесь — только индекс-специфичные блоки: hero, cat-grid editorial,
 		   drawer (open via burger), CTA close. */
-
 		/* ── DRAWER (mobile) ───────────────────────────────────────────
 		   По spec §2 бургер открывает выдвижное меню разделов. Скрыт на desktop. */
 		.sp-drawer {
-			position: fixed; inset: 0; z-index: 200;
+			position: fixed;
+			inset: 0;
+			z-index: 200;
 			display: flex;
 			pointer-events: none;
 			overscroll-behavior: none;
 		}
-		.sp-drawer[hidden] { display: none; }
+
+		.sp-drawer[hidden] {
+			display: none;
+		}
+
 		.sp-drawer-back {
-			position: absolute; inset: 0;
-			background: rgba(17,17,17,.54);
+			position: absolute;
+			inset: 0;
+			background: rgba(17, 17, 17, .54);
 			opacity: 0;
 			transition: opacity .28s cubic-bezier(.2, .8, .2, 1);
 			pointer-events: auto;
 		}
-		.sp-drawer.open .sp-drawer-back { opacity: 1; }
+
+		.sp-drawer.open .sp-drawer-back {
+			opacity: 1;
+		}
+
 		.sp-drawer-panel {
-			position: relative; z-index: 1;
+			position: relative;
+			z-index: 1;
 			width: min(320px, 86vw);
 			height: 100%;
 			background: #fff;
 			border-right: 1px solid var(--border);
 			transform: translateX(-100%);
 			transition: transform .28s cubic-bezier(.2, .8, .2, 1);
-			display: flex; flex-direction: column;
+			display: flex;
+			flex-direction: column;
 			pointer-events: auto;
 			overscroll-behavior: contain;
 		}
-		.sp-drawer.open .sp-drawer-panel { transform: translateX(0); }
+
+		.sp-drawer.open .sp-drawer-panel {
+			transform: translateX(0);
+		}
+
 		.sp-drawer-head {
-			display: flex; align-items: center; justify-content: space-between;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
 			padding: 18px 20px;
 			border-bottom: 1px solid var(--border);
 		}
+
 		.sp-drawer-title {
-			font-size: 11px; font-weight: 800;
-			letter-spacing: .14em; text-transform: uppercase;
+			font-size: 11px;
+			font-weight: 800;
+			letter-spacing: .14em;
+			text-transform: uppercase;
 			color: var(--text);
 		}
+
 		.sp-drawer-close {
-			width: 36px; height: 36px;
-			border: 1px solid var(--border); background: #fff;
-			display: flex; align-items: center; justify-content: center;
-			cursor: pointer; padding: 0;
+			width: 36px;
+			height: 36px;
+			border: 1px solid var(--border);
+			background: #fff;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			padding: 0;
 			color: var(--text);
 		}
-		.sp-drawer-close svg { width: 16px; height: 16px; display: block; }
-		.sp-drawer-close:hover { border-color: var(--accent); color: var(--accent); }
+
+		.sp-drawer-close svg {
+			width: 16px;
+			height: 16px;
+			display: block;
+		}
+
+		.sp-drawer-close:hover {
+			border-color: var(--accent);
+			color: var(--accent);
+		}
+
 		.sp-drawer-nav {
 			padding: 8px 0;
-			display: flex; flex-direction: column;
+			display: flex;
+			flex-direction: column;
 			overflow-y: auto;
 			overscroll-behavior: contain;
 			-webkit-overflow-scrolling: touch;
 		}
+
 		.sp-drawer-nav a {
 			position: relative;
 			padding: 14px 20px;
 			font-family: var(--serif);
-			font-size: 17px; font-weight: 700;
-			color: var(--text); text-decoration: none;
+			font-size: 17px;
+			font-weight: 700;
+			color: var(--text);
+			text-decoration: none;
 			border-bottom: 1px solid var(--border);
 			transition: color var(--tr);
 		}
-		.sp-drawer-nav a:hover { color: var(--accent); }
+
+		.sp-drawer-nav a:hover {
+			color: var(--accent);
+		}
+
 		.sp-drawer-toggle {
-			width: 100%; padding: 14px 20px; border: 0; border-bottom: 1px solid var(--border);
-			background: #fff; display: flex; align-items: center; justify-content: space-between;
-			font-family: var(--serif); font-size: 18px; font-weight: 700;
-			color: var(--text); cursor: pointer; text-align: left;
+			width: 100%;
+			padding: 14px 20px;
+			border: 0;
+			border-bottom: 1px solid var(--border);
+			background: #fff;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			font-family: var(--serif);
+			font-size: 18px;
+			font-weight: 700;
+			color: var(--text);
+			cursor: pointer;
+			text-align: left;
 			transition: color var(--tr);
 		}
+
 		.sp-drawer-toggle:hover,
-		.sp-drawer-toggle[aria-expanded="true"] { color: var(--accent); }
-		.sp-drawer-plus { position: relative; width: 14px; height: 14px; flex: 0 0 auto; }
+		.sp-drawer-toggle[aria-expanded="true"] {
+			color: var(--accent);
+		}
+
+		.sp-drawer-plus {
+			position: relative;
+			width: 14px;
+			height: 14px;
+			flex: 0 0 auto;
+		}
+
 		.sp-drawer-plus::before,
 		.sp-drawer-plus::after {
-			content: ''; position: absolute; left: 0; top: 6px; width: 14px; height: 1.5px;
-			background: currentColor; transition: transform .18s ease;
+			content: '';
+			position: absolute;
+			left: 0;
+			top: 6px;
+			width: 14px;
+			height: 1.5px;
+			background: currentColor;
+			transition: transform .18s ease;
 		}
-		.sp-drawer-plus::after { transform: rotate(90deg); }
-		.sp-drawer-toggle[aria-expanded="true"] .sp-drawer-plus::after { transform: rotate(0); }
-		.sp-drawer-content { display: flex; flex-direction: column; background: #fff; }
-		.sp-drawer-content[hidden] { display: none; }
+
+		.sp-drawer-plus::after {
+			transform: rotate(90deg);
+		}
+
+		.sp-drawer-toggle[aria-expanded="true"] .sp-drawer-plus::after {
+			transform: rotate(0);
+		}
+
+		.sp-drawer-content {
+			display: flex;
+			flex-direction: column;
+			background: #fff;
+		}
+
+		.sp-drawer-content[hidden] {
+			display: none;
+		}
+
 		.sp-drawer-content a {
-			padding: 12px 20px 12px 32px; font-family: var(--sans); font-size: 14px; font-weight: 600;
+			padding: 12px 20px 12px 32px;
+			font-family: var(--sans);
+			font-size: 14px;
+			font-weight: 600;
 		}
+
 		.sp-drawer-content .sp-drawer-subhead {
-			display: block; margin: 14px 20px 2px 32px; padding: 12px 0 6px;
+			display: block;
+			margin: 14px 20px 2px 32px;
+			padding: 12px 0 6px;
 			border-top: 1px solid var(--border);
-			font-size: 11px; font-weight: 800; letter-spacing: .12em;
-			text-transform: uppercase; color: var(--text);
+			font-size: 11px;
+			font-weight: 800;
+			letter-spacing: .12em;
+			text-transform: uppercase;
+			color: var(--text);
 		}
-		.sp-drawer-content .sp-drawer-subhead:first-child { margin-top: 8px; }
+
+		.sp-drawer-content .sp-drawer-subhead:first-child {
+			margin-top: 8px;
+		}
+
 		/* Заголовки секций (Рецепты / Ингредиенты / Ещё) и подгрупп ингредиентов
 		   (Овощи / Бобовые) внутри drawer — не ссылки, видны сразу. */
 		.sp-drawer-section {
 			padding: 16px 20px 6px;
-			font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: .1em;
+			text-transform: uppercase;
 			color: var(--text-3);
 		}
+
 		.sp-drawer-subhead {
 			padding: 12px 20px 2px;
-			font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+			font-size: 10px;
+			font-weight: 800;
+			letter-spacing: .1em;
+			text-transform: uppercase;
 			color: var(--text);
 		}
+
 		/* Поиск рецептов в drawer — NYT-clean; submit ведёт на category.html?q=...
 		   (header-nav.js). Отдельные классы, не конфликтуют с #hero-search. */
 		.sp-drawer-search {
 			position: relative;
-			display: flex; align-items: stretch;
-			margin: 12px 20px 10px; border: 1px solid var(--border); background: #fff;
+			display: flex;
+			align-items: stretch;
+			margin: 12px 20px 10px;
+			border: 1px solid var(--border);
+			background: #fff;
 		}
-		.sp-drawer-search:focus-within { border-color: var(--accent); }
+
+		.sp-drawer-search:focus-within {
+			border-color: var(--accent);
+		}
+
 		.sp-drawer-search-icon {
-			position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
-			width: 17px; height: 17px; color: var(--text-3); pointer-events: none;
+			position: absolute;
+			left: 13px;
+			top: 50%;
+			transform: translateY(-50%);
+			width: 17px;
+			height: 17px;
+			color: var(--text-3);
+			pointer-events: none;
 		}
+
 		.sp-drawer-search-input {
-			flex: 1 1 auto; min-width: 0; border: 0; background: none;
-			padding: 11px 52px 11px 40px; font-family: var(--sans); font-size: 15px; color: var(--text);
+			flex: 1 1 auto;
+			min-width: 0;
+			border: 0;
+			background: none;
+			padding: 11px 52px 11px 40px;
+			font-family: var(--sans);
+			font-size: 15px;
+			color: var(--text);
 		}
-		.sp-drawer-search-input::placeholder { color: var(--text-3); }
-		.sp-drawer-search-input:focus { outline: none; }
+
+		.sp-drawer-search-input::placeholder {
+			color: var(--text-3);
+		}
+
+		.sp-drawer-search-input:focus {
+			outline: none;
+		}
+
 		.sp-drawer-search-submit {
-			position: absolute; top: 50%; right: 6px; transform: translateY(-50%);
-			width: 36px; height: 36px; border: 0;
-			background: var(--text); color: #fff; font-size: 18px; line-height: 1; cursor: pointer;
-			display: flex; align-items: center; justify-content: center;
+			position: absolute;
+			top: 50%;
+			right: 6px;
+			transform: translateY(-50%);
+			width: 36px;
+			height: 36px;
+			border: 0;
+			background: var(--text);
+			color: #fff;
+			font-size: 18px;
+			line-height: 1;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 			transition: background var(--tr);
 		}
+
 		.sp-drawer-search-submit:hover,
 		.sp-drawer-search-submit:active,
-		.sp-drawer-search-submit.is-submitting { background: var(--accent); }
+		.sp-drawer-search-submit.is-submitting {
+			background: var(--accent);
+		}
+
 		/* Active: вертикальная оранжевая полоска слева (mobile-drawer паттерн,
 		   перекликается с accent-рельсом в user-dropdown). */
-		.sp-drawer-nav a.active { color: var(--accent); }
+		.sp-drawer-nav a.active {
+			color: var(--accent);
+		}
+
 		.sp-drawer-nav a.active::before {
 			content: '';
 			position: absolute;
-			left: 0; top: 0; bottom: 0;
+			left: 0;
+			top: 0;
+			bottom: 0;
 			width: 3px;
 			background: var(--accent);
 		}
+
 		/* Stagger reveal: пункты «вытекают» сверху вниз при открытии drawer.
 		   Keyframe (не transition) — чтобы delay не мешал hover-переходам. */
-		.sp-drawer-nav a { opacity: 0; }
+		.sp-drawer-nav a {
+			opacity: 0;
+		}
+
 		.sp-drawer.open .sp-drawer-nav a {
 			animation: drawerItemIn .32s cubic-bezier(.2, .8, .2, 1) forwards;
 		}
-		.sp-drawer.open .sp-drawer-nav a:nth-child(1) { animation-delay: 100ms; }
-		.sp-drawer.open .sp-drawer-nav a:nth-child(2) { animation-delay: 140ms; }
-		.sp-drawer.open .sp-drawer-nav a:nth-child(3) { animation-delay: 180ms; }
-		.sp-drawer.open .sp-drawer-nav a:nth-child(4) { animation-delay: 220ms; }
-		.sp-drawer.open .sp-drawer-nav a:nth-child(5) { animation-delay: 260ms; }
-		.sp-drawer.open .sp-drawer-nav a:nth-child(6) { animation-delay: 300ms; }
-		.sp-drawer.open .sp-drawer-nav a:nth-child(7) { animation-delay: 340ms; }
-		.sp-drawer.open .sp-drawer-nav a:nth-child(n+8) { animation-delay: 380ms; }
-		@keyframes drawerItemIn {
-			from { opacity: 0; transform: translateX(-8px); }
-			to   { opacity: 1; transform: translateX(0); }
+
+		.sp-drawer.open .sp-drawer-nav a:nth-child(1) {
+			animation-delay: 100ms;
 		}
+
+		.sp-drawer.open .sp-drawer-nav a:nth-child(2) {
+			animation-delay: 140ms;
+		}
+
+		.sp-drawer.open .sp-drawer-nav a:nth-child(3) {
+			animation-delay: 180ms;
+		}
+
+		.sp-drawer.open .sp-drawer-nav a:nth-child(4) {
+			animation-delay: 220ms;
+		}
+
+		.sp-drawer.open .sp-drawer-nav a:nth-child(5) {
+			animation-delay: 260ms;
+		}
+
+		.sp-drawer.open .sp-drawer-nav a:nth-child(6) {
+			animation-delay: 300ms;
+		}
+
+		.sp-drawer.open .sp-drawer-nav a:nth-child(7) {
+			animation-delay: 340ms;
+		}
+
+		.sp-drawer.open .sp-drawer-nav a:nth-child(n+8) {
+			animation-delay: 380ms;
+		}
+
+		@keyframes drawerItemIn {
+			from {
+				opacity: 0;
+				transform: translateX(-8px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateX(0);
+			}
+		}
+
 		@media (prefers-reduced-motion: reduce) {
-			.sp-drawer-back, .sp-drawer-panel { transition-duration: .01ms !important; }
-			.sp-drawer.open .sp-drawer-nav a { animation: none !important; opacity: 1 !important; }
+
+			.sp-drawer-back,
+			.sp-drawer-panel {
+				transition-duration: .01ms !important;
+			}
+
+			.sp-drawer.open .sp-drawer-nav a {
+				animation: none !important;
+				opacity: 1 !important;
+			}
 		}
 
 		/* CTA close-крестик — spec §3.5 */
-		.sp-cta-strip { position: relative; }
+		.sp-cta-strip {
+			position: relative;
+		}
+
 		.sp-cta-close {
-			position: absolute; top: 10px; right: 10px;
-			width: 28px; height: 28px;
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			width: 28px;
+			height: 28px;
 			background: transparent;
 			border: 1px solid var(--border);
-			display: flex; align-items: center; justify-content: center;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 			cursor: pointer;
-			font-size: 14px; line-height: 1;
-			color: var(--text-2); padding: 0;
+			font-size: 14px;
+			line-height: 1;
+			color: var(--text-2);
+			padding: 0;
 		}
-		.sp-cta-close:hover { border-color: var(--accent); color: var(--accent); }
+
+		.sp-cta-close:hover {
+			border-color: var(--accent);
+			color: var(--accent);
+		}
 
 		/* ── HERO ──────────────────────────────────────────────────── */
 		.sp-hero {
 			display: grid;
 			grid-template-columns: 1.2fr 1fr;
-			gap: 48px; align-items: center;
+			gap: 48px;
+			align-items: center;
 			padding: 56px 0 64px;
 			background: #fff;
 			/* .anim (fadeUp, fill-mode both) оставляет transform: translateY(0) →
@@ -219,97 +433,168 @@
 			position: relative;
 			z-index: 20;
 		}
+
 		/* Desktop (≥1024px): умеренно уплотняем вертикальный ритм главной — hero
 		   ближе к нижней навигации. Композиция, размеры заголовка/картинки и вид
 		   hero-search не меняются; планшет и mobile (≤767px) не затрагиваются.
 		   Парный override для .sp-new-block — ниже его базового правила. */
 		@media (min-width: 1024px) {
-			.sp-hero { padding: 20px 0 22px; }
+			.sp-hero {
+				padding: 20px 0 22px;
+			}
 		}
-		.sp-hero-text { min-width: 0; position: relative; }
+
+		.sp-hero-text {
+			min-width: 0;
+			position: relative;
+		}
+
 		.sp-hero-favorites {
 			display: none;
-			width: 42px; height: 42px;
-			align-items: center; justify-content: center;
-			border: 1px solid var(--border); background: #fff;
-			color: var(--text); text-decoration: none;
+			width: 42px;
+			height: 42px;
+			align-items: center;
+			justify-content: center;
+			border: 1px solid var(--border);
+			background: #fff;
+			color: var(--text);
+			text-decoration: none;
 			transition: border-color .18s ease, color .18s ease;
 		}
+
 		.sp-hero-favorites svg {
-			width: 19px; height: 19px; fill: none; stroke: currentColor;
-			stroke-width: 1.7; stroke-linejoin: round;
+			width: 19px;
+			height: 19px;
+			fill: none;
+			stroke: currentColor;
+			stroke-width: 1.7;
+			stroke-linejoin: round;
 		}
+
 		@media (hover: hover) and (pointer: fine) {
-			.sp-hero-favorites:hover { color: var(--accent); border-color: var(--accent); }
+			.sp-hero-favorites:hover {
+				color: var(--accent);
+				border-color: var(--accent);
+			}
 		}
+
 		.sp-hero-eyebrow {
-			font-size: 11px; font-weight: 700;
-			letter-spacing: .12em; text-transform: uppercase;
-			color: var(--accent); margin-bottom: 18px;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: .12em;
+			text-transform: uppercase;
+			color: var(--accent);
+			margin-bottom: 18px;
 		}
+
 		.sp-hero-title {
 			font-family: var(--serif);
 			font-size: clamp(34px, 5.4vw, 58px);
-			font-weight: 700; line-height: 1.02;
+			font-weight: 700;
+			line-height: 1.02;
 			letter-spacing: -.02em;
 			color: var(--text);
 			margin: 0 0 18px;
 		}
+
 		.sp-hero-sub {
-			font-size: 18px; line-height: 1.55;
+			font-size: 18px;
+			line-height: 1.55;
 			font-weight: 500;
 			color: var(--text);
-			max-width: 50ch; margin: 0 0 24px;
+			max-width: 50ch;
+			margin: 0 0 24px;
 		}
+
 		.sp-hero-aside {
-			display: flex; flex-direction: column;
-			min-width: 0; text-decoration: none; color: inherit;
+			display: flex;
+			flex-direction: column;
+			min-width: 0;
+			text-decoration: none;
+			color: inherit;
 		}
+
 		.sp-hero-media {
 			aspect-ratio: 4/3;
 			background: var(--bg-alt);
-			overflow: hidden; position: relative;
+			overflow: hidden;
+			position: relative;
 		}
+
 		.sp-hero-media img {
-			width: 100%; height: 100%; object-fit: cover; display: block;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			display: block;
 			transition: transform .6s ease;
 		}
-		.sp-hero-aside:hover .sp-hero-media img { transform: scale(1.02); }
+
+		.sp-hero-aside:hover .sp-hero-media img {
+			transform: scale(1.02);
+		}
+
 		/* Locked hero — клик уходит в showLockedMsg, визуально полупрозрачный
 		   слой поверх фото без иконки замка (замок только внутри бейджа). */
-		.sp-hero-aside.locked { cursor: pointer; opacity: .9; }
-		.sp-hero-aside.locked .sp-hero-media::after {
-			content: ''; position: absolute; inset: 0;
-			background: rgba(0,0,0,.18); z-index: 1;
+		.sp-hero-aside.locked {
+			cursor: pointer;
+			opacity: .9;
 		}
+
+		.sp-hero-aside.locked .sp-hero-media::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: rgba(0, 0, 0, .18);
+			z-index: 1;
+		}
+
 		.sp-hero-caption {
 			margin-top: 14px;
-			font-size: 11px; font-weight: 600;
-			letter-spacing: .08em; text-transform: uppercase;
+			font-size: 11px;
+			font-weight: 600;
+			letter-spacing: .08em;
+			text-transform: uppercase;
 			color: var(--text-3);
 			transition: opacity .25s ease;
 			/* Резерв под 2 строки caption (ярлык + название) — иначе при появлении
 			   текста hero подрастает и левая колонка/поиск дёргаются. */
-			line-height: 17px; min-height: 44px;
+			line-height: 17px;
+			min-height: 44px;
 		}
+
 		/* На узких ширинах длинное название переносится на 2 строки — увеличиваем
 		   резерв высоты, чтобы hero не прыгал после loading-state. */
 		@media (max-width: 1023px) {
-			.sp-hero-caption { min-height: 68px; }
+			.sp-hero-caption {
+				min-height: 68px;
+			}
 		}
+
 		/* Префикс-ярлык в подписи hero («Сезонный рецепт») — отдельной строкой,
 		   акцентом, чтобы связать крупное фото с рубрикой, не вешая плашку. */
-		.sp-hero-caption .sp-cap-tag { display: block; color: var(--accent); }
+		.sp-hero-caption .sp-cap-tag {
+			display: block;
+			color: var(--accent);
+		}
+
 		/* Название сезонного рецепта — отдельная строка, serif, тёмное, обычный
 		   регистр (сброс uppercase родителя), как небольшой editorial-заголовок. */
 		.sp-hero-caption .sp-cap-title {
-			display: block; margin-top: 3px;
-			font-family: var(--serif); color: var(--text);
-			text-transform: none; letter-spacing: normal;
-			font-weight: 600; font-size: 18px; line-height: 1.25;
+			display: block;
+			margin-top: 3px;
+			font-family: var(--serif);
+			color: var(--text);
+			text-transform: none;
+			letter-spacing: normal;
+			font-weight: 600;
+			font-size: 18px;
+			line-height: 1.25;
 		}
+
 		@media (hover: hover) and (pointer: fine) {
-			.sp-hero-aside:not(.is-loading):not(.locked):hover .sp-hero-caption { opacity: .55; }
+			.sp-hero-aside:not(.is-loading):not(.locked):hover .sp-hero-caption {
+				opacity: .55;
+			}
 		}
 
 		/* Loading-state для hero-aside: media и caption уже занимают своё
@@ -320,6 +605,7 @@
 			background-size: 200% 100%;
 			animation: spShimmer 1.4s linear infinite;
 		}
+
 		.sp-hero-aside.is-loading .sp-hero-caption {
 			background: linear-gradient(90deg, #efe9e0 0%, #f6f2eb 50%, #efe9e0 100%);
 			background-size: 200% 100%;
@@ -330,10 +616,12 @@
 
 		/* Hero search — flatten под editorial */
 		.sp-hero .hero-search {
-			margin: 0; max-width: 560px;
+			margin: 0;
+			max-width: 560px;
 			position: relative;
 			display: block;
 		}
+
 		.sp-hero .hero-search-input {
 			border-radius: 0;
 			border: 1px solid var(--border);
@@ -342,23 +630,33 @@
 			background: #fff;
 			color: var(--text);
 		}
-		.sp-hero .hero-search-input::placeholder { color: var(--text-3); }
+
+		.sp-hero .hero-search-input::placeholder {
+			color: var(--text-3);
+		}
+
 		.sp-hero .hero-search-input:focus {
 			border-color: var(--accent);
 			box-shadow: 0 0 0 3px rgba(232, 64, 10, .10);
 		}
+
 		/* В editorial-режиме иконка нейтральная, а не оранжевая. */
 		.sp-hero .hero-search-icon {
 			color: var(--text-3);
-			left: 18px; width: 18px; height: 18px;
+			left: 18px;
+			width: 18px;
+			height: 18px;
 		}
+
 		/* Компактная чёрная квадратная кнопка submit (spec: editorial flat).
 		   Не во всю высоту поля — фиксированный квадрат, центрирован по вертикали. */
 		.sp-hero .hero-search-submit {
 			position: absolute;
-			top: 50%; right: 8px;
+			top: 50%;
+			right: 8px;
 			transform: translateY(-50%);
-			width: 36px; height: 36px;
+			width: 36px;
+			height: 36px;
 			background: var(--text);
 			color: #fff;
 			border: none;
@@ -369,8 +667,14 @@
 			padding: 0;
 			transition: background var(--tr);
 		}
-		.sp-hero .hero-search-submit:hover { background: var(--accent); }
-		.sp-hero .hero-search-results { border-radius: 0; }
+
+		.sp-hero .hero-search-submit:hover {
+			background: var(--accent);
+		}
+
+		.sp-hero .hero-search-results {
+			border-radius: 0;
+		}
 
 		.sp-guest-onboarding {
 			display: none;
@@ -380,14 +684,22 @@
 			border-bottom: 1px solid var(--border);
 			background: #fbfaf7;
 		}
+
 		.sp-guest-tour-preview .sp-guest-onboarding,
-		.sp-guest-onboarding-active .sp-guest-onboarding { display: block; }
+		.sp-guest-onboarding-active .sp-guest-onboarding {
+			display: block;
+		}
+
 		.sp-guest-tour-preview .sp-hero,
-		.sp-guest-onboarding-active .sp-hero { display: none; }
+		.sp-guest-onboarding-active .sp-hero {
+			display: none;
+		}
+
 		.sp-guest-onboarding-inner {
 			max-width: 1120px;
 			margin: 0 auto;
 		}
+
 		.sp-guest-welcome {
 			display: grid;
 			grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
@@ -395,14 +707,16 @@
 			align-items: center;
 			margin-bottom: clamp(34px, 5vw, 58px);
 		}
+
 		.sp-guest-photo {
 			width: 100%;
 			aspect-ratio: 3 / 4;
 			object-fit: cover;
 			object-position: center;
 			border: 1px solid var(--border);
-			box-shadow: 0 18px 42px rgba(0,0,0,.08);
+			box-shadow: 0 18px 42px rgba(0, 0, 0, .08);
 		}
+
 		.sp-guest-kicker {
 			margin: 0 0 12px;
 			color: var(--accent);
@@ -411,6 +725,7 @@
 			letter-spacing: .16em;
 			text-transform: uppercase;
 		}
+
 		.sp-guest-title {
 			margin: 0 0 10px;
 			font-family: var(--serif);
@@ -418,6 +733,7 @@
 			line-height: 1.02;
 			letter-spacing: 0;
 		}
+
 		.sp-guest-lead {
 			margin: 0 0 18px;
 			max-width: 680px;
@@ -427,7 +743,11 @@
 			letter-spacing: 0;
 			color: var(--text);
 		}
-		.sp-guest-lead span { display: block; }
+
+		.sp-guest-lead span {
+			display: block;
+		}
+
 		.sp-guest-copy {
 			margin: 0;
 			max-width: 68ch;
@@ -435,7 +755,11 @@
 			font-size: clamp(15px, 1.3vw, 17px);
 			line-height: 1.68;
 		}
-		.sp-guest-copy + .sp-guest-copy { margin-top: 10px; }
+
+		.sp-guest-copy+.sp-guest-copy {
+			margin-top: 10px;
+		}
+
 		.sp-guest-sign {
 			margin: 18px 0 0;
 			font-family: var(--serif);
@@ -443,6 +767,7 @@
 			line-height: 1.25;
 			color: var(--text);
 		}
+
 		.sp-guest-handle {
 			display: block;
 			margin-top: 3px;
@@ -453,11 +778,13 @@
 			text-transform: uppercase;
 			color: var(--accent);
 		}
+
 		.sp-how-head {
 			padding-top: 28px;
 			border-top: 2px solid var(--text);
 			margin-bottom: 18px;
 		}
+
 		.sp-how-kicker {
 			margin: 0 0 8px;
 			color: var(--accent);
@@ -466,6 +793,7 @@
 			letter-spacing: .18em;
 			text-transform: uppercase;
 		}
+
 		.sp-how-title {
 			margin: 0;
 			font-family: var(--serif);
@@ -473,6 +801,7 @@
 			line-height: 1;
 			letter-spacing: 0;
 		}
+
 		.sp-how-copy {
 			margin: 10px 0 0;
 			max-width: 640px;
@@ -480,6 +809,7 @@
 			font-size: 16px;
 			line-height: 1.55;
 		}
+
 		.sp-how-cta {
 			display: inline-flex;
 			align-items: center;
@@ -496,20 +826,24 @@
 			text-transform: uppercase;
 			white-space: nowrap;
 		}
+
 		.sp-how-foot {
 			display: flex;
 			justify-content: center;
 			margin: 22px 0 34px;
 		}
+
 		.sp-how-foot .sp-how-cta {
 			min-width: min(360px, 100%);
 		}
+
 		.sp-how-grid {
 			display: grid;
 			grid-template-columns: repeat(5, minmax(190px, 1fr));
 			gap: 14px;
 			margin-bottom: 0;
 		}
+
 		.sp-how-card {
 			display: grid;
 			grid-template-rows: auto 1fr;
@@ -518,6 +852,7 @@
 			border: 1px solid var(--border);
 			overflow: hidden;
 		}
+
 		.sp-how-visual {
 			position: relative;
 			min-height: 150px;
@@ -525,9 +860,11 @@
 			border-bottom: 1px solid var(--border);
 			overflow: hidden;
 		}
+
 		.sp-how-body {
 			padding: 18px;
 		}
+
 		.sp-how-step {
 			display: inline-flex;
 			align-items: center;
@@ -540,6 +877,7 @@
 			font-size: 12px;
 			font-weight: 800;
 		}
+
 		.sp-how-card h3 {
 			margin: 0 0 9px;
 			font-family: var(--serif);
@@ -549,12 +887,14 @@
 			overflow-wrap: anywhere;
 			hyphens: auto;
 		}
+
 		.sp-how-card p {
 			margin: 0;
 			color: var(--text-2);
 			font-size: 14px;
 			line-height: 1.55;
 		}
+
 		.sp-how-search {
 			position: absolute;
 			left: 18px;
@@ -563,8 +903,9 @@
 			height: 48px;
 			background: #fff;
 			border: 1px solid var(--border);
-			box-shadow: 0 8px 22px rgba(0,0,0,.05);
+			box-shadow: 0 8px 22px rgba(0, 0, 0, .05);
 		}
+
 		.sp-how-search::after {
 			content: '→';
 			position: absolute;
@@ -581,6 +922,7 @@
 			line-height: 1;
 			font-family: var(--font);
 		}
+
 		.sp-how-search span {
 			position: absolute;
 			left: 42px;
@@ -592,6 +934,7 @@
 			white-space: nowrap;
 			overflow: hidden;
 		}
+
 		.sp-how-search svg {
 			position: absolute;
 			left: 14px;
@@ -600,7 +943,11 @@
 			height: 16px;
 			color: var(--text-3);
 		}
-		.sp-how-search-full { display: none; }
+
+		.sp-how-search-full {
+			display: none;
+		}
+
 		.sp-how-chip {
 			position: absolute;
 			left: 18px;
@@ -614,6 +961,7 @@
 			text-transform: uppercase;
 			animation: spHowFloat 2.4s ease-in-out infinite;
 		}
+
 		.sp-how-balance {
 			position: absolute;
 			inset: 18px;
@@ -621,12 +969,14 @@
 			border: 1px solid var(--border);
 			padding: 16px;
 		}
+
 		.sp-how-bar {
 			height: 10px;
 			background: #efe9df;
 			margin-bottom: 14px;
 			overflow: hidden;
 		}
+
 		.sp-how-bar span {
 			display: block;
 			height: 100%;
@@ -634,6 +984,7 @@
 			background: var(--accent);
 			animation: spHowGrow 2.8s ease-in-out infinite;
 		}
+
 		.sp-how-check {
 			display: grid;
 			grid-template-columns: 8px 1fr;
@@ -645,12 +996,14 @@
 			letter-spacing: .08em;
 			text-transform: uppercase;
 		}
+
 		.sp-how-check i {
 			width: 8px;
 			height: 8px;
 			border-radius: 50%;
 			background: var(--accent);
 		}
+
 		.sp-how-plate {
 			position: absolute;
 			left: 50%;
@@ -660,7 +1013,13 @@
 			transform: translate(-50%, -50%);
 			animation: spHowPlate 3.2s ease-in-out infinite;
 		}
-		.sp-how-plate-svg { width: 100%; height: 100%; display: block; }
+
+		.sp-how-plate-svg {
+			width: 100%;
+			height: 100%;
+			display: block;
+		}
+
 		.sp-how-list {
 			position: absolute;
 			inset: 18px;
@@ -668,6 +1027,7 @@
 			border: 1px solid var(--border);
 			padding: 16px;
 		}
+
 		.sp-how-item {
 			display: grid;
 			grid-template-columns: 17px 1fr;
@@ -678,16 +1038,19 @@
 			color: var(--text-2);
 			font-size: 13px;
 		}
+
 		.sp-how-item i {
 			width: 15px;
 			height: 15px;
 			border: 1px solid var(--text);
 		}
+
 		.sp-how-item:nth-child(2) i {
 			background: var(--accent);
 			box-shadow: inset 0 0 0 3px #fff;
 			animation: spHowTick 2.5s ease-in-out infinite;
 		}
+
 		.sp-how-message {
 			position: absolute;
 			inset: 18px;
@@ -695,11 +1058,13 @@
 			border: 1px solid var(--border);
 			padding: 16px;
 		}
+
 		.sp-how-tabs {
 			display: flex;
 			margin-bottom: 14px;
 			border: 1px solid var(--text);
 		}
+
 		.sp-how-tabs span {
 			flex: 1;
 			padding: 8px 6px;
@@ -709,49 +1074,123 @@
 			letter-spacing: .08em;
 			text-transform: uppercase;
 		}
+
 		.sp-how-tabs span:first-child {
 			background: var(--text);
 			color: #fff;
 		}
+
 		.sp-how-field {
 			height: 58px;
 			border: 1px solid var(--border);
 			background: linear-gradient(#f7f4ef, #f7f4ef) 14px 16px / 72% 6px no-repeat,
 				linear-gradient(#f7f4ef, #f7f4ef) 14px 32px / 52% 6px no-repeat;
 		}
+
 		@keyframes spHowFloat {
-			0%, 100% { transform: translateY(0); }
-			50% { transform: translateY(-7px); }
+
+			0%,
+			100% {
+				transform: translateY(0);
+			}
+
+			50% {
+				transform: translateY(-7px);
+			}
 		}
+
 		@keyframes spHowGrow {
-			0%, 100% { width: 48%; }
-			50% { width: 88%; }
+
+			0%,
+			100% {
+				width: 48%;
+			}
+
+			50% {
+				width: 88%;
+			}
 		}
+
 		@keyframes spHowPlate {
-			0%, 100% { transform: translate(-50%, -50%) scale(1); }
-			50% { transform: translate(-50%, -50%) scale(1.06); }
+
+			0%,
+			100% {
+				transform: translate(-50%, -50%) scale(1);
+			}
+
+			50% {
+				transform: translate(-50%, -50%) scale(1.06);
+			}
 		}
+
 		@keyframes spHowTick {
-			0%, 45%, 100% { transform: scale(1); }
-			60% { transform: scale(1.18); }
+
+			0%,
+			45%,
+			100% {
+				transform: scale(1);
+			}
+
+			60% {
+				transform: scale(1.18);
+			}
 		}
+
 		@media (max-width: 1180px) {
-			.sp-how-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-			.sp-how-card { min-height: 320px; }
+			.sp-how-grid {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+
+			.sp-how-card {
+				min-height: 320px;
+			}
 		}
+
 		@media (max-width: 767px) {
-			.sp-guest-onboarding { padding: 22px 18px 8px; }
-			.sp-guest-welcome { grid-template-columns: 1fr; gap: 18px; }
-			.sp-guest-photo { width: min(320px, 100%); }
-			.sp-how-cta { width: 100%; }
-			.sp-how-foot { margin: 18px 0 30px; }
-			.sp-how-grid { grid-template-columns: 1fr; }
-			.sp-how-card { min-height: 0; }
-			.sp-how-visual { min-height: 150px; }
-			.sp-guest-lead span { display: inline; }
-			.sp-guest-lead span + span::before { content: ' '; }
-			.sp-how-search-short { display: none; }
-			.sp-how-search-full { display: inline; }
+			.sp-guest-onboarding {
+				padding: 22px 18px 8px;
+			}
+
+			.sp-guest-welcome {
+				grid-template-columns: 1fr;
+				gap: 18px;
+			}
+
+			.sp-guest-photo {
+				width: min(320px, 100%);
+			}
+
+			.sp-how-cta {
+				width: 100%;
+			}
+
+			.sp-how-foot {
+				margin: 18px 0 30px;
+			}
+
+			.sp-how-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.sp-how-card {
+				min-height: 0;
+			}
+
+			.sp-how-visual {
+				min-height: 150px;
+			}
+
+			.sp-guest-lead span {
+				display: block;
+			}
+
+			.sp-how-search-short {
+				display: none;
+			}
+
+			.sp-how-search-full {
+				display: inline;
+			}
 		}
 
 		.sp-first-run {
@@ -761,6 +1200,7 @@
 			border-bottom: 1px solid var(--border);
 			background: #fff;
 		}
+
 		.sp-first-run-inner {
 			display: grid;
 			grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr) auto;
@@ -768,6 +1208,7 @@
 			align-items: center;
 			padding: 22px 0;
 		}
+
 		.sp-first-run-kicker {
 			margin: 0 0 7px;
 			font-size: 10px;
@@ -776,6 +1217,7 @@
 			text-transform: uppercase;
 			color: var(--accent);
 		}
+
 		.sp-first-run-title {
 			margin: 0;
 			font-family: var(--serif);
@@ -783,11 +1225,13 @@
 			line-height: 1.12;
 			color: var(--text);
 		}
+
 		.sp-first-run-steps {
 			display: grid;
 			grid-template-columns: repeat(3, minmax(0, 1fr));
 			gap: 10px;
 		}
+
 		.sp-first-run-step {
 			display: grid;
 			grid-template-columns: 28px minmax(0, 1fr);
@@ -797,6 +1241,7 @@
 			background: #faf8f5;
 			min-height: 88px;
 		}
+
 		.sp-first-run-num {
 			display: inline-flex;
 			align-items: center;
@@ -808,6 +1253,7 @@
 			font-weight: 800;
 			color: var(--text);
 		}
+
 		.sp-first-run-step strong {
 			display: block;
 			margin-bottom: 3px;
@@ -815,18 +1261,21 @@
 			line-height: 1.25;
 			color: var(--text);
 		}
-		.sp-first-run-step > span:not(.sp-first-run-num) {
+
+		.sp-first-run-step>span:not(.sp-first-run-num) {
 			display: block;
 			font-size: 12px;
 			line-height: 1.35;
 			color: var(--text-2);
 		}
+
 		.sp-first-run-actions {
 			display: flex;
 			flex-direction: column;
 			gap: 8px;
 			align-items: stretch;
 		}
+
 		.sp-first-run-btn {
 			display: inline-flex;
 			align-items: center;
@@ -844,7 +1293,12 @@
 			white-space: nowrap;
 			transition: background .18s ease, border-color .18s ease;
 		}
-		.sp-first-run-btn:hover { background: var(--accent); border-color: var(--accent); }
+
+		.sp-first-run-btn:hover {
+			background: var(--accent);
+			border-color: var(--accent);
+		}
+
 		.sp-first-run-skip {
 			border: 0;
 			background: transparent;
@@ -853,13 +1307,33 @@
 			text-decoration: underline;
 			cursor: pointer;
 		}
+
 		@media (max-width: 1023px) {
-			.sp-first-run { margin: 0 0 26px; }
-			.sp-first-run-inner { grid-template-columns: 1fr; gap: 18px; padding: 18px 0; }
-			.sp-first-run-title { font-size: 25px; }
-			.sp-first-run-steps { grid-template-columns: 1fr; }
-			.sp-first-run-step { min-height: 0; }
-			.sp-first-run-actions { align-items: stretch; }
+			.sp-first-run {
+				margin: 0 0 26px;
+			}
+
+			.sp-first-run-inner {
+				grid-template-columns: 1fr;
+				gap: 18px;
+				padding: 18px 0;
+			}
+
+			.sp-first-run-title {
+				font-size: 25px;
+			}
+
+			.sp-first-run-steps {
+				grid-template-columns: 1fr;
+			}
+
+			.sp-first-run-step {
+				min-height: 0;
+			}
+
+			.sp-first-run-actions {
+				align-items: stretch;
+			}
 		}
 
 		/* ── Категории — editorial overrides only on homepage ───── */
@@ -872,15 +1346,18 @@
 			clip-path: inset(0 -100vmax);
 			padding-block: 40px;
 		}
+
 		.sp-home .cat-grid {
 			grid-template-columns: repeat(4, 1fr);
 			gap: 22px;
 		}
+
 		.sp-home .cat-card {
 			border-radius: 0;
 			background: #fffdf8;
 			border: 1px solid #ebe2d7;
 		}
+
 		@media (hover: hover) {
 			.sp-home .cat-card:hover {
 				border-color: #d7c7b8;
@@ -888,100 +1365,172 @@
 				transform: translateY(-2px);
 			}
 		}
-		.sp-home .cat-icon-wrap { border-radius: 0; }
-		.sp-home .cat-body { padding: 16px 16px 17px; }
+
+		.sp-home .cat-icon-wrap {
+			border-radius: 0;
+		}
+
+		.sp-home .cat-body {
+			padding: 16px 16px 17px;
+		}
+
 		.sp-home .cat-name {
 			font-family: var(--serif);
-			font-size: 18px; font-weight: 700;
-			line-height: 1.2; color: var(--text); margin-bottom: 4px;
+			font-size: 18px;
+			font-weight: 700;
+			line-height: 1.2;
+			color: var(--text);
+			margin-bottom: 4px;
 		}
+
 		.sp-home .cat-desc {
-			font-size: 12px; color: var(--text-2); line-height: 1.4;
+			font-size: 12px;
+			color: var(--text-2);
+			line-height: 1.4;
 		}
+
 		.sp-home .cat-count {
-			font-size: 10px; font-weight: 700;
-			letter-spacing: .12em; text-transform: uppercase;
-			color: var(--text-3); margin-top: 8px;
+			font-size: 10px;
+			font-weight: 700;
+			letter-spacing: .12em;
+			text-transform: uppercase;
+			color: var(--text-3);
+			margin-top: 8px;
 		}
 
 		.sp-cats-head {
-			display: flex; align-items: center; justify-content: flex-start;
-			gap: 24px; margin-bottom: 10px;
-			padding-bottom: 8px; border-bottom: 1px solid var(--text);
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+			gap: 24px;
+			margin-bottom: 10px;
+			padding-bottom: 8px;
+			border-bottom: 1px solid var(--text);
 			flex-wrap: wrap;
 		}
-		.sp-cats-head .sp-sec-title { margin: 0; flex-shrink: 0; }
+
+		.sp-cats-head .sp-sec-title {
+			margin: 0;
+			flex-shrink: 0;
+		}
 
 		/* Editorial inline filters inside cats-head — плоско, без рамки/фона.
 		   Hover/active state унифицирован с .cat-page (см. category.html):
 		   прозрачные чипы → var(--accent) на hover, активный — оранжевая подчёркивающая линия. */
 		.sp-home .sp-cats-head .filter-outer {
-			background: none; border: none; border-radius: 0;
-			padding: 0; margin: 0;
-			display: flex; align-items: center;
-			flex: 1 1 auto; min-width: 0;
+			background: none;
+			border: none;
+			border-radius: 0;
+			padding: 0;
+			margin: 0;
+			display: flex;
+			align-items: center;
+			flex: 1 1 auto;
+			min-width: 0;
 		}
+
 		.sp-home .sp-cats-head .filter-scroll-wrap {
-			flex: 1; overflow: visible; min-width: 0;
+			flex: 1;
+			overflow: visible;
+			min-width: 0;
 		}
+
 		.sp-home .sp-cats-head .filter-bar {
 			justify-content: flex-end;
-			gap: 0; flex-wrap: wrap; align-items: center;
+			gap: 0;
+			flex-wrap: wrap;
+			align-items: center;
 		}
+
 		.sp-home .sp-cats-head .filter-chip,
 		.sp-home .sp-cats-head .fgroup-btn {
 			position: relative;
-			background: transparent; color: var(--text-2);
-			padding: 6px 12px; border-radius: 0;
-			font-size: 12px; font-weight: 600; letter-spacing: .02em;
+			background: transparent;
+			color: var(--text-2);
+			padding: 6px 12px;
+			border-radius: 0;
+			font-size: 12px;
+			font-weight: 600;
+			letter-spacing: .02em;
 			transition: color .15s;
 		}
+
 		@media (hover: hover) {
+
 			.sp-home .sp-cats-head .filter-chip:hover,
 			.sp-home .sp-cats-head .fgroup-btn:hover {
-				background: transparent; color: var(--accent); transform: none;
+				background: transparent;
+				color: var(--accent);
+				transform: none;
 			}
 		}
+
 		.sp-home .sp-cats-head .filter-chip.on,
 		.sp-home .sp-cats-head .fgroup-btn.has-value {
-			background: transparent; color: var(--text); font-weight: 700;
+			background: transparent;
+			color: var(--text);
+			font-weight: 700;
 		}
+
 		.sp-home .sp-cats-head .filter-chip.on::after,
 		.sp-home .sp-cats-head .fgroup-btn.has-value::after {
-			content: ''; position: absolute; left: 12px; right: 12px; bottom: -1px;
-			height: 2px; background: var(--accent);
+			content: '';
+			position: absolute;
+			left: 12px;
+			right: 12px;
+			bottom: -1px;
+			height: 2px;
+			background: var(--accent);
 		}
+
 		.sp-home .sp-cats-head .filter-sep {
-			width: 1px; height: 16px; background: var(--border); margin: 0 6px;
+			width: 1px;
+			height: 16px;
+			background: var(--border);
+			margin: 0 6px;
 		}
+
 		.sp-home .sp-cats-head .filter-clear {
 			padding: 6px 0 6px 14px;
 			border-left: 1px solid var(--border);
-			border-top: none; width: auto; text-align: left;
-			color: var(--accent); font-size: 11px; font-weight: 700;
-			letter-spacing: .06em; text-transform: uppercase;
+			border-top: none;
+			width: auto;
+			text-align: left;
+			color: var(--accent);
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: .06em;
+			text-transform: uppercase;
 		}
 
 		/* Status row — «55 рецептов · применён 1 фильтр» под линией. */
 		.sp-home .recipes-total-count.sp-cats-status {
-			display: flex; align-items: center;
-			gap: 8px; margin: 0 0 24px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			margin: 0 0 24px;
 			font: 700 11px/1 var(--sans);
-			letter-spacing: .12em; text-transform: uppercase;
+			letter-spacing: .12em;
+			text-transform: uppercase;
 			color: var(--text-3);
 		}
+
 		.sp-home .recipes-total-count.sp-cats-status .rtc-num,
 		.sp-home .recipes-total-count.sp-cats-status .rtc-label,
 		.sp-home .recipes-total-count.sp-cats-status .rtc-applied {
 			font: inherit;
-			background: none; padding: 0; border-radius: 0;
-			letter-spacing: inherit; text-transform: inherit;
+			background: none;
+			padding: 0;
+			border-radius: 0;
+			letter-spacing: inherit;
+			text-transform: inherit;
 			color: inherit;
 		}
 
 		/* ── MOBILE (≤ 767px) ──────────────────────────────────────── */
 		/* Mobile overrides — header-часть теперь в style-v4.css; здесь только hero/cat. */
 		@media (max-width: 767px) {
+
 			/* Suppress the iOS horizontal rubber-band drag on the homepage only. */
 			html,
 			body.sp-home {
@@ -990,25 +1539,65 @@
 
 			.sp-hero {
 				grid-template-columns: 1fr;
-				gap: 20px; padding: 24px 0 14px;
+				gap: 20px;
+				padding: 24px 0 14px;
 			}
-			.sp-hero-favorites {
-				display: inline-flex; position: absolute; top: 0; right: 0;
-				background: #fff; border-color: var(--border); color: var(--accent);
-			}
-			.sp-hero-favorites svg { fill: currentColor; stroke: currentColor; }
-			.sp-hero-eyebrow { padding-right: 54px; }
-			.sp-hero-aside { order: -1; }
-			.sp-hero-title { font-size: 30px; }
-			.sp-hero-sub { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 20px; }
 
-			.sp-home .sp-cats-section { padding-block: 28px; }
-			.sp-home .cat-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-			.sp-home .cat-name { font-size: 15px; }
-			.sp-cats-head {
-				flex-direction: column; align-items: stretch;
-				gap: 10px; margin-bottom: 10px; padding-bottom: 8px;
+			.sp-hero-favorites {
+				display: inline-flex;
+				position: absolute;
+				top: 0;
+				right: 0;
+				background: #fff;
+				border-color: var(--border);
+				color: var(--accent);
 			}
+
+			.sp-hero-favorites svg {
+				fill: currentColor;
+				stroke: currentColor;
+			}
+
+			.sp-hero-eyebrow {
+				padding-right: 54px;
+			}
+
+			.sp-hero-aside {
+				order: -1;
+			}
+
+			.sp-hero-title {
+				font-size: 30px;
+			}
+
+			.sp-hero-sub {
+				font-size: 15px;
+				font-weight: 500;
+				color: var(--text);
+				margin-bottom: 20px;
+			}
+
+			.sp-home .sp-cats-section {
+				padding-block: 28px;
+			}
+
+			.sp-home .cat-grid {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 14px;
+			}
+
+			.sp-home .cat-name {
+				font-size: 15px;
+			}
+
+			.sp-cats-head {
+				flex-direction: column;
+				align-items: stretch;
+				gap: 10px;
+				margin-bottom: 10px;
+				padding-bottom: 8px;
+			}
+
 			.sp-home .sp-cats-head .filter-outer {
 				flex-direction: column;
 				align-items: stretch;
@@ -1016,13 +1605,19 @@
 				gap: 6px;
 				overflow: visible;
 			}
-			.sp-home .sp-cats-head .filter-scroll-wrap { overflow: visible; width: 100%; }
+
+			.sp-home .sp-cats-head .filter-scroll-wrap {
+				overflow: visible;
+				width: 100%;
+			}
+
 			.sp-home .sp-cats-head .filter-bar {
 				flex-wrap: wrap;
 				justify-content: center;
 				gap: 4px;
 				min-width: 0;
 			}
+
 			.sp-home .sp-cats-head .filter-clear {
 				flex-shrink: 0;
 				width: 100%;
@@ -1032,7 +1627,10 @@
 				border-top: 1px solid var(--border);
 				margin-top: 4px;
 			}
-			.sp-home .recipes-total-count.sp-cats-status { margin-bottom: 16px; }
+
+			.sp-home .recipes-total-count.sp-cats-status {
+				margin-bottom: 16px;
+			}
 		}
 
 		/* Featured card extras */
@@ -1359,25 +1957,39 @@
 		   Новые блоки главной (Сезонный рецепт, Рекомендуем, CTA-полоса)
 		   в стиле NYT Cooking / Times Cooking. Префикс sp-* чтобы не пересечься
 		   с существующими стилями платформы. */
-		.sp-block { margin-top: 56px; }
+		.sp-block {
+			margin-top: 56px;
+		}
 
 		/* ── НОВОЕ: 2-column editorial block ─────────────────────────────────
 		   Левая колонка — vertical featured-card (фото сверху, тело снизу).
 		   Правая — лента новостей (date / title / desc / divider).
 		   На мобиле — single column. */
-		.sp-new-block { margin-top: 36px; }
+		.sp-new-block {
+			margin-top: 36px;
+		}
+
 		/* Desktop (≥1024px): «Новое» ближе к hero (−16px). Ниже базового правила,
 		   чтобы override применялся при равной специфичности. */
 		@media (min-width: 1024px) {
-			.sp-new-block { margin-top: 8px; }
+			.sp-new-block {
+				margin-top: 8px;
+			}
 		}
+
 		.sp-new-grid {
 			display: grid;
 			grid-template-columns: 1.55fr 1fr;
 			gap: 44px;
 		}
-		.sp-new-block--no-list .sp-new-grid { grid-template-columns: 1fr; }
-		.sp-new-block--no-list .sp-new-list { display: none; }
+
+		.sp-new-block--no-list .sp-new-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.sp-new-block--no-list .sp-new-list {
+			display: none;
+		}
 
 		/* Vertical featured card */
 		.sp-new-card {
@@ -1390,7 +2002,11 @@
 			color: inherit;
 			font: inherit;
 		}
-		.sp-new-card.locked { opacity: .92; }
+
+		.sp-new-card.locked {
+			opacity: .92;
+		}
+
 		.sp-new-card-media {
 			display: block;
 			position: relative;
@@ -1398,24 +2014,42 @@
 			background: var(--bg-alt);
 			overflow: hidden;
 		}
+
 		.sp-new-card-media img {
-			width: 100%; height: 100%;
-			object-fit: cover; display: block;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			display: block;
 			transition: transform .55s ease;
 		}
+
 		/* Зум только при наведении на само фото (не на всю карточку) — CTA при этом
 		   не затрагивается (см. ТЗ: hover CTA изолирован от hover карточки). */
-		.sp-new-card-media:hover img { transform: scale(1.02); }
+		.sp-new-card-media:hover img {
+			transform: scale(1.02);
+		}
+
 		.sp-new-card.locked .sp-new-card-media::after {
-			content: ''; position: absolute; inset: 0;
-			background: rgba(0,0,0,.18); z-index: 1;
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: rgba(0, 0, 0, .18);
+			z-index: 1;
 		}
-		.sp-new-card-body { padding: 18px 0 0; }
+
+		.sp-new-card-body {
+			padding: 18px 0 0;
+		}
+
 		.sp-new-card-eyebrow {
-			font-size: 11px; font-weight: 800;
-			letter-spacing: .14em; text-transform: uppercase;
-			color: var(--accent); margin-bottom: 12px;
+			font-size: 11px;
+			font-weight: 800;
+			letter-spacing: .14em;
+			text-transform: uppercase;
+			color: var(--accent);
+			margin-bottom: 12px;
 		}
+
 		.sp-new-card-title {
 			font-family: var(--serif);
 			font-size: clamp(22px, 3.2vw, 32px);
@@ -1425,26 +2059,64 @@
 			color: var(--text);
 			margin: 0 0 10px;
 		}
+
 		/* Hover как у .recipe-card: заголовок бледнеет (opacity), цвет не меняем. */
-		.sp-new-card-title-link { color: inherit; text-decoration: none; transition: opacity .25s ease; }
-		.sp-new-card-title-link:visited { color: inherit; }
+		.sp-new-card-title-link {
+			color: inherit;
+			text-decoration: none;
+			transition: opacity .25s ease;
+		}
+
+		.sp-new-card-title-link:visited {
+			color: inherit;
+		}
+
 		.sp-new-card-title-link:hover,
-		.sp-new-card-title-link:visited:hover { color: inherit; opacity: .55; }
+		.sp-new-card-title-link:visited:hover {
+			color: inherit;
+			opacity: .55;
+		}
+
 		/* Строка рейтинга: фикс-высота → нет скачка, когда после загрузки
 		   _apiRatings «Новый рецепт» сменяется звёздами. */
 		.sp-new-card-rating {
-			display: flex; align-items: center; gap: 8px;
-			min-height: 20px; margin: 0 0 12px;
-			font: 600 12.5px/1 var(--sans); color: var(--text-3);
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			min-height: 20px;
+			margin: 0 0 12px;
+			font: 600 12.5px/1 var(--sans);
+			color: var(--text-3);
 		}
-		.sp-new-card-rating .stars { display: inline-flex; gap: 2px; color: var(--accent); }
-		.sp-new-card-rating .stars svg { width: 15px; height: 15px; display: block; }
-		.sp-new-card-rating .star-empty { color: #d8d2ca; }
-		.sp-new-card-rating .num { color: var(--text); font-weight: 700; }
+
+		.sp-new-card-rating .stars {
+			display: inline-flex;
+			gap: 2px;
+			color: var(--accent);
+		}
+
+		.sp-new-card-rating .stars svg {
+			width: 15px;
+			height: 15px;
+			display: block;
+		}
+
+		.sp-new-card-rating .star-empty {
+			color: #d8d2ca;
+		}
+
+		.sp-new-card-rating .num {
+			color: var(--text);
+			font-weight: 700;
+		}
+
 		.sp-new-card-rating .rating-new {
-			font: 800 11px/1 var(--sans); letter-spacing: .1em;
-			text-transform: uppercase; color: var(--text-3);
+			font: 800 11px/1 var(--sans);
+			letter-spacing: .1em;
+			text-transform: uppercase;
+			color: var(--text-3);
 		}
+
 		.sp-new-card-desc {
 			font-size: 14px;
 			line-height: 1.55;
@@ -1456,24 +2128,39 @@
 			-webkit-box-orient: vertical;
 			overflow: hidden;
 		}
+
 		.sp-new-card-meta {
-			display: flex; flex-wrap: wrap; align-items: center;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
 			gap: 6px 14px;
 			font: 600 13px/1.2 var(--sans);
 			color: var(--text);
 			margin-bottom: 18px;
 		}
-		.sp-new-card-meta .kcal { color: var(--accent); font-weight: 800; }
-		.sp-new-card-meta > * + *::before {
-			content: '·'; color: var(--text-2); margin-right: 14px;
-			display: inline-block; transform: translateX(-7px);
+
+		.sp-new-card-meta .kcal {
+			color: var(--accent);
+			font-weight: 800;
+		}
+
+		.sp-new-card-meta>*+*::before {
+			content: '·';
+			color: var(--text-2);
+			margin-right: 14px;
+			display: inline-block;
+			transform: translateX(-7px);
 			font-weight: 700;
 		}
+
 		/* CTA V2 — отдельная ссылка-кнопка: квадратная (border-radius:0), капс,
 		   чёрная как submit в login.html. Свой hover/focus, НЕ зависит от hover
 		   карточки. Без подчёркивания во всех состояниях. */
 		.sp-new-card-cta {
-			display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
 			padding: 13px 24px;
 			font: 700 12px/1 var(--sans);
 			letter-spacing: .1em;
@@ -1484,16 +2171,30 @@
 			text-decoration: none;
 			transition: background var(--tr);
 		}
+
 		.sp-new-card-cta,
 		.sp-new-card-cta:hover,
 		.sp-new-card-cta:focus-visible,
-		.sp-new-card-cta:visited { text-decoration: none; }
+		.sp-new-card-cta:visited {
+			text-decoration: none;
+		}
+
 		/* Hover как у .btn-primary в login.html: чёрная → оранжевая. */
-		.sp-new-card-cta:hover { background: var(--accent); }
-		.sp-new-card-cta:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+		.sp-new-card-cta:hover {
+			background: var(--accent);
+		}
+
+		.sp-new-card-cta:focus-visible {
+			outline: 2px solid var(--accent);
+			outline-offset: 2px;
+		}
 
 		/* News list (right column) */
-		.sp-new-list { display: flex; flex-direction: column; }
+		.sp-new-list {
+			display: flex;
+			flex-direction: column;
+		}
+
 		.sp-news-item {
 			padding: 20px 0;
 			border-top: 1px solid var(--border);
@@ -1501,7 +2202,12 @@
 			text-decoration: none;
 			color: inherit;
 		}
-		.sp-news-item:first-child { padding-top: 0; border-top: none; }
+
+		.sp-news-item:first-child {
+			padding-top: 0;
+			border-top: none;
+		}
+
 		.sp-news-item-date {
 			font: 800 11px/1 var(--sans);
 			letter-spacing: .14em;
@@ -1509,6 +2215,7 @@
 			color: var(--text-2);
 			margin-bottom: 10px;
 		}
+
 		.sp-news-item-title {
 			font-family: var(--serif);
 			font-size: 18px;
@@ -1518,6 +2225,7 @@
 			margin: 0 0 6px;
 			letter-spacing: -.01em;
 		}
+
 		.sp-news-item-desc {
 			font-size: 13px;
 			line-height: 1.5;
@@ -1529,23 +2237,48 @@
 			-webkit-box-orient: vertical;
 			overflow: hidden;
 		}
-		.sp-new-list .news-toggle-btn { display: none; }
+
+		.sp-new-list .news-toggle-btn {
+			display: none;
+		}
 
 		@media (max-width: 767px) {
-			.sp-new-block { margin-top: 8px; }
-			.sp-new-grid { grid-template-columns: 1fr; gap: 24px; }
-			.sp-new-card-title { font-size: 22px; }
-			.sp-news-item { padding: 16px 0; }
-			.sp-new-list:not(.open) .sp-news-item:nth-of-type(n+2) { display: none; }
+			.sp-new-block {
+				margin-top: 8px;
+			}
+
+			.sp-new-grid {
+				grid-template-columns: 1fr;
+				gap: 24px;
+			}
+
+			.sp-new-card-title {
+				font-size: 22px;
+			}
+
+			.sp-news-item {
+				padding: 16px 0;
+			}
+
+			.sp-new-list:not(.open) .sp-news-item:nth-of-type(n+2) {
+				display: none;
+			}
+
 			.sp-new-list .news-toggle-btn {
 				display: inline-flex;
 				align-self: center;
 				margin-top: 4px;
 			}
+
 			/* Внутри секции «Новое» отделяем текстовые новости от featured-рецепта:
 			   тонкий разделитель + sub-eyebrow «Обновления». Только на mobile —
 			   на desktop secция уже визуально разнесена в 2 колонки. */
-			.sp-new-list { padding-top: 20px; border-top: 1px solid var(--text); position: relative; }
+			.sp-new-list {
+				padding-top: 20px;
+				border-top: 1px solid var(--text);
+				position: relative;
+			}
+
 			.sp-new-list::before {
 				content: 'Обновления';
 				display: block;
@@ -1557,197 +2290,411 @@
 			}
 		}
 
-
 		.sp-sec-head {
-			display: flex; align-items: baseline; justify-content: space-between;
-			gap: 16px; margin-bottom: 24px; padding-bottom: 10px;
+			display: flex;
+			align-items: baseline;
+			justify-content: space-between;
+			gap: 16px;
+			margin-bottom: 24px;
+			padding-bottom: 10px;
 			border-bottom: 1px solid var(--text);
 		}
+
 		.sp-sec-title {
 			font-family: var(--sans);
-			font-size: 13px; font-weight: 800; letter-spacing: .14em;
-			text-transform: uppercase; color: var(--text); margin: 0;
+			font-size: 13px;
+			font-weight: 800;
+			letter-spacing: .14em;
+			text-transform: uppercase;
+			color: var(--text);
+			margin: 0;
 		}
+
 		.sp-sec-link {
-			font-size: 12px; font-weight: 700; letter-spacing: .08em;
-			text-transform: uppercase; color: var(--text-2); text-decoration: none;
+			font-size: 12px;
+			font-weight: 700;
+			letter-spacing: .08em;
+			text-transform: uppercase;
+			color: var(--text-2);
+			text-decoration: none;
 			white-space: nowrap;
 		}
-		.sp-sec-link:hover { color: var(--accent); }
+
+		.sp-sec-link:hover {
+			color: var(--accent);
+		}
 
 		/* Сезонный рецепт — большая editorial-карточка */
 		.sp-seasonal {
-			display: grid; grid-template-columns: 1.15fr 1fr; gap: 36px;
+			display: grid;
+			grid-template-columns: 1.15fr 1fr;
+			gap: 36px;
 			align-items: stretch;
-			background: none; border: none; padding: 0; margin: 0;
-			color: inherit; cursor: pointer; text-align: left; width: 100%;
+			background: none;
+			border: none;
+			padding: 0;
+			margin: 0;
+			color: inherit;
+			cursor: pointer;
+			text-align: left;
+			width: 100%;
 			font: inherit;
 		}
-		.sp-seasonal.locked { cursor: pointer; opacity: .92; }
+
+		.sp-seasonal.locked {
+			cursor: pointer;
+			opacity: .92;
+		}
+
 		.sp-seasonal-media {
-			position: relative; aspect-ratio: 4/3; overflow: hidden;
+			position: relative;
+			aspect-ratio: 4/3;
+			overflow: hidden;
 			background: var(--bg-alt);
 		}
+
 		.sp-seasonal-media img {
-			width: 100%; height: 100%; object-fit: cover; display: block;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			display: block;
 			transition: transform .5s ease;
 		}
-		.sp-seasonal:hover .sp-seasonal-media img { transform: scale(1.02); }
-		.sp-seasonal.locked .sp-seasonal-media::after {
-			content: ''; position: absolute; inset: 0;
-			background: rgba(0, 0, 0, .18); z-index: 1;
+
+		.sp-seasonal:hover .sp-seasonal-media img {
+			transform: scale(1.02);
 		}
+
+		.sp-seasonal.locked .sp-seasonal-media::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: rgba(0, 0, 0, .18);
+			z-index: 1;
+		}
+
 		.sp-seasonal-body {
-			display: flex; flex-direction: column; justify-content: center;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
 			padding: 4px 0;
 		}
+
 		.sp-eyebrow {
-			font-size: 11px; font-weight: 800; letter-spacing: .14em;
-			text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+			font-size: 11px;
+			font-weight: 800;
+			letter-spacing: .14em;
+			text-transform: uppercase;
+			color: var(--accent);
+			margin-bottom: 12px;
 		}
+
 		.sp-seasonal-title {
-			font-family: var(--serif); font-size: clamp(26px, 3.4vw, 38px);
-			font-weight: 700; line-height: 1.08; letter-spacing: -.01em;
-			margin: 0 0 14px; color: var(--text);
+			font-family: var(--serif);
+			font-size: clamp(26px, 3.4vw, 38px);
+			font-weight: 700;
+			line-height: 1.08;
+			letter-spacing: -.01em;
+			margin: 0 0 14px;
+			color: var(--text);
 		}
+
 		.sp-seasonal-desc {
-			font-size: 15px; line-height: 1.55; color: var(--text-2);
-			margin: 0 0 18px; max-width: 56ch;
-			display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
-			-webkit-box-orient: vertical; overflow: hidden;
+			font-size: 15px;
+			line-height: 1.55;
+			color: var(--text-2);
+			margin: 0 0 18px;
+			max-width: 56ch;
+			display: -webkit-box;
+			-webkit-line-clamp: 3;
+			line-clamp: 3;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
 		}
+
 		.sp-seasonal-meta {
-			display: flex; flex-wrap: wrap; align-items: center;
-			gap: 6px 0; font-size: 12px; font-weight: 500; color: var(--text-2);
-			padding-bottom: 16px; border-bottom: 1px solid var(--border);
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 6px 0;
+			font-size: 12px;
+			font-weight: 500;
+			color: var(--text-2);
+			padding-bottom: 16px;
+			border-bottom: 1px solid var(--border);
 			margin-bottom: 16px;
 		}
-		.sp-seasonal-meta > * + *::before {
-			content: '·'; margin: 0 10px; color: var(--text-3); font-weight: 700;
+
+		.sp-seasonal-meta>*+*::before {
+			content: '·';
+			margin: 0 10px;
+			color: var(--text-3);
+			font-weight: 700;
 		}
-		.sp-seasonal-meta .kcal { color: var(--accent); font-weight: 700; }
+
+		.sp-seasonal-meta .kcal {
+			color: var(--accent);
+			font-weight: 700;
+		}
+
 		.sp-cta-inline {
 			align-self: flex-start;
-			display: inline-flex; align-items: center; gap: 6px;
-			font-size: 13px; font-weight: 700; letter-spacing: .06em;
-			text-transform: uppercase; color: var(--text);
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 13px;
+			font-weight: 700;
+			letter-spacing: .06em;
+			text-transform: uppercase;
+			color: var(--text);
 			text-decoration: none;
 		}
+
 		.sp-cta-inline::after {
-			content: '→'; transition: transform .2s ease;
+			content: '→';
+			transition: transform .2s ease;
 			display: inline-block;
 		}
-		.sp-seasonal:hover .sp-cta-inline { color: var(--accent); }
-		.sp-seasonal:hover .sp-cta-inline::after { transform: translateX(4px); }
+
+		.sp-seasonal:hover .sp-cta-inline {
+			color: var(--accent);
+		}
+
+		.sp-seasonal:hover .sp-cta-inline::after {
+			transform: translateX(4px);
+		}
 
 		/* Recommended grid */
 		.sp-grid {
-			display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 24px;
 		}
+
 		.sp-card {
-			display: flex; flex-direction: column;
-			background: #fff; cursor: pointer; text-align: left;
-			border: none; padding: 0; margin: 0; font: inherit;
+			display: flex;
+			flex-direction: column;
+			background: #fff;
+			cursor: pointer;
+			text-align: left;
+			border: none;
+			padding: 0;
+			margin: 0;
+			font: inherit;
 			color: inherit;
 		}
-		.sp-card.locked { opacity: .72; }
-		.sp-card.locked .sp-card-media::after {
-			content: ''; position: absolute; inset: 0;
-			background: rgba(0, 0, 0, .18); z-index: 1;
+
+		.sp-card.locked {
+			opacity: .72;
 		}
+
+		.sp-card.locked .sp-card-media::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: rgba(0, 0, 0, .18);
+			z-index: 1;
+		}
+
 		.sp-card-media {
-			position: relative; aspect-ratio: 4/3; overflow: hidden;
+			position: relative;
+			aspect-ratio: 4/3;
+			overflow: hidden;
 			background: var(--bg-alt);
 		}
+
 		.sp-card-media img {
-			width: 100%; height: 100%; object-fit: cover; display: block;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			display: block;
 			transition: transform .35s ease;
 		}
-		.sp-card:hover .sp-card-media img { transform: scale(1.04); }
+
+		.sp-card:hover .sp-card-media img {
+			transform: scale(1.04);
+		}
+
 		/* NYT-hover: текст бледнеет, фото/бейджи (в .sp-card-media) не трогаем.
 		   Та же интенсивность/скорость, что у .recipe-card в style-v4.css.
 		   .locked (paywall) исключена — её читаемость и так приглушена. */
-		.sp-card-body { transition: opacity .25s ease; }
-		@media (hover: hover) and (pointer: fine) {
-			.sp-card:not(.is-skeleton):not(.locked):hover .sp-card-body { opacity: .55; }
-		}
 		.sp-card-body {
-			display: flex; flex-direction: column; flex: 1;
+			transition: opacity .25s ease;
+		}
+
+		@media (hover: hover) and (pointer: fine) {
+			.sp-card:not(.is-skeleton):not(.locked):hover .sp-card-body {
+				opacity: .55;
+			}
+		}
+
+		.sp-card-body {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
 			padding: 16px 0 0;
 		}
+
 		.sp-card-title {
-			font-family: var(--serif); font-size: 20px; font-weight: 700;
-			line-height: 1.18; margin: 0 0 10px; color: var(--text);
+			font-family: var(--serif);
+			font-size: 20px;
+			font-weight: 700;
+			line-height: 1.18;
+			margin: 0 0 10px;
+			color: var(--text);
 			min-height: calc(2em * 1.18);
-			display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
-			-webkit-box-orient: vertical; overflow: hidden;
+			display: -webkit-box;
+			-webkit-line-clamp: 3;
+			line-clamp: 3;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
 		}
+
 		.sp-card-meta {
-			font-size: 12px; color: var(--text-2); font-weight: 500;
-			display: flex; align-items: center; gap: 0; margin-bottom: 12px;
+			font-size: 12px;
+			color: var(--text-2);
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+			gap: 0;
+			margin-bottom: 12px;
 			flex-wrap: wrap;
 		}
-		.sp-card-meta > * + *::before {
-			content: '·'; margin: 0 8px; color: var(--text-3); font-weight: 700;
+
+		.sp-card-meta>*+*::before {
+			content: '·';
+			margin: 0 8px;
+			color: var(--text-3);
+			font-weight: 700;
 		}
+
 		.sp-card-foot {
-			margin-top: auto; padding-top: 12px;
+			margin-top: auto;
+			padding-top: 12px;
 			border-top: 1px solid var(--border);
-			display: flex; align-items: baseline; justify-content: space-between;
+			display: flex;
+			align-items: baseline;
+			justify-content: space-between;
 			gap: 8px;
 		}
+
 		.sp-card-foot .lbl {
-			font-size: 10px; font-weight: 700; letter-spacing: .1em;
-			text-transform: uppercase; color: var(--text-3);
+			font-size: 10px;
+			font-weight: 700;
+			letter-spacing: .1em;
+			text-transform: uppercase;
+			color: var(--text-3);
 		}
+
 		.sp-card-foot .val {
-			font-family: var(--serif); font-size: 22px; font-weight: 700;
-			color: var(--accent); white-space: nowrap;
+			font-family: var(--serif);
+			font-size: 22px;
+			font-weight: 700;
+			color: var(--accent);
+			white-space: nowrap;
 		}
+
 		.sp-card-foot .val small {
-			font-family: var(--sans); font-size: 11px; font-weight: 600;
-			color: var(--text-2); margin-left: 3px;
+			font-family: var(--sans);
+			font-size: 11px;
+			font-weight: 600;
+			color: var(--text-2);
+			margin-left: 3px;
 		}
 
 		/* Бейджи карточек — стек в левом-верхнем углу медиа.
 		   Семантику сохраняем (Бесплатно / Пробная / Подписка / Новинка),
 		   только унифицируем форму, размер и blur. */
 		.sp-badges {
-			position: absolute; top: 10px; left: 10px; z-index: 3;
-			display: flex; flex-direction: column; align-items: flex-start;
-			gap: 4px; pointer-events: none;
+			position: absolute;
+			top: 10px;
+			left: 10px;
+			z-index: 3;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+			pointer-events: none;
 		}
+
 		.sp-bd {
 			box-sizing: border-box;
-			height: 22px; padding: 0 10px;
-			display: inline-flex; align-items: center; gap: 4px;
-			font-family: var(--sans); font-size: 10px; font-weight: 800;
-			letter-spacing: .08em; text-transform: uppercase;
+			height: 22px;
+			padding: 0 10px;
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			font-family: var(--sans);
+			font-size: 10px;
+			font-weight: 800;
+			letter-spacing: .08em;
+			text-transform: uppercase;
 			border-radius: 0;
 			white-space: nowrap;
 		}
-		.sp-bd svg { width: 10px; height: 10px; fill: currentColor; }
-		.sp-bd--new   { background: var(--accent); color: #fff; }
-		.sp-bd--pro   { background: rgba(17, 17, 17, .92); color: #fff; }
-		.sp-bd--trial { background: rgba(255, 255, 255, .95); color: var(--text); border: 1px solid var(--text); }
-		.sp-bd--free  { background: rgba(255, 255, 255, .95); color: var(--text); border: 1px solid var(--text); }
-		.sp-bd--free::before { content: '\2726'; color: var(--accent); font-size: 12px; line-height: 1; }
+
+		.sp-bd svg {
+			width: 10px;
+			height: 10px;
+			fill: currentColor;
+		}
+
+		.sp-bd--new {
+			background: var(--accent);
+			color: #fff;
+		}
+
+		.sp-bd--pro {
+			background: rgba(17, 17, 17, .92);
+			color: #fff;
+		}
+
+		.sp-bd--trial {
+			background: rgba(255, 255, 255, .95);
+			color: var(--text);
+			border: 1px solid var(--text);
+		}
+
+		.sp-bd--free {
+			background: rgba(255, 255, 255, .95);
+			color: var(--text);
+			border: 1px solid var(--text);
+		}
+
+		.sp-bd--free::before {
+			content: '\2726';
+			color: var(--accent);
+			font-size: 12px;
+			line-height: 1;
+		}
 
 		/* CTA strip */
 		.sp-cta-strip {
-			display: flex; align-items: center; justify-content: space-between;
-			gap: 24px; padding: 28px 32px;
-			background: #fff; border: 1px solid var(--border);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 24px;
+			padding: 28px 32px;
+			background: #fff;
+			border: 1px solid var(--border);
 		}
+
 		.sp-cta-strip h3 {
-			font-family: var(--serif); font-size: clamp(22px, 2.4vw, 28px);
-			font-weight: 700; line-height: 1.2; margin: 0 0 6px;
+			font-family: var(--serif);
+			font-size: clamp(22px, 2.4vw, 28px);
+			font-weight: 700;
+			line-height: 1.2;
+			margin: 0 0 6px;
 			color: var(--text);
 		}
+
 		.sp-cta-strip p {
-			font-size: 13px; color: var(--text-2); margin: 0;
+			font-size: 13px;
+			color: var(--text-2);
+			margin: 0;
 			line-height: 1.5;
 		}
+
 		.sp-cta-count {
 			display: inline-block;
 			margin-right: 4px;
@@ -1757,101 +2704,227 @@
 			line-height: 1;
 			color: var(--accent);
 		}
-		.sp-cta-text-line { display: block; }
+
+		.sp-cta-text-line {
+			display: block;
+		}
+
 		.sp-cta-btn {
 			flex-shrink: 0;
-			display: inline-flex; align-items: center; justify-content: center;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
 			padding: 16px 26px;
-			background: var(--text); color: #fff;
-			font-family: var(--sans); font-size: 12px; font-weight: 700;
-			letter-spacing: .1em; text-transform: uppercase;
-			text-decoration: none; cursor: pointer; border: none;
+			background: var(--text);
+			color: #fff;
+			font-family: var(--sans);
+			font-size: 12px;
+			font-weight: 700;
+			letter-spacing: .1em;
+			text-transform: uppercase;
+			text-decoration: none;
+			cursor: pointer;
+			border: none;
 			transition: background .2s ease;
 			white-space: nowrap;
 		}
-		.sp-cta-btn:hover { background: var(--accent); }
+
+		.sp-cta-btn:hover {
+			background: var(--accent);
+		}
 
 		/* Plate summary strip (compact, shown when plate has items) */
 		.sp-plate-summary {
-			display: flex; align-items: center; justify-content: space-between;
-			gap: 20px; padding: 14px 22px; margin-bottom: 28px;
-			background: #fff; border: 1px solid var(--text);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 20px;
+			padding: 14px 22px;
+			margin-bottom: 28px;
+			background: #fff;
+			border: 1px solid var(--text);
 		}
+
 		.sp-plate-summary-info {
-			display: flex; align-items: center; gap: 10px;
-			font-family: var(--sans); min-width: 0;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-family: var(--sans);
+			min-width: 0;
 		}
+
 		.sp-plate-summary-count {
-			font-size: 13px; font-weight: 700; color: var(--text);
+			font-size: 13px;
+			font-weight: 700;
+			color: var(--text);
 			letter-spacing: .04em;
 		}
-		.sp-plate-summary-sep { color: var(--text-3); font-weight: 700; }
-		.sp-plate-summary-kcal {
-			font-size: 13px; font-weight: 600; color: var(--text-2);
+
+		.sp-plate-summary-sep {
+			color: var(--text-3);
+			font-weight: 700;
 		}
+
+		.sp-plate-summary-kcal {
+			font-size: 13px;
+			font-weight: 600;
+			color: var(--text-2);
+		}
+
 		.sp-plate-summary-btn {
 			flex-shrink: 0;
-			display: inline-flex; align-items: center; justify-content: center;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
 			padding: 10px 18px;
-			background: var(--text); color: #fff;
-			font-family: var(--sans); font-size: 11px; font-weight: 700;
-			letter-spacing: .12em; text-transform: uppercase;
-			cursor: pointer; border: none;
+			background: var(--text);
+			color: #fff;
+			font-family: var(--sans);
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: .12em;
+			text-transform: uppercase;
+			cursor: pointer;
+			border: none;
 			transition: background .2s ease;
 			white-space: nowrap;
 		}
-		.sp-plate-summary-btn:hover { background: var(--accent); }
+
+		.sp-plate-summary-btn:hover {
+			background: var(--accent);
+		}
 
 		/* Tablet */
 		@media (max-width: 1024px) {
-			.sp-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
-			.sp-seasonal { gap: 28px; }
+			.sp-grid {
+				grid-template-columns: repeat(3, 1fr);
+				gap: 20px;
+			}
+
+			.sp-seasonal {
+				gap: 28px;
+			}
 		}
 
 		/* Mobile */
 		@media (max-width: 767px) {
-			.sp-block { margin-top: 36px; }
-			.sp-sec-head { margin-bottom: 18px; }
-			.sp-seasonal { grid-template-columns: 1fr; gap: 18px; }
-			.sp-seasonal-media { aspect-ratio: 16/10; }
-			.sp-seasonal-title { font-size: clamp(22px, 6vw, 28px); }
-			.sp-seasonal-desc { font-size: 14px; -webkit-line-clamp: 4; line-clamp: 4; }
-			.sp-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-			.sp-card-title { font-size: 16px; -webkit-line-clamp: 3; line-clamp: 3; }
+			.sp-block {
+				margin-top: 36px;
+			}
+
+			.sp-sec-head {
+				margin-bottom: 18px;
+			}
+
+			.sp-seasonal {
+				grid-template-columns: 1fr;
+				gap: 18px;
+			}
+
+			.sp-seasonal-media {
+				aspect-ratio: 16/10;
+			}
+
+			.sp-seasonal-title {
+				font-size: clamp(22px, 6vw, 28px);
+			}
+
+			.sp-seasonal-desc {
+				font-size: 14px;
+				-webkit-line-clamp: 4;
+				line-clamp: 4;
+			}
+
+			.sp-grid {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 14px;
+			}
+
+			.sp-card-title {
+				font-size: 16px;
+				-webkit-line-clamp: 3;
+				line-clamp: 3;
+			}
+
 			.sp-card-foot {
-				flex-direction: column; align-items: flex-start; gap: 2px;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 2px;
 			}
-			.sp-card-foot .val { font-size: 20px; }
+
+			.sp-card-foot .val {
+				font-size: 20px;
+			}
+
 			.sp-cta-strip {
-				flex-direction: column; align-items: stretch;
-				gap: 18px; padding: 22px 18px; text-align: left;
+				flex-direction: column;
+				align-items: stretch;
+				gap: 18px;
+				padding: 22px 18px;
+				text-align: left;
 			}
-			.sp-cta-btn { width: 100%; padding: 14px 20px; }
-			.sp-bd { font-size: 9px; height: 20px; padding: 0 8px; }
+
+			.sp-cta-btn {
+				width: 100%;
+				padding: 14px 20px;
+			}
+
+			.sp-bd {
+				font-size: 9px;
+				height: 20px;
+				padding: 0 8px;
+			}
+
 			.sp-plate-summary {
-				flex-direction: column; align-items: stretch;
-				gap: 12px; padding: 14px 16px;
+				flex-direction: column;
+				align-items: stretch;
+				gap: 12px;
+				padding: 14px 16px;
 			}
-			.sp-plate-summary-btn { width: 100%; padding: 12px 16px; }
+
+			.sp-plate-summary-btn {
+				width: 100%;
+				padding: 12px 16px;
+			}
 		}
 
 		/* Plate icon в заголовке модалки — SVG из общего паттерна (см. style-v4.css .sp-plate-svg). */
-
 		/* Skeleton — индикатор загрузки до прихода данных от API */
-		.sp-skel-card { display: flex; flex-direction: column; gap: 12px; }
+		.sp-skel-card {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+
 		.sp-skel-img,
 		.sp-skel-line {
 			background: linear-gradient(90deg, #efe9e0 0%, #f6f2eb 50%, #efe9e0 100%);
 			background-size: 200% 100%;
 			animation: spShimmer 1.4s linear infinite;
 		}
-		.sp-skel-img { aspect-ratio: 4/3; }
-		.sp-skel-line { height: 14px; border-radius: 4px; }
-		.sp-skel-line.short { width: 60%; }
-		@keyframes spShimmer { to { background-position: -200% 0; } }
+
+		.sp-skel-img {
+			aspect-ratio: 4/3;
+		}
+
+		.sp-skel-line {
+			height: 14px;
+			border-radius: 4px;
+		}
+
+		.sp-skel-line.short {
+			width: 60%;
+		}
+
+		@keyframes spShimmer {
+			to {
+				background-position: -200% 0;
+			}
+		}
 
 		/* Reduced motion → статичный skeleton без shimmer. */
 		@media (prefers-reduced-motion: reduce) {
+
 			.sp-skel-img,
 			.sp-skel-line,
 			.sp-hero-aside.is-loading .sp-hero-media,
@@ -1864,8 +2937,15 @@
 		/* #new-block: страховка от layout shift, если JS-инициализация
 		   запоздает или контент рендерится медленнее обычного. min-height
 		   близко к реальной высоте 2-колоночного блока на десктопе. */
-		.sp-new-block { min-height: 320px; }
-		@media (max-width: 767px) { .sp-new-block { min-height: 0; } }
+		.sp-new-block {
+			min-height: 320px;
+		}
+
+		@media (max-width: 767px) {
+			.sp-new-block {
+				min-height: 0;
+			}
+		}
 	</style>
 </head>
 
@@ -1907,25 +2987,30 @@
 				<!-- Utilities (plate + profile). Hooks preserved: #plate-btn, .plate-count, #user-badge, #u-ava, #u-name, #user-wrap, #user-dropdown, onUserBadgeClick. -->
 				<button class="sp-plate" id="plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
 					<svg class="sp-plate-svg" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" focusable="false">
-						<circle cx="11" cy="11" r="10" fill="#fff" stroke="var(--text)" stroke-width="1.4"/>
-						<path d="M11 1 A10 10 0 0 0 11 21 Z" fill="var(--accent)"/>
-						<path d="M11 1 A10 10 0 0 1 21 11 L11 11 Z" fill="var(--text)"/>
-						<line x1="11" y1="1" x2="11" y2="21" stroke="#fff" stroke-width="1.2"/>
-						<line x1="11" y1="11" x2="21" y2="11" stroke="#fff" stroke-width="1.2"/>
+						<circle cx="11" cy="11" r="10" fill="#fff" stroke="var(--text)" stroke-width="1.4" />
+						<path d="M11 1 A10 10 0 0 0 11 21 Z" fill="var(--accent)" />
+						<path d="M11 1 A10 10 0 0 1 21 11 L11 11 Z" fill="var(--text)" />
+						<line x1="11" y1="1" x2="11" y2="21" stroke="#fff" stroke-width="1.2" />
+						<line x1="11" y1="11" x2="21" y2="11" stroke="#fff" stroke-width="1.2" />
 					</svg>
 					<span class="plate-count" style="display:none">0</span>
 				</button>
 				<div class="v-user-wrap" id="user-wrap">
 					<button class="sp-profile" id="user-badge" onclick="onUserBadgeClick(event)" type="button">
 						<span class="v-user-avatar" id="u-ava" aria-hidden="true">?</span>
-						<svg class="sp-profile-guest-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+						<svg class="sp-profile-guest-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+						</svg>
 						<span class="sp-profile-name" id="u-name">Войти</span>
 						<span class="sp-profile-dot" id="sp-profile-dot" hidden aria-label="Новый ответ Юлии"></span>
 					</button>
 					<div class="user-dropdown" id="user-dropdown">
 						<a href="cabinet.html?tab=feedback" class="user-dd-item user-dd-feedback" id="user-dd-feedback" hidden>Новый ответ Юлии</a>
 						<div class="user-dd-sep" id="user-dd-feedback-sep" hidden></div>
-						<a href="cabinet.html" class="user-dd-item"><svg class="user-dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>Мой кабинет</a>
+						<a href="cabinet.html" class="user-dd-item"><svg class="user-dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<circle cx="12" cy="8" r="4" />
+								<path d="M4 21c0-4 4-7 8-7s8 3 8 7" />
+							</svg>Мой кабинет</a>
 						<div class="user-dd-sep"></div>
 						<a href="cabinet.html?tab=subscription" class="user-dd-item user-dd-subitem">Подписка</a>
 						<a href="cabinet.html?tab=favorites" class="user-dd-item user-dd-subitem">Избранные</a>
@@ -1933,7 +3018,11 @@
 						<a href="cabinet.html?tab=notes" class="user-dd-item user-dd-subitem">Заметки</a>
 						<a href="cabinet.html?tab=feedback" class="user-dd-item user-dd-subitem">Связь</a>
 						<div class="user-dd-sep"></div>
-						<button class="user-dd-item user-dd-logout" onclick="doLogout()"><svg class="user-dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Выйти</button>
+						<button class="user-dd-item user-dd-logout" onclick="doLogout()"><svg class="user-dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+								<polyline points="16 17 21 12 16 7" />
+								<line x1="21" y1="12" x2="9" y2="12" />
+							</svg>Выйти</button>
 					</div>
 				</div>
 
@@ -1969,7 +3058,10 @@
 		<aside class="sp-drawer-panel" role="dialog" aria-label="Меню сайта">
 			<div class="sp-drawer-head">
 				<span class="sp-drawer-title">Меню</span>
-				<button class="sp-drawer-close" type="button" onclick="closeDrawer()" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+				<button class="sp-drawer-close" type="button" onclick="closeDrawer()" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+						<line x1="6" y1="6" x2="18" y2="18" />
+						<line x1="18" y1="6" x2="6" y2="18" />
+					</svg></button>
 			</div>
 			<nav class="sp-drawer-nav" id="sp-drawer-nav">
 				<a class="active" href="index.html">Главная</a>
@@ -1991,7 +3083,7 @@
 							<p class="sp-guest-lead"><span>Семейный нутрициолог</span><span>и автор “Умной тарелки”.</span></p>
 							<p class="sp-guest-copy">Здесь я собрала и продолжаю собирать свои лучшие рецепты, проверенные моей семьей. Это не экзотическая “здоровая еда”, а привычные блюда: супы и борщ, котлеты, паста, блины, просто в более здоровой версии.</p>
 							<p class="sp-guest-copy">Я адаптировала их так, чтобы они были и вкусными, и сбалансированными одновременно.</p>
-							<p class="sp-guest-sign">Готовьте с удовольствием! Ваша Юля.<span class="sp-guest-handle">@voronova_nutrition</span></p>
+							<p class="sp-guest-sign">Готовьте с удовольствием!<br> Ваша Юля.<span class="sp-guest-handle">@voronova_nutrition</span></p>
 						</div>
 					</div>
 
@@ -2041,11 +3133,11 @@
 							<div class="sp-how-visual" aria-hidden="true">
 								<div class="sp-how-plate">
 									<svg class="sp-how-plate-svg" viewBox="0 0 22 22" aria-hidden="true" focusable="false">
-										<circle cx="11" cy="11" r="10" fill="#fff" stroke="var(--text)" stroke-width=".85"/>
-										<path d="M11 1 A10 10 0 0 0 11 21 Z" fill="var(--accent)"/>
-										<path d="M11 1 A10 10 0 0 1 21 11 L11 11 Z" fill="var(--text)"/>
-										<line x1="11" y1="1" x2="11" y2="21" stroke="#fff" stroke-width=".75"/>
-										<line x1="11" y1="11" x2="21" y2="11" stroke="#fff" stroke-width=".75"/>
+										<circle cx="11" cy="11" r="10" fill="#fff" stroke="var(--text)" stroke-width=".85" />
+										<path d="M11 1 A10 10 0 0 0 11 21 Z" fill="var(--accent)" />
+										<path d="M11 1 A10 10 0 0 1 21 11 L11 11 Z" fill="var(--text)" />
+										<line x1="11" y1="1" x2="11" y2="21" stroke="#fff" stroke-width=".75" />
+										<line x1="11" y1="11" x2="21" y2="11" stroke="#fff" stroke-width=".75" />
 									</svg>
 								</div>
 							</div>
@@ -2094,7 +3186,9 @@
 			<section class="sp-hero anim" id="intro-block">
 				<div class="sp-hero-text">
 					<a class="sp-hero-favorites" id="hero-favorites-link" href="cabinet.html?tab=favorites" aria-label="Открыть избранные рецепты">
-						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+						<svg viewBox="0 0 24 24" aria-hidden="true">
+							<path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
+						</svg>
 					</a>
 					<div class="sp-hero-eyebrow" id="sp-hero-eyebrow">Сегодня</div>
 					<h1 class="sp-hero-title" id="sp-hero-title">Полезно,<br>вкусно,<br>по делу.</h1>
@@ -2245,8 +3339,17 @@
 		<div class="modal-box" id="plate-modal">
 			<div class="modal-handle"></div>
 			<div class="modal-header">
-				<div class="modal-title"><svg class="sp-plate-svg" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="10" fill="#fff" stroke="var(--text)" stroke-width="1.4"/><path d="M11 1 A10 10 0 0 0 11 21 Z" fill="var(--accent)"/><path d="M11 1 A10 10 0 0 1 21 11 L11 11 Z" fill="var(--text)"/><line x1="11" y1="1" x2="11" y2="21" stroke="#fff" stroke-width="1.2"/><line x1="11" y1="11" x2="21" y2="11" stroke="#fff" stroke-width="1.2"/></svg> Моя тарелка</div>
-				<button class="modal-close" onclick="closePlate()"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
+				<div class="modal-title"><svg class="sp-plate-svg" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" focusable="false">
+						<circle cx="11" cy="11" r="10" fill="#fff" stroke="var(--text)" stroke-width="1.4" />
+						<path d="M11 1 A10 10 0 0 0 11 21 Z" fill="var(--accent)" />
+						<path d="M11 1 A10 10 0 0 1 21 11 L11 11 Z" fill="var(--text)" />
+						<line x1="11" y1="1" x2="11" y2="21" stroke="#fff" stroke-width="1.2" />
+						<line x1="11" y1="11" x2="21" y2="11" stroke="#fff" stroke-width="1.2" />
+					</svg> Моя тарелка</div>
+				<button class="modal-close" onclick="closePlate()"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+						<line x1="5" y1="5" x2="19" y2="19" />
+						<line x1="5" y1="19" x2="19" y2="5" />
+					</svg></button>
 			</div>
 			<div class="modal-body" id="plate-body"></div>
 			<div class="modal-footer" id="plate-footer" style="display:none">
@@ -2455,7 +3558,7 @@
 				const u = (Auth.getUser && Auth.getUser()) || null;
 				if (u && u.name) return u.name;
 				if (u && u.email && u.email.indexOf('@') > 0) return u.email.split('@')[0];
-			} catch (e) {}
+			} catch (e) { }
 			return '';
 		}
 
@@ -2744,12 +3847,12 @@
 			// Skeleton-строки правой колонки (геометрия = .sp-news-item:
 			// date-полоска + 2 строки заголовка). 4 строки соответствуют
 			// финальному количеству textItems.slice(0, 4).
-			const widths = [['86%','62%'], ['92%','58%'], ['80%','70%'], ['88%','50%']];
+			const widths = [['86%', '62%'], ['92%', '58%'], ['80%', '70%'], ['88%', '50%']];
 			listEl.innerHTML = widths.map(function (w, i) {
 				return '<article class="sp-news-item" aria-hidden="true">'
-					+   '<span class="sp-skel-line" style="width:32%;height:10px;display:block"></span>'
-					+   '<span class="sp-skel-line" style="width:' + w[0] + ';height:16px;display:block;margin-top:10px"></span>'
-					+   '<span class="sp-skel-line" style="width:' + w[1] + ';height:16px;display:block;margin-top:6px"></span>'
+					+ '<span class="sp-skel-line" style="width:32%;height:10px;display:block"></span>'
+					+ '<span class="sp-skel-line" style="width:' + w[0] + ';height:16px;display:block;margin-top:10px"></span>'
+					+ '<span class="sp-skel-line" style="width:' + w[1] + ';height:16px;display:block;margin-top:6px"></span>'
 					+ '</article>';
 			}).join('');
 			block.classList.remove('sp-new-block--no-list');
@@ -3047,7 +4150,7 @@
 		function _latestRecipeId() {
 			const all = Object.values(RECIPES);
 			if (!all.length) return null;
-			const sorted = all.slice().sort(function(a, b) { return (b.addedTs || 0) - (a.addedTs || 0); });
+			const sorted = all.slice().sort(function (a, b) { return (b.addedTs || 0) - (a.addedTs || 0); });
 			return sorted[0] ? sorted[0].id : null;
 		}
 
@@ -3079,7 +4182,7 @@
 			if (!block || !body) return;
 
 			const all = Object.values(RECIPES);
-			let r = all.find(function(x) { return x.isSeasonal; });
+			let r = all.find(function (x) { return x.isSeasonal; });
 			let isFallback = false;
 			if (!r) {
 				const latestId = _latestRecipeId();
@@ -3149,9 +4252,9 @@
 			if (!grid) return;
 			grid.innerHTML = Array.from({ length: _spRecCount }, function () {
 				return '<div class="sp-skel-card" aria-hidden="true">'
-					+    '<div class="sp-skel-img"></div>'
-					+    '<div class="sp-skel-line"></div>'
-					+    '<div class="sp-skel-line short"></div>'
+					+ '<div class="sp-skel-img"></div>'
+					+ '<div class="sp-skel-line"></div>'
+					+ '<div class="sp-skel-line short"></div>'
 					+ '</div>';
 			}).join('');
 		}
@@ -3165,24 +4268,24 @@
 			// Сначала рейтинговые, потом остальные по дате — но рейтингов может ещё не быть.
 			const withRating = [];
 			const withoutRating = [];
-			all.forEach(function(r) {
+			all.forEach(function (r) {
 				const rv = _apiRatings[r.id];
 				if (rv && rv.avg > 0) withRating.push({ r, rv });
 				else withoutRating.push(r);
 			});
-			withRating.sort(function(a, b) {
+			withRating.sort(function (a, b) {
 				if (b.rv.avg !== a.rv.avg) return b.rv.avg - a.rv.avg;
 				if (b.rv.count !== a.rv.count) return b.rv.count - a.rv.count;
 				return (b.r.addedTs || 0) - (a.r.addedTs || 0);
 			});
-			withoutRating.sort(function(a, b) { return (b.addedTs || 0) - (a.addedTs || 0); });
+			withoutRating.sort(function (a, b) { return (b.addedTs || 0) - (a.addedTs || 0); });
 
-			const shown = withRating.map(function(x) { return x.r; }).concat(withoutRating).slice(0, _spRecCount);
+			const shown = withRating.map(function (x) { return x.r; }).concat(withoutRating).slice(0, _spRecCount);
 			const latestId = _latestRecipeId();
 			const diffLabels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
 
 			block.style.display = '';
-			grid.innerHTML = shown.map(function(d) {
+			grid.innerHTML = shown.map(function (d) {
 				const _name = escHtml(String(d.name || ''));
 				const _photo = escHtml(String(d.photo || ''));
 				const _emoji = escHtml(String(d.emoji || '🍴'));
