@@ -16,6 +16,77 @@
 	</style>
 	<link rel="stylesheet" href="style-v4.css?v=2026-06-01-recipe-actions" id="vcss">
 	<style>
+		.recipe-guest-helper {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) auto;
+			gap: 18px;
+			align-items: center;
+			margin: 0 0 22px;
+			padding: 18px 20px;
+			background: #fff;
+			border: 1px solid var(--border);
+			border-left: 4px solid var(--accent);
+			box-shadow: 0 14px 34px rgba(0,0,0,.06);
+		}
+		.recipe-guest-helper-kicker {
+			margin: 0 0 6px;
+			color: var(--accent);
+			font-size: 10px;
+			font-weight: 800;
+			letter-spacing: .16em;
+			text-transform: uppercase;
+		}
+		.recipe-guest-helper h2 {
+			margin: 0 0 8px;
+			font-family: var(--serif);
+			font-size: clamp(24px, 3vw, 34px);
+			line-height: 1.05;
+			letter-spacing: 0;
+		}
+		.recipe-guest-helper p {
+			margin: 0;
+			max-width: 720px;
+			color: var(--text-2);
+			font-size: 15px;
+			line-height: 1.58;
+		}
+		.recipe-guest-helper-actions {
+			display: flex;
+			gap: 10px;
+			align-items: center;
+		}
+		.recipe-guest-helper-btn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 42px;
+			padding: 0 16px;
+			border: 1px solid var(--text);
+			background: var(--text);
+			color: #fff;
+			font-size: 11px;
+			font-weight: 800;
+			letter-spacing: .12em;
+			text-transform: uppercase;
+			text-decoration: none;
+			white-space: nowrap;
+			cursor: pointer;
+		}
+		.recipe-guest-helper-btn.is-ghost {
+			background: #fff;
+			color: var(--text);
+		}
+		@media (max-width: 767px) {
+			.recipe-guest-helper {
+				grid-template-columns: 1fr;
+				padding: 16px;
+			}
+			.recipe-guest-helper-actions {
+				display: grid;
+				grid-template-columns: 1fr;
+			}
+		}
+
 		.sublist-items {
 			display: flex;
 			flex-direction: column;
@@ -438,6 +509,9 @@
 			   ниже неё, чтобы не закрывала навигацию. */
 			.bal-mini-status.show ~ main .recipe-crumbs {
 				margin-top: 44px;
+			}
+			.bal-mini-status.show ~ main .recipe-guest-helper {
+				margin-top: 54px;
 			}
 		}
 
@@ -2644,7 +2718,22 @@
 				return parts.join('<span class="crumb-sep">›</span>');
 			})();
 
+			const guestHelpHtml = new URLSearchParams(location.search).get('guestHelp') === '1'
+				? `<section class="recipe-guest-helper" aria-label="Подсказка по рецепту">
+					<div>
+						<p class="recipe-guest-helper-kicker">Попробуйте на примере</p>
+						<h2>Сейчас посмотрите на блок “Баланс блюда”</h2>
+						<p>Справа система показывает, чего не хватает этому рецепту, чтобы блюдо стало полноценным приемом пищи. На телефоне этот блок будет ниже рецепта.</p>
+					</div>
+					<div class="recipe-guest-helper-actions">
+						<button class="recipe-guest-helper-btn" type="button" onclick="scrollToBalanceBanner()">Показать баланс</button>
+						<a class="recipe-guest-helper-btn is-ghost" href="index.html?guestTour=1">К описанию платформы</a>
+					</div>
+				</section>`
+				: '';
+
 			document.getElementById('page-content').innerHTML = `
+            ${guestHelpHtml}
             <div class="recipe-layout">
                 <div class="recipe-main anim">
                     <nav class="recipe-crumbs" aria-label="Хлебные крошки">${crumbsHtml}</nav>
