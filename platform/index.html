@@ -380,8 +380,10 @@
 			border-bottom: 1px solid var(--border);
 			background: #fbfaf7;
 		}
-		.sp-guest-tour-preview .sp-guest-onboarding { display: block; }
-		.sp-guest-tour-preview .sp-hero { display: none; }
+		.sp-guest-tour-preview .sp-guest-onboarding,
+		.sp-guest-onboarding-active .sp-guest-onboarding { display: block; }
+		.sp-guest-tour-preview .sp-hero,
+		.sp-guest-onboarding-active .sp-hero { display: none; }
 		.sp-guest-onboarding-inner {
 			max-width: 1120px;
 			margin: 0 auto;
@@ -2306,6 +2308,11 @@
 		let _spRecCount = 8;
 		const _guestTourPreview = new URLSearchParams(location.search).get('guestTour') === '1';
 		if (_guestTourPreview) document.body.classList.add('sp-guest-tour-preview');
+		function updateGuestOnboardingVisibility() {
+			const isGuest = (Auth && typeof Auth.isGuest === 'function' && Auth.isGuest())
+				|| !(Auth && typeof Auth.isLoggedIn === 'function' && Auth.isLoggedIn());
+			document.body.classList.toggle('sp-guest-onboarding-active', _guestTourPreview || isGuest);
+		}
 
 		// Skeleton в #recommended-block СРАЗУ — место зарезервировано до того,
 		// как loadContent() резолвится. Реальные карточки заполнит renderRecommended().
@@ -2327,6 +2334,7 @@
 				return;
 			}
 			Auth.checkAccess({ allowGuest: true }).finally(function () {
+				updateGuestOnboardingVisibility();
 				// Сначала заполняем #new-block синхронно (featured из RECIPES + skeleton
 				// новостей справа), чтобы он занял место ДО renderCats() — иначе
 				// категории прыгают вниз после loadNewsFeed().
