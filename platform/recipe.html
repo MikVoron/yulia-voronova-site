@@ -923,8 +923,8 @@
 		.bal-progress { display: flex !important; flex-direction: column !important; gap: 0 !important; margin-top: 14px !important; border-top: 1px solid var(--border); }
 		.bal-progress-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 12px; border-bottom: 1px solid var(--border); }
 		.bal-progress-item:last-child { border-bottom: none; }
-		.bal-progress-check { width: 16px; height: 16px; flex-shrink: 0; border: 1.5px solid var(--text-3); display: inline-flex; align-items: center; justify-content: center; font-size: 10px; line-height: 1; background: transparent; box-sizing: border-box; }
-		.bal-progress-item.done .bal-progress-check { background: var(--text); border-color: var(--text); color: #fff; }
+		.bal-progress-check { width: 8px; height: 8px; flex-shrink: 0; border: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; line-height: 1; background: var(--accent); opacity: .7; box-sizing: border-box; }
+		.bal-progress-item.done .bal-progress-check { width: 16px; height: 16px; border-radius: 0; background: var(--text); border: 1px solid var(--text); color: #fff; opacity: 1; }
 		.bal-progress-item.done .bal-progress-check::after { content: '✓'; }
 		.bal-progress-label { flex: 1; font-weight: 600; color: var(--text); text-transform: uppercase; letter-spacing: .05em; font-size: 11px; }
 		.bal-progress-item.done .bal-progress-label { color: var(--text-3); }
@@ -954,9 +954,11 @@
 		.bal-item:hover { background: transparent !important; border-color: var(--border) !important; }
 		.bal-item:last-child { border-bottom: none !important; }
 		.bal-item.checked { background: transparent !important; border-color: var(--border) !important; box-shadow: none !important; }
-		.bal-item-check { width: 14px !important; height: 14px !important; border-radius: 0 !important; border: 1.5px solid var(--text-3) !important; background: transparent !important; box-sizing: border-box; }
-		.bal-item.checked .bal-item-check { background: var(--text) !important; border-color: var(--text) !important; }
-		.bal-item.checked .bal-item-check::after { font-size: 9px !important; font-weight: 700 !important; animation: none !important; }
+		.bal-item-check { width: 14px !important; height: 14px !important; border-radius: 0 !important; border: 0 !important; background: transparent !important; color: var(--accent) !important; box-sizing: border-box; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+		.bal-item-check::before { content: '+'; font-size: 14px; line-height: 1; font-weight: 800; }
+		.bal-item.checked .bal-item-check { background: var(--text) !important; border: 1px solid var(--text) !important; color: #fff !important; }
+		.bal-item.checked .bal-item-check::before { content: '' !important; display: none !important; }
+		.bal-item.checked .bal-item-check::after { content: '✓' !important; color: #fff !important; font-size: 9px !important; font-weight: 700 !important; animation: none !important; }
 		.bal-item-text { font-size: 13px !important; font-weight: 400 !important; color: var(--text) !important; }
 		.bal-item.checked .bal-item-text { color: var(--text) !important; font-weight: 500 !important; }
 		.bal-item-amount { color: var(--text-3) !important; font-weight: 500; }
@@ -2723,7 +2725,7 @@
 					<div>
 						<p class="recipe-guest-helper-kicker">Попробуйте на примере</p>
 						<h2>Сейчас посмотрите на блок “Баланс блюда”</h2>
-						<p>Справа система показывает, чего не хватает этому рецепту, чтобы блюдо стало полноценным приемом пищи. На телефоне этот блок будет ниже рецепта.</p>
+						<p>Справа система показывает, чего не хватает этому рецепту, чтобы блюдо стало более полноценным приемом пищи. На телефоне этот блок будет ниже рецепта.</p>
 					</div>
 					<div class="recipe-guest-helper-actions">
 						<button class="recipe-guest-helper-btn" type="button" onclick="scrollToBalanceBanner()">Показать баланс</button>
