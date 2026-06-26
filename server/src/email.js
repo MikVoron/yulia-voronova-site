@@ -103,6 +103,15 @@ async function send(to, subject, html) {
   await transporter.sendMail({ from: FROM, to, subject, html });
 }
 
+function escHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // ── 1. Код для входа ──
 async function sendLoginCode(to, code) {
   const body =
@@ -201,11 +210,6 @@ async function sendSubscriptionExtended(to, days, activeUntil) {
   await send(to, 'Подписка продлена', wrapService(body));
 }
 
-// ── 5. Оплата подтверждена ──
-function escHtml(s) {
-  return String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
 async function sendPaymentConfirmed(to, days, activeUntil, comment) {
   const untilStr = activeUntil
     ? new Date(activeUntil).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -253,10 +257,10 @@ async function sendPaymentNotification(userEmail, amount, paymentDate, hasScreen
   const body =
     '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Новая оплата на проверку</h2>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
-    + 'Пользователь <strong>' + userEmail + '</strong> сообщил об оплате подписки:</p>'
+    + 'Пользователь <strong>' + escHtml(userEmail) + '</strong> сообщил об оплате подписки:</p>'
     + '<table cellpadding="6" cellspacing="0" border="0" style="font-size:14px;color:#444;margin-bottom:16px">'
-    + '<tr><td style="color:#777">Сумма:</td><td style="font-weight:700;color:#111">' + amount + ' ₽</td></tr>'
-    + '<tr><td style="color:#777">Дата перевода:</td><td>' + paymentDate + '</td></tr>'
+    + '<tr><td style="color:#777">Сумма:</td><td style="font-weight:700;color:#111">' + escHtml(amount) + ' ₽</td></tr>'
+    + '<tr><td style="color:#777">Дата перевода:</td><td>' + escHtml(paymentDate) + '</td></tr>'
     + '<tr><td style="color:#777">Скриншот:</td><td>' + (hasScreenshot ? '📎 Приложен (смотрите в админке)' : 'Не приложен') + '</td></tr>'
     + '</table>'
     + btn('Проверить оплату в админке', '' + PLATFORM_URL + '/admin.html')
@@ -270,16 +274,18 @@ async function sendFeedback(userEmail, category, text, opts) {
   const label = labels[category] || category;
   const isFollowUp = !!(opts && opts.followUp);
   const feedbackId = opts && opts.feedbackId ? opts.feedbackId : '';
+  const feedbackIdHtml = escHtml(feedbackId);
+  const labelHtml = escHtml(label);
   const subject = isFollowUp
     ? 'Уточнение к обращению #' + feedbackId
     : 'Новое обращение: ' + label;
   const intro = isFollowUp
-    ? '<p style="font-size:14px;color:#111;margin:0 0 8px"><strong>Пользователь добавил уточнение в обращение #' + feedbackId + '</strong></p>'
+    ? '<p style="font-size:14px;color:#111;margin:0 0 8px"><strong>Пользователь добавил уточнение в обращение #' + feedbackIdHtml + '</strong></p>'
     : '';
   const body = intro
-    + '<p style="font-size:14px;color:#111;margin:0 0 8px"><strong>Категория:</strong> ' + label + '</p>'
-    + '<p style="font-size:14px;color:#111;margin:0 0 8px"><strong>От:</strong> ' + userEmail + '</p>'
-    + '<p style="font-size:14px;color:#111;margin:0 0 16px;white-space:pre-wrap">' + text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>'
+    + '<p style="font-size:14px;color:#111;margin:0 0 8px"><strong>Категория:</strong> ' + labelHtml + '</p>'
+    + '<p style="font-size:14px;color:#111;margin:0 0 8px"><strong>От:</strong> ' + escHtml(userEmail) + '</p>'
+    + '<p style="font-size:14px;color:#111;margin:0 0 16px;white-space:pre-wrap">' + escHtml(text) + '</p>'
     + btn('Открыть обращения в админке', PLATFORM_URL + '/admin.html?tab=feedback');
   await send('hello@voronova.online', subject, wrap(body));
 }
@@ -297,20 +303,19 @@ async function sendNewUserNotification(user, meta) {
   const now = new Date();
   const utcStr = now.toISOString();
   const mskStr = now.toLocaleString('ru-RU', { timeZone: 'Europe/Moscow', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  const esc = (s) => String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const body =
     '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Новый пользователь</h2>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
     + 'На платформе <strong>Умная тарелка</strong> зарегистрирован новый пользователь:</p>'
     + '<table cellpadding="6" cellspacing="0" border="0" style="font-size:14px;color:#444;margin-bottom:16px">'
-    + '<tr><td style="color:#777">Email:</td><td style="font-weight:700;color:#111">' + esc(user.email || '—') + '</td></tr>'
-    + '<tr><td style="color:#777">User ID:</td><td>' + esc(user.id) + '</td></tr>'
-    + '<tr><td style="color:#777">Способ:</td><td>' + esc(method) + '</td></tr>'
+    + '<tr><td style="color:#777">Email:</td><td style="font-weight:700;color:#111">' + escHtml(user.email || '—') + '</td></tr>'
+    + '<tr><td style="color:#777">User ID:</td><td>' + escHtml(user.id) + '</td></tr>'
+    + '<tr><td style="color:#777">Способ:</td><td>' + escHtml(method) + '</td></tr>'
     + '<tr><td style="color:#777">Триал:</td><td style="font-weight:700;color:' + (trialGranted ? '#2d7a2d' : '#8a1a1a') + '">' + (trialGranted ? 'Выдан' : 'Не выдан') + '</td></tr>'
     + '<tr><td style="color:#777">Дата (МСК):</td><td>' + mskStr + '</td></tr>'
     + '<tr><td style="color:#777">Дата (UTC):</td><td>' + utcStr + '</td></tr>'
-    + '<tr><td style="color:#777">IP:</td><td>' + esc(ip) + '</td></tr>'
-    + '<tr><td style="color:#777;vertical-align:top">User-agent:</td><td style="font-size:12px;color:#777">' + esc(String(ua).slice(0, 300)) + '</td></tr>'
+    + '<tr><td style="color:#777">IP:</td><td>' + escHtml(ip) + '</td></tr>'
+    + '<tr><td style="color:#777;vertical-align:top">User-agent:</td><td style="font-size:12px;color:#777">' + escHtml(String(ua).slice(0, 300)) + '</td></tr>'
     + '</table>'
     + btn('Открыть админку', PLATFORM_URL + '/admin.html');
   await send(NEW_USER_NOTIFY_TO, 'Новый пользователь зарегистрирован', wrap(body));
@@ -323,22 +328,21 @@ async function sendReviewNotification(author, recipeName, stars, text, recipeId)
   const body =
     '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Новый отзыв</h2>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
-    + 'Новый отзыв от <strong>' + author.replace(/</g, '&lt;') + '</strong> на рецепт <strong>' + recipeName.replace(/</g, '&lt;') + '</strong>:</p>'
+    + 'Новый отзыв от <strong>' + escHtml(author) + '</strong> на рецепт <strong>' + escHtml(recipeName) + '</strong>:</p>'
     + '<div style="padding:16px;background:#faf8f5;border-radius:10px;border:1px solid #eee;margin-bottom:16px">'
     + '<div style="font-size:20px;margin-bottom:8px;color:#f5a623">' + starsStr + '</div>'
-    + '<p style="font-size:14px;color:#333;margin:0;white-space:pre-wrap">' + text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>'
+    + '<p style="font-size:14px;color:#333;margin:0;white-space:pre-wrap">' + escHtml(text) + '</p>'
     + '</div>'
     + btn('Посмотреть отзыв', reviewUrl);
-  await send('hello@voronova.online', 'Новый отзыв: ' + recipeName.replace(/</g, '&lt;'), wrap(body));
+  await send('hello@voronova.online', 'Новый отзыв: ' + recipeName, wrap(body));
 }
 
 // ── 8. Рассылка новости ──
 async function sendNewsletter(to, news, unsubscribeToken) {
   const item = typeof news === 'string' ? { text: news } : (news || {});
-  const esc = (s) => String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const isRecipe = item.type === 'recipe' && item.recipeId && item.recipeName;
-  const newsText = esc(item.text);
-  const recipeName = esc(item.recipeName);
+  const newsText = escHtml(item.text);
+  const recipeName = escHtml(item.recipeName);
   const subject = isRecipe ? 'Новый рецепт: ' + item.recipeName : 'Новости';
   const title = isRecipe
     ? 'Я добавила новый рецепт: <strong>' + recipeName + '</strong>.'
@@ -362,17 +366,17 @@ async function sendNewsletter(to, news, unsubscribeToken) {
 async function sendFeedbackReply(to, category, originalText, replyText, displayName) {
   const labels = { wish: 'Пожелание', recipe: 'Идея рецепта', problem: 'Проблема' };
   const label = labels[category] || category;
-  const safeName = String(displayName || '').trim().replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const safeName = escHtml(String(displayName || '').trim());
   const greeting = safeName ? 'Здравствуйте, ' + safeName + '!' : 'Здравствуйте!';
   const body =
     '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">' + greeting + '</h2>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">Ответ на ваше обращение</p>'
-    + '<p style="font-size:14px;color:#777;margin:0 0 4px">Категория: <strong>' + label + '</strong></p>'
+    + '<p style="font-size:14px;color:#777;margin:0 0 4px">Категория: <strong>' + escHtml(label) + '</strong></p>'
     + '<div style="padding:14px;background:#faf8f5;border-radius:10px;border:1px solid #eee;margin:12px 0;font-size:14px;color:#444;line-height:1.6;white-space:pre-wrap">'
-    + originalText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>'
+    + escHtml(originalText) + '</div>'
     + '<p style="font-size:15px;color:#111;font-weight:700;margin:16px 0 8px">Юлия:</p>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px;white-space:pre-wrap">'
-    + replyText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>'
+    + escHtml(replyText) + '</p>'
     + btn('Открыть личный кабинет', '' + PLATFORM_URL + '/cabinet.html');
   await send(to, 'Ответ на ваше обращение', wrapService(body));
 }
