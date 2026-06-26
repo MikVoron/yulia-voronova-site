@@ -9,6 +9,8 @@ const PAYMENT_COMMENT_MAX_LENGTH = 1000;
 const PAYMENT_SCREENSHOT_RE = /^data:image\/(?:png|jpe?g|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
 const PAYMENT_HISTORY_LIMIT = 200;
 const FEEDBACK_THREAD_LIST_LIMIT = 100;
+const USER_SETTINGS_RATE_LIMIT = { max: 30, timeWindow: '1 minute' };
+const FEEDBACK_STATE_RATE_LIMIT = { max: 30, timeWindow: '1 minute' };
 
 function normalizePaymentRequest(body) {
   const amount = Number(body && body.amount);
@@ -145,7 +147,10 @@ async function subscriptionRoutes(fastify) {
   });
 
   // PUT /subscription/newsletter — переключить подписку на рассылку
-  fastify.put('/subscription/newsletter', { preHandler: authenticate }, async (req) => {
+  fastify.put('/subscription/newsletter', {
+    preHandler: authenticate,
+    config: { rateLimit: USER_SETTINGS_RATE_LIMIT }
+  }, async (req) => {
     const { subscribed } = req.body || {};
     await db.query('UPDATE users SET newsletter_subscribed=$1 WHERE id=$2', [!!subscribed, req.user.sub]);
     return { subscribed: !!subscribed };
@@ -158,7 +163,10 @@ async function subscriptionRoutes(fastify) {
   });
 
   // PUT /subscription/dietary-preferences — replace recipe visibility preferences
-  fastify.put('/subscription/dietary-preferences', { preHandler: authenticate }, async (req) => {
+  fastify.put('/subscription/dietary-preferences', {
+    preHandler: authenticate,
+    config: { rateLimit: USER_SETTINGS_RATE_LIMIT }
+  }, async (req) => {
     const preferences = normalizeDietaryPreferences(req.body);
     await db.query('UPDATE users SET dietary_preferences=$1::jsonb WHERE id=$2', [
       JSON.stringify(preferences),
@@ -274,7 +282,10 @@ async function subscriptionRoutes(fastify) {
   });
 
   // POST /feedback/:id/close — пользователь отмечает вопрос решённым
-  fastify.post('/feedback/:id/close', { preHandler: authenticate }, async (req, reply) => {
+  fastify.post('/feedback/:id/close', {
+    preHandler: authenticate,
+    config: { rateLimit: FEEDBACK_STATE_RATE_LIMIT }
+  }, async (req, reply) => {
     const id = parseInt(req.params.id, 10);
     if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: 'Некорректный id' });
     const result = await db.query(
@@ -329,7 +340,10 @@ async function subscriptionRoutes(fastify) {
   });
 
   // POST /feedback/mark-seen — пометить непросмотренные admin-сообщения как просмотренные
-  fastify.post('/feedback/mark-seen', { preHandler: authenticate }, async (req) => {
+  fastify.post('/feedback/mark-seen', {
+    preHandler: authenticate,
+    config: { rateLimit: FEEDBACK_STATE_RATE_LIMIT }
+  }, async (req) => {
     await db.query(
       `UPDATE feedback_thread_messages m
           SET seen_at = now()
@@ -346,7 +360,10 @@ async function subscriptionRoutes(fastify) {
 
   // DELETE /feedback/:id — soft-delete на стороне пользователя
   // В БД запись остаётся (user_deleted_at), админ продолжает её видеть
-  fastify.delete('/feedback/:id', { preHandler: authenticate }, async (req, reply) => {
+  fastify.delete('/feedback/:id', {
+    preHandler: authenticate,
+    config: { rateLimit: FEEDBACK_STATE_RATE_LIMIT }
+  }, async (req, reply) => {
     const id = parseInt(req.params.id, 10);
     if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: 'Некорректный id' });
     const result = await db.query(

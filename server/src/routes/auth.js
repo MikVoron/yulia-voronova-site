@@ -10,6 +10,8 @@ const audit = require('../audit');
 const AUTH_SEND_CODE_RATE_LIMIT = { max: 10, timeWindow: '15 minutes' };
 const AUTH_VERIFY_RATE_LIMIT = { max: 20, timeWindow: '15 minutes' };
 const AUTH_REFRESH_RATE_LIMIT = { max: 60, timeWindow: '15 minutes' };
+const AUTH_LOGOUT_RATE_LIMIT = { max: 60, timeWindow: '15 minutes' };
+const AUTH_PROFILE_RATE_LIMIT = { max: 20, timeWindow: '1 hour' };
 
 async function authRoutes(fastify) {
   // POST /auth/send-code
@@ -133,7 +135,9 @@ async function authRoutes(fastify) {
   });
 
   // POST /auth/logout
-  fastify.post('/auth/logout', async (req, reply) => {
+  fastify.post('/auth/logout', {
+    config: { rateLimit: AUTH_LOGOUT_RATE_LIMIT }
+  }, async (req, reply) => {
     const token = req.cookies.refreshToken;
     if (token) {
       await db.query('DELETE FROM refresh_sessions WHERE refresh_token_hash=$1', [hashToken(token)]);
@@ -188,16 +192,32 @@ async function authRoutes(fastify) {
   });
 
   // PUT /auth/profile — обновить display_name и/или avatar
-  fastify.put('/auth/profile', { preHandler: authenticate }, async (req, reply) => {
+  fastify.put('/auth/profile', {
+    preHandler: authenticate,
+    config: { rateLimit: AUTH_PROFILE_RATE_LIMIT }
+  }, async (req, reply) => {
 
     const { displayName, avatar } = req.body || {};
-    const name = displayName !== undefined ? (displayName ? displayName.trim().slice(0, 100) : null) : undefined;
+    let name = undefined;
+    if (displayName !== undefined) {
+      if (displayName == null || displayName === '') {
+        name = null;
+      } else if (typeof displayName !== 'string') {
+        return reply.status(400).send({ error: 'Некорректное имя' });
+      } else {
+        const trimmed = displayName.trim();
+        name = trimmed ? trimmed.slice(0, 100) : null;
+      }
+    }
 
     let ava = undefined;
     if (avatar !== undefined) {
-      if (!avatar) {
+      if (avatar == null || avatar === '') {
         ava = null; // сброс аватара
+      } else if (typeof avatar !== 'string') {
+        return reply.status(400).send({ error: 'Некорректный аватар' });
       } else {
+        if (avatar.length > 320 * 1024) return reply.status(400).send({ error: 'Аватар слишком большой. Максимум 220 КБ' });
         const match = avatar.match(/^data:image\/(png|jpeg|webp|gif);base64,(.+)$/);
         if (!match) return reply.status(400).send({ error: 'Недопустимый формат аватара. Разрешены PNG, JPEG, WebP, GIF' });
         let decoded;

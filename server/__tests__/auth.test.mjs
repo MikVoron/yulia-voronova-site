@@ -145,6 +145,30 @@ describe('auth/profile — avatar validation', () => {
     return jwt.sign({ sub: userId, email: 'test@test.com', role: 'user' }, process.env.JWT_SECRET, { expiresIn: '15m' });
   }
 
+  it('returns 400 for non-string displayName before updating the user', async () => {
+    mockQuery.mockClear();
+    const res = await app.inject({
+      method: 'PUT', url: '/auth/profile',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { displayName: { bad: true } }
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('имя');
+    expect(mockQuery).not.toHaveBeenCalledWith(expect.stringMatching(/UPDATE users SET/), expect.any(Array));
+  });
+
+  it('returns 400 for non-string avatar before updating the user', async () => {
+    mockQuery.mockClear();
+    const res = await app.inject({
+      method: 'PUT', url: '/auth/profile',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { avatar: { data: 'bad' } }
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('аватар');
+    expect(mockQuery).not.toHaveBeenCalledWith(expect.stringMatching(/UPDATE users SET/), expect.any(Array));
+  });
+
   it('returns 400 for invalid avatar format (not data:image)', async () => {
     const res = await app.inject({
       method: 'PUT', url: '/auth/profile',
