@@ -58,6 +58,7 @@ echo "[Platform Headers]"
 app_headers=$(curl -sI "$APP_BASE/")
 check_contains "App HSTS" "strict-transport-security: max-age=" "$app_headers"
 check_contains "App nosniff" "x-content-type-options: nosniff" "$app_headers"
+check_contains "App X-Frame-Options" "x-frame-options: DENY" "$app_headers"
 check_contains "App Referrer-Policy" "referrer-policy: strict-origin-when-cross-origin" "$app_headers"
 check_contains "App Permissions-Policy" "permissions-policy:" "$app_headers"
 check_contains "App CSP frame-ancestors" "frame-ancestors 'none'" "$app_headers"

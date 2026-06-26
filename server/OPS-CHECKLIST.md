@@ -130,13 +130,14 @@ X-DNS-Prefetch-Control: off
 ### Проверка платформы (app.voronova.online)
 
 ```bash
-curl -sI https://app.voronova.online/ | grep -iE 'strict-transport|content-security|content-type-options|referrer-policy|permissions-policy'
+curl -sI https://app.voronova.online/ | grep -iE 'strict-transport|content-security|content-type-options|x-frame|referrer-policy|permissions-policy'
 ```
 
 Ожидается:
 ```
 Strict-Transport-Security: max-age=31536000; includeSubDomains
 X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
 Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
 Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' ...; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'
@@ -151,7 +152,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' .
 | `Referrer-Policy` | strict-origin-when-cross-origin | strict-origin-when-cross-origin | nginx |
 | `Permissions-Policy` | camera=(), microphone=(), geolocation=(), payment=() | camera=(), microphone=(), geolocation=(), payment=() | nginx |
 | `Content-Security-Policy` | — | да | nginx |
-| `X-Frame-Options` | SAMEORIGIN | — | Helmet |
+| `X-Frame-Options` | SAMEORIGIN | DENY | nginx |
 
 ### Конфигурация nginx
 
