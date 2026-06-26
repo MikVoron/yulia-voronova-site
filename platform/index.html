@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=2026-05-29-hover-zoom-2" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=2026-06-27-plate-shop" id="vcss">
 	<style>
 		main {
 			padding-bottom: 80px;
@@ -4785,11 +4785,14 @@
                     Список покупок${ingCount ? ` · ${ingCount} шт` : ''}
                 </div>
                 <div class="shop-actions">
+                    <button class="shop-btn shop-btn-primary" id="plate-shop-mode-btn" onclick="togglePlateShopMode()" aria-pressed="false">В магазине</button>
                     <button class="shop-btn shop-btn-ghost" onclick="doCopy()">Скопировать</button>
                 </div>
+                <div class="plate-shop-list" id="plate-shop-list" hidden></div>
             </div>`;
 			footer.style.display = 'block';
 			document.getElementById('plate-meal-picker').innerHTML = plateMealTypePickerHtml();
+			renderPlateShopMode();
 		}
 
 		function removeItem(i) { Plate.remove(i); renderPlateModal(); updatePlateIcon(); renderPlateInline(); }
@@ -4819,9 +4822,77 @@
 				.then(() => showToast('📋 Список скопирован!'))
 				.catch(() => showToast('Не удалось скопировать'));
 		}
+		let plateShopMode = false;
+		let plateShopChecked = new Set();
+		function plateShopItems() {
+			const out = [];
+			Plate.get().forEach((item, itemIndex) => {
+				const ingredients = Array.isArray(item.ingredients) ? item.ingredients : [];
+				ingredients.forEach((ing, ingIndex) => {
+					const name = typeof ing === 'string' ? ing : (ing && (ing.name || ing.title || ing.text)) || '';
+					const label = String(name || '').trim();
+					if (!label) return;
+					out.push({
+						key: itemIndex + '-' + ingIndex + '-' + label,
+						dish: String(item.name || 'Блюдо'),
+						label
+					});
+				});
+			});
+			return out;
+		}
+		function togglePlateShopMode() {
+			plateShopMode = !plateShopMode;
+			renderPlateShopMode();
+		}
+		function togglePlateShopCheckedByIndex(index) {
+			if (!plateShopMode) return;
+			const item = plateShopItems()[Number(index)];
+			if (!item) return;
+			const key = item.key;
+			if (plateShopChecked.has(key)) plateShopChecked.delete(key);
+			else plateShopChecked.add(key);
+			renderPlateShopMode();
+		}
+		function renderPlateShopMode() {
+			const listEl = document.getElementById('plate-shop-list');
+			const btn = document.getElementById('plate-shop-mode-btn');
+			if (!listEl || !btn) return;
+			const items = plateShopItems();
+			const validKeys = new Set(items.map(item => item.key));
+			plateShopChecked = new Set(Array.from(plateShopChecked).filter(key => validKeys.has(key)));
+			btn.textContent = plateShopMode ? 'Редактировать' : 'В магазине';
+			btn.setAttribute('aria-pressed', String(plateShopMode));
+			btn.classList.toggle('is-active', plateShopMode);
+			listEl.hidden = !plateShopMode;
+			if (!plateShopMode) {
+				listEl.innerHTML = '';
+				return;
+			}
+			if (!items.length) {
+				listEl.innerHTML = '<div class="plate-shop-empty">В выбранных блюдах нет ингредиентов.</div>';
+				return;
+			}
+			let currentDish = '';
+			let html = '';
+			items.forEach((item, index) => {
+				if (item.dish !== currentDish) {
+					currentDish = item.dish;
+					html += '<div class="plate-shop-dish">' + escHtml(currentDish) + '</div>';
+				}
+				const checked = plateShopChecked.has(item.key);
+				html += '<button class="plate-shop-check' + (checked ? ' is-checked' : '') + '" type="button" onclick="togglePlateShopCheckedByIndex(' + Number(index) + ')" aria-pressed="' + checked + '">'
+					+ '<span class="plate-shop-box" aria-hidden="true"></span>'
+					+ '<span class="plate-shop-label">' + escHtml(item.label) + '</span>'
+					+ '</button>';
+			});
+			listEl.innerHTML = html;
+		}
 		function savePlate() {
 			if (!Plate.count()) return;
 			Plate.saveHistory(getSelectedPlateMealType());
+			plateShopMode = false;
+			plateShopChecked.clear();
 			renderPlateInline();
 			closePlate();
 			showToast('Тарелка сохранена в историю 🎉');
