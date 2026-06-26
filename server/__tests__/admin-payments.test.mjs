@@ -96,4 +96,20 @@ describe('admin payment hardening', () => {
     expect(res.json().error).toContain('id платежа');
     expect(mockConnect).not.toHaveBeenCalled();
   });
+
+  it('accepts UUID payment ids used by the production payments table', async () => {
+    const paymentId = 'bcbd9441-106c-4706-b646-10cf9c845b50';
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/payments/' + paymentId + '/confirm',
+      payload: { months: 1 }
+    });
+
+    expect(res.statusCode).not.toBe(400);
+    expect(mockConnect).toHaveBeenCalled();
+    expect(mockClientQuery).toHaveBeenCalledWith(
+      "UPDATE payments SET status='confirmed', admin_comment=$2, updated_at=now() WHERE id=$1 AND status='pending' RETURNING *",
+      [paymentId, null]
+    );
+  });
 });

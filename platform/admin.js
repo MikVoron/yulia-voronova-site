@@ -19,6 +19,14 @@
         var _doFetch = function() {
             opts.headers['Authorization'] = 'Bearer ' + Auth.getToken();
             return fetch(API_BASE + path, opts).then(function(res) {
+                function parseOrThrow(response) {
+                    return response.json().catch(function() { return {}; }).then(function(data) {
+                        if (!response.ok) {
+                            throw new Error((data && data.error) || ('HTTP ' + response.status));
+                        }
+                        return data;
+                    });
+                }
                 if (res.status === 401) {
                     return Auth.refreshToken().then(function(ok) {
                         if (ok) {
@@ -27,7 +35,7 @@
                                 if (r2.status === 401) { location.href = 'login.html?return=admin.html'; }
                                 if (r2.status === 403) { showToast('Нет прав администратора'); throw new Error('403'); }
                                 if (r2.status === 429) { showToast('Слишком много запросов, подождите'); throw new Error('429'); }
-                                return r2.json();
+                                return parseOrThrow(r2);
                             });
                         }
                         location.href = 'login.html?return=admin.html';
@@ -35,7 +43,7 @@
                 }
                 if (res.status === 403) { showToast('Нет прав администратора'); throw new Error('403'); }
                 if (res.status === 429) { showToast('Слишком много запросов, подождите'); throw new Error('429'); }
-                return res.json();
+                return parseOrThrow(res);
             });
         };
         if (opts.body && typeof opts.body === 'object') {
@@ -230,8 +238,8 @@
             closeExtendModal();
             loadUsers();
             loadStats();
-        }).catch(function() {
-            showToast('Ошибка');
+        }).catch(function(e) {
+            showToast(e.message || 'Ошибка');
         }).finally(function() {
             btn.disabled = false;
             btn.textContent = 'Продлить';
@@ -340,6 +348,8 @@
             showToast('Платёж отклонён');
             loadPayments('pending');
             loadStats();
+        }).catch(function(e) {
+            showToast(e.message || 'Ошибка');
         });
     };
 

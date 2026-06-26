@@ -4,10 +4,13 @@ const { sendPaymentConfirmed, sendPaymentRejected, sendSubscriptionExtended, sen
 const audit = require('../audit');
 
 const CONFIRM_PAYMENT_MONTHS = new Set([1, 3, 6, 12]);
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-function parsePositiveInt(value) {
-  const n = Number(value);
-  return Number.isInteger(n) && n > 0 ? n : null;
+function parsePaymentId(value) {
+  const id = String(value || '').trim();
+  if (UUID_RE.test(id)) return id;
+  if (/^[1-9]\d*$/.test(id)) return id;
+  return null;
 }
 
 async function adminRoutes(fastify) {
@@ -32,7 +35,7 @@ async function adminRoutes(fastify) {
 
   // GET /admin/payments/:id/screenshot — получить скриншот платежа
   fastify.get('/admin/payments/:id/screenshot', { preHandler: requireAdmin }, async (req, reply) => {
-    const id = parsePositiveInt(req.params.id);
+    const id = parsePaymentId(req.params.id);
     if (!id) return reply.status(400).send({ error: 'Некорректный id платежа' });
     const result = await db.query('SELECT screenshot FROM payments WHERE id=$1', [id]);
     if (!result.rows.length || !result.rows[0].screenshot) return reply.status(404).send({ error: 'Скриншот не найден' });
@@ -44,7 +47,7 @@ async function adminRoutes(fastify) {
     preHandler: requireAdmin,
     config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
   }, async (req, reply) => {
-    const id = parsePositiveInt(req.params.id);
+    const id = parsePaymentId(req.params.id);
     if (!id) return reply.status(400).send({ error: 'Некорректный id платежа' });
     const { months, comment } = req.body || {};
     const normalizedMonths = months == null || months === '' ? 1 : Number(months);
@@ -102,7 +105,7 @@ async function adminRoutes(fastify) {
 
   // POST /admin/payments/:id/reject — отклонить платёж
   fastify.post('/admin/payments/:id/reject', { preHandler: requireAdmin }, async (req, reply) => {
-    const id = parsePositiveInt(req.params.id);
+    const id = parsePaymentId(req.params.id);
     if (!id) return reply.status(400).send({ error: 'Некорректный id платежа' });
     const { comment } = req.body || {};
     const adminComment = String(comment || '').trim();
