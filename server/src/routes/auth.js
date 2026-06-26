@@ -6,9 +6,14 @@ const { authenticate } = require('../middleware');
 const { tryGrantTrial } = require('../trial-guard');
 const audit = require('../audit');
 
+const AUTH_SEND_CODE_RATE_LIMIT = { max: 10, timeWindow: '15 minutes' };
+const AUTH_VERIFY_RATE_LIMIT = { max: 20, timeWindow: '15 minutes' };
+
 async function authRoutes(fastify) {
   // POST /auth/send-code
-  fastify.post('/auth/send-code', async (req, reply) => {
+  fastify.post('/auth/send-code', {
+    config: { rateLimit: AUTH_SEND_CODE_RATE_LIMIT }
+  }, async (req, reply) => {
     const { email, context } = req.body || {};
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply.status(400).send({ error: 'Некорректный email' });
     const lower = email.toLowerCase().trim();
@@ -35,7 +40,9 @@ async function authRoutes(fastify) {
   });
 
   // POST /auth/verify
-  fastify.post('/auth/verify', async (req, reply) => {
+  fastify.post('/auth/verify', {
+    config: { rateLimit: AUTH_VERIFY_RATE_LIMIT }
+  }, async (req, reply) => {
     const { email, code } = req.body || {};
     if (!email || !code) return reply.status(400).send({ error: 'email и code обязательны' });
     const lower = email.toLowerCase().trim();
