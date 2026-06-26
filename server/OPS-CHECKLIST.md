@@ -37,7 +37,7 @@ bash server/migrate.sh --remote
 cd /var/www/smartplate-api && bash migrate.sh
 ```
 
-Файлы миграций: `server/migrations/001_*.sql` — `009_*.sql`
+Файлы миграций: `server/migrations/*.sql`
 Трекинг: таблица `schema_migrations` (автоматически, идемпотентно).
 
 ## 3. Health-проверки
@@ -163,7 +163,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' .
 
 | Файл | Назначение |
 |------|-----------|
-| `smoke-test.sh` | 23 smoke-теста после деплоя |
+| `smoke-test.sh` | smoke-тесты после деплоя |
 | `post-deploy-check.sh` | Расширенная проверка: API, БД, рецепты, авторизация, SSL |
 | `migrate.sh` | Миграции с трекингом (`schema_migrations`) |
 | `monitor.sh` | Мониторинг → Telegram |

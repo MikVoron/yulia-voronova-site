@@ -12,7 +12,7 @@ TG_BOT_TOKEN="${TG_BOT_TOKEN:-}"
 TG_CHAT_ID="${TG_CHAT_ID:-}"
 DISK_WARN_PCT=85
 MEM_WARN_PCT=90
-PM2_APP_NAME="${PM2_APP_NAME:-voronova-api}"
+PM2_APP_NAME="${PM2_APP_NAME:-smartplate-api}"
 BACKUP_DIR="${BACKUP_DIR:-/opt/voronova/backups}"
 BACKUP_MAX_AGE_HOURS=26  # бэкап должен быть моложе 26 часов
 
