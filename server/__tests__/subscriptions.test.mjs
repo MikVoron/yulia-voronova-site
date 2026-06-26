@@ -24,6 +24,9 @@ const mockQuery = vi.fn(async (sql) => {
   }
   return { rows: [] };
 });
+const mockClientQuery = vi.fn(async () => ({ rows: [] }));
+const mockRelease = vi.fn();
+const mockConnect = vi.fn(async () => ({ query: mockClientQuery, release: mockRelease }));
 
 const sendPaymentNotification = vi.fn().mockResolvedValue(true);
 const sendFeedback = vi.fn().mockResolvedValue(true);
@@ -41,7 +44,7 @@ function registerMock(modulePath, exports) {
   require.cache[resolved] = m;
 }
 
-registerMock(path.join(srcDir, 'db.js'), { query: mockQuery });
+registerMock(path.join(srcDir, 'db.js'), { query: mockQuery, pool: { connect: mockConnect } });
 registerMock(path.join(srcDir, 'email.js'), { sendPaymentNotification, sendFeedback });
 registerMock(path.join(srcDir, 'audit.js'), { log: auditLog });
 
@@ -69,6 +72,9 @@ afterAll(async () => {
 beforeEach(() => {
   duplicatePendingOnInsert = true;
   mockQuery.mockClear();
+  mockClientQuery.mockClear();
+  mockRelease.mockClear();
+  mockConnect.mockClear();
   sendPaymentNotification.mockClear();
   sendFeedback.mockClear();
   auditLog.mockClear();
@@ -139,5 +145,74 @@ describe('subscription/payment', () => {
     );
     expect(sendPaymentNotification).toHaveBeenCalledWith('user@example.com', 250, '2026-06-26T10:00', true);
     expect(auditLog).toHaveBeenCalled();
+  });
+});
+
+describe('feedback hardening', () => {
+  const jwt = require('jsonwebtoken');
+
+  function makeToken(userId = 1) {
+    return jwt.sign(
+      { sub: userId, email: 'user@example.com', role: 'user' },
+      process.env.JWT_SECRET,
+      { expiresIn: '15m' }
+    );
+  }
+
+  it('rejects non-string feedback text before opening a DB transaction', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/feedback',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { category: 'wish', text: { bad: true } }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('текст');
+    expect(mockConnect).not.toHaveBeenCalled();
+    expect(sendFeedback).not.toHaveBeenCalled();
+  });
+
+  it('rejects invalid feedback categories before opening a DB transaction', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/feedback',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { category: '<script>', text: 'Помогите, пожалуйста' }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('категория');
+    expect(mockConnect).not.toHaveBeenCalled();
+    expect(sendFeedback).not.toHaveBeenCalled();
+  });
+
+  it('checks feedback length after trimming whitespace', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/feedback',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { category: 'problem', text: ' '.repeat(1000) }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('текст');
+    expect(mockConnect).not.toHaveBeenCalled();
+  });
+
+  it('rejects non-string follow-up text before querying feedback rows', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/feedback/12/messages',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { text: ['bad'] }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('текст');
+    expect(mockQuery).not.toHaveBeenCalledWith(
+      expect.stringContaining('FROM feedback_messages WHERE id=$1'),
+      expect.any(Array)
+    );
   });
 });

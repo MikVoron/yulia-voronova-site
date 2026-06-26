@@ -163,3 +163,30 @@ describe('admin list hardening', () => {
     expect(mockQuery).not.toHaveBeenCalledWith(expect.stringMatching(/UPDATE users SET is_blocked/), expect.any(Array));
   });
 });
+
+describe('admin feedback hardening', () => {
+  it('rejects non-string feedback replies before opening a DB transaction', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/feedback/10/reply',
+      payload: { reply: { bad: true } }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('текст ответа');
+    expect(mockConnect).not.toHaveBeenCalled();
+    expect(sendFeedbackReply).not.toHaveBeenCalled();
+  });
+
+  it('checks admin feedback reply length after trimming whitespace', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/feedback/10/reply',
+      payload: { reply: ' '.repeat(10) }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('текст ответа');
+    expect(mockConnect).not.toHaveBeenCalled();
+  });
+});

@@ -368,9 +368,10 @@ async function adminRoutes(fastify) {
     const id = parseInt(req.params.id, 10);
     if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: 'Некорректный id' });
     const { reply: replyText } = req.body || {};
-    if (!replyText || !replyText.trim()) return reply.status(400).send({ error: 'Введите текст ответа' });
-    if (replyText.length > 5000) return reply.status(400).send({ error: 'Слишком длинный ответ' });
+    if (typeof replyText !== 'string') return reply.status(400).send({ error: 'Введите текст ответа' });
     const trimmed = replyText.trim();
+    if (!trimmed) return reply.status(400).send({ error: 'Введите текст ответа' });
+    if (trimmed.length > 5000) return reply.status(400).send({ error: 'Слишком длинный ответ' });
 
     const client = await db.pool.connect();
     let head;

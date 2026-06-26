@@ -9,8 +9,11 @@ const PAYMENT_COMMENT_MAX_LENGTH = 1000;
 const PAYMENT_SCREENSHOT_RE = /^data:image\/(?:png|jpe?g|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
 const PAYMENT_HISTORY_LIMIT = 200;
 const FEEDBACK_THREAD_LIST_LIMIT = 100;
+const FEEDBACK_TEXT_LIMIT = 2000;
+const FEEDBACK_CATEGORIES = new Set(['wish', 'recipe', 'problem']);
 const USER_SETTINGS_RATE_LIMIT = { max: 30, timeWindow: '1 minute' };
 const FEEDBACK_STATE_RATE_LIMIT = { max: 30, timeWindow: '1 minute' };
+const FEEDBACK_READ_RATE_LIMIT = { max: 60, timeWindow: '1 minute' };
 
 function normalizePaymentRequest(body) {
   const amount = Number(body && body.amount);
@@ -40,6 +43,21 @@ function normalizePaymentRequest(body) {
   }
 
   return { amount, paymentDate, comment: comment || null, screenshot };
+}
+
+function normalizeFeedbackText(value) {
+  if (typeof value !== 'string') return { error: 'Введите текст' };
+  const text = value.trim();
+  if (!text) return { error: 'Введите текст' };
+  if (text.length > FEEDBACK_TEXT_LIMIT) return { error: 'Слишком длинный текст' };
+  return { text };
+}
+
+function normalizeFeedbackCategory(value) {
+  if (value == null || value === '') return 'wish';
+  if (typeof value !== 'string') return null;
+  const category = value.trim();
+  return FEEDBACK_CATEGORIES.has(category) ? category : null;
 }
 
 async function subscriptionRoutes(fastify) {
@@ -181,19 +199,17 @@ async function subscriptionRoutes(fastify) {
   // Старые поля text/admin_reply/admin_replied_at/reply_seen в шапке — deprecated,
   // оставлены для исторической совместимости. Новый код их не использует как источник правды.
 
-  const FEEDBACK_TEXT_LIMIT = 2000;
-  const FEEDBACK_CATEGORIES = ['wish', 'recipe', 'problem'];
-
   // POST /feedback — создать обращение (шапка + первое сообщение пользователя)
   fastify.post('/feedback', {
     preHandler: authenticate,
     config: { rateLimit: { max: 5, timeWindow: '1 hour' } }
   }, async (req, reply) => {
     const { category, text } = req.body || {};
-    if (!text || !text.trim()) return reply.status(400).send({ error: 'Введите текст' });
-    if (text.length > FEEDBACK_TEXT_LIMIT) return reply.status(400).send({ error: 'Слишком длинный текст' });
-    const cat = FEEDBACK_CATEGORIES.includes(category) ? category : 'wish';
-    const trimmed = text.trim();
+    const textInput = normalizeFeedbackText(text);
+    if (textInput.error) return reply.status(400).send({ error: textInput.error });
+    const cat = normalizeFeedbackCategory(category);
+    if (!cat) return reply.status(400).send({ error: 'Некорректная категория обращения' });
+    const trimmed = textInput.text;
     const email = req.user.email;
 
     const client = await db.pool.connect();
@@ -234,9 +250,9 @@ async function subscriptionRoutes(fastify) {
     const id = parseInt(req.params.id, 10);
     if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: 'Некорректный id' });
     const { text } = req.body || {};
-    if (!text || !text.trim()) return reply.status(400).send({ error: 'Введите текст' });
-    if (text.length > FEEDBACK_TEXT_LIMIT) return reply.status(400).send({ error: 'Слишком длинный текст' });
-    const trimmed = text.trim();
+    const textInput = normalizeFeedbackText(text);
+    if (textInput.error) return reply.status(400).send({ error: textInput.error });
+    const trimmed = textInput.text;
 
     // Проверка владельца, статуса и soft-delete
     const head = await db.query(
@@ -300,7 +316,10 @@ async function subscriptionRoutes(fastify) {
   });
 
   // GET /feedback — обращения текущего пользователя с тредами
-  fastify.get('/feedback', { preHandler: authenticate }, async (req) => {
+  fastify.get('/feedback', {
+    preHandler: authenticate,
+    config: { rateLimit: FEEDBACK_READ_RATE_LIMIT }
+  }, async (req) => {
     const heads = await db.query(
       `SELECT id, category, status, created_at, updated_at
          FROM feedback_messages
