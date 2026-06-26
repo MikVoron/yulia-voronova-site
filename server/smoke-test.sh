@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Smoke tests for api.voronova.online
-# Run: bash smoke-test.sh [base_url]
-# Default: https://api.voronova.online
+# Smoke tests for api.voronova.online and app.voronova.online
+# Run: bash smoke-test.sh [api_base_url]
+# Default API: https://api.voronova.online
+# Override platform URL with APP_BASE=https://app.voronova.online
 
 BASE="${1:-https://api.voronova.online}"
+APP_BASE="${APP_BASE:-https://app.voronova.online}"
 PASS=0
 FAIL=0
 TOTAL=0
@@ -49,7 +51,19 @@ headers=$(curl -sI "$BASE/health")
 check_contains "X-Content-Type-Options" "nosniff" "$headers"
 check_contains "X-Frame-Options" "SAMEORIGIN" "$headers"
 check_contains "Strict-Transport-Security" "max-age=" "$headers"
+check_contains "Permissions-Policy" "permissions-policy:" "$headers"
 check_contains "X-DNS-Prefetch-Control" "off" "$headers"
+
+echo "[Platform Headers]"
+app_headers=$(curl -sI "$APP_BASE/")
+check_contains "App HSTS" "strict-transport-security: max-age=" "$app_headers"
+check_contains "App nosniff" "x-content-type-options: nosniff" "$app_headers"
+check_contains "App Referrer-Policy" "referrer-policy: strict-origin-when-cross-origin" "$app_headers"
+check_contains "App Permissions-Policy" "permissions-policy:" "$app_headers"
+check_contains "App CSP frame-ancestors" "frame-ancestors 'none'" "$app_headers"
+check_contains "App CSP base-uri" "base-uri 'self'" "$app_headers"
+check_contains "App CSP object-src" "object-src 'none'" "$app_headers"
+check_contains "App CSP form-action" "form-action 'self'" "$app_headers"
 
 # ─── 3. CORS ───
 echo "[CORS]"

@@ -114,7 +114,7 @@ ssh root@5.42.119.198 "crontab -l"
 ### Проверка API (api.voronova.online)
 
 ```bash
-curl -sI https://api.voronova.online/health | grep -iE 'strict-transport|content-type-options|referrer-policy|x-frame|x-dns'
+curl -sI https://api.voronova.online/health | grep -iE 'strict-transport|content-type-options|referrer-policy|permissions-policy|x-frame|x-dns'
 ```
 
 Ожидается:
@@ -122,6 +122,7 @@ curl -sI https://api.voronova.online/health | grep -iE 'strict-transport|content
 Strict-Transport-Security: max-age=31536000; includeSubDomains
 X-Content-Type-Options: nosniff
 Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
 X-Frame-Options: SAMEORIGIN
 X-DNS-Prefetch-Control: off
 ```
@@ -129,7 +130,7 @@ X-DNS-Prefetch-Control: off
 ### Проверка платформы (app.voronova.online)
 
 ```bash
-curl -sI https://app.voronova.online/ | grep -iE 'strict-transport|content-security|content-type-options|referrer-policy'
+curl -sI https://app.voronova.online/ | grep -iE 'strict-transport|content-security|content-type-options|referrer-policy|permissions-policy'
 ```
 
 Ожидается:
@@ -137,7 +138,8 @@ curl -sI https://app.voronova.online/ | grep -iE 'strict-transport|content-secur
 Strict-Transport-Security: max-age=31536000; includeSubDomains
 X-Content-Type-Options: nosniff
 Referrer-Policy: strict-origin-when-cross-origin
-Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' ...
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' ...; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'
 ```
 
 ### Таблица заголовков
@@ -147,6 +149,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' .
 | `Strict-Transport-Security` | max-age=31536000 | max-age=31536000 | nginx |
 | `X-Content-Type-Options` | nosniff | nosniff | nginx |
 | `Referrer-Policy` | strict-origin-when-cross-origin | strict-origin-when-cross-origin | nginx |
+| `Permissions-Policy` | camera=(), microphone=(), geolocation=(), payment=() | camera=(), microphone=(), geolocation=(), payment=() | nginx |
 | `Content-Security-Policy` | — | да | nginx |
 | `X-Frame-Options` | SAMEORIGIN | — | Helmet |
 
