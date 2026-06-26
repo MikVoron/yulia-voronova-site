@@ -94,6 +94,34 @@ describe('plate history metadata', () => {
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
+  it('rejects non-object current plate items before writing', async () => {
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/plate',
+      payload: { items: ['not-an-object'] }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().field).toBe('items');
+    expect(mockQuery).not.toHaveBeenCalled();
+  });
+
+  it('rejects non-object totals before writing history', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/plate/history',
+      payload: {
+        date: '2026-05-26T15:10:05.000Z',
+        items: [{ name: 'Dish' }],
+        totals: 'bad',
+      }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().field).toBe('totals');
+    expect(mockQuery).not.toHaveBeenCalled();
+  });
+
   it('rejects too many history entries in sync', async () => {
     const res = await app.inject({
       method: 'PUT',
@@ -108,6 +136,30 @@ describe('plate history metadata', () => {
     });
 
     expect(res.statusCode).toBe(400);
+    expect(mockConnect).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed history entries in sync instead of silently skipping them', async () => {
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/plate/history/sync',
+      payload: { history: [{ date: '2026-05-26T15:10:05.000Z', items: 'bad', totals: {} }] }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().field).toBe('items');
+    expect(mockConnect).not.toHaveBeenCalled();
+  });
+
+  it('rejects invalid history sync dates before opening a DB transaction', async () => {
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/plate/history/sync',
+      payload: { history: [{ date: 'not-a-date', items: [{ name: 'Dish' }], totals: { kcal: 100 } }] }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().field).toBe('date');
     expect(mockConnect).not.toHaveBeenCalled();
   });
 

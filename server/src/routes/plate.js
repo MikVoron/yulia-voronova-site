@@ -5,6 +5,8 @@ const PLATE_ITEMS_MAX = 50;
 const PLATE_HISTORY_MAX = 30;
 const PLATE_ITEMS_JSON_MAX = 50000;
 const PLATE_TOTALS_JSON_MAX = 5000;
+const PLATE_READ_RATE_LIMIT = { max: 60, timeWindow: '1 minute' };
+const MEAL_TYPES = new Set(['breakfast', 'lunch', 'dinner', 'snack']);
 
 function assertJsonSize(value, max, field) {
   if (JSON.stringify(value || null).length > max) {
@@ -12,6 +14,10 @@ function assertJsonSize(value, max, field) {
     err.field = field;
     throw err;
   }
+}
+
+function isPlainObject(value) {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
 function validatePlateItems(items) {
@@ -25,14 +31,65 @@ function validatePlateItems(items) {
     err.field = 'items';
     throw err;
   }
+  for (const item of items) {
+    if (!isPlainObject(item)) {
+      const err = new Error('items содержит некорректный элемент');
+      err.field = 'items';
+      throw err;
+    }
+  }
   assertJsonSize(items, PLATE_ITEMS_JSON_MAX, 'items');
   return items;
 }
 
 function validateTotals(totals) {
   const safeTotals = totals || {};
+  if (!isPlainObject(safeTotals)) {
+    const err = new Error('totals должен быть объектом');
+    err.field = 'totals';
+    throw err;
+  }
   assertJsonSize(safeTotals, PLATE_TOTALS_JSON_MAX, 'totals');
   return safeTotals;
+}
+
+function parsePlateDate(value, options = {}) {
+  if (value == null || value === '') return options.fallbackToNow ? new Date() : null;
+  if (typeof value !== 'string' && !(value instanceof Date)) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function normalizeMealType(value) {
+  if (value == null || value === '') return null;
+  if (typeof value !== 'string') return null;
+  const mealType = value.trim();
+  return MEAL_TYPES.has(mealType) ? mealType : null;
+}
+
+function normalizeHistoryEntry(entry) {
+  if (!isPlainObject(entry)) {
+    const err = new Error('history содержит некорректную запись');
+    err.field = 'history';
+    throw err;
+  }
+  if (!Array.isArray(entry.items) || !entry.items.length) {
+    const err = new Error('items обязателен и не может быть пустым');
+    err.field = 'items';
+    throw err;
+  }
+  const safeDate = parsePlateDate(entry.date);
+  if (!safeDate) {
+    const err = new Error('date обязателен');
+    err.field = 'date';
+    throw err;
+  }
+  return {
+    date: safeDate,
+    items: validatePlateItems(entry.items),
+    totals: validateTotals(entry.totals),
+    mealType: normalizeMealType(entry.mealType),
+  };
 }
 
 async function prunePlateHistory(userId, client = db) {
@@ -52,7 +109,10 @@ async function prunePlateHistory(userId, client = db) {
 async function plateRoutes(fastify) {
 
   // GET /plate — current plate items
-  fastify.get('/plate', { preHandler: authenticate }, async (req) => {
+  fastify.get('/plate', {
+    preHandler: authenticate,
+    config: { rateLimit: PLATE_READ_RATE_LIMIT }
+  }, async (req) => {
     const result = await db.query(
       'SELECT items, updated_at FROM plate_items WHERE user_id = $1',
       [req.user.sub]
@@ -80,7 +140,10 @@ async function plateRoutes(fastify) {
   });
 
   // GET /plate/history — saved plates
-  fastify.get('/plate/history', { preHandler: authenticate }, async (req) => {
+  fastify.get('/plate/history', {
+    preHandler: authenticate,
+    config: { rateLimit: PLATE_READ_RATE_LIMIT }
+  }, async (req) => {
     const result = await db.query(
       'SELECT id, saved_at, items, totals, meal_type FROM plate_history WHERE user_id = $1 ORDER BY saved_at DESC LIMIT 30',
       [req.user.sub]
@@ -110,8 +173,8 @@ async function plateRoutes(fastify) {
     } catch (e) {
       return reply.status(400).send({ error: e.message, field: e.field });
     }
-    const safeDate = date && !Number.isNaN(new Date(date).getTime()) ? new Date(date) : new Date();
-    const safeMealType = ['breakfast', 'lunch', 'dinner', 'snack'].includes(mealType) ? mealType : null;
+    const safeDate = parsePlateDate(date, { fallbackToNow: true });
+    const safeMealType = normalizeMealType(mealType);
 
     await db.query(
       `INSERT INTO plate_history (user_id, saved_at, items, totals, meal_type)
@@ -141,7 +204,7 @@ async function plateRoutes(fastify) {
     if (!date || Number.isNaN(new Date(date).getTime())) {
       return reply.status(400).send({ error: 'date обязателен' });
     }
-    const safeMealType = ['breakfast', 'lunch', 'dinner', 'snack'].includes(mealType) ? mealType : null;
+    const safeMealType = normalizeMealType(mealType);
     await db.query(
       'UPDATE plate_history SET meal_type = $3 WHERE user_id = $1 AND saved_at = $2',
       [req.user.sub, new Date(date), safeMealType]
@@ -163,13 +226,8 @@ async function plateRoutes(fastify) {
     }
     const safe = [];
     for (const h of history) {
-      if (!h || !Array.isArray(h.items) || !h.items.length) continue;
       try {
-        safe.push({
-          ...h,
-          items: validatePlateItems(h.items),
-          totals: validateTotals(h.totals),
-        });
+        safe.push(normalizeHistoryEntry(h));
       } catch (e) {
         return reply.status(400).send({ error: e.message, field: e.field });
       }
@@ -180,15 +238,13 @@ async function plateRoutes(fastify) {
       await client.query('BEGIN');
       // Don't delete existing server history — only add local-only entries
       for (const h of safe) {
-        const safeDate = h.date && !Number.isNaN(new Date(h.date).getTime()) ? new Date(h.date) : new Date();
-        const safeMealType = ['breakfast', 'lunch', 'dinner', 'snack'].includes(h.mealType) ? h.mealType : null;
         await client.query(
           `INSERT INTO plate_history (user_id, saved_at, items, totals, meal_type)
            SELECT $1, $2, $3, $4, $5
            WHERE NOT EXISTS (
              SELECT 1 FROM plate_history WHERE user_id = $1 AND saved_at = $2
            )`,
-          [req.user.sub, safeDate, JSON.stringify(h.items), JSON.stringify(h.totals), safeMealType]
+          [req.user.sub, h.date, JSON.stringify(h.items), JSON.stringify(h.totals), h.mealType]
         );
       }
       await prunePlateHistory(req.user.sub, client);
