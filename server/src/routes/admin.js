@@ -4,6 +4,8 @@ const { sendPaymentConfirmed, sendPaymentRejected, sendSubscriptionExtended, sen
 const audit = require('../audit');
 
 const CONFIRM_PAYMENT_MONTHS = new Set([1, 3, 6, 12]);
+const PAYMENT_STATUSES = new Set(['pending', 'confirmed', 'rejected']);
+const ADMIN_LIST_LIMIT_MAX = 200;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function parsePaymentId(value) {
@@ -13,28 +15,40 @@ function parsePaymentId(value) {
   return null;
 }
 
+function parseListWindow(query, fallbackLimit) {
+  const page = Math.max(1, parseInt(query.page, 10) || 1);
+  const limit = Math.min(ADMIN_LIST_LIMIT_MAX, Math.max(1, parseInt(query.limit, 10) || fallbackLimit));
+  return { limit, offset: (page - 1) * limit };
+}
+
 async function adminRoutes(fastify) {
 
   // GET /admin/users — список пользователей
   fastify.get('/admin/users', { preHandler: requireAdmin }, async (req) => {
+    const { limit, offset } = parseListWindow(req.query || {}, 200);
     const result = await db.query(
-      'SELECT u.id, u.email, u.display_name, u.role, u.is_blocked, u.created_at, s.status as sub_status, s.trial_ends_at, s.active_until FROM users u LEFT JOIN subscriptions s ON s.user_id=u.id ORDER BY u.created_at DESC'
+      'SELECT u.id, u.email, u.display_name, u.role, u.is_blocked, u.created_at, s.status as sub_status, s.trial_ends_at, s.active_until FROM users u LEFT JOIN subscriptions s ON s.user_id=u.id ORDER BY u.created_at DESC LIMIT $1 OFFSET $2',
+      [limit, offset]
     );
     return result.rows;
   });
 
   // GET /admin/payments — все pending платежи
   fastify.get('/admin/payments', { preHandler: requireAdmin }, async (req) => {
-    const status = req.query.status || 'pending';
+    const status = PAYMENT_STATUSES.has(req.query.status) ? req.query.status : 'pending';
+    const { limit, offset } = parseListWindow(req.query || {}, 100);
     const result = await db.query(
-      'SELECT p.id, p.user_id, p.amount, p.sender_name, p.payment_date, p.status, p.admin_comment, p.user_comment, p.created_at, p.updated_at, (p.screenshot IS NOT NULL) as has_screenshot, u.email FROM payments p JOIN users u ON u.id=p.user_id WHERE p.status=$1 ORDER BY p.created_at DESC',
-      [status]
+      'SELECT p.id, p.user_id, p.amount, p.sender_name, p.payment_date, p.status, p.admin_comment, p.user_comment, p.created_at, p.updated_at, (p.screenshot IS NOT NULL) as has_screenshot, u.email FROM payments p JOIN users u ON u.id=p.user_id WHERE p.status=$1 ORDER BY p.created_at DESC LIMIT $2 OFFSET $3',
+      [status, limit, offset]
     );
     return result.rows;
   });
 
   // GET /admin/payments/:id/screenshot — получить скриншот платежа
-  fastify.get('/admin/payments/:id/screenshot', { preHandler: requireAdmin }, async (req, reply) => {
+  fastify.get('/admin/payments/:id/screenshot', {
+    preHandler: requireAdmin,
+    config: { rateLimit: { max: 60, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
     const id = parsePaymentId(req.params.id);
     if (!id) return reply.status(400).send({ error: 'Некорректный id платежа' });
     const result = await db.query('SELECT screenshot FROM payments WHERE id=$1', [id]);
@@ -104,7 +118,10 @@ async function adminRoutes(fastify) {
   });
 
   // POST /admin/payments/:id/reject — отклонить платёж
-  fastify.post('/admin/payments/:id/reject', { preHandler: requireAdmin }, async (req, reply) => {
+  fastify.post('/admin/payments/:id/reject', {
+    preHandler: requireAdmin,
+    config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
     const id = parsePaymentId(req.params.id);
     if (!id) return reply.status(400).send({ error: 'Некорректный id платежа' });
     const { comment } = req.body || {};
@@ -131,7 +148,10 @@ async function adminRoutes(fastify) {
   });
 
   // POST /admin/users/:id/block — заблокировать пользователя
-  fastify.post('/admin/users/:id/block', { preHandler: requireAdmin }, async (req) => {
+  fastify.post('/admin/users/:id/block', {
+    preHandler: requireAdmin,
+    config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
+  }, async (req) => {
     const { id } = req.params;
     await db.query('UPDATE users SET is_blocked=true, updated_at=now() WHERE id=$1', [id]);
     await db.query("UPDATE subscriptions SET status='blocked', updated_at=now() WHERE user_id=$1", [id]);
@@ -141,7 +161,10 @@ async function adminRoutes(fastify) {
   });
 
   // POST /admin/users/:id/unblock — разблокировать
-  fastify.post('/admin/users/:id/unblock', { preHandler: requireAdmin }, async (req) => {
+  fastify.post('/admin/users/:id/unblock', {
+    preHandler: requireAdmin,
+    config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
+  }, async (req) => {
     const { id } = req.params;
     await db.query('UPDATE users SET is_blocked=false, updated_at=now() WHERE id=$1', [id]);
     // Восстановить подписку: active_until в будущем → active, trial_ends_at в будущем → trial, иначе expired

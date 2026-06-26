@@ -7,6 +7,8 @@ const { normalizeDietaryPreferences } = require('../dietary');
 const PAYMENT_SCREENSHOT_MAX_LENGTH = 7 * 1024 * 1024;
 const PAYMENT_COMMENT_MAX_LENGTH = 1000;
 const PAYMENT_SCREENSHOT_RE = /^data:image\/(?:png|jpe?g|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
+const PAYMENT_HISTORY_LIMIT = 200;
+const FEEDBACK_THREAD_LIST_LIMIT = 100;
 
 function normalizePaymentRequest(body) {
   const amount = Number(body && body.amount);
@@ -131,8 +133,8 @@ async function subscriptionRoutes(fastify) {
   // GET /subscription/payments — история платежей пользователя
   fastify.get('/subscription/payments', { preHandler: authenticate }, async (req) => {
     const result = await db.query(
-      'SELECT id, amount, sender_name, payment_date, status, admin_comment, created_at FROM payments WHERE user_id=$1 ORDER BY created_at DESC',
-      [req.user.sub]
+      'SELECT id, amount, sender_name, payment_date, status, admin_comment, created_at FROM payments WHERE user_id=$1 ORDER BY created_at DESC LIMIT $2',
+      [req.user.sub, PAYMENT_HISTORY_LIMIT]
     );
     return result.rows;
   });
@@ -292,8 +294,9 @@ async function subscriptionRoutes(fastify) {
       `SELECT id, category, status, created_at, updated_at
          FROM feedback_messages
         WHERE user_id=$1 AND user_deleted_at IS NULL
-        ORDER BY updated_at DESC, created_at DESC`,
-      [req.user.sub]
+        ORDER BY updated_at DESC, created_at DESC
+        LIMIT $2`,
+      [req.user.sub, FEEDBACK_THREAD_LIST_LIMIT]
     );
     if (!heads.rows.length) return [];
     const ids = heads.rows.map(r => r.id);

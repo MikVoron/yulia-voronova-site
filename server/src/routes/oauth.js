@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const db = require('../db');
-const { generateAccessToken, generateRefreshToken, hashToken } = require('../auth');
+const { generateRefreshToken } = require('../auth');
+const { issueRefreshSession } = require('../refresh-sessions');
 const { sendWelcome, sendNewUserNotification } = require('../email');
 const { tryGrantTrial } = require('../trial-guard');
 const audit = require('../audit');
@@ -92,12 +93,8 @@ async function issueTokens(user, req, reply, isNew, fastify) {
     return reply.redirect(PLATFORM_URL + '/login.html?error=blocked');
   }
   audit.log('login', { userId: user.id, email: user.email, detail: 'oauth', ip: req.ip, ua: req.headers['user-agent'] });
-  const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken();
-  await db.query(
-    "INSERT INTO refresh_sessions (user_id, refresh_token_hash, ua, ip, expires_at) VALUES ($1,$2,$3,$4, now() + interval '30 days')",
-    [user.id, hashToken(refreshToken), req.headers['user-agent'] || '', req.ip]
-  );
+  await issueRefreshSession(user.id, refreshToken, req);
   return setCookieAndRedirect(reply, refreshToken, isNew);
 }
 

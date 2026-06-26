@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const db = require('../db');
 const { generateAccessToken, generateRefreshToken, hashToken, verifyAccessToken, generateLoginCode } = require('../auth');
+const { issueRefreshSession } = require('../refresh-sessions');
 const { sendLoginCode, sendWelcome, sendNewUserNotification } = require('../email');
 const { authenticate } = require('../middleware');
 const { tryGrantTrial } = require('../trial-guard');
@@ -8,6 +9,7 @@ const audit = require('../audit');
 
 const AUTH_SEND_CODE_RATE_LIMIT = { max: 10, timeWindow: '15 minutes' };
 const AUTH_VERIFY_RATE_LIMIT = { max: 20, timeWindow: '15 minutes' };
+const AUTH_REFRESH_RATE_LIMIT = { max: 60, timeWindow: '15 minutes' };
 
 async function authRoutes(fastify) {
   // POST /auth/send-code
@@ -94,10 +96,7 @@ async function authRoutes(fastify) {
     audit.log('login', { userId: user.id, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken();
-    await db.query(
-      "INSERT INTO refresh_sessions (user_id, refresh_token_hash, ua, ip, expires_at) VALUES ($1,$2,$3,$4, now() + interval '30 days')",
-      [user.id, hashToken(refreshToken), req.headers['user-agent'] || '', req.ip]
-    );
+    await issueRefreshSession(user.id, refreshToken, req);
     reply.setCookie('refreshToken', refreshToken, {
       path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 2592000
     });
@@ -105,7 +104,9 @@ async function authRoutes(fastify) {
   });
 
   // POST /auth/refresh
-  fastify.post('/auth/refresh', async (req, reply) => {
+  fastify.post('/auth/refresh', {
+    config: { rateLimit: AUTH_REFRESH_RATE_LIMIT }
+  }, async (req, reply) => {
 
     const token = req.cookies.refreshToken;
     if (!token) return reply.status(401).send({ error: 'Нет refresh токена' });
@@ -123,10 +124,7 @@ async function authRoutes(fastify) {
     if (session.is_blocked) return reply.status(403).send({ error: 'Аккаунт заблокирован' });
     await db.query('DELETE FROM refresh_sessions WHERE id=$1', [session.id]);
     const newRefresh = generateRefreshToken();
-    await db.query(
-      "INSERT INTO refresh_sessions (user_id, refresh_token_hash, ua, ip, expires_at) VALUES ($1,$2,$3,$4, now() + interval '30 days')",
-      [session.user_id, hashToken(newRefresh), req.headers['user-agent'] || '', req.ip]
-    );
+    await issueRefreshSession(session.user_id, newRefresh, req);
     const accessToken = generateAccessToken({ id: session.user_id, email: session.email, role: session.role });
     reply.setCookie('refreshToken', newRefresh, {
       path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 2592000
