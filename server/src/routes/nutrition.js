@@ -1,5 +1,10 @@
 const { authenticate, requireAdmin } = require('../middleware');
 
+const NUTRITION_INGREDIENT_LIMIT = 60;
+const NUTRITION_INGREDIENT_TEXT_LIMIT = 200;
+const NUTRITION_SERVINGS_MAX = 100;
+const USDA_SEARCH_TIMEOUT_MS = 8000;
+
 // USDA FoodData Central nutrient IDs
 const NUTRIENT_IDS = {
   kcal: 1008,    // Energy (kcal)
@@ -469,11 +474,17 @@ async function searchUSDA(query, apiKey) {
   url.searchParams.set('dataType', 'SR Legacy,Foundation');
   url.searchParams.set('pageSize', '5');
 
-  const res = await fetch(url.toString());
-  if (!res.ok) {
-    throw new Error(`USDA API error: ${res.status} ${res.statusText}`);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), USDA_SEARCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(url.toString(), { signal: controller.signal });
+    if (!res.ok) {
+      throw new Error(`USDA API error: ${res.status} ${res.statusText}`);
+    }
+    return res.json();
+  } finally {
+    clearTimeout(timeout);
   }
-  return res.json();
 }
 
 /**
@@ -491,22 +502,37 @@ function extractNutrients(food) {
 async function nutritionRoutes(fastify) {
 
   // POST /admin/nutrition/calculate — calculate КБЖУ for a list of ingredients via USDA
-  fastify.post('/admin/nutrition/calculate', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+  fastify.post('/admin/nutrition/calculate', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: { max: 20, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
     const { ingredients, servings } = req.body || {};
 
     if (!ingredients || !Array.isArray(ingredients) || !ingredients.length) {
       return reply.status(400).send({ error: 'Массив ингредиентов обязателен' });
     }
+    if (ingredients.length > NUTRITION_INGREDIENT_LIMIT) {
+      return reply.status(400).send({ error: 'Слишком много ингредиентов (макс. ' + NUTRITION_INGREDIENT_LIMIT + ')' });
+    }
+    for (const ingr of ingredients) {
+      const nameStr = typeof ingr === 'string' ? ingr : (ingr && typeof ingr.name === 'string' ? ingr.name : '');
+      if (nameStr.length > NUTRITION_INGREDIENT_TEXT_LIMIT) {
+        return reply.status(400).send({ error: 'Слишком длинное название ингредиента (макс. ' + NUTRITION_INGREDIENT_TEXT_LIMIT + ' символов)' });
+      }
+    }
 
     const apiKey = process.env.USDA_API_KEY || null;
 
-    const portionCount = parseInt(servings) || 1;
+    const portionCount = parseInt(servings, 10) || 1;
+    if (portionCount < 1 || portionCount > NUTRITION_SERVINGS_MAX) {
+      return reply.status(400).send({ error: 'servings: число от 1 до ' + NUTRITION_SERVINGS_MAX });
+    }
     const items = [];
     const warnings = [];
     const total = { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 };
 
     for (const ingr of ingredients) {
-      const nameStr = typeof ingr === 'string' ? ingr : (ingr.name || '');
+      const nameStr = typeof ingr === 'string' ? ingr : (ingr && ingr.name || '');
       if (!nameStr.trim()) continue;
 
       const parsed = parseIngredient(nameStr);

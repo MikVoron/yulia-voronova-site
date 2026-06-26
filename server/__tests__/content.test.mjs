@@ -470,4 +470,35 @@ describe('admin /recipes: access_level validation', () => {
     // Главное — это НЕ 400-ошибка валидации access_level.
     expect(res.statusCode).not.toBe(400);
   });
+
+  it('POST /admin/recipes: oversized ingredient list returns 400 before insert', async () => {
+    userState = { is_blocked: false, role: 'admin' };
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/recipes',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: {
+        id: 'oversized-test',
+        name: 'Oversized',
+        categories: ['mains'],
+        ingredients: Array.from({ length: 121 }, (_, i) => ({ name: 'Ingredient ' + i })),
+      },
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().field).toBe('ingredients');
+    expect(mockQuery.mock.calls.some(([sql]) => /INSERT INTO recipes/.test(sql))).toBe(false);
+  });
+
+  it('POST /admin/news: oversized text returns 400 before insert', async () => {
+    userState = { is_blocked: false, role: 'admin' };
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/news',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { text: 'x'.repeat(5001) },
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().field).toBe('text');
+    expect(mockQuery.mock.calls.some(([sql]) => /INSERT INTO news/.test(sql))).toBe(false);
+  });
 });

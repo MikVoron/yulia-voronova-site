@@ -1,12 +1,20 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const { authenticate, requireAdmin } = require('../middleware');
 
+const AI_PARSE_TEXT_LIMIT = 12000;
+
 async function aiRoutes(fastify) {
   // POST /admin/recipes/parse-text — AI-assisted recipe parsing
-  fastify.post('/admin/recipes/parse-text', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+  fastify.post('/admin/recipes/parse-text', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: { max: 8, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
     const { text } = req.body || {};
-    if (!text || !text.trim()) {
+    if (typeof text !== 'string' || !text.trim()) {
       return reply.status(400).send({ error: 'Текст рецепта обязателен' });
+    }
+    if (text.length > AI_PARSE_TEXT_LIMIT) {
+      return reply.status(400).send({ error: 'Текст рецепта слишком длинный (макс. ' + AI_PARSE_TEXT_LIMIT + ' символов)' });
     }
 
     if (!process.env.ANTHROPIC_API_KEY) {

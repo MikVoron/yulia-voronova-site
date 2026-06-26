@@ -10,6 +10,25 @@ const {
 } = require('../dietary');
 
 const ACCESS_LEVELS = ['free', 'trial', 'pro'];
+const ADMIN_WRITE_RATE_LIMIT = { max: 30, timeWindow: '1 hour' };
+const ADMIN_NEWS_TEXT_LIMIT = 5000;
+const ADMIN_RECIPE_JSON_LIMIT = 50000;
+const ADMIN_AUTO_ADDONS_LIMIT = 50000;
+const ADMIN_RECIPE_LIMITS = {
+  id: 100,
+  name: 160,
+  quote: 1000,
+  note: 10000,
+  mediaUrl: 500,
+  imgPosition: 120,
+  arrayItem: 500,
+  ingredients: 120,
+  steps: 120,
+  tags: 40,
+  categories: 20,
+  addons: 40,
+  mainIngredients: 60,
+};
 
 // Нормализация access_level (новое поле) + backward compat с is_free.
 // Возвращает { access_level, is_free } для записи в БД.
@@ -53,6 +72,71 @@ function normalizeTimeLabel(v) {
     throw err;
   }
   return trimmed;
+}
+
+function fieldError(message, field) {
+  const err = new Error(message);
+  err.statusCode = 400;
+  err.field = field;
+  return err;
+}
+
+function assertStringLimit(value, max, field) {
+  if (value == null || value === '') return;
+  if (typeof value !== 'string') throw fieldError(field + ': ожидается строка', field);
+  if (value.length > max) throw fieldError(field + ': максимум ' + max + ' символов', field);
+}
+
+function assertArrayLimit(value, maxItems, field, maxSerialized = ADMIN_RECIPE_JSON_LIMIT) {
+  if (value == null) return;
+  if (!Array.isArray(value)) throw fieldError(field + ': ожидается массив', field);
+  if (value.length > maxItems) throw fieldError(field + ': максимум ' + maxItems + ' элементов', field);
+  for (const item of value) {
+    if (typeof item === 'string' && item.length > ADMIN_RECIPE_LIMITS.arrayItem) {
+      throw fieldError(field + ': элемент массива слишком длинный', field);
+    }
+  }
+  const serialized = JSON.stringify(value);
+  if (serialized.length > maxSerialized) throw fieldError(field + ': слишком большой payload', field);
+}
+
+function assertJsonLimit(value, maxSerialized, field) {
+  if (value == null) return;
+  const serialized = JSON.stringify(value);
+  if (serialized.length > maxSerialized) throw fieldError(field + ': слишком большой payload', field);
+}
+
+function validateNewsPayload(body, requireText) {
+  const text = body?.text;
+  if (requireText && (!text || !String(text).trim())) throw fieldError('Текст обязателен', 'text');
+  assertStringLimit(text || '', ADMIN_NEWS_TEXT_LIMIT, 'text');
+  assertStringLimit(body?.recipe_id, ADMIN_RECIPE_LIMITS.id, 'recipe_id');
+  assertStringLimit(body?.badge, 80, 'badge');
+  assertStringLimit(body?.label, 120, 'label');
+}
+
+function validateRecipePayload(r, requireBasics) {
+  assertStringLimit(r.id, ADMIN_RECIPE_LIMITS.id, 'id');
+  assertStringLimit(r.cat, 80, 'cat');
+  assertStringLimit(r.name, ADMIN_RECIPE_LIMITS.name, 'name');
+  assertStringLimit(r.quote, ADMIN_RECIPE_LIMITS.quote, 'quote');
+  assertStringLimit(r.note, ADMIN_RECIPE_LIMITS.note, 'note');
+  assertStringLimit(r.photo, ADMIN_RECIPE_LIMITS.mediaUrl, 'photo');
+  assertStringLimit(r.img_position, ADMIN_RECIPE_LIMITS.imgPosition, 'img_position');
+  assertStringLimit(r.vk_video, ADMIN_RECIPE_LIMITS.mediaUrl, 'vk_video');
+  assertStringLimit(r.yt_video, ADMIN_RECIPE_LIMITS.mediaUrl, 'yt_video');
+  assertStringLimit(r.dzen_video, ADMIN_RECIPE_LIMITS.mediaUrl, 'dzen_video');
+  assertArrayLimit(r.categories, ADMIN_RECIPE_LIMITS.categories, 'categories', 4000);
+  assertArrayLimit(r.ingredients, ADMIN_RECIPE_LIMITS.ingredients, 'ingredients');
+  assertArrayLimit(r.steps, ADMIN_RECIPE_LIMITS.steps, 'steps');
+  assertArrayLimit(r.tags, ADMIN_RECIPE_LIMITS.tags, 'tags', 12000);
+  assertArrayLimit(r.add_protein, ADMIN_RECIPE_LIMITS.addons, 'add_protein', 20000);
+  assertArrayLimit(r.add_fat, ADMIN_RECIPE_LIMITS.addons, 'add_fat', 20000);
+  assertArrayLimit(r.add_carbs, ADMIN_RECIPE_LIMITS.addons, 'add_carbs', 20000);
+  assertArrayLimit(r.add_fiber, ADMIN_RECIPE_LIMITS.addons, 'add_fiber', 20000);
+  assertArrayLimit(r.main_ingredients, ADMIN_RECIPE_LIMITS.mainIngredients, 'main_ingredients', 8000);
+  assertJsonLimit(r.auto_addons, ADMIN_AUTO_ADDONS_LIMIT, 'auto_addons');
+  if (requireBasics && (!r.id || !r.name)) throw fieldError('id и name обязательны', !r.id ? 'id' : 'name');
 }
 
 const INGREDIENT_ID_RE = /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/;
@@ -329,9 +413,13 @@ async function contentRoutes(fastify) {
   });
 
   // POST /admin/news — create news (+ send newsletter if published)
-  fastify.post('/admin/news', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+  fastify.post('/admin/news', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req, reply) => {
     const { type, text, recipe_id, badge, label, is_published } = req.body || {};
-    if (!text || !text.trim()) return reply.status(400).send({ error: 'Текст обязателен' });
+    try { validateNewsPayload(req.body || {}, true); }
+    catch (e) { return reply.status(e.statusCode || 400).send({ error: e.message, field: e.field }); }
     const newsType = type === 'recipe' ? 'recipe' : 'news';
     let recipeName = null;
     if (newsType === 'recipe') {
@@ -389,8 +477,13 @@ async function contentRoutes(fastify) {
   });
 
   // PUT /admin/news/:id — update news
-  fastify.put('/admin/news/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+  fastify.put('/admin/news/:id', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req, reply) => {
     const { type, text, recipe_id, badge, label, is_published } = req.body || {};
+    try { validateNewsPayload(req.body || {}, false); }
+    catch (e) { return reply.status(e.statusCode || 400).send({ error: e.message, field: e.field }); }
     const result = await db.query(
       `UPDATE news SET type=$1, text=$2, recipe_id=$3, badge=$4, label=$5, is_published=$6
        WHERE id=$7 RETURNING *`,
@@ -402,7 +495,10 @@ async function contentRoutes(fastify) {
   });
 
   // DELETE /admin/news/:id
-  fastify.delete('/admin/news/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+  fastify.delete('/admin/news/:id', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req, reply) => {
     const result = await db.query('DELETE FROM news WHERE id=$1 RETURNING id', [req.params.id]);
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
     audit.log('news_delete', { userId: req.user.sub, detail: 'news#' + req.params.id, ip: req.ip });
@@ -428,8 +524,13 @@ async function contentRoutes(fastify) {
   });
 
   // POST /admin/recipes — create recipe
-  fastify.post('/admin/recipes', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+  fastify.post('/admin/recipes', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req, reply) => {
     const r = req.body || {};
+    try { validateRecipePayload(r, true); }
+    catch (e) { return reply.status(e.statusCode || 400).send({ error: e.message, field: e.field }); }
     // Support both: categories[] (new) and cat (legacy)
     const cats = Array.isArray(r.categories) && r.categories.length ? r.categories : (r.cat ? [r.cat] : []);
     if (!r.id || !r.name || !cats.length) return reply.status(400).send({ error: 'id, name и категория обязательны' });
@@ -481,8 +582,13 @@ async function contentRoutes(fastify) {
   });
 
   // PUT /admin/recipes/:id — update recipe
-  fastify.put('/admin/recipes/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+  fastify.put('/admin/recipes/:id', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req, reply) => {
     const r = req.body || {};
+    try { validateRecipePayload(r, false); }
+    catch (e) { return reply.status(e.statusCode || 400).send({ error: e.message, field: e.field }); }
     // Support both: categories[] (new) and cat (legacy). Empty list = 400.
     // categories[0] is the primary category and is mirrored into recipes.cat.
     const cats = Array.isArray(r.categories) && r.categories.length ? r.categories : (r.cat ? [r.cat] : []);
@@ -542,7 +648,10 @@ async function contentRoutes(fastify) {
   });
 
   // DELETE /admin/recipes/:id
-  fastify.delete('/admin/recipes/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+  fastify.delete('/admin/recipes/:id', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req, reply) => {
     const result = await db.query('DELETE FROM recipes WHERE id=$1 RETURNING id', [req.params.id]);
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
     audit.log('recipe_delete', { userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip });
@@ -552,7 +661,10 @@ async function contentRoutes(fastify) {
   // POST /admin/recipes/:id/seasonal — пометить рецепт как «Сезонный».
   // Атомарно: снимаем флаг с любого предыдущего сезонного и ставим на указанный.
   // Только опубликованный рецепт может стать сезонным.
-  fastify.post('/admin/recipes/:id/seasonal', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+  fastify.post('/admin/recipes/:id/seasonal', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req, reply) => {
     const id = req.params.id;
     const client = await db.pool.connect();
     try {
@@ -580,7 +692,10 @@ async function contentRoutes(fastify) {
   });
 
   // DELETE /admin/recipes/seasonal — снять признак сезонного со всех рецептов.
-  fastify.delete('/admin/recipes/seasonal', { preHandler: [authenticate, requireAdmin] }, async (req) => {
+  fastify.delete('/admin/recipes/seasonal', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req) => {
     await db.query('UPDATE recipes SET is_seasonal = FALSE WHERE is_seasonal = TRUE');
     audit.log('recipe_seasonal_clear', { userId: req.user.sub, detail: 'all', ip: req.ip });
     return { ok: true };
@@ -597,7 +712,10 @@ async function contentRoutes(fastify) {
   });
 
   // POST /admin/ingredients — add/update dynamic ingredient catalog entry.
-  fastify.post('/admin/ingredients', { preHandler: [authenticate, requireAdmin] }, async (req) => {
+  fastify.post('/admin/ingredients', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req) => {
     const item = normalizeIngredientCatalogItem(req.body || {});
     const result = await db.query(
       `INSERT INTO ingredient_catalog (id, name, group_id, sort_order)
@@ -625,7 +743,10 @@ async function contentRoutes(fastify) {
   });
 
   // POST /admin/categories — create category
-  fastify.post('/admin/categories', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+  fastify.post('/admin/categories', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req, reply) => {
     const { id, name, emoji, color, description, sort_order, auto_addons } = req.body || {};
     if (!id || !name) return reply.status(400).send({ error: 'id и name обязательны' });
     if (!/^[a-z0-9_-]+$/.test(id)) return reply.status(400).send({ error: 'id: только латиница, цифры, _ и -' });
@@ -641,7 +762,10 @@ async function contentRoutes(fastify) {
   });
 
   // PUT /admin/categories/:id
-  fastify.put('/admin/categories/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+  fastify.put('/admin/categories/:id', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req, reply) => {
     const { name, emoji, color, description, sort_order, auto_addons } = req.body || {};
     const result = await db.query(
       `UPDATE categories SET name=$1, emoji=$2, color=$3, description=$4, sort_order=$5, auto_addons=$6
@@ -654,7 +778,10 @@ async function contentRoutes(fastify) {
   });
 
   // DELETE /admin/categories/:id — only if no recipes in it
-  fastify.delete('/admin/categories/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+  fastify.delete('/admin/categories/:id', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req, reply) => {
     const inUse = await db.query('SELECT COUNT(*)::int AS n FROM recipe_categories WHERE category_id=$1', [req.params.id]);
     if (inUse.rows[0].n > 0) return reply.status(409).send({ error: 'В категории есть рецепты (' + inUse.rows[0].n + '). Сначала удалите или перенесите.' });
     const result = await db.query('DELETE FROM categories WHERE id=$1 RETURNING id', [req.params.id]);
