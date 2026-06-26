@@ -789,7 +789,7 @@
 			var d = pending.created_at ? new Date(pending.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : '';
 			block.innerHTML = '<div class="pay-pending-card">'
 				+ '<div class="pay-pending-eyebrow">Платёж на проверке</div>'
-				+ '<div class="pay-pending-text">Платёж от&nbsp;<b>' + escHtml(d) + '</b> на&nbsp;<b>' + escHtml(String(pending.amount || '')) + '&nbsp;₽</b> ожидает подтверждения. Обычно подтверждаем в&nbsp;течение 30&nbsp;минут.</div>'
+				+ '<div class="pay-pending-text">Ваш платёж от&nbsp;<b>' + escHtml(d) + '</b> на&nbsp;<b>' + escHtml(String(pending.amount || '')) + '&nbsp;₽</b> ожидает подтверждения. Обычно это занимает около 30&nbsp;минут.</div>'
 				+ '<div class="pay-pending-support">' + supportContactHtml() + '</div>'
 				+ '</div>';
 		}
