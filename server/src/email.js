@@ -202,15 +202,25 @@ async function sendSubscriptionExtended(to, days, activeUntil) {
 }
 
 // ── 5. Оплата подтверждена ──
-async function sendPaymentConfirmed(to, days, activeUntil) {
+function escHtml(s) {
+  return String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+async function sendPaymentConfirmed(to, days, activeUntil, comment) {
   const untilStr = activeUntil
     ? new Date(activeUntil).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : '';
+  const commentHtml = comment && String(comment).trim()
+    ? '<p style="font-size:14px;color:#777;margin:0 0 6px">Комментарий отдела заботы:</p>'
+      + '<div style="padding:14px;background:#faf8f5;border-radius:10px;border:1px solid #eee;margin:0 0 16px;font-size:14px;color:#444;line-height:1.6;white-space:pre-wrap">'
+      + escHtml(comment) + '</div>'
     : '';
   const body =
     '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Привет!</h2>'
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
     + 'Ваша оплата подтверждена. Подписка на платформу <strong>«Умная тарелка»</strong>'
     + (untilStr ? ' действует до <strong>' + untilStr + '</strong>' : ' активирована') + '.</p>'
+    + commentHtml
     + btn('Открыть Умную тарелку', '' + PLATFORM_URL + '/')
     + '<p style="font-size:14px;color:#111;margin:0 0 12px;line-height:1.6">Спасибо за доверие!</p>'
     + '<p style="font-size:14px;color:#111;margin:0;line-height:1.5">Ваша Юля</p>';
@@ -221,7 +231,7 @@ async function sendPaymentConfirmed(to, days, activeUntil) {
 async function sendPaymentRejected(to, reason) {
   const reasonHtml = reason && String(reason).trim()
     ? '<div style="padding:14px;background:#faf8f5;border-radius:10px;border:1px solid #eee;margin:0 0 16px;font-size:14px;color:#444;line-height:1.6;white-space:pre-wrap">'
-      + String(reason).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>'
+      + escHtml(reason) + '</div>'
     : '';
   const body =
     '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Привет!</h2>'
@@ -229,7 +239,7 @@ async function sendPaymentRejected(to, reason) {
     + 'К сожалению, нам пока не удалось подтвердить ваш платёж за подписку на платформу <strong>«Умная тарелка»</strong>.</p>'
     + (reasonHtml ? '<p style="font-size:14px;color:#777;margin:0 0 6px">Комментарий отдела заботы:</p>' + reasonHtml : '')
     + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
-    + 'Если оплата была совершена, отправьте в личном кабинете или на '
+    + 'Если оплата была совершена, отправьте на '
     + '<a href="mailto:hello@voronova.online" style="color:#e8400a;text-decoration:none;font-weight:600">hello@voronova.online</a> '
     + 'скриншот, на котором видны сумма, дата и получатель перевода. Мы проверим платёж ещё раз.</p>'
     + btn('Открыть личный кабинет', PLATFORM_URL + '/cabinet.html?tab=subscription')

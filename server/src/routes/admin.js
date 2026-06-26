@@ -92,7 +92,7 @@ async function adminRoutes(fastify) {
       const payEmail = userRes.rows.length ? userRes.rows[0].email : null;
       audit.log('payment_confirm', { userId: req.user.sub, email: payEmail, detail: 'payment#' + id + ' +' + days + 'd', ip: req.ip });
       if (payEmail) {
-        sendPaymentConfirmed(payEmail, days, newUntil).catch(e => fastify.log.error(e, 'Payment confirmed email error'));
+        sendPaymentConfirmed(payEmail, days, newUntil, comment || '').catch(e => fastify.log.error(e, 'Payment confirmed email error'));
       }
       return { ok: true, message: 'Подписка активирована на ' + days + ' дней' };
     } catch (e) {
