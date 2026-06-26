@@ -3,6 +3,13 @@ const { requireAdmin } = require('../middleware');
 const { sendPaymentConfirmed, sendPaymentRejected, sendSubscriptionExtended, sendFeedbackReply } = require('../email');
 const audit = require('../audit');
 
+const CONFIRM_PAYMENT_MONTHS = new Set([1, 3, 6, 12]);
+
+function parsePositiveInt(value) {
+  const n = Number(value);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
+
 async function adminRoutes(fastify) {
 
   // GET /admin/users — список пользователей
@@ -25,7 +32,9 @@ async function adminRoutes(fastify) {
 
   // GET /admin/payments/:id/screenshot — получить скриншот платежа
   fastify.get('/admin/payments/:id/screenshot', { preHandler: requireAdmin }, async (req, reply) => {
-    const result = await db.query('SELECT screenshot FROM payments WHERE id=$1', [req.params.id]);
+    const id = parsePositiveInt(req.params.id);
+    if (!id) return reply.status(400).send({ error: 'Некорректный id платежа' });
+    const result = await db.query('SELECT screenshot FROM payments WHERE id=$1', [id]);
     if (!result.rows.length || !result.rows[0].screenshot) return reply.status(404).send({ error: 'Скриншот не найден' });
     return { screenshot: result.rows[0].screenshot };
   });
@@ -35,9 +44,14 @@ async function adminRoutes(fastify) {
     preHandler: requireAdmin,
     config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
   }, async (req, reply) => {
-    const { id } = req.params;
+    const id = parsePositiveInt(req.params.id);
+    if (!id) return reply.status(400).send({ error: 'Некорректный id платежа' });
     const { months, comment } = req.body || {};
-    const days = (months || 1) * 30;
+    const normalizedMonths = months == null || months === '' ? 1 : Number(months);
+    if (!CONFIRM_PAYMENT_MONTHS.has(normalizedMonths)) {
+      return reply.status(400).send({ error: 'months: допустимы только 1, 3, 6 или 12' });
+    }
+    const days = normalizedMonths * 30;
     const client = await db.pool.connect();
     try {
       await client.query('BEGIN');
@@ -88,7 +102,8 @@ async function adminRoutes(fastify) {
 
   // POST /admin/payments/:id/reject — отклонить платёж
   fastify.post('/admin/payments/:id/reject', { preHandler: requireAdmin }, async (req, reply) => {
-    const { id } = req.params;
+    const id = parsePositiveInt(req.params.id);
+    if (!id) return reply.status(400).send({ error: 'Некорректный id платежа' });
     const { comment } = req.body || {};
     const adminComment = String(comment || '').trim();
     if (!adminComment) {
