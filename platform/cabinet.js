@@ -1513,6 +1513,9 @@
 		}
 
 		// ── PLATE ─────────────────────────────────────────────────────────────────
+		let cabinetPlateShopMode = false;
+		let cabinetPlateShopChecked = new Set();
+
 		function openPlate() {
 			const items = Plate.get();
 			const body = document.getElementById('plate-body');
@@ -1526,6 +1529,7 @@
             </div>`;
 			} else {
 				const t = Plate.totals();
+				const ingCount = items.reduce((n, item) => n + (Array.isArray(item.ingredients) ? item.ingredients.length : 0), 0);
 				const list = items.map((item, i) => `<div class="pv1-item">
                     ${item.photo
 						? `<img class="pv1-item-photo" src="${escHtml(String(item.photo))}" alt="">`
@@ -1544,17 +1548,28 @@
                         <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.protein) || 0}</div><div class="pv1-tot-key">Белки, г</div></div>
                         <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.fat) || 0}</div><div class="pv1-tot-key">Жиры, г</div></div>
                         <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.carbs) || 0}</div><div class="pv1-tot-key">Углев., г</div></div>
-                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.fiber) || 0}</div><div class="pv1-tot-key">Клетч., г</div></div>
-                    </div>
-                </div>
-                ${plateMealTypePickerHtml()}
-                <div class="pv1-actions">
-                    <div class="pv1-actions-row">
-                        <button class="pv1-btn" onclick="location.href='index.html'">← На главную</button>
-                        <button class="pv1-btn" onclick="shareShoppingList()">Список продуктов</button>
-                    </div>
-                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateCabinet()">Сохранить в историю</button>
-                </div>`;
+						<div class="pv1-tot"><div class="pv1-tot-num">${Number(t.fiber) || 0}</div><div class="pv1-tot-key">Клетч., г</div></div>
+					</div>
+				</div>
+				<div class="shop" id="shop-block">
+					<div class="shop-head">
+						<svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
+						Список покупок${ingCount ? ` · ${ingCount} шт` : ''}
+					</div>
+					<div class="shop-actions">
+						<button class="shop-btn shop-btn-primary" id="cabinet-plate-shop-mode-btn" type="button" onclick="toggleCabinetPlateShopMode()" aria-pressed="false">В магазине</button>
+						<button class="shop-btn shop-btn-ghost" type="button" onclick="copyCabinetPlateShoppingList()">Скопировать</button>
+					</div>
+					<div class="plate-shop-list" id="cabinet-plate-shop-list" hidden></div>
+				</div>
+				${plateMealTypePickerHtml()}
+				<div class="pv1-actions">
+					<div class="pv1-actions-row">
+						<button class="pv1-btn" onclick="location.href='index.html'">← На главную</button>
+					</div>
+					<button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateCabinet()">Сохранить в историю</button>
+				</div>`;
+				renderCabinetPlateShopMode();
 			}
 			document.getElementById('plate-overlay').classList.add('open');
 			document.body.style.overflow = 'hidden';
@@ -1567,9 +1582,78 @@
 			if (e.target === document.getElementById('plate-overlay')) closePlate();
 		}
 		function removePlateItem(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
+		function cabinetPlateShopItems() {
+			const out = [];
+			Plate.get().forEach((item, itemIndex) => {
+				const ingredients = Array.isArray(item.ingredients) ? item.ingredients : [];
+				ingredients.forEach((ing, ingIndex) => {
+					const name = typeof ing === 'string' ? ing : (ing && (ing.name || ing.title || ing.text)) || '';
+					const label = String(name || '').trim();
+					if (!label) return;
+					out.push({
+						key: itemIndex + '-' + ingIndex + '-' + label,
+						dish: String(item.name || 'Блюдо'),
+						label
+					});
+				});
+			});
+			return out;
+		}
+		function toggleCabinetPlateShopMode() {
+			cabinetPlateShopMode = !cabinetPlateShopMode;
+			renderCabinetPlateShopMode();
+		}
+		function toggleCabinetPlateShopCheckedByIndex(index) {
+			if (!cabinetPlateShopMode) return;
+			const item = cabinetPlateShopItems()[Number(index)];
+			if (!item) return;
+			if (cabinetPlateShopChecked.has(item.key)) cabinetPlateShopChecked.delete(item.key);
+			else cabinetPlateShopChecked.add(item.key);
+			renderCabinetPlateShopMode();
+		}
+		function renderCabinetPlateShopMode() {
+			const listEl = document.getElementById('cabinet-plate-shop-list');
+			const btn = document.getElementById('cabinet-plate-shop-mode-btn');
+			if (!listEl || !btn) return;
+			const items = cabinetPlateShopItems();
+			const validKeys = new Set(items.map(item => item.key));
+			cabinetPlateShopChecked = new Set(Array.from(cabinetPlateShopChecked).filter(key => validKeys.has(key)));
+			btn.setAttribute('aria-pressed', String(cabinetPlateShopMode));
+			btn.classList.toggle('is-active', cabinetPlateShopMode);
+			listEl.hidden = !cabinetPlateShopMode;
+			if (!cabinetPlateShopMode) {
+				listEl.innerHTML = '';
+				return;
+			}
+			if (!items.length) {
+				listEl.innerHTML = '<div class="plate-shop-empty">В выбранных блюдах нет ингредиентов.</div>';
+				return;
+			}
+			let currentDish = '';
+			let html = '';
+			items.forEach((item, index) => {
+				if (item.dish !== currentDish) {
+					currentDish = item.dish;
+					html += '<div class="plate-shop-dish">' + escHtml(currentDish) + '</div>';
+				}
+				const checked = cabinetPlateShopChecked.has(item.key);
+				html += '<button class="plate-shop-check' + (checked ? ' is-checked' : '') + '" type="button" onclick="toggleCabinetPlateShopCheckedByIndex(' + Number(index) + ')" aria-pressed="' + checked + '">'
+					+ '<span class="plate-shop-box" aria-hidden="true"></span>'
+					+ '<span class="plate-shop-label">' + escHtml(item.label) + '</span>'
+					+ '</button>';
+			});
+			listEl.innerHTML = html;
+		}
+		function copyCabinetPlateShoppingList() {
+			navigator.clipboard.writeText(buildShoppingList())
+				.then(() => showToast('📋 Список скопирован!'))
+				.catch(() => showToast('Не удалось скопировать'));
+		}
 		function savePlateCabinet() {
 			if (!Plate.count()) return;
 			Plate.saveHistory(getSelectedPlateMealType());
+			cabinetPlateShopMode = false;
+			cabinetPlateShopChecked.clear();
 			updatePlateIcon();
 			renderHistory();
 			closePlate();
