@@ -113,3 +113,53 @@ describe('admin payment hardening', () => {
     );
   });
 });
+
+describe('admin list hardening', () => {
+  it('caps users pagination before querying the DB', async () => {
+    mockQuery.mockResolvedValueOnce({ rows: [] });
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/admin/users?page=999999&limit=999999'
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(mockQuery).toHaveBeenCalledWith(
+      expect.stringContaining('FROM users u LEFT JOIN subscriptions'),
+      [200, 99800]
+    );
+  });
+
+  it('rejects invalid feedback status before querying the DB', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/admin/feedback?status=<script>'
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('статус');
+    expect(mockQuery).not.toHaveBeenCalled();
+  });
+
+  it('rejects invalid audit event before querying the DB', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/admin/audit?event=../../etc/passwd'
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('аудита');
+    expect(mockQuery).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed user ids before updating block state', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/users/not-a-user/block'
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('id пользователя');
+    expect(mockQuery).not.toHaveBeenCalledWith(expect.stringMatching(/UPDATE users SET is_blocked/), expect.any(Array));
+  });
+});

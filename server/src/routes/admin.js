@@ -5,7 +5,38 @@ const audit = require('../audit');
 
 const CONFIRM_PAYMENT_MONTHS = new Set([1, 3, 6, 12]);
 const PAYMENT_STATUSES = new Set(['pending', 'confirmed', 'rejected']);
+const FEEDBACK_STATUSES = new Set(['waiting_admin', 'waiting_user', 'closed', 'new']);
+const AUDIT_EVENTS = new Set([
+  'login',
+  'login_blocked',
+  'register',
+  'trial_granted',
+  'trial_denied',
+  'payment_submit',
+  'payment_confirm',
+  'payment_reject',
+  'user_block',
+  'user_unblock',
+  'subscription_extend',
+  'feedback_reply',
+  'review_delete',
+  'news_create',
+  'news_update',
+  'news_delete',
+  'recipe_create',
+  'recipe_update',
+  'recipe_delete',
+  'recipe_seasonal_set',
+  'recipe_seasonal_clear',
+  'ingredient_catalog_upsert',
+  'category_create',
+  'category_update',
+  'category_delete',
+]);
+const ADMIN_READ_RATE_LIMIT = { max: 60, timeWindow: '1 minute' };
+const ADMIN_HEAVY_READ_RATE_LIMIT = { max: 30, timeWindow: '1 minute' };
 const ADMIN_LIST_LIMIT_MAX = 200;
+const ADMIN_LIST_PAGE_MAX = 500;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function parsePaymentId(value) {
@@ -15,16 +46,32 @@ function parsePaymentId(value) {
   return null;
 }
 
-function parseListWindow(query, fallbackLimit) {
-  const page = Math.max(1, parseInt(query.page, 10) || 1);
-  const limit = Math.min(ADMIN_LIST_LIMIT_MAX, Math.max(1, parseInt(query.limit, 10) || fallbackLimit));
-  return { limit, offset: (page - 1) * limit };
+function parseUserId(value) {
+  const id = String(value || '').trim();
+  if (UUID_RE.test(id)) return id;
+  if (/^[1-9]\d*$/.test(id)) return id;
+  return null;
+}
+
+function getQueryString(value) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function parseListWindow(query, fallbackLimit, maxLimit = ADMIN_LIST_LIMIT_MAX) {
+  const rawPage = parseInt(query.page, 10);
+  const page = Math.min(ADMIN_LIST_PAGE_MAX, Math.max(1, Number.isFinite(rawPage) ? rawPage : 1));
+  const rawLimit = parseInt(query.limit, 10);
+  const limit = Math.min(maxLimit, Math.max(1, Number.isFinite(rawLimit) ? rawLimit : fallbackLimit));
+  return { page, limit, offset: (page - 1) * limit };
 }
 
 async function adminRoutes(fastify) {
 
   // GET /admin/users — список пользователей
-  fastify.get('/admin/users', { preHandler: requireAdmin }, async (req) => {
+  fastify.get('/admin/users', {
+    preHandler: requireAdmin,
+    config: { rateLimit: ADMIN_READ_RATE_LIMIT }
+  }, async (req) => {
     const { limit, offset } = parseListWindow(req.query || {}, 200);
     const result = await db.query(
       'SELECT u.id, u.email, u.display_name, u.role, u.is_blocked, u.created_at, s.status as sub_status, s.trial_ends_at, s.active_until FROM users u LEFT JOIN subscriptions s ON s.user_id=u.id ORDER BY u.created_at DESC LIMIT $1 OFFSET $2',
@@ -34,8 +81,12 @@ async function adminRoutes(fastify) {
   });
 
   // GET /admin/payments — все pending платежи
-  fastify.get('/admin/payments', { preHandler: requireAdmin }, async (req) => {
-    const status = PAYMENT_STATUSES.has(req.query.status) ? req.query.status : 'pending';
+  fastify.get('/admin/payments', {
+    preHandler: requireAdmin,
+    config: { rateLimit: ADMIN_READ_RATE_LIMIT }
+  }, async (req) => {
+    const requestedStatus = getQueryString(req.query.status);
+    const status = PAYMENT_STATUSES.has(requestedStatus) ? requestedStatus : 'pending';
     const { limit, offset } = parseListWindow(req.query || {}, 100);
     const result = await db.query(
       'SELECT p.id, p.user_id, p.amount, p.sender_name, p.payment_date, p.status, p.admin_comment, p.user_comment, p.created_at, p.updated_at, (p.screenshot IS NOT NULL) as has_screenshot, u.email FROM payments p JOIN users u ON u.id=p.user_id WHERE p.status=$1 ORDER BY p.created_at DESC LIMIT $2 OFFSET $3',
@@ -151,8 +202,9 @@ async function adminRoutes(fastify) {
   fastify.post('/admin/users/:id/block', {
     preHandler: requireAdmin,
     config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
-  }, async (req) => {
-    const { id } = req.params;
+  }, async (req, reply) => {
+    const id = parseUserId(req.params.id);
+    if (!id) return reply.status(400).send({ error: 'Некорректный id пользователя' });
     await db.query('UPDATE users SET is_blocked=true, updated_at=now() WHERE id=$1', [id]);
     await db.query("UPDATE subscriptions SET status='blocked', updated_at=now() WHERE user_id=$1", [id]);
     await db.query('DELETE FROM refresh_sessions WHERE user_id=$1', [id]);
@@ -164,8 +216,9 @@ async function adminRoutes(fastify) {
   fastify.post('/admin/users/:id/unblock', {
     preHandler: requireAdmin,
     config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
-  }, async (req) => {
-    const { id } = req.params;
+  }, async (req, reply) => {
+    const id = parseUserId(req.params.id);
+    if (!id) return reply.status(400).send({ error: 'Некорректный id пользователя' });
     await db.query('UPDATE users SET is_blocked=false, updated_at=now() WHERE id=$1', [id]);
     // Восстановить подписку: active_until в будущем → active, trial_ends_at в будущем → trial, иначе expired
     await db.query(`
@@ -185,7 +238,8 @@ async function adminRoutes(fastify) {
     preHandler: requireAdmin,
     config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
   }, async (req, reply) => {
-    const { id } = req.params;
+    const id = parseUserId(req.params.id);
+    if (!id) return reply.status(400).send({ error: 'Некорректный id пользователя' });
     const days = parseInt(req.body && req.body.days, 10);
     if (!Number.isFinite(days) || days < 1 || days > 3650) {
       return reply.status(400).send({ error: 'days: число от 1 до 3650' });
@@ -230,11 +284,15 @@ async function adminRoutes(fastify) {
 
   // GET /admin/feedback — обращения с пагинацией и тредами
   // Сортировка: waiting_admin/new сверху, дальше по updated_at DESC.
-  fastify.get('/admin/feedback', { preHandler: requireAdmin }, async (req) => {
-    const page = Math.max(1, parseInt(req.query.page) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
-    const offset = (page - 1) * limit;
-    const status = req.query.status || null;
+  fastify.get('/admin/feedback', {
+    preHandler: requireAdmin,
+    config: { rateLimit: ADMIN_HEAVY_READ_RATE_LIMIT }
+  }, async (req, reply) => {
+    const { page, limit, offset } = parseListWindow(req.query || {}, 20, 100);
+    const status = getQueryString(req.query.status);
+    if (status && !FEEDBACK_STATUSES.has(status)) {
+      return reply.status(400).send({ error: 'Некорректный статус обращения' });
+    }
 
     // Совместимость с legacy 'new': при фильтре waiting_admin включаем оба статуса,
     // иначе бейдж и список рассинхронизируются, пока в БД ещё могут оставаться 'new'.
@@ -368,11 +426,15 @@ async function adminRoutes(fastify) {
   });
 
   // GET /admin/audit — аудит-лог с пагинацией
-  fastify.get('/admin/audit', { preHandler: requireAdmin }, async (req) => {
-    const page = Math.max(1, parseInt(req.query.page) || 1);
-    const limit = Math.min(200, Math.max(1, parseInt(req.query.limit) || 50));
-    const offset = (page - 1) * limit;
-    const event = req.query.event || null;
+  fastify.get('/admin/audit', {
+    preHandler: requireAdmin,
+    config: { rateLimit: ADMIN_HEAVY_READ_RATE_LIMIT }
+  }, async (req, reply) => {
+    const { page, limit, offset } = parseListWindow(req.query || {}, 50, 200);
+    const event = getQueryString(req.query.event);
+    if (event && !AUDIT_EVENTS.has(event)) {
+      return reply.status(400).send({ error: 'Некорректный тип события аудита' });
+    }
 
     let where = '';
     const params = [];
@@ -398,7 +460,10 @@ async function adminRoutes(fastify) {
   });
 
   // GET /admin/stats — базовая статистика
-  fastify.get('/admin/stats', { preHandler: requireAdmin }, async () => {
+  fastify.get('/admin/stats', {
+    preHandler: requireAdmin,
+    config: { rateLimit: ADMIN_READ_RATE_LIMIT }
+  }, async () => {
     const users = await db.query("SELECT COUNT(*) FROM users WHERE role != 'admin'");
     const trials = await db.query("SELECT COUNT(*) FROM subscriptions s JOIN users u ON u.id=s.user_id WHERE s.status='trial' AND u.role != 'admin'");
     const active = await db.query("SELECT COUNT(*) FROM subscriptions s JOIN users u ON u.id=s.user_id WHERE s.status='active' AND u.role != 'admin'");
