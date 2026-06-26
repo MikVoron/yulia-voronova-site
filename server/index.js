@@ -1,5 +1,5 @@
 require('dotenv').config();
-const fastify = require('fastify')({ logger: true, trustProxy: true, bodyLimit: 8 * 1024 * 1024 });
+const fastify = require('fastify')({ logger: true, trustProxy: '127.0.0.1,::1', bodyLimit: 8 * 1024 * 1024 });
 const cors = require('@fastify/cors');
 const cookie = require('@fastify/cookie');
 const helmet = require('@fastify/helmet');
