@@ -29,6 +29,15 @@ const ADMIN_RECIPE_LIMITS = {
   addons: 40,
   mainIngredients: 60,
 };
+const REVIEW_RECIPE_ID_LIMIT = 100;
+const REVIEW_LIST_LIMIT = 100;
+
+function validateReviewRecipeId(value) {
+  if (typeof value !== 'string' || !value.trim() || value.length > REVIEW_RECIPE_ID_LIMIT) {
+    return null;
+  }
+  return value.trim();
+}
 
 // Нормализация access_level (новое поле) + backward compat с is_free.
 // Возвращает { access_level, is_free } для записи в БД.
@@ -303,13 +312,15 @@ async function contentRoutes(fastify) {
   // ═══════════════════════════════════════════════════════════════════════════
 
   // GET /content/reviews/:recipeId — all reviews for a recipe (public)
-  fastify.get('/content/reviews/:recipeId', async (req) => {
+  fastify.get('/content/reviews/:recipeId', async (req, reply) => {
+    const recipeId = validateReviewRecipeId(req.params.recipeId);
+    if (!recipeId) return reply.status(400).send({ error: 'Некорректный recipeId' });
     const result = await db.query(
       `SELECT r.id, r.stars, r.text, r.created_at, r.user_id,
               u.display_name, u.avatar
        FROM reviews r JOIN users u ON u.id = r.user_id
-       WHERE r.recipe_id = $1 ORDER BY r.created_at DESC`,
-      [req.params.recipeId]
+       WHERE r.recipe_id = $1 ORDER BY r.created_at DESC LIMIT $2`,
+      [recipeId, REVIEW_LIST_LIMIT]
     );
     return result.rows.map(row => ({
       id: row.id,
@@ -328,7 +339,8 @@ async function contentRoutes(fastify) {
     config: { rateLimit: { max: 10, timeWindow: '1 hour' } }
   }, async (req, reply) => {
     const { recipe_id, stars, text } = req.body || {};
-    if (!recipe_id || !stars) {
+    const recipeId = validateReviewRecipeId(recipe_id);
+    if (!recipeId || !stars) {
       return reply.status(400).send({ error: 'recipe_id и stars обязательны' });
     }
     if (stars < 1 || stars > 5) return reply.status(400).send({ error: 'stars от 1 до 5' });
@@ -337,7 +349,7 @@ async function contentRoutes(fastify) {
       return reply.status(400).send({ error: 'Максимум 1000 символов' });
     }
     // Check recipe exists
-    const exists = await db.query('SELECT id FROM recipes WHERE id=$1', [recipe_id]);
+    const exists = await db.query('SELECT id FROM recipes WHERE id=$1', [recipeId]);
     if (!exists.rows.length) return reply.status(404).send({ error: 'Рецепт не найден' });
 
     // Upsert: one review per user per recipe
@@ -347,23 +359,26 @@ async function contentRoutes(fastify) {
        ON CONFLICT (recipe_id, user_id)
        DO UPDATE SET stars = $3, text = $4, created_at = now()
        RETURNING *`,
-      [recipe_id, req.user.sub, stars, trimmed || null]
+      [recipeId, req.user.sub, stars, trimmed || null]
     );
 
     // Email notification to admin
     try {
       const userRow = await db.query('SELECT email, display_name FROM users WHERE id=$1', [req.user.sub]);
       const author = userRow.rows[0]?.display_name || userRow.rows[0]?.email || 'Аноним';
-      const recipeRow = await db.query('SELECT name FROM recipes WHERE id=$1', [recipe_id]);
-      const recipeName = recipeRow.rows[0]?.name || recipe_id;
-      await email.sendReviewNotification(author, recipeName, stars, trimmed, recipe_id);
+      const recipeRow = await db.query('SELECT name FROM recipes WHERE id=$1', [recipeId]);
+      const recipeName = recipeRow.rows[0]?.name || recipeId;
+      await email.sendReviewNotification(author, recipeName, stars, trimmed, recipeId);
     } catch (e) { console.error('Review email error:', e.message); }
 
     return result.rows[0];
   });
 
   // DELETE /content/reviews/:id — delete own review (auth required)
-  fastify.delete('/content/reviews/:id', { preHandler: [authenticate] }, async (req, reply) => {
+  fastify.delete('/content/reviews/:id', {
+    preHandler: [authenticate],
+    config: { rateLimit: { max: 20, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
     const result = await db.query(
       'DELETE FROM reviews WHERE id=$1 AND user_id=$2 RETURNING id',
       [req.params.id, req.user.sub]
@@ -373,7 +388,10 @@ async function contentRoutes(fastify) {
   });
 
   // DELETE /admin/reviews/:id — admin can delete any review
-  fastify.delete('/admin/reviews/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+  fastify.delete('/admin/reviews/:id', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req, reply) => {
     const result = await db.query('DELETE FROM reviews WHERE id=$1 RETURNING id', [req.params.id]);
     if (!result.rows.length) return reply.status(404).send({ error: 'Отзыв не найден' });
     audit.log('review_delete', { userId: req.user.sub, detail: 'review#' + req.params.id, ip: req.ip });

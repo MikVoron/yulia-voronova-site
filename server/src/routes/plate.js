@@ -1,6 +1,54 @@
 const db = require('../db');
 const { authenticate } = require('../middleware');
 
+const PLATE_ITEMS_MAX = 50;
+const PLATE_HISTORY_MAX = 30;
+const PLATE_ITEMS_JSON_MAX = 50000;
+const PLATE_TOTALS_JSON_MAX = 5000;
+
+function assertJsonSize(value, max, field) {
+  if (JSON.stringify(value || null).length > max) {
+    const err = new Error(field + ' слишком большой');
+    err.field = field;
+    throw err;
+  }
+}
+
+function validatePlateItems(items) {
+  if (!Array.isArray(items)) {
+    const err = new Error('items должен быть массивом');
+    err.field = 'items';
+    throw err;
+  }
+  if (items.length > PLATE_ITEMS_MAX) {
+    const err = new Error('Слишком много элементов тарелки (макс. ' + PLATE_ITEMS_MAX + ')');
+    err.field = 'items';
+    throw err;
+  }
+  assertJsonSize(items, PLATE_ITEMS_JSON_MAX, 'items');
+  return items;
+}
+
+function validateTotals(totals) {
+  const safeTotals = totals || {};
+  assertJsonSize(safeTotals, PLATE_TOTALS_JSON_MAX, 'totals');
+  return safeTotals;
+}
+
+async function prunePlateHistory(userId, client = db) {
+  await client.query(
+    `DELETE FROM plate_history
+      WHERE user_id = $1
+        AND id IN (
+          SELECT id FROM plate_history
+           WHERE user_id = $1
+           ORDER BY saved_at DESC, id DESC
+           OFFSET $2
+        )`,
+    [userId, PLATE_HISTORY_MAX]
+  );
+}
+
 async function plateRoutes(fastify) {
 
   // GET /plate — current plate items
@@ -18,11 +66,9 @@ async function plateRoutes(fastify) {
     config: { rateLimit: { max: 30, timeWindow: '1 minute' } }
   }, async (req, reply) => {
     const { items } = req.body || {};
-    if (!Array.isArray(items)) {
-      return reply.status(400).send({ error: 'items должен быть массивом' });
-    }
-    // Limit to 50 items, sanitize
-    const safe = items.slice(0, 50);
+    let safe;
+    try { safe = validatePlateItems(items); }
+    catch (e) { return reply.status(400).send({ error: e.message, field: e.field }); }
 
     await db.query(
       `INSERT INTO plate_items (user_id, items, updated_at)
@@ -57,8 +103,13 @@ async function plateRoutes(fastify) {
     if (!Array.isArray(items) || !items.length) {
       return reply.status(400).send({ error: 'items обязателен и не может быть пустым' });
     }
-    const safeItems = items.slice(0, 50);
-    const safeTotals = totals || {};
+    let safeItems, safeTotals;
+    try {
+      safeItems = validatePlateItems(items);
+      safeTotals = validateTotals(totals);
+    } catch (e) {
+      return reply.status(400).send({ error: e.message, field: e.field });
+    }
     const safeDate = date && !Number.isNaN(new Date(date).getTime()) ? new Date(date) : new Date();
     const safeMealType = ['breakfast', 'lunch', 'dinner', 'snack'].includes(mealType) ? mealType : null;
 
@@ -77,6 +128,7 @@ async function plateRoutes(fastify) {
        ON CONFLICT (user_id) DO UPDATE SET items = '[]', updated_at = now()`,
       [req.user.sub]
     );
+    await prunePlateHistory(req.user.sub);
     return { ok: true };
   });
 
@@ -106,7 +158,22 @@ async function plateRoutes(fastify) {
     if (!Array.isArray(history)) {
       return reply.status(400).send({ error: 'history должен быть массивом' });
     }
-    const safe = history.filter(h => h && Array.isArray(h.items) && h.items.length).slice(0, 30);
+    if (history.length > PLATE_HISTORY_MAX) {
+      return reply.status(400).send({ error: 'Слишком много записей истории (макс. ' + PLATE_HISTORY_MAX + ')' });
+    }
+    const safe = [];
+    for (const h of history) {
+      if (!h || !Array.isArray(h.items) || !h.items.length) continue;
+      try {
+        safe.push({
+          ...h,
+          items: validatePlateItems(h.items),
+          totals: validateTotals(h.totals),
+        });
+      } catch (e) {
+        return reply.status(400).send({ error: e.message, field: e.field });
+      }
+    }
 
     const client = await db.pool.connect();
     try {
@@ -121,9 +188,10 @@ async function plateRoutes(fastify) {
            WHERE NOT EXISTS (
              SELECT 1 FROM plate_history WHERE user_id = $1 AND saved_at = $2
            )`,
-          [req.user.sub, safeDate, JSON.stringify(h.items.slice(0, 50)), JSON.stringify(h.totals || {}), safeMealType]
+          [req.user.sub, safeDate, JSON.stringify(h.items), JSON.stringify(h.totals), safeMealType]
         );
       }
+      await prunePlateHistory(req.user.sub, client);
       await client.query('COMMIT');
     } catch (e) {
       await client.query('ROLLBACK');

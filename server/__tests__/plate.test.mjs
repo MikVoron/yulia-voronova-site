@@ -83,6 +83,34 @@ describe('plate history metadata', () => {
     expect(mockQuery.mock.calls[0][1][4]).toBe('dinner');
   });
 
+  it('rejects too many current plate items instead of silently truncating', async () => {
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/plate',
+      payload: { items: Array.from({ length: 51 }, (_, i) => ({ name: 'Dish ' + i })) }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(mockQuery).not.toHaveBeenCalled();
+  });
+
+  it('rejects too many history entries in sync', async () => {
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/plate/history/sync',
+      payload: {
+        history: Array.from({ length: 31 }, (_, i) => ({
+          date: new Date(Date.now() - i * 1000).toISOString(),
+          items: [{ name: 'Dish ' + i }],
+          totals: { kcal: 100 },
+        }))
+      }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(mockConnect).not.toHaveBeenCalled();
+  });
+
   it('allows clearing a previously assigned meal type', async () => {
     const res = await app.inject({
       method: 'PUT',
