@@ -31,7 +31,10 @@ fastify.register(cookie);
 fastify.register(helmet, {
   contentSecurityPolicy: false,   // CSP управляется на уровне HTML/nginx
   crossOriginEmbedderPolicy: false,
-  crossOriginResourcePolicy: { policy: 'cross-origin' }
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  hsts: false,                    // nginx owns shared transport/security headers
+  noSniff: false,
+  referrerPolicy: false
 });
 
 // Global rate limit: 100 req/min per IP

@@ -121,7 +121,7 @@ curl -sI https://api.voronova.online/health | grep -iE 'strict-transport|content
 ```
 Strict-Transport-Security: max-age=31536000; includeSubDomains
 X-Content-Type-Options: nosniff
-Referrer-Policy: no-referrer
+Referrer-Policy: strict-origin-when-cross-origin
 X-Frame-Options: SAMEORIGIN
 X-DNS-Prefetch-Control: off
 ```
@@ -145,8 +145,8 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' .
 | Заголовок | API | Платформа | Источник |
 |-----------|-----|-----------|----------|
 | `Strict-Transport-Security` | max-age=31536000 | max-age=31536000 | nginx |
-| `X-Content-Type-Options` | nosniff | nosniff | nginx + Helmet |
-| `Referrer-Policy` | no-referrer | strict-origin-when-cross-origin | Helmet / nginx |
+| `X-Content-Type-Options` | nosniff | nosniff | nginx |
+| `Referrer-Policy` | strict-origin-when-cross-origin | strict-origin-when-cross-origin | nginx |
 | `Content-Security-Policy` | — | да | nginx |
 | `X-Frame-Options` | SAMEORIGIN | — | Helmet |
 
