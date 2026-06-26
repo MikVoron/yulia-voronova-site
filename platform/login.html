@@ -560,7 +560,7 @@
 
 				<!-- Features (kept compact for trust signal) -->
 				<div class="lp-features">
-					<div class="lp-feat"><span class="lp-feat-dot"></span><span id="lp-recipes-count">36+ рецептов</span></div>
+					<div class="lp-feat"><span class="lp-feat-dot"></span><span id="lp-recipes-count">70+ рецептов</span></div>
 					<div class="lp-feat"><span class="lp-feat-dot"></span>КБЖУ расчёт</div>
 					<div class="lp-feat"><span class="lp-feat-dot"></span>Конструктор тарелки</div>
 				</div>
@@ -621,14 +621,17 @@
 		var timerInterval = null;
 		var _fingerprint = null;
 
-		// Dynamic recipe count
+		// Dynamic recipe count: use the same marketing threshold as the main page.
 		fetch(API_BASE + '/content/stats')
 			.then(function (r) { return r.ok ? r.json() : null; })
 			.then(function (d) {
 				if (d && d.recipes) {
-					var plural = d.recipes % 10 === 1 && d.recipes % 100 !== 11 ? 'рецепт'
-						: (d.recipes % 10 >= 2 && d.recipes % 10 <= 4 && (d.recipes % 100 < 10 || d.recipes % 100 >= 20)) ? 'рецепта' : 'рецептов';
-					document.getElementById('lp-recipes-count').textContent = d.recipes + ' ' + plural;
+					var count = Number(d.recipes);
+					var rounded = count < 5 ? count
+						: count < 20 ? Math.floor(count / 5) * 5
+							: count < 100 ? Math.floor(count / 10) * 10
+								: Math.floor(count / 50) * 50;
+					document.getElementById('lp-recipes-count').textContent = rounded + '+ рецептов';
 				}
 			})
 			.catch(function () { });
