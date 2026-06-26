@@ -67,8 +67,8 @@ async function subscriptionRoutes(fastify) {
     // Validate screenshot if present (max ~5MB base64)
     if (screenshot && screenshot.length > 7 * 1024 * 1024) return reply.status(400).send({ error: 'Скриншот слишком большой' });
     // Защита от обычного повторного submit и прямого одиночного API-запроса.
-    // Полноценная DB-защита от параллельных POST (например через partial unique index
-    // на status='pending') — post-MVP.
+    // Параллельные POST дополнительно закрывает partial unique index
+    // idx_payments_one_pending_per_user.
     const existingPending = await db.query(
       "SELECT id FROM payments WHERE user_id=$1 AND status='pending' LIMIT 1",
       [req.user.sub]
@@ -79,10 +79,17 @@ async function subscriptionRoutes(fastify) {
     // email берём из JWT — надёжнее чем из формы
     const emailRow = await db.query('SELECT email FROM users WHERE id=$1', [req.user.sub]);
     const senderEmail = emailRow.rows[0]?.email || '';
-    await db.query(
-      'INSERT INTO payments (user_id, amount, sender_name, payment_date, user_comment, screenshot, status) VALUES ($1,$2,$3,$4,$5,$6,$7)',
-      [req.user.sub, amount, senderEmail, paymentDate, comment || null, screenshot || null, 'pending']
-    );
+    try {
+      await db.query(
+        'INSERT INTO payments (user_id, amount, sender_name, payment_date, user_comment, screenshot, status) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        [req.user.sub, amount, senderEmail, paymentDate, comment || null, screenshot || null, 'pending']
+      );
+    } catch (e) {
+      if (e.code === '23505' && e.constraint === 'idx_payments_one_pending_per_user') {
+        return reply.status(409).send({ error: 'У вас уже есть платёж на проверке. Дождитесь подтверждения или напишите в поддержку.' });
+      }
+      throw e;
+    }
     audit.log('payment_submit', { userId: req.user.sub, email: senderEmail, detail: amount + '₽', ip: req.ip });
     sendPaymentNotification(senderEmail, amount, paymentDate, !!screenshot).catch(err => fastify.log.error(err, 'payment notification email failed'));
     return { ok: true, message: 'Платёж отправлен на проверку' };
