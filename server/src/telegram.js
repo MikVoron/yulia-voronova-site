@@ -1,5 +1,12 @@
 const os = require('os');
+const dns = require('dns');
 const db = require('./db');
+
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch (_) {
+  // Older Node versions may not support this; Telegram calls still work without it.
+}
 
 const DEFAULT_ALERT_INTERVAL_MS = 5 * 60 * 1000;
 const POLL_INTERVAL_MS = 1000;

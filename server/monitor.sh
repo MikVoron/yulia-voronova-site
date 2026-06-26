@@ -10,6 +10,7 @@ set -euo pipefail
 API_URL="${API_URL:-https://api.voronova.online}"
 TG_BOT_TOKEN="${TG_BOT_TOKEN:-}"
 TG_CHAT_ID="${TG_CHAT_ID:-}"
+TG_ENV_FILE="${TG_ENV_FILE:-/var/www/smartplate-api/.env}"
 DISK_WARN_PCT=85
 MEM_WARN_PCT=90
 PM2_APP_NAME="${PM2_APP_NAME:-smartplate-api}"
@@ -19,6 +20,35 @@ BACKUP_MAX_AGE_HOURS=26  # бэкап должен быть моложе 26 ча
 ERRORS=""
 
 # ── Функции ────────────────────────────────────────────────────────────────
+read_pm2_status() {
+  pm2 jlist 2>/dev/null | PM2_APP_NAME="$PM2_APP_NAME" node -e "
+    let input = '';
+    process.stdin.on('data', chunk => input += chunk);
+    process.stdin.on('end', () => {
+      try {
+        const apps = JSON.parse(input || '[]');
+        const app = apps.find(item => item.name === process.env.PM2_APP_NAME);
+        console.log(app?.pm2_env?.status || 'not_found');
+      } catch (_) {
+        console.log('parse_error');
+      }
+    });
+  " || echo "not_found"
+}
+
+read_env_value() {
+  local key="$1"
+  [ -f "$TG_ENV_FILE" ] || return 0
+  grep -m1 "^${key}=" "$TG_ENV_FILE" 2>/dev/null | cut -d= -f2- || true
+}
+
+if [ -z "$TG_BOT_TOKEN" ]; then
+  TG_BOT_TOKEN="$(read_env_value TG_BOT_TOKEN)"
+fi
+if [ -z "$TG_CHAT_ID" ]; then
+  TG_CHAT_ID="$(read_env_value TG_CHAT_ID)"
+fi
+
 send_tg() {
   [ -z "$TG_BOT_TOKEN" ] && return
   [ -z "$TG_CHAT_ID" ] && return
@@ -51,7 +81,11 @@ fi
 
 # ── 2. PM2 process ────────────────────────────────────────────────────────
 if command -v pm2 &>/dev/null; then
-  PM2_STATUS=$(pm2 jlist 2>/dev/null | grep -o "\"name\":\"${PM2_APP_NAME}\"[^}]*\"status\":\"[^\"]*\"" | grep -o '"status":"[^"]*"' | cut -d'"' -f4 || echo "not_found")
+  PM2_STATUS="$(read_pm2_status)"
+  if [ "$PM2_STATUS" != "online" ]; then
+    sleep 3
+    PM2_STATUS="$(read_pm2_status)"
+  fi
   if [ "$PM2_STATUS" = "online" ]; then
     ok "pm2: ${PM2_APP_NAME} online"
   else
