@@ -57,7 +57,14 @@
     }
 
     // ── Tabs ──
+    var ADMIN_TABS = ['users', 'payments', 'news', 'recipes', 'categories', 'feedback', 'audit'];
+
+    function normalizeAdminTab(tab) {
+        return ADMIN_TABS.includes(tab) ? tab : 'users';
+    }
+
     window.switchTab = function(tab) {
+        tab = normalizeAdminTab(tab);
         document.querySelectorAll('.adm-tab').forEach(function(t) { t.classList.remove('active'); });
         document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
         document.querySelectorAll('.adm-section').forEach(function(s) { s.classList.remove('active'); });
@@ -131,7 +138,7 @@
         tbody.innerHTML = users.map(function(u) {
             var isAdmin = u.role === 'admin';
             var status = isAdmin ? 'admin' : (u.sub_status || 'нет');
-            var statusClass = isAdmin ? 'st-active' : ('st-' + status);
+            var statusClass = isAdmin ? 'st-active' : ('st-' + cssToken(status));
             var untilDate = '';
             if (isAdmin) untilDate = '∞';
             else if (u.sub_status === 'trial' && u.trial_ends_at) untilDate = fmtDate(u.trial_ends_at);
@@ -139,10 +146,10 @@
 
             var actions = '';
             if (u.is_blocked) {
-                actions = '<button class="adm-btn adm-btn-unblock" onclick="unblockUser(\'' + u.id + '\')">Разблокировать</button>';
+                actions = '<button class="adm-btn adm-btn-unblock" onclick="unblockUser(' + jsArg(u.id) + ')">Разблокировать</button>';
             } else if (u.role !== 'admin') {
-                actions = '<button class="adm-btn adm-btn-extend" onclick="openExtendModalById(\'' + u.id + '\')">Продлить</button>' +
-                    '<button class="adm-btn adm-btn-block" onclick="blockUserById(\'' + u.id + '\')">Блок</button>';
+                actions = '<button class="adm-btn adm-btn-extend" onclick="openExtendModalById(' + jsArg(u.id) + ')">Продлить</button>' +
+                    '<button class="adm-btn adm-btn-block" onclick="blockUserById(' + jsArg(u.id) + ')">Блок</button>';
             } else {
                 actions = '<span style="color:var(--text-3);font-size:12px">admin</span>';
             }
@@ -150,8 +157,8 @@
             return '<tr>' +
                 '<td><strong>' + esc(u.email || '—') + '</strong></td>' +
                 '<td>' + esc(u.display_name || '—') + '</td>' +
-                '<td><span class="st-badge ' + statusClass + '">' + status + '</span></td>' +
-                '<td class="adm-date">' + untilDate + '</td>' +
+                '<td><span class="st-badge ' + statusClass + '">' + esc(status) + '</span></td>' +
+                '<td class="adm-date">' + esc(untilDate) + '</td>' +
                 '<td class="adm-date">' + fmtDate(u.created_at) + '</td>' +
                 '<td>' + actions + '</td>' +
                 '</tr>';
@@ -181,7 +188,7 @@
         var u = findUserById(id);
         if (!u) { showToast('Пользователь не найден'); return; }
         if (!confirm('Заблокировать ' + (u.email || '') + '?')) return;
-        api('/admin/users/' + id + '/block', { method: 'POST' }).then(function() {
+        api('/admin/users/' + encodeURIComponent(id) + '/block', { method: 'POST' }).then(function() {
             showToast('Пользователь заблокирован');
             loadUsers();
             loadStats();
@@ -189,7 +196,7 @@
     };
 
     window.unblockUser = function(id) {
-        api('/admin/users/' + id + '/unblock', { method: 'POST' }).then(function() {
+        api('/admin/users/' + encodeURIComponent(id) + '/unblock', { method: 'POST' }).then(function() {
             showToast('Пользователь разблокирован');
             loadUsers();
             loadStats();
@@ -231,7 +238,7 @@
         var btn = document.getElementById('extend-submit-btn');
         btn.disabled = true;
         btn.textContent = 'Отправка...';
-        api('/admin/users/' + extendUserId + '/extend', {
+        api('/admin/users/' + encodeURIComponent(extendUserId) + '/extend', {
             method: 'POST',
             body: { days: days }
         }).then(function(data) {
@@ -254,30 +261,30 @@
             b.style.color = b.id === 'pay-filter-' + status ? '#fff' : '';
         });
 
-        api('/admin/payments?status=' + status).then(function(data) {
+        api('/admin/payments?status=' + encodeURIComponent(status)).then(function(data) {
             var tbody = document.getElementById('payments-tbody');
             if (!data.length) {
-                tbody.innerHTML = '<tr><td colspan="6" class="adm-empty">Нет платежей со статусом "' + status + '"</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="adm-empty">Нет платежей со статусом "' + esc(status) + '"</td></tr>';
                 return;
             }
             tbody.innerHTML = data.map(function(p) {
-                var statusBadge = '<span class="st-badge st-' + p.status + '">' + p.status + '</span>';
+                var statusBadge = '<span class="st-badge st-' + cssToken(p.status) + '">' + esc(p.status) + '</span>';
                 var actions = '';
                 if (p.status === 'pending') {
                     actions =
-                        '<button class="adm-btn adm-btn-confirm" onclick="openConfirm(\'' + p.id + '\')">OK</button>' +
-                        '<button class="adm-btn adm-btn-reject" onclick="rejectPayment(\'' + p.id + '\')">X</button>';
+                        '<button class="adm-btn adm-btn-confirm" onclick="openConfirm(' + jsArg(p.id) + ')">OK</button>' +
+                        '<button class="adm-btn adm-btn-reject" onclick="rejectPayment(' + jsArg(p.id) + ')">X</button>';
                 } else if (p.admin_comment) {
                     actions = '<span style="font-size:11px;color:var(--text-3)">' + esc(p.admin_comment) + '</span>';
                 }
 
                 var screenCol = p.has_screenshot
-                    ? '<a href="#" onclick="showScreenshot(\'' + p.id + '\');return false" style="color:var(--blue);font-size:12px">📎 Открыть</a>'
+                    ? '<a href="#" onclick="showScreenshot(' + jsArg(p.id) + ');return false" style="color:var(--blue);font-size:12px">📎 Открыть</a>'
                     : '<span style="color:var(--text-3);font-size:12px">—</span>';
 
                 return '<tr>' +
                     '<td><strong>' + esc(p.email) + '</strong></td>' +
-                    '<td>' + p.amount + ' &#8381;</td>' +
+                    '<td>' + esc(p.amount) + ' &#8381;</td>' +
                     '<td class="adm-date">' + (p.payment_date ? fmtDateTime(p.payment_date, p.created_at) : fmtDateTime(p.created_at)) + '</td>' +
                     '<td>' + screenCol + '</td>' +
                     '<td>' + statusBadge + '</td>' +
@@ -380,6 +387,14 @@
             .replace(/'/g, '&#39;');
     }
 
+    function jsArg(s) {
+        return JSON.stringify(String(s == null ? '' : s));
+    }
+
+    function cssToken(s) {
+        return String(s == null ? '' : s).replace(/[^a-z0-9_-]/gi, '');
+    }
+
     function showToast(msg) {
         var toast = document.getElementById('adm-toast');
         toast.textContent = msg;
@@ -408,14 +423,15 @@
         el.innerHTML = items.map(function(n) {
             var status = n.is_published ? '<span style="color:var(--green);font-weight:700">●</span>' : '<span style="color:var(--text-3)">Черновик</span>';
             var d = fmtDate(n.created_at);
+            var kind = n.type === 'recipe' ? 'Рецепт: ' + esc(n.recipe_id || '') : 'Текст';
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:#fff">'
                 + '<div style="flex:1;min-width:0">'
                 + '<div style="font-size:13px;color:var(--text);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(n.text) + '</div>'
-                + '<div style="font-size:11px;color:var(--text-3);margin-top:4px">' + d + ' · ' + (n.type === 'recipe' ? 'Рецепт: ' + (n.recipe_id || '') : 'Текст') + ' · ' + status + '</div>'
+                + '<div style="font-size:11px;color:var(--text-3);margin-top:4px">' + esc(d) + ' · ' + kind + ' · ' + status + '</div>'
                 + '</div>'
                 + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">'
-                + '<button class="adm-btn" onclick="editNews(' + n.id + ')" style="font-size:12px;padding:6px 10px">✏️</button>'
-                + '<button class="adm-btn adm-btn-reject" onclick="deleteNews(' + n.id + ')" style="font-size:12px;padding:6px 10px"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>'
+                + '<button class="adm-btn" onclick="editNews(' + Number(n.id) + ')" style="font-size:12px;padding:6px 10px">✏️</button>'
+                + '<button class="adm-btn adm-btn-reject" onclick="deleteNews(' + Number(n.id) + ')" style="font-size:12px;padding:6px 10px"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>'
                 + '</div></div>';
         }).join('');
     }
@@ -552,7 +568,7 @@
         var html = '<button class="adm-btn' + (recipeCatFilter === 'all' ? '' : '') + '" style="font-size:12px;padding:6px 12px;' + (recipeCatFilter === 'all' ? 'background:var(--accent);color:#fff;border-color:var(--accent)' : '') + '" onclick="setRecipeCat(\'all\')">Все (' + allRecipes.length + ')</button>';
         Object.keys(cats).forEach(function(cat) {
             var active = recipeCatFilter === cat;
-            html += '<button class="adm-btn" style="font-size:12px;padding:6px 12px;' + (active ? 'background:var(--accent);color:#fff;border-color:var(--accent)' : '') + '" onclick="setRecipeCat(\'' + cat + '\')">' + (CAT_NAMES[cat] || cat) + ' (' + cats[cat] + ')</button>';
+            html += '<button class="adm-btn" style="font-size:12px;padding:6px 12px;' + (active ? 'background:var(--accent);color:#fff;border-color:var(--accent)' : '') + '" onclick="setRecipeCat(' + jsArg(cat) + ')">' + esc(CAT_NAMES[cat] || cat) + ' (' + Number(cats[cat]) + ')</button>';
         });
         el.innerHTML = html;
     }
@@ -617,17 +633,20 @@
             var seasonalBtn = r.is_seasonal
                 ? '<button class="adm-btn" onclick="clearSeasonal()" style="font-size:12px;padding:6px 10px;background:var(--accent);color:#fff;border-color:var(--accent)" title="Снять признак сезонного">★ Снять</button>'
                 : (r.is_published
-                    ? '<button class="adm-btn" onclick="setSeasonal(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px" title="Назначить сезонным рецептом на главной">☆ Сезонный</button>'
+                    ? '<button class="adm-btn" onclick="setSeasonal(' + jsArg(r.id) + ')" style="font-size:12px;padding:6px 10px" title="Назначить сезонным рецептом на главной">☆ Сезонный</button>'
                     : '');
+            var categoryMeta = (r.categories || [r.cat]).map(function(c) { return esc(CAT_NAMES[c] || c); }).join(', ');
+            var timeMeta = esc(r.time_label || (r.time_min + ' мин'));
+            var kcalMeta = esc(r.kcal);
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:#fff">'
                 + '<div style="flex:1;min-width:0">'
-                + '<div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text);flex-wrap:wrap">' + badge + seasonalMark + '<span>' + (r.emoji || '') + ' ' + esc(r.name) + '</span></div>'
-                + '<div style="font-size:11px;color:var(--text-3);margin-top:4px">' + (r.categories || [r.cat]).map(function(c) { return CAT_NAMES[c] || c; }).join(', ') + ' · ' + (r.time_label || (r.time_min + ' мин')) + ' · ' + r.kcal + ' ккал</div>'
+                + '<div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text);flex-wrap:wrap">' + badge + seasonalMark + '<span>' + esc(r.emoji || '') + ' ' + esc(r.name) + '</span></div>'
+                + '<div style="font-size:11px;color:var(--text-3);margin-top:4px">' + categoryMeta + ' · ' + timeMeta + ' · ' + kcalMeta + ' ккал</div>'
                 + '</div>'
                 + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px;flex-wrap:wrap;justify-content:flex-end">'
                 + seasonalBtn
-                + '<button class="adm-btn" onclick="openRecipeEditor(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px" title="Открыть в редакторе">✏️</button>'
-                + '<button class="adm-btn adm-btn-reject" onclick="deleteRecipe(\'' + r.id + '\')" style="font-size:12px;padding:6px 10px"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>'
+                + '<button class="adm-btn" onclick="openRecipeEditor(' + jsArg(r.id) + ')" style="font-size:12px;padding:6px 10px" title="Открыть в редакторе">✏️</button>'
+                + '<button class="adm-btn adm-btn-reject" onclick="deleteRecipe(' + jsArg(r.id) + ')" style="font-size:12px;padding:6px 10px"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>'
                 + '</div></div>';
         }).join('');
     }
@@ -662,7 +681,7 @@
 
     window.deleteRecipe = function(id) {
         if (!confirm('Удалить рецепт «' + id + '»?')) return;
-        api('/admin/recipes/' + id, { method: 'DELETE' }).then(function() {
+        api('/admin/recipes/' + encodeURIComponent(id), { method: 'DELETE' }).then(function() {
             showToast('Удалено');
             loadRecipesList();
         });
@@ -700,12 +719,12 @@
             }).join('');
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:#fff">'
                 + '<div style="flex:1;min-width:0">'
-                + '<div style="font-size:14px;font-weight:600">' + (c.emoji || '') + ' ' + esc(c.name) + ' <span style="font-size:11px;color:var(--text-3);font-weight:400">(' + c.id + ')</span></div>'
+                + '<div style="font-size:14px;font-weight:600">' + esc(c.emoji || '') + ' ' + esc(c.name) + ' <span style="font-size:11px;color:var(--text-3);font-weight:400">(' + esc(c.id) + ')</span></div>'
                 + (c.description ? '<div style="font-size:11px;color:var(--text-3);margin-top:2px">' + esc(c.description) + '</div>' : '')
                 + (rules ? '<div style="margin-top:6px">' + rules + '</div>' : '')
                 + '</div>'
                 + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">'
-                + '<button class="adm-btn" onclick="editCategory(\'' + c.id + '\')" style="font-size:12px;padding:6px 10px">✏️</button>'
+                + '<button class="adm-btn" onclick="editCategory(' + jsArg(c.id) + ')" style="font-size:12px;padding:6px 10px">✏️</button>'
                 + '</div></div>';
         }).join('');
     }
@@ -716,7 +735,7 @@
         allCategories.forEach(function(c) {
             if (c.id === excludeId) return;
             var sel = c.id === currentValue ? ' selected' : '';
-            opts += '<option value="' + c.id + '"' + sel + '>' + esc(c.name) + '</option>';
+            opts += '<option value="' + esc(c.id) + '"' + sel + '>' + esc(c.name) + '</option>';
         });
         el.innerHTML = opts;
     }
@@ -1105,7 +1124,7 @@
             b.style.background = b.id === 'fb-filter-' + fbFilter ? 'var(--accent)' : '';
             b.style.color = b.id === 'fb-filter-' + fbFilter ? '#fff' : '';
         });
-        var statusParam = fbFilter === 'all' ? '' : '&status=' + fbFilter;
+        var statusParam = fbFilter === 'all' ? '' : '&status=' + encodeURIComponent(fbFilter);
         api('/admin/feedback?page=' + fbPage + '&limit=20' + statusParam).then(function(data) {
             allFeedback = allFeedback.concat(data.rows);
             fbHasMore = data.hasMore;
@@ -1151,9 +1170,9 @@
         var el = document.getElementById('feedback-list');
         if (!items.length) { el.innerHTML = '<div class="adm-empty">Нет обращений</div>'; return; }
         var html = items.map(function(f) {
-            var catLabel = FB_CAT_LABELS[f.category] || f.category;
+            var catLabel = esc(FB_CAT_LABELS[f.category] || f.category);
             var st = FB_STATUS_BADGE[f.status] || { cls: '', label: f.status };
-            var statusBadge = '<span class="st-badge ' + st.cls + '">' + st.label + '</span>';
+            var statusBadge = '<span class="st-badge ' + cssToken(st.cls) + '">' + esc(st.label) + '</span>';
             var hiddenBadge = f.user_deleted_at
                 ? '<span class="st-badge" style="background:#e8e6e0;color:#6b6b6b" title="Пользователь скрыл обращение из своего ЛК. В базе оно сохранено.">Скрыто пользователем</span>'
                 : '';
@@ -1164,7 +1183,7 @@
             if (!isClosed) {
                 var actionLabel = needsReply ? 'Ответить' : 'Дописать';
                 var actionCls = needsReply ? 'adm-btn adm-btn-confirm' : 'adm-btn';
-                actions = '<button class="' + actionCls + '" onclick="openFbReply(' + f.id + ')" style="font-size:12px;padding:6px 12px">' + actionLabel + '</button>';
+                actions = '<button class="' + actionCls + '" onclick="openFbReply(' + Number(f.id) + ')" style="font-size:12px;padding:6px 12px">' + actionLabel + '</button>';
             }
             var msgCount = (f.msg_count != null ? f.msg_count : (f.messages ? f.messages.length : 0));
             var msgCountLabel = msgCount > 1 ? ' · ' + msgCount + ' сообщ.' : '';
@@ -1197,7 +1216,7 @@
         }
         document.getElementById('fb-reply-id').value = id;
         document.getElementById('fb-reply-original').innerHTML =
-            '<strong>' + esc(f.display_name || f.email) + '</strong>' + (f.display_name ? '<br><span style="font-size:11px;color:var(--text-3)">' + esc(f.email) + '</span>' : '') + ' · ' + (FB_CAT_LABELS[f.category] || f.category);
+            '<strong>' + esc(f.display_name || f.email) + '</strong>' + (f.display_name ? '<br><span style="font-size:11px;color:var(--text-3)">' + esc(f.email) + '</span>' : '') + ' · ' + esc(FB_CAT_LABELS[f.category] || f.category);
         document.getElementById('fb-reply-thread').innerHTML = renderFeedbackThreadHtml(f.messages);
         document.getElementById('fb-reply-text').value = '';
         document.getElementById('fb-reply-modal').classList.add('open');
@@ -1250,7 +1269,7 @@
             auditRows = [];
         }
         var filter = document.getElementById('audit-filter').value;
-        var url = '/admin/audit?page=' + auditPage + '&limit=50' + (filter ? '&event=' + filter : '');
+        var url = '/admin/audit?page=' + auditPage + '&limit=50' + (filter ? '&event=' + encodeURIComponent(filter) : '');
         api(url).then(function(data) {
             auditRows = auditRows.concat(data.rows);
             auditHasMore = data.hasMore;
@@ -1271,13 +1290,14 @@
         }
         var html = rows.map(function(e) {
             var label = EVENT_LABELS[e.event] || e.event;
+            var eventName = String(e.event || '');
             var badgeClass = 'st-active';
-            if (e.event.includes('denied') || e.event.includes('blocked') || e.event.includes('reject') || e.event.includes('block')) badgeClass = 'st-rejected';
-            else if (e.event === 'register' || e.event === 'trial_granted') badgeClass = 'st-trial';
-            else if (e.event.includes('confirm') || e.event.includes('unblock')) badgeClass = 'st-confirmed';
+            if (eventName.includes('denied') || eventName.includes('blocked') || eventName.includes('reject') || eventName.includes('block')) badgeClass = 'st-rejected';
+            else if (eventName === 'register' || eventName === 'trial_granted') badgeClass = 'st-trial';
+            else if (eventName.includes('confirm') || eventName.includes('unblock')) badgeClass = 'st-confirmed';
             return '<tr>' +
                 '<td class="adm-date">' + fmtDateTime(e.created_at) + '</td>' +
-                '<td><span class="st-badge ' + badgeClass + '">' + label + '</span></td>' +
+                '<td><span class="st-badge ' + badgeClass + '">' + esc(label) + '</span></td>' +
                 '<td>' + esc(e.email) + '</td>' +
                 '<td style="font-size:12px;color:var(--text-3)">' + esc(e.detail) + '</td>' +
                 '<td style="font-size:12px;color:var(--text-3)">' + esc(e.ip) + '</td>' +
@@ -1291,8 +1311,8 @@
 
     // ── Init ──
     loadStats();
-    var initialTab = new URLSearchParams(location.search).get('tab');
-    if (initialTab && document.querySelector('[data-tab="' + initialTab + '"]')) {
+    var initialTab = normalizeAdminTab(new URLSearchParams(location.search).get('tab'));
+    if (initialTab !== 'users') {
         switchTab(initialTab);
     }
 })();
