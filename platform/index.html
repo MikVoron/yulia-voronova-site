@@ -4785,7 +4785,6 @@
                     Список покупок${ingCount ? ` · ${ingCount} шт` : ''}
                 </div>
                 <div class="shop-actions">
-                    <button class="shop-btn shop-btn-primary" onclick="doShare()">Поделиться</button>
                     <button class="shop-btn shop-btn-ghost" onclick="doCopy()">Скопировать</button>
                 </div>
             </div>`;
@@ -4815,13 +4814,18 @@
 			input.value = getPlateWeight();
 			updateWater();
 		}
-		function doShare() { shareShoppingList(); }
 		function doCopy() {
 			navigator.clipboard.writeText(buildShoppingList())
 				.then(() => showToast('📋 Список скопирован!'))
 				.catch(() => showToast('Не удалось скопировать'));
 		}
-		function savePlate() { Plate.saveHistory(getSelectedPlateMealType()); renderPlateModal(); renderPlateInline(); showToast('Тарелка сохранена в историю 🎉'); }
+		function savePlate() {
+			if (!Plate.count()) return;
+			Plate.saveHistory(getSelectedPlateMealType());
+			renderPlateInline();
+			closePlate();
+			showToast('Тарелка сохранена в историю 🎉');
+		}
 
 		// ── INLINE PLATE SUMMARY ─────────────────────────────────────────────
 		// Компактный summary над "Новое". Управление тарелкой — в модалке openPlate().
