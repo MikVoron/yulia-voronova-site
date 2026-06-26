@@ -4328,13 +4328,12 @@
 		// 3) CTA-полоса с динамическим счётчиком.
 		//    Число — реальное кол-во опубликованных рецептов (RECIPES уже содержит
 		//    только опубликованные, т.к. /content/recipes фильтрует по is_published).
-		//    Логика «Более N» — округление вниз до ближайших 5/10/50, если есть смысл.
+		//    Логика «Более N» — округление вниз до ближайших 5/10, если есть смысл.
 		//    При N < 5 показываем точное число.
 		function _roundDownMarketing(n) {
 			if (n < 5) return n;
 			if (n < 20) return Math.floor(n / 5) * 5;
-			if (n < 100) return Math.floor(n / 10) * 10;
-			return Math.floor(n / 50) * 50;
+			return Math.floor(n / 10) * 10;
 		}
 		function renderCtaStrip() {
 			const block = document.getElementById('cta-strip-block');

@@ -629,8 +629,7 @@
 					var count = Number(d.recipes);
 					var rounded = count < 5 ? count
 						: count < 20 ? Math.floor(count / 5) * 5
-							: count < 100 ? Math.floor(count / 10) * 10
-								: Math.floor(count / 50) * 50;
+							: Math.floor(count / 10) * 10;
 					document.getElementById('lp-recipes-count').textContent = rounded + '+ рецептов';
 				}
 			})
