@@ -69,6 +69,42 @@ describe('notes hardening', () => {
     expect(res.statusCode).toBe(400);
     expect(mockConnect).not.toHaveBeenCalled();
   });
+
+  it('rejects non-string note titles before writing', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/notes/upsert',
+      payload: { id: 1, title: { bad: true }, text: 'hello' }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('title');
+    expect(mockQuery).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed notes in sync instead of silently skipping them', async () => {
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/notes/sync',
+      payload: { notes: [{ id: '../bad', text: 'n' }] }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('id');
+    expect(mockConnect).not.toHaveBeenCalled();
+  });
+
+  it('rejects invalid note sync dates before opening a DB transaction', async () => {
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/notes/sync',
+      payload: { notes: [{ id: 1, title: 'T', text: 'n', date: 'not-a-date' }] }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('date');
+    expect(mockConnect).not.toHaveBeenCalled();
+  });
 });
 
 describe('favorites hardening', () => {
