@@ -3,6 +3,8 @@ import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 
+let duplicatePendingOnInsert = true;
+
 const mockQuery = vi.fn(async (sql) => {
   if (/SELECT is_blocked FROM users WHERE id/.test(sql)) {
     return { rows: [{ is_blocked: false }] };
@@ -14,6 +16,7 @@ const mockQuery = vi.fn(async (sql) => {
     return { rows: [{ email: 'user@example.com' }] };
   }
   if (/INSERT INTO payments/.test(sql)) {
+    if (!duplicatePendingOnInsert) return { rows: [] };
     const err = new Error('duplicate pending payment');
     err.code = '23505';
     err.constraint = 'idx_payments_one_pending_per_user';
@@ -64,6 +67,7 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
+  duplicatePendingOnInsert = true;
   mockQuery.mockClear();
   sendPaymentNotification.mockClear();
   sendFeedback.mockClear();
@@ -93,5 +97,47 @@ describe('subscription/payment', () => {
     expect(res.json().error).toContain('платёж на проверке');
     expect(sendPaymentNotification).not.toHaveBeenCalled();
     expect(auditLog).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed payment payloads before querying payment rows', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/subscription/payment',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { amount: 'free', paymentDate: '2026-06-26T10:00' }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('сумма');
+    expect(mockQuery).not.toHaveBeenCalledWith(
+      "SELECT id FROM payments WHERE user_id=$1 AND status='pending' LIMIT 1",
+      expect.any(Array)
+    );
+    expect(sendPaymentNotification).not.toHaveBeenCalled();
+    expect(auditLog).not.toHaveBeenCalled();
+  });
+
+  it('accepts a normal browser payment payload and stores normalized values', async () => {
+    duplicatePendingOnInsert = false;
+    const screenshot = 'data:image/png;base64,aGVsbG8=';
+    const res = await app.inject({
+      method: 'POST',
+      url: '/subscription/payment',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: {
+        amount: '250',
+        paymentDate: '2026-06-26T10:00',
+        comment: '  чек отправлен  ',
+        screenshot
+      }
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(mockQuery).toHaveBeenCalledWith(
+      'INSERT INTO payments (user_id, amount, sender_name, payment_date, user_comment, screenshot, status) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+      [1, 250, 'user@example.com', '2026-06-26T10:00', 'чек отправлен', screenshot, 'pending']
+    );
+    expect(sendPaymentNotification).toHaveBeenCalledWith('user@example.com', 250, '2026-06-26T10:00', true);
+    expect(auditLog).toHaveBeenCalled();
   });
 });

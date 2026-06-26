@@ -4,6 +4,40 @@ const { sendPaymentNotification, sendFeedback } = require('../email');
 const audit = require('../audit');
 const { normalizeDietaryPreferences } = require('../dietary');
 
+const PAYMENT_SCREENSHOT_MAX_LENGTH = 7 * 1024 * 1024;
+const PAYMENT_COMMENT_MAX_LENGTH = 1000;
+const PAYMENT_SCREENSHOT_RE = /^data:image\/(?:png|jpe?g|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
+
+function normalizePaymentRequest(body) {
+  const amount = Number(body && body.amount);
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 1000000) {
+    return { error: 'Некорректная сумма платежа' };
+  }
+
+  const paymentDate = String((body && body.paymentDate) || '').trim();
+  if (!paymentDate || Number.isNaN(Date.parse(paymentDate))) {
+    return { error: 'Некорректная дата платежа' };
+  }
+
+  const comment = String((body && body.comment) || '').trim();
+  if (comment.length > PAYMENT_COMMENT_MAX_LENGTH) {
+    return { error: 'Комментарий слишком длинный' };
+  }
+
+  let screenshot = null;
+  if (body && body.screenshot) {
+    screenshot = String(body.screenshot);
+    if (screenshot.length > PAYMENT_SCREENSHOT_MAX_LENGTH) {
+      return { error: 'Скриншот слишком большой' };
+    }
+    if (!PAYMENT_SCREENSHOT_RE.test(screenshot)) {
+      return { error: 'Некорректный формат скриншота' };
+    }
+  }
+
+  return { amount, paymentDate, comment: comment || null, screenshot };
+}
+
 async function subscriptionRoutes(fastify) {
 
   // GET /subscription/early-bird — сколько осталось мест по спеццене
@@ -62,10 +96,9 @@ async function subscriptionRoutes(fastify) {
     preHandler: authenticate,
     config: { rateLimit: { max: 5, timeWindow: '1 hour' } }
   }, async (req, reply) => {
-    const { amount, paymentDate, comment, screenshot } = req.body || {};
-    if (!amount || !paymentDate) return reply.status(400).send({ error: 'amount и paymentDate обязательны' });
-    // Validate screenshot if present (max ~5MB base64)
-    if (screenshot && screenshot.length > 7 * 1024 * 1024) return reply.status(400).send({ error: 'Скриншот слишком большой' });
+    const paymentInput = normalizePaymentRequest(req.body || {});
+    if (paymentInput.error) return reply.status(400).send({ error: paymentInput.error });
+    const { amount, paymentDate, comment, screenshot } = paymentInput;
     // Защита от обычного повторного submit и прямого одиночного API-запроса.
     // Параллельные POST дополнительно закрывает partial unique index
     // idx_payments_one_pending_per_user.
@@ -82,7 +115,7 @@ async function subscriptionRoutes(fastify) {
     try {
       await db.query(
         'INSERT INTO payments (user_id, amount, sender_name, payment_date, user_comment, screenshot, status) VALUES ($1,$2,$3,$4,$5,$6,$7)',
-        [req.user.sub, amount, senderEmail, paymentDate, comment || null, screenshot || null, 'pending']
+        [req.user.sub, amount, senderEmail, paymentDate, comment, screenshot, 'pending']
       );
     } catch (e) {
       if (e.code === '23505' && e.constraint === 'idx_payments_one_pending_per_user') {
