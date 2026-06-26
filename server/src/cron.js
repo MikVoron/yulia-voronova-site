@@ -57,6 +57,18 @@ async function cleanExpiredCodes() {
   }
 }
 
+async function cleanExpiredRefreshSessions() {
+  const jobId = (await db.query("INSERT INTO cron_runs (job_name) VALUES ('clean_refresh_sessions') RETURNING id")).rows[0].id;
+  try {
+    const result = await db.query('DELETE FROM refresh_sessions WHERE expires_at <= now()');
+    await db.query("UPDATE cron_runs SET finished_at=now(), affected_rows=$2, status='success' WHERE id=$1", [jobId, result.rowCount]);
+    return result.rowCount;
+  } catch (e) {
+    await db.query("UPDATE cron_runs SET finished_at=now(), status='error', error_message=$2 WHERE id=$1", [jobId, e.message]);
+    throw e;
+  }
+}
+
 let _running = false;
 
 async function runCronJobs(fastify) {
@@ -66,7 +78,10 @@ async function runCronJobs(fastify) {
     const t = await expireTrials(fastify);
     const s = await expireSubscriptions(fastify);
     const c = await cleanExpiredCodes();
-    if (t || s || c) fastify.log.info({ expiredTrials: t, expiredSubs: s, cleanedCodes: c }, 'cron completed');
+    const r = await cleanExpiredRefreshSessions();
+    if (t || s || c || r) {
+      fastify.log.info({ expiredTrials: t, expiredSubs: s, cleanedCodes: c, cleanedRefreshSessions: r }, 'cron completed');
+    }
   } catch (e) {
     fastify.log.error(e, 'cron error');
     sendTelegramAlert(`cron error\n${e.stack || e.message}`, {
@@ -87,4 +102,4 @@ function startCron(fastify) {
   fastify.log.info('Cron started (every 1h, with overlap guard)');
 }
 
-module.exports = { startCron };
+module.exports = { startCron, runCronJobs, cleanExpiredRefreshSessions };
