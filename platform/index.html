@@ -4861,7 +4861,7 @@
 			const items = plateShopItems();
 			const validKeys = new Set(items.map(item => item.key));
 			plateShopChecked = new Set(Array.from(plateShopChecked).filter(key => validKeys.has(key)));
-			btn.textContent = plateShopMode ? 'Редактировать' : 'В магазине';
+			btn.textContent = 'В магазине';
 			btn.setAttribute('aria-pressed', String(plateShopMode));
 			btn.classList.toggle('is-active', plateShopMode);
 			listEl.hidden = !plateShopMode;
