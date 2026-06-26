@@ -38,6 +38,12 @@ SMTP_FROM="Юлия Воронова <noreply@voronova.online>"
 NEW_USER_NOTIFY_ENABLED=true                 # false отключает (по умолчанию включено)
 NEW_USER_NOTIFY_TO=hello@voronova.online     # получатель уведомления
 
+# Опциональные — Telegram-алерты и команды статуса
+TG_BOT_TOKEN=                                # токен от @BotFather, хранить только в env
+TG_CHAT_ID=                                  # личный chat_id владельца
+TG_BOT_POLLING=true                          # false отключает ответы на /status, алерты останутся
+TG_ALERT_MIN_INTERVAL_MS=300000              # антиспам для одинаковых алертов, 5 минут по умолчанию
+
 # Опциональные — OAuth (пока не активны)
 VK_APP_ID=
 VK_APP_SECRET=
@@ -74,6 +80,17 @@ node index.js
 pm2 start index.js --name smartplate-api
 pm2 save
 ```
+
+Telegram-бот отвечает только чату из `TG_CHAT_ID`. Доступные команды:
+
+```text
+/status  — полный статус API, DB, пользователей, платежей, обращений и cron
+/health  — короткая проверка API + DB
+/ping    — проверка, что polling жив
+/help    — список команд
+```
+
+Для системного мониторинга через `server/monitor.sh` задайте те же `TG_BOT_TOKEN` и `TG_CHAT_ID` в окружении cron/скрипта. Это покрывает случаи, когда сам API-процесс недоступен и не может ответить боту.
 
 ## Тесты
 

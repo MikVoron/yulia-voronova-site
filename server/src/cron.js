@@ -1,5 +1,6 @@
 const db = require('./db');
 const { sendTrialExpired, sendSubscriptionExpired } = require('./email');
+const { sendTelegramAlert } = require('./telegram');
 
 async function expireTrials(fastify) {
   const jobId = (await db.query("INSERT INTO cron_runs (job_name) VALUES ('expire_trials') RETURNING id")).rows[0].id;
@@ -68,6 +69,11 @@ async function runCronJobs(fastify) {
     if (t || s || c) fastify.log.info({ expiredTrials: t, expiredSubs: s, cleanedCodes: c }, 'cron completed');
   } catch (e) {
     fastify.log.error(e, 'cron error');
+    sendTelegramAlert(`cron error\n${e.stack || e.message}`, {
+      key: 'cron-error',
+      title: 'SmartPlate cron error',
+      fastify
+    });
   } finally {
     _running = false;
   }

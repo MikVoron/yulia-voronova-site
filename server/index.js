@@ -15,6 +15,7 @@ const plateRoutes = require('./src/routes/plate');
 const aiRoutes = require('./src/routes/ai');
 const nutritionRoutes = require('./src/routes/nutrition');
 const { startCron } = require('./src/cron');
+const { sendTelegramAlert, startTelegramBot } = require('./src/telegram');
 
 const isProd = process.env.NODE_ENV === 'production';
 const corsOrigins = ['https://voronova.online', 'https://www.voronova.online', 'https://app.voronova.online'];
@@ -65,6 +66,11 @@ fastify.get('/health', async () => {
     checks.db = 'error';
     checks.status = 'degraded';
     fastify.log.error(e, 'Health check: DB unreachable');
+    sendTelegramAlert(`Health check: DB unreachable\n${e.message}`, {
+      key: 'health-db-unreachable',
+      title: 'SmartPlate health degraded',
+      fastify
+    });
   }
   return checks;
 });
@@ -74,6 +80,14 @@ fastify.setErrorHandler((err, req, reply) => {
   const status = err.statusCode || 500;
   if (status >= 500) {
     fastify.log.error(err, `Unhandled error on ${req.method} ${req.url}`);
+    sendTelegramAlert(
+      `${req.method} ${req.url}\nstatus: ${status}\n${err.stack || err.message}`,
+      {
+        key: `http-${status}-${req.method}-${req.url}`,
+        title: 'SmartPlate API error',
+        fastify
+      }
+    );
   }
   reply.status(status).send({
     error: status >= 500 ? 'Внутренняя ошибка сервера' : (err.message || 'Ошибка'),
@@ -83,5 +97,6 @@ fastify.setErrorHandler((err, req, reply) => {
 
 fastify.listen({ port: process.env.PORT || 3000, host: '0.0.0.0' }, (err) => {
   if (err) { console.error(err); process.exit(1); }
+  startTelegramBot(fastify);
   startCron(fastify);
 });
