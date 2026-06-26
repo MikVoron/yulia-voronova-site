@@ -10,7 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.85.0",
+    "@anthropic-ai/sdk": "^0.106.0",
     "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^11.0.0",
     "@fastify/helmet": "^13.0.2",
@@ -19,7 +19,7 @@
     "dotenv": "^17.3.1",
     "fastify": "^5.8.2",
     "jsonwebtoken": "^9.0.3",
-    "nodemailer": "^8.0.3",
+    "nodemailer": "^9.0.1",
     "pg": "^8.20.0"
   },
   "devDependencies": {
