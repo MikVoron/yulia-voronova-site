@@ -2683,7 +2683,7 @@
 			const tipHtml = r.tip ? `<div class="julia-tip">
             <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
             <div class="julia-tip-bubble">
-                <div class="julia-tip-text">«${r.tip}»</div>
+                <div class="julia-tip-text">«${escHtml(r.tip)}»</div>
             </div>
         </div>` : '';
 
