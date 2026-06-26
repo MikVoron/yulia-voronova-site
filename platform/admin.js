@@ -70,6 +70,7 @@
         if (tab === 'categories') loadCategoriesList();
         if (tab === 'feedback') loadFeedback('waiting_admin');
         if (tab === 'audit') loadAudit();
+        loadStats();
     };
 
     // Preload categories meta on page init (needed by recipes tab + modal)
