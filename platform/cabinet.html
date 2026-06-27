@@ -2050,34 +2050,16 @@
 	</footer>
 
 	<!-- CHAT FAB -->
-	<button class="chat-fab" id="tawk-fab" onclick="openTawk()" title="Чат с отделом заботы">
+	<a class="chat-fab" id="support-fab" href="https://t.me/voronova_support" target="_blank" rel="noopener" aria-label="Написать в поддержку в Telegram" title="Написать в поддержку в Telegram">
 		<svg class="chat-fab-icon" viewBox="0 0 24 24">
 			<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
 		</svg>
-	</button>
+	</a>
 
 	<script src="data-v2.js?v=20260627-journal-copy"></script>
 <script src="ingredients.js?v=20260616-shrimp"></script>
 	<script src="header-nav.js?v=20260612-soups-category"></script>
-	<script src="cabinet.js?v=20260627-journal-copy"></script>
-
-	<!-- Tawk.to -->
-	<script>
-		var Tawk_API = Tawk_API || {};
-		Tawk_API.onBeforeLoad = function () { Tawk_API.hideWidget(); };
-		Tawk_API.onLoad = function () { Tawk_API.hideWidget(); };
-		Tawk_API.onChatMinimized = function () { Tawk_API.hideWidget(); };
-		function openTawk() {
-			if (typeof Tawk_API !== 'undefined' && typeof Tawk_API.maximize === 'function') { Tawk_API.maximize(); }
-			else { window.open('https://t.me/voronova_support', '_blank'); }
-		}
-		(function () {
-			var s = document.createElement('script'); s.async = true;
-			s.src = 'https://embed.tawk.to/699610c27418241c38dd96b3/1jhp32uj0';
-			s.charset = 'UTF-8'; s.setAttribute('crossorigin', '*');
-			document.head.appendChild(s);
-		})();
-	</script>
+	<script src="cabinet.js?v=20260627-support-telegram"></script>
 </body>
 
 </html>

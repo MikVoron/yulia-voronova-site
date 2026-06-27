@@ -25,12 +25,11 @@
 		updatePlateIcon();
 
 		// Источник контактов поддержки — единая точка правки.
-		// TODO: при росте проекта заменить fallbackEmail на support@voronova.online
-		// или подключить Tawk.to (заполнить url).
+		// TODO: при росте проекта заменить fallbackEmail на support@voronova.online.
 		const SUPPORT_CONTACT = {
 			label: 'чат поддержки',
 			text: 'Написать в чат поддержки',
-			url: '#',
+			url: 'https://t.me/voronova_support',
 			fallbackEmail: 'hello@voronova.online'
 		};
 		function _supportEmailHref() { return 'mailto:' + SUPPORT_CONTACT.fallbackEmail; }
@@ -805,7 +804,7 @@
 			}
 			var hasChat = SUPPORT_CONTACT.url && SUPPORT_CONTACT.url !== '#';
 			var btnHtml = hasChat
-				? '<button type="button" class="btn btn-ghost" onclick="openTawk()" style="padding:12px 22px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0;font-size:11px;white-space:nowrap">Написать в&nbsp;поддержку</button>'
+				? '<a class="btn btn-ghost" href="' + SUPPORT_CONTACT.url + '" target="_blank" rel="noopener" style="padding:12px 22px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0;font-size:11px;white-space:nowrap">Написать в&nbsp;поддержку</a>'
 				: '';
 			note.innerHTML = '<div class="cab-support-note-text">' + supportContactHtml() + '</div>' + btnHtml;
 			_injectLegalLinks(note);
