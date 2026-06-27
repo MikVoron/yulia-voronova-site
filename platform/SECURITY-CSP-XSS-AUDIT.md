@@ -5,16 +5,18 @@
 ## Область проверки
 
 Проверены production-страницы `index.html`, `recipe.html`, `category.html`,
-`cabinet.html`, `login.html`, `admin.html`, а также общие источники разметки
+`ingredient.html`, `cabinet.html`, `login.html`, `admin.html`, а также общие источники разметки
 `data-v2.js`, `header-nav.js`, `cabinet.js` и `admin.js`.
 
-Текущая production CSP намеренно сохраняется без ужесточения:
+Встроенный Tawk требует динамические WebSocket-хосты: в одной DevTools-сессии
+виджет последовательно обращался к `vsb25.tawk.to`, `vsb75.tawk.to` и
+`vsb85.tawk.to`. Надёжная встраиваемая версия потребовала бы wildcard в
+`connect-src`, что противоречит принятой политике CSP.
 
-```text
-script-src 'self' 'unsafe-inline' https://mc.yandex.ru https://www.googletagmanager.com
-```
-
-Tawk удалён. Домены Tawk в CSP не добавлялись.
+Поэтому кнопки поддержки используют официальный Tawk Direct Chat Link. Чат
+открывается отдельной страницей только после клика, код Tawk в SmartPlate не
+встраивается, а production CSP не расширяется. Wildcard-источники и широкое
+разрешение `https:` не используются; email остаётся fallback.
 
 ## Inline scripts
 
@@ -23,6 +25,7 @@ Tawk удалён. Домены Tawk в CSP не добавлялись.
 | `index.html` | 1 | 3 |
 | `recipe.html` | 1 | 3 |
 | `category.html` | 1 | 3 |
+| `ingredient.html` | 1 | 3 |
 | `cabinet.html` | 0 | 4 |
 | `login.html` | 1 | 1 |
 | `admin.html` | 0 | 2 |

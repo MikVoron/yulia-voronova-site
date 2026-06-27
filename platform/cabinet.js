@@ -29,12 +29,12 @@
 		const SUPPORT_CONTACT = {
 			label: 'чат поддержки',
 			text: 'Написать в чат поддержки',
-			url: 'https://t.me/voronova_support',
+			url: 'https://tawk.to/chat/699610c27418241c38dd96b3/1jhp32uj0',
 			fallbackEmail: 'hello@voronova.online'
 		};
 		function _supportEmailHref() { return 'mailto:' + SUPPORT_CONTACT.fallbackEmail; }
 		function supportContactHtml() {
-			const hasChat = SUPPORT_CONTACT.url && SUPPORT_CONTACT.url !== '#';
+			const hasChat = !!SUPPORT_CONTACT.url;
 			const email = SUPPORT_CONTACT.fallbackEmail;
 			const emailLink = '<a href="' + _supportEmailHref() + '" style="color:var(--accent);text-decoration:underline">' + email + '</a>';
 			if (hasChat) {
@@ -808,7 +808,7 @@
 				note.style.cssText = 'margin-top:32px';
 				parent.parentNode.insertBefore(note, parent.nextSibling);
 			}
-			var hasChat = SUPPORT_CONTACT.url && SUPPORT_CONTACT.url !== '#';
+			var hasChat = !!SUPPORT_CONTACT.url;
 			var btnHtml = hasChat
 				? '<a class="btn btn-ghost" href="' + SUPPORT_CONTACT.url + '" target="_blank" rel="noopener" style="padding:12px 22px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0;font-size:11px;white-space:nowrap">Написать в&nbsp;поддержку</a>'
 				: '';

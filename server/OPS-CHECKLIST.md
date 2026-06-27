@@ -163,6 +163,10 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' .
 
 Бэкапы: `*.bak` в той же папке. После изменения: `nginx -t && systemctl reload nginx`.
 
+Кнопка поддержки SmartPlate использует официальный Tawk Direct Chat Link.
+Скрипт виджета в страницы не встраивается, поэтому Tawk-домены в CSP не нужны.
+Не добавлять `*.tawk.to` или широкое разрешение `https:` ради встраивания.
+
 ## Файлы
 
 | Файл | Назначение |
