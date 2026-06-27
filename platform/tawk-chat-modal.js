@@ -1,7 +1,7 @@
 (function (window, document) {
 	'use strict';
 
-	var CHAT_URL = 'https://tawk.to/chat/699610c27418241c38dd96b3/1jhp32uj0';
+	var CHAT_URL = 'https://tawk.to/chat/699610c27418241c38dd96b3/1js4rtjr9';
 	var SUPPORT_EMAIL = 'hello@voronova.online';
 	var overlay = null;
 	var lastTrigger = null;

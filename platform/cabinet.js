@@ -29,7 +29,7 @@
 		const SUPPORT_CONTACT = {
 			label: 'чат поддержки',
 			text: 'Написать в чат поддержки',
-			url: 'https://tawk.to/chat/699610c27418241c38dd96b3/1jhp32uj0',
+			url: 'https://tawk.to/chat/699610c27418241c38dd96b3/1js4rtjr9',
 			fallbackEmail: 'hello@voronova.online'
 		};
 		function _supportEmailHref() { return 'mailto:' + SUPPORT_CONTACT.fallbackEmail; }
