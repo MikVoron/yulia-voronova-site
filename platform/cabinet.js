@@ -38,7 +38,7 @@
 			const email = SUPPORT_CONTACT.fallbackEmail;
 			const emailLink = '<a href="' + _supportEmailHref() + '" style="color:var(--accent);text-decoration:underline">' + email + '</a>';
 			if (hasChat) {
-				const chatLink = '<a href="' + SUPPORT_CONTACT.url + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">' + SUPPORT_CONTACT.text + '</a>';
+				const chatLink = '<a href="' + SUPPORT_CONTACT.url + '" data-tawk-open target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">' + SUPPORT_CONTACT.text + '</a>';
 				return 'Если оплата не подтвердилась или возник вопрос — ' + chatLink + '. Если чат недоступен, напишите на ' + emailLink + '.';
 			}
 			return 'Если оплата не подтвердилась или возник вопрос — напишите на ' + emailLink + '.';
@@ -810,7 +810,7 @@
 			}
 			var hasChat = !!SUPPORT_CONTACT.url;
 			var btnHtml = hasChat
-				? '<a class="btn btn-ghost" href="' + SUPPORT_CONTACT.url + '" target="_blank" rel="noopener" style="padding:12px 22px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0;font-size:11px;white-space:nowrap">Написать в&nbsp;поддержку</a>'
+				? '<a class="btn btn-ghost" href="' + SUPPORT_CONTACT.url + '" data-tawk-open target="_blank" rel="noopener" style="padding:12px 22px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0;font-size:11px;white-space:nowrap">Написать в&nbsp;поддержку</a>'
 				: '';
 			note.innerHTML = '<div class="cab-support-note-text">' + supportContactHtml() + '</div>' + btnHtml;
 			_injectLegalLinks(note);

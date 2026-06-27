@@ -13,21 +13,23 @@
 `vsb85.tawk.to`. Надёжная встраиваемая версия потребовала бы wildcard в
 `connect-src`, что противоречит принятой политике CSP.
 
-Поэтому кнопки поддержки используют официальный Tawk Direct Chat Link. Чат
-открывается отдельной страницей только после клика, код Tawk в SmartPlate не
-встраивается, а production CSP не расширяется. Wildcard-источники и широкое
-разрешение `https:` не используются; email остаётся fallback.
+Поэтому кнопки поддержки используют официальный Tawk Direct Chat Link внутри
+модального iframe, который создаётся только после клика. В production CSP
+добавлен единственный точный источник `https://tawk.to` в `frame-src` и
+`child-src`. Скрипты и WebSocket Tawk исполняются в документе поставщика, а не
+в контексте SmartPlate. Wildcard-источники и широкое разрешение `https:` не
+используются; email остаётся fallback.
 
 ## Inline scripts
 
 | Страница | Встроенные `<script>` | Внешние first-party scripts |
 |---|---:|---:|
-| `index.html` | 1 | 3 |
-| `recipe.html` | 1 | 3 |
-| `category.html` | 1 | 3 |
-| `ingredient.html` | 1 | 3 |
-| `cabinet.html` | 0 | 4 |
-| `login.html` | 1 | 1 |
+| `index.html` | 1 | 4 |
+| `recipe.html` | 1 | 4 |
+| `category.html` | 1 | 4 |
+| `ingredient.html` | 1 | 4 |
+| `cabinet.html` | 0 | 5 |
+| `login.html` | 1 | 2 |
 | `admin.html` | 0 | 2 |
 
 Итого: 4 больших встроенных script-блока. Именно они, вместе с HTML-
