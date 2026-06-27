@@ -114,7 +114,13 @@ async function authRoutes(fastify) {
     if (!token) return reply.status(401).send({ error: 'Нет refresh токена' });
     const tokenHash = hashToken(token);
     const result = await db.query(
-      'SELECT rs.*, u.email, u.role, u.display_name, u.avatar, u.is_blocked, u.created_at AS user_created_at FROM refresh_sessions rs JOIN users u ON u.id=rs.user_id WHERE rs.refresh_token_hash=$1 AND rs.expires_at > now()',
+      `DELETE FROM refresh_sessions rs
+        USING users u
+       WHERE rs.user_id=u.id
+         AND rs.refresh_token_hash=$1
+         AND rs.expires_at > now()
+       RETURNING rs.user_id, u.email, u.role, u.display_name, u.avatar,
+                 u.is_blocked, u.created_at AS user_created_at`,
       [tokenHash]
     );
     if (!result.rows.length) {
@@ -124,7 +130,6 @@ async function authRoutes(fastify) {
     }
     const session = result.rows[0];
     if (session.is_blocked) return reply.status(403).send({ error: 'Аккаунт заблокирован' });
-    await db.query('DELETE FROM refresh_sessions WHERE id=$1', [session.id]);
     const newRefresh = generateRefreshToken();
     await issueRefreshSession(session.user_id, newRefresh, req);
     const accessToken = generateAccessToken({ id: session.user_id, email: session.email, role: session.role });

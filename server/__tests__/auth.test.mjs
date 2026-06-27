@@ -137,6 +137,78 @@ describe('auth/refresh', () => {
     });
     expect(res.statusCode).toBe(401);
   });
+
+  it('atomically allows only one of two concurrent refresh requests', async () => {
+    let consumed = false;
+    const session = {
+      user_id: 42,
+      email: 'parallel@example.com',
+      role: 'user',
+      display_name: 'Parallel User',
+      avatar: null,
+      is_blocked: false,
+      user_created_at: new Date('2026-01-01T00:00:00Z')
+    };
+    const defaultImplementation = mockQuery.getMockImplementation();
+
+    mockQuery.mockImplementation(async (sql) => {
+      if (/DELETE FROM refresh_sessions rs\s+USING users u/.test(sql)) {
+        // Let both handlers reach the atomic database operation before one wins.
+        await new Promise(resolve => setImmediate(resolve));
+        if (consumed) return { rows: [] };
+        consumed = true;
+        return { rows: [session] };
+      }
+      return { rows: [] };
+    });
+    mockQuery.mockClear();
+
+    try {
+      const request = () => app.inject({
+        method: 'POST', url: '/auth/refresh',
+        cookies: { refreshToken: 'same-refresh-token' }
+      });
+      const responses = await Promise.all([request(), request()]);
+
+      expect(responses.map(res => res.statusCode).sort()).toEqual([200, 401]);
+      expect(mockQuery.mock.calls.filter(([sql]) => /DELETE FROM refresh_sessions rs\s+USING users u/.test(sql))).toHaveLength(2);
+    } finally {
+      mockQuery.mockImplementation(defaultImplementation);
+    }
+  });
+
+  it('does not issue a new session for a blocked user', async () => {
+    const defaultImplementation = mockQuery.getMockImplementation();
+    mockQuery.mockImplementation(async (sql) => {
+      if (/DELETE FROM refresh_sessions rs\s+USING users u/.test(sql)) {
+        return {
+          rows: [{
+            user_id: 43,
+            email: 'blocked@example.com',
+            role: 'user',
+            display_name: null,
+            avatar: null,
+            is_blocked: true,
+            user_created_at: new Date('2026-01-01T00:00:00Z')
+          }]
+        };
+      }
+      return { rows: [] };
+    });
+
+    try {
+      mockQuery.mockClear();
+      const res = await app.inject({
+        method: 'POST', url: '/auth/refresh',
+        cookies: { refreshToken: 'blocked-user-token' }
+      });
+
+      expect(res.statusCode).toBe(403);
+      expect(mockQuery).not.toHaveBeenCalledWith(expect.stringMatching(/INSERT INTO refresh_sessions/), expect.any(Array));
+    } finally {
+      mockQuery.mockImplementation(defaultImplementation);
+    }
+  });
 });
 
 describe('auth/profile — avatar validation', () => {
