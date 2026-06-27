@@ -491,7 +491,7 @@
 
 			<!-- ─── Left: media panel ─────────────────────────────── -->
 			<aside class="lp-media" aria-hidden="true">
-				<img class="lp-media-img" src="images/cook-healthy-food.webp" alt="" onerror="this.style.display='none'">
+				<img class="lp-media-img" id="login-media-image" src="images/cook-healthy-food.webp" alt="">
 				<div class="lp-media-overlay">
 					<div>
 						<div class="lp-brand">Умная <span class="accent">тарелка</span></div>
@@ -519,7 +519,7 @@
 						<input class="form-input" type="email" id="email-input" placeholder="your@email.com" autocomplete="email" aria-describedby="email-error">
 					</div>
 					<div class="lp-error" id="email-error" role="alert" aria-live="polite"></div>
-					<button class="btn-primary" id="send-code-btn" type="button" onclick="sendCode()">Получить код →</button>
+					<button class="btn-primary" id="send-code-btn" type="button">Получить код →</button>
 
 					<p class="fine-print" id="lp-footer-legal">
 						Продолжая, вы соглашаетесь с
@@ -538,12 +538,12 @@
 						<input class="form-input code-input" type="text" id="code-input" placeholder="------" maxlength="6" inputmode="numeric" autocomplete="one-time-code" aria-describedby="code-error">
 					</div>
 					<div class="lp-error" id="code-error" role="alert" aria-live="polite"></div>
-					<button class="btn-primary" id="verify-btn" type="button" onclick="verifyCode()">Войти →</button>
+					<button class="btn-primary" id="verify-btn" type="button">Войти →</button>
 
 					<div class="lp-timer" id="timer-block">
 						Отправить повторно через <span id="timer-sec">60</span> сек
 					</div>
-					<button class="btn-secondary" type="button" onclick="goBack()">← Другой email</button>
+					<button class="btn-secondary" id="login-back-btn" type="button">← Другой email</button>
 				</section>
 
 				<!-- Step 3: Success -->
@@ -719,6 +719,7 @@
 			var sec = 60;
 			var timerEl = document.getElementById('timer-sec');
 			var block = document.getElementById('timer-block');
+			block.style.color = '';
 			block.innerHTML = 'Отправить повторно через <span id="timer-sec">60</span> сек';
 			timerEl = document.getElementById('timer-sec');
 			clearInterval(timerInterval);
@@ -727,7 +728,14 @@
 				timerEl.textContent = sec;
 				if (sec <= 0) {
 					clearInterval(timerInterval);
-					block.innerHTML = '<a onclick="resendCode()">Отправить код повторно</a>';
+					var resend = document.createElement('a');
+					resend.href = '#';
+					resend.textContent = 'Отправить код повторно';
+					resend.addEventListener('click', function (event) {
+						event.preventDefault();
+						resendCode();
+					});
+					block.replaceChildren(resend);
 				}
 			}, 1000);
 		}
@@ -742,7 +750,11 @@
 					body: JSON.stringify({ email: currentEmail, context: _isAdminLogin ? 'admin' : undefined })
 				});
 				var data = await res.json();
-				if (!res.ok) { block.innerHTML = '<span style="color:#c0392b">' + (data.error || 'Ошибка') + '</span>'; return; }
+				if (!res.ok) {
+					block.style.color = '#c0392b';
+					block.textContent = data.error || 'Ошибка';
+					return;
+				}
 				startTimer();
 			} catch (e) {
 				block.innerHTML = '<span style="color:#c0392b">Ошибка сети</span>';
@@ -793,6 +805,12 @@
 		});
 		document.getElementById('code-input').addEventListener('input', function () {
 			if (this.value.length === 6) verifyCode();
+		});
+		document.getElementById('send-code-btn').addEventListener('click', sendCode);
+		document.getElementById('verify-btn').addEventListener('click', verifyCode);
+		document.getElementById('login-back-btn').addEventListener('click', goBack);
+		document.getElementById('login-media-image').addEventListener('error', function () {
+			this.style.display = 'none';
 		});
 	</script>
 </body>

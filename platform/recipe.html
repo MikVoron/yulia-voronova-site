@@ -1703,7 +1703,7 @@
 		}).catch(function (err) {
 			console.error('Recipe render error:', err);
 			var pc = document.getElementById('page-content');
-			if (pc) pc.innerHTML = '<div style="text-align:center;padding:40px;color:red">Ошибка: ' + err.message + '</div>';
+			if (pc) pc.innerHTML = '<div style="text-align:center;padding:40px;color:red">Ошибка: ' + escHtml(err.message) + '</div>';
 		});
 
 		// ── SUBLIST (e.g. Здоровые бутерброды → список намазок) ─────────────
@@ -1717,7 +1717,7 @@
                 <div class="sublist-note">Выберите намазку — откроется её рецепт</div>
                 <div class="sublist-items">
                     ${items.map(item => `
-                        <button class="dish-card anim" onclick="location.href='${recipeLink(item.id, { parentRecipeId: r.id || recipeId })}'">
+                        <button class="dish-card anim" data-recipe-href="${escHtml(recipeLink(item.id, { parentRecipeId: r.id || recipeId }))}">
                             <div class="dish-emoji-box" style="background:var(--green-l)">${escHtml(item.emoji)}</div>
                             <div class="dish-info">
                                 <div class="dish-name">${escHtml(item.name)}</div>
@@ -2091,7 +2091,7 @@
 			const btns = parts.map((part, j) => {
 				const rid = findRecipeForSwapText(part);
 				const label = swapDisplayLabel(part, rid);
-				return '<button class="ing-swap-option" onclick="applySwap(' + i + ',' + j + ')">'
+				return '<button class="ing-swap-option" data-recipe-action="apply-swap" data-index="' + Number(i) + '" data-option-index="' + Number(j) + '">'
 					+ escHtml(label) + '</button>';
 			}).join('');
 			return '<div class="ing-swap-label">Выберите замену:</div>'
@@ -2132,7 +2132,7 @@
 					labelHtml = linkify(newLabel);
 				}
 				nameEl.innerHTML = labelHtml
-					+ ' <button class="ing-swap-revert" onclick="revertSwap(' + i + ')" title="Вернуть исходный">↺</button>';
+					+ ' <button class="ing-swap-revert" data-recipe-action="revert-swap" data-index="' + Number(i) + '" title="Вернуть исходный">↺</button>';
 				nameEl.classList.add('ing-name-swapped');
 			}
 			const tipEl = document.getElementById('swap-' + i);
@@ -2516,8 +2516,8 @@
 					};
 				}
 				const actionBtn = [
-					optional ? `<button class="ing-optout-btn" id="ing-optout-btn-${i}" onclick="optOutIngredient(${i})">${omitText}</button>` : '',
-					swapText ? `<button class="ing-swap-btn" id="ing-swap-btn-${i}" onclick="toggleSwap(${i})">чем заменить?</button>` : ''
+					optional ? `<button class="ing-optout-btn" id="ing-optout-btn-${i}" data-recipe-action="opt-out" data-index="${Number(i)}">${omitText}</button>` : '',
+					swapText ? `<button class="ing-swap-btn" id="ing-swap-btn-${i}" data-recipe-action="toggle-swap" data-index="${Number(i)}">чем заменить?</button>` : ''
 				].join('');
 				const swapTip = swapText
 					? `<div class="ing-swap-tip" id="swap-${i}">${renderSwapOptions(swapText, i, name, ing)}</div>`
@@ -2526,7 +2526,7 @@
 					? `<div class="ing-item ing-item-excluded" id="ing-placeholder-${i}" style="display:none">
                     <div class="ing-dot ing-dot-muted"></div>
                     <div class="ing-name ing-name-excluded">${linkify(name)}</div>
-                    <button class="ing-restore-btn" onclick="restoreIngredient(${i})">вернуть</button>
+                    <button class="ing-restore-btn" data-recipe-action="restore-ingredient" data-index="${Number(i)}">вернуть</button>
                 </div>`
 					: '';
 				return `<div>
@@ -2766,7 +2766,7 @@
                              alt="${escHtml(r.name)}"
                              loading="eager" fetchpriority="high"
                              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
-                             onerror="this.style.display='none';var e=document.createElement('div');e.className='recipe-hero-emoji';e.style.cssText='position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)';e.textContent='${escHtml(r.emoji)}';this.parentElement.insertBefore(e,this)">
+                             data-fallback-emoji="${escHtml(r.emoji)}">
                         ${!r.photo ? `<div class="recipe-hero-emoji" style="position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)">${escHtml(r.emoji)}</div>` : ''}
                         <div class="card-fav-btn${isFav ? ' active' : ''}" id="recipe-fav-btn"
                             onclick="event.stopPropagation();toggleRecipeFav()">
@@ -2861,7 +2861,7 @@
                         <div class="video-recipe-section">
                             <div class="v-section-title" style="margin-top:20px">Видеорецепт</div>
                             <div class="video-platform-tabs" id="video-tabs">
-                                ${vids.map((v, i) => `<button class="video-tab${i === 0 ? ' active' : ''}" data-key="${v.key}" onclick="switchVideo('${v.key}')" style="--tab-color:${v.color}">
+                                ${vids.map((v, i) => `<button class="video-tab${i === 0 ? ' active' : ''}" data-key="${v.key}" style="--tab-color:${v.color}">
                                     <span class="video-tab-icon">${v.icon}</span>
                                     <span class="video-tab-label">${escHtml(v.label)}</span>
                                 </button>`).join('')}
@@ -2886,7 +2886,7 @@
                             ${Auth.isLoggedIn() ? `
                             <div class="review-form">
                                 <div class="review-form-stars" id="review-form-stars">
-                                    ${[1, 2, 3, 4, 5].map(i => `<span class="star review-star" data-n="${i}" onclick="setReviewStars(${i})">★</span>`).join('')}
+                                    ${[1, 2, 3, 4, 5].map(i => `<span class="star review-star" data-recipe-action="set-review-stars" data-n="${i}">★</span>`).join('')}
                                 </div>
                                 <textarea id="review-text" class="review-textarea" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." maxlength="1000" rows="3"></textarea>
                                 <div style="display:flex;align-items:center;justify-content:space-between">
@@ -2947,20 +2947,20 @@
 			if (hasRecipe) {
 				subItemRegistry[key] = item;
 				const balRecipeUrl = recipeLink(item.recipeId, { asIngredient: true, parentRecipeId: r.id });
-				return `<div class="bal-item${checkedCls}" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative;cursor:pointer">
+				return `<div class="bal-item${checkedCls}" id="ai-${key}" data-balance-key="${escHtml(key)}" data-kcal="${Number(item.kcal || 0)}" data-protein="${Number(item.protein || 0)}" data-fat="${Number(item.fat || 0)}" data-carbs="${Number(item.carbs || 0)}" data-fiber="${Number(item.fiber || 0)}" style="position:relative;cursor:pointer">
                             <div class="bal-item-check" id="chk-${key}"></div>
                             <div class="bal-item-text">
                                 ${escHtml(item.name)}${amountHtml}
-                                <a class="bal-item-recipe-link" onclick="event.stopPropagation();location.href='${balRecipeUrl}'">→ Открыть рецепт</a>
+								<a class="bal-item-recipe-link" href="${escHtml(balRecipeUrl)}">→ Открыть рецепт</a>
                             </div>
                             <div class="bal-item-kcal">+${Number(item.kcal)}</div>
                         </div>`;
 			} else {
-				return `<button class="bal-item${checkedCls}" id="ai-${key}" onclick="toggleAddItem('${escHtml(key)}',${Number(item.kcal || 0)},${Number(item.protein || 0)},${Number(item.fat || 0)},${Number(item.carbs || 0)},${Number(item.fiber || 0)})" style="position:relative">
+				return `<button class="bal-item${checkedCls}" id="ai-${key}" data-balance-key="${escHtml(key)}" data-kcal="${Number(item.kcal || 0)}" data-protein="${Number(item.protein || 0)}" data-fat="${Number(item.fat || 0)}" data-carbs="${Number(item.carbs || 0)}" data-fiber="${Number(item.fiber || 0)}" style="position:relative">
                             <div class="bal-item-check" id="chk-${key}"></div>
                             <div class="bal-item-text">
                                 ${escHtml(item.name)}${amountHtml}
-                                ${hasCat ? `<a class="bal-item-recipe-link" onclick="event.stopPropagation();location.href='category.html?cat=${encodeURIComponent(item.catLink)}'">→ Выбрать из списка</a>` : ''}
+								${hasCat ? `<a class="bal-item-recipe-link" href="category.html?cat=${encodeURIComponent(item.catLink)}">→ Выбрать из списка</a>` : ''}
                             </div>
                             <div class="bal-item-kcal">+${Number(item.kcal)}</div>
                         </button>`;
@@ -2985,7 +2985,7 @@
 			const openCls = _accordionOpen[prefix] ? ' open' : '';
 			const toggleHtml = shouldCollapse
 				? `<div class="bal-group-toggle-wrap">
-                    <button type="button" class="bal-group-toggle${expanded ? ' is-expanded' : ''}" onclick="event.stopPropagation();toggleGroupExpand('${prefix}')">
+                    <button type="button" class="bal-group-toggle${expanded ? ' is-expanded' : ''}" data-recipe-action="toggle-group" data-prefix="${escHtml(prefix)}">
                         ${expanded ? 'Свернуть' : 'Показать ещё ' + (items.length - GROUP_COLLAPSE_LIMIT)}
                         ${(!expanded && _hasHiddenSelected(prefix, items)) ? '<span class="bal-group-toggle-dot" title="В скрытой части есть выбранное"></span>' : ''}
                         <span class="bal-group-toggle-caret" aria-hidden="true"></span>
@@ -2994,7 +2994,7 @@
 				: '';
 			const numStr = String(stepIndex + 1).padStart(2, '0');
 			return `<div class="bal-group${openCls}" id="bal-group-${prefix}" data-prefix="${prefix}" data-step="${stepIndex}">
-            <button type="button" class="bal-group-head" onclick="balToggleAccordion('${prefix}')">
+            <button type="button" class="bal-group-head" data-recipe-action="toggle-accordion" data-prefix="${escHtml(prefix)}">
                 <span class="bal-group-num">${numStr}</span>
                 <span class="bal-group-label">${escHtml(meta.title || '')}</span>
                 <span class="bal-group-status"><span class="bal-group-status-todo">+ выбрать</span><span class="bal-group-status-done">✓ выбрано</span></span>
@@ -3087,7 +3087,7 @@
 				dotsEl.innerHTML = _balRequired.map((c, i) => {
 					const done = checkedPrefixes.has(c.prefix);
 					const cls = i === _wizardStep ? 'bal-wizard-dot active' : (done ? 'bal-wizard-dot done' : 'bal-wizard-dot');
-					return `<div class="${cls}" onclick="balWizardSetStep(${i})"></div>`;
+					return `<div class="${cls}" data-recipe-action="wizard-step" data-index="${Number(i)}"></div>`;
 				}).join('');
 			}
 
@@ -3675,24 +3675,38 @@
 		function toEmbedUrl(url) {
 			url = extractEmbedSrc(url);
 			if (!url) return null;
-			var m;
-			// YouTube: youtu.be/ID, youtube.com/watch?v=ID, /shorts/ID, /embed/ID, /live/ID
-			m = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
-			if (!m) m = url.match(/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]+)/);
-			if (!m) m = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/);
-			if (!m) m = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/);
-			if (!m) m = url.match(/youtube\.com\/live\/([a-zA-Z0-9_-]+)/);
-			if (m) return 'https://www.youtube.com/embed/' + m[1] + '?rel=0&modestbranding=1';
-			// VK Video: embed URL (video_ext.php on vk.com or vkvideo.ru) — use as-is
-			if (/(?:vk\.com|vkvideo\.ru)\/video_ext\.php/.test(url)) return url;
-			// Old watch URLs (vkvideo.ru or vk.com/video) — show fallback link card
-			if (/video-?\d+_\d+/.test(url)) return 'vk-fallback:' + url;
-			// Dzen: embed URL — use as-is; watch URL — fallback link card
-			m = url.match(/dzen\.ru\/embed\/([a-zA-Z0-9_-]+)/);
-			if (m) return url.split('?')[0] + '?from_block=partner&from=zen&mute=0&autoplay=0&tv=0';
-			m = url.match(/dzen\.ru\/video\/watch\//);
-			if (m) return 'dzen:' + url;
-			return url;
+			var parsed;
+			try { parsed = new URL(url); } catch (e) { return null; }
+			if (parsed.protocol !== 'https:') return null;
+			var host = parsed.hostname.toLowerCase().replace(/^www\./, '');
+			var videoId = '';
+
+			if (host === 'youtu.be') {
+				videoId = parsed.pathname.split('/').filter(Boolean)[0] || '';
+			} else if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
+				if (parsed.pathname === '/watch') videoId = parsed.searchParams.get('v') || '';
+				else {
+					var youtubeMatch = parsed.pathname.match(/^\/(?:shorts|embed|live)\/([a-zA-Z0-9_-]+)/);
+					videoId = youtubeMatch ? youtubeMatch[1] : '';
+				}
+			}
+			if (/^[a-zA-Z0-9_-]+$/.test(videoId)) {
+				return 'https://www.youtube.com/embed/' + videoId + '?rel=0&modestbranding=1';
+			}
+
+			if (host === 'vk.com' || host === 'vkvideo.ru') {
+				if (parsed.pathname === '/video_ext.php') return parsed.href;
+				if (/video-?\d+_\d+/.test(parsed.pathname + parsed.search)) return 'vk-fallback:' + parsed.href;
+				return null;
+			}
+
+			if (host === 'dzen.ru') {
+				var dzenEmbed = parsed.pathname.match(/^\/embed\/([a-zA-Z0-9_-]+)/);
+				if (dzenEmbed) return 'https://dzen.ru/embed/' + dzenEmbed[1] + '?from_block=partner&from=zen&mute=0&autoplay=0&tv=0';
+				if (/^\/video\/watch\//.test(parsed.pathname)) return 'dzen:' + parsed.href;
+			}
+
+			return null;
 		}
 		function showVideoFallback(frame, url) {
 			frame.innerHTML = '<a class="video-external-link" href="' + escHtml(url) + '" target="_blank" rel="noopener">'
@@ -3730,11 +3744,6 @@
 			if (embed.startsWith('dzen:')) {
 				var realUrl = embed.slice(5);
 				showDzenFallback(frame, realUrl);
-				return;
-				frame.innerHTML = '<a class="dzen-link-card" href="' + realUrl + '" target="_blank" rel="noopener">'
-					+ '<div class="dzen-link-icon"><svg viewBox="0 0 24 24" width="48" height="48"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="#fff"/><path d="M11 7.5L16 12l-5 4.5V7.5z" fill="#fff"/></svg></div>'
-					+ '<div class="dzen-link-text">Смотреть на Дзене</div>'
-					+ '</a>';
 				return;
 			}
 			var iframe = document.createElement('iframe');
@@ -3965,7 +3974,7 @@
                             </li>`).join('')}</ul>`
 						: '';
 					const nameHtml = item.recipeId
-						? `<div class="pv1-item-name is-link" onclick="closePlate();location.href='recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1'">${escHtml(String(item.name))}</div>`
+						? `<a class="pv1-item-name is-link" href="recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1">${escHtml(String(item.name))}</a>`
 						: `<div class="pv1-item-name">${escHtml(String(item.name))}</div>`;
 					return `<div class="pv1-item">
                         ${item.photo
@@ -3976,7 +3985,7 @@
                             <div class="pv1-item-meta">${Number(item.kcal) || 0} ккал · Б ${Number(item.protein) || 0} · Ж ${Number(item.fat) || 0} · У ${Number(item.carbs) || 0} · Кл ${Number(item.fiber) || 0}</div>
                             ${additionsHtml}
                         </div>
-                        <button class="pv1-item-del" onclick="removeItemR(${Number(i)})" aria-label="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
+                        <button class="pv1-item-del" data-recipe-action="remove-plate-item" data-index="${Number(i)}" aria-label="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
                     </div>`;
 				}).join('');
 				body.innerHTML = `<div class="pv1-items">${list}</div>
@@ -4188,11 +4197,11 @@
 			title.innerHTML = `${escHtml(r.name)}<span>${recipeServingsLabel()}</span>`;
 			body.innerHTML = items.length
 				? items.map(item => `<div class="grocery-modal-item">
-					<button type="button" class="grocery-modal-check" onclick="toggleRecipeGroceryChecked(${Number(item.index)})" aria-pressed="${_groceryCheckedIndexes.has(item.index) ? 'true' : 'false'}" aria-label="${_groceryCheckedIndexes.has(item.index) ? 'Отметить как не куплено' : 'Отметить как куплено'}">
+					<button type="button" class="grocery-modal-check" data-recipe-action="toggle-grocery" data-index="${Number(item.index)}" aria-pressed="${_groceryCheckedIndexes.has(item.index) ? 'true' : 'false'}" aria-label="${_groceryCheckedIndexes.has(item.index) ? 'Отметить как не куплено' : 'Отметить как куплено'}">
 						<span class="grocery-modal-checkmark" aria-hidden="true"></span>
 						<span class="grocery-modal-check-label">${escHtml(item.name)}</span>
 					</button>
-					<button type="button" class="grocery-modal-remove" onclick="removeRecipeGroceryItem(${Number(item.index)})" aria-label="Убрать из списка"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+					<button type="button" class="grocery-modal-remove" data-recipe-action="remove-grocery" data-index="${Number(item.index)}" aria-label="Убрать из списка"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
 				</div>`).join('')
 				: '<div class="grocery-modal-empty">Все ингредиенты убраны из списка.</div>';
 		}
@@ -4316,7 +4325,7 @@
 						: `<span class="review-avatar-fallback">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
 					const canDelete = isAdmin || (curUserId && rv.userId === curUserId);
 					const deleteBtn = canDelete
-						? `<button class="review-delete-btn" onclick="deleteReview(${rv.id}, ${isAdmin})" title="Удалить отзыв"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>`
+						? `<button class="review-delete-btn" data-recipe-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? 'true' : 'false'}" title="Удалить отзыв"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>`
 						: '';
 					return `<div class="review-item">
                     <div class="review-header">
@@ -4336,7 +4345,7 @@
 			} catch (e) {
 				console.error('Reviews load error:', e);
 				const list = document.getElementById('reviews-list');
-				if (list && !list.innerHTML) list.innerHTML = '<div style="font-size:12px;color:red">Ошибка загрузки отзывов: ' + e.message + '</div>';
+				if (list && !list.innerHTML) list.innerHTML = '<div style="font-size:12px;color:red">Ошибка загрузки отзывов: ' + escHtml(e.message) + '</div>';
 			}
 		}
 
@@ -4397,6 +4406,63 @@
 				if (cnt) cnt.textContent = e.target.value.length + ' / 1000';
 			}
 		});
+
+		document.addEventListener('click', function (event) {
+			const actionTarget = event.target.closest('[data-recipe-action]');
+			if (actionTarget) {
+				const action = actionTarget.dataset.recipeAction;
+				const index = Number(actionTarget.dataset.index);
+				if (action === 'apply-swap') applySwap(index, Number(actionTarget.dataset.optionIndex));
+				else if (action === 'revert-swap') revertSwap(index);
+				else if (action === 'opt-out') optOutIngredient(index);
+				else if (action === 'toggle-swap') toggleSwap(index);
+				else if (action === 'restore-ingredient') restoreIngredient(index);
+				else if (action === 'set-review-stars') setReviewStars(Number(actionTarget.dataset.n));
+				else if (action === 'toggle-group') toggleGroupExpand(actionTarget.dataset.prefix || '');
+				else if (action === 'toggle-accordion') balToggleAccordion(actionTarget.dataset.prefix || '');
+				else if (action === 'wizard-step') balWizardSetStep(index);
+				else if (action === 'remove-plate-item') removeItemR(index);
+				else if (action === 'toggle-grocery') toggleRecipeGroceryChecked(index);
+				else if (action === 'remove-grocery') removeRecipeGroceryItem(index);
+				else if (action === 'delete-review') deleteReview(Number(actionTarget.dataset.reviewId), actionTarget.dataset.isAdmin === 'true');
+				return;
+			}
+
+			const recipeTarget = event.target.closest('[data-recipe-href]');
+			if (recipeTarget) {
+				location.href = recipeTarget.dataset.recipeHref;
+				return;
+			}
+
+			const videoTab = event.target.closest('.video-tab[data-key]');
+			if (videoTab) {
+				switchVideo(videoTab.dataset.key);
+				return;
+			}
+
+			const balanceItem = event.target.closest('[data-balance-key]');
+			if (!balanceItem || event.target.closest('.bal-item-recipe-link')) return;
+			toggleAddItem(
+				balanceItem.dataset.balanceKey,
+				Number(balanceItem.dataset.kcal),
+				Number(balanceItem.dataset.protein),
+				Number(balanceItem.dataset.fat),
+				Number(balanceItem.dataset.carbs),
+				Number(balanceItem.dataset.fiber)
+			);
+		});
+
+		document.addEventListener('error', function (event) {
+			const image = event.target;
+			if (!(image instanceof HTMLImageElement) || !image.hasAttribute('data-fallback-emoji')) return;
+			image.style.display = 'none';
+			const fallback = document.createElement('div');
+			fallback.className = 'recipe-hero-emoji';
+			fallback.style.cssText = 'position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)';
+			fallback.textContent = image.dataset.fallbackEmoji || '🍴';
+			image.parentElement.insertBefore(fallback, image);
+			image.removeAttribute('data-fallback-emoji');
+		}, true);
 
 		// loadReviews is now called inside initRecipe() after renderRecipe(r)
 

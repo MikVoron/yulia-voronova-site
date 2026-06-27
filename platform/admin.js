@@ -146,12 +146,12 @@
 
             var actions = '';
             if (u.is_blocked) {
-                actions = '<button class="adm-btn adm-btn-unblock" onclick="unblockUser(' + jsArg(u.id) + ')">Разблокировать</button>' +
-                    '<button class="adm-btn adm-btn-delete" onclick="deleteUserById(' + jsArg(u.id) + ')">Удалить</button>';
+                actions = '<button class="adm-btn adm-btn-unblock" data-admin-action="unblock-user" data-admin-id="' + esc(u.id) + '">Разблокировать</button>' +
+                    '<button class="adm-btn adm-btn-delete" data-admin-action="delete-user" data-admin-id="' + esc(u.id) + '">Удалить</button>';
             } else if (u.role !== 'admin') {
-                actions = '<button class="adm-btn adm-btn-extend" onclick="openExtendModalById(' + jsArg(u.id) + ')">Продлить</button>' +
-                    '<button class="adm-btn adm-btn-block" onclick="blockUserById(' + jsArg(u.id) + ')">Блок</button>' +
-                    '<button class="adm-btn adm-btn-delete" onclick="deleteUserById(' + jsArg(u.id) + ')">Удалить</button>';
+                actions = '<button class="adm-btn adm-btn-extend" data-admin-action="extend-user" data-admin-id="' + esc(u.id) + '">Продлить</button>' +
+                    '<button class="adm-btn adm-btn-block" data-admin-action="block-user" data-admin-id="' + esc(u.id) + '">Блок</button>' +
+                    '<button class="adm-btn adm-btn-delete" data-admin-action="delete-user" data-admin-id="' + esc(u.id) + '">Удалить</button>';
             } else {
                 actions = '<span style="color:var(--text-3);font-size:12px">admin</span>';
             }
@@ -274,14 +274,14 @@
                 var actions = '';
                 if (p.status === 'pending') {
                     actions =
-                        '<button class="adm-btn adm-btn-confirm" onclick="openConfirm(' + jsArg(p.id) + ')">OK</button>' +
-                        '<button class="adm-btn adm-btn-reject" onclick="rejectPayment(' + jsArg(p.id) + ')">X</button>';
+                        '<button class="adm-btn adm-btn-confirm" data-admin-action="confirm-payment" data-admin-id="' + esc(p.id) + '">OK</button>' +
+                        '<button class="adm-btn adm-btn-reject" data-admin-action="reject-payment" data-admin-id="' + esc(p.id) + '">X</button>';
                 } else if (p.admin_comment) {
                     actions = '<span style="font-size:11px;color:var(--text-3)">' + esc(p.admin_comment) + '</span>';
                 }
 
                 var screenCol = p.has_screenshot
-                    ? '<a href="#" onclick="showScreenshot(' + jsArg(p.id) + ');return false" style="color:var(--blue);font-size:12px">📎 Открыть</a>'
+                    ? '<a href="#" data-admin-action="show-screenshot" data-admin-id="' + esc(p.id) + '" style="color:var(--blue);font-size:12px">📎 Открыть</a>'
                     : '<span style="color:var(--text-3);font-size:12px">—</span>';
 
                 return '<tr>' +
@@ -414,12 +414,6 @@
             .replace(/'/g, '&#39;');
     }
 
-    function jsArg(s) {
-        // Inline handlers live inside a double-quoted HTML attribute. Escape the
-        // JSON quotes for HTML so the browser does not truncate onclick="...".
-        return esc(JSON.stringify(String(s == null ? '' : s)));
-    }
-
     function cssToken(s) {
         return String(s == null ? '' : s).replace(/[^a-z0-9_-]/gi, '');
     }
@@ -459,8 +453,8 @@
                 + '<div style="font-size:11px;color:var(--text-3);margin-top:4px">' + esc(d) + ' · ' + kind + ' · ' + status + '</div>'
                 + '</div>'
                 + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">'
-                + '<button class="adm-btn" onclick="editNews(' + Number(n.id) + ')" style="font-size:12px;padding:6px 10px">✏️</button>'
-                + '<button class="adm-btn adm-btn-reject" onclick="deleteNews(' + Number(n.id) + ')" style="font-size:12px;padding:6px 10px"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>'
+                + '<button class="adm-btn" data-admin-action="edit-news" data-admin-id="' + Number(n.id) + '" style="font-size:12px;padding:6px 10px">✏️</button>'
+                + '<button class="adm-btn adm-btn-reject" data-admin-action="delete-news" data-admin-id="' + Number(n.id) + '" style="font-size:12px;padding:6px 10px"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>'
                 + '</div></div>';
         }).join('');
     }
@@ -594,10 +588,10 @@
             rc.forEach(function(c) { cats[c] = (cats[c] || 0) + 1; });
         });
         var el = document.getElementById('recipe-cat-filters');
-        var html = '<button class="adm-btn' + (recipeCatFilter === 'all' ? '' : '') + '" style="font-size:12px;padding:6px 12px;' + (recipeCatFilter === 'all' ? 'background:var(--accent);color:#fff;border-color:var(--accent)' : '') + '" onclick="setRecipeCat(\'all\')">Все (' + allRecipes.length + ')</button>';
+        var html = '<button class="adm-btn' + (recipeCatFilter === 'all' ? '' : '') + '" style="font-size:12px;padding:6px 12px;' + (recipeCatFilter === 'all' ? 'background:var(--accent);color:#fff;border-color:var(--accent)' : '') + '" data-admin-action="set-recipe-category" data-admin-value="all">Все (' + allRecipes.length + ')</button>';
         Object.keys(cats).forEach(function(cat) {
             var active = recipeCatFilter === cat;
-            html += '<button class="adm-btn" style="font-size:12px;padding:6px 12px;' + (active ? 'background:var(--accent);color:#fff;border-color:var(--accent)' : '') + '" onclick="setRecipeCat(' + jsArg(cat) + ')">' + esc(CAT_NAMES[cat] || cat) + ' (' + Number(cats[cat]) + ')</button>';
+            html += '<button class="adm-btn" style="font-size:12px;padding:6px 12px;' + (active ? 'background:var(--accent);color:#fff;border-color:var(--accent)' : '') + '" data-admin-action="set-recipe-category" data-admin-value="' + esc(cat) + '">' + esc(CAT_NAMES[cat] || cat) + ' (' + Number(cats[cat]) + ')</button>';
         });
         el.innerHTML = html;
     }
@@ -660,9 +654,9 @@
                 ? '<span class="rbadge" style="background:#fff2ed;color:var(--accent);border:1px solid var(--accent);font-weight:700">★ Сезонный</span>'
                 : '';
             var seasonalBtn = r.is_seasonal
-                ? '<button class="adm-btn" onclick="clearSeasonal()" style="font-size:12px;padding:6px 10px;background:var(--accent);color:#fff;border-color:var(--accent)" title="Снять признак сезонного">★ Снять</button>'
+                ? '<button class="adm-btn" data-admin-action="clear-seasonal" style="font-size:12px;padding:6px 10px;background:var(--accent);color:#fff;border-color:var(--accent)" title="Снять признак сезонного">★ Снять</button>'
                 : (r.is_published
-                    ? '<button class="adm-btn" onclick="setSeasonal(' + jsArg(r.id) + ')" style="font-size:12px;padding:6px 10px" title="Назначить сезонным рецептом на главной">☆ Сезонный</button>'
+                    ? '<button class="adm-btn" data-admin-action="set-seasonal" data-admin-id="' + esc(r.id) + '" style="font-size:12px;padding:6px 10px" title="Назначить сезонным рецептом на главной">☆ Сезонный</button>'
                     : '');
             var categoryMeta = (r.categories || [r.cat]).map(function(c) { return esc(CAT_NAMES[c] || c); }).join(', ');
             var timeMeta = esc(r.time_label || (r.time_min + ' мин'));
@@ -674,8 +668,8 @@
                 + '</div>'
                 + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px;flex-wrap:wrap;justify-content:flex-end">'
                 + seasonalBtn
-                + '<button class="adm-btn" onclick="openRecipeEditor(' + jsArg(r.id) + ')" style="font-size:12px;padding:6px 10px" title="Открыть в редакторе">✏️</button>'
-                + '<button class="adm-btn adm-btn-reject" onclick="deleteRecipe(' + jsArg(r.id) + ')" style="font-size:12px;padding:6px 10px"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>'
+                + '<button class="adm-btn" data-admin-action="edit-recipe" data-admin-id="' + esc(r.id) + '" style="font-size:12px;padding:6px 10px" title="Открыть в редакторе">✏️</button>'
+                + '<button class="adm-btn adm-btn-reject" data-admin-action="delete-recipe" data-admin-id="' + esc(r.id) + '" style="font-size:12px;padding:6px 10px"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>'
                 + '</div></div>';
         }).join('');
     }
@@ -753,7 +747,7 @@
                 + (rules ? '<div style="margin-top:6px">' + rules + '</div>' : '')
                 + '</div>'
                 + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">'
-                + '<button class="adm-btn" onclick="editCategory(' + jsArg(c.id) + ')" style="font-size:12px;padding:6px 10px">✏️</button>'
+                + '<button class="adm-btn" data-admin-action="edit-category" data-admin-id="' + esc(c.id) + '" style="font-size:12px;padding:6px 10px">✏️</button>'
                 + '</div></div>';
         }).join('');
     }
@@ -862,8 +856,8 @@
             items.map(function(item, index) {
                 return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:#fff;margin-bottom:4px">' +
                     '<div style="display:flex;gap:4px;flex-shrink:0">' +
-                    '<button type="button" class="adm-btn" style="font-size:12px;padding:2px 7px" onclick="moveAddonOrder(\'' + field + '\',' + index + ',-1)"' + (index === 0 ? ' disabled' : '') + '>↑</button>' +
-                    '<button type="button" class="adm-btn" style="font-size:12px;padding:2px 7px" onclick="moveAddonOrder(\'' + field + '\',' + index + ',1)"' + (index === items.length - 1 ? ' disabled' : '') + '>↓</button>' +
+                    '<button type="button" class="adm-btn" style="font-size:12px;padding:2px 7px" data-admin-action="move-addon" data-admin-field="' + esc(field) + '" data-admin-index="' + Number(index) + '" data-admin-direction="-1"' + (index === 0 ? ' disabled' : '') + '>↑</button>' +
+                    '<button type="button" class="adm-btn" style="font-size:12px;padding:2px 7px" data-admin-action="move-addon" data-admin-field="' + esc(field) + '" data-admin-index="' + Number(index) + '" data-admin-direction="1"' + (index === items.length - 1 ? ' disabled' : '') + '>↓</button>' +
                     '</div>' +
                     '<div style="min-width:0;flex:1">' +
                     '<div style="font-size:12px;font-weight:600;color:var(--text);white-space:normal">' + esc(item.label) + '</div>' +
@@ -871,7 +865,7 @@
                     '</div>' +
                     '</div>';
             }).join('') +
-            (hasCustom ? '<button type="button" class="adm-btn" style="font-size:11px;padding:5px 9px;margin-top:2px" onclick="resetAddonOrder(\'' + field + '\')">Сбросить ручной порядок</button>' : '');
+            (hasCustom ? '<button type="button" class="adm-btn" style="font-size:11px;padding:5px 9px;margin-top:2px" data-admin-action="reset-addon" data-admin-field="' + esc(field) + '">Сбросить ручной порядок</button>' : '');
     }
 
     function parseExactItems(field) {
@@ -919,14 +913,14 @@
             ? items.map(function(item, index) {
                 return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:#fff;margin-bottom:4px">' +
                     '<div style="display:flex;gap:4px;flex-shrink:0">' +
-                    '<button type="button" class="adm-btn" style="font-size:12px;padding:2px 7px" onclick="moveExactItem(\'' + field + '\',' + index + ',-1)"' + (index === 0 ? ' disabled' : '') + '>↑</button>' +
-                    '<button type="button" class="adm-btn" style="font-size:12px;padding:2px 7px" onclick="moveExactItem(\'' + field + '\',' + index + ',1)"' + (index === items.length - 1 ? ' disabled' : '') + '>↓</button>' +
+                    '<button type="button" class="adm-btn" style="font-size:12px;padding:2px 7px" data-admin-action="move-exact" data-admin-field="' + esc(field) + '" data-admin-index="' + Number(index) + '" data-admin-direction="-1"' + (index === 0 ? ' disabled' : '') + '>↑</button>' +
+                    '<button type="button" class="adm-btn" style="font-size:12px;padding:2px 7px" data-admin-action="move-exact" data-admin-field="' + esc(field) + '" data-admin-index="' + Number(index) + '" data-admin-direction="1"' + (index === items.length - 1 ? ' disabled' : '') + '>↓</button>' +
                     '</div>' +
                     '<div style="min-width:0;flex:1">' +
                     '<div style="font-size:12px;font-weight:600;color:var(--text);white-space:normal">' + esc(exactItemLabel(item)) + '</div>' +
                     '<div style="font-size:10px;color:var(--text-3)">' + (item.recipeId ? 'рецепт из базы' : 'ручная добавка') + '</div>' +
                     '</div>' +
-                    '<button type="button" class="adm-btn adm-btn-reject" style="font-size:12px;padding:3px 8px" onclick="removeExactItem(\'' + field + '\',' + index + ')">×</button>' +
+                    '<button type="button" class="adm-btn adm-btn-reject" style="font-size:12px;padding:3px 8px" data-admin-action="remove-exact" data-admin-field="' + esc(field) + '" data-admin-index="' + Number(index) + '">×</button>' +
                     '</div>';
             }).join('')
             : '<div style="font-size:11px;color:var(--text-3);padding:6px 0">Точный список пуст. Используйте его, когда нужны конкретные добавки, а не вся категория.</div>';
@@ -935,7 +929,7 @@
             rows +
             '<div style="display:flex;gap:6px;margin-top:6px;align-items:center">' +
             '<select class="adm-modal-select" id="' + field + '-exact-recipe" style="flex:1;font-size:12px;padding:7px 8px">' + recipeOptions + '</select>' +
-            '<button type="button" class="adm-btn" style="font-size:12px;padding:7px 10px" onclick="addExactRecipe(\'' + field + '\')">Добавить</button>' +
+            '<button type="button" class="adm-btn" style="font-size:12px;padding:7px 10px" data-admin-action="add-exact-recipe" data-admin-field="' + esc(field) + '">Добавить</button>' +
             '</div>' +
             '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;align-items:center">' +
             '<input class="adm-modal-input" id="' + field + '-exact-name" placeholder="Название" style="font-size:12px;padding:7px 8px;flex:2 1 170px">' +
@@ -945,7 +939,7 @@
             '<input class="adm-modal-input" id="' + field + '-exact-fat" placeholder="ж" type="number" step="0.1" style="font-size:12px;padding:7px 6px;width:46px">' +
             '<input class="adm-modal-input" id="' + field + '-exact-carbs" placeholder="у" type="number" step="0.1" style="font-size:12px;padding:7px 6px;width:46px">' +
             '<input class="adm-modal-input" id="' + field + '-exact-fiber" placeholder="кл" type="number" step="0.1" style="font-size:12px;padding:7px 6px;width:46px">' +
-            '<button type="button" class="adm-btn" style="font-size:12px;padding:7px 10px" onclick="addExactStatic(\'' + field + '\')">Добавить</button>' +
+            '<button type="button" class="adm-btn" style="font-size:12px;padding:7px 10px" data-admin-action="add-exact-static" data-admin-field="' + esc(field) + '">Добавить</button>' +
             '</div>';
     }
 
@@ -1212,7 +1206,7 @@
             if (!isClosed) {
                 var actionLabel = needsReply ? 'Ответить' : 'Дописать';
                 var actionCls = needsReply ? 'adm-btn adm-btn-confirm' : 'adm-btn';
-                actions = '<button class="' + actionCls + '" onclick="openFbReply(' + Number(f.id) + ')" style="font-size:12px;padding:6px 12px">' + actionLabel + '</button>';
+                actions = '<button class="' + actionCls + '" data-admin-action="open-feedback" data-admin-id="' + Number(f.id) + '" style="font-size:12px;padding:6px 12px">' + actionLabel + '</button>';
             }
             var msgCount = (f.msg_count != null ? f.msg_count : (f.messages ? f.messages.length : 0));
             var msgCountLabel = msgCount > 1 ? ' · ' + msgCount + ' сообщ.' : '';
@@ -1231,7 +1225,7 @@
                 + '</div>';
         }).join('');
         if (fbHasMore) {
-            html += '<div style="text-align:center;margin:16px 0"><button class="adm-btn" onclick="loadMoreFeedback()" style="padding:8px 24px">Загрузить ещё</button></div>';
+            html += '<div style="text-align:center;margin:16px 0"><button class="adm-btn" data-admin-action="load-more-feedback" style="padding:8px 24px">Загрузить ещё</button></div>';
         }
         el.innerHTML = html;
     }
@@ -1333,10 +1327,43 @@
                 '</tr>';
         }).join('');
         if (auditHasMore) {
-            html += '<tr><td colspan="5" style="text-align:center;padding:12px"><button class="adm-btn" onclick="loadMoreAudit()" style="padding:8px 24px">Загрузить ещё</button></td></tr>';
+            html += '<tr><td colspan="5" style="text-align:center;padding:12px"><button class="adm-btn" data-admin-action="load-more-audit" style="padding:8px 24px">Загрузить ещё</button></td></tr>';
         }
         tbody.innerHTML = html;
     }
+
+    document.addEventListener('click', function(event) {
+        var target = event.target.closest('[data-admin-action]');
+        if (!target) return;
+        var action = target.dataset.adminAction;
+        var id = target.dataset.adminId || '';
+        var field = target.dataset.adminField || '';
+        var index = Number(target.dataset.adminIndex);
+        if (action === 'unblock-user') window.unblockUser(id);
+        else if (action === 'delete-user') window.deleteUserById(id);
+        else if (action === 'extend-user') window.openExtendModalById(id);
+        else if (action === 'block-user') window.blockUserById(id);
+        else if (action === 'confirm-payment') window.openConfirm(id);
+        else if (action === 'reject-payment') window.rejectPayment(id);
+        else if (action === 'show-screenshot') { event.preventDefault(); window.showScreenshot(id); }
+        else if (action === 'edit-news') window.editNews(Number(id));
+        else if (action === 'delete-news') window.deleteNews(Number(id));
+        else if (action === 'set-recipe-category') window.setRecipeCat(target.dataset.adminValue || 'all');
+        else if (action === 'clear-seasonal') window.clearSeasonal();
+        else if (action === 'set-seasonal') window.setSeasonal(id);
+        else if (action === 'edit-recipe') window.openRecipeEditor(id);
+        else if (action === 'delete-recipe') window.deleteRecipe(id);
+        else if (action === 'edit-category') window.editCategory(id);
+        else if (action === 'move-addon') window.moveAddonOrder(field, index, Number(target.dataset.adminDirection));
+        else if (action === 'reset-addon') window.resetAddonOrder(field);
+        else if (action === 'move-exact') window.moveExactItem(field, index, Number(target.dataset.adminDirection));
+        else if (action === 'remove-exact') window.removeExactItem(field, index);
+        else if (action === 'add-exact-recipe') window.addExactRecipe(field);
+        else if (action === 'add-exact-static') window.addExactStatic(field);
+        else if (action === 'open-feedback') window.openFbReply(Number(id));
+        else if (action === 'load-more-feedback') window.loadMoreFeedback();
+        else if (action === 'load-more-audit') window.loadMoreAudit();
+    });
 
     // ── Init ──
     loadStats();

@@ -558,7 +558,7 @@
                 var catAvatars = typeof CAT_AVATARS !== 'undefined' ? CAT_AVATARS : {};
                 var avaUrl = (typeof getCategoryPhoto === 'function' ? getCategoryPhoto(catId, catAvatars[catId]) : catAvatars[catId]) || '';
                 var avaImg = avaUrl
-                    ? '<div class="cat-hero-ava"><img src="' + escHtml(String(avaUrl)) + '" alt="' + escHtml(String(cat.name)) + '" onerror="this.parentElement.textContent=\'' + escHtml(String(cat.emoji)) + '\'"></div>'
+                    ? '<div class="cat-hero-ava"><img src="' + escHtml(String(avaUrl)) + '" alt="' + escHtml(String(cat.name)) + '" data-category-fallback-emoji="' + escHtml(String(cat.emoji)) + '"></div>'
                     : '<div class="cat-hero-ava">' + escHtml(String(cat.emoji)) + '</div>';
                 document.getElementById('cat-hero').innerHTML =
                     '<div class="cat-hero-row">' + avaImg +
@@ -738,16 +738,14 @@
     function ratingPillHtml(recipeId) {
         // Show '—' initially; loadApiRatings() will update with real server data
         const display = '—';
-        return `<div class="photo-rating-pill" id="rpill-${recipeId}" role="button"
-            onclick="event.stopPropagation();openRatingPopup('${recipeId}',this)">
+        return `<div class="photo-rating-pill" id="rpill-${escHtml(recipeId)}" role="button" data-card-action="rating" data-recipe-id="${escHtml(recipeId)}">
             <span class="pr-star">★</span>
             <span class="pr-val">${display}</span>
         </div>`;
     }
 
     function commentBtnHtml(recipeId) {
-        return `<div class="photo-comment-btn" id="cbtn-${recipeId}" role="button"
-            onclick="event.stopPropagation();openComments('${recipeId}')">
+        return `<div class="photo-comment-btn" id="cbtn-${escHtml(recipeId)}" role="button" data-card-action="comments" data-recipe-id="${escHtml(recipeId)}">
             <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
             Отзыв</div>`;
     }
@@ -775,7 +773,7 @@
         const locked = !Auth.canViewRecipe(d);
         const lockLevel = locked ? Auth.recipeAccessLevel(d) : null;
         const photoHtml = _photo
-            ? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
+            ? `<img src="${_photo}" alt="${_name}" loading="lazy" data-fallback-emoji="${_emoji}"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
             : `<div class="recipe-card-emoji">${_emoji}</div>`;
         const isFav = Auth.isLoggedIn() && Favorites.has(d.id);
         const lockBadgeClass = lockLevel === 'pro' ? 'locked-badge' : 'trial-badge';
@@ -790,23 +788,22 @@
         const _emptyStars = Array.from({length: 5}, () =>
             '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#e8400a" stroke-width="2"><polygon points="12 2 15 9 22 10 17 15 18 22 12 18 6 22 7 15 2 10 9 9 12 2"/></svg>'
         ).join('');
-        const clickAction = locked ? "showLockedMsg('" + _id + "')" : "goToRecipe('" + _id + "')";
-        return `<article class="recipe-card${locked ? ' locked' : ''}" role="button" tabindex="0" onclick="${clickAction}" onkeydown="if((event.key==='Enter'||event.key===' ')&&event.target===event.currentTarget){event.preventDefault();${clickAction}}">
+        return `<article class="recipe-card${locked ? ' locked' : ''}" role="button" tabindex="0" data-card-action="${locked ? 'locked' : 'open'}" data-recipe-id="${escHtml(_id)}">
             <div class="recipe-card__media">
                 ${photoHtml}
                 ${lockBadge}${freeBadge}
-                ${locked ? '' : `<button class="recipe-card__bookmark${isFav ? ' active' : ''}" id="fav-${_id}" aria-label="В избранное" onclick="event.stopPropagation();toggleFav('${_id}')">
+                ${locked ? '' : `<button class="recipe-card__bookmark${isFav ? ' active' : ''}" id="fav-${escHtml(_id)}" aria-label="В избранное" data-card-action="favorite" data-recipe-id="${escHtml(_id)}">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                 </button>`}
             </div>
             <div class="recipe-card__body">
                 <h3 class="recipe-card__title">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</h3>
-                ${!locked ? `<div class="recipe-card__rating" id="rrow-${_id}">
-                    <div class="rating-popup" id="rpop-${_id}">
-                        ${[1,2,3,4,5].map(i => `<span class="rp-star" data-n="${i}" onmouseenter="hoverPopStar('${_id}',${i})" onmouseleave="unhoverPopStar('${_id}')" onclick="event.stopPropagation();rateFromPop('${_id}',${i})">★</span>`).join('')}
+                ${!locked ? `<div class="recipe-card__rating" id="rrow-${escHtml(_id)}">
+                    <div class="rating-popup" id="rpop-${escHtml(_id)}">
+                        ${[1,2,3,4,5].map(i => `<span class="rp-star" data-n="${i}" data-card-action="rate" data-recipe-id="${escHtml(_id)}">★</span>`).join('')}
                     </div>
-                    <span class="recipe-card__rating-stars" id="rstars-${_id}" onclick="event.stopPropagation();openRatingPopup('${_id}',this)">${_emptyStars}</span>
-                    <span class="recipe-card__rating-text" id="rtext-${_id}"></span>
+                    <span class="recipe-card__rating-stars" id="rstars-${escHtml(_id)}" data-card-action="rating" data-recipe-id="${escHtml(_id)}">${_emptyStars}</span>
+                    <span class="recipe-card__rating-text" id="rtext-${escHtml(_id)}"></span>
                 </div>` : ''}
                 <div class="recipe-card__meta">
                     <span class="recipe-card__meta-item">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
@@ -821,6 +818,62 @@
             </div>
         </article>`;
     }
+
+    const dishListEl = document.getElementById('dish-list');
+    if (dishListEl) {
+        dishListEl.addEventListener('click', function(event) {
+            const actionEl = event.target.closest('[data-card-action]');
+            if (!actionEl || !dishListEl.contains(actionEl)) return;
+            const recipeId = actionEl.dataset.recipeId || '';
+            const action = actionEl.dataset.cardAction;
+            if (action === 'open') goToRecipe(recipeId);
+            else if (action === 'locked') showLockedMsg(recipeId);
+            else if (action === 'favorite') toggleFav(recipeId);
+            else if (action === 'rating') openRatingPopup(recipeId, actionEl);
+            else if (action === 'comments') openComments(recipeId);
+            else if (action === 'rate') rateFromPop(recipeId, Number(actionEl.dataset.n));
+        });
+        dishListEl.addEventListener('keydown', function(event) {
+            const card = event.target.closest('article[data-card-action]');
+            if (!card || event.target !== card || (event.key !== 'Enter' && event.key !== ' ')) return;
+            event.preventDefault();
+            if (card.dataset.cardAction === 'locked') showLockedMsg(card.dataset.recipeId || '');
+            else goToRecipe(card.dataset.recipeId || '');
+        });
+        dishListEl.addEventListener('mouseover', function(event) {
+            const star = event.target.closest('.rp-star[data-recipe-id]');
+            if (star) hoverPopStar(star.dataset.recipeId || '', Number(star.dataset.n));
+        });
+        dishListEl.addEventListener('mouseout', function(event) {
+            const star = event.target.closest('.rp-star[data-recipe-id]');
+            if (star) unhoverPopStar(star.dataset.recipeId || '');
+        });
+    }
+
+    document.addEventListener('click', function(event) {
+        const actionTarget = event.target.closest('[data-category-action]');
+        if (!actionTarget) return;
+        const action = actionTarget.dataset.categoryAction;
+        if (action === 'delete-review') {
+            deleteCatReview(Number(actionTarget.dataset.reviewId), actionTarget.dataset.isAdmin === 'true');
+        } else if (action === 'select-star') {
+            selectStar(Number(actionTarget.dataset.n));
+        } else if (action === 'remove-plate-item') {
+            removeItemCat(Number(actionTarget.dataset.index));
+        }
+    });
+
+    document.addEventListener('error', function(event) {
+        const image = event.target;
+        if (!(image instanceof HTMLImageElement)) return;
+        if (image.hasAttribute('data-category-fallback-emoji')) {
+            image.parentElement.textContent = image.dataset.categoryFallbackEmoji || '🍴';
+            return;
+        }
+        if (image.hasAttribute('data-fallback-emoji')) {
+            imgFallback(image, image.dataset.fallbackEmoji || '🍴');
+        }
+    }, true);
 
     function updateRatingRow(recipeId) {
         const ar = _apiRatings[recipeId];
@@ -1141,7 +1194,7 @@
                             <span style="font-weight:700;font-size:14px;color:var(--text)">${escHtml(rv.author)}</span>
                             <div style="display:flex;align-items:center;gap:6px">
                                 <span style="font-size:11px;color:var(--text-3)">${fmtDate(rv.createdAt)}</span>
-                                ${canDelete ? `<button style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px" onclick="deleteCatReview(${rv.id},${isAdmin})" title="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>` : ''}
+                                ${canDelete ? `<button style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px" data-category-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? 'true' : 'false'}" title="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>` : ''}
                             </div>
                         </div>
                         <div style="margin-bottom:4px">${starsHtml(rv.stars)}</div>
@@ -1156,7 +1209,7 @@
             ? `<div class="comments-form" style="margin-top:14px">
                 <div class="c-star-row">
                     <label>Оценка:</label>
-                    ${[1,2,3,4,5].map(i => `<span class="cstar" data-n="${i}" onclick="selectStar(${i})">★</span>`).join('')}
+                    ${[1,2,3,4,5].map(i => `<span class="cstar" data-category-action="select-star" data-n="${i}">★</span>`).join('')}
                 </div>
                 <textarea class="c-input" id="c-text" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." rows="3"></textarea>
                 <button class="btn btn-orange btn-full" id="c-submit-btn" onclick="submitComment()">Отправить</button>
@@ -1317,7 +1370,7 @@
             const list = items.map((item, i) => {
                 const safeName = escHtml(String(item.name || ''));
                 const nameHtml = item.recipeId
-                    ? `<div class="pv1-item-name is-link" onclick="closePlate();location.href='recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1'">${safeName}</div>`
+                    ? `<a class="pv1-item-name is-link" href="recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1">${safeName}</a>`
                     : `<div class="pv1-item-name">${safeName}</div>`;
                 return `<div class="pv1-item">
                     ${item.photo
@@ -1327,7 +1380,7 @@
                         ${nameHtml}
                         <div class="pv1-item-meta">${Number(item.kcal) || 0} ккал · Б ${Number(item.protein) || 0} · Ж ${Number(item.fat) || 0} · У ${Number(item.carbs) || 0} · Кл ${Number(item.fiber) || 0}</div>
                     </div>
-                    <button class="pv1-item-del" onclick="removeItemCat(${Number(i)})" aria-label="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
+                    <button class="pv1-item-del" data-category-action="remove-plate-item" data-index="${Number(i)}" aria-label="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
                 </div>`;
             }).join('');
             body.innerHTML = `<div class="pv1-items">${list}</div>

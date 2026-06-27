@@ -118,6 +118,13 @@
 			document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
 
 		// ── PROFILE ───────────────────────────────────────────────────────────────
+		function setCabinetAvatarImage(src) {
+			const image = document.createElement('img');
+			image.src = String(src || '');
+			image.alt = 'avatar';
+			document.getElementById('cab-ava').replaceChildren(image);
+		}
+
 		const user = Auth.getUser();
 		if (user) {
 			const emailBase = user.email ? user.email.split('@')[0] : '?';
@@ -139,8 +146,7 @@
 			const avaEl = document.getElementById('cab-ava');
 			const savedAva = localStorage.getItem(Auth._userKey('user_avatar'));
 			if (savedAva) {
-				const safeAva = String(savedAva).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-				avaEl.innerHTML = `<img src="${safeAva}" alt="avatar">`;
+				setCabinetAvatarImage(savedAva);
 			} else {
 				avaEl.textContent = profileName.charAt(0).toUpperCase();
 			}
@@ -182,7 +188,7 @@
 			}
 			const freshAva = Auth.getAvatar();
 			if (freshAva) {
-				document.getElementById('cab-ava').innerHTML = '<img src="' + freshAva + '" alt="avatar">';
+				setCabinetAvatarImage(freshAva);
 				Auth.renderAvatar(document.getElementById('u-ava'));
 			}
 		});
@@ -234,7 +240,7 @@
 				// Save locally
 				Auth.setAvatar(dataUrl);
 				// Update UI
-				document.getElementById('cab-ava').innerHTML = '<img src="' + dataUrl + '" alt="avatar">';
+				setCabinetAvatarImage(dataUrl);
 				Auth.renderAvatar(document.getElementById('u-ava'));
 				// Save to server
 				Auth.api('/auth/profile', { method: 'PUT', body: JSON.stringify({ avatar: dataUrl }) }).then(function(res) {
@@ -640,7 +646,7 @@
 			grid.innerHTML = plans.map(function(pl) {
 				var perMonth = Math.round(pl.amount / pl.months);
 				var badgeHtml = pl.badge ? '<div class="pay-plan-badge">' + pl.badge + '</div>' : '';
-				return '<div class="pay-plan-card" onclick="selectPlan(' + pl.months + ',' + pl.amount + ',this)">'
+				return '<div class="pay-plan-card" data-cabinet-action="select-plan" data-months="' + Number(pl.months) + '" data-amount="' + Number(pl.amount) + '">'
 					+ badgeHtml
 					+ '<div class="pay-plan-duration">' + pl.label + '</div>'
 					+ '<div class="pay-plan-price">' + pl.amount + ' ₽</div>'
@@ -1026,7 +1032,7 @@
 						['snack', 'Перекус'],
 						['', 'Не указывать']
 					].map(function(opt) {
-						return `<button type="button" onclick="chooseHistoryMealType('${encodeURIComponent(entry.date)}','${opt[0]}')">${opt[1]}</button>`;
+						return `<button type="button" data-cabinet-action="choose-meal-type" data-entry-date="${escHtml(encodeURIComponent(String(entry.date || '')))}" data-meal-type="${escHtml(opt[0])}">${opt[1]}</button>`;
 					}).join('');
 					const mealLabel = mealType ? Plate._mealTypes[mealType] + ' ▾' : '+ Прием пищи';
 					const itemsHtml = items.map(it => `<div class="meal-item">
@@ -1039,7 +1045,7 @@
 							<div class="hist-time-col">
 								<span class="meal-time">${timeStr}</span>
 								<div class="hist-meal-picker${mealType ? ' has-value' : ''}">
-									<button class="hist-meal-button" type="button" aria-haspopup="menu" aria-expanded="false" onclick="toggleHistoryMealMenu(this)">${mealLabel}</button>
+									<button class="hist-meal-button" type="button" aria-haspopup="menu" aria-expanded="false" data-cabinet-action="toggle-meal-menu">${mealLabel}</button>
 									<div class="hist-meal-menu" role="menu">${mealOptions}</div>
 								</div>
 							</div>
@@ -1050,7 +1056,7 @@
 							</div>
 							<div class="hist-side">
 								<span class="meal-kcal">${Number(t.kcal) || 0}<small>ккал</small></span>
-								<button class="hist-details" type="button" onclick="toggleHist(${idx})">Детали <span>⌄</span></button>
+								<button class="hist-details" type="button" data-cabinet-action="toggle-history" data-index="${Number(idx)}">Детали <span>⌄</span></button>
 							</div>
 						</div>
 						<div class="meal-body">
@@ -1313,7 +1319,7 @@
 				if (usedCatIds.length > 1) {
 					const chips = [{ id: 'all', name: 'Все' }, ...usedCatIds.map(id => ({ id, name: (CATEGORIES[id] || {}).name || id }))];
 					filtersEl.innerHTML = chips.map(c =>
-						`<button class="fav-chip${_favFilter === c.id ? ' active' : ''}" data-cat="${escHtml(c.id)}" type="button" onclick="filterFavs('${escHtml(c.id)}')">${escHtml(c.name)}</button>`
+						`<button class="fav-chip${_favFilter === c.id ? ' active' : ''}" data-cat="${escHtml(c.id)}" type="button">${escHtml(c.name)}</button>`
 					).join('');
 				} else {
 					filtersEl.innerHTML = '';
@@ -1349,7 +1355,7 @@
 			const primaryCatId = (d.categories && d.categories[0]) || d.cat;
 			const catName = primaryCatId ? escHtml((CATEGORIES[primaryCatId] || {}).name || primaryCatId) : '';
 			const photoHtml = _photo
-				? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}','fav-card-media-placeholder')"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
+				? `<img src="${_photo}" alt="${_name}" loading="lazy" data-fallback-emoji="${_emoji}" data-fallback-class="fav-card-media-placeholder"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
 				: `<div class="fav-card-media-placeholder">${_emoji}</div>`;
 			// Meta row: время · сложность · порции
 			const _diffLabels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
@@ -1363,14 +1369,11 @@
 					'<span>' + p + '</span>' + (i < metaParts.length - 1 ? '<span class="dot"></span>' : '')
 				).join('') + '</div>'
 				: '';
-			return `<article class="fav-card" role="button" tabindex="0"
-					onclick="goToRecipe('${_id}')"
-					onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();goToRecipe('${_id}')}">
+			return `<article class="fav-card" role="button" tabindex="0" data-cabinet-recipe-id="${_id}">
 				<div class="fav-card-media">
 					${photoHtml}
 					${catName ? `<div class="fav-card-eyebrow">${catName}</div>` : ''}
-					<button class="fav-card-bookmark active" type="button" id="fav-${_id}"
-						onclick="event.stopPropagation();toggleFav('${_id}')" aria-label="Убрать из избранного"><svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg></button>
+					<button class="fav-card-bookmark active" type="button" id="fav-${_id}" data-favorite-id="${_id}" aria-label="Убрать из избранного"><svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg></button>
 				</div>
 				<div class="fav-card-body">
 					<div class="fav-card-title">${_name}</div>
@@ -1421,8 +1424,8 @@
 					<div class="cab-note-head">
 						<span class="cab-note-date">${dateStr} · ${timeStr}</span>
 						<div class="cab-note-actions">
-							<button type="button" onclick="editNote(${n.id})">Изменить</button>
-							<button type="button" class="del" onclick="deleteNote(${n.id})">Удалить</button>
+							<button type="button" data-cabinet-action="edit-note" data-note-id="${Number(n.id)}">Изменить</button>
+							<button type="button" class="del" data-cabinet-action="delete-note" data-note-id="${Number(n.id)}">Удалить</button>
 						</div>
 					</div>
 					<div class="cab-note-title">${escHtml(n.title || '')}</div>
@@ -1474,13 +1477,12 @@
 			const _kcal = Number(d.kcal) || 0;
 			const isFav = Favorites.has(d.id);
 			const photoHtml = _photo
-				? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
+				? `<img src="${_photo}" alt="${_name}" loading="lazy" data-fallback-emoji="${_emoji}"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
 				: `<div class="recipe-card-emoji">${_emoji}</div>`;
-			return `<button class="recipe-card" onclick="goToRecipe('${_id}')">
+			return `<button class="recipe-card" data-cabinet-recipe-id="${_id}">
             <div class="recipe-card-photo" style="position:relative">
                 ${photoHtml}
-                <div class="card-fav-btn${isFav ? ' active' : ''}" id="fav-${_id}"
-                    onclick="event.stopPropagation();toggleFav('${_id}')">
+				<div class="card-fav-btn${isFav ? ' active' : ''}" id="fav-${_id}" data-favorite-id="${_id}">
                     <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
                 </div>
             </div>
@@ -1511,6 +1513,57 @@
 			location.href = 'recipe.html?id=' + encodeURIComponent(id) + '&from=' + encodeURIComponent(r ? r.cat : 'breakfasts');
 		}
 
+		document.addEventListener('click', function(event) {
+			const actionTarget = event.target.closest('[data-cabinet-action]');
+			if (actionTarget) {
+				const action = actionTarget.dataset.cabinetAction;
+				if (action === 'choose-meal-type') chooseHistoryMealType(actionTarget.dataset.entryDate || '', actionTarget.dataset.mealType || '');
+				else if (action === 'toggle-meal-menu') toggleHistoryMealMenu(actionTarget);
+				else if (action === 'toggle-history') toggleHist(Number(actionTarget.dataset.index));
+				else if (action === 'edit-note') editNote(Number(actionTarget.dataset.noteId));
+				else if (action === 'delete-note') deleteNote(Number(actionTarget.dataset.noteId));
+				else if (action === 'remove-plate-item') removePlateItem(Number(actionTarget.dataset.index));
+				else if (action === 'toggle-shop-item') toggleCabinetPlateShopCheckedByIndex(Number(actionTarget.dataset.index));
+				else if (action === 'select-plan') selectPlan(Number(actionTarget.dataset.months), Number(actionTarget.dataset.amount), actionTarget);
+				else if (action === 'open-feedback-reply') openFeedbackReply(actionTarget.dataset.threadId || '');
+				else if (action === 'close-feedback-thread') closeFeedbackThread(actionTarget.dataset.threadId || '', actionTarget);
+				else if (action === 'close-feedback-reply') closeFeedbackReplyForm(actionTarget.dataset.threadId || '');
+				else if (action === 'hide-feedback') hideFeedback(actionTarget.dataset.threadId || '', actionTarget);
+				return;
+			}
+			const favoriteTarget = event.target.closest('[data-favorite-id]');
+			if (favoriteTarget) {
+				event.stopPropagation();
+				toggleFav(favoriteTarget.dataset.favoriteId || '');
+				return;
+			}
+			const filterTarget = event.target.closest('#fav-filters [data-cat]');
+			if (filterTarget) {
+				filterFavs(filterTarget.dataset.cat || 'all');
+				return;
+			}
+			const recipeTarget = event.target.closest('[data-cabinet-recipe-id]');
+			if (recipeTarget) goToRecipe(recipeTarget.dataset.cabinetRecipeId || '');
+		});
+
+		document.addEventListener('keydown', function(event) {
+			const recipeTarget = event.target.closest('article[data-cabinet-recipe-id]');
+			if (!recipeTarget || event.target !== recipeTarget || (event.key !== 'Enter' && event.key !== ' ')) return;
+			event.preventDefault();
+			goToRecipe(recipeTarget.dataset.cabinetRecipeId || '');
+		});
+
+		document.addEventListener('submit', function(event) {
+			const form = event.target.closest('form[data-fb-form]');
+			if (form) submitFeedbackReply(event, form.dataset.fbForm || '');
+		});
+
+		document.addEventListener('error', function(event) {
+			const image = event.target;
+			if (!(image instanceof HTMLImageElement) || !image.hasAttribute('data-fallback-emoji')) return;
+			imgFallback(image, image.dataset.fallbackEmoji || '🍴', image.dataset.fallbackClass || undefined);
+		}, true);
+
 		// ── PLATE ─────────────────────────────────────────────────────────────────
 		let cabinetPlateShopMode = false;
 		let cabinetPlateShopChecked = new Set();
@@ -1537,7 +1590,7 @@
                         <div class="pv1-item-name">${escHtml(String(item.name || ''))}</div>
                         <div class="pv1-item-meta">${Number(item.kcal) || 0} ккал · Б ${Number(item.protein) || 0} · Ж ${Number(item.fat) || 0} · У ${Number(item.carbs) || 0} · Кл ${Number(item.fiber) || 0}</div>
                     </div>
-                    <button class="pv1-item-del" onclick="removePlateItem(${Number(i)})" aria-label="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
+                    <button class="pv1-item-del" data-cabinet-action="remove-plate-item" data-index="${Number(i)}" aria-label="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
                 </div>`).join('');
 				body.innerHTML = `<div class="pv1-items">${list}</div>
                 <div class="pv1-totals">
@@ -1636,7 +1689,7 @@
 					html += '<div class="plate-shop-dish">' + escHtml(currentDish) + '</div>';
 				}
 				const checked = cabinetPlateShopChecked.has(item.key);
-				html += '<button class="plate-shop-check' + (checked ? ' is-checked' : '') + '" type="button" onclick="toggleCabinetPlateShopCheckedByIndex(' + Number(index) + ')" aria-pressed="' + checked + '">'
+				html += '<button class="plate-shop-check' + (checked ? ' is-checked' : '') + '" type="button" data-cabinet-action="toggle-shop-item" data-index="' + Number(index) + '" aria-pressed="' + checked + '">'
 					+ '<span class="plate-shop-box" aria-hidden="true"></span>'
 					+ '<span class="plate-shop-label">' + escHtml(item.label) + '</span>'
 					+ '</button>';
@@ -1828,13 +1881,13 @@
 			const canFollowUp = (f.status === 'waiting_user' || f.status === 'answered') && !!lastAdmin;
 			if (canFollowUp) {
 				actions = '<div class="thread-actions">'
-					+ '<button type="button" class="thread-action" onclick="openFeedbackReply(' + f.id + ')">Задать уточнение</button>'
-					+ '<button type="button" class="thread-action thread-action-quiet" onclick="closeFeedbackThread(' + f.id + ', this)">Спасибо, вопрос решён</button>'
+					+ '<button type="button" class="thread-action" data-cabinet-action="open-feedback-reply" data-thread-id="' + escHtml(f.id) + '">Задать уточнение</button>'
+					+ '<button type="button" class="thread-action thread-action-quiet" data-cabinet-action="close-feedback-thread" data-thread-id="' + escHtml(f.id) + '">Спасибо, вопрос решён</button>'
 					+ '</div>'
-					+ '<form class="thread-inline-form" data-fb-form="' + f.id + '" onsubmit="submitFeedbackReply(event, ' + f.id + ')">'
+					+ '<form class="thread-inline-form" data-fb-form="' + escHtml(f.id) + '">'
 					+ '<textarea class="thread-inline-input" maxlength="2000" placeholder="Ваше уточнение..." required></textarea>'
 					+ '<div class="thread-inline-actions">'
-					+ '<button type="button" class="thread-action thread-action-quiet" onclick="closeFeedbackReplyForm(' + f.id + ')">Отменить</button>'
+					+ '<button type="button" class="thread-action thread-action-quiet" data-cabinet-action="close-feedback-reply" data-thread-id="' + escHtml(f.id) + '">Отменить</button>'
 					+ '<button type="submit" class="thread-action thread-action-primary">Отправить</button>'
 					+ '</div>'
 					+ '</form>';
@@ -1842,10 +1895,10 @@
 
 			return '<article class="thread" data-fb-id="' + f.id + '">'
 				+ '<div class="thread-head">'
-				+ '<span class="thread-tag ' + tagCls + '">' + tagLabel + '</span>'
+				+ '<span class="thread-tag ' + tagCls + '">' + escHtml(tagLabel) + '</span>'
 				+ statusHtml
 				+ '<span class="thread-date">' + headDate + '</span>'
-				+ '<button type="button" class="thread-hide" title="Скрыть обращение" aria-label="Скрыть обращение" onclick="hideFeedback(' + f.id + ', this)">Скрыть</button>'
+				+ '<button type="button" class="thread-hide" title="Скрыть обращение" aria-label="Скрыть обращение" data-cabinet-action="hide-feedback" data-thread-id="' + escHtml(f.id) + '">Скрыть</button>'
 				+ '</div>'
 				+ body
 				+ actions
