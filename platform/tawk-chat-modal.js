@@ -12,7 +12,7 @@
 		var style = document.createElement('style');
 		style.id = 'tawk-chat-modal-styles';
 		style.textContent =
-			'.tawk-chat-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(17,17,17,.48);}' +
+			'.tawk-chat-overlay{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(17,17,17,.48);}' +
 			'.tawk-chat-panel{width:420px;max-width:100%;height:calc(100vh - 32px);max-height:720px;display:flex;flex-direction:column;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.28);}' +
 			'.tawk-chat-header{min-height:52px;display:flex;align-items:center;gap:12px;padding:0 12px 0 18px;background:#111;color:#fff;font-family:Montserrat,Arial,sans-serif;}' +
 			'.tawk-chat-title{min-width:0;flex:1;font-size:13px;font-weight:700;}' +
