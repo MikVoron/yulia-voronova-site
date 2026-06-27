@@ -415,7 +415,9 @@
     }
 
     function jsArg(s) {
-        return JSON.stringify(String(s == null ? '' : s));
+        // Inline handlers live inside a double-quoted HTML attribute. Escape the
+        // JSON quotes for HTML so the browser does not truncate onclick="...".
+        return esc(JSON.stringify(String(s == null ? '' : s)));
     }
 
     function cssToken(s) {
