@@ -337,7 +337,23 @@ async function sendReviewNotification(author, recipeName, stars, text, recipeId)
   await send('hello@voronova.online', 'Новый отзыв: ' + recipeName, wrap(body));
 }
 
-// ── 8. Рассылка новости ──
+// ── 8. Видеорецепт набрал нужное число голосов ──
+async function sendVideoRequestThresholdNotification(recipeName, recipeId, votes, goal) {
+  const adminUrl = PLATFORM_URL + '/admin.html?tab=video-requests';
+  const recipeUrl = PLATFORM_URL + '/recipe.html?id=' + encodeURIComponent(recipeId || '');
+  const body =
+    '<h2 style="font-size:22px;color:#111;margin:0 0 12px;font-weight:700">Пора снимать видеорецепт</h2>'
+    + '<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px">'
+    + 'Рецепт <strong>' + escHtml(recipeName) + '</strong> набрал <strong>' + Number(votes) + ' из ' + Number(goal) + '</strong> голосов.</p>'
+    + '<div style="padding:16px;background:#faf8f5;border-radius:10px;border:1px solid #eee;margin-bottom:16px">'
+    + '<p style="font-size:14px;color:#333;margin:0">Запрос автоматически добавлен в очередь видеорецептов.</p>'
+    + '</div>'
+    + btn('Открыть очередь', adminUrl)
+    + '<p style="font-size:13px;margin:14px 0 0"><a href="' + recipeUrl + '" style="color:#e8400a">Открыть рецепт</a></p>';
+  await send('hello@voronova.online', 'Нужно снять видео: ' + recipeName, wrap(body));
+}
+
+// ── 9. Рассылка новости ──
 async function sendNewsletter(to, news, unsubscribeToken) {
   const item = typeof news === 'string' ? { text: news } : (news || {});
   const isRecipe = item.type === 'recipe' && item.recipeId && item.recipeName;
@@ -362,7 +378,7 @@ async function sendNewsletter(to, news, unsubscribeToken) {
   await send(to, subject, wrap(body, unsubscribeToken));
 }
 
-// ── 9. Уведомление пользователю об ответе на обращение ──
+// ── 10. Уведомление пользователю об ответе на обращение ──
 async function sendFeedbackReply(to, category, originalText, replyText, displayName) {
   const labels = { wish: 'Пожелание', recipe: 'Идея рецепта', problem: 'Проблема' };
   const label = labels[category] || category;
@@ -394,5 +410,6 @@ module.exports = {
   sendFeedback,
   sendFeedbackReply,
   sendReviewNotification,
+  sendVideoRequestThresholdNotification,
   sendNewsletter
 };

@@ -57,7 +57,7 @@
     }
 
     // ── Tabs ──
-    var ADMIN_TABS = ['users', 'payments', 'news', 'recipes', 'categories', 'feedback', 'audit'];
+    var ADMIN_TABS = ['users', 'payments', 'news', 'recipes', 'video-requests', 'categories', 'feedback', 'audit'];
 
     function normalizeAdminTab(tab) {
         return ADMIN_TABS.includes(tab) ? tab : 'users';
@@ -74,6 +74,7 @@
         if (tab === 'payments') loadPayments('pending');
         if (tab === 'news') loadNews();
         if (tab === 'recipes') loadRecipesList();
+        if (tab === 'video-requests') loadVideoRequests();
         if (tab === 'categories') loadCategoriesList();
         if (tab === 'feedback') loadFeedback('waiting_admin');
         if (tab === 'audit') loadAudit();
@@ -90,6 +91,9 @@
         var badge = document.getElementById('feedback-badge');
         if (newCount > 0) { badge.textContent = newCount; badge.style.display = 'inline'; }
     }).catch(function() {});
+
+    // Badge: recipes that have reached the goal and still need scheduling.
+    loadVideoRequests(true);
 
     function loadStats() {
         api('/admin/stats').then(function(data) {
@@ -707,6 +711,79 @@
         api('/admin/recipes/' + encodeURIComponent(id), { method: 'DELETE' }).then(function() {
             showToast('Удалено');
             loadRecipesList();
+        });
+    };
+
+    // ── VIDEO REQUESTS ───────────────────────────────────────────────────────
+    function videoRequestStatusMeta(status) {
+        var map = {
+            collecting: { label: 'Собирает голоса', bg: '#f1eee8', color: '#70675b' },
+            goal_reached: { label: 'Нужно снять', bg: 'var(--accent-l)', color: 'var(--accent)' },
+            planned: { label: 'Запланировано', bg: 'var(--blue-l)', color: 'var(--blue)' },
+            filming: { label: 'Снимается', bg: 'var(--yellow-l)', color: 'var(--yellow)' },
+            published: { label: 'Видео добавлено', bg: 'var(--green-l)', color: 'var(--green)' }
+        };
+        return map[status] || map.collecting;
+    }
+
+    function loadVideoRequests(badgeOnly) {
+        api('/admin/video-requests').then(function(items) {
+            items = Array.isArray(items) ? items : [];
+            var waiting = items.filter(function(item) { return item.status === 'goal_reached'; }).length;
+            var badge = document.getElementById('video-requests-badge');
+            if (badge) {
+                badge.textContent = waiting;
+                badge.style.display = waiting > 0 ? 'inline-flex' : 'none';
+            }
+            if (!badgeOnly) renderVideoRequests(items);
+        }).catch(function(e) {
+            if (!badgeOnly) {
+                var tbody = document.getElementById('video-requests-tbody');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="adm-empty">' + esc(e.message || 'Ошибка загрузки') + '</td></tr>';
+            }
+        });
+    }
+    window.loadVideoRequests = loadVideoRequests;
+
+    function renderVideoRequests(items) {
+        var tbody = document.getElementById('video-requests-tbody');
+        if (!tbody) return;
+        if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="adm-empty">Пока никто не голосовал за видеорецепты</td></tr>';
+            return;
+        }
+        tbody.innerHTML = items.map(function(item) {
+            var meta = videoRequestStatusMeta(item.status);
+            var percent = Math.min(100, Math.round((Number(item.votes) || 0) / Math.max(1, Number(item.goal) || 10) * 100));
+            var actions = '';
+            if (item.status === 'goal_reached') {
+                actions += '<button class="adm-btn" data-admin-action="set-video-request-status" data-admin-id="' + esc(item.recipeId) + '" data-admin-status="planned">В план</button>';
+            } else if (item.status === 'planned') {
+                actions += '<button class="adm-btn" data-admin-action="set-video-request-status" data-admin-id="' + esc(item.recipeId) + '" data-admin-status="filming">Начать съёмку</button>';
+            } else if (item.status === 'filming') {
+                actions += '<button class="adm-btn" data-admin-action="set-video-request-status" data-admin-id="' + esc(item.recipeId) + '" data-admin-status="planned">Вернуть в план</button>';
+            }
+            actions += '<button class="adm-btn" data-admin-action="edit-recipe" data-admin-id="' + esc(item.recipeId) + '" title="Добавить ссылки на видео">✏️ Рецепт</button>';
+            return '<tr>'
+                + '<td><strong>' + esc(item.name) + '</strong><div style="font-size:11px;color:var(--text-3);margin-top:3px">' + esc(item.recipeId) + '</div></td>'
+                + '<td><strong style="font-size:16px">' + Number(item.votes) + '</strong> / ' + Number(item.goal)
+                + '<div style="width:110px;max-width:100%;height:5px;background:#eee6dc;margin-top:6px"><span style="display:block;width:' + percent + '%;height:100%;background:var(--accent)"></span></div></td>'
+                + '<td><span class="st-badge" style="background:' + meta.bg + ';color:' + meta.color + '">' + esc(meta.label) + '</span></td>'
+                + '<td>' + fmtDate(item.reachedAt) + '</td>'
+                + '<td><div style="display:flex;gap:6px;flex-wrap:wrap">' + actions + '</div></td>'
+                + '</tr>';
+        }).join('');
+    }
+
+    window.updateVideoRequestStatus = function(id, status) {
+        api('/admin/video-requests/' + encodeURIComponent(id), {
+            method: 'PATCH',
+            body: { status: status }
+        }).then(function() {
+            showToast('Статус обновлён');
+            loadVideoRequests();
+        }).catch(function(e) {
+            showToast(e.message || 'Не удалось обновить статус');
         });
     };
 
@@ -1357,6 +1434,7 @@
         else if (action === 'set-seasonal') window.setSeasonal(id);
         else if (action === 'edit-recipe') window.openRecipeEditor(id);
         else if (action === 'delete-recipe') window.deleteRecipe(id);
+        else if (action === 'set-video-request-status') window.updateVideoRequestStatus(id, target.dataset.adminStatus);
         else if (action === 'edit-category') window.editCategory(id);
         else if (action === 'move-addon') window.moveAddonOrder(field, index, Number(target.dataset.adminDirection));
         else if (action === 'reset-addon') window.resetAddonOrder(field);

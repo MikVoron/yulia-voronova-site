@@ -1308,6 +1308,41 @@
 			cursor: pointer;
 		}
 
+		.sp-first-run-community {
+			display: grid;
+			grid-template-columns: 38px minmax(0, 1fr);
+			gap: 13px;
+			align-items: start;
+			padding: 16px 0 20px;
+			border-top: 1px solid var(--border);
+		}
+
+		.sp-first-run-community-icon {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 38px;
+			height: 38px;
+			border-radius: 50%;
+			background: var(--accent-l);
+			color: var(--accent);
+			font-size: 18px;
+		}
+
+		.sp-first-run-community strong {
+			display: block;
+			margin-bottom: 3px;
+			font-size: 13px;
+			color: var(--text);
+		}
+
+		.sp-first-run-community span:last-child {
+			display: block;
+			font-size: 12px;
+			line-height: 1.45;
+			color: var(--text-2);
+		}
+
 		@media (max-width: 1023px) {
 			.sp-first-run {
 				margin: 0 0 26px;
@@ -1333,6 +1368,10 @@
 
 			.sp-first-run-actions {
 				align-items: stretch;
+			}
+
+			.sp-first-run-community {
+				padding-bottom: 18px;
 			}
 		}
 
@@ -3239,6 +3278,10 @@
 						<a class="sp-first-run-btn" href="#cats-head" onclick="startFirstRunGuide(event)">Начать с рецептов</a>
 						<button class="sp-first-run-skip" type="button" onclick="dismissFirstRunGuide()">Скрыть подсказку</button>
 					</div>
+				</div>
+				<div class="sp-first-run-community">
+					<span class="sp-first-run-community-icon" aria-hidden="true">♥</span>
+					<span><strong>Влияйте на развитие платформы</strong><span>Оценивайте блюда, оставляйте отзывы и голосуйте за рецепты, для которых хотите увидеть видео.</span></span>
 				</div>
 			</section>
 

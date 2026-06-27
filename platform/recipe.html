@@ -225,6 +225,123 @@
 			font-weight: 500;
 		}
 
+		.video-request-section {
+			margin-top: 24px;
+			padding: 22px;
+			border: 1px solid var(--border);
+			border-left: 3px solid var(--accent);
+			background: linear-gradient(135deg, #fffaf5, #fff);
+		}
+
+		.video-request-kicker {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			margin-bottom: 8px;
+			font: 800 10px/1.2 var(--sans);
+			letter-spacing: .12em;
+			text-transform: uppercase;
+			color: var(--accent);
+		}
+
+		.video-request-new {
+			padding: 3px 7px;
+			background: var(--accent);
+			color: #fff;
+			letter-spacing: .08em;
+		}
+
+		.video-request-title {
+			margin: 0;
+			font: 700 24px/1.15 var(--serif);
+			color: var(--text);
+		}
+
+		.video-request-copy {
+			max-width: 620px;
+			margin: 8px 0 0;
+			font-size: 14px;
+			line-height: 1.55;
+			color: var(--text-2);
+		}
+
+		.video-request-progress-row {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			margin-top: 18px;
+		}
+
+		.video-request-progress {
+			flex: 1 1 auto;
+			height: 8px;
+			background: #eee6dc;
+			overflow: hidden;
+		}
+
+		.video-request-progress > span {
+			display: block;
+			height: 100%;
+			background: var(--accent);
+			transition: width .35s ease;
+		}
+
+		.video-request-count {
+			flex: 0 0 auto;
+			font-size: 13px;
+			font-weight: 800;
+			color: var(--text);
+		}
+
+		.video-request-actions {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			margin-top: 16px;
+			flex-wrap: wrap;
+		}
+
+		.video-vote-btn {
+			min-height: 42px;
+			padding: 0 18px;
+			border: 1px solid var(--text);
+			background: var(--text);
+			color: #fff;
+			font: 800 11px/1 var(--sans);
+			letter-spacing: .08em;
+			text-transform: uppercase;
+			cursor: pointer;
+		}
+
+		.video-vote-btn:hover:not(:disabled),
+		.video-vote-btn:focus-visible {
+			border-color: var(--accent);
+			background: var(--accent);
+			outline: none;
+		}
+
+		.video-vote-btn.is-voted,
+		.video-vote-btn:disabled {
+			border-color: #3f7b4a;
+			background: #3f7b4a;
+			cursor: default;
+		}
+
+		.video-vote-cancel {
+			padding: 4px 0;
+			border: 0;
+			background: transparent;
+			color: var(--text-3);
+			font-size: 12px;
+			text-decoration: underline;
+			cursor: pointer;
+		}
+
+		.video-request-loading {
+			font-size: 13px;
+			color: var(--text-3);
+		}
+
 		@media (max-width: 480px) {
 			.video-tab {
 				padding: 8px 10px;
@@ -242,6 +359,28 @@
 
 			.video-open-label {
 				font-size: 13px;
+			}
+
+			.video-request-section {
+				padding: 18px 16px;
+			}
+
+			.video-request-title {
+				font-size: 21px;
+			}
+
+			.video-request-progress-row {
+				align-items: flex-start;
+				flex-direction: column-reverse;
+				gap: 8px;
+			}
+
+			.video-request-progress {
+				width: 100%;
+			}
+
+			.video-vote-btn {
+				width: 100%;
 			}
 		}
 
@@ -2873,7 +3012,12 @@
                         </div>`;
 				})() : ''}
 
-                    ${tipHtml}
+				${!simpleMode && !(r.ytVideo || r.vkVideo || r.dzenVideo) ? `
+					<div class="video-request-section" id="video-request-section" aria-live="polite">
+						<div id="video-request-content" class="video-request-loading">Загружаем голоса за видеорецепт…</div>
+					</div>` : ''}
+
+					${tipHtml}
 
                     <!-- On mobile: sidebar appears here, after recipe content, before reviews -->
                     <div id="sidebar-mobile" style="margin-top:20px;display:none"></div>
@@ -2933,6 +3077,7 @@
 
 			// Init first video tab immediately after DOM insert
 			initVideoTabs();
+			loadVideoRequest();
 		}
 
 		// subItemRegistry declared above (before renderRecipe call)
@@ -3788,6 +3933,119 @@
 			if (active) loadVideoFrame(active);
 			wrap.dataset.initialized = '1';
 		}
+
+		// ── VIDEO REQUEST VOTING ───────────────────────────────────────────────
+		function videoVoteHintKey() {
+			try { return Auth._userKey('video_vote_hint_seen'); }
+			catch (e) { return 'smartplate.video_vote_hint_seen'; }
+		}
+
+		function renderVideoRequest(data) {
+			var section = document.getElementById('video-request-section');
+			var el = document.getElementById('video-request-content');
+			if (!section || !el) return;
+			if (!data || data.hasVideo || data.status === 'published') {
+				section.style.display = 'none';
+				return;
+			}
+
+			var votes = Number(data.votes) || 0;
+			var goal = Math.max(1, Number(data.goal) || 10);
+			var progress = Math.min(100, Math.round(votes / goal * 100));
+			var title = 'Снять видео к этому рецепту?';
+			var copy = 'Если этот рецепт наберёт ' + goal + ' голосов, Юля снимет для него видео.';
+			var kicker = 'Вы выбираете следующие видео';
+			if (data.status === 'goal_reached') {
+				title = 'Видео будет снято';
+				copy = 'Рецепт набрал нужную поддержку и добавлен в очередь на съёмку.';
+				kicker = 'Цель достигнута';
+			} else if (data.status === 'planned') {
+				title = 'Видео уже в плане съёмок';
+				copy = 'Юля запланировала видеоверсию этого рецепта.';
+				kicker = 'Запланировано';
+			} else if (data.status === 'filming') {
+				title = 'Видеорецепт снимается';
+				copy = 'Скоро здесь появится готовое видео.';
+				kicker = 'В работе';
+			}
+
+			var showNew = false;
+			try { showNew = !localStorage.getItem(videoVoteHintKey()); }
+			catch (e) { /* private mode */ }
+			var newBadge = showNew ? '<span class="video-request-new">Новое</span>' : '';
+			var actions;
+			if (!Auth.isLoggedIn()) {
+				actions = '<button class="video-vote-btn" type="button" onclick="location.href=Auth._loginUrl()">Войти и проголосовать</button>';
+			} else if (data.voted) {
+				actions = '<button class="video-vote-btn is-voted" type="button" disabled>Ваш голос учтён ✓</button>'
+					+ '<button class="video-vote-cancel" type="button" onclick="removeVideoVote()">Отменить голос</button>';
+			} else {
+				actions = '<button class="video-vote-btn" type="button" onclick="submitVideoVote()">Хочу видеорецепт</button>';
+			}
+
+			el.className = '';
+			el.innerHTML = '<div class="video-request-kicker">' + newBadge + escHtml(kicker) + '</div>'
+				+ '<h3 class="video-request-title">' + escHtml(title) + '</h3>'
+				+ '<p class="video-request-copy">' + escHtml(copy) + '</p>'
+				+ '<div class="video-request-progress-row">'
+				+ '<div class="video-request-progress" role="progressbar" aria-valuemin="0" aria-valuemax="' + goal + '" aria-valuenow="' + votes + '"><span style="width:' + progress + '%"></span></div>'
+				+ '<div class="video-request-count">' + votes + ' из ' + goal + ' голосов</div>'
+				+ '</div><div class="video-request-actions">' + actions + '</div>';
+			try { localStorage.setItem(videoVoteHintKey(), '1'); } catch (e) { /* private mode */ }
+		}
+
+		async function loadVideoRequest() {
+			var section = document.getElementById('video-request-section');
+			if (!section || !r) return;
+			try {
+				var res = await Auth.api('/content/video-requests/' + encodeURIComponent(r.id));
+				if (!res.ok) throw new Error('Не удалось загрузить голоса');
+				renderVideoRequest(await res.json());
+			} catch (e) {
+				var el = document.getElementById('video-request-content');
+				if (el) el.textContent = 'Голосование временно недоступно.';
+			}
+		}
+
+		function setVideoVoteBusy(busy) {
+			document.querySelectorAll('.video-vote-btn, .video-vote-cancel').forEach(function(btn) {
+				btn.disabled = busy;
+			});
+		}
+
+		async function submitVideoVote() {
+			if (!Auth.isLoggedIn()) { location.href = Auth._loginUrl(); return; }
+			if (!r) return;
+			setVideoVoteBusy(true);
+			try {
+				var res = await Auth.api('/content/video-requests/' + encodeURIComponent(r.id) + '/vote', { method: 'POST' });
+				var data = await res.json().catch(function() { return {}; });
+				if (!res.ok) throw new Error(data.error || 'Не удалось учесть голос');
+				renderVideoRequest(data);
+				showToast(data.status === 'goal_reached' ? 'Цель достигнута — видео добавлено в очередь!' : 'Ваш голос учтён');
+			} catch (e) {
+				showToast(e.message || 'Не удалось учесть голос');
+				setVideoVoteBusy(false);
+			}
+		}
+
+		async function removeVideoVote() {
+			if (!r) return;
+			setVideoVoteBusy(true);
+			try {
+				var res = await Auth.api('/content/video-requests/' + encodeURIComponent(r.id) + '/vote', { method: 'DELETE' });
+				var data = await res.json().catch(function() { return {}; });
+				if (!res.ok) throw new Error(data.error || 'Не удалось отменить голос');
+				renderVideoRequest(data);
+				showToast('Голос отменён');
+			} catch (e) {
+				showToast(e.message || 'Не удалось отменить голос');
+				setVideoVoteBusy(false);
+			}
+		}
+
+		window.submitVideoVote = submitVideoVote;
+		window.removeVideoVote = removeVideoVote;
 
 		// ── ADD TO PLATE ──────────────────────────────────────────────────────
 		function addToPlate() {

@@ -31,6 +31,8 @@ const ADMIN_RECIPE_LIMITS = {
 };
 const REVIEW_RECIPE_ID_LIMIT = 100;
 const REVIEW_LIST_LIMIT = 100;
+const VIDEO_REQUEST_GOAL = 10;
+const VIDEO_REQUEST_STATUSES = ['collecting', 'goal_reached', 'planned', 'filming', 'published'];
 
 function validateReviewRecipeId(value) {
   if (typeof value !== 'string' || !value.trim() || value.length > REVIEW_RECIPE_ID_LIMIT) {
@@ -399,6 +401,196 @@ async function contentRoutes(fastify) {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // VIDEO REQUESTS — public progress, one authenticated vote per user
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  fastify.get('/content/video-requests/:recipeId', {
+    preHandler: [optionalAuthenticate]
+  }, async (req, reply) => {
+    const recipeId = validateReviewRecipeId(req.params.recipeId);
+    if (!recipeId) return reply.status(400).send({ error: 'Некорректный recipeId' });
+    const userId = req.user?.sub || null;
+    const result = await db.query(
+      `SELECT r.id,
+              (COALESCE(NULLIF(r.vk_video, ''), NULLIF(r.yt_video, ''), NULLIF(r.dzen_video, '')) IS NOT NULL) AS has_video,
+              COALESCE(vr.goal, $2)::int AS goal,
+              CASE
+                WHEN COALESCE(NULLIF(r.vk_video, ''), NULLIF(r.yt_video, ''), NULLIF(r.dzen_video, '')) IS NOT NULL THEN 'published'
+                ELSE COALESCE(vr.status, 'collecting')
+              END AS status,
+              vr.reached_at,
+              COUNT(vv.user_id)::int AS votes,
+              COALESCE(BOOL_OR(vv.user_id = $3::uuid), false) AS voted
+       FROM recipes r
+       LEFT JOIN recipe_video_requests vr ON vr.recipe_id = r.id
+       LEFT JOIN recipe_video_votes vv ON vv.recipe_id = r.id
+       WHERE r.id = $1 AND r.is_published = true
+       GROUP BY r.id, r.vk_video, r.yt_video, r.dzen_video, vr.goal, vr.status, vr.reached_at`,
+      [recipeId, VIDEO_REQUEST_GOAL, userId]
+    );
+    if (!result.rows.length) return reply.status(404).send({ error: 'Рецепт не найден' });
+    const row = result.rows[0];
+    return {
+      recipeId,
+      votes: row.votes,
+      goal: row.goal,
+      voted: row.voted,
+      status: row.status,
+      reachedAt: row.reached_at,
+      hasVideo: row.has_video,
+    };
+  });
+
+  fastify.post('/content/video-requests/:recipeId/vote', {
+    preHandler: [authenticate],
+    config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
+    const recipeId = validateReviewRecipeId(req.params.recipeId);
+    if (!recipeId) return reply.status(400).send({ error: 'Некорректный recipeId' });
+    const recipe = await db.query(
+      `SELECT name,
+              (COALESCE(NULLIF(vk_video, ''), NULLIF(yt_video, ''), NULLIF(dzen_video, '')) IS NOT NULL) AS has_video
+       FROM recipes WHERE id=$1 AND is_published=true`,
+      [recipeId]
+    );
+    if (!recipe.rows.length) return reply.status(404).send({ error: 'Рецепт не найден' });
+    if (recipe.rows[0].has_video) return reply.status(409).send({ error: 'У рецепта уже есть видео' });
+
+    await db.query(
+      `INSERT INTO recipe_video_requests (recipe_id, goal)
+       VALUES ($1, $2) ON CONFLICT (recipe_id) DO NOTHING`,
+      [recipeId, VIDEO_REQUEST_GOAL]
+    );
+    const inserted = await db.query(
+      `INSERT INTO recipe_video_votes (recipe_id, user_id)
+       VALUES ($1, $2) ON CONFLICT (recipe_id, user_id) DO NOTHING
+       RETURNING recipe_id`,
+      [recipeId, req.user.sub]
+    );
+    const countResult = await db.query(
+      'SELECT COUNT(*)::int AS votes FROM recipe_video_votes WHERE recipe_id=$1',
+      [recipeId]
+    );
+    const votes = countResult.rows[0].votes;
+    const reached = await db.query(
+      `UPDATE recipe_video_requests
+       SET status='goal_reached', reached_at=COALESCE(reached_at, now()), updated_at=now()
+       WHERE recipe_id=$1 AND status='collecting' AND goal <= $2
+       RETURNING goal, status, reached_at`,
+      [recipeId, votes]
+    );
+    const request = reached.rows[0] || (await db.query(
+      'SELECT goal, status, reached_at FROM recipe_video_requests WHERE recipe_id=$1',
+      [recipeId]
+    )).rows[0];
+
+    if (reached.rows.length && typeof email.sendVideoRequestThresholdNotification === 'function') {
+      email.sendVideoRequestThresholdNotification(recipe.rows[0].name, recipeId, votes, request.goal)
+        .catch(e => console.error('Video request email error:', e.message));
+    }
+
+    return {
+      recipeId,
+      votes,
+      goal: request.goal,
+      voted: true,
+      inserted: inserted.rows.length > 0,
+      status: request.status,
+      reachedAt: request.reached_at,
+      hasVideo: false,
+    };
+  });
+
+  fastify.delete('/content/video-requests/:recipeId/vote', {
+    preHandler: [authenticate],
+    config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
+    const recipeId = validateReviewRecipeId(req.params.recipeId);
+    if (!recipeId) return reply.status(400).send({ error: 'Некорректный recipeId' });
+    await db.query(
+      'DELETE FROM recipe_video_votes WHERE recipe_id=$1 AND user_id=$2',
+      [recipeId, req.user.sub]
+    );
+    const result = await db.query(
+      `SELECT vr.goal, vr.status, vr.reached_at, COUNT(vv.user_id)::int AS votes
+       FROM recipe_video_requests vr
+       LEFT JOIN recipe_video_votes vv ON vv.recipe_id=vr.recipe_id
+       WHERE vr.recipe_id=$1
+       GROUP BY vr.goal, vr.status, vr.reached_at`,
+      [recipeId]
+    );
+    const row = result.rows[0] || { goal: VIDEO_REQUEST_GOAL, status: 'collecting', reached_at: null, votes: 0 };
+    return {
+      recipeId,
+      votes: row.votes,
+      goal: row.goal,
+      voted: false,
+      status: row.status,
+      reachedAt: row.reached_at,
+      hasVideo: false,
+    };
+  });
+
+  fastify.get('/admin/video-requests', {
+    preHandler: [authenticate, requireAdmin]
+  }, async () => {
+    const result = await db.query(
+      `SELECT r.id AS recipe_id, r.name, r.photo,
+              vr.goal, vr.reached_at, vr.created_at, vr.updated_at,
+              CASE
+                WHEN COALESCE(NULLIF(r.vk_video, ''), NULLIF(r.yt_video, ''), NULLIF(r.dzen_video, '')) IS NOT NULL THEN 'published'
+                ELSE vr.status
+              END AS status,
+              COUNT(vv.user_id)::int AS votes
+       FROM recipe_video_requests vr
+       JOIN recipes r ON r.id=vr.recipe_id
+       LEFT JOIN recipe_video_votes vv ON vv.recipe_id=vr.recipe_id
+       GROUP BY r.id, r.name, r.photo, r.vk_video, r.yt_video, r.dzen_video,
+                vr.goal, vr.status, vr.reached_at, vr.created_at, vr.updated_at
+       ORDER BY
+         CASE vr.status WHEN 'goal_reached' THEN 1 WHEN 'filming' THEN 2 WHEN 'planned' THEN 3 WHEN 'collecting' THEN 4 ELSE 5 END,
+         COUNT(vv.user_id) DESC, vr.reached_at NULLS LAST, vr.created_at`,
+    );
+    return result.rows.map(row => ({
+      recipeId: row.recipe_id,
+      name: row.name,
+      photo: row.photo,
+      votes: row.votes,
+      goal: row.goal,
+      status: row.status,
+      reachedAt: row.reached_at,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    }));
+  });
+
+  fastify.patch('/admin/video-requests/:recipeId', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req, reply) => {
+    const recipeId = validateReviewRecipeId(req.params.recipeId);
+    const status = req.body?.status;
+    if (!recipeId) return reply.status(400).send({ error: 'Некорректный recipeId' });
+    if (!VIDEO_REQUEST_STATUSES.includes(status)) return reply.status(400).send({ error: 'Некорректный статус' });
+    if (status === 'published') {
+      const video = await db.query(
+        `SELECT id FROM recipes WHERE id=$1
+         AND COALESCE(NULLIF(vk_video, ''), NULLIF(yt_video, ''), NULLIF(dzen_video, '')) IS NOT NULL`,
+        [recipeId]
+      );
+      if (!video.rows.length) return reply.status(400).send({ error: 'Сначала добавьте ссылку на видео' });
+    }
+    const result = await db.query(
+      `UPDATE recipe_video_requests SET status=$2, updated_at=now()
+       WHERE recipe_id=$1 RETURNING recipe_id, goal, status, reached_at, updated_at`,
+      [recipeId, status]
+    );
+    if (!result.rows.length) return reply.status(404).send({ error: 'Запрос не найден' });
+    audit.log('video_request_status', { userId: req.user.sub, detail: 'recipe:' + recipeId + ':' + status, ip: req.ip });
+    return result.rows[0];
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // NEWSLETTER — unsubscribe (public, token-based)
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -660,6 +852,19 @@ async function contentRoutes(fastify) {
     for (const catId of cats) {
       await db.query('INSERT INTO recipe_categories (recipe_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [req.params.id, catId]);
     }
+    const hasVideo = !!(r.vk_video || r.yt_video || r.dzen_video);
+    await db.query(
+      `UPDATE recipe_video_requests
+       SET status = CASE
+             WHEN $2::boolean THEN 'published'
+             WHEN status='published' AND reached_at IS NOT NULL THEN 'goal_reached'
+             WHEN status='published' THEN 'collecting'
+             ELSE status
+           END,
+           updated_at=now()
+       WHERE recipe_id=$1`,
+      [req.params.id, hasVideo]
+    );
     audit.log('recipe_update', { userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip });
     result.rows[0].categories = cats;
     return result.rows[0];
