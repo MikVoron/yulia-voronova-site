@@ -95,7 +95,7 @@ fastify.setErrorHandler((err, req, reply) => {
   });
 });
 
-fastify.listen({ port: process.env.PORT || 3000, host: '0.0.0.0' }, (err) => {
+fastify.listen({ port: process.env.PORT || 3000, host: process.env.HOST || '127.0.0.1' }, (err) => {
   if (err) { console.error(err); process.exit(1); }
   startTelegramBot(fastify);
   startCron(fastify);

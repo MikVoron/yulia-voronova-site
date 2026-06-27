@@ -1,0 +1,70 @@
+server {
+    server_name api.voronova.online;
+
+    # Fastify accepts at most 8 MiB. This explicit nginx ceiling preserves
+    # payment screenshots while rejecting oversized bodies before Node.js.
+    client_max_body_size 8m;
+    client_body_timeout 15s;
+
+    limit_conn smartplate_conn 30;
+    limit_conn_status 429;
+    limit_req_status 429;
+    limit_req_log_level warn;
+
+    # Security headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
+
+    location ^~ /auth/ {
+        limit_req zone=smartplate_auth burst=60 nodelay;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
+    location = /subscription/payment {
+        limit_req zone=smartplate_payment burst=20 nodelay;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
+    location = /feedback {
+        limit_req zone=smartplate_feedback burst=30 nodelay;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
+    location ^~ /feedback/ {
+        limit_req zone=smartplate_feedback burst=30 nodelay;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
+    location = /admin {
+        limit_req zone=smartplate_admin burst=40 nodelay;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
+    location ^~ /admin/ {
+        limit_req zone=smartplate_admin burst=40 nodelay;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
+    location / {
+        limit_req zone=smartplate_api burst=40 nodelay;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/api.voronova.online/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/api.voronova.online/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+
+server {
+    if ($host = api.voronova.online) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80;
+    server_name api.voronova.online;
+    return 404; # managed by Certbot
+}
