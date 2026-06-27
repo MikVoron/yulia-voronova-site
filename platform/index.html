@@ -3014,7 +3014,7 @@
 						<div class="user-dd-sep"></div>
 						<a href="cabinet.html?tab=subscription" class="user-dd-item user-dd-subitem">Подписка</a>
 						<a href="cabinet.html?tab=favorites" class="user-dd-item user-dd-subitem">Избранные</a>
-						<a href="cabinet.html?tab=history" class="user-dd-item user-dd-subitem">История</a>
+						<a href="cabinet.html?tab=history" class="user-dd-item user-dd-subitem">Журнал</a>
 						<a href="cabinet.html?tab=notes" class="user-dd-item user-dd-subitem">Заметки</a>
 						<a href="cabinet.html?tab=feedback" class="user-dd-item user-dd-subitem">Связь</a>
 						<div class="user-dd-sep"></div>
@@ -3232,7 +3232,7 @@
 						</div>
 						<div class="sp-first-run-step">
 							<span class="sp-first-run-num">3</span>
-							<span><strong>Сохраните приём пищи в историю</strong><span>Так появится история питания.</span></span>
+							<span><strong>Сохраните приём пищи в журнал</strong><span>Так вы начнёте вести журнал питания.</span></span>
 						</div>
 					</div>
 					<div class="sp-first-run-actions">
@@ -3354,7 +3354,7 @@
 			<div class="modal-body" id="plate-body"></div>
 			<div class="modal-footer" id="plate-footer" style="display:none">
 				<div id="plate-meal-picker"></div>
-				<button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlate()">Сохранить в историю</button>
+				<button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlate()">Сохранить в журнал</button>
 			</div>
 		</div>
 	</div>
@@ -3422,7 +3422,7 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=20260612-soups-category"></script>
+	<script src="data-v2.js?v=20260627-journal-copy"></script>
 	<script src="ingredients.js?v=20260616-shrimp"></script>
 	<script src="header-nav.js?v=20260612-soups-category"></script>
 	<script>
@@ -4894,7 +4894,7 @@
 			plateShopChecked.clear();
 			renderPlateInline();
 			closePlate();
-			showToast('Тарелка сохранена в историю 🎉');
+			showToast('Тарелка сохранена в журнал 🎉');
 		}
 
 		// ── INLINE PLATE SUMMARY ─────────────────────────────────────────────

@@ -980,7 +980,7 @@
 			const hist = Plate.getHistory();
 			const el = document.getElementById('history-body');
 			if (!hist.length) {
-				el.innerHTML = '<div class="hist-empty"><div class="hist-empty-mark">История пуста</div>Сохраните тарелку из&nbsp;главного меню.</div>';
+				el.innerHTML = '<div class="hist-empty"><div class="hist-empty-mark">Журнал пуст</div>Сохраните тарелку из&nbsp;главного меню.</div>';
 				return;
 			}
 
@@ -1567,7 +1567,7 @@
 					<div class="pv1-actions-row">
 						<button class="pv1-btn" onclick="location.href='index.html'">← На главную</button>
 					</div>
-					<button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateCabinet()">Сохранить в историю</button>
+					<button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateCabinet()">Сохранить в журнал</button>
 				</div>`;
 				renderCabinetPlateShopMode();
 			}
@@ -1657,7 +1657,7 @@
 			updatePlateIcon();
 			renderHistory();
 			closePlate();
-			if (typeof showToast === 'function') showToast('Тарелка сохранена в историю 🎉');
+			if (typeof showToast === 'function') showToast('Тарелка сохранена в журнал 🎉');
 		}
 
 		// ── ОБРАТНАЯ СВЯЗЬ ────────────────────────────────────────────────────────

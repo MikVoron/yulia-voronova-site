@@ -291,7 +291,7 @@
                     <div class="user-dd-sep"></div>
                     <a href="cabinet.html?tab=subscription" class="user-dd-item user-dd-subitem">Подписка</a>
                     <a href="cabinet.html?tab=favorites" class="user-dd-item user-dd-subitem">Избранные</a>
-                    <a href="cabinet.html?tab=history" class="user-dd-item user-dd-subitem">История</a>
+                    <a href="cabinet.html?tab=history" class="user-dd-item user-dd-subitem">Журнал</a>
                     <a href="cabinet.html?tab=notes" class="user-dd-item user-dd-subitem">Заметки</a>
                     <a href="cabinet.html?tab=feedback" class="user-dd-item user-dd-subitem">Связь</a>
                     <div class="user-dd-sep"></div>
@@ -452,7 +452,7 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<script src="data-v2.js?v=20260612-soups-category"></script>
+<script src="data-v2.js?v=20260627-journal-copy"></script>
 <script src="ingredients.js?v=20260616-shrimp"></script>
 <script src="header-nav.js?v=20260612-soups-category"></script>
 <script>
@@ -1347,7 +1347,7 @@
                         <button class="pv1-btn" onclick="location.href='index.html'">← На главную</button>
                         <button class="pv1-btn" onclick="shareShoppingList()">Список продуктов</button>
                     </div>
-                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateCat()">Сохранить в историю</button>
+                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateCat()">Сохранить в журнал</button>
                 </div>`;
         }
         document.getElementById('plate-overlay').classList.add('open');
@@ -1364,7 +1364,7 @@
         Plate.saveHistory(getSelectedPlateMealType());
         updatePlateIcon();
         closePlate();
-        showToast('Тарелка сохранена в историю 🎉');
+        showToast('Тарелка сохранена в журнал 🎉');
     }
 </script>
 

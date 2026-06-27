@@ -794,7 +794,7 @@ function plateMealTypePickerHtml() {
         + '<option value="dinner">Ужин</option>'
         + '<option value="snack">Перекус</option>'
         + '</select>'
-        + '<small>Можно добавить или изменить позже в истории.</small>'
+        + '<small>Можно добавить или изменить позже в журнале.</small>'
         + '</div>';
 }
 

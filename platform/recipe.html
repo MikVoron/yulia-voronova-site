@@ -1092,7 +1092,7 @@
 						<div class="user-dd-sep"></div>
 						<a href="cabinet.html?tab=subscription" class="user-dd-item user-dd-subitem">Подписка</a>
 						<a href="cabinet.html?tab=favorites" class="user-dd-item user-dd-subitem">Избранные</a>
-						<a href="cabinet.html?tab=history" class="user-dd-item user-dd-subitem">История</a>
+						<a href="cabinet.html?tab=history" class="user-dd-item user-dd-subitem">Журнал</a>
 						<a href="cabinet.html?tab=notes" class="user-dd-item user-dd-subitem">Заметки</a>
 						<a href="cabinet.html?tab=feedback" class="user-dd-item user-dd-subitem">Связь</a>
 						<div class="user-dd-sep"></div>
@@ -1233,7 +1233,7 @@
 		</svg>
 	</button>
 
-	<script src="data-v2.js?v=20260612-soups-category"></script>
+	<script src="data-v2.js?v=20260627-journal-copy"></script>
 	<script src="ingredients.js?v=20260616-shrimp"></script>
 	<script src="header-nav.js?v=20260612-soups-category"></script>
 	<script>
@@ -3996,7 +3996,7 @@
                         <button class="pv1-btn" onclick="location.href='index.html'">← Вернуться</button>
                         <button class="pv1-btn" onclick="shareShoppingList()">Список продуктов</button>
                     </div>
-                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateR()">Сохранить в историю</button>
+                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateR()">Сохранить в журнал</button>
                 </div>`;
 			}
 			document.getElementById('plate-overlay').classList.add('open');
@@ -4014,7 +4014,7 @@
 			updatePlateIcon();
 			refreshAddButtonStateByPlate();
 			closePlate();
-			showToast('Тарелка сохранена в историю 🎉');
+			showToast('Тарелка сохранена в журнал 🎉');
 		}
 
 		// ── FAV + RATING ON PHOTO ─────────────────────────────────────────────
