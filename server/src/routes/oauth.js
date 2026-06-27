@@ -4,6 +4,7 @@ const { generateRefreshToken } = require('../auth');
 const { issueRefreshSession } = require('../refresh-sessions');
 const { sendWelcome, sendNewUserNotification } = require('../email');
 const { tryGrantTrial } = require('../trial-guard');
+const { reportTrialSignals } = require('../trial-monitor');
 const audit = require('../audit');
 
 // ── VK ID ───────────────────────────────────────────────────────────────────
@@ -76,6 +77,16 @@ async function findOrCreateUser(provider, providerId, email, displayName, fastif
     audit.log('trial_denied', { userId: user.id, email, detail: trial.reason + ' (' + provider + ')', ip });
   }
   audit.log('register', { userId: user.id, email, detail: provider, ip });
+  reportTrialSignals({
+    trial,
+    userId: user.id,
+    email,
+    method: provider,
+    ip,
+    ua,
+    fastify,
+    fingerprintStatus: 'not_collected'
+  });
   if (email) {
     sendWelcome(email, trial.grant).catch(e => fastify.log.error(e, 'Welcome email error (OAuth)'));
   }

@@ -5,6 +5,7 @@ const { issueRefreshSession } = require('../refresh-sessions');
 const { sendLoginCode, sendWelcome, sendNewUserNotification } = require('../email');
 const { authenticate } = require('../middleware');
 const { tryGrantTrial } = require('../trial-guard');
+const { inspectFingerprint, reportTrialSignals } = require('../trial-monitor');
 const audit = require('../audit');
 
 const AUTH_SEND_CODE_RATE_LIMIT = { max: 10, timeWindow: '15 minutes' };
@@ -47,9 +48,19 @@ async function authRoutes(fastify) {
   fastify.post('/auth/verify', {
     config: { rateLimit: AUTH_VERIFY_RATE_LIMIT }
   }, async (req, reply) => {
-    const { email, code } = req.body || {};
+    const { email, code, fingerprint: rawFingerprint } = req.body || {};
     if (!email || !code) return reply.status(400).send({ error: 'email и code обязательны' });
     const lower = email.toLowerCase().trim();
+    const fingerprintCheck = inspectFingerprint(rawFingerprint);
+    if (fingerprintCheck.status === 'invalid') {
+      audit.log('trial_fingerprint_invalid', {
+        email: lower,
+        detail: 'type=' + typeof rawFingerprint + ', length=' + (typeof rawFingerprint === 'string' ? rawFingerprint.length : 0),
+        ip: req.ip,
+        ua: req.headers['user-agent']
+      });
+      return reply.status(400).send({ error: 'Некорректный fingerprint' });
+    }
     // rate limit по IP: макс 20 попыток верификации за 15 минут
     const ipVerify = await db.query("SELECT COALESCE(SUM(attempts), 0) AS total FROM login_codes WHERE ip=$1 AND created_at > now() - interval '15 minutes'", [req.ip]);
     if (Number(ipVerify.rows[0].total) >= 20) return reply.status(429).send({ error: 'Слишком много попыток. Подождите 15 минут' });
@@ -72,7 +83,7 @@ async function authRoutes(fastify) {
     let isNew = false;
     if (!userRes.rows.length) {
       isNew = true;
-      const fingerprint = req.body.fingerprint || null;
+      const fingerprint = fingerprintCheck.value;
       userRes = await db.query('INSERT INTO users (email) VALUES ($1) RETURNING *', [lower]);
       const userId = userRes.rows[0].id;
       await db.query('INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)', [userId, 'email', lower]);
@@ -84,6 +95,16 @@ async function authRoutes(fastify) {
         audit.log('trial_denied', { userId, email: lower, detail: trial.reason, ip: req.ip, ua: req.headers['user-agent'] });
       }
       audit.log('register', { userId, email: lower, detail: 'email', ip: req.ip, ua: req.headers['user-agent'] });
+      reportTrialSignals({
+        trial,
+        userId,
+        email: lower,
+        method: 'email',
+        ip: req.ip,
+        ua: req.headers['user-agent'],
+        fastify,
+        fingerprintStatus: fingerprintCheck.status
+      });
       sendWelcome(lower, trial.grant).catch(e => fastify.log.error(e, 'Welcome email error'));
       sendNewUserNotification(
         { id: userId, email: lower },

@@ -1279,6 +1279,10 @@
         register: '📝 Регистрация',
         trial_granted: '✅ Триал выдан',
         trial_denied: '🚫 Триал отказан',
+        trial_fingerprint_invalid: '⚠️ Fingerprint отклонён',
+        trial_fingerprint_missing: '👁 Fingerprint отсутствует',
+        trial_network_watch: '👁 Сеть: наблюдение',
+        trial_network_alert: '🚨 Сеть: сигнал',
         login_blocked: '⛔ Вход заблок.',
         payment_confirm: '💰 Платёж подтв.',
         payment_reject: '❌ Платёж откл.',
@@ -1315,8 +1319,8 @@
             var label = EVENT_LABELS[e.event] || e.event;
             var eventName = String(e.event || '');
             var badgeClass = 'st-active';
-            if (eventName.includes('denied') || eventName.includes('blocked') || eventName.includes('reject') || eventName.includes('block')) badgeClass = 'st-rejected';
-            else if (eventName === 'register' || eventName === 'trial_granted') badgeClass = 'st-trial';
+            if (eventName.includes('denied') || eventName.includes('blocked') || eventName.includes('reject') || eventName.includes('block') || eventName.includes('alert') || eventName.includes('invalid')) badgeClass = 'st-rejected';
+            else if (eventName === 'register' || eventName === 'trial_granted' || eventName.includes('watch') || eventName.includes('missing')) badgeClass = 'st-trial';
             else if (eventName.includes('confirm') || eventName.includes('unblock')) badgeClass = 'st-confirmed';
             return '<tr>' +
                 '<td class="adm-date">' + fmtDateTime(e.created_at) + '</td>' +

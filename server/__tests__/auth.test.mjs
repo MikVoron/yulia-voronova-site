@@ -121,6 +121,24 @@ describe('auth/verify', () => {
     expect(res.statusCode).toBe(400);
     expect(res.json().error).toContain('Код не найден');
   });
+
+  it('rejects a fingerprint with the wrong length', async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/auth/verify',
+      payload: { email: 'test@example.com', code: '000000', fingerprint: 'a'.repeat(63) }
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('fingerprint');
+  });
+
+  it('rejects a non-hex fingerprint', async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/auth/verify',
+      payload: { email: 'test@example.com', code: '000000', fingerprint: 'z'.repeat(64) }
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('fingerprint');
+  });
 });
 
 describe('auth/refresh', () => {
