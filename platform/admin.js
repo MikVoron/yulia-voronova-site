@@ -146,10 +146,12 @@
 
             var actions = '';
             if (u.is_blocked) {
-                actions = '<button class="adm-btn adm-btn-unblock" onclick="unblockUser(' + jsArg(u.id) + ')">Разблокировать</button>';
+                actions = '<button class="adm-btn adm-btn-unblock" onclick="unblockUser(' + jsArg(u.id) + ')">Разблокировать</button>' +
+                    '<button class="adm-btn adm-btn-delete" onclick="deleteUserById(' + jsArg(u.id) + ')">Удалить</button>';
             } else if (u.role !== 'admin') {
                 actions = '<button class="adm-btn adm-btn-extend" onclick="openExtendModalById(' + jsArg(u.id) + ')">Продлить</button>' +
-                    '<button class="adm-btn adm-btn-block" onclick="blockUserById(' + jsArg(u.id) + ')">Блок</button>';
+                    '<button class="adm-btn adm-btn-block" onclick="blockUserById(' + jsArg(u.id) + ')">Блок</button>' +
+                    '<button class="adm-btn adm-btn-delete" onclick="deleteUserById(' + jsArg(u.id) + ')">Удалить</button>';
             } else {
                 actions = '<span style="color:var(--text-3);font-size:12px">admin</span>';
             }
@@ -358,6 +360,31 @@
             loadStats();
         }).catch(function(e) {
             showToast(e.message || 'Ошибка');
+        });
+    };
+
+    window.deleteUserById = function(id) {
+        var u = findUserById(id);
+        if (!u) { showToast('Пользователь не найден'); return; }
+        var email = u.email || '';
+        var typed = prompt(
+            'Удаление необратимо. Будут удалены аккаунт, подписка и данные Тарелки.\n\n' +
+            'Для подтверждения введите email пользователя:\n' + email
+        );
+        if (typed === null) return;
+        if (typed.trim().toLowerCase() !== email.trim().toLowerCase()) {
+            showToast('Email не совпадает. Удаление отменено');
+            return;
+        }
+        api('/admin/users/' + encodeURIComponent(id), {
+            method: 'DELETE',
+            body: { confirmEmail: typed.trim() }
+        }).then(function() {
+            showToast('Пользователь удалён');
+            loadUsers();
+            loadStats();
+        }).catch(function(e) {
+            showToast(e.message || 'Не удалось удалить пользователя');
         });
     };
 

@@ -164,6 +164,93 @@ describe('admin list hardening', () => {
   });
 });
 
+describe('admin user deletion', () => {
+  const userId = 'bcbd9441-106c-4706-b646-10cf9c845b50';
+
+  it('deletes a test user and dependent feedback in one transaction', async () => {
+    mockClientQuery.mockImplementation(async (sql) => {
+      if (sql.includes('SELECT id, email, role FROM users')) {
+        return { rows: [{ id: userId, email: 'test@example.com', role: 'user' }] };
+      }
+      return { rows: [] };
+    });
+
+    const res = await app.inject({
+      method: 'DELETE',
+      url: '/admin/users/' + userId,
+      payload: { confirmEmail: 'test@example.com' }
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(mockClientQuery).toHaveBeenCalledWith('UPDATE feedback_messages SET admin_id=NULL WHERE admin_id=$1', [userId]);
+    expect(mockClientQuery).toHaveBeenCalledWith('DELETE FROM feedback_messages WHERE user_id=$1', [userId]);
+    expect(mockClientQuery).toHaveBeenCalledWith('DELETE FROM users WHERE id=$1', [userId]);
+    expect(mockClientQuery).toHaveBeenCalledWith('COMMIT');
+    expect(auditLog).toHaveBeenCalledWith('user_delete', expect.objectContaining({
+      userId: 'admin-1',
+      email: 'test@example.com'
+    }));
+  });
+
+  it('refuses to delete an administrator', async () => {
+    mockClientQuery.mockImplementation(async (sql) => {
+      if (sql.includes('SELECT id, email, role FROM users')) {
+        return { rows: [{ id: userId, email: 'admin@example.com', role: 'admin' }] };
+      }
+      return { rows: [] };
+    });
+
+    const res = await app.inject({
+      method: 'DELETE',
+      url: '/admin/users/' + userId,
+      payload: { confirmEmail: 'admin@example.com' }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('Администратора');
+    expect(mockClientQuery).not.toHaveBeenCalledWith('DELETE FROM users WHERE id=$1', [userId]);
+  });
+
+  it('refuses to delete a user with a confirmed payment', async () => {
+    mockClientQuery.mockImplementation(async (sql) => {
+      if (sql.includes('SELECT id, email, role FROM users')) {
+        return { rows: [{ id: userId, email: 'paid@example.com', role: 'user' }] };
+      }
+      if (sql.includes("status='confirmed'")) return { rows: [{ '?column?': 1 }] };
+      return { rows: [] };
+    });
+
+    const res = await app.inject({
+      method: 'DELETE',
+      url: '/admin/users/' + userId,
+      payload: { confirmEmail: 'paid@example.com' }
+    });
+
+    expect(res.statusCode).toBe(409);
+    expect(res.json().error).toContain('подтверждённой оплатой');
+    expect(mockClientQuery).not.toHaveBeenCalledWith('DELETE FROM users WHERE id=$1', [userId]);
+  });
+
+  it('requires an exact email confirmation', async () => {
+    mockClientQuery.mockImplementation(async (sql) => {
+      if (sql.includes('SELECT id, email, role FROM users')) {
+        return { rows: [{ id: userId, email: 'test@example.com', role: 'user' }] };
+      }
+      return { rows: [] };
+    });
+
+    const res = await app.inject({
+      method: 'DELETE',
+      url: '/admin/users/' + userId,
+      payload: { confirmEmail: 'other@example.com' }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('Email не совпадает');
+    expect(mockClientQuery).not.toHaveBeenCalledWith('DELETE FROM users WHERE id=$1', [userId]);
+  });
+});
+
 describe('admin feedback hardening', () => {
   it('rejects non-string feedback replies before opening a DB transaction', async () => {
     const res = await app.inject({

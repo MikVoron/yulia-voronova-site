@@ -291,6 +291,14 @@
 
         .adm-btn-block:hover:not(:disabled) { background: #fecaca; }
 
+        .adm-btn-delete {
+            background: var(--red-l);
+            color: var(--red);
+            margin-left: 6px;
+        }
+
+        .adm-btn-delete:hover:not(:disabled) { background: #fecaca; }
+
         .adm-btn-unblock {
             background: var(--green-l);
             color: var(--green);
@@ -760,7 +768,8 @@
         }
 
         .adm-btn-reject,
-        .adm-btn-block {
+        .adm-btn-block,
+        .adm-btn-delete {
             border-color: rgba(180,35,24,.18);
             background: var(--red-l);
             color: var(--red);
@@ -1339,6 +1348,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260612-soups-category"></script>
-<script src="admin.js?v=20260626-admin-xss-hardening"></script>
+<script src="admin.js?v=20260627-user-delete"></script>
 </body>
 </html>

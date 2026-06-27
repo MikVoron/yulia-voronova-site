@@ -17,6 +17,7 @@ const AUDIT_EVENTS = new Set([
   'payment_reject',
   'user_block',
   'user_unblock',
+  'user_delete',
   'subscription_extend',
   'feedback_reply',
   'review_delete',
@@ -230,6 +231,75 @@ async function adminRoutes(fastify) {
       WHERE user_id = $1 AND status = 'blocked'
     `, [id]);
     audit.log('user_unblock', { userId: req.user.sub, detail: 'unblocked user#' + id, ip: req.ip });
+    return { ok: true };
+  });
+
+  // DELETE /admin/users/:id — полностью удалить тестового пользователя
+  fastify.delete('/admin/users/:id', {
+    preHandler: requireAdmin,
+    config: { rateLimit: { max: 10, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
+    const id = parseUserId(req.params.id);
+    if (!id) return reply.status(400).send({ error: 'Некорректный id пользователя' });
+
+    const confirmEmail = typeof (req.body && req.body.confirmEmail) === 'string'
+      ? req.body.confirmEmail.trim().toLowerCase()
+      : '';
+    if (!confirmEmail) {
+      return reply.status(400).send({ error: 'Введите email пользователя для подтверждения удаления' });
+    }
+
+    const client = await db.pool.connect();
+    let deletedEmail = null;
+    try {
+      await client.query('BEGIN');
+      const userRes = await client.query(
+        'SELECT id, email, role FROM users WHERE id=$1 FOR UPDATE',
+        [id]
+      );
+      if (!userRes.rows.length) {
+        await client.query('ROLLBACK');
+        return reply.status(404).send({ error: 'Пользователь не найден' });
+      }
+
+      const target = userRes.rows[0];
+      if (target.role === 'admin') {
+        await client.query('ROLLBACK');
+        return reply.status(400).send({ error: 'Администратора удалить нельзя' });
+      }
+      if (String(target.email || '').trim().toLowerCase() !== confirmEmail) {
+        await client.query('ROLLBACK');
+        return reply.status(400).send({ error: 'Email не совпадает' });
+      }
+
+      const confirmedPayment = await client.query(
+        "SELECT 1 FROM payments WHERE user_id=$1 AND status='confirmed' LIMIT 1",
+        [id]
+      );
+      if (confirmedPayment.rows.length) {
+        await client.query('ROLLBACK');
+        return reply.status(409).send({ error: 'Нельзя удалить пользователя с подтверждённой оплатой' });
+      }
+
+      // У обращений нет ON DELETE CASCADE; сообщения треда удалятся вместе с обращениями.
+      await client.query('UPDATE feedback_messages SET admin_id=NULL WHERE admin_id=$1', [id]);
+      await client.query('DELETE FROM feedback_messages WHERE user_id=$1', [id]);
+      await client.query('DELETE FROM users WHERE id=$1', [id]);
+      await client.query('COMMIT');
+      deletedEmail = target.email || null;
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+
+    audit.log('user_delete', {
+      userId: req.user.sub,
+      email: deletedEmail,
+      detail: 'deleted test user#' + id,
+      ip: req.ip
+    });
     return { ok: true };
   });
 
