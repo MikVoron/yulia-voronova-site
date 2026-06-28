@@ -208,13 +208,20 @@
 		}
 
 		.lp-trial-note {
+			margin: -8px 0 22px;
+			color: var(--text-2);
+			font-size: 12px;
+			font-weight: 600;
+			line-height: 1.4;
+		}
+
+		.lp-trial-note::before {
+			content: '';
 			display: inline-block;
-			margin: -12px 0 24px;
-			padding-bottom: 3px;
-			border-bottom: 2px solid var(--accent);
-			font-size: 13px;
-			font-weight: 800;
-			color: var(--text);
+			width: 5px;
+			height: 5px;
+			margin: 0 8px 2px 0;
+			background: var(--accent);
 		}
 
 		.form-label {
@@ -563,7 +570,7 @@
 					<div class="form-eyebrow">Войти / Регистрация</div>
 					<h1 class="lp-h2">Войдите в свой кабинет</h1>
 					<p class="lp-lead">Введите email - мы пришлём 6-значный код. Пароль не нужен, вход запомним на этом устройстве.</p>
-					<p class="lp-trial-note">Новым пользователям — 7 дней бесплатно</p>
+					<p class="lp-trial-note">7 дней бесплатного доступа для новых пользователей</p>
 
 					<div class="field">
 						<label class="form-label" for="email-input">Email</label>
