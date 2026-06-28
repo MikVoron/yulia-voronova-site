@@ -17,16 +17,16 @@
 	<link rel="stylesheet" href="style-v4.css?v=2026-06-01-recipe-actions" id="vcss">
 	<style>
 		.recipe-guest-helper {
+			position: relative;
 			display: grid;
-			grid-template-columns: minmax(0, 1fr) auto;
-			gap: 18px;
+			grid-template-columns: minmax(0, 1fr) minmax(190px, auto);
+			gap: 32px;
 			align-items: center;
 			margin: 0 0 22px;
-			padding: 18px 20px;
-			background: #fff;
+			padding: 20px 24px;
+			background: #fbfaf7;
 			border: 1px solid var(--border);
 			border-left: 4px solid var(--accent);
-			box-shadow: 0 14px 34px rgba(0,0,0,.06);
 		}
 		.recipe-guest-helper-kicker {
 			margin: 0 0 6px;
@@ -39,8 +39,8 @@
 		.recipe-guest-helper h2 {
 			margin: 0 0 8px;
 			font-family: var(--serif);
-			font-size: clamp(24px, 3vw, 34px);
-			line-height: 1.05;
+			font-size: clamp(23px, 2.2vw, 28px);
+			line-height: 1.12;
 			letter-spacing: 0;
 		}
 		.recipe-guest-helper p {
@@ -51,9 +51,9 @@
 			line-height: 1.58;
 		}
 		.recipe-guest-helper-actions {
-			display: flex;
-			gap: 10px;
-			align-items: center;
+			display: grid;
+			gap: 9px;
+			justify-items: stretch;
 		}
 		.recipe-guest-helper-btn {
 			display: inline-flex;
@@ -72,18 +72,46 @@
 			white-space: nowrap;
 			cursor: pointer;
 		}
-		.recipe-guest-helper-btn.is-ghost {
-			background: #fff;
+		.recipe-guest-helper-back {
+			color: var(--text-2);
+			font-size: 12px;
+			font-weight: 600;
+			line-height: 1.4;
+			text-align: center;
+			text-decoration: underline;
+			text-decoration-color: transparent;
+			text-underline-offset: 3px;
+			transition: color .2s ease, text-decoration-color .2s ease;
+		}
+		.recipe-guest-helper-back:hover {
+			color: var(--text);
+			text-decoration-color: currentColor;
+		}
+		.recipe-guest-helper-dismiss {
+			position: absolute;
+			top: 8px;
+			right: 8px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 32px;
+			height: 32px;
+			padding: 0;
+			border: 0;
+			background: transparent;
+			color: var(--text-2);
+			font-size: 22px;
+			line-height: 1;
+			cursor: pointer;
+		}
+		.recipe-guest-helper-dismiss:hover {
 			color: var(--text);
 		}
 		@media (max-width: 767px) {
 			.recipe-guest-helper {
 				grid-template-columns: 1fr;
+				gap: 16px;
 				padding: 16px;
-			}
-			.recipe-guest-helper-actions {
-				display: grid;
-				grid-template-columns: 1fr;
 			}
 		}
 
@@ -2859,16 +2887,24 @@
 				return parts.join('<span class="crumb-sep">›</span>');
 			})();
 
-			const guestHelpHtml = new URLSearchParams(location.search).get('guestHelp') === '1'
+			const guestHelpParams = new URLSearchParams(location.search);
+			const guestHelpRequested = guestHelpParams.get('guestHelp') === '1';
+			const guestHelpForced = guestHelpParams.get('guestTour') === '1';
+			let guestTourCompleted = false;
+			try {
+				guestTourCompleted = localStorage.getItem('smartplate_guest_tour_completed_v1') === '1';
+			} catch (_) {}
+			const guestHelpHtml = guestHelpRequested && (guestHelpForced || !guestTourCompleted)
 				? `<section class="recipe-guest-helper" aria-label="Подсказка по рецепту">
+					<button class="recipe-guest-helper-dismiss" type="button" onclick="dismissRecipeGuestHelper()" aria-label="Больше не показывать">×</button>
 					<div>
-						<p class="recipe-guest-helper-kicker">Попробуйте на примере</p>
-						<h2>Сейчас посмотрите на блок “Баланс блюда”</h2>
-						<p>Справа система показывает, чего не хватает этому рецепту, чтобы блюдо стало более полноценным приемом пищи. На телефоне этот блок будет ниже рецепта.</p>
+						<p class="recipe-guest-helper-kicker">На странице рецепта</p>
+						<h2>Посмотрите, как работает «Баланс блюда»</h2>
+						<p>Система подскажет, чего не хватает рецепту до полноценного приёма пищи. Здесь же можно посмотреть рейтинг, прочитать отзывы и проголосовать за съёмку видеорецепта.</p>
 					</div>
 					<div class="recipe-guest-helper-actions">
-						<button class="recipe-guest-helper-btn" type="button" onclick="scrollToBalanceBanner()">Показать баланс</button>
-						<a class="recipe-guest-helper-btn is-ghost" href="index.html?guestTour=1">К описанию платформы</a>
+						<button class="recipe-guest-helper-btn" type="button" onclick="scrollToBalanceBanner()">Перейти к балансу</button>
+						<a class="recipe-guest-helper-back" href="index.html?guestTour=1">Все возможности платформы →</a>
 					</div>
 				</section>`
 				: '';
@@ -3425,8 +3461,24 @@
 
 		function scrollToBalanceBanner() {
 			const banner = document.getElementById('bal-banner');
-			if (!banner) return;
-			banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			completeRecipeGuestTour();
+			if (banner) banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		}
+
+		function completeRecipeGuestTour() {
+			try {
+				localStorage.setItem('smartplate_guest_tour_completed_v1', '1');
+			} catch (_) {}
+			const helper = document.querySelector('.recipe-guest-helper');
+			if (helper) helper.remove();
+			const url = new URL(location.href);
+			url.searchParams.delete('guestHelp');
+			url.searchParams.delete('guestTour');
+			history.replaceState(null, '', url.pathname + url.search + url.hash);
+		}
+
+		function dismissRecipeGuestHelper() {
+			completeRecipeGuestTour();
 		}
 
 		function handleMiniStatusKey(e) {

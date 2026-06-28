@@ -829,12 +829,35 @@
 
 		.sp-how-foot {
 			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 10px;
 			justify-content: center;
 			margin: 22px 0 34px;
 		}
 
 		.sp-how-foot .sp-how-cta {
 			min-width: min(360px, 100%);
+		}
+
+		.sp-how-dismiss {
+			padding: 3px 6px;
+			border: 0;
+			background: transparent;
+			color: var(--text-2);
+			font: inherit;
+			font-size: 12px;
+			font-weight: 600;
+			text-decoration: underline;
+			text-decoration-color: transparent;
+			text-underline-offset: 3px;
+			cursor: pointer;
+			transition: color .2s ease, text-decoration-color .2s ease;
+		}
+
+		.sp-how-dismiss:hover {
+			color: var(--text);
+			text-decoration-color: currentColor;
 		}
 
 		.sp-how-grid {
@@ -3216,7 +3239,8 @@
 					</div>
 
 					<div class="sp-how-foot">
-						<a class="sp-how-cta" href="recipe.html?id=cutlets-chickpea-mushroom-dill&guestHelp=1">Попробовать на примере</a>
+						<a class="sp-how-cta" href="recipe.html?id=cutlets-chickpea-mushroom-dill&guestHelp=1&guestTour=1">Попробовать на примере</a>
+						<button class="sp-how-dismiss" type="button" onclick="completeGuestTour()">Больше не показывать</button>
 					</div>
 				</div>
 			</section>
@@ -3476,12 +3500,32 @@
 		// Объявляем здесь, а не внизу: _renderRecommendedSkeleton() использует
 		// _spRecCount синхронно, а let остаётся в TDZ до строки объявления.
 		let _spRecCount = 8;
-		const _guestTourPreview = new URLSearchParams(location.search).get('guestTour') === '1';
+		const GUEST_TOUR_COMPLETED_KEY = 'smartplate_guest_tour_completed_v1';
+		let _guestTourPreview = new URLSearchParams(location.search).get('guestTour') === '1';
 		if (_guestTourPreview) document.body.classList.add('sp-guest-tour-preview');
+		function isGuestTourCompleted() {
+			try {
+				return localStorage.getItem(GUEST_TOUR_COMPLETED_KEY) === '1';
+			} catch (_) {
+				return false;
+			}
+		}
+		function completeGuestTour() {
+			try {
+				localStorage.setItem(GUEST_TOUR_COMPLETED_KEY, '1');
+			} catch (_) {}
+			_guestTourPreview = false;
+			document.body.classList.remove('sp-guest-tour-preview', 'sp-guest-onboarding-active');
+			const url = new URL(location.href);
+			url.searchParams.delete('guestTour');
+			history.replaceState(null, '', url.pathname + url.search + url.hash);
+			const intro = document.getElementById('intro-block');
+			if (intro) intro.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		}
 		function updateGuestOnboardingVisibility() {
 			const isGuest = (Auth && typeof Auth.isGuest === 'function' && Auth.isGuest())
 				|| !(Auth && typeof Auth.isLoggedIn === 'function' && Auth.isLoggedIn());
-			document.body.classList.toggle('sp-guest-onboarding-active', _guestTourPreview || isGuest);
+			document.body.classList.toggle('sp-guest-onboarding-active', _guestTourPreview || (isGuest && !isGuestTourCompleted()));
 		}
 
 		// Skeleton в #recommended-block СРАЗУ — место зарезервировано до того,
