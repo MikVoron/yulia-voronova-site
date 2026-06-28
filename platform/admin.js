@@ -57,7 +57,7 @@
     }
 
     // ── Tabs ──
-    var ADMIN_TABS = ['users', 'payments', 'news', 'recipes', 'video-requests', 'categories', 'feedback', 'audit'];
+    var ADMIN_TABS = ['dashboard', 'users', 'payments', 'news', 'recipes', 'video-requests', 'categories', 'feedback', 'audit'];
 
     function normalizeAdminTab(tab) {
         return ADMIN_TABS.includes(tab) ? tab : 'users';
