@@ -69,3 +69,52 @@ describe('email template escaping', () => {
     expect(message.html).toContain('reply &lt;b&gt;bold&lt;/b&gt; &amp; &quot;quote&quot;');
   });
 });
+
+describe('email visual system', () => {
+  it('uses the compact responsive wrapper across every notification type', async () => {
+    await email.sendLoginCode('user@example.com', '123456');
+    await email.sendWelcome('user@example.com', true);
+    await email.sendWelcome('user@example.com', false);
+    await email.sendTrialExpired('user@example.com');
+    await email.sendSubscriptionExpired('user@example.com');
+    await email.sendSubscriptionExtended('user@example.com', 30, '2026-07-04T00:00:00.000Z');
+    await email.sendPaymentConfirmed('user@example.com', 30, '2026-07-04T00:00:00.000Z', 'Спасибо');
+    await email.sendPaymentRejected('user@example.com', 'Нужен более чёткий скриншот');
+    await email.sendPaymentNotification('user@example.com', '990', '28.06.2026', true);
+    await email.sendFeedback('user@example.com', 'wish', 'Добавьте новый рецепт');
+    await email.sendNewUserNotification(
+      { id: 'user-1', email: 'user@example.com' },
+      { method: 'email', ip: '127.0.0.1', userAgent: 'Vitest', trialGranted: true }
+    );
+    await email.sendReviewNotification('Анна', 'Омлет', 5, 'Очень вкусно', 'omelet');
+    await email.sendVideoRequestThresholdNotification('Омлет', 'omelet', 100, 100);
+    await email.sendNewsletter(
+      'user@example.com',
+      { type: 'recipe', recipeId: 'omelet', recipeName: 'Омлет', text: 'Новый рецепт уже на платформе' },
+      'unsubscribe-token'
+    );
+    await email.sendFeedbackReply('user@example.com', 'wish', 'Моё обращение', 'Спасибо за идею', 'Анна');
+
+    expect(sendMail).toHaveBeenCalledTimes(15);
+    for (const [message] of sendMail.mock.calls) {
+      expect(message.html).toContain('width="560"');
+      expect(message.html).toContain('class="em-content"');
+      expect(message.html).toContain('-webkit-text-size-adjust:100%');
+      expect(message.html).toContain('font-size:25px');
+      expect(message.html).not.toContain('padding:17px 38px');
+      expect(message.html).not.toContain('font-size:22px;color:#111');
+    }
+  });
+
+  it('keeps CTA buttons compact and preserves support and unsubscribe links', async () => {
+    await email.sendSubscriptionExtended('user@example.com', 30, '2026-07-04T00:00:00.000Z');
+    const serviceMessage = sendMail.mock.calls[0][0];
+    expect(serviceMessage.html).toContain('padding:13px 21px');
+    expect(serviceMessage.html).toContain('background-color:#e8400a');
+    expect(serviceMessage.html).toContain('/cabinet.html?tab=feedback');
+
+    await email.sendNewsletter('user@example.com', 'Новости платформы', 'token with spaces');
+    const newsletterMessage = sendMail.mock.calls[1][0];
+    expect(newsletterMessage.html).toContain('/api/unsubscribe?token=token%20with%20spaces');
+  });
+});
