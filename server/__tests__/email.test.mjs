@@ -91,7 +91,8 @@ describe('email visual system', () => {
     await email.sendNewsletter(
       'user@example.com',
       { type: 'recipe', recipeId: 'omelet', recipeName: 'Омлет', text: 'Новый рецепт уже на платформе' },
-      'unsubscribe-token'
+      'unsubscribe-token',
+      'Анна'
     );
     await email.sendFeedbackReply('user@example.com', 'wish', 'Моё обращение', 'Спасибо за идею', 'Анна');
 
@@ -116,5 +117,22 @@ describe('email visual system', () => {
     await email.sendNewsletter('user@example.com', 'Новости платформы', 'token with spaces');
     const newsletterMessage = sendMail.mock.calls[1][0];
     expect(newsletterMessage.html).toContain('/api/unsubscribe?token=token%20with%20spaces');
+  });
+
+  it('personalizes newsletter greeting and uses the mailing-only footer', async () => {
+    await email.sendNewsletter('user@example.com', 'Тестовая новость', 'unsubscribe-token', 'Анна <Иванова>');
+    const personalized = sendMail.mock.calls[0][0].html;
+    expect(personalized).toContain('Привет, Анна &lt;Иванова&gt;!');
+    expect(personalized).not.toContain('>Новости</p>');
+    expect(personalized.indexOf('Ваша Юля')).toBeLessThan(personalized.indexOf('Открыть Умную тарелку'));
+    expect(personalized).toContain('Вы получили это письмо, потому что подписались на новости проекта.');
+    expect(personalized).toContain('Отписаться от рассылки');
+    expect(personalized).toContain('© 2026 Юлия Воронова');
+    expect(personalized).not.toContain('Открыть платформу');
+
+    await email.sendNewsletter('user@example.com', 'Ещё одна новость', 'unsubscribe-token');
+    const generic = sendMail.mock.calls[1][0].html;
+    expect(generic).toContain('Привет!');
+    expect(generic).not.toContain('Привет, !');
   });
 });

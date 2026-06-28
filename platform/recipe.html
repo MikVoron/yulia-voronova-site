@@ -28,14 +28,6 @@
 			border: 1px solid var(--border);
 			border-left: 4px solid var(--accent);
 		}
-		.recipe-guest-helper-kicker {
-			margin: 0 0 6px;
-			color: var(--accent);
-			font-size: 10px;
-			font-weight: 800;
-			letter-spacing: .16em;
-			text-transform: uppercase;
-		}
 		.recipe-guest-helper h2 {
 			margin: 0 0 8px;
 			font-family: var(--serif);
@@ -1121,10 +1113,8 @@
 		.bal-item:hover { background: transparent !important; border-color: var(--border) !important; }
 		.bal-item:last-child { border-bottom: none !important; }
 		.bal-item.checked { background: transparent !important; border-color: var(--border) !important; box-shadow: none !important; }
-		.bal-item-check { width: 14px !important; height: 14px !important; border-radius: 0 !important; border: 0 !important; background: transparent !important; color: var(--accent) !important; box-sizing: border-box; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
-		.bal-item-check::before { content: '+'; font-size: 14px; line-height: 1; font-weight: 800; }
-		.bal-item.checked .bal-item-check { background: var(--text) !important; border: 1px solid var(--text) !important; color: #fff !important; }
-		.bal-item.checked .bal-item-check::before { content: '' !important; display: none !important; }
+		.bal-item-check { width: 14px !important; height: 14px !important; border-radius: 0 !important; border: 1.5px solid var(--text-3) !important; background: transparent !important; box-sizing: border-box; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+		.bal-item.checked .bal-item-check { background: var(--text) !important; border-color: var(--text) !important; }
 		.bal-item.checked .bal-item-check::after { content: '✓' !important; color: #fff !important; font-size: 9px !important; font-weight: 700 !important; animation: none !important; }
 		.bal-item-text { font-size: 13px !important; font-weight: 400 !important; color: var(--text) !important; }
 		.bal-item.checked .bal-item-text { color: var(--text) !important; font-weight: 500 !important; }
@@ -1138,12 +1128,12 @@
 			border: none !important;
 			padding: 0 !important;
 			border-radius: 0 !important;
-			text-decoration: underline;
-			text-underline-offset: 2px;
+			text-decoration: none;
 			font-size: 11px !important;
 			letter-spacing: 0 !important;
 			font-weight: 600 !important;
 		}
+		.bal-item-recipe-label { text-decoration: underline; text-underline-offset: 2px; }
 		.bal-item-recipe-link:hover { background: transparent !important; color: var(--text) !important; }
 
 		/* Total */
@@ -2898,7 +2888,6 @@
 				? `<section class="recipe-guest-helper" aria-label="Подсказка по рецепту">
 					<button class="recipe-guest-helper-dismiss" type="button" onclick="dismissRecipeGuestHelper()" aria-label="Больше не показывать">×</button>
 					<div>
-						<p class="recipe-guest-helper-kicker">На странице рецепта</p>
 						<h2>Посмотрите, как работает «Баланс блюда»</h2>
 						<p>Система подскажет, чего не хватает рецепту до полноценного приёма пищи. Здесь же можно посмотреть рейтинг, прочитать отзывы и проголосовать за съёмку видеорецепта.</p>
 					</div>
@@ -3132,7 +3121,7 @@
                             <div class="bal-item-check" id="chk-${key}"></div>
                             <div class="bal-item-text">
                                 ${escHtml(item.name)}${amountHtml}
-								<a class="bal-item-recipe-link" href="${escHtml(balRecipeUrl)}">→ Открыть рецепт</a>
+								<a class="bal-item-recipe-link" href="${escHtml(balRecipeUrl)}"><span aria-hidden="true">→</span> <span class="bal-item-recipe-label">Открыть рецепт</span></a>
                             </div>
                             <div class="bal-item-kcal">+${Number(item.kcal)}</div>
                         </div>`;
@@ -3141,7 +3130,7 @@
                             <div class="bal-item-check" id="chk-${key}"></div>
                             <div class="bal-item-text">
                                 ${escHtml(item.name)}${amountHtml}
-								${hasCat ? `<a class="bal-item-recipe-link" href="category.html?cat=${encodeURIComponent(item.catLink)}">→ Выбрать из списка</a>` : ''}
+								${hasCat ? `<a class="bal-item-recipe-link" href="category.html?cat=${encodeURIComponent(item.catLink)}"><span aria-hidden="true">→</span> <span class="bal-item-recipe-label">Выбрать из списка</span></a>` : ''}
                             </div>
                             <div class="bal-item-kcal">+${Number(item.kcal)}</div>
                         </button>`;

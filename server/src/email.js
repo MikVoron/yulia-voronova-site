@@ -10,21 +10,31 @@ const transporter = nodemailer.createTransport({
 const FROM = '"Умная тарелка" <' + (process.env.SMTP_FROM || 'noreply@voronova.online') + '>';
 const PLATFORM_URL = process.env.PLATFORM_URL || 'https://app.voronova.online';
 
-function wrap(body, unsubscribeToken, showSupportFooter = false) {
+function wrap(body, unsubscribeToken, showSupportFooter = false, newsletterFooter = false) {
   const unsubLink = unsubscribeToken
-    ? '&nbsp;&nbsp;·&nbsp;&nbsp;<a href="' + PLATFORM_URL + '/api/unsubscribe?token=' + encodeURIComponent(unsubscribeToken) + '" style="color:#77716a; text-decoration:underline;">Отписаться от рассылки</a>'
+    ? '<a href="' + PLATFORM_URL + '/api/unsubscribe?token=' + encodeURIComponent(unsubscribeToken) + '" style="color:#77716a; text-decoration:underline;">Отписаться от рассылки</a>'
     : '';
   const supportBlock = showSupportFooter
     ? `<tr>
 	<td class="em-help" bgcolor="#faf8f5" style="background-color:#faf8f5; border-top:1px solid #e5e1db; padding:18px 36px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:12px; line-height:1.65; font-weight:400; color:#625d57;">Нужна помощь? Напишите на <a href="mailto:hello@voronova.online" style="color:#c73208; text-decoration:underline; font-weight:600;">hello@voronova.online</a> или в разделе <a href="${PLATFORM_URL}/cabinet.html?tab=feedback" target="_blank" style="color:#c73208; text-decoration:underline; font-weight:600;">«Связь»</a>.</td>
 </tr>`
     : '';
-  const footer = `<tr>
+  const standardFooter = `<tr>
 	<td class="em-footer" align="center" style="border-top:1px solid #e5e1db; padding:19px 28px 21px;">
 		<div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif; font-size:14px; line-height:1.3; font-weight:700; color:#171717;">Умная&nbsp;<span style="color:#e8400a;">тарелка</span></div>
 		<div style="margin-top:7px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;"><a href="${PLATFORM_URL}/" target="_blank" style="color:#77716a; text-decoration:underline;">Открыть платформу</a>{{UNSUBSCRIBE_LINK}}&nbsp;&nbsp;·&nbsp;&nbsp;© 2026 Юлия Воронова</div>
 	</td>
-</tr>`.replace('{{UNSUBSCRIBE_LINK}}', () => unsubLink);
+</tr>`.replace('{{UNSUBSCRIBE_LINK}}', () => unsubLink ? '&nbsp;&nbsp;·&nbsp;&nbsp;' + unsubLink : '');
+  const mailingFooter = `<tr>
+	<td class="em-footer" align="center" style="border-top:1px solid #e5e1db; padding:19px 28px 21px;">
+		<div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif; font-size:14px; line-height:1.3; font-weight:700; color:#171717;">Умная&nbsp;<span style="color:#e8400a;">тарелка</span></div>
+		<div style="margin-top:7px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;">Вы получили это письмо, потому что подписались на новости проекта.</div>
+		<div style="margin-top:3px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;">{{UNSUBSCRIBE_LINK}}{{COPYRIGHT_SEPARATOR}}© 2026 Юлия Воронова</div>
+	</td>
+</tr>`
+    .replace('{{UNSUBSCRIBE_LINK}}', () => unsubLink)
+    .replace('{{COPYRIGHT_SEPARATOR}}', () => unsubLink ? '&nbsp;&nbsp;·&nbsp;&nbsp;' : '');
+  const footer = newsletterFooter ? mailingFooter : standardFooter;
   return `<!DOCTYPE html>
 <html lang="ru" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -377,28 +387,30 @@ async function sendVideoRequestThresholdNotification(recipeName, recipeId, votes
 }
 
 // ── 9. Рассылка новости ──
-async function sendNewsletter(to, news, unsubscribeToken) {
+async function sendNewsletter(to, news, unsubscribeToken, displayName) {
   const item = typeof news === 'string' ? { text: news } : (news || {});
   const isRecipe = item.type === 'recipe' && item.recipeId && item.recipeName;
   const newsText = escHtml(item.text);
   const recipeName = escHtml(item.recipeName);
+  const safeName = escHtml(String(displayName || '').trim());
+  const greeting = safeName ? 'Привет, ' + safeName + '!' : 'Привет!';
   const subject = isRecipe ? 'Новый рецепт: ' + item.recipeName : 'Новости';
   const title = isRecipe
     ? 'Я добавила новый рецепт: <strong>' + recipeName + '</strong>.'
-    : 'Новости';
+    : '';
   const buttonText = isRecipe ? 'Посмотреть рецепт' : 'Открыть Умную тарелку';
   const buttonUrl = isRecipe
     ? PLATFORM_URL + '/recipe.html?id=' + encodeURIComponent(item.recipeId)
     : PLATFORM_URL + '/';
   const body =
-    heading('Привет!', isRecipe ? 'Новый рецепт' : 'Новости Умной тарелки')
-    + paragraph(title)
+    heading(greeting, isRecipe ? 'Новый рецепт' : 'Новости Умной тарелки')
+    + (title ? paragraph(title) : '')
     + (newsText
       ? paragraph(newsText, '0 0 16px', '#4a4642', 'white-space:pre-wrap;')
       : '')
-    + btn(buttonText, buttonUrl)
-    + signature();
-  await send(to, subject, wrap(body, unsubscribeToken));
+    + signature()
+    + btn(buttonText, buttonUrl);
+  await send(to, subject, wrap(body, unsubscribeToken, false, true));
 }
 
 // ── 10. Уведомление пользователю об ответе на обращение ──

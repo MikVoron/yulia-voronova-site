@@ -665,7 +665,7 @@ async function contentRoutes(fastify) {
             return;
           }
           const subscribers = await db.query(
-            'SELECT email, unsubscribe_token FROM users WHERE newsletter_subscribed = true AND email IS NOT NULL'
+            'SELECT email, display_name, unsubscribe_token FROM users WHERE newsletter_subscribed = true AND email IS NOT NULL'
           );
           for (const sub of subscribers.rows) {
             try {
@@ -674,7 +674,7 @@ async function contentRoutes(fastify) {
                 text: text.trim(),
                 recipeId: newsType === 'recipe' ? recipe_id : null,
                 recipeName
-              }, sub.unsubscribe_token);
+              }, sub.unsubscribe_token, sub.display_name);
             } catch (e) { console.error('Newsletter send error for', sub.email, ':', e.message); }
           }
           console.log(`Newsletter sent to ${subscribers.rows.length} subscribers for news#${newsId}`);

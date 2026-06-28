@@ -923,8 +923,8 @@
 
 		.sp-how-search {
 			position: absolute;
-			left: 18px;
-			right: 18px;
+			left: 10px;
+			right: 10px;
 			top: 24px;
 			height: 48px;
 			background: #fff;
@@ -935,10 +935,10 @@
 		.sp-how-search::after {
 			content: '→';
 			position: absolute;
-			right: 8px;
-			top: 7px;
-			width: 34px;
-			height: 34px;
+			right: 6px;
+			top: 9px;
+			width: 30px;
+			height: 30px;
 			background: var(--text);
 			color: #fff;
 			display: flex;
@@ -951,12 +951,13 @@
 
 		.sp-how-search span {
 			position: absolute;
-			left: 42px;
-			right: 54px;
+			left: 34px;
+			right: 32px;
 			top: 16px;
-			height: 14px;
+			height: auto;
 			color: var(--text-3);
-			font-size: 13px;
+			font-size: 10px;
+			line-height: 1.2;
 			white-space: nowrap;
 			overflow: hidden;
 		}
@@ -968,10 +969,6 @@
 			width: 16px;
 			height: 16px;
 			color: var(--text-3);
-		}
-
-		.sp-how-search-full {
-			display: none;
 		}
 
 		.sp-how-chip {
@@ -1210,12 +1207,8 @@
 				display: block;
 			}
 
-			.sp-how-search-short {
-				display: none;
-			}
-
-			.sp-how-search-full {
-				display: inline;
+			.sp-how-search span {
+				font-size: 12px;
 			}
 		}
 
@@ -3168,8 +3161,7 @@
 										<circle cx="11" cy="11" r="8"></circle>
 										<path d="m21 21-4.3-4.3"></path>
 									</svg>
-									<span class="sp-how-search-short">Найти</span>
-									<span class="sp-how-search-full">Найти полезный рецепт</span>
+									<span>Найти полезный рецепт</span>
 								</div>
 								<div class="sp-how-chip">Ингредиенты</div>
 							</div>
