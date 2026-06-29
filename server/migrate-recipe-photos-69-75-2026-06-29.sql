@@ -12,7 +12,24 @@ LANGUAGE plpgsql
 AS $function$
 BEGIN
   UPDATE recipes
-  SET steps = jsonb_set(steps, ARRAY[(step_number - 1)::text, 'photo'], photo_value, true),
+  SET steps = jsonb_set(
+        steps,
+        ARRAY[(step_number - 1)::text],
+        CASE jsonb_typeof(steps -> (step_number - 1))
+          WHEN 'object' THEN jsonb_set(
+            steps -> (step_number - 1),
+            '{photo}',
+            photo_value,
+            true
+          )
+          WHEN 'string' THEN jsonb_build_object(
+            'text', steps ->> (step_number - 1),
+            'photo', photo_value
+          )
+          ELSE steps -> (step_number - 1)
+        END,
+        false
+      ),
       updated_at = now()
   WHERE id = recipe_id;
 END;
