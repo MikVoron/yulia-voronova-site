@@ -1,6 +1,6 @@
 -- Recipes 69-75 from user text, with clarifications confirmed 2026-06-29.
 -- strict / No Guessing:
---   * all recipes are unpublished Pro drafts with photo and emoji deferred;
+--   * all recipes remain unpublished Pro drafts; emoji is deferred and photos follow the canonical WebP contract;
 --   * recipe 69 keeps the confirmed 8 portions x 25 g and is not linked to a header ingredient;
 --   * recipe 70 is a cutlet recipe and recipe 73 also carries the visible "бобовые" tag;
 --   * recipe 71 is breakfast, has portion_grams=180, and soy -> cow milk changes per-serving KBZHU;
@@ -40,7 +40,7 @@ INSERT INTO recipes (
   false,
   198, 7, 5, 37, 5,
   ARRAY['растительное', 'без сои'],
-  NULL,
+  'images/recipes/ww-crackers/ww-crackers-cover.webp',
   'Эти крекеры получаются хрустящими, ароматными и отлично подходят и для перекуса, и к супу.',
   NULL,
   '[
@@ -52,12 +52,12 @@ INSERT INTO recipes (
     {"name": "Горячая вода: 170 г", "swap": null}
   ]'::jsonb,
   '[
-    {"text": "Смешайте муку, разрыхлитель, соль и орегано."},
-    {"text": "Влейте оливковое масло и горячую воду, замесите тесто."},
-    {"text": "Разделите тесто на 2 части."},
+    {"text": "Смешайте муку, разрыхлитель, соль и орегано.", "photo": "images/recipes/ww-crackers/ww-crackers-1.webp"},
+    {"text": "Влейте оливковое масло и горячую воду, замесите тесто.", "photo": "images/recipes/ww-crackers/ww-crackers-2.webp"},
+    {"text": "Разделите тесто на 2 части.", "photo": "images/recipes/ww-crackers/ww-crackers-3.webp"},
     {"text": "Раскатайте одну часть на пергаменте в тонкий пласт толщиной 2–3 мм."},
-    {"text": "Нарежьте на квадратики круглым ножом для пиццы."},
-    {"text": "Выпекайте при 180 °C около 15 минут."},
+    {"text": "Нарежьте на квадратики круглым ножом для пиццы.", "photo": "images/recipes/ww-crackers/ww-crackers-5.webp"},
+    {"text": "Выпекайте при 180 °C около 15 минут.", "photo": "images/recipes/ww-crackers/ww-crackers-6.webp"},
     {"text": "Повторите со второй частью теста."}
   ]'::jsonb,
   '[]'::jsonb,
@@ -85,7 +85,7 @@ INSERT INTO recipes (
   false,
   142, 6, 2, 26, 4,
   ARRAY['растительное', 'без сои', 'бобовые', 'без глютена'],
-  NULL,
+  'images/recipes/cutlets-green-lentils-rice/cutlets-green-lentils-rice-cover.webp',
   'Лучше обжарьте столько котлет, сколько нужно сейчас, а остальные заморозьте — потом их можно готовить прямо из морозилки, без разморозки. Котлеты получаются вкусные, сытные и хорошо подходят к любому гарниру.',
   NULL,
   '[
@@ -101,11 +101,11 @@ INSERT INTO recipes (
   ]'::jsonb,
   '[
     {"text": "Чечевицу замочите на ночь или минимум на 3 часа."},
-    {"text": "Хорошо промойте рис, отварите до готовности и остудите."},
-    {"text": "Промойте чечевицу, засыпьте в комбайн вместе с луком и чесноком и пробейте до однородной консистенции."},
-    {"text": "Кабачок натрите на мелкой тёрке и отожмите."},
-    {"text": "Смешайте чечевицу, рис, кабачок, специи и соль."},
-    {"text": "Сформируйте котлеты и обжарьте их на растительном масле с двух сторон до румяности."}
+    {"text": "Хорошо промойте рис, отварите до готовности и остудите.", "photo": "images/recipes/cutlets-green-lentils-rice/cutlets-green-lentils-rice-2.webp"},
+    {"text": "Промойте чечевицу, засыпьте в комбайн вместе с луком и чесноком и пробейте до однородной консистенции.", "photo": "images/recipes/cutlets-green-lentils-rice/cutlets-green-lentils-rice-3.webp"},
+    {"text": "Кабачок натрите на мелкой тёрке и отожмите.", "photo": "images/recipes/cutlets-green-lentils-rice/cutlets-green-lentils-rice-4.webp"},
+    {"text": "Смешайте чечевицу, рис, кабачок, специи и соль.", "photo": ["images/recipes/cutlets-green-lentils-rice/cutlets-green-lentils-rice-5-1.webp", "images/recipes/cutlets-green-lentils-rice/cutlets-green-lentils-rice-5-2.webp"]},
+    {"text": "Сформируйте котлеты и обжарьте их на растительном масле с двух сторон до румяности.", "photo": ["images/recipes/cutlets-green-lentils-rice/cutlets-green-lentils-rice-6-1.webp", "images/recipes/cutlets-green-lentils-rice/cutlets-green-lentils-rice-6-2.webp"]}
   ]'::jsonb,
   '[]'::jsonb,
   '[]'::jsonb,
@@ -132,7 +132,7 @@ INSERT INTO recipes (
   false,
   162, 6, 4, 26, 2,
   ARRAY['растительное', 'без глютена'],
-  NULL,
+  'images/recipes/millet-porridge/millet-porridge-cover.webp',
   'Эту кашу можно сделать сладкой — добавьте немного подсластителя или банан по вкусу. Я обычно варю кашу вечером, а утром остаётся только разогреть её и добавить любимый топпинг.',
   NULL,
   '[
@@ -152,9 +152,9 @@ INSERT INTO recipes (
     {"name": "Соль — щепотка", "swap": null}
   ]'::jsonb,
   '[
-    {"text": "Хорошо промойте пшено и залейте кипятком на 10–15 минут, чтобы убрать возможную горечь."},
-    {"text": "Слейте воду, добавьте 340 г воды, доведите до кипения и варите на маленьком огне 10 минут."},
-    {"text": "Затем влейте молоко, снова доведите до кипения и варите ещё 20 минут на слабом огне."},
+    {"text": "Хорошо промойте пшено и залейте кипятком на 10–15 минут, чтобы убрать возможную горечь.", "photo": "images/recipes/millet-porridge/millet-porridge-1.webp"},
+    {"text": "Слейте воду, добавьте 340 г воды, доведите до кипения и варите на маленьком огне 10 минут.", "photo": ["images/recipes/millet-porridge/millet-porridge-2-1.webp", "images/recipes/millet-porridge/millet-porridge-2-2.webp"]},
+    {"text": "Затем влейте молоко, снова доведите до кипения и варите ещё 20 минут на слабом огне.", "photo": ["images/recipes/millet-porridge/millet-porridge-3-1.webp", "images/recipes/millet-porridge/millet-porridge-3-2.webp"]},
     {"text": "После приготовления оставьте кашу под крышкой на 10 минут, чтобы она стала мягче и гуще."}
   ]'::jsonb,
   '[
@@ -186,7 +186,7 @@ INSERT INTO recipes (
   false,
   319, 27, 10, 24, 5,
   ARRAY['без глютена', 'бобовые', 'без сои'],
-  NULL,
+  'images/recipes/chicken-green-lentils-tomato/chicken-green-lentils-tomato-cover.webp',
   'Получается густое, ароматное блюдо с мягкой чечевицей и насыщенной томатной подливой. Если хочется более жидкий соус, можно добавить ещё немного воды. Хорошо сочетается с рисом, булгуром или пастой.',
   NULL,
   '[
@@ -204,13 +204,13 @@ INSERT INTO recipes (
     {"name": "Оливковое масло: 1 ч. л.", "swap": null}
   ]'::jsonb,
   '[
-    {"text": "На 1 ч. л. масла обжарьте лук и морковь 3–5 минут до мягкости."},
-    {"text": "Добавьте курицу и готовьте 3–4 минуты, пока кусочки побелеют."},
-    {"text": "Добавьте промытую зелёную чечевицу, паприку и кориандр."},
-    {"text": "Добавьте томатную пасту и перемешивайте около минуты вместе с курицей и чечевицей."},
-    {"text": "Влейте протёртые томаты и воду."},
-    {"text": "Накройте крышкой и тушите на слабом огне около 30 минут, пока чечевица не станет мягкой."},
-    {"text": "За 5 минут до конца добавьте измельченный чеснок."}
+    {"text": "На 1 ч. л. масла обжарьте лук и морковь 3–5 минут до мягкости.", "photo": "images/recipes/chicken-green-lentils-tomato/chicken-green-lentils-tomato-1.webp"},
+    {"text": "Добавьте курицу и готовьте 3–4 минуты, пока кусочки побелеют.", "photo": "images/recipes/chicken-green-lentils-tomato/chicken-green-lentils-tomato-2.webp"},
+    {"text": "Добавьте промытую зелёную чечевицу, паприку и кориандр.", "photo": "images/recipes/chicken-green-lentils-tomato/chicken-green-lentils-tomato-3.webp"},
+    {"text": "Добавьте томатную пасту и перемешивайте около минуты вместе с курицей и чечевицей.", "photo": "images/recipes/chicken-green-lentils-tomato/chicken-green-lentils-tomato-4.webp"},
+    {"text": "Влейте протёртые томаты и воду.", "photo": "images/recipes/chicken-green-lentils-tomato/chicken-green-lentils-tomato-5.webp"},
+    {"text": "Накройте крышкой и тушите на слабом огне около 30 минут, пока чечевица не станет мягкой.", "photo": "images/recipes/chicken-green-lentils-tomato/chicken-green-lentils-tomato-6.webp"},
+    {"text": "За 5 минут до конца добавьте измельченный чеснок.", "photo": "images/recipes/chicken-green-lentils-tomato/chicken-green-lentils-tomato-7.webp"}
   ]'::jsonb,
   '[]'::jsonb,
   '[]'::jsonb,
@@ -237,7 +237,7 @@ INSERT INTO recipes (
   false,
   125, 17, 2, 9, 2,
   ARRAY['без глютена', 'без сои', 'бобовые'],
-  NULL,
+  'images/recipes/cutlets-chicken-red-lentils/cutlets-chicken-red-lentils-cover.webp',
   'Нежные куриные котлеты с чечевицей получаются сочными, хорошо держат форму и отлично подходят к любому гарниру. Замороженные котлеты удобно запекать сразу без размораживания — просто немного увеличьте время приготовления.',
   NULL,
   '[
@@ -249,11 +249,11 @@ INSERT INTO recipes (
     {"name": "Паприка: 1/2 ч. л.", "swap": null}
   ]'::jsonb,
   '[
-    {"text": "Промойте чечевицу и залейте водой примерно 1:2. Варите около 10 минут, пока она полностью не приготовится и вода не впитается."},
+    {"text": "Промойте чечевицу и залейте водой примерно 1:2. Варите около 10 минут, пока она полностью не приготовится и вода не впитается.", "photo": ["images/recipes/cutlets-chicken-red-lentils/cutlets-chicken-red-lentils-1-1.webp", "images/recipes/cutlets-chicken-red-lentils/cutlets-chicken-red-lentils-1-2.webp"]},
     {"text": "Куриную грудку прокрутите вместе с луком и чесноком в мясорубке или комбайне."},
-    {"text": "Смешайте фарш, чечевицу, специи и соль."},
-    {"text": "Хорошо вымесите фарш 3–5 минут до однородности. При желании уберите его в холодильник на 15 минут."},
-    {"text": "Влажными руками сформируйте котлеты и выложите на противень, застеленный бумагой для выпечки."},
+    {"text": "Смешайте фарш, чечевицу, специи и соль.", "photo": "images/recipes/cutlets-chicken-red-lentils/cutlets-chicken-red-lentils-3.webp"},
+    {"text": "Хорошо вымесите фарш 3–5 минут до однородности. При желании уберите его в холодильник на 15 минут.", "photo": "images/recipes/cutlets-chicken-red-lentils/cutlets-chicken-red-lentils-4.webp"},
+    {"text": "Влажными руками сформируйте котлеты и выложите на противень, застеленный бумагой для выпечки.", "photo": "images/recipes/cutlets-chicken-red-lentils/cutlets-chicken-red-lentils-5.webp"},
     {"text": "Лишние котлеты можно сразу заморозить на будущее и запечь в другой день."},
     {"text": "Запекайте в разогретой до 180 °C духовке около 25 минут. За 3–5 минут до конца можно включить верхний нагрев или гриль для лёгкой золотистой корочки."}
   ]'::jsonb,
@@ -282,7 +282,7 @@ INSERT INTO recipes (
   false,
   116, 3, 6, 15, 4,
   ARRAY['растительное'],
-  NULL,
+  'images/recipes/salad-seasonal-vegetables-soy-dressing/salad-seasonal-vegetables-soy-dressing-cover.webp',
   'Берите любую сезонную зелень — такая заправка особенно хорошо сочетается с рукколой, кресс-салатом (горькой зеленью) и шпинатом. Для более яркой подачи можно взять жёлтый болгарский перец, а после заправки дать салату постоять 5 минут, но не дольше, чтобы зелень осталась свежей.',
   NULL,
   '[
@@ -326,7 +326,7 @@ INSERT INTO recipes (
   false,
   146, 3, 3, 26, 9,
   ARRAY['без глютена', 'растительное', 'без сои'],
-  NULL,
+  'images/recipes/salad-warm-eggplant-vegetables/salad-warm-eggplant-vegetables-cover.webp',
   'Это блюдо вкусно и в тёплом, и в холодном виде. Получается много клетчатки и мягкий овощной вкус — хороший вариант, если хочется именно тушёные овощи, а не салат в сыром виде.',
   NULL,
   '[
@@ -349,13 +349,13 @@ INSERT INTO recipes (
     {"name": "Растительное масло: 1 ч. л.", "swap": null}
   ]'::jsonb,
   '[
-    {"text": "Помойте и обсушите баклажаны и перец, выложите на противень с пергаментом целиком и запеките до мягкости примерно 20–30 минут при 180 °C."},
+    {"text": "Помойте и обсушите баклажаны и перец, выложите на противень с пергаментом целиком и запеките до мягкости примерно 20–30 минут при 180 °C.", "photo": ["images/recipes/salad-warm-eggplant-vegetables/salad-warm-eggplant-vegetables-1-1.webp", "images/recipes/salad-warm-eggplant-vegetables/salad-warm-eggplant-vegetables-1-2.webp"]},
     {"text": "Остудите овощи и снимите кожуру с перцев и баклажанов полностью или частично по желанию."},
-    {"text": "Нарежьте все овощи небольшими кубиками."},
-    {"text": "Поджарьте лук на растительном масле в течение 3 минут."},
-    {"text": "Добавьте морковь и кабачок, перемешайте и тушите ещё около 5 минут."},
-    {"text": "Добавьте запечённые баклажаны и перец, перемешайте, накройте крышкой и тушите ещё 20–30 минут до полной готовности овощей."},
-    {"text": "В конце добавьте мёд и перемешайте."}
+    {"text": "Нарежьте все овощи небольшими кубиками.", "photo": "images/recipes/salad-warm-eggplant-vegetables/salad-warm-eggplant-vegetables-3.webp"},
+    {"text": "Поджарьте лук на растительном масле в течение 3 минут.", "photo": "images/recipes/salad-warm-eggplant-vegetables/salad-warm-eggplant-vegetables-4.webp"},
+    {"text": "Добавьте морковь и кабачок, перемешайте и тушите ещё около 5 минут.", "photo": "images/recipes/salad-warm-eggplant-vegetables/salad-warm-eggplant-vegetables-5.webp"},
+    {"text": "Добавьте запечённые баклажаны и перец, перемешайте, накройте крышкой и тушите ещё 20–30 минут до полной готовности овощей.", "photo": "images/recipes/salad-warm-eggplant-vegetables/salad-warm-eggplant-vegetables-6.webp"},
+    {"text": "В конце добавьте мёд и перемешайте.", "photo": "images/recipes/salad-warm-eggplant-vegetables/salad-warm-eggplant-vegetables-7.webp"}
   ]'::jsonb,
   '[]'::jsonb,
   '[]'::jsonb,
