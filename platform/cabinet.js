@@ -39,7 +39,7 @@
 			const emailLink = '<a href="' + _supportEmailHref() + '" style="color:var(--accent);text-decoration:underline">' + email + '</a>';
 			if (hasChat) {
 				const chatLink = '<a href="' + SUPPORT_CONTACT.url + '" data-tawk-open target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">' + SUPPORT_CONTACT.text + '</a>';
-				return 'Если оплата не подтвердилась или возник вопрос — ' + chatLink + '. Если чат недоступен, напишите на ' + emailLink + '.';
+				return 'Если оплата не подтвердилась или возник вопрос — ' + chatLink + ' или на ' + emailLink + '.';
 			}
 			return 'Если оплата не подтвердилась или возник вопрос — напишите на ' + emailLink + '.';
 		}

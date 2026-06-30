@@ -347,6 +347,17 @@
 			font-size: 10px; font-weight: 800; padding: 3px 8px;
 			text-transform: uppercase; letter-spacing: .08em;
 		}
+		.pay-actions {
+			display: flex; justify-content: flex-end; align-items: stretch;
+			gap: 10px; margin-top: 18px;
+		}
+		.pay-action-btn {
+			padding: 14px 22px; font-weight: 800; letter-spacing: .12em;
+			text-transform: uppercase; border-radius: 0; white-space: nowrap;
+		}
+		.pay-action-back { width: 140px; }
+		.pay-action-primary { width: 260px; }
+		.pay-actions--single .pay-action-primary { width: 220px; }
 		@media (max-width: 480px) {
 			.pay-plan-grid { grid-template-columns: 1fr; }
 		}
@@ -1421,9 +1432,13 @@
 			.cab-main.tab-notes .cab-hero-wrap,
 			.cab-main.tab-feedback .cab-hero-wrap { display: none; }
 
-			/* ── TABS: горизонтальный scroll, компактные ─────────────── */
+			/* ── TABS: все разделы видны, компактный перенос ─────────── */
 			.cab-tab-panel { padding: 22px 18px; }
-			.cab-tab { padding: 14px 14px; font-size: 10px; letter-spacing: .14em; gap: 6px; }
+			.cab-tabs { flex-wrap: wrap; overflow-x: visible; }
+			.cab-tab {
+				flex: 1 1 30%; justify-content: center;
+				padding: 13px 8px; font-size: 10px; letter-spacing: .1em; gap: 5px;
+			}
 
 			/* ── Section titles ───────────────────────────────────────── */
 			.cab-sec-title { font-size: 20px; }
@@ -1531,10 +1546,13 @@
 		@media (max-width: 430px) {
 			.cab-hero { padding: 22px 18px; }
 			.cab-name { font-size: 32px; }
-			.cab-tab { padding: 12px 10px; font-size: 10px; letter-spacing: .1em; }
+			.cab-tab { padding: 12px 6px; font-size: 9px; letter-spacing: .07em; }
 			.cab-tab-panel { padding: 20px 14px; }
 			.early-access-title { font-size: 23px; }
 			.pay-plan-grid { grid-template-columns: 1fr; }
+			.pay-action-back { flex: 1; width: auto; }
+			.pay-action-primary { flex: 2; width: auto; }
+			.pay-actions--single .pay-action-primary { flex: 1; width: 100%; }
 		}
 		@media (max-width: 360px) {
 			.cab-name { font-size: 28px; }
@@ -1769,7 +1787,9 @@
 						<!-- Шаг 1: Выбор тарифа -->
 						<div class="pay-wizard-step" id="pay-step-1">
 							<div class="pay-plan-grid" id="pay-plan-grid"></div>
-							<button class="btn btn-orange pay-next-btn" id="pay-next-1" onclick="goPayStep(2)" type="button" disabled style="margin-top:18px;width:100%;padding:14px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;border-radius:0">Далее</button>
+							<div class="pay-actions pay-actions--single">
+								<button class="btn btn-orange pay-action-btn pay-action-primary pay-next-btn" id="pay-next-1" onclick="goPayStep(2)" type="button" disabled>Далее</button>
+							</div>
 						</div>
 
 						<!-- Шаг 2: Реквизиты -->
@@ -1791,9 +1811,9 @@
 									Сумма к переводу: <strong id="pay-transfer-amount">—</strong>
 								</div>
 							</div>
-							<div style="display:flex;gap:8px;margin-top:18px">
-								<button class="btn btn-ghost" onclick="goPayStep(1)" type="button" style="flex:1;padding:14px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0">Назад</button>
-								<button class="btn btn-orange" onclick="goPayStep(3)" type="button" style="flex:2;padding:14px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0">Я перевёл, далее</button>
+						<div class="pay-actions">
+							<button class="btn btn-ghost pay-action-btn pay-action-back" onclick="goPayStep(1)" type="button">Назад</button>
+							<button class="btn btn-orange pay-action-btn pay-action-primary" onclick="goPayStep(3)" type="button">Я перевёл, далее</button>
 							</div>
 						</div>
 
@@ -1828,9 +1848,9 @@
 								</div>
 								<div id="pay-error" style="color:#c0392b;font-size:13px;display:none"></div>
 								<div id="pay-wizard-legal" style="font-size:12px;color:var(--text-3);line-height:1.5;margin-bottom:10px"></div>
-								<div style="display:flex;gap:8px">
-									<button class="btn btn-ghost" onclick="goPayStep(2)" type="button" style="flex:1;padding:14px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0">Назад</button>
-									<button class="btn btn-orange" id="pay-submit-btn" onclick="submitPayment()" type="button" style="flex:2;padding:14px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0">Отправить на проверку</button>
+								<div class="pay-actions" style="margin-top:0">
+									<button class="btn btn-ghost pay-action-btn pay-action-back" onclick="goPayStep(2)" type="button">Назад</button>
+									<button class="btn btn-orange pay-action-btn pay-action-primary" id="pay-submit-btn" onclick="submitPayment()" type="button">Отправить на проверку</button>
 								</div>
 							</div>
 						</div>
@@ -2086,7 +2106,7 @@
 	<script src="data-v2.js?v=20260627-journal-copy"></script>
 <script src="ingredients.js?v=20260616-shrimp"></script>
 	<script src="header-nav.js?v=20260612-soups-category"></script>
-	<script src="cabinet.js?v=20260630-early-access-pricing"></script>
+	<script src="cabinet.js?v=20260630-mobile-tabs-actions"></script>
 	<script src="tawk-chat-modal.js?v=20260627-inline"></script>
 </body>
 
