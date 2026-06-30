@@ -27,8 +27,8 @@
 		// Источник контактов поддержки — единая точка правки.
 		// TODO: при росте проекта заменить fallbackEmail на support@voronova.online.
 		const SUPPORT_CONTACT = {
-			label: 'чат поддержки',
-			text: 'Написать в чат поддержки',
+			label: 'Отдел заботы',
+			text: 'Написать в чат Отдела заботы',
 			url: 'https://tawk.to/chat/699610c27418241c38dd96b3/1js4rtjr9',
 			fallbackEmail: 'hello@voronova.online'
 		};
