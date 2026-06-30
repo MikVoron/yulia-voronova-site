@@ -358,6 +358,28 @@
 		.pay-action-back { width: 140px; }
 		.pay-action-primary { width: 260px; }
 		.pay-actions--single .pay-action-primary { width: 220px; }
+		.pay-next-btn {
+			background: #111111;
+			color: #ffffff;
+			border: 1px solid #111111;
+		}
+		.pay-next-btn:hover,
+		.pay-next-btn:focus-visible {
+			background: #ffffff;
+			color: #111111;
+			border-color: #111111;
+		}
+		.pay-transfer-btn {
+			background: #111111;
+			color: #ffffff;
+			border: 1px solid #111111;
+		}
+		.pay-transfer-btn:hover,
+		.pay-transfer-btn:focus-visible {
+			background: #ffffff;
+			color: #111111;
+			border-color: #111111;
+		}
 		@media (max-width: 480px) {
 			.pay-plan-grid { grid-template-columns: 1fr; }
 		}
@@ -1813,7 +1835,7 @@
 							</div>
 						<div class="pay-actions">
 							<button class="btn btn-ghost pay-action-btn pay-action-back" onclick="goPayStep(1)" type="button">Назад</button>
-							<button class="btn btn-orange pay-action-btn pay-action-primary" onclick="goPayStep(3)" type="button">Я перевёл, далее</button>
+							<button class="btn btn-orange pay-action-btn pay-action-primary pay-transfer-btn" onclick="goPayStep(3)" type="button">Я перевёл, далее</button>
 							</div>
 						</div>
 

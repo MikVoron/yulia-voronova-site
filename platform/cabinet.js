@@ -812,10 +812,7 @@
 				parent.parentNode.insertBefore(note, parent.nextSibling);
 			}
 			var hasChat = !!SUPPORT_CONTACT.url;
-			var btnHtml = hasChat
-				? '<a class="btn btn-ghost" href="' + SUPPORT_CONTACT.url + '" data-tawk-open target="_blank" rel="noopener" style="padding:12px 22px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0;font-size:11px;white-space:nowrap">Написать в&nbsp;поддержку</a>'
-				: '';
-			note.innerHTML = '<div class="cab-support-note-text">' + supportContactHtml() + '</div>' + btnHtml;
+			note.innerHTML = '<div class="cab-support-note-text">' + supportContactHtml() + '</div>';
 			_injectLegalLinks(note);
 		}
 
