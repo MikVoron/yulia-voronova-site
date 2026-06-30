@@ -3450,14 +3450,16 @@
 
 		function scrollToBalanceBanner() {
 			const banner = document.getElementById('bal-banner');
-			completeRecipeGuestTour();
+			hideRecipeGuestHelper(false);
 			if (banner) banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
 		}
 
-		function completeRecipeGuestTour() {
-			try {
-				localStorage.setItem('smartplate_guest_tour_completed_v1', '1');
-			} catch (_) {}
+		function hideRecipeGuestHelper(markTourCompleted) {
+			if (markTourCompleted) {
+				try {
+					localStorage.setItem('smartplate_guest_tour_completed_v1', '1');
+				} catch (_) {}
+			}
 			const helper = document.querySelector('.recipe-guest-helper');
 			if (helper) helper.remove();
 			const url = new URL(location.href);
@@ -3467,7 +3469,7 @@
 		}
 
 		function dismissRecipeGuestHelper() {
-			completeRecipeGuestTour();
+			hideRecipeGuestHelper(true);
 		}
 
 		function handleMiniStatusKey(e) {
