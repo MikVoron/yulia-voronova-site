@@ -297,7 +297,7 @@
 			margin-bottom: -1px;
 			transition: all .2s;
 		}
-		.pay-step.active { color: var(--accent); border-color: var(--accent); }
+		.pay-step.active { color: var(--text); border-color: var(--text); }
 		.pay-step.done { color: #2d7a2d; border-color: #2d7a2d; }
 		.pay-step-num {
 			display: inline-flex; align-items: center; justify-content: center;
@@ -306,21 +306,21 @@
 			font-size: 11px; font-weight: 800; margin-right: 6px;
 			transition: all .2s;
 		}
-		.pay-step.active .pay-step-num { background: var(--accent); color: #fff; }
+		.pay-step.active .pay-step-num { background: var(--text); color: #fff; }
 		.pay-step.done .pay-step-num { background: #2d7a2d; color: #fff; }
 
 		.pay-plan-grid {
 			display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;
 		}
 		.pay-plan-card {
-			padding: 18px; border: 1.5px solid var(--border);
+			padding: 20px 18px; border: 1px solid var(--border);
 			background: #fff; cursor: pointer; transition: all .18s;
 			text-align: center; position: relative;
 		}
-		.pay-plan-card:hover { border-color: var(--accent); }
+		.pay-plan-card:hover { border-color: var(--text); }
 		.pay-plan-card.selected {
 			border-color: var(--accent);
-			background: var(--accent-l);
+			background: #fff;
 			box-shadow: inset 0 0 0 1px var(--accent);
 		}
 		.pay-plan-duration {
@@ -332,20 +332,22 @@
 		}
 		.pay-plan-price {
 			font-family: var(--serif); font-size: 28px; font-weight: 700;
-			color: var(--accent); margin-top: 8px; letter-spacing: -.01em;
+			color: var(--text); margin-top: 8px; letter-spacing: -.01em;
 		}
+		.pay-plan-card.selected .pay-plan-price { color: var(--accent); }
 		.pay-plan-permonth { font-size: 12px; color: var(--text-3); margin-top: 2px; }
 		.pay-plan-future {
 			font-size: 11px; color: var(--text-3); margin-top: 9px; line-height: 1.4;
 		}
 		.pay-plan-card.featured {
-			border-color: var(--accent); background: #fff8f5;
+			border-color: var(--text); background: #fff;
 		}
+		.pay-plan-card.featured.selected { border-color: var(--accent); }
 		.pay-plan-badge {
-			position: absolute; top: -10px; right: -6px;
-			background: var(--accent); color: #fff;
-			font-size: 10px; font-weight: 800; padding: 3px 8px;
-			text-transform: uppercase; letter-spacing: .08em;
+			position: absolute; top: -9px; right: 8px;
+			background: #fff; color: var(--accent); border: 1px solid var(--accent);
+			font-size: 9px; font-weight: 800; padding: 2px 7px;
+			text-transform: uppercase; letter-spacing: .1em;
 		}
 		.pay-actions {
 			display: flex; justify-content: flex-end; align-items: stretch;
@@ -385,8 +387,8 @@
 		}
 
 		.pay-info-card {
-			padding: 22px; border: 1.5px solid var(--accent);
-			background: var(--accent-l); line-height: 1.7;
+			padding: 22px; border: 1px solid var(--border); border-top: 2px solid var(--text);
+			background: #fff; line-height: 1.7;
 		}
 		.pay-card-row {
 			display: flex; align-items: center; justify-content: space-between;
@@ -489,9 +491,9 @@
 		/* Early bird card */
 		#early-bird-card {
 			padding: 22px;
-			border: 1.5px solid var(--accent);
-			background: linear-gradient(135deg, #fff8f5, #fff2ed);
-			margin-bottom: 24px; position: relative; overflow: hidden;
+			border: 1px solid var(--border); border-top: 2px solid var(--text);
+			background: #fff;
+			margin-bottom: 28px; position: relative;
 		}
 		.early-access-title {
 			font-family: var(--serif); font-size: 28px; font-weight: 700;
@@ -501,13 +503,18 @@
 			font-size: 13px; color: var(--text-2); line-height: 1.65; margin-top: 10px;
 			max-width: 820px;
 		}
-		.early-access-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+		.early-access-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 16px; }
 		.early-access-pill {
-			display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px;
-			background: rgba(232,64,10,.08); font-size: 12px; color: var(--text-2);
+			display: inline-flex; align-items: center; gap: 7px; padding: 2px 0 2px 10px;
+			border-left: 2px solid var(--accent); background: transparent;
+			font-size: 10px; font-weight: 800; letter-spacing: .08em;
+			text-transform: uppercase; color: var(--text-2);
+		}
+		.early-access-pill .eb-pulse {
+			font-family: var(--sans); font-size: 11px; animation: none;
 		}
 		.early-access-user-status {
-			margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(232,64,10,.16);
+			margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);
 			font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.5;
 		}
 
@@ -1294,10 +1301,14 @@
 		/* ── SUB CARD (editorial подписка) ──────────────────────────── */
 		.sub-card {
 			display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: center;
-			padding: 28px 30px; border: 1px solid var(--border);
-			background: linear-gradient(180deg, #fffaf6 0%, #fff 100%);
+			padding: 28px 30px; border: 1px solid var(--border); border-top: 2px solid var(--text);
+			background: #fff;
 			margin-bottom: 28px;
 		}
+		.sub-action-btn.btn-orange,
+		.pay-action-primary.btn-orange { background: var(--text); color: #fff; }
+		.sub-action-btn.btn-orange:hover,
+		.pay-action-primary.btn-orange:hover { background: var(--accent); }
 		.sub-status-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
 		.status-pill {
 			display: inline-flex; align-items: center; gap: 6px;
@@ -1779,7 +1790,6 @@
 
 				<!-- Early access pricing -->
 				<div id="early-bird-card">
-					<div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(232,64,10,.06);border-radius:50%"></div>
 					<div class="early-access-title">Ранний доступ — стартовая цена для первых пользователей</div>
 					<div class="early-access-copy">Цена раннего доступа действует для первых 50 пользователей или до 30 сентября 2026 года — что наступит раньше. После завершения раннего доступа действуют новые цены.</div>
 					<div class="early-access-meta">
