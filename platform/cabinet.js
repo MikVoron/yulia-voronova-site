@@ -530,10 +530,8 @@
 					+ actionsHtml
 					+ '</div>';
 
-				// For active subscription: hide early-bird, keep pay-section accessible (renewal via sub-renew-btn)
+				// Active users also see their personal early-access renewal status.
 				if (badge === 'active') {
-					var ebCard = document.getElementById('early-bird-card');
-					if (ebCard) ebCard.style.display = 'none';
 					loadPaymentHistory();
 					return true;
 				}
@@ -635,24 +633,29 @@
 		}
 
 		function renderPlanCards() {
-			var p = _pricePerMonth;
 			var plans = [
-				{ months: 1, label: '1 месяц', amount: p },
-				{ months: 3, label: '3 месяца', amount: p * 3 },
-				{ months: 6, label: '6 месяцев', amount: p * 6, badge: null },
-				{ months: 12, label: '12 месяцев', amount: p * 12, badge: null }
+				{ months: 1, name: 'Знакомство', label: '1 месяц', amount: _currentPrices[1], future: _regularPrices[1] },
+				{ months: 3, name: 'Оптимальный старт', label: '3 месяца', amount: _currentPrices[3], future: _regularPrices[3], badge: 'Рекомендуем', featured: true },
+				{ months: 12, name: 'Годовой доступ', label: '12 месяцев', amount: _currentPrices[12], future: _regularPrices[12], badge: 'Самая выгодная цена' }
 			];
 			var grid = document.getElementById('pay-plan-grid');
 			grid.innerHTML = plans.map(function(pl) {
-				var perMonth = Math.round(pl.amount / pl.months);
 				var badgeHtml = pl.badge ? '<div class="pay-plan-badge">' + pl.badge + '</div>' : '';
-				return '<div class="pay-plan-card" data-cabinet-action="select-plan" data-months="' + Number(pl.months) + '" data-amount="' + Number(pl.amount) + '">'
+				var futureHtml = _showFuturePrices
+					? '<div class="pay-plan-future">' + _futurePriceLabel + ' — ' + formatRubles(pl.future) + '</div>'
+					: '';
+				return '<div class="pay-plan-card' + (pl.featured ? ' featured' : '') + '" data-cabinet-action="select-plan" data-months="' + Number(pl.months) + '" data-amount="' + Number(pl.amount) + '">'
 					+ badgeHtml
+					+ '<div class="pay-plan-name">' + pl.name + '</div>'
 					+ '<div class="pay-plan-duration">' + pl.label + '</div>'
-					+ '<div class="pay-plan-price">' + pl.amount + ' ₽</div>'
-					+ (pl.months > 1 ? '<div class="pay-plan-permonth">' + perMonth + ' ₽/мес</div>' : '')
+					+ '<div class="pay-plan-price">' + formatRubles(pl.amount) + '</div>'
+					+ futureHtml
 					+ '</div>';
 			}).join('');
+		}
+
+		function formatRubles(amount) {
+			return Number(amount).toLocaleString('ru-RU') + '&nbsp;₽';
 		}
 
 		function resetPayWizard() {
@@ -919,7 +922,10 @@
 			}
 		}
 
-		var _pricePerMonth = 250; // стандартная цена, обновится из early-bird
+		var _currentPrices = { 1: 390, 3: 990, 12: 2990 };
+		var _regularPrices = { 1: 390, 3: 990, 12: 2990 };
+		var _showFuturePrices = false;
+		var _futurePriceLabel = 'После раннего доступа';
 
 		function pluralMonths(n) {
 			var abs = Math.abs(n) % 100;
@@ -931,16 +937,26 @@
 		}
 
 		async function loadEarlyBird() {
-			// Не показывать early-bird если подписка активна
-			if (Auth._subStatus === 'active') return;
+			var statusEl = document.getElementById('early-access-user-status');
 			try {
-				var res = await fetch(API_BASE + '/subscription/early-bird');
+				var res = await Auth.api('/subscription/early-bird');
 				if (!res.ok) return;
 				var data = await res.json();
-				if (data.active && data.remaining > 0) {
-					document.getElementById('early-bird-card').style.display = 'block';
-					document.getElementById('early-bird-remaining').textContent = data.remaining;
-					_pricePerMonth = 100;
+				document.getElementById('early-bird-remaining').textContent = data.remaining;
+				_currentPrices = data.prices || _currentPrices;
+				_regularPrices = data.regularPrices || _regularPrices;
+				_showFuturePrices = !!data.eligible;
+				_futurePriceLabel = data.eligibility === 'renewal' ? 'Следующее продление' : 'После раннего доступа';
+				if (statusEl) {
+					if (data.eligibility === 'renewal') {
+						statusEl.textContent = 'За вами сохранено одно продление по стартовой цене. После него будет действовать актуальная цена на момент продления.';
+					} else if (data.renewalUsed) {
+						statusEl.textContent = 'Вы уже использовали продление по стартовой цене. Для следующего продления действуют актуальные цены.';
+					} else if (data.eligible) {
+						statusEl.textContent = 'Вам доступна стартовая цена. После первой покупки вы сможете один раз продлить подписку по той же цене.';
+					} else {
+						statusEl.textContent = 'Ранний доступ завершён. Для оформления и продления действуют актуальные цены.';
+					}
 				}
 			} catch (e) { /* ignore */ }
 			renderPlanCards();
@@ -949,9 +965,9 @@
 		// Load subscription tab on init — wait for checkAccess to set _subStatus
 		_cabAccess.then(function() {
 			loadSubscription().then(function(isActive) {
+				loadEarlyBird().then(function() {
 				if (!isActive) {
 					_renderReturnBanner();
-					loadEarlyBird().then(function() {
 						// Auto-open payment section if arrived via ?tab=subscription
 						if (new URLSearchParams(location.search).get('tab') === 'subscription') {
 							var toggleBtn = document.getElementById('pay-toggle-btn');
@@ -959,7 +975,6 @@
 								togglePaySection();
 							}
 						}
-					});
 				} else {
 					// Подписка уже активна — если есть сохранённый return, сразу предлагаем вернуться
 					const ret = _getCabReturn();
@@ -968,6 +983,7 @@
 						location.href = ret;
 					}
 				}
+				});
 			});
 		});
 

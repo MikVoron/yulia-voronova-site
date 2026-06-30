@@ -4,6 +4,9 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 let duplicatePendingOnInsert = true;
+let reservedEarlyUsers = 0;
+let confirmedEarlyPayments = 0;
+let firstEarlyPaymentAt = null;
 
 const mockQuery = vi.fn(async (sql) => {
   if (/SELECT is_blocked FROM users WHERE id/.test(sql)) {
@@ -14,6 +17,12 @@ const mockQuery = vi.fn(async (sql) => {
   }
   if (/SELECT email FROM users WHERE id=\$1/.test(sql)) {
     return { rows: [{ email: 'user@example.com' }] };
+  }
+  if (/COUNT\(DISTINCT p\.user_id\)/.test(sql)) {
+    return { rows: [{ count: reservedEarlyUsers }] };
+  }
+  if (/MIN\(created_at\) AS first_early_payment_at/.test(sql)) {
+    return { rows: [{ count: confirmedEarlyPayments, first_early_payment_at: firstEarlyPaymentAt }] };
   }
   if (/INSERT INTO payments/.test(sql)) {
     if (!duplicatePendingOnInsert) return { rows: [] };
@@ -71,6 +80,9 @@ afterAll(async () => {
 
 beforeEach(() => {
   duplicatePendingOnInsert = true;
+  reservedEarlyUsers = 0;
+  confirmedEarlyPayments = 0;
+  firstEarlyPaymentAt = null;
   mockQuery.mockClear();
   mockClientQuery.mockClear();
   mockRelease.mockClear();
@@ -78,6 +90,59 @@ beforeEach(() => {
   sendPaymentNotification.mockClear();
   sendFeedback.mockClear();
   auditLog.mockClear();
+});
+
+describe('subscription/early-bird', () => {
+  const jwt = require('jsonwebtoken');
+
+  function makeToken(userId = 1) {
+    return jwt.sign(
+      { sub: userId, email: 'user@example.com', role: 'user' },
+      process.env.JWT_SECRET,
+      { expiresIn: '15m' }
+    );
+  }
+
+  it('offers one early-price renewal to an early member with one confirmed payment', async () => {
+    reservedEarlyUsers = 18;
+    confirmedEarlyPayments = 1;
+    firstEarlyPaymentAt = '2026-06-30T10:00:00.000Z';
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/subscription/early-bird',
+      headers: { authorization: 'Bearer ' + makeToken() }
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({
+      eligible: true,
+      eligibility: 'renewal',
+      renewalAvailable: true,
+      remaining: 32,
+      prices: { 1: 250, 3: 690, 12: 2490 }
+    });
+  });
+
+  it('switches an early member to regular prices after the included renewal', async () => {
+    reservedEarlyUsers = 18;
+    confirmedEarlyPayments = 2;
+    firstEarlyPaymentAt = '2026-06-30T10:00:00.000Z';
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/subscription/early-bird',
+      headers: { authorization: 'Bearer ' + makeToken() }
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({
+      eligible: false,
+      eligibility: 'standard',
+      renewalUsed: true,
+      prices: { 1: 390, 3: 990, 12: 2990 }
+    });
+  });
 });
 
 describe('subscription/payment', () => {
