@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Мой кабинет — Умная тарелка</title>
 	<link rel="icon" type="image/svg+xml" href="plate-favicon.svg">
+	<script src="cabinet-tabs.js?v=20260702-cabinet-navigation"></script>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
@@ -217,9 +218,18 @@
 			transition: .15s; white-space: nowrap;
 			display: inline-flex; align-items: center; gap: 8px;
 			-webkit-tap-highlight-color: transparent;
+			text-decoration: none;
 		}
 		.cab-tab:hover { color: var(--text); }
-		.cab-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+		.cab-tab.active,
+		html[data-cabinet-tab="subscription"] .cab-tab[data-tab="subscription"],
+		html[data-cabinet-tab="history"] .cab-tab[data-tab="history"],
+		html[data-cabinet-tab="favorites"] .cab-tab[data-tab="favorites"],
+		html[data-cabinet-tab="notes"] .cab-tab[data-tab="notes"],
+		html[data-cabinet-tab="feedback"] .cab-tab[data-tab="feedback"] {
+			color: var(--text); border-bottom-color: var(--accent);
+		}
+		.cab-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
 
 		/* ── PANE ──────────────────────────────────────────────────────── */
 		.cab-tab-panel {
@@ -228,6 +238,11 @@
 			padding: 40px;
 		}
 		.cab-tab-panel.active { display: block; }
+		html[data-cabinet-tab="subscription"] #panel-subscription,
+		html[data-cabinet-tab="history"] #panel-history,
+		html[data-cabinet-tab="favorites"] #panel-favorites,
+		html[data-cabinet-tab="notes"] #panel-notes,
+		html[data-cabinet-tab="feedback"] #panel-feedback { display: block; }
 
 		.cab-sec-title-row {
 			display: flex; align-items: baseline; justify-content: space-between;
@@ -1462,8 +1477,13 @@
 			.cab-main.tab-subscription .cab-kpi:not(.kpi-base),
 			.cab-main.tab-history .cab-kpi:not(.kpi-history),
 			.cab-main.tab-favorites .cab-kpi:not(.kpi-favorites) { display: none !important; }
-			.cab-main.tab-notes .cab-hero-wrap,
-			.cab-main.tab-feedback .cab-hero-wrap { display: none; }
+			.cab-main.tab-notes .cab-kpi:not(:first-child),
+			.cab-main.tab-feedback .cab-kpi:not(:first-child) { display: none !important; }
+			html[data-cabinet-tab="subscription"] .cab-main .cab-kpi:not(.kpi-base),
+			html[data-cabinet-tab="history"] .cab-main .cab-kpi:not(.kpi-history),
+			html[data-cabinet-tab="favorites"] .cab-main .cab-kpi:not(.kpi-favorites) { display: none !important; }
+			html[data-cabinet-tab="notes"] .cab-main .cab-kpi:not(:first-child),
+			html[data-cabinet-tab="feedback"] .cab-main .cab-kpi:not(:first-child) { display: none !important; }
 
 			/* ── TABS: все разделы видны, компактный перенос ─────────── */
 			.cab-tab-panel { padding: 22px 18px; }
@@ -1471,6 +1491,11 @@
 			.cab-tab {
 				flex: 1 1 30%; justify-content: center;
 				padding: 13px 8px; font-size: 10px; letter-spacing: .1em; gap: 5px;
+			}
+			.cab-tab.active,
+			html[data-cabinet-tab] .cab-tab[aria-current="page"] {
+				background: #fff8f3 !important;
+				box-shadow: inset 0 -2px var(--accent);
 			}
 
 			/* ── Section titles ───────────────────────────────────────── */
@@ -1694,7 +1719,7 @@
 
 	<input type="file" id="ava-upload" accept="image/*" style="display:none" onchange="handleAvatarUpload(this)">
 
-	<main class="cab-main tab-subscription">
+	<main class="cab-main">
 		<div class="v-wrap">
 			<div class="cab-breadcrumb"><a href="index.html">Главная</a> · <b>Личный кабинет</b></div>
 		</div>
@@ -1768,11 +1793,11 @@
 		<!-- TABS -->
 		<div class="v-wrap">
 			<nav class="cab-tabs" aria-label="Разделы кабинета">
-				<button class="cab-tab active" type="button" onclick="switchTab('subscription',this)">Подписка</button>
-				<button class="cab-tab" type="button" onclick="switchTab('history',this)">Журнал</button>
-				<button class="cab-tab" type="button" onclick="switchTab('favorites',this)">Избранные</button>
-				<button class="cab-tab" type="button" onclick="switchTab('notes',this)">Заметки</button>
-				<button class="cab-tab" type="button" onclick="switchTab('feedback',this)">Связь <span class="fb-unseen-badge" id="fb-unseen-badge" style="display:none">0</span></button>
+				<a class="cab-tab" data-tab="subscription" href="cabinet.html?tab=subscription">Подписка</a>
+				<a class="cab-tab" data-tab="history" href="cabinet.html?tab=history">Журнал</a>
+				<a class="cab-tab" data-tab="favorites" href="cabinet.html?tab=favorites">Избранные</a>
+				<a class="cab-tab" data-tab="notes" href="cabinet.html?tab=notes">Заметки</a>
+				<a class="cab-tab" data-tab="feedback" href="cabinet.html?tab=feedback">Связь <span class="fb-unseen-badge" id="fb-unseen-badge" style="display:none">0</span></a>
 			</nav>
 		</div>
 
@@ -1780,7 +1805,7 @@
 		<div class="v-wrap">
 
 			<!-- Подписка -->
-			<section class="cab-tab-panel active" id="panel-subscription">
+			<section class="cab-tab-panel" id="panel-subscription">
 				<div class="cab-sec-title-row">
 					<h2 class="cab-sec-title">Подписка</h2>
 					<span class="cab-sec-title-meta">Статус и&nbsp;доступ</span>
@@ -2138,7 +2163,7 @@
 	<script src="data-v2.js?v=20260701-content-cache"></script>
 <script src="ingredients.js?v=20260616-shrimp"></script>
 	<script src="header-nav.js?v=20260701-load-stability"></script>
-	<script src="cabinet.js?v=20260701-content-cache"></script>
+	<script src="cabinet.js?v=20260702-cabinet-navigation"></script>
 	<script src="tawk-chat-modal.js?v=20260627-inline"></script>
 </body>
 

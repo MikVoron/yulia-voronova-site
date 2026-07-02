@@ -424,17 +424,48 @@
 				name === 'favorites' || name === 'history' || name === 'notes' || name === 'feedback');
 		}
 
-		function switchTab(name, btn) {
+		function switchTab(name, btn, options) {
+			if (!window.SP_CABINET_TABS || !window.SP_CABINET_TABS.isTab(name)) name = 'subscription';
+			options = options || {};
+			btn = btn || document.querySelector('.cab-tab[data-tab="' + name + '"]');
+			if (!btn) return;
+			var tabsNav = document.querySelector('.cab-tabs');
+			var tabsTop = tabsNav ? tabsNav.getBoundingClientRect().top : null;
+			var keepTabsInPlace = tabsTop !== null && tabsTop >= 0 && tabsTop <= window.innerHeight && window.scrollY > 0;
+			var previousTab = document.documentElement.dataset.cabinetTab;
+			document.documentElement.dataset.cabinetTab = name;
 			updateCompactTabMode(name);
-			document.querySelectorAll('.cab-tab').forEach(b => b.classList.remove('active'));
-			document.querySelectorAll('.cab-tab-panel').forEach(p => p.classList.remove('active'));
+			document.querySelectorAll('.cab-tab').forEach(function (tabLink) {
+				var isActive = tabLink === btn;
+				tabLink.classList.toggle('active', isActive);
+				if (isActive) tabLink.setAttribute('aria-current', 'page');
+				else tabLink.removeAttribute('aria-current');
+			});
+			document.querySelectorAll('.cab-tab-panel').forEach(function (panel) {
+				var isActive = panel.id === 'panel-' + name;
+				panel.classList.toggle('active', isActive);
+				panel.setAttribute('aria-hidden', String(!isActive));
+			});
 			btn.classList.add('active');
-			document.getElementById('panel-' + name).classList.add('active');
+			if (options.history === 'push' && previousTab !== name) {
+				history.pushState({ cabinetTab: name }, '', window.SP_CABINET_TABS.urlFor(location.href, name));
+			} else if (options.history === 'replace') {
+				history.replaceState({ cabinetTab: name }, '', window.SP_CABINET_TABS.urlFor(location.href, name));
+			}
+			renderHeaderNav();
 			if (name === 'subscription') loadSubscription();
 			if (name === 'history') renderHistory();
 			if (name === 'favorites') renderFavorites();
 			if (name === 'notes') loadNotes();
 			if (name === 'feedback') loadFeedbackHistory();
+			// Mobile compact mode changes the hero height. If the user switched a visible
+			// tab, compensate that reflow synchronously so the tab bar stays under their
+			// finger instead of jumping to another part of the page.
+			if (keepTabsInPlace) {
+				var shiftedTop = tabsNav.getBoundingClientRect().top;
+				var shift = shiftedTop - tabsTop;
+				if (Math.abs(shift) > 1) window.scrollTo({ top: Math.max(0, window.scrollY + shift), behavior: 'auto' });
+			}
 		}
 
 		// Состояние вкладки «Избранные». ДОЛЖНО быть объявлено/инициализировано до
@@ -458,14 +489,20 @@
 		let _recipesReady = false;
 		let _favoritesReady = false;
 
-		// Handle ?tab= query param (e.g. from paywall redirect)
-		(function() {
-			var params = new URLSearchParams(location.search);
-			var tab = params.get('tab');
-			if (tab) {
-				var tabBtn = document.querySelector('.cab-tab[onclick*="' + tab + '"]');
-				if (tabBtn) switchTab(tab, tabBtn);
-			}
+		// Initial state is resolved in cabinet-tabs.js in <head>, before first paint.
+		(function initCabinetTabs() {
+			var initialTab = window.SP_CABINET_TABS.resolve(location.search, location.hash);
+			switchTab(initialTab, null, { history: 'replace' });
+			document.querySelector('.cab-tabs').addEventListener('click', function (event) {
+				var tabLink = event.target.closest('.cab-tab[data-tab]');
+				if (!tabLink || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+				event.preventDefault();
+				switchTab(tabLink.dataset.tab, tabLink, { history: 'push' });
+			});
+			window.addEventListener('popstate', function () {
+				var tab = window.SP_CABINET_TABS.resolve(location.search, location.hash);
+				switchTab(tab, null, { history: 'none' });
+			});
 		})();
 
 		// ── ПОДПИСКА ──────────────────────────────────────────────────────────────
@@ -1122,8 +1159,8 @@
 		}
 
 		function openHistoryExport() {
-			const historyBtn = document.querySelector('.cab-tab[onclick*="history"]');
-			if (historyBtn && !historyBtn.classList.contains('active')) switchTab('history', historyBtn);
+			const historyBtn = document.querySelector('.cab-tab[data-tab="history"]');
+			if (historyBtn && !historyBtn.classList.contains('active')) switchTab('history', historyBtn, { history: 'push' });
 			const panel = document.getElementById('hist-export');
 			if (!panel.classList.contains('open')) updateHistoryDateRange();
 			panel.classList.add('open');
