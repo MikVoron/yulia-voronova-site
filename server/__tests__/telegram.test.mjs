@@ -38,10 +38,12 @@ beforeEach(() => {
   process.env.TG_CHAT_ID = '5754803866';
   process.env.TG_ALERT_MIN_INTERVAL_MS = '300000';
   mockQuery.mockClear();
-  global.fetch = vi.fn(async () => ({
-    ok: true,
-    json: async () => ({ ok: true, result: {} })
-  }));
+  global.fetch = vi.fn(async (url) => {
+    if (String(url).includes('/content/recipes')) {
+      return { ok: true, status: 200, json: async () => [{ id: 'recipe-1' }, { id: 'recipe-2' }] };
+    }
+    return { ok: true, status: 200, json: async () => ({ ok: true, result: {} }) };
+  });
 });
 
 afterEach(() => {
@@ -67,7 +69,8 @@ describe('telegram alerts and status', () => {
 
     const text = await telegram.getHealthText();
 
-    expect(text).toContain('api: online');
+    expect(text).toContain('api catalog: ok');
+    expect(text).toContain('2 recipes');
     expect(text).toContain('db: ok');
   });
 
@@ -77,6 +80,7 @@ describe('telegram alerts and status', () => {
     const text = await telegram.getStatusText();
 
     expect(text).toContain('SmartPlate status');
+    expect(text).toContain('api: recipes 2');
     expect(text).toContain('users: 12');
     expect(text).toContain('pending payments: 2');
     expect(text).toContain('waiting feedback: 3');

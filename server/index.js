@@ -4,6 +4,7 @@ const cors = require('@fastify/cors');
 const cookie = require('@fastify/cookie');
 const helmet = require('@fastify/helmet');
 const rateLimit = require('@fastify/rate-limit');
+const compress = require('@fastify/compress');
 const authRoutes = require('./src/routes/auth');
 const subscriptionRoutes = require('./src/routes/subscriptions');
 const adminRoutes = require('./src/routes/admin');
@@ -27,6 +28,9 @@ fastify.register(cors, {
   credentials: true
 });
 fastify.register(cookie);
+// JSON каталога — один из самых тяжёлых ответов API. Сжимаем ответы больше 1 КБ;
+// браузер сам выберет Brotli или gzip через Accept-Encoding.
+fastify.register(compress, { global: true, threshold: 1024 });
 
 // Security headers
 fastify.register(helmet, {

@@ -348,6 +348,7 @@
 					body: JSON.stringify(collectDietaryPreferences())
 				});
 				if (!res.ok) throw new Error('save failed');
+				clearContentCache();
 				if (status) status.textContent = 'Сохранено. Обновляем рецепты…';
 				setTimeout(function() { location.reload(); }, 650);
 			} catch(e) {
@@ -745,6 +746,7 @@
 						// Если платёж подтверждён и пользователь пришёл с рецепта — возвращаем туда
 						var lastPayment = payments[0];
 						if (lastPayment && lastPayment.status === 'confirmed') {
+							clearContentCache();
 							var ret = _getCabReturn();
 							if (ret) {
 								sessionStorage.removeItem('_cab_return_url');

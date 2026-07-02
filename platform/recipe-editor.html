@@ -1652,7 +1652,7 @@
 <!-- Toast -->
 <div class="re-toast" id="re-toast"></div>
 
-<script src="data-v2.js?v=20260612-soups-category"></script>
+<script src="data-v2.js?v=20260701-content-cache"></script>
 <script src="ingredients.js?v=20260616-shrimp"></script>
 <script>
 (function() {
@@ -2913,6 +2913,7 @@
                 esc(body.emoji) + ' ' + esc(body.name) + ' <em>(' + esc(body.id) + ')</em>';
             updateStatusBadge();
             lastSavedJson = JSON.stringify(body);
+            if (typeof clearContentCache === 'function') clearContentCache();
 
             showSaveSuccess(body, wasCreate);
         }).catch(function() {

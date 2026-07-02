@@ -16,6 +16,8 @@ MEM_WARN_PCT=90
 PM2_APP_NAME="${PM2_APP_NAME:-smartplate-api}"
 BACKUP_DIR="${BACKUP_DIR:-/opt/voronova/backups}"
 BACKUP_MAX_AGE_HOURS=26  # бэкап должен быть моложе 26 часов
+CONTENT_WARN_SECONDS="${CONTENT_WARN_SECONDS:-4}"
+CONTENT_MIN_BYTES="${CONTENT_MIN_BYTES:-1000}"
 
 ERRORS=""
 
@@ -79,7 +81,25 @@ else
   fail "API недоступен (HTTP $HTTP_CODE)"
 fi
 
-# ── 2. PM2 process ────────────────────────────────────────────────────────
+# ── 2. Реальный пользовательский endpoint каталога ───────────────────────
+# /health делает только лёгкую DB-проверку и может быть зелёным, даже если
+# каталог зависает. Здесь проверяем nginx → API → SQL → валидный JSON целиком.
+CONTENT_RESULT=$(curl --compressed -sS -o /tmp/recipes.json \
+  -w "%{http_code} %{time_total} %{size_download}" \
+  "${API_URL}/content/recipes" --connect-timeout 5 --max-time 12 2>/dev/null || echo "000 12 0")
+read -r CONTENT_CODE CONTENT_TIME CONTENT_BYTES <<< "$CONTENT_RESULT"
+CONTENT_FIRST_CHAR=$(head -c 1 /tmp/recipes.json 2>/dev/null || echo "")
+if [ "$CONTENT_CODE" != "200" ]; then
+  fail "Каталог рецептов недоступен (HTTP ${CONTENT_CODE}, ${CONTENT_TIME}s)"
+elif [ "$CONTENT_FIRST_CHAR" != "[" ] || [ "$CONTENT_BYTES" -lt "$CONTENT_MIN_BYTES" ]; then
+  fail "Каталог вернул неполный ответ (${CONTENT_BYTES} байт, ${CONTENT_TIME}s)"
+elif awk -v value="$CONTENT_TIME" -v limit="$CONTENT_WARN_SECONDS" 'BEGIN { exit !(value > limit) }'; then
+  fail "Каталог отвечает медленно: ${CONTENT_TIME}s (порог ${CONTENT_WARN_SECONDS}s)"
+else
+  ok "catalog: HTTP 200, ${CONTENT_TIME}s, ${CONTENT_BYTES} bytes compressed"
+fi
+
+# ── 3. PM2 process ────────────────────────────────────────────────────────
 if command -v pm2 &>/dev/null; then
   PM2_STATUS="$(read_pm2_status)"
   if [ "$PM2_STATUS" != "online" ]; then
@@ -95,7 +115,7 @@ else
   ok "pm2: не установлен (пропуск)"
 fi
 
-# ── 3. Диск ────────────────────────────────────────────────────────────────
+# ── 4. Диск ────────────────────────────────────────────────────────────────
 DISK_PCT=$(df / | tail -1 | awk '{print $5}' | tr -d '%')
 if [ "$DISK_PCT" -ge "$DISK_WARN_PCT" ]; then
   fail "Диск: ${DISK_PCT}% занято (порог ${DISK_WARN_PCT}%)"
@@ -103,7 +123,7 @@ else
   ok "disk: ${DISK_PCT}%"
 fi
 
-# ── 4. Память ──────────────────────────────────────────────────────────────
+# ── 5. Память ──────────────────────────────────────────────────────────────
 MEM_PCT=$(free | awk '/Mem:/ {printf "%.0f", $3/$2 * 100}')
 if [ "$MEM_PCT" -ge "$MEM_WARN_PCT" ]; then
   fail "Память: ${MEM_PCT}% использовано (порог ${MEM_WARN_PCT}%)"
@@ -111,7 +131,7 @@ else
   ok "memory: ${MEM_PCT}%"
 fi
 
-# ── 5. PostgreSQL ──────────────────────────────────────────────────────────
+# ── 6. PostgreSQL ──────────────────────────────────────────────────────────
 if command -v pg_isready &>/dev/null; then
   if pg_isready -q 2>/dev/null; then
     ok "postgresql: ready"
@@ -120,7 +140,7 @@ if command -v pg_isready &>/dev/null; then
   fi
 fi
 
-# ── 6. SSL сертификат ──────────────────────────────────────────────────────
+# ── 7. SSL сертификат ──────────────────────────────────────────────────────
 API_HOST=$(echo "$API_URL" | sed -E 's|https?://||;s|/.*||;s|:.*||')
 SSL_EXPIRY=$(echo | openssl s_client -connect "${API_HOST}:443" -servername "$API_HOST" 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2 || echo "")
 if [ -n "$SSL_EXPIRY" ]; then
@@ -134,7 +154,7 @@ if [ -n "$SSL_EXPIRY" ]; then
   fi
 fi
 
-# ── 7. Бэкапы ─────────────────────────────────────────────────────────────
+# ── 8. Бэкапы ─────────────────────────────────────────────────────────────
 if [ -d "$BACKUP_DIR" ]; then
   LATEST=$(find "$BACKUP_DIR" -name "*.gpg" -type f -mmin -$((BACKUP_MAX_AGE_HOURS * 60)) 2>/dev/null | head -1)
   if [ -n "$LATEST" ]; then

@@ -3271,9 +3271,9 @@
 		</svg>
 	</a>
 
-	<script src="data-v2.js?v=20260627-journal-copy"></script>
+	<script src="data-v2.js?v=20260701-content-cache"></script>
 	<script src="ingredients.js?v=20260616-shrimp"></script>
-	<script src="header-nav.js?v=20260612-soups-category"></script>
+	<script src="header-nav.js?v=20260701-load-stability"></script>
 	<script>
 		function escHtml(s) {
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -3307,6 +3307,10 @@
 		function updateGuestOnboardingVisibility() {
 			document.body.classList.toggle('sp-guest-onboarding-active', _guestTourPreview || !isGuestTourCompleted());
 		}
+		// Условие зависит только от localStorage/URL, поэтому применяем его до
+		// сетевых запросов. Иначе сначала мелькает hero, а после loadContent()
+		// страница резко заменяет его вводным блоком.
+		updateGuestOnboardingVisibility();
 
 		// Skeleton в #recommended-block СРАЗУ — место зарезервировано до того,
 		// как loadContent() резолвится. Реальные карточки заполнит renderRecommended().

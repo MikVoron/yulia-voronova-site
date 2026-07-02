@@ -11,6 +11,7 @@ try {
 const DEFAULT_ALERT_INTERVAL_MS = 5 * 60 * 1000;
 const POLL_INTERVAL_MS = 1000;
 const POLL_TIMEOUT_SECONDS = 20;
+const PUBLIC_API_URL = process.env.PUBLIC_API_URL || 'https://api.voronova.online';
 
 let polling = false;
 let stopped = false;
@@ -146,6 +147,27 @@ async function getLastCronSummary() {
   }
 }
 
+async function probeRecipeCatalog(timeoutMs = 8000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const startedAt = Date.now();
+  try {
+    const response = await fetch(`${PUBLIC_API_URL}/content/recipes`, {
+      headers: { accept: 'application/json' },
+      signal: controller.signal
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const recipes = await response.json();
+    if (!Array.isArray(recipes) || recipes.length === 0) throw new Error('empty or invalid JSON');
+    return { ok: true, ms: Date.now() - startedAt, count: recipes.length };
+  } catch (error) {
+    const message = error && error.name === 'AbortError' ? `timeout ${timeoutMs}ms` : truncate(error.message, 120);
+    return { ok: false, ms: Date.now() - startedAt, error: message };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function getStatusText() {
   let dbStatus = 'ok';
   try {
@@ -160,12 +182,13 @@ async function getStatusText() {
   const waitingFeedback = await optionalCount("SELECT COUNT(*) FROM feedback_messages WHERE status IN ('new','waiting_admin')");
   const subscriptions = await getSubscriptionSummary();
   const cron = await getLastCronSummary();
+  const catalog = await probeRecipeCatalog();
   const load = os.loadavg().map(value => value.toFixed(2)).join(' ');
 
   return [
     '<b>SmartPlate status</b>',
     `time: ${new Date().toISOString()}`,
-    `api: online`,
+    `api: ${catalog.ok ? `recipes ${catalog.count}, ${catalog.ms}ms` : `error (${escapeHtml(catalog.error)})`}`,
     `db: ${escapeHtml(dbStatus)}`,
     `uptime: ${formatDuration(process.uptime())}`,
     `rss: ${Math.round(memory.rss / 1024 / 1024)} MB`,
@@ -179,12 +202,17 @@ async function getStatusText() {
 }
 
 async function getHealthText() {
+  let dbText = 'ok';
   try {
     await db.query('SELECT 1 AS ok');
-    return '<b>SmartPlate health</b>\napi: online\ndb: ok';
   } catch (error) {
-    return `<b>SmartPlate health</b>\napi: online\ndb: error\n${escapeHtml(truncate(error.message, 500))}`;
+    dbText = `error (${escapeHtml(truncate(error.message, 300))})`;
   }
+  const catalog = await probeRecipeCatalog();
+  const apiText = catalog.ok
+    ? `ok — ${catalog.count} recipes, ${catalog.ms}ms`
+    : `error — ${escapeHtml(catalog.error)}`;
+  return `<b>SmartPlate health</b>\napi catalog: ${apiText}\ndb: ${dbText}`;
 }
 
 async function handleTelegramMessage(message, fastify) {

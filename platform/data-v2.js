@@ -18,6 +18,7 @@ const Auth = {
     _token: null,
     _ST: 'hp_st',
     login(email, name, token, subscription, avatar, role, createdAt, id) {
+        clearContentCache();
         localStorage.removeItem('hp_token'); // cleanup legacy
         const prev = this.getUser();
         if (prev && prev.email && prev.email !== email) {
@@ -44,6 +45,7 @@ const Auth = {
     },
     logout() {
         fetch(API_BASE + '/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
+        clearContentCache();
         localStorage.removeItem(this.KEY); localStorage.removeItem('hp_token');
         sessionStorage.removeItem(this._ST);
         this._token = null; Plate.clear();
@@ -347,14 +349,18 @@ const Auth = {
     },
     async _doRefresh() {
         try {
-            const res = await fetch(API_BASE + '/auth/refresh', { method: 'POST', credentials: 'include' });
+            const res = await _fetchWithTimeout(
+                API_BASE + '/auth/refresh', { method: 'POST', credentials: 'include' }, 8000
+            );
             if (!res.ok) {
                 // Cross-tab race: another tab may rotate the one-time refresh
                 // cookie while this request is in flight. Give the browser a
                 // moment to apply the newer cookie, then try once more.
                 if (res.status === 401) {
                     await this._sleep(500);
-                    const retry = await fetch(API_BASE + '/auth/refresh', { method: 'POST', credentials: 'include' });
+                    const retry = await _fetchWithTimeout(
+                        API_BASE + '/auth/refresh', { method: 'POST', credentials: 'include' }, 8000
+                    );
                     if (!retry.ok) return false;
                     return this._applyRefreshResponse(await retry.json());
                 }
@@ -893,60 +899,155 @@ function _mapRecipe(r) {
 }
 
 let _contentError = false;
+let _contentErrorType = '';
+let _contentRefreshInFlight = null;
+const CONTENT_CACHE_PREFIX = 'sp_content_cache_v1:';
+const CONTENT_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
+
+function _contentAudienceKey() {
+    const user = Auth.getUser();
+    if (!user) return 'guest';
+    return 'user:' + String(user.id || user.email || 'unknown') + ':' + String(user.role || 'user');
+}
+
+function _contentCacheKey() {
+    return CONTENT_CACHE_PREFIX + encodeURIComponent(_contentAudienceKey());
+}
+
+// Экспортируем как обычную глобальную функцию: кабинет и редактор рецептов
+// сбрасывают кэш после изменения данных, влияющих на выдачу.
+function clearContentCache() {
+    try {
+        for (let i = sessionStorage.length - 1; i >= 0; i--) {
+            const key = sessionStorage.key(i);
+            if (key && key.indexOf(CONTENT_CACHE_PREFIX) === 0) sessionStorage.removeItem(key);
+        }
+    } catch (_) {}
+}
+
+function _readContentCache() {
+    try {
+        const cached = JSON.parse(sessionStorage.getItem(_contentCacheKey()) || 'null');
+        if (!cached || !cached.savedAt || Date.now() - cached.savedAt > CONTENT_CACHE_MAX_AGE) return null;
+        if (!Array.isArray(cached.recipes) || !Array.isArray(cached.categories)) return null;
+        return cached;
+    } catch (_) {
+        return null;
+    }
+}
+
+function _writeContentCache(payload) {
+    try {
+        sessionStorage.setItem(_contentCacheKey(), JSON.stringify({
+            savedAt: Date.now(),
+            recipes: payload.recipes,
+            categories: payload.categories,
+            ingredients: payload.ingredients || []
+        }));
+    } catch (_) {
+        // Safari private mode / quota: кэш — ускорение, но не обязательное условие.
+    }
+}
+
+function _applyContentPayload(payload) {
+    Object.keys(RECIPES).forEach(id => { delete RECIPES[id]; });
+    Object.keys(CATEGORIES).forEach(id => { delete CATEGORIES[id]; });
+
+    if (window.SP_INGREDIENTS && typeof SP_INGREDIENTS.addIngredients === 'function') {
+        SP_INGREDIENTS.addIngredients(payload.ingredients || []);
+    }
+    payload.recipes.forEach(r => {
+        try {
+            RECIPES[r.id] = _mapRecipe(r);
+        } catch (err) {
+            console.error('Failed to map recipe', r && r.id, err);
+        }
+    });
+    payload.categories.forEach(c => {
+        CATEGORIES[c.id] = {
+            id: c.id, name: c.name, emoji: c.emoji, color: c.color,
+            desc: c.description || '',
+            sort_order: c.sort_order,
+            dishes: c.dishes || [],
+            autoAddons: c.auto_addons || {}
+        };
+    });
+}
+
+// Контент — основа почти всех экранов SmartPlate. Без таймаута один зависший
+// запрос оставляет страницу в skeleton-состоянии навсегда. AbortController
+// обрывает только конкретный запрос и позволяет показать понятную ошибку.
+function _fetchWithTimeout(url, options, timeoutMs) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs || 8000);
+    const fetchOptions = Object.assign({}, options || {}, { signal: controller.signal });
+    return fetch(url, fetchOptions).finally(() => clearTimeout(timer));
+}
+
+async function _fetchContentPayload() {
+    // New tabs start with empty sessionStorage. If the user is logged in but token
+    // is missing, refresh it first — otherwise the API strips paid fields.
+    if (Auth.isLoggedIn() && !Auth.getToken()) await Auth.refreshToken();
+
+    const headers = {};
+    const token = Auth.getToken();
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    const ingredientsPromise = _fetchWithTimeout(
+        API_BASE + '/content/ingredients', { headers }, 2500
+    ).then(res => res.ok ? res.json() : []).catch(() => []);
+    const [recipesRes, catsRes, ingredients] = await Promise.all([
+        _fetchWithTimeout(API_BASE + '/content/recipes', { headers }, 8000),
+        _fetchWithTimeout(API_BASE + '/content/categories', { headers }, 8000),
+        ingredientsPromise
+    ]);
+    if (!recipesRes.ok || !catsRes.ok) {
+        const error = new Error('Content API returned non-OK status');
+        error.contentType = 'server';
+        error.statuses = [recipesRes.status, catsRes.status];
+        throw error;
+    }
+    return {
+        recipes: await recipesRes.json(),
+        categories: await catsRes.json(),
+        ingredients
+    };
+}
+
+function _refreshContentCacheInBackground() {
+    if (_contentRefreshInFlight) return _contentRefreshInFlight;
+    _contentRefreshInFlight = _fetchContentPayload()
+        .then(payload => {
+            // Текущий экран остаётся стабильным; свежий ответ подхватит следующий
+            // переход. Так stale-while-revalidate не перестраивает DOM под рукой.
+            _writeContentCache(payload);
+            window.dispatchEvent(new CustomEvent('smartplate:content-cache-refreshed'));
+        })
+        .catch(err => console.warn('Background content refresh failed', err))
+        .finally(() => { _contentRefreshInFlight = null; });
+    return _contentRefreshInFlight;
+}
 
 async function loadContent() {
     if (_contentLoaded) return;
     _contentError = false;
+    _contentErrorType = '';
+    const cached = _readContentCache();
+    if (cached) {
+        _applyContentPayload(cached);
+        _contentLoaded = true;
+        _refreshContentCacheInBackground();
+        return;
+    }
     try {
-        // New tabs start with empty sessionStorage. If the user is logged in but token
-        // is missing, refresh it first — otherwise the API strips ingredients/steps/note
-        // for "unauthenticated" requests.
-        if (Auth.isLoggedIn() && !Auth.getToken()) {
-            await Auth.refreshToken();
-        }
-        const headers = {};
-        const token = Auth.getToken();
-        if (token) headers['Authorization'] = 'Bearer ' + token;
-        const ingredientsPromise = Promise.race([
-            fetch(API_BASE + '/content/ingredients', { headers })
-                .then(res => res.ok ? res.json() : [])
-                .catch(() => []),
-            new Promise(resolve => setTimeout(() => resolve([]), 2500))
-        ]);
-        const [recipesRes, catsRes, ingredients] = await Promise.all([
-            fetch(API_BASE + '/content/recipes', { headers }),
-            fetch(API_BASE + '/content/categories', { headers }),
-            ingredientsPromise
-        ]);
-        if (!recipesRes.ok || !catsRes.ok) {
-            _contentError = true;
-            console.error('API returned non-OK status', recipesRes.status, catsRes.status);
-            return;
-        }
-        if (window.SP_INGREDIENTS && typeof SP_INGREDIENTS.addIngredients === 'function') {
-            SP_INGREDIENTS.addIngredients(ingredients);
-        }
-        const data = await recipesRes.json();
-        data.forEach(r => {
-            try {
-                RECIPES[r.id] = _mapRecipe(r);
-            } catch (err) {
-                console.error('Failed to map recipe', r && r.id, err);
-            }
-        });
-        const cats = await catsRes.json();
-        cats.forEach(c => {
-            CATEGORIES[c.id] = {
-                id: c.id, name: c.name, emoji: c.emoji, color: c.color,
-                desc: c.description || '',
-                sort_order: c.sort_order,
-                dishes: c.dishes || [],
-                autoAddons: c.auto_addons || {}
-            };
-        });
+        const payload = await _fetchContentPayload();
+        _applyContentPayload(payload);
+        _writeContentCache(payload);
         _contentLoaded = true;
     } catch (e) {
         _contentError = true;
+        _contentErrorType = e && e.contentType
+            ? e.contentType
+            : (e && e.name === 'AbortError' ? 'timeout' : 'network');
         console.error('Failed to load content from API', e);
     }
 }
@@ -956,11 +1057,16 @@ function isContentError() { return _contentError; }
 // Показать экран ошибки при недоступности API
 function showApiError(container) {
     if (!container) return;
+    const timedOut = _contentErrorType === 'timeout';
+    const title = timedOut ? 'Сервер отвечает дольше обычного' : 'Не удалось загрузить рецепты';
+    const text = timedOut
+        ? 'Мы остановили ожидание, чтобы страница не зависла. Попробуйте загрузить рецепты ещё раз.'
+        : 'Проверьте подключение к интернету или попробуйте позже.';
     container.innerHTML =
         '<div style="text-align:center;padding:60px 20px;max-width:440px;margin:0 auto">' +
             '<div style="font-size:56px;margin-bottom:16px">📡</div>' +
-            '<h2 style="font-family:Playfair Display,serif;font-size:24px;color:#1a1a1a;margin-bottom:12px">Не удалось загрузить рецепты</h2>' +
-            '<p style="color:#666;font-size:15px;line-height:1.5;margin-bottom:24px">Проверьте подключение к интернету или попробуйте позже.</p>' +
+            '<h2 style="font-family:Playfair Display,serif;font-size:24px;color:#1a1a1a;margin-bottom:12px">' + title + '</h2>' +
+            '<p style="color:#666;font-size:15px;line-height:1.5;margin-bottom:24px">' + text + '</p>' +
             '<button onclick="location.reload()" style="background:var(--accent,#e8734a);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer">Повторить</button>' +
         '</div>';
 }

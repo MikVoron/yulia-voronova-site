@@ -34,6 +34,22 @@
     ['pancakes', 'spreads', 'sauces'],
     ['bases', 'breads', 'drinks']
   ];
+  // Меню должно быть полноценным уже на первом кадре и при временной ошибке API.
+  // После loadContent() эти подписи заменяются актуальными объектами категорий.
+  var FALLBACK_CATEGORIES = [
+    { id: 'breakfasts', name: 'Завтраки', sort_order: 1 },
+    { id: 'soups', name: 'Супы', sort_order: 2 },
+    { id: 'mains', name: 'Горячее', sort_order: 3 },
+    { id: 'cutlets', name: 'Котлеты', sort_order: 4 },
+    { id: 'salads', name: 'Салаты', sort_order: 5 },
+    { id: 'sides', name: 'Гарниры', sort_order: 6 },
+    { id: 'pancakes', name: 'Блины / Оладьи', sort_order: 7 },
+    { id: 'spreads', name: 'Намазки', sort_order: 8 },
+    { id: 'sauces', name: 'Соусы', sort_order: 9 },
+    { id: 'bases', name: 'Основа', sort_order: 10 },
+    { id: 'breads', name: 'Хлеб и Крекеры', sort_order: 11 },
+    { id: 'drinks', name: 'Напитки', sort_order: 12 }
+  ];
   var RECIPE_ORDER = RECIPE_GROUPS.reduce(function (acc, group, groupIdx) {
     group.forEach(function (id, itemIdx) { acc[id] = groupIdx * 10 + itemIdx; });
     return acc;
@@ -64,7 +80,7 @@
   // data-v2.js ещё не загрузился.
   function getCategories() {
     var C = (typeof CATEGORIES !== 'undefined') ? CATEGORIES : null;
-    if (!C || typeof C !== 'object') return [];
+    if (!C || typeof C !== 'object' || !Object.keys(C).length) return FALLBACK_CATEGORIES.slice();
     var arr = Object.keys(C).map(function (k) { return C[k]; })
       .filter(function (c) { return c && c.id; });
     arr.sort(function (a, b) {
