@@ -984,6 +984,20 @@ function _fetchWithTimeout(url, options, timeoutMs) {
     return fetch(url, fetchOptions).finally(() => clearTimeout(timer));
 }
 
+// A transient TLS/network stall should not leave a first-time visitor without
+// content. Retry once with a fresh connection and a longer timeout; cached
+// visitors still take the fast path above and do not wait for either request.
+async function _fetchWithRetry(url, options, firstTimeoutMs, retryTimeoutMs) {
+    try {
+        return await _fetchWithTimeout(url, options, firstTimeoutMs);
+    } catch (err) {
+        const retryable = err && (err.name === 'AbortError' || err.name === 'TypeError');
+        if (!retryable) throw err;
+        await new Promise(resolve => setTimeout(resolve, 300));
+        return _fetchWithTimeout(url, options, retryTimeoutMs);
+    }
+}
+
 async function _fetchContentPayload() {
     // New tabs start with empty sessionStorage. If the user is logged in but token
     // is missing, refresh it first — otherwise the API strips paid fields.
@@ -992,12 +1006,12 @@ async function _fetchContentPayload() {
     const headers = {};
     const token = Auth.getToken();
     if (token) headers['Authorization'] = 'Bearer ' + token;
-    const ingredientsPromise = _fetchWithTimeout(
-        API_BASE + '/content/ingredients', { headers }, 2500
+    const ingredientsPromise = _fetchWithRetry(
+        API_BASE + '/content/ingredients', { headers }, 2500, 5000
     ).then(res => res.ok ? res.json() : []).catch(() => []);
     const [recipesRes, catsRes, ingredients] = await Promise.all([
-        _fetchWithTimeout(API_BASE + '/content/recipes', { headers }, 8000),
-        _fetchWithTimeout(API_BASE + '/content/categories', { headers }, 8000),
+        _fetchWithRetry(API_BASE + '/content/recipes', { headers }, 8000, 15000),
+        _fetchWithRetry(API_BASE + '/content/categories', { headers }, 8000, 15000),
         ingredientsPromise
     ]);
     if (!recipesRes.ok || !catsRes.ok) {
