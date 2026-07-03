@@ -134,6 +134,8 @@
             color: var(--accent); font-size: 11px; font-weight: 700;
             letter-spacing: .06em; text-transform: uppercase;
         }
+        .cat-page .filter-more-toggle { display: none; }
+        .cat-page .filter-more { display: contents; }
         @media (max-width: 767px) {
             .cat-page .filter-outer {
                 flex-direction: column;
@@ -149,7 +151,21 @@
                 gap: 4px;
                 min-width: 0;
             }
+            .cat-page .filter-more-toggle {
+                display: inline-flex; align-items: center; gap: 5px;
+                padding: 6px 10px; border: 0; background: transparent;
+                color: var(--accent); font: inherit; font-size: 12px;
+                font-weight: 700; cursor: pointer;
+            }
+            .cat-page .filter-more-toggle span { transition: transform .15s ease; }
+            .cat-page .filter-more-toggle[aria-expanded="true"] span { transform: rotate(180deg); }
+            .cat-page .filter-more {
+                display: none; flex-basis: 100%; flex-wrap: wrap;
+                justify-content: center; gap: 4px;
+            }
+            .cat-page .filter-more.is-open { display: flex; }
             .cat-page .filter-clear {
+                display: none;
                 flex-shrink: 0;
                 width: 100%;
                 padding: 6px 0 2px;
@@ -158,6 +174,7 @@
                 border-top: 1px solid var(--border);
                 margin-top: 4px;
             }
+            .cat-page .filter-outer.has-active .filter-clear { display: block; }
         }
 
         /* ── Count line (editorial uppercase) ── */
@@ -361,11 +378,14 @@
             <div class="filter-sep"></div>
             <button class="filter-chip" data-f="free" onclick="toggleTagFilter(this)">Бесплатные</button>
             <button class="filter-chip" data-f="popular" onclick="togglePopular(this)">⭐ Популярные</button>
-            <button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
-            <button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
-            <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
-            <button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
-            <button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Бобовые</button>
+            <button class="filter-more-toggle" type="button" aria-expanded="false" aria-controls="category-more-filters" onclick="toggleMoreFilters(this)">Ещё фильтры <span aria-hidden="true">⌄</span></button>
+            <div class="filter-more" id="category-more-filters">
+                <button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
+                <button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
+                <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
+                <button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
+                <button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Бобовые</button>
+            </div>
         </div>
         </div>
         <button class="filter-clear" onclick="clearFilters()">↺ Сбросить</button>
@@ -988,6 +1008,7 @@
     function togglePopular(el) {
         _popularActive = !_popularActive;
         el.classList.toggle('on', _popularActive);
+        syncFilterControls();
         renderDishes();
     }
 
@@ -1044,6 +1065,15 @@
                 }
             }
         });
+        const hasMoreFilter = ['gluten','plant','fish','noSoy','legumes'].some(f => activeFilters[f]);
+        const more = document.getElementById('category-more-filters');
+        const moreBtn = document.querySelector('[aria-controls="category-more-filters"]');
+        if (hasMoreFilter && more && moreBtn) {
+            more.classList.add('is-open');
+            moreBtn.setAttribute('aria-expanded', 'true');
+        }
+        const outer = document.querySelector('.cat-page .filter-outer');
+        if (outer) outer.classList.toggle('has-active', Object.keys(activeFilters).length > 0);
     })();
 
     function goToRecipe(id) {
@@ -1334,6 +1364,7 @@
             btn.querySelector('.fg-label').textContent = el.textContent.trim();
         }
         closeFGroups();
+        syncFilterControls();
         renderDishes();
     }
 
@@ -1341,17 +1372,34 @@
         const f = el.dataset.f;
         if (el.classList.contains('on')) { el.classList.remove('on'); delete activeFilters[f]; }
         else { el.classList.add('on'); activeFilters[f] = true; }
+        syncFilterControls();
         renderDishes();
+    }
+
+    function toggleMoreFilters(btn) {
+        const panel = document.getElementById(btn.getAttribute('aria-controls'));
+        const open = btn.getAttribute('aria-expanded') !== 'true';
+        btn.setAttribute('aria-expanded', String(open));
+        if (panel) panel.classList.toggle('is-open', open);
+    }
+
+    function syncFilterControls() {
+        const outer = document.querySelector('.cat-page .filter-outer');
+        if (outer) outer.classList.toggle('has-active', Object.keys(activeFilters).length > 0 || _popularActive);
     }
 
     function clearFilters() {
         Object.keys(activeFilters).forEach(k => delete activeFilters[k]);
+        _popularActive = false;
+        const popularChip = document.querySelector('.filter-chip[data-f="popular"]');
+        if (popularChip) popularChip.classList.remove('on');
         document.querySelectorAll('.filter-chip.on').forEach(c => c.classList.remove('on'));
         document.querySelectorAll('.fgroup-btn').forEach(b => {
             b.classList.remove('has-value');
             b.querySelector('.fg-label').textContent = b.dataset.label;
         });
         closeFGroups();
+        syncFilterControls();
         renderDishes();
     }
 

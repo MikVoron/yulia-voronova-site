@@ -62,6 +62,24 @@ describe('SmartPlate feedback plan 4 contracts', () => {
     expect(category).toContain("const matched = (typeof searchRecipes === 'function') ? searchRecipes(searchQuery) : [];");
   });
 
+  it('keeps primary mobile filters visible and discloses secondary filters explicitly', () => {
+    for (const [file, controlsId] of [
+      ['index.html', 'home-more-filters'],
+      ['category.html', 'category-more-filters'],
+    ]) {
+      const source = read(file);
+      expect(source).toContain('data-f="free"');
+      expect(source).toContain('data-f="popular"');
+      expect(source).toContain(`aria-controls="${controlsId}"`);
+      expect(source).toContain(`class="filter-more" id="${controlsId}"`);
+      expect(source).toContain('Ещё фильтры');
+      expect(source).toContain('function toggleMoreFilters(btn)');
+      expect(source).toContain("btn.setAttribute('aria-expanded', String(open));");
+      expect(source).toContain("panel.classList.toggle('is-open', open)");
+      expect(source).toContain("classList.toggle('has-active'");
+    }
+  });
+
   it('keeps changed inline scripts syntactically valid', () => {
     for (const file of ['index.html', 'category.html', 'ingredient.html']) {
       const html = read(file);
