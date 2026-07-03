@@ -17,7 +17,7 @@ const Auth = {
     KEY: 'hp_user',
     _token: null,
     _ST: 'hp_st',
-    login(email, name, token, subscription, avatar, role, createdAt, id) {
+    login(email, name, token, subscription, avatar, role, createdAt, id, weight) {
         clearContentCache();
         localStorage.removeItem('hp_token'); // cleanup legacy
         const prev = this.getUser();
@@ -35,7 +35,8 @@ const Auth = {
             avatar: avatar || (prev && prev.email === email && prev.avatar) || null,
             joined: createdAt || (prev && prev.email === email && prev.joined) || Date.now(),
             subscription: subscription || null,
-            role: role || (prev && prev.email === email && prev.role) || null
+            role: role || (prev && prev.email === email && prev.role) || null,
+            weight: weight == null ? null : Number(weight)
         };
         localStorage.setItem(this.KEY, JSON.stringify(user));
         if (name) this.setName(name);
@@ -146,6 +147,13 @@ const Auth = {
         if (!data) return;
         if (data.displayName !== undefined) this.setName(data.displayName || '');
         if (data.avatar !== undefined) this.setAvatar(data.avatar || null);
+        if (data.weight !== undefined) {
+            const user = this.getUser();
+            if (user) {
+                user.weight = data.weight == null ? null : Number(data.weight);
+                localStorage.setItem(this.KEY, JSON.stringify(user));
+            }
+        }
         if (data.createdAt) {
             const user = this.getUser();
             if (user) { user.joined = data.createdAt; localStorage.setItem(this.KEY, JSON.stringify(user)); }

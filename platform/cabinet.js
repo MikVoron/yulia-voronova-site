@@ -274,12 +274,27 @@
 		// Фиксация на blur: валидное — сохраняем и пересчитываем; невалидное —
 		// откатываем поле к последнему сохранённому (и воду), а если сохранённого
 		// нет — очищаем поле и скрываем карточку воды.
-		function commitWeight(el) {
+		async function commitWeight(el) {
 			const n = parseFloat(el.value);
 			if (isValidWeight(n)) {
 				el.value = n;  // нормализуем отображение («045» → «45», «55,5»→«55.5»)
 				localStorage.setItem(Auth._userKey('user_weight'), n);
 				updateWaterNorm(n);
+				try {
+					const res = await Auth.api('/auth/profile', {
+						method: 'PUT',
+						body: JSON.stringify({ weight: n })
+					});
+					if (!res.ok) throw new Error('weight_save_' + res.status);
+					const user = Auth.getUser();
+					if (user) {
+						user.weight = n;
+						localStorage.setItem(Auth.KEY, JSON.stringify(user));
+					}
+					showToast('Вес сохранён');
+				} catch (e) {
+					showToast('Не удалось сохранить вес в аккаунте');
+				}
 				return;
 			}
 			const saved = localStorage.getItem(Auth._userKey('user_weight'));
@@ -420,6 +435,28 @@
 			document.getElementById('cab-weight').value = savedWeight;
 			updateWaterNorm(parseFloat(savedWeight));
 		}
+		_cabAccess.then(async function() {
+			const user = Auth.getUser();
+			const accountWeight = user && user.weight != null ? Number(user.weight) : null;
+			const localWeight = parseFloat(localStorage.getItem(Auth._userKey('user_weight')));
+			if (isValidWeight(accountWeight)) {
+				localStorage.setItem(Auth._userKey('user_weight'), accountWeight);
+				document.getElementById('cab-weight').value = accountWeight;
+				updateWaterNorm(accountWeight);
+			} else if (isValidWeight(localWeight)) {
+				// One-time migration for existing users whose weight lived only in this browser.
+				try {
+					const res = await Auth.api('/auth/profile', {
+						method: 'PUT',
+						body: JSON.stringify({ weight: localWeight })
+					});
+					if (res.ok && user) {
+						user.weight = localWeight;
+						localStorage.setItem(Auth.KEY, JSON.stringify(user));
+					}
+				} catch (e) { /* local fallback remains available */ }
+			}
+		});
 
 		// ── TABS ──────────────────────────────────────────────────────────────────
 		function updateCompactTabMode(name) {
@@ -842,6 +879,11 @@
 				}
 				return;
 			}
+			var hiddenNoticeId = localStorage.getItem(Auth._userKey('hidden_payment_notice'));
+			if (payment.status === 'rejected' && String(payment.id) === hiddenNoticeId) {
+				if (block) block.remove();
+				return;
+			}
 			var isPending = payment.status === 'pending';
 			// Only a pending payment blocks a duplicate submission.
 			if (cardBtn) {
@@ -882,10 +924,20 @@
 				var success = document.getElementById('pay-success');
 				if (success) success.style.display = 'none';
 			}
+			var hideAction = payment.status === 'rejected'
+				? '<button type="button" class="pay-notice-hide" data-payment-id="' + escHtml(String(payment.id)) + '" onclick="hidePaymentNotice(this)">Скрыть уведомление</button>'
+				: '';
 			block.innerHTML = '<div class="' + cardClass + '" role="status" aria-live="polite" tabindex="-1">'
 				+ '<div class="pay-pending-eyebrow">' + title + '</div>'
 				+ '<div class="pay-pending-text">' + text + '</div>'
-				+ support + '</div>';
+				+ support + hideAction + '</div>';
+		}
+
+		function hidePaymentNotice(button) {
+			var paymentId = button && button.getAttribute('data-payment-id');
+			if (paymentId) localStorage.setItem(Auth._userKey('hidden_payment_notice'), paymentId);
+			var block = document.getElementById('pay-pending-block');
+			if (block) block.remove();
 		}
 
 		function _injectHistorySupportNote(parent, paymentStatus) {

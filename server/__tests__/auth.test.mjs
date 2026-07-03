@@ -309,6 +309,32 @@ describe('auth/profile — avatar validation', () => {
     });
     expect(res.statusCode).toBe(200);
   });
+
+  it('accepts weight in the account range with a 0.5 kg step', async () => {
+    mockQuery.mockClear();
+    const res = await app.inject({
+      method: 'PUT', url: '/auth/profile',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { weight: 55.5 }
+    });
+    expect(res.statusCode).toBe(200);
+    expect(mockQuery).toHaveBeenCalledWith(
+      expect.stringContaining('weight_kg=$1'),
+      [55.5, 1]
+    );
+  });
+
+  it('rejects weight outside the allowed step', async () => {
+    mockQuery.mockClear();
+    const res = await app.inject({
+      method: 'PUT', url: '/auth/profile',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { weight: 55.3 }
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('Вес');
+    expect(mockQuery).not.toHaveBeenCalledWith(expect.stringMatching(/UPDATE users SET/), expect.any(Array));
+  });
 });
 
 describe('OAuth state validation', () => {

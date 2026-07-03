@@ -123,7 +123,7 @@ async function authRoutes(fastify) {
     reply.setCookie('refreshToken', refreshToken, {
       path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 2592000
     });
-    return { accessToken, user: { id: user.id, email: user.email, displayName: user.display_name, avatar: user.avatar || null, role: user.role, createdAt: user.created_at }, isNew };
+    return { accessToken, user: { id: user.id, email: user.email, displayName: user.display_name, avatar: user.avatar || null, weight: user.weight_kg == null ? null : Number(user.weight_kg), role: user.role, createdAt: user.created_at }, isNew };
   });
 
   // POST /auth/refresh
@@ -140,7 +140,7 @@ async function authRoutes(fastify) {
        WHERE rs.user_id=u.id
          AND rs.refresh_token_hash=$1
          AND rs.expires_at > now()
-       RETURNING rs.user_id, u.email, u.role, u.display_name, u.avatar,
+       RETURNING rs.user_id, u.email, u.role, u.display_name, u.avatar, u.weight_kg,
                  u.is_blocked, u.created_at AS user_created_at`,
       [tokenHash]
     );
@@ -157,7 +157,7 @@ async function authRoutes(fastify) {
     reply.setCookie('refreshToken', newRefresh, {
       path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 2592000
     });
-    return { accessToken, user: { id: session.user_id, email: session.email, displayName: session.display_name, avatar: session.avatar || null, role: session.role, createdAt: session.user_created_at } };
+    return { accessToken, user: { id: session.user_id, email: session.email, displayName: session.display_name, avatar: session.avatar || null, weight: session.weight_kg == null ? null : Number(session.weight_kg), role: session.role, createdAt: session.user_created_at } };
   });
 
   // POST /auth/logout
@@ -204,7 +204,7 @@ async function authRoutes(fastify) {
         }
       }
       return {
-        id: u.id, email: u.email, displayName: u.display_name, avatar: u.avatar || null, role: u.role, createdAt: u.created_at,
+        id: u.id, email: u.email, displayName: u.display_name, avatar: u.avatar || null, weight: u.weight_kg == null ? null : Number(u.weight_kg), role: u.role, createdAt: u.created_at,
         subscription: {
           status,
           trialEndsAt: u.trial_ends_at,
@@ -217,13 +217,13 @@ async function authRoutes(fastify) {
     }
   });
 
-  // PUT /auth/profile — обновить display_name и/или avatar
+  // PUT /auth/profile — обновить display_name, avatar и/или weight
   fastify.put('/auth/profile', {
     preHandler: authenticate,
     config: { rateLimit: AUTH_PROFILE_RATE_LIMIT }
   }, async (req, reply) => {
 
-    const { displayName, avatar } = req.body || {};
+    const { displayName, avatar, weight } = req.body || {};
     let name = undefined;
     if (displayName !== undefined) {
       if (displayName == null || displayName === '') {
@@ -253,15 +253,28 @@ async function authRoutes(fastify) {
       }
     }
 
+    let weightKg = undefined;
+    if (weight !== undefined) {
+      if (weight === null || weight === '') {
+        weightKg = null;
+      } else if (typeof weight !== 'number' || !Number.isFinite(weight)
+        || weight < 30 || weight > 300 || !Number.isInteger(weight * 2)) {
+        return reply.status(400).send({ error: 'Вес должен быть от 30 до 300 кг с шагом 0,5 кг' });
+      } else {
+        weightKg = weight;
+      }
+    }
+
     const sets = [];
     const vals = [];
     let idx = 1;
     if (name !== undefined) { sets.push('display_name=$' + idx++); vals.push(name); }
     if (ava !== undefined) { sets.push('avatar=$' + idx++); vals.push(ava); }
+    if (weightKg !== undefined) { sets.push('weight_kg=$' + idx++); vals.push(weightKg); }
     if (!sets.length) return reply.status(400).send({ error: 'Нет данных' });
     vals.push(req.user.sub);
     await db.query('UPDATE users SET ' + sets.join(', ') + ' WHERE id=$' + idx, vals);
-    return { ok: true, displayName: name !== undefined ? name : null, avatar: ava !== undefined ? ava : null };
+    return { ok: true, displayName: name !== undefined ? name : null, avatar: ava !== undefined ? ava : null, weight: weightKg !== undefined ? weightKg : null };
   });
 }
 

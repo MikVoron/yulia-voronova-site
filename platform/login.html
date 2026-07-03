@@ -834,7 +834,7 @@
 				});
 				var data = await res.json();
 				if (!res.ok) { showError('code-error', data.error || 'Ошибка'); setLoading('verify-btn', false); return; }
-				Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription, data.user.avatar, data.user.role, data.user.createdAt, data.user.id);
+				Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription, data.user.avatar, data.user.role, data.user.createdAt, data.user.id, data.user.weight);
 				document.getElementById('step-code').style.display = 'none';
 				var success = document.getElementById('step-success');
 				success.style.display = 'block';
