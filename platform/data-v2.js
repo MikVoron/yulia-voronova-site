@@ -257,6 +257,23 @@ const Auth = {
         if (level === 'pro')   return 'Подписка';
         return '';
     },
+    isFreeRecipe(recipe) {
+        return this.recipeAccessLevel(recipe) === 'free';
+    },
+    // Единое состояние карточки для главной, категорий, поиска и ингредиентов.
+    // Рендереры не должны повторять матрицу guest/trial/active самостоятельно.
+    recipeCardAccess(recipe) {
+        const level = this.recipeAccessLevel(recipe);
+        const locked = !this.canViewRecipe(recipe);
+        const label = this.recipeAccessLabel(recipe);
+        return {
+            level,
+            locked,
+            label,
+            isFree: level === 'free',
+            actionLabel: locked ? 'Условия доступа' : 'Открыть рецепт',
+        };
+    },
     // CTA для locked-карточки и preview-блока в recipe.html.
     // Возвращает { title, btn, href } или null, если у пользователя есть доступ.
     // См. таблицу в docs/guest-mode-mvp.md §6.4
@@ -1110,6 +1127,7 @@ function getCategoryDishes(catId, filters = {}) {
     if (filters.fish)    dishes = dishes.filter(d => (d.tags||[]).includes('рыбное'));
     if (filters.noSoy)   dishes = dishes.filter(d => (d.tags||[]).includes('без сои'));
     if (filters.legumes) dishes = dishes.filter(d => (d.tags||[]).includes('бобовые'));
+    if (filters.free)    dishes = dishes.filter(d => Auth.isFreeRecipe(d));
     return dishes;
 }
 

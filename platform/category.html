@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
     <style>body{visibility:hidden}</style>
-    <link rel="stylesheet" href="style-v4.css?v=2026-05-29-hover-zoom-2" id="vcss">
+    <link rel="stylesheet" href="style-v4.css?v=20260703-feedback-plan4" id="vcss">
     <style>
         /* ── HERO (Variant 1 — фото слева, editorial-серьёзная типографика) ── */
         .cat-hero {
@@ -359,6 +359,7 @@
                 <svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg>
             </button>
             <div class="filter-sep"></div>
+            <button class="filter-chip" data-f="free" onclick="toggleTagFilter(this)">Бесплатные</button>
             <button class="filter-chip" data-f="popular" onclick="togglePopular(this)">⭐ Популярные</button>
             <button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
             <button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
@@ -452,7 +453,7 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </a>
 
-<script src="data-v2.js?v=20260703-feedback-plan3"></script>
+<script src="data-v2.js?v=20260703-feedback-plan4"></script>
 <script src="ingredients.js?v=20260616-shrimp"></script>
 <script src="header-nav.js?v=20260701-load-stability"></script>
 <script>
@@ -672,6 +673,7 @@
         if (filters.fish)    list = list.filter(d => (d.tags||[]).includes('рыбное'));
         if (filters.noSoy)   list = list.filter(d => (d.tags||[]).includes('без сои'));
         if (filters.legumes) list = list.filter(d => (d.tags||[]).includes('бобовые'));
+        if (filters.free)    list = list.filter(d => Auth.isFreeRecipe(d));
         return list;
     }
     function getDishesForView() {
@@ -770,8 +772,9 @@
         const _timeNote = _timeMeta.note ? escHtml(_timeMeta.note) : '';
         const _kcal = Number(d.kcal) || 0;
         const isSublist = d.isSublist;
-        const locked = !Auth.canViewRecipe(d);
-        const lockLevel = locked ? Auth.recipeAccessLevel(d) : null;
+        const access = Auth.recipeCardAccess(d);
+        const locked = access.locked;
+        const lockLevel = locked ? access.level : null;
         const photoHtml = _photo
             ? `<img src="${_photo}" alt="${_name}" loading="lazy" data-fallback-emoji="${_emoji}"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
             : `<div class="recipe-card-emoji">${_emoji}</div>`;
@@ -779,16 +782,17 @@
         const lockBadgeClass = lockLevel === 'pro' ? 'locked-badge' : 'trial-badge';
         const lockBadge = locked
             ? '<div class="' + lockBadgeClass + '"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>'
-              + Auth.recipeAccessLabel(d) + '</div>'
+              + access.label + '</div>'
             : '';
         // Бейдж «Бесплатно» — показываем только тем, у кого нет полного доступа.
-        const freeBadge = !locked && d.accessLevel === 'free' && !Auth.hasFullAccess()
+        const freeBadge = !locked && access.isFree && !Auth.hasFullAccess()
             ? '<div class="free-badge">Бесплатно</div>'
             : '';
         const _emptyStars = Array.from({length: 5}, () =>
             '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#e8400a" stroke-width="2"><polygon points="12 2 15 9 22 10 17 15 18 22 12 18 6 22 7 15 2 10 9 9 12 2"/></svg>'
         ).join('');
-        return `<article class="recipe-card${locked ? ' locked' : ''}" role="button" tabindex="0" data-card-action="${locked ? 'locked' : 'open'}" data-recipe-id="${escHtml(_id)}">
+        const accessHint = locked ? '. ' + access.label + '. ' + access.actionLabel : '';
+        return `<article class="recipe-card${locked ? ' locked' : ''}" role="button" tabindex="0" aria-label="${_name}${escHtml(accessHint)}" data-card-action="${locked ? 'locked' : 'open'}" data-recipe-id="${escHtml(_id)}">
             <div class="recipe-card__media">
                 ${photoHtml}
                 ${lockBadge}${freeBadge}
@@ -1019,7 +1023,7 @@
 
     // Restore filter UI (chips + dropdown labels) if filters were loaded from sessionStorage
     (function syncFilterUI() {
-        const tagFilters = ['gluten','plant','fish','noSoy','legumes'];
+        const tagFilters = ['free','gluten','plant','fish','noSoy','legumes'];
         tagFilters.forEach(function(f) {
             if (activeFilters[f]) {
                 const chip = document.querySelector(`.filter-chip[data-f="${f}"]`);

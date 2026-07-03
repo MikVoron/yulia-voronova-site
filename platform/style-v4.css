@@ -462,8 +462,8 @@ img { display: block; max-width: 100%; }
     border-radius: 0; overflow: hidden;
     padding: 0; transition: var(--tr);
 }
-.featured-card:hover { opacity: 1; color: inherit; }
-.featured-card:hover .featured-card-photo img { transform: scale(1.03); }
+.featured-card:not(.locked):hover { opacity: 1; color: inherit; }
+.featured-card:not(.locked):hover .featured-card-photo img { transform: scale(1.03); }
 .featured-card-photo {
     aspect-ratio: 4/3; width: 60%; min-width: 60%; flex-shrink: 0; position: relative; overflow: hidden;
     background: var(--bg-alt); border-radius: 0;
@@ -533,8 +533,8 @@ img { display: block; max-width: 100%; }
     cursor: pointer; transition: var(--tr);
     text-align: left; overflow: hidden; padding: 0;
 }
-.cat-card:hover { opacity: 1; color: inherit; }
-.cat-card:hover .cat-icon-wrap img { transform: scale(1.04); }
+.cat-card:not(.locked):hover { opacity: 1; color: inherit; }
+.cat-card:not(.locked):hover .cat-icon-wrap img { transform: scale(1.04); }
 .cat-card:active { transform: scale(.99); }
 
 /* Square photo block */
@@ -573,7 +573,7 @@ img { display: block; max-width: 100%; }
     display: flex;
     flex-direction: column;
 }
-.recipe-card:hover {
+.recipe-card:not(.locked):hover {
     opacity: 1; color: inherit;
 }
 .recipe-card__media {
@@ -586,7 +586,7 @@ img { display: block; max-width: 100%; }
     width: 100%; height: 100%; object-fit: cover; display: block;
     transition: transform .4s ease;
 }
-.recipe-card:hover .recipe-card__media img { transform: scale(1.04); }
+.recipe-card:not(.locked):hover .recipe-card__media img { transform: scale(1.04); }
 .recipe-card__bookmark {
     position: absolute; top: 10px; right: 10px;
     width: 34px; height: 34px; border-radius: 0;
@@ -688,11 +688,16 @@ img { display: block; max-width: 100%; }
     .featured-card:not(.is-skeleton):not(.locked):hover .featured-card-body { opacity: .55; }
 }
 
-/* Locked recipe cards (trial) */
-.recipe-card.locked, .featured-card.locked { opacity: .55; }
+/* Locked recipe cards: текст остаётся полностью читаемым, состояние сообщает
+   явный бейдж. Приглушаем только фото и не имитируем доступную hover-карточку. */
+.recipe-card.locked, .featured-card.locked { opacity: 1; cursor: pointer; }
 .recipe-card.locked .recipe-card__media img,
-.featured-card.locked .featured-card-photo img { filter: grayscale(.4); }
-.recipe-card.locked:hover, .featured-card.locked:hover { opacity: .7; }
+.featured-card.locked .featured-card-photo img { filter: grayscale(.22) brightness(.88); }
+.recipe-card.locked:focus-visible,
+.featured-card.locked:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
 /* Бейджи уровня доступа — editorial-стиль, top-left, 10px Montserrat 800,
    без скруглений. Совпадают с .sp-bd--* на главной. */
 .locked-badge,
