@@ -111,7 +111,7 @@
 - deploy: `cabinet.html`, `cabinet.js`, `cabinet-tabs.js` скопированы в `/var/www/smartplate-platform/`;
 - живая проверка: `https://app.voronova.online/cabinet.html?tab=feedback` отдаёт `200 OK`, а live HTML содержит `cabinet-tabs.js` и новый URL-контракт вкладок.
 
-### 3. P0 — тарелка, сохранение, дневник и оплата — РЕАЛИЗОВАНО ЛОКАЛЬНО, ОЖИДАЕТ ПУБЛИКАЦИИ
+### 3. P0 — тарелка, сохранение, дневник и оплата — ОПУБЛИКОВАНО, ПРОВЕРЕНО
 
 Проблема:
 
@@ -171,7 +171,11 @@
 - состояния оплаты `pending` и `confirmed` отображаются явно, повторная отправка pending заблокирована, устаревшего текста после подтверждения нет;
 - журнал после серверной загрузки показывает оба тестовых блюда; форма выгрузки открывается с явным статусом;
 - мобильный Edge, 375 px: мастер оплаты виден, фокус установлен, горизонтальное переполнение `0 px`; ошибок Console нет;
-- commit/push/deploy и живая проверка: не выполнялись, ожидают подтверждения итогового diff.
+- commit: `62a2027` (`Clarify plate journal and payment flows`);
+- push: `feature/harvard-plate` обновлён на GitHub;
+- deploy: `cabinet.html`, `cabinet.js`, `category.html`, `data-v2.js`, `index.html`, `recipe.html` скопированы в `/var/www/smartplate-platform/`;
+- живая проверка: `https://app.voronova.online/cabinet.html?tab=subscription` отдаёт `200 OK`, live HTML содержит cache-bust `20260703-feedback-plan3` и новые элементы статуса;
+- live Edge с изолированными тестовыми данными подтвердил видимость выгрузки, два блюда в журнале, состояния pending/confirmed, отсутствие устаревшего текста, переполнение `0 px` при ширине 375 px и отсутствие ошибок Console.
 
 ### 4. P1 — бесплатные и закрытые рецепты — НЕ НАЧАТО
 
