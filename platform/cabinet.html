@@ -298,6 +298,10 @@
 
 		/* ── PAYMENT SECTION ──────────────────────────────────────────── */
 		.pay-section { margin-top: 8px; }
+		.sub-price-preview {
+			margin-top: 10px; font-size: 12px; font-weight: 700;
+			color: var(--text); line-height: 1.5;
+		}
 
 		.pay-steps {
 			display: flex; gap: 4px; margin-bottom: 24px;
@@ -928,6 +932,9 @@
 		.hist-export-help {
 			margin: 13px 0 0; color: var(--text-2); font-size: 12px; line-height: 1.55;
 		}
+		.hist-export-status {
+			margin: 8px 0 0; color: var(--text); font-size: 12px; font-weight: 700; line-height: 1.45;
+		}
 		.hist-card {
 			border: 1px solid var(--border); margin-top: 12px; background: #fff;
 		}
@@ -1355,6 +1362,14 @@
 			background: #fff8e1; border: 1px solid #ffe082;
 			border-left: 3px solid #b85e00;
 		}
+		.pay-pending-card.confirmed {
+			background: #f2f8f3; border-color: #cfe3d2; border-left-color: #2f7d43;
+		}
+		.pay-pending-card.confirmed .pay-pending-eyebrow { color: #2f7d43; }
+		.pay-pending-card.rejected {
+			background: #fff5f5; border-color: #efcccc; border-left-color: #b33333;
+		}
+		.pay-pending-card.rejected .pay-pending-eyebrow { color: #8f2525; }
 		.pay-pending-eyebrow {
 			font-size: 10px; font-weight: 800; letter-spacing: .16em;
 			text-transform: uppercase; color: #7a5a00; margin-bottom: 8px;
@@ -1813,24 +1828,13 @@
 
 				<div id="sub-status-wrap"></div>
 
-				<!-- Early access pricing -->
-				<div id="early-bird-card">
-					<div class="early-access-title">Ранний доступ — стартовая цена для первых пользователей</div>
-					<div class="early-access-copy">Цена раннего доступа действует для первых 50 пользователей или до 30 сентября 2026 года — что наступит раньше. После завершения раннего доступа действуют новые цены.</div>
-					<div class="early-access-meta">
-						<div class="early-access-pill"><span class="eb-pulse" id="early-bird-remaining">—</span><span>мест по стартовой цене</span></div>
-						<div class="early-access-pill">Стартовая цена + одно продление по ней</div>
-					</div>
-					<div class="early-access-user-status" id="early-access-user-status">Проверяем доступную для вас цену…</div>
-				</div>
-
 				<div class="pay-section">
 					<button class="btn btn-orange" id="pay-toggle-btn" onclick="togglePaySection()" type="button" style="display:none;width:100%;padding:16px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;border-radius:0" aria-hidden="true">
 						Оформить подписку
 					</button>
 					<div id="pay-details" style="display:none;margin-top:24px">
 						<div class="cab-sec-title-row" style="margin-top:8px">
-							<h2 class="cab-sec-title">Оформление подписки</h2>
+							<h2 class="cab-sec-title" id="pay-details-title" tabindex="-1">Оформление подписки</h2>
 							<span class="cab-sec-title-meta">3 шага</span>
 						</div>
 
@@ -1913,7 +1917,7 @@
 						</div>
 
 						<!-- Success state -->
-						<div id="pay-success" class="pay-success-card" style="display:none">
+						<div id="pay-success" class="pay-success-card" role="status" aria-live="polite" tabindex="-1" style="display:none">
 							<div class="pay-success-icon">&#10003;</div>
 							<div class="pay-success-title">Платёж отправлен на&nbsp;проверку</div>
 							<div class="pay-success-text">Обычно подтверждаем в&nbsp;течение 30&nbsp;минут.</div>
@@ -1922,6 +1926,17 @@
 						</div>
 
 					</div><!-- /pay-details -->
+				</div>
+
+				<!-- Early access pricing: detail follows the primary payment action. -->
+				<div id="early-bird-card">
+					<div class="early-access-title">Ранний доступ</div>
+					<div class="early-access-copy">Стартовая цена действует для первых 50 пользователей или до 30 сентября 2026 года.</div>
+					<div class="early-access-meta">
+						<div class="early-access-pill"><span class="eb-pulse" id="early-bird-remaining">—</span><span>мест по стартовой цене</span></div>
+						<div class="early-access-pill">Одно продление по стартовой цене</div>
+					</div>
+					<div class="early-access-user-status" id="early-access-user-status">Проверяем доступную для вас цену…</div>
 				</div>
 
 				<div class="pay-history" id="pay-history"></div>
@@ -1933,11 +1948,11 @@
 					<h2 class="cab-sec-title">Журнал тарелок</h2>
 					<span class="cab-sec-title-meta">Архив ваших блюд</span>
 				</div>
-				<div class="hist-export" id="hist-export">
+				<div class="hist-export" id="hist-export" role="region" aria-labelledby="hist-export-title">
 					<button class="hist-export-close" type="button" onclick="closeHistoryExport()" aria-label="Закрыть выгрузку">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
 					</button>
-					<h3 class="hist-export-title">Выгрузить журнал</h3>
+					<h3 class="hist-export-title" id="hist-export-title" tabindex="-1">Выгрузить журнал</h3>
 					<div class="hist-export-controls">
 						<div class="hist-export-field">
 							<label for="hist-range">Период</label>
@@ -1965,6 +1980,7 @@
 						<button class="hist-export-btn" type="button" onclick="exportHistory()">Скачать</button>
 					</div>
 					<p class="hist-export-help"><b>PDF</b> удобен для просмотра или отправки специалисту. <b>CSV</b> подойдет для анализа в таблице.</p>
+					<p id="hist-export-status" class="hist-export-status" role="status" aria-live="polite"></p>
 				</div>
 				<div id="history-body"></div>
 			</section>
@@ -2160,10 +2176,10 @@
 		</svg>
 	</a>
 
-	<script src="data-v2.js?v=20260702-content-retry"></script>
+	<script src="data-v2.js?v=20260703-feedback-plan3"></script>
 <script src="ingredients.js?v=20260616-shrimp"></script>
 	<script src="header-nav.js?v=20260701-load-stability"></script>
-	<script src="cabinet.js?v=20260702-cabinet-navigation"></script>
+	<script src="cabinet.js?v=20260703-feedback-plan3"></script>
 	<script src="tawk-chat-modal.js?v=20260627-inline"></script>
 </body>
 

@@ -33,15 +33,20 @@
 			fallbackEmail: 'hello@voronova.online'
 		};
 		function _supportEmailHref() { return 'mailto:' + SUPPORT_CONTACT.fallbackEmail; }
-		function supportContactHtml() {
+		function supportContactHtml(paymentStatus) {
 			const hasChat = !!SUPPORT_CONTACT.url;
 			const email = SUPPORT_CONTACT.fallbackEmail;
 			const emailLink = '<a href="' + _supportEmailHref() + '" style="color:var(--accent);text-decoration:underline">' + email + '</a>';
+			const lead = paymentStatus === 'pending'
+				? 'Если проверка занимает дольше 30 минут — '
+				: paymentStatus === 'rejected'
+				? 'Если нужна помощь с повторной оплатой — '
+				: 'Если остался вопрос — ';
 			if (hasChat) {
 				const chatLink = '<a href="' + SUPPORT_CONTACT.url + '" data-tawk-open target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">' + SUPPORT_CONTACT.text + '</a>';
-				return 'Если оплата не подтвердилась или возник вопрос — ' + chatLink + ' или на ' + emailLink + '.';
+				return lead + chatLink + ' или напишите на ' + emailLink + '.';
 			}
-			return 'Если оплата не подтвердилась или возник вопрос — напишите на ' + emailLink + '.';
+			return lead + 'напишите на ' + emailLink + '.';
 		}
 
 		// Return-to-context: пользователь пришёл с рецепта через paywall.
@@ -175,6 +180,8 @@
 			return Plate.load();
 		}).then(function() {
 			if (typeof renderCabSummaryStats === 'function') renderCabSummaryStats();
+			var historyPanel = document.getElementById('panel-history');
+			if (historyPanel && historyPanel.classList.contains('active') && typeof renderHistory === 'function') renderHistory();
 		}).catch(function() {});
 		_cabAccess.then(function() {
 			const freshName = Auth.getDisplayName();
@@ -507,6 +514,14 @@
 
 		// ── ПОДПИСКА ──────────────────────────────────────────────────────────────
 		const SUB_LABELS = { trial: 'Пробный период', active: 'Активна', expired: 'Завершена' };
+		function subscriptionPricePreviewHtml() {
+			var price = (_currentPrices && Number(_currentPrices[1])) || 390;
+			return '<div class="sub-price-preview">От&nbsp;' + formatRubles(price) + ' за месяц · все рецепты и&nbsp;сайдбар БЖУ · условия раннего доступа ниже</div>';
+		}
+		function updateSubscriptionPricePreview() {
+			var preview = document.querySelector('.sub-price-preview');
+			if (preview) preview.outerHTML = subscriptionPricePreviewHtml();
+		}
 
 		function renderFallbackSubCard() {
 			var wrap = document.getElementById('sub-status-wrap');
@@ -516,7 +531,8 @@
 				+ '<div>'
 				+ '<div class="sub-status-row"><span class="status-pill expired">Нет подписки</span></div>'
 				+ '<h3 class="sub-headline">Доступ к&nbsp;рецептам</h3>'
-				+ '<div class="sub-active-until">Оформите подписку, чтобы открыть все рецепты и&nbsp;сайдбар БЖУ.</div>'
+				+ '<div class="sub-active-until">Оформите подписку, чтобы открыть полный доступ.</div>'
+				+ subscriptionPricePreviewHtml()
 				+ '</div>'
 				+ '<div class="sub-actions-col">'
 				+ '<button type="button" id="sub-renew-btn" class="btn btn-orange sub-action-btn" '
@@ -555,6 +571,7 @@
 				const planText = badge === 'active' ? 'Тариф «Месяц»' : (badge === 'trial' ? 'Пробный период' : '');
 				const planHtml = planText ? '<span class="sub-plan">' + escHtml(planText) + '</span>' : '';
 				const ctaText = badge === 'active' ? 'Продлить подписку' : 'Оформить подписку';
+				const pricePreviewHtml = badge === 'active' ? '' : subscriptionPricePreviewHtml();
 				const actionsHtml = '<div class="sub-actions-col">'
 					+ '<button type="button" id="sub-renew-btn" class="btn btn-orange sub-action-btn" '
 					+ 'data-cta-default="' + escHtml(ctaText) + '" onclick="togglePaySection()">'
@@ -563,7 +580,7 @@
 				wrap.innerHTML = '<div class="sub-card">'
 					+ '<div>'
 					+ '<div class="sub-status-row"><span class="status-pill' + pillClass + '">' + escHtml(label) + '</span>' + planHtml + earlyBadge + '</div>'
-					+ headlineHtml + untilHtml
+					+ headlineHtml + untilHtml + pricePreviewHtml
 					+ '</div>'
 					+ actionsHtml
 					+ '</div>';
@@ -755,10 +772,16 @@
 				for (var i = 1; i <= 3; i++) document.getElementById('pay-step-' + i).style.display = 'none';
 				document.querySelector('.pay-steps').style.display = 'none';
 				_injectSuccessSupportNote();
-				document.getElementById('pay-success').style.display = 'block';
+				var success = document.getElementById('pay-success');
+				success.style.display = 'block';
 				clearScreenshot();
-				loadPaymentHistory();
+				await loadPaymentHistory();
 				startPaymentPolling();
+				requestAnimationFrame(function() {
+					var visibleStatus = document.querySelector('#pay-pending-block .pay-pending-card') || success;
+					visibleStatus.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+					visibleStatus.focus({ preventScroll: true });
+				});
 			} catch (e) {
 				errEl.textContent = 'Ошибка сети'; errEl.style.display = 'block';
 			}
@@ -792,8 +815,9 @@
 								return;
 							}
 						}
-						// Refresh subscription status — payment was confirmed or rejected
-						Auth.checkAccess();
+						// Refresh both access data and the visible subscription card.
+						await Auth.checkAccess();
+						await loadSubscription();
 					}
 				} catch(e) { /* ignore */ }
 			}, 15000);
@@ -802,12 +826,12 @@
 			if (_payPollTimer) { clearInterval(_payPollTimer); _payPollTimer = null; }
 		}
 
-		function _renderPendingBlock(pending) {
+		function _renderPendingBlock(payment) {
 			var section = document.querySelector('.pay-section');
 			var details = document.getElementById('pay-details');
 			var cardBtn = document.getElementById('sub-renew-btn');
 			var block = document.getElementById('pay-pending-block');
-			if (!pending) {
+			if (!payment) {
 				if (block) block.remove();
 				if (cardBtn) {
 					cardBtn.disabled = false;
@@ -818,30 +842,53 @@
 				}
 				return;
 			}
-			// Pending — блокируем in-card CTA + сворачиваем wizard
+			var isPending = payment.status === 'pending';
+			// Only a pending payment blocks a duplicate submission.
 			if (cardBtn) {
-				cardBtn.disabled = true;
-				cardBtn.style.opacity = '.55';
-				cardBtn.style.cursor = 'not-allowed';
-				cardBtn.style.pointerEvents = 'none';
-				cardBtn.title = 'Дождитесь подтверждения текущего платежа';
+				cardBtn.disabled = isPending;
+				cardBtn.style.opacity = isPending ? '.55' : '';
+				cardBtn.style.cursor = isPending ? 'not-allowed' : '';
+				cardBtn.style.pointerEvents = isPending ? 'none' : '';
+				if (isPending) cardBtn.title = 'Дождитесь подтверждения текущего платежа';
+				else cardBtn.removeAttribute('title');
 			}
-			if (details) details.style.display = 'none';
+			if (isPending && details) details.style.display = 'none';
 			if (!section) return;
 			if (!block) {
 				block = document.createElement('div');
 				block.id = 'pay-pending-block';
 				section.insertBefore(block, section.firstChild);
 			}
-			var d = pending.created_at ? new Date(pending.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : '';
-			block.innerHTML = '<div class="pay-pending-card">'
-				+ '<div class="pay-pending-eyebrow">Платёж на проверке</div>'
-				+ '<div class="pay-pending-text">Ваш платёж от&nbsp;<b>' + escHtml(d) + '</b> на&nbsp;<b>' + escHtml(String(pending.amount || '')) + '&nbsp;₽</b> ожидает подтверждения. Обычно это занимает около 30&nbsp;минут.</div>'
-				+ '<div class="pay-pending-support">' + supportContactHtml() + '</div>'
-				+ '</div>';
+			var d = payment.created_at ? new Date(payment.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : '';
+			var amount = escHtml(String(payment.amount || '')) + '&nbsp;₽';
+			var cardClass = 'pay-pending-card';
+			var title = 'Платёж на проверке';
+			var text = 'Платёж от&nbsp;<b>' + escHtml(d) + '</b> на&nbsp;<b>' + amount + '</b> отправлен. Обычно проверка занимает около 30&nbsp;минут.';
+			var support = '<div class="pay-pending-support">' + supportContactHtml('pending') + '</div>';
+			if (payment.status === 'confirmed') {
+				cardClass += ' confirmed';
+				title = 'Оплата подтверждена';
+				text = 'Платёж на&nbsp;<b>' + amount + '</b> подтверждён. Доступ по подписке открыт.';
+				support = '';
+			} else if (payment.status === 'rejected') {
+				cardClass += ' rejected';
+				title = 'Оплата не подтверждена';
+				text = payment.admin_comment
+					? 'Причина: <b>' + escHtml(payment.admin_comment) + '</b>'
+					: 'Проверьте данные перевода и отправьте подтверждение ещё раз.';
+				support = '<div class="pay-pending-support">' + supportContactHtml('rejected') + '</div>';
+			}
+			if (!isPending) {
+				var success = document.getElementById('pay-success');
+				if (success) success.style.display = 'none';
+			}
+			block.innerHTML = '<div class="' + cardClass + '" role="status" aria-live="polite" tabindex="-1">'
+				+ '<div class="pay-pending-eyebrow">' + title + '</div>'
+				+ '<div class="pay-pending-text">' + text + '</div>'
+				+ support + '</div>';
 		}
 
-		function _injectHistorySupportNote(parent) {
+		function _injectHistorySupportNote(parent, paymentStatus) {
 			var note = document.getElementById('pay-history-support');
 			if (!note) {
 				note = document.createElement('div');
@@ -850,8 +897,7 @@
 				note.style.cssText = 'margin-top:32px';
 				parent.parentNode.insertBefore(note, parent.nextSibling);
 			}
-			var hasChat = !!SUPPORT_CONTACT.url;
-			note.innerHTML = '<div class="cab-support-note-text">' + supportContactHtml() + '</div>';
+			note.innerHTML = '<div class="cab-support-note-text">' + supportContactHtml(paymentStatus) + '</div>';
 			_injectLegalLinks(note);
 		}
 
@@ -888,7 +934,7 @@
 			var note = document.createElement('div');
 			note.id = 'pay-success-support';
 			note.style.cssText = 'margin-top:14px;font-size:12px;color:var(--text-3);line-height:1.5;text-align:center';
-			note.innerHTML = supportContactHtml();
+			note.innerHTML = supportContactHtml('pending');
 			var btn = card.querySelector('button');
 			if (btn) card.insertBefore(note, btn);
 			else card.appendChild(note);
@@ -900,12 +946,13 @@
 				if (!res.ok) return;
 				var payments = await res.json();
 				var pending = payments.find(function(p) { return p.status === 'pending'; });
+				var latest = payments[0] || null;
 				// Auto-start polling if there are pending payments
 				if (pending && !_payPollTimer) startPaymentPolling();
 				// Pending-блокировка wizard (либо снятие блокировки)
-				_renderPendingBlock(pending);
+				_renderPendingBlock(pending || latest);
 				var el = document.getElementById('pay-history');
-				if (!payments.length) { el.innerHTML = ''; _injectHistorySupportNote(el); return; }
+				if (!payments.length) { el.innerHTML = ''; _injectHistorySupportNote(el, 'none'); return; }
 				var payCount = payments.length;
 				var payMeta = payCount + ' ' + (payCount === 1 ? 'операция' : payCount < 5 ? 'операции' : 'операций');
 				var existingHistory = el.querySelector('.pay-history-disclosure');
@@ -935,7 +982,7 @@
 							+ '</div>';
 					}).join('')
 					+ '</div></details>';
-				_injectHistorySupportNote(el);
+				_injectHistorySupportNote(el, latest && latest.status);
 			} catch (e) { /* ignore */ }
 		}
 
@@ -950,7 +997,12 @@
 				resetPayWizard();
 				if (btn) { btn.textContent = 'Скрыть'; btn.className = 'btn btn-ghost'; btn.style.width = '100%'; }
 				if (cardBtn) cardBtn.textContent = 'Скрыть';
-				setTimeout(function () { details.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80);
+				setTimeout(function () {
+					var title = document.getElementById('pay-details-title');
+					var target = title || details;
+					target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+					if (title) title.focus({ preventScroll: true });
+				}, 80);
 			} else {
 				details.style.display = 'none';
 				if (btn) { btn.textContent = 'Оформить подписку'; btn.className = 'btn btn-orange'; }
@@ -996,6 +1048,7 @@
 				}
 			} catch (e) { /* ignore */ }
 			renderPlanCards();
+			updateSubscriptionPricePreview();
 		}
 
 		// Load subscription tab on init — wait for checkAccess to set _subStatus
@@ -1004,8 +1057,8 @@
 				loadEarlyBird().then(function() {
 				if (!isActive) {
 					_renderReturnBanner();
-						// Auto-open payment section if arrived via ?tab=subscription
-						if (new URLSearchParams(location.search).get('tab') === 'subscription') {
+						// Continue a paywall return in context; a normal subscription tab stays concise.
+						if (_getCabReturn()) {
 							var toggleBtn = document.getElementById('pay-toggle-btn');
 							if (toggleBtn && document.getElementById('pay-details').style.display === 'none') {
 								togglePaySection();
@@ -1164,7 +1217,14 @@
 			const panel = document.getElementById('hist-export');
 			if (!panel.classList.contains('open')) updateHistoryDateRange();
 			panel.classList.add('open');
-			panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+			const status = document.getElementById('hist-export-status');
+			if (status) status.textContent = 'Настройки выгрузки открыты. Выберите период и формат.';
+			setTimeout(function() {
+				const title = document.getElementById('hist-export-title');
+				// Wait for the export panel expansion, then make the result visible in one stable move.
+				panel.scrollIntoView({ behavior: 'auto', block: 'center' });
+				if (title) title.focus({ preventScroll: true });
+			}, 320);
 		}
 
 		function closeHistoryExport() {
@@ -1279,12 +1339,19 @@
 
 		function exportHistory() {
 			const entries = getHistoryForExport();
+			const status = document.getElementById('hist-export-status');
 			if (!entries.length) {
+				if (status) status.textContent = 'За выбранный период нет сохранённых тарелок.';
 				if (typeof showToast === 'function') showToast('За выбранный период нет сохраненных тарелок');
 				return;
 			}
-			if (document.getElementById('hist-format').value === 'csv') downloadHistoryCsv(entries);
-			else printHistoryPdf(entries);
+			if (document.getElementById('hist-format').value === 'csv') {
+				downloadHistoryCsv(entries);
+				if (status) status.textContent = 'CSV-файл сформирован и скачан.';
+			} else {
+				printHistoryPdf(entries);
+				if (status) status.textContent = 'PDF подготовлен — открылось окно печати и сохранения.';
+			}
 		}
 
 		document.addEventListener('click', function(event) {
@@ -1671,7 +1738,7 @@
 					<div class="pv1-actions-row">
 						<button class="pv1-btn" onclick="location.href='index.html'">← На главную</button>
 					</div>
-					<button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateCabinet()">Сохранить в журнал</button>
+					<button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateCabinet()">Записать тарелку в журнал</button>
 				</div>`;
 				renderCabinetPlateShopMode();
 			}
@@ -1761,7 +1828,7 @@
 			updatePlateIcon();
 			renderHistory();
 			closePlate();
-			if (typeof showToast === 'function') showToast('Тарелка сохранена в журнал 🎉');
+			if (typeof showToast === 'function') showToast('Тарелка записана в журнал 🎉');
 		}
 
 		// ── ОБРАТНАЯ СВЯЗЬ ────────────────────────────────────────────────────────

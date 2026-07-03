@@ -800,7 +800,7 @@ function plateMealTypePickerHtml() {
         + '<option value="dinner">Ужин</option>'
         + '<option value="snack">Перекус</option>'
         + '</select>'
-        + '<small>Можно добавить или изменить позже в журнале.</small>'
+        + '<small>После записи тарелка очистится, а блюда появятся в журнале. Тип приема пищи можно изменить позже.</small>'
         + '</div>';
 }
 

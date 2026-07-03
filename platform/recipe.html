@@ -1390,7 +1390,7 @@
 		</svg>
 	</a>
 
-	<script src="data-v2.js?v=20260702-content-retry"></script>
+	<script src="data-v2.js?v=20260703-feedback-plan3"></script>
 	<script src="ingredients.js?v=20260616-shrimp"></script>
 	<script src="header-nav.js?v=20260701-load-stability"></script>
 	<script>
@@ -4173,13 +4173,9 @@
 			updatePlateIcon();
 			refreshAddButtonStateByPlate();
 
-			if (unbalanced) {
-				showToast(r.emoji + ' Добавлено без балансировки');
-				// Don't auto-navigate — let user see the result and maybe add supplements
-			} else {
-				showToast(r.emoji + ' Добавлено в тарелку!');
-				setTimeout(() => { history.back(); }, 1000);
-			}
+			showToast(r.emoji + (unbalanced ? ' Добавлено в текущую тарелку без балансировки' : ' Добавлено в текущую тарелку'));
+			// Показываем результат там, где он появился: без неочевидного history.back на мобильном.
+			openPlate();
 		}
 
 		// ── Balance warning modal (unbalanced add confirmation) ────────────
@@ -4306,7 +4302,7 @@
                         <button class="pv1-btn" onclick="location.href='index.html'">← Вернуться</button>
                         <button class="pv1-btn" onclick="shareShoppingList()">Список продуктов</button>
                     </div>
-                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateR()">Сохранить в журнал</button>
+                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateR()">Записать тарелку в журнал</button>
                 </div>`;
 			}
 			document.getElementById('plate-overlay').classList.add('open');
@@ -4324,7 +4320,7 @@
 			updatePlateIcon();
 			refreshAddButtonStateByPlate();
 			closePlate();
-			showToast('Тарелка сохранена в журнал 🎉');
+			showToast('Тарелка записана в журнал 🎉');
 		}
 
 		// ── FAV + RATING ON PHOTO ─────────────────────────────────────────────
