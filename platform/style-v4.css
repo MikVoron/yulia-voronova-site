@@ -3273,7 +3273,7 @@ img { display: block; max-width: 100%; }
     color: rgba(255,255,255,.6);
 }
 
-/* ── Ряд 2: masthead — тарелка слева, бренд по центру, профиль справа ─────── */
+/* ── Ряд 2: masthead — бренд по центру, тарелка и профиль справа ─────────── */
 .sp-masthead {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -3289,8 +3289,8 @@ img { display: block; max-width: 100%; }
 /* grid-row: 1 обязателен — #user-wrap в DOM идёт после brand/plate, и без
    явной строки auto-placement выносит профиль во вторую строку masthead.
    Колонки заданы явно, поэтому порядок в DOM не влияет на раскладку:
-   тарелка — слева (1), бренд — по центру (2), профиль — справа (3). */
-.sp-masthead .sp-plate    { grid-column: 1 / 2; grid-row: 1; justify-self: start; }
+   бренд — по центру (2), тарелка и профиль — в правой utility-колонке (3). */
+.sp-masthead .sp-plate    { grid-column: 3 / 4; grid-row: 1; justify-self: start; }
 .sp-masthead .sp-brand    { grid-column: 2 / 3; grid-row: 1; justify-self: center; }
 .sp-masthead .v-user-wrap { grid-column: 3 / 4; grid-row: 1; justify-self: end; }
 
