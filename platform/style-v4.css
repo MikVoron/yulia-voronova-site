@@ -1037,11 +1037,11 @@ img { display: block; max-width: 100%; }
 }
 .ing-swap-revert {
     display: inline-flex; align-items: center; gap: 5px;
-    background: transparent; border: 1px solid var(--border);
+    background: #fff3ee; border: 1px solid var(--accent);
     border-radius: 0; min-height: 30px;
-    font-size: 11px; line-height: 1.2; color: var(--text-2);
+    font-size: 12px; line-height: 1.2; font-weight: 700; color: var(--accent);
     cursor: pointer; padding: 5px 8px; margin-left: 6px;
-    vertical-align: middle; transition: var(--tr);
+    vertical-align: middle; transition: var(--tr); box-shadow: 0 1px 3px rgba(232,64,10,.12);
 }
 .recipe-meta-stars .r-star,
 .review-star { border: 0; background: transparent; padding: 0; font-family: inherit; }
@@ -1049,7 +1049,7 @@ img { display: block; max-width: 100%; }
 .review-star:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .recipe-hero-img .card-fav-btn { border: 0; padding: 0; }
 .ing-swap-revert:hover,
-.ing-swap-revert:focus-visible { color: var(--accent); border-color: var(--accent); outline: none; }
+.ing-swap-revert:focus-visible { color: #fff; background: var(--accent); border-color: var(--accent); outline: none; }
 .ing-optout-btn {
     font-size: 10px; font-weight: 700; padding: 4px 10px;
     text-transform: uppercase; letter-spacing: .08em;

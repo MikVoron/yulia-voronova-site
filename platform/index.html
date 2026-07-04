@@ -4024,8 +4024,8 @@
 					${ratingHtml}
 					${_desc ? `<p class="sp-new-card-desc">${_desc}</p>` : ''}
 					<div class="sp-new-card-meta">
-						<span>${_timeStr}</span>
-						${_diff ? `<span>${_diff}</span>` : ''}
+						<span>${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
+						${_diff ? `<span>${typeof diffIcon === 'function' ? diffIcon(d.diff) : ''}${_diff}</span>` : ''}
 						${_servings ? `<span>${_servings} порц.</span>` : ''}
 						<span class="kcal">${_kcal} ккал</span>
 					</div>
@@ -4290,8 +4290,8 @@
 						<h3 class="sp-seasonal-title">${_name}</h3>
 						${_desc ? `<p class="sp-seasonal-desc">${_desc}</p>` : ''}
 						<div class="sp-seasonal-meta">
-							<span>${_timeStr}</span>
-							${_diff ? `<span>${_diff}</span>` : ''}
+							<span>${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
+							${_diff ? `<span>${typeof diffIcon === 'function' ? diffIcon(r.diff) : ''}${_diff}</span>` : ''}
 							${_servings ? `<span>${_servings} порц.</span>` : ''}
 							<span class="kcal">${_kcal} ккал</span>
 							<span>Б ${_protein} / Ж ${_fat} / У ${_carbs}</span>
@@ -4370,8 +4370,8 @@
 						<div class="sp-card-body">
 							<h3 class="sp-card-title">${_name}</h3>
 							<div class="sp-card-meta">
-								<span>${_timeStr}</span>
-								${_diff ? `<span>${_diff}</span>` : ''}
+								<span>${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
+								${_diff ? `<span>${typeof diffIcon === 'function' ? diffIcon(d.diff) : ''}${_diff}</span>` : ''}
 							</div>
 							<div class="sp-card-foot">
 								<span class="lbl">В порции</span>
