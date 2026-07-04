@@ -5,6 +5,19 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Конструктор питания — Юлия Воронова</title>
+	<script>
+		(function primeGuestTourVisibility() {
+			let showGuestTour = new URLSearchParams(location.search).get('guestTour') === '1';
+			if (!showGuestTour) {
+				try {
+					showGuestTour = localStorage.getItem('smartplate_guest_tour_completed_v1') !== '1';
+				} catch (_) {
+					showGuestTour = true;
+				}
+			}
+			if (showGuestTour) document.documentElement.classList.add('sp-guest-tour-preview');
+		})();
+	</script>
 	<link rel="icon" type="image/svg+xml" href="plate-favicon.svg">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -859,6 +872,39 @@
 		}
 
 		.sp-how-dismiss:hover {
+			color: var(--text);
+			text-decoration-color: currentColor;
+		}
+
+		.sp-how-dismiss:focus-visible,
+		.sp-guest-tour-reopen:focus-visible {
+			outline: 2px solid var(--accent);
+			outline-offset: 3px;
+		}
+
+		.sp-guest-title:focus {
+			outline: 2px solid var(--accent);
+			outline-offset: 4px;
+		}
+
+		.sp-guest-tour-reopen {
+			display: inline-flex;
+			margin-top: 12px;
+			padding: 3px 0;
+			border: 0;
+			background: transparent;
+			color: var(--text-2);
+			font: inherit;
+			font-size: 12px;
+			font-weight: 600;
+			text-decoration: underline;
+			text-decoration-color: transparent;
+			text-underline-offset: 3px;
+			cursor: pointer;
+			transition: color .2s ease, text-decoration-color .2s ease;
+		}
+
+		.sp-guest-tour-reopen:hover {
 			color: var(--text);
 			text-decoration-color: currentColor;
 		}
@@ -3021,7 +3067,7 @@
 						<img class="sp-guest-photo" src="images/YV-blog.webp" alt="Юлия Воронова" loading="eager">
 						<div>
 							<p class="sp-guest-kicker">Привет!</p>
-							<h1 class="sp-guest-title" id="guest-onboarding-title">Я Юля Воронова.</h1>
+							<h1 class="sp-guest-title" id="guest-onboarding-title" tabindex="-1">Я Юля Воронова.</h1>
 							<p class="sp-guest-lead"><span>Семейный нутрициолог</span><span>и автор “Умной тарелки”.</span></p>
 							<p class="sp-guest-copy">Здесь я собрала и продолжаю собирать свои лучшие рецепты, проверенные моей семьей. Это не экзотическая “здоровая еда”, а привычные блюда: супы и борщ, котлеты, паста, блины, просто в более здоровой версии.</p>
 							<p class="sp-guest-copy">Я адаптировала их так, чтобы они были и вкусными, и сбалансированными одновременно.</p>
@@ -3119,7 +3165,7 @@
 
 					<div class="sp-how-foot">
 						<a class="sp-how-cta" href="recipe.html?id=cutlets-chickpea-mushroom-dill&guestHelp=1&guestTour=1">Попробовать на примере</a>
-						<button class="sp-how-dismiss" type="button" onclick="completeGuestTour()">Больше не показывать</button>
+						<button class="sp-how-dismiss" type="button" onclick="completeGuestTour()">Свернуть</button>
 					</div>
 				</div>
 			</section>
@@ -3150,6 +3196,7 @@
 						</button>
 						<div class="hero-search-results" id="hero-search-results"></div>
 					</form>
+					<button class="sp-guest-tour-reopen" id="guest-tour-trigger" type="button" onclick="openGuestTour()">Как это работает?</button>
 				</div>
 				<a class="sp-hero-aside is-loading" id="sp-hero-aside" href="#new-block" aria-label="Сегодняшний рецепт">
 					<div class="sp-hero-media" id="sp-hero-media"></div>
@@ -3354,33 +3401,57 @@
 		let _spRecCount = 8;
 		const GUEST_TOUR_COMPLETED_KEY = 'smartplate_guest_tour_completed_v1';
 		let _guestTourPreview = new URLSearchParams(location.search).get('guestTour') === '1';
+		let _guestTourDismissedInMemory = false;
 		if (_guestTourPreview) document.body.classList.add('sp-guest-tour-preview');
 		function isGuestTourCompleted() {
+			if (_guestTourDismissedInMemory) return true;
 			try {
 				return localStorage.getItem(GUEST_TOUR_COMPLETED_KEY) === '1';
 			} catch (_) {
 				return false;
 			}
 		}
+		function replaceGuestTourUrl(isOpen) {
+			const url = new URL(location.href);
+			if (isOpen) url.searchParams.set('guestTour', '1');
+			else url.searchParams.delete('guestTour');
+			history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+		}
+		function focusGuestTourHeading() {
+			const heading = document.getElementById('guest-onboarding-title');
+			if (heading) requestAnimationFrame(() => heading.focus({ preventScroll: true }));
+		}
+		function openGuestTour() {
+			_guestTourPreview = true;
+			document.body.classList.remove('sp-guest-tour-preview');
+			updateGuestOnboardingVisibility();
+			replaceGuestTourUrl(true);
+			focusGuestTourHeading();
+		}
 		function completeGuestTour() {
 			try {
 				localStorage.setItem(GUEST_TOUR_COMPLETED_KEY, '1');
 			} catch (_) {}
+			_guestTourDismissedInMemory = true;
 			_guestTourPreview = false;
 			document.body.classList.remove('sp-guest-tour-preview', 'sp-guest-onboarding-active');
-			const url = new URL(location.href);
-			url.searchParams.delete('guestTour');
-			history.replaceState(null, '', url.pathname + url.search + url.hash);
-			const intro = document.getElementById('intro-block');
-			if (intro) intro.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			replaceGuestTourUrl(false);
+			const trigger = document.getElementById('guest-tour-trigger');
+			if (trigger) requestAnimationFrame(() => trigger.focus({ preventScroll: true }));
 		}
 		function updateGuestOnboardingVisibility() {
 			document.body.classList.toggle('sp-guest-onboarding-active', _guestTourPreview || !isGuestTourCompleted());
 		}
+		window.addEventListener('popstate', function () {
+			_guestTourPreview = new URLSearchParams(location.search).get('guestTour') === '1';
+			document.body.classList.remove('sp-guest-tour-preview');
+			updateGuestOnboardingVisibility();
+		});
 		// Условие зависит только от localStorage/URL, поэтому применяем его до
 		// сетевых запросов. Иначе сначала мелькает hero, а после loadContent()
 		// страница резко заменяет его вводным блоком.
 		updateGuestOnboardingVisibility();
+		document.documentElement.classList.remove('sp-guest-tour-preview');
 
 		// Skeleton в #recommended-block СРАЗУ — место зарезервировано до того,
 		// как loadContent() резолвится. Реальные карточки заполнит renderRecommended().
