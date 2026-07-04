@@ -539,50 +539,6 @@
 		/* В success-состоянии прогресс наследует зелёный плашки (как и баланс-сайдбар). */
 		.bal-mini-status.success .bal-mini-progress { color: inherit; }
 
-		.bal-mini-sound-btn {
-			width: 30px;
-			height: 30px;
-			border-radius: 0;
-			border: 0;
-			border-left: 1px solid var(--border);
-			background: transparent;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			cursor: pointer;
-			color: var(--text-3);
-			padding: 0;
-			flex-shrink: 0;
-			transition: background-color .2s, color .2s, border-color .2s;
-		}
-
-		.bal-mini-sound-btn:hover {
-			background: var(--bg-alt);
-			color: var(--text);
-		}
-
-		.bal-mini-sound-btn:focus-visible {
-			outline: 2px solid var(--accent);
-			outline-offset: -2px;
-		}
-
-		.bal-mini-sound-btn.on {
-			background: var(--accent-l);
-			border-left-color: var(--accent);
-			color: var(--accent);
-		}
-
-		.bal-sound-icon {
-			width: 17px;
-			height: 17px;
-			display: block;
-			fill: none;
-			stroke: currentColor;
-			stroke-width: 1.7;
-			stroke-linecap: round;
-			stroke-linejoin: round;
-		}
-
 		/* ── Collapsed add-on groups (show-more) ────────── */
 		.bal-group-toggle-wrap {
 			padding: 0 12px 12px;
@@ -847,7 +803,8 @@
 		}
 		.recipe-sidebar {
 			top: var(--recipe-sidebar-top) !important;
-			max-height: calc(100dvh - var(--recipe-sidebar-top) - 18px) !important;
+			max-height: none !important;
+			overflow: visible !important;
 		}
 
 		/* HERO: editorial crop, no rounding */
@@ -1035,48 +992,9 @@
 		.bal-banner-warn { background: #fff !important; border-bottom-color: var(--border) !important; color: var(--text) !important; }
 		.bal-banner-success { background: #fff !important; border-bottom-color: var(--border) !important; color: var(--text) !important; animation: none !important; }
 		.bal-banner-label { font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
-		.bal-banner-title { font-family: var(--serif) !important; font-size: 15px !important; font-weight: 600 !important; line-height: 1.2 !important; letter-spacing: -.01em !important; color: var(--text) !important; margin-bottom: 6px !important; padding-right: 52px !important; }
+		.bal-banner-title { font-family: var(--serif) !important; font-size: 15px !important; font-weight: 600 !important; line-height: 1.2 !important; letter-spacing: -.01em !important; color: var(--text) !important; margin-bottom: 6px !important; }
 		.bal-banner-title .bal-banner-icon { display: none !important; }
-		.bal-banner-sub { font-size: 12px !important; line-height: 1.5 !important; color: var(--text-2) !important; opacity: 1 !important; font-weight: 400 !important; padding-right: 52px !important; }
-		.bal-banner-sound-label { display: none; }
-		@media (min-width: 1025px) {
-			.bal-banner-title,
-			.bal-banner-sub { padding-right: 90px !important; }
-			.bal-banner-sound-btn {
-				top: 14px;
-				right: 14px;
-				width: auto;
-				height: 31px;
-				min-width: 0;
-				min-height: 0;
-				gap: 7px;
-				padding: 0 10px;
-				border-radius: 0;
-				border-color: var(--border);
-				background: #fff;
-				color: var(--text-2);
-			}
-			.bal-banner-sound-btn .bal-sound-icon {
-				width: 15px;
-				height: 15px;
-			}
-			.bal-banner-sound-label {
-				display: inline;
-				font-size: 9px;
-				font-weight: 700;
-				letter-spacing: .12em;
-				text-transform: uppercase;
-			}
-			.bal-banner-sound-btn:hover {
-				background: var(--bg-alt);
-				color: var(--text);
-			}
-			.bal-banner-sound-btn.on {
-				background: var(--accent-l);
-				border-color: var(--accent);
-				color: var(--accent);
-			}
-		}
+		.bal-banner-sub { font-size: 12px !important; line-height: 1.5 !important; color: var(--text-2) !important; opacity: 1 !important; font-weight: 400 !important; }
 
 		/* Progress checklist */
 		.bal-progress { display: flex !important; flex-direction: column !important; gap: 0 !important; margin-top: 14px !important; border-top: 1px solid var(--border); }
@@ -1093,7 +1011,13 @@
 		/* Group */
 		.bal-group { border-bottom: none !important; border-top: 1px solid var(--border) !important; background: transparent !important; }
 		.bal-group:first-of-type { border-top: none !important; }
-		.bal-group-head { gap: 12px !important; padding: 14px 18px !important; }
+		.bal-group-head {
+			display: grid !important;
+			grid-template-columns: 24px minmax(0, 1fr) auto 12px;
+			align-items: start !important;
+			gap: 12px !important;
+			padding: 14px 18px !important;
+		}
 		.bal-group-num { font-family: var(--serif); font-size: 18px; font-weight: 700; color: var(--text-3); width: 24px; flex-shrink: 0; }
 		.bal-group.done .bal-group-num { color: var(--accent); }
 		.bal-group-label { font-size: 13px !important; font-weight: 600 !important; color: var(--text) !important; line-height: 1.3 !important; }
@@ -1132,9 +1056,27 @@
 			font-size: 11px !important;
 			letter-spacing: 0 !important;
 			font-weight: 600 !important;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 3px;
+			min-width: 0;
 		}
 		.bal-item-recipe-label { text-decoration: underline; text-underline-offset: 2px; }
 		.bal-item-recipe-link:hover { background: transparent !important; color: var(--text) !important; }
+		.bal-item-linked { cursor: default !important; }
+		.bal-item-select {
+			width: 30px;
+			height: 30px;
+			padding: 7px;
+			border: 0;
+			background: transparent;
+			color: inherit;
+			cursor: pointer;
+			flex: 0 0 auto;
+		}
+		.bal-item-select:focus-visible,
+		.bal-item-recipe-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 		/* Total */
 		.bal-total { border-top: 2px solid var(--text) !important; background: var(--bg-alt) !important; padding: 18px !important; }
@@ -1297,10 +1239,10 @@
 	<div id="bal-mini-status" class="bal-mini-status" onclick="scrollToBalanceBanner()" onkeydown="handleMiniStatusKey(event)" role="button" tabindex="0" aria-label="Прогресс баланса — перейти к добавкам">
 		<span class="bal-mini-progress" id="bal-mini-progress">0 / 0</span>
 		<span class="bal-mini-label" id="bal-mini-label">Не сбалансировано</span>
-		<button type="button" class="bal-mini-sound-btn" id="bal-mini-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений">
-			<span id="bal-mini-sound-icon"><svg class="bal-sound-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 10a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 22h4"></path><path d="M4 4l16 16"></path></svg></span>
-		</button>
 	</div>
+	<button class="recipe-back-to-top" id="recipe-back-to-top" type="button" onclick="scrollRecipeToTop()" hidden>
+		<span aria-hidden="true">↑</span><span>Наверх</span>
+	</button>
 
 	<!-- CONTENT -->
 	<main style="flex:1;">
@@ -1489,8 +1431,29 @@
 			return url + (url.includes('?') ? '&' : '?') + 'v=' + RECIPE_IMAGE_VERSION;
 		}
 
-		window.addEventListener('scroll', () =>
-			document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
+		function updateRecipeScrollControls() {
+			const header = document.getElementById('hdr');
+			if (header) header.classList.toggle('scrolled', scrollY > 10);
+			const backToTop = document.getElementById('recipe-back-to-top');
+			if (backToTop) backToTop.hidden = scrollY < 600;
+		}
+		function scrollRecipeElementIntoView(element, block) {
+			if (!element) return;
+			const root = document.documentElement;
+			const previousBehavior = root.style.scrollBehavior;
+			root.style.scrollBehavior = 'auto';
+			element.scrollIntoView({ behavior: 'auto', block: block || 'start' });
+			requestAnimationFrame(() => { root.style.scrollBehavior = previousBehavior; });
+		}
+		function scrollRecipeToTop() {
+			const root = document.documentElement;
+			const previousBehavior = root.style.scrollBehavior;
+			root.style.scrollBehavior = 'auto';
+			window.scrollTo(0, 0);
+			requestAnimationFrame(() => { root.style.scrollBehavior = previousBehavior; });
+		}
+		window.addEventListener('scroll', updateRecipeScrollControls, { passive: true });
+		updateRecipeScrollControls();
 
 		(function initRecipeSidebarOffset() {
 			const root = document.documentElement;
@@ -1698,10 +1661,12 @@
 			const carousel = btn && btn.closest('.step-photo-carousel');
 			if (!carousel) return;
 			const imgs = Array.from(carousel.querySelectorAll('.step-photo-img'));
-			if (imgs.length < 2) return;
+			const available = imgs.map((img, index) => img.hidden ? -1 : index).filter(index => index >= 0);
+			if (available.length < 2) return;
 			let idx = parseInt(carousel.getAttribute('data-index') || '0', 10);
-			if (!Number.isFinite(idx)) idx = 0;
-			idx = (idx + dir + imgs.length) % imgs.length;
+			let position = available.indexOf(idx);
+			if (position < 0) position = 0;
+			idx = available[(position + dir + available.length) % available.length];
 			carousel.setAttribute('data-index', String(idx));
 			imgs.forEach((img, i) => img.classList.toggle('is-active', i === idx));
 			carousel.querySelectorAll('.step-photo-dot').forEach((dot, i) => {
@@ -1709,6 +1674,27 @@
 			});
 			const current = carousel.querySelector('[data-carousel-current]');
 			if (current) current.textContent = String(idx + 1);
+		}
+		function markRecipeImageError(image) {
+			if (!image) return;
+			image.hidden = true;
+			const carousel = image.closest('.step-photo-carousel');
+			if (carousel) {
+				const imgs = Array.from(carousel.querySelectorAll('.step-photo-img'));
+				const nextIndex = imgs.findIndex(img => !img.hidden);
+				if (nextIndex >= 0) {
+					imgs.forEach((img, index) => img.classList.toggle('is-active', index === nextIndex));
+					carousel.setAttribute('data-index', String(nextIndex));
+					carousel.querySelectorAll('.step-photo-dot').forEach((dot, index) => dot.classList.toggle('is-active', index === nextIndex));
+					const current = carousel.querySelector('[data-carousel-current]');
+					if (current) current.textContent = String(nextIndex + 1);
+				} else {
+					carousel.classList.add('is-image-error');
+				}
+				return;
+			}
+			const frame = image.closest('.step-photo-wrap, .step-photo-carousel, .recipe-ingredients-photo');
+			if (frame) frame.classList.add('is-image-error');
 		}
 
 		// ── SIDEBAR PLACEMENT (mobile ↔ desktop) ────────────────────────
@@ -1924,24 +1910,16 @@
 			fi: { icon: '🥬', title: 'Добавь клетчатки',           color: '#6a3db8', bg: '#f5f0ff', border: '#c0a0f0', shortLabel: 'Клетчатка' }
 		};
 
-		// Sound preference (off by default, persisted)
-		let _soundEnabled = (function () {
-			try { return localStorage.getItem('balanceSoundEnabled') === '1'; } catch (e) { return false; }
-		})();
-		// ── Audio module config + state ─────────────────────────────
-		// MP3 is the primary channel; fallback is a WebAudio polyphony chord.
-		// Add new sounds by extending SOUND_ASSETS — no logic changes required.
+		// Звук готовности включён всегда. Пользовательского переключателя и
+		// сохранённой настройки нет; первый жест только разблокирует browser audio.
 		const SOUND_ASSETS = {
 			balanceReady: ['sounds/plate-is-ready.mp3', 'platform/sounds/plate-is-ready.mp3']
 		};
 		let _balanceAudio = null;
 		let _balanceAudioSrcIndex = 0;
-		let _audioUnlocked = false;
-		let _audioMode = 'mp3'; // 'mp3' | 'fallback'
 		let _audioCtx = null;
-		let _soundToggleBusy = false;
-		let _soundBlockedToastShown = false; // legacy anti-spam; kept for compat
-		const _soundErrorToastShown = { blocked: false, asset: false, unknown: false };
+		let _audioMode = 'mp3';
+		let _audioPrimeStarted = false;
 
 		// Ingredient swaps — per-ingredient metadata + currently-applied replacements.
 		// _swapInfo[i] = { origName, parts: [alt-text...], origAmountG: number|null }
@@ -2289,7 +2267,7 @@
 					labelHtml = linkify(newLabel);
 				}
 				nameEl.innerHTML = labelHtml
-					+ ' <button class="ing-swap-revert" data-recipe-action="revert-swap" data-index="' + Number(i) + '" title="Вернуть исходный">↺</button>';
+					+ ' <button class="ing-swap-revert" data-recipe-action="revert-swap" data-index="' + Number(i) + '" aria-label="Вернуть исходный ингредиент">↺ <span>Вернуть исходный ингредиент</span></button>';
 				nameEl.classList.add('ing-name-swapped');
 			}
 			const tipEl = document.getElementById('swap-' + i);
@@ -2712,11 +2690,11 @@
 				} else if (Array.isArray(photo)) {
 					const imgs = photo.filter(p => typeof p === 'string' && p);
 					if (imgs.length === 1) {
-						photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(imgs[0]))}" alt="Фото шага ${i + 1}" loading="lazy" onerror="this.style.display='none'">`;
+						photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(imgs[0]))}" alt="Фото шага ${i + 1}" loading="lazy" decoding="async" onerror="markRecipeImageError(this)">`;
 					} else if (imgs.length > 1) {
 						photoHtml = `<div class="step-photo-carousel" data-index="0">` +
 							imgs.map((p, idx) =>
-								`<img class="step-photo-img${idx === 0 ? ' is-active' : ''}" src="${escHtml(photoUrl(p))}" alt="Фото шага ${i + 1} (${idx + 1})" loading="lazy" onerror="this.style.display='none'">`
+								`<img class="step-photo-img${idx === 0 ? ' is-active' : ''}" src="${escHtml(photoUrl(p))}" alt="Фото шага ${i + 1} (${idx + 1})" loading="lazy" decoding="async" onerror="markRecipeImageError(this)">`
 							).join('') +
 							`<button type="button" class="step-photo-nav step-photo-prev" onclick="stepPhotoCarouselMove(this,-1)" aria-label="Предыдущее фото">‹</button>` +
 							`<button type="button" class="step-photo-nav step-photo-next" onclick="stepPhotoCarouselMove(this,1)" aria-label="Следующее фото">›</button>` +
@@ -2726,7 +2704,7 @@
 							`</div>`;
 					}
 				} else if (typeof photo === 'string' && photo) {
-					photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i + 1}" loading="lazy" onerror="this.closest('.step-photo-wrap').style.display='none'">`;
+					photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i + 1}" loading="lazy" decoding="async" onerror="markRecipeImageError(this)">`;
 				}
 				return `<div class="step-item">
                 <div class="step-num">${i + 1}</div>
@@ -2751,7 +2729,7 @@
                 <div class="step-num">${n}</div>
                 <div class="step-body">
                     <div class="step-text">Наслаждайтесь! Приятного вам аппетита 😋</div>
-                    <div class="step-photo-wrap"><img class="step-photo-img" src="${escHtml(photoUrl(finalPhoto))}" alt="Готовое блюдо" loading="lazy" onerror="this.closest('.step-final').style.display='none'"></div>
+					<div class="step-photo-wrap"><img class="step-photo-img" src="${escHtml(photoUrl(finalPhoto))}" alt="Готовое блюдо" loading="lazy" decoding="async" onerror="markRecipeImageError(this)"></div>
                 </div>
             </div>`);
 			}
@@ -2786,7 +2764,6 @@
 			const sidebarHtml = hasAdditions ? `
             <div class="bal-sidebar anim anim-d2" id="bal-sidebar" data-wizard-step="0">
                 <div id="bal-banner" class="bal-banner bal-banner-warn">
-                    <button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">${balanceSoundIconMarkup(_soundEnabled)}</span><span class="bal-banner-sound-label">Звук</span></button>
                     <div class="bal-banner-label">Баланс блюда</div>
                     <div class="bal-banner-title">Сделайте приём пищи полноценным</div>
                     <div class="bal-banner-sub">Добавьте недостающие группы — КБЖУ пересчитается автоматически.</div>
@@ -2848,7 +2825,7 @@
 			// Stars and count will be filled from API by loadReviews()
 			const isFav = Favorites.has(r.id);
 			const starsRow = [1, 2, 3, 4, 5].map(i =>
-				`<span class="star r-star${i <= 0 ? ' filled' : ''}" style="cursor:pointer" onclick="scrollToReviews()">★</span>`).join('');
+				`<button class="star r-star${i <= 0 ? ' filled' : ''}" type="button" aria-label="Открыть отзывы и оценку" onclick="scrollToReviews()">★</button>`).join('');
 			const voterCount = 0;
 			const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 			const dateStr = r.added || '';
@@ -2925,27 +2902,29 @@
                         <span class="recipe-badge">🍽 ${Number(r.servings || 4)} ${(()=>{const n=Number(r.servings||4),m10=n%10,m100=n%100;if(m10===1&&m100!==11)return 'порция';if([2,3,4].includes(m10)&&![12,13,14].includes(m100))return 'порции';return 'порций';})()}${portionDetail ? ` <span style="font-weight:500;color:var(--text-2)">(${escHtml(portionDetail)})</span>` : ''}</span>
                         ${dateStr ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">Рецепт добавлен: ${escHtml(dateStr)}</span>` : ''}
                     </div>
-                    <div class="recipe-hero-img">
-                        <img src="${escHtml(photoUrl(r.photo) || PHOTO_BY_CAT[r.cat] || PHOTO_FALLBACK)}"
-                             alt="${escHtml(r.name)}"
-                             loading="eager" fetchpriority="high"
+					<div class="recipe-hero-img">
+						<img src="${escHtml(photoUrl(r.photo) || PHOTO_BY_CAT[r.cat] || PHOTO_FALLBACK)}"
+							 alt="${escHtml(r.name)}"
+							 loading="eager" fetchpriority="high" decoding="async"
                              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
                              data-fallback-emoji="${escHtml(r.emoji)}">
                         ${!r.photo ? `<div class="recipe-hero-emoji" style="position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)">${escHtml(r.emoji)}</div>` : ''}
-                        <div class="card-fav-btn${isFav ? ' active' : ''}" id="recipe-fav-btn"
-                            onclick="event.stopPropagation();toggleRecipeFav()">
-                            <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
-                        </div>
+						<button class="card-fav-btn${isFav ? ' active' : ''}" id="recipe-fav-btn" type="button"
+							aria-label="${isFav ? 'Убрать рецепт из избранного' : 'Добавить рецепт в избранное'}" aria-pressed="${isFav ? 'true' : 'false'}"
+							onclick="event.stopPropagation();toggleRecipeFav()">
+							<svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+						</button>
                         <div class="photo-overlay">
-                            <div class="photo-rating-pill" id="recipe-rpill"
-                                onclick="event.stopPropagation();scrollToStars()">
-                                <span class="pr-star">★</span>
-                                <span class="pr-val" id="recipe-rating-val">—</span>
-                            </div>
-                            <button class="photo-comment-btn" onclick="event.stopPropagation();scrollToReviews()">
-                                <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-                                Отзывы
-                            </button>
+							<button class="photo-rating-pill" id="recipe-rpill" type="button"
+								onclick="event.stopPropagation();scrollToReviews()">
+								<span class="pr-label">Отзывы и оценка</span>
+								<span class="pr-star">★</span>
+								<span class="pr-val" id="recipe-rating-val">—</span>
+							</button>
+							<button class="photo-comment-btn" id="review-action-btn" type="button" onclick="event.stopPropagation();scrollToReviewForm()">
+								<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+								<span id="review-action-label">${Auth.isLoggedIn() ? 'Оставить отзыв' : 'Отзывы'}</span>
+							</button>
                         </div>
                     </div>
                     ${r.quote ? `<div class="julia-tip" style="margin-top:0;margin-bottom:18px">
@@ -2979,7 +2958,7 @@
                     <div class="ing-list">${ingHtml}</div>
                     ${(() => {
                         const startPhoto = r.photo ? derivePhoto(r.photo, 'start') : (r.id ? `images/recipes/${r.id}/${r.id}-start.webp` : '');
-                        return startPhoto ? `<img class="step-photo-img" src="${escHtml(photoUrl(startPhoto))}" alt="Ингредиенты" loading="lazy" onerror="this.style.display='none'" style="margin-top:16px;border-radius:12px;width:100%">` : '';
+						return startPhoto ? `<div class="recipe-ingredients-photo"><img class="step-photo-img" src="${escHtml(photoUrl(startPhoto))}" alt="Ингредиенты" loading="lazy" decoding="async" onerror="markRecipeImageError(this)"></div>` : '';
                     })()}
 
                     <div class="steps-head">
@@ -3031,7 +3010,7 @@
                                 </button>`).join('')}
                             </div>
                             <div class="video-player-wrap" id="video-player">
-                                ${vids.map((v, i) => `<div class="video-frame${i === 0 ? ' active' : ''}" data-key="${v.key}" data-url="${escHtml(v.url)}" data-poster="${escHtml(photoUrl(r.photo) || '')}">
+								${vids.map((v, i) => `<div class="video-frame${i === 0 ? ' active' : ''}" data-key="${v.key}" data-label="${escHtml(v.label)}" data-url="${escHtml(v.url)}" data-poster="${escHtml(photoUrl(r.photo) || '')}">
                                 </div>`).join('')}
                             </div>
                         </div>`;
@@ -3048,23 +3027,23 @@
                     <div id="sidebar-mobile" style="margin-top:20px;display:none"></div>
 
                     <!-- Reviews section -->
-                    <div class="reviews-section" id="reviews-section">
-                        <div class="v-section-title" style="margin-top:24px">Отзывы</div>
+					<section class="reviews-section" id="reviews-section" aria-labelledby="reviews-title">
+						<h2 class="reviews-title" id="reviews-title" tabindex="-1">Отзывы</h2>
                         <div id="reviews-list" style="margin-bottom:16px"></div>
                         <div id="review-form-wrap">
                             ${Auth.isLoggedIn() ? `
                             <div class="review-form">
                                 <div class="review-form-stars" id="review-form-stars">
-                                    ${[1, 2, 3, 4, 5].map(i => `<span class="star review-star" data-recipe-action="set-review-stars" data-n="${i}">★</span>`).join('')}
-                                </div>
+									${[1, 2, 3, 4, 5].map(i => `<button class="star review-star" type="button" data-recipe-action="set-review-stars" data-n="${i}" aria-label="Оценка ${i} из 5" aria-pressed="false">★</button>`).join('')}
+								</div>
                                 <textarea id="review-text" class="review-textarea" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." maxlength="1000" rows="3"></textarea>
                                 <div style="display:flex;align-items:center;justify-content:space-between">
                                     <span class="review-char-count" id="review-char-count">0 / 1000</span>
                                     <button class="recipe-review-submit" id="review-submit-btn" type="button" onclick="submitReview()">Отправить</button>
                                 </div>
                             </div>` : `<div style="font-size:13px;color:var(--text-3);margin-bottom:12px"><a href="${Auth._loginUrl()}" style="color:var(--accent);text-decoration:underline">Войдите</a>, чтобы оставить отзыв</div>`}
-                        </div>
-                    </div>
+						</div>
+					</section>
                 </div>
 
                 <!-- Desktop sidebar -->
@@ -3114,23 +3093,27 @@
 			const isChecked = !!checkedItems[key];
 			const checkedCls = isChecked ? ' checked' : '';
 			const amountHtml = item.amount ? ` <span class="bal-item-amount">· ${escHtml(item.amount)}</span>` : '';
-			if (hasRecipe) {
-				subItemRegistry[key] = item;
-				const balRecipeUrl = recipeLink(item.recipeId, { asIngredient: true, parentRecipeId: r.id });
-				return `<div class="bal-item${checkedCls}" id="ai-${key}" data-balance-key="${escHtml(key)}" data-kcal="${Number(item.kcal || 0)}" data-protein="${Number(item.protein || 0)}" data-fat="${Number(item.fat || 0)}" data-carbs="${Number(item.carbs || 0)}" data-fiber="${Number(item.fiber || 0)}" style="position:relative;cursor:pointer">
-                            <div class="bal-item-check" id="chk-${key}"></div>
-                            <div class="bal-item-text">
-                                ${escHtml(item.name)}${amountHtml}
-								<a class="bal-item-recipe-link" href="${escHtml(balRecipeUrl)}"><span aria-hidden="true">→</span> <span class="bal-item-recipe-label">Открыть рецепт</span></a>
-                            </div>
-                            <div class="bal-item-kcal">+${Number(item.kcal)}</div>
-                        </div>`;
+			if (hasRecipe || hasCat) {
+				if (hasRecipe) subItemRegistry[key] = item;
+				const targetUrl = hasRecipe
+					? recipeLink(item.recipeId, { asIngredient: true, parentRecipeId: r.id })
+					: 'category.html?cat=' + encodeURIComponent(item.catLink);
+				const targetLabel = hasRecipe ? 'Открыть рецепт' : 'Выбрать из списка';
+				return `<div class="bal-item bal-item-linked${checkedCls}" id="ai-${key}" style="position:relative">
+							<button class="bal-item-select" type="button" data-balance-key="${escHtml(key)}" data-item-name="${escHtml(item.name)}" data-kcal="${Number(item.kcal || 0)}" data-protein="${Number(item.protein || 0)}" data-fat="${Number(item.fat || 0)}" data-carbs="${Number(item.carbs || 0)}" data-fiber="${Number(item.fiber || 0)}" aria-pressed="${isChecked ? 'true' : 'false'}" aria-label="${isChecked ? 'Убрать' : 'Добавить'} ${escHtml(item.name)}">
+								<span class="bal-item-check" id="chk-${key}" aria-hidden="true"></span>
+							</button>
+							<a class="bal-item-recipe-link bal-item-text" href="${escHtml(targetUrl)}">
+								<span class="bal-item-name">${escHtml(item.name)}${amountHtml}</span>
+								<span class="bal-item-recipe-label">${targetLabel} <span aria-hidden="true">→</span></span>
+							</a>
+							<div class="bal-item-kcal">+${Number(item.kcal)}</div>
+						</div>`;
 			} else {
 				return `<button class="bal-item${checkedCls}" id="ai-${key}" data-balance-key="${escHtml(key)}" data-kcal="${Number(item.kcal || 0)}" data-protein="${Number(item.protein || 0)}" data-fat="${Number(item.fat || 0)}" data-carbs="${Number(item.carbs || 0)}" data-fiber="${Number(item.fiber || 0)}" style="position:relative">
                             <div class="bal-item-check" id="chk-${key}"></div>
                             <div class="bal-item-text">
-                                ${escHtml(item.name)}${amountHtml}
-								${hasCat ? `<a class="bal-item-recipe-link" href="category.html?cat=${encodeURIComponent(item.catLink)}"><span aria-hidden="true">→</span> <span class="bal-item-recipe-label">Выбрать из списка</span></a>` : ''}
+								<span class="bal-item-name">${escHtml(item.name)}${amountHtml}</span>
                             </div>
                             <div class="bal-item-kcal">+${Number(item.kcal)}</div>
                         </button>`;
@@ -3321,9 +3304,18 @@
 		function toggleAddItem(key, kcal, protein, fat, carbs, fiber) {
 			const btn = document.getElementById('ai-' + key);
 			if (!btn) return;
+			const setSelected = function (el, selected) {
+				if (!el) return;
+				el.classList.toggle('checked', selected);
+				const control = el.querySelector('.bal-item-select');
+				if (control) {
+					control.setAttribute('aria-pressed', String(selected));
+					control.setAttribute('aria-label', (selected ? 'Убрать ' : 'Добавить ') + (control.dataset.itemName || 'вариант'));
+				}
+			};
 			if (checkedItems[key]) {
 				delete checkedItems[key];
-				btn.classList.remove('checked');
+				setSelected(btn, false);
 			} else {
 				// Only one addon per category (prefix p/f/c/fi): clear siblings first
 				const prefix = key.replace(/-\d+$/, '');
@@ -3331,17 +3323,11 @@
 					if (k.replace(/-\d+$/, '') === prefix) {
 						delete checkedItems[k];
 						const prev = document.getElementById('ai-' + k);
-						if (prev) prev.classList.remove('checked');
+						setSelected(prev, false);
 					}
 				});
-				const nameEl = btn.querySelector('.bal-item-text');
-				let name = key;
-				if (nameEl) {
-					const clone = nameEl.cloneNode(true);
-					const link = clone.querySelector('.bal-item-recipe-link');
-					if (link) link.remove();
-					name = clone.textContent.trim() || key;
-				}
+				const nameEl = btn.querySelector('.bal-item-name') || btn.querySelector('.bal-item-text');
+				const name = nameEl ? (nameEl.textContent.trim() || key) : key;
 				const src = subItemRegistry[key] || {};
 				checkedItems[key] = {
 					name,
@@ -3353,7 +3339,7 @@
 					recipeId: src.recipeId || null,
 					emoji: src.emoji || ''
 				};
-				btn.classList.add('checked');
+				setSelected(btn, true);
 			}
 			updateAddTotal();
 		}
@@ -3390,10 +3376,9 @@
 			// Update banner
 			const banner = document.getElementById('bal-banner');
 			if (banner) {
-				const soundBtnHtml = `<button type="button" class="bal-banner-sound-btn" id="bal-banner-sound-btn" onclick="toggleBalanceSound(event)" aria-label="Звук уведомлений" aria-pressed="false" title="Звук уведомлений"><span id="bal-banner-sound-icon">${balanceSoundIconMarkup(_soundEnabled)}</span><span class="bal-banner-sound-label">Звук</span></button>`;
 				if (allDone) {
 					banner.className = 'bal-banner bal-banner-success';
-					banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-label">Баланс блюда</div><div class="bal-banner-title">Блюдо сбалансировано</div><div class="bal-banner-sub">Добавьте его в тарелку — это полноценный приём пищи.</div>`;
+					banner.innerHTML = `<div class="bal-banner-label">Баланс блюда</div><div class="bal-banner-title">Блюдо сбалансировано</div><div class="bal-banner-sub">Добавьте его в тарелку — это полноценный приём пищи.</div>`;
 					if (!_celebrationShown) {
 						_celebrationShown = true;
 						playBalanceSound();
@@ -3412,7 +3397,7 @@
                                 <span class="bal-progress-status" id="bal-pst-${c.key}">${done ? 'выбрано' : 'требуется'}</span>
                             </div>`;
 						}).join('');
-						banner.innerHTML = `${soundBtnHtml}<div class="bal-banner-label">Баланс блюда</div><div class="bal-banner-title">Сделайте приём пищи полноценным</div><div class="bal-banner-sub">Добавьте недостающие группы — КБЖУ пересчитается автоматически.</div><div class="bal-progress">${items}</div>`;
+						banner.innerHTML = `<div class="bal-banner-label">Баланс блюда</div><div class="bal-banner-title">Сделайте приём пищи полноценным</div><div class="bal-banner-sub">Добавьте недостающие группы — КБЖУ пересчитается автоматически.</div><div class="bal-progress">${items}</div>`;
 						_celebrationShown = false;
 					}
 				}
@@ -3445,7 +3430,6 @@
 				if (progressEl) progressEl.textContent = done + ' / ' + total;
 				if (labelEl) labelEl.textContent = 'Добавки';
 			}
-			syncSoundButtonsUI();
 		}
 
 		function scrollToBalanceBanner() {
@@ -3479,40 +3463,52 @@
 			}
 		}
 
-		function syncSoundButtonsUI() {
-			const on = !!_soundEnabled;
-			const miniBtn = document.getElementById('bal-mini-sound-btn');
-			const miniIcon = document.getElementById('bal-mini-sound-icon');
-			const bannerBtn = document.getElementById('bal-banner-sound-btn');
-			const bannerIcon = document.getElementById('bal-banner-sound-icon');
-			const iconMarkup = balanceSoundIconMarkup(on);
-			if (miniBtn) {
-				miniBtn.classList.toggle('on', on);
-				miniBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-				miniBtn.setAttribute('aria-label', on ? 'Звук включён. Выключить' : 'Звук выключен. Включить');
-				miniBtn.title = on ? 'Звук включён' : 'Звук выключен';
-			}
-			if (miniIcon) miniIcon.innerHTML = iconMarkup;
-			if (bannerBtn) {
-				bannerBtn.classList.toggle('on', on);
-				bannerBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-				bannerBtn.setAttribute('aria-label', on ? 'Звук включён. Выключить' : 'Звук выключен. Включить');
-				bannerBtn.title = on ? 'Звук включён' : 'Звук выключен';
-			}
-			if (bannerIcon) bannerIcon.innerHTML = iconMarkup;
+		function ensureBalanceAudio() {
+			if (_balanceAudio) return;
+			const paths = SOUND_ASSETS.balanceReady;
+			_balanceAudioSrcIndex = 0;
+			_balanceAudio = new Audio(paths[0]);
+			_balanceAudio.preload = 'auto';
+			_balanceAudio.addEventListener('error', function () {
+				_balanceAudioSrcIndex += 1;
+				if (_balanceAudioSrcIndex < paths.length && _balanceAudio) {
+					_balanceAudio.src = paths[_balanceAudioSrcIndex];
+				}
+			});
 		}
 
-		function balanceSoundIconMarkup(on) {
-			const slash = on ? '' : '<path d="M4 4l16 16"></path>';
-			return '<svg class="bal-sound-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-				'<path d="M18 10a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>' +
-				'<path d="M10 22h4"></path>' + slash + '</svg>';
+		function playBalanceFallbackPolyphony() {
+			try {
+				const AC = window.AudioContext || window.webkitAudioContext;
+				if (!AC) return false;
+				if (!_audioCtx) _audioCtx = new AC();
+				if (_audioCtx.state === 'suspended') _audioCtx.resume();
+				const ctx = _audioCtx;
+				const now = ctx.currentTime;
+				const master = ctx.createGain();
+				master.gain.setValueAtTime(0.0001, now);
+				master.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
+				master.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
+				master.connect(ctx.destination);
+				[523.25, 659.25, 783.99].forEach(function (frequency, index) {
+					const oscillator = ctx.createOscillator();
+					oscillator.type = 'triangle';
+					oscillator.frequency.setValueAtTime(frequency, now + index * 0.015);
+					oscillator.connect(master);
+					oscillator.start(now + index * 0.015);
+					oscillator.stop(now + 0.34);
+				});
+				return true;
+			} catch (error) {
+				if (console && console.debug) console.debug('[balance-sound fallback]', error && error.message);
+				return false;
+			}
 		}
 
-		// Unlocks BOTH the MP3 element and a WebAudio context inside a user gesture.
-		// Returns {mp3Ok, ctxOk} — if either succeeds, sound can be played going forward.
-		async function unlockBalanceAudioByGesture() {
-			let mp3Ok = false, ctxOk = false;
+		async function primeBalanceAudio() {
+			if (_audioPrimeStarted) return;
+			_audioPrimeStarted = true;
+			let mp3Ready = false;
 			try {
 				ensureBalanceAudio();
 				_balanceAudio.muted = true;
@@ -3521,60 +3517,43 @@
 				_balanceAudio.pause();
 				_balanceAudio.currentTime = 0;
 				_balanceAudio.muted = false;
-				mp3Ok = true;
-			} catch (err) {
+				mp3Ready = true;
+			} catch (error) {
 				try { if (_balanceAudio) _balanceAudio.muted = false; } catch (_) { }
-				if (console && console.debug) console.debug('[audio unlock mp3]', err && err.name, err && err.message);
+			}
+			if (mp3Ready) {
+				_audioMode = 'mp3';
+				return;
 			}
 			try {
 				const AC = window.AudioContext || window.webkitAudioContext;
 				if (AC) {
 					if (!_audioCtx) _audioCtx = new AC();
 					if (_audioCtx.state === 'suspended') await _audioCtx.resume();
-					ctxOk = _audioCtx.state === 'running';
+					if (_audioCtx.state === 'running') _audioMode = 'fallback';
 				}
-			} catch (err) {
-				if (console && console.debug) console.debug('[audio unlock ctx]', err && err.name, err && err.message);
-			}
-			_audioUnlocked = mp3Ok || ctxOk;
-			if (mp3Ok) _audioMode = 'mp3';
-			else if (ctxOk) _audioMode = 'fallback';
-			return { mp3Ok, ctxOk };
+			} catch (_) { }
 		}
 
-		async function toggleBalanceSound(e) {
-			if (e && e.stopPropagation) e.stopPropagation();
-			if (_soundToggleBusy) return;
-			if (_soundEnabled) {
-				_soundEnabled = false;
-				try { localStorage.setItem('balanceSoundEnabled', '0'); } catch (_) { }
-				syncSoundButtonsUI();
-				showToast('🔕 Звук выключен');
+		function playBalanceSound() {
+			if (_audioMode === 'fallback') {
+				playBalanceFallbackPolyphony();
 				return;
 			}
-			_soundToggleBusy = true;
-			try {
-				const { mp3Ok, ctxOk } = await unlockBalanceAudioByGesture();
-				if (mp3Ok || ctxOk) {
-					_soundEnabled = true;
-					_soundBlockedToastShown = false;
-					_soundErrorToastShown.blocked = false;
-					_soundErrorToastShown.asset = false;
-					_soundErrorToastShown.unknown = false;
-					try { localStorage.setItem('balanceSoundEnabled', '1'); } catch (_) { }
-					syncSoundButtonsUI();
-					showToast(mp3Ok ? '🔔 Звук включён' : '🔔 Звук включён (резервный)');
-				} else {
-					_soundEnabled = false;
-					try { localStorage.setItem('balanceSoundEnabled', '0'); } catch (_) { }
-					syncSoundButtonsUI();
-					showToast('Браузер блокирует звук. Нажмите 🔔 ещё раз после взаимодействия');
-				}
-			} finally {
-				_soundToggleBusy = false;
+			ensureBalanceAudio();
+			_balanceAudio.currentTime = 0;
+			let playback;
+			try { playback = _balanceAudio.play(); } catch (error) { playback = Promise.reject(error); }
+			if (playback && playback.catch) {
+				playback.catch(function () {
+					_audioMode = 'fallback';
+					playBalanceFallbackPolyphony();
+				});
 			}
 		}
 
+		document.addEventListener('pointerdown', primeBalanceAudio, { once: true, capture: true });
+		document.addEventListener('keydown', primeBalanceAudio, { once: true, capture: true });
 
 		// ── Balance success modal ──────────────────────────────────────────
 		let _balSuccessAutoHideTimer = null;
@@ -3653,105 +3632,6 @@
 		function confirmBalanceSuccessAdd() {
 			hideBalanceSuccessModal('primary');
 			addToPlate();
-		}
-
-		function ensureBalanceAudio() {
-			if (_balanceAudio) return;
-			const paths = SOUND_ASSETS.balanceReady;
-			_balanceAudioSrcIndex = 0;
-			_balanceAudio = new Audio(paths[0]);
-			_balanceAudio.preload = 'auto';
-			// Walk through the paths chain on asset errors (file moved, 404, wrong context)
-			_balanceAudio.addEventListener('error', function () {
-				_balanceAudioSrcIndex++;
-				if (_balanceAudioSrcIndex < paths.length && _balanceAudio) {
-					_balanceAudio.src = paths[_balanceAudioSrcIndex];
-				}
-			});
-		}
-
-		function classifyAudioError(err, audioEl) {
-			if (err && err.name === 'NotAllowedError') return 'blocked';
-			if (err && err.name === 'NotSupportedError') return 'asset';
-			const me = audioEl && audioEl.error;
-			if (me) {
-				// 2=NETWORK, 3=DECODE, 4=SRC_NOT_SUPPORTED
-				if (me.code === 2 || me.code === 3 || me.code === 4) return 'asset';
-			}
-			return 'unknown';
-		}
-
-		// Short "magic" chord via WebAudio — no asset dependency, works whenever AudioContext is running.
-		function playBalanceFallbackPolyphony() {
-			try {
-				const AC = window.AudioContext || window.webkitAudioContext;
-				if (!AC) return false;
-				if (!_audioCtx) _audioCtx = new AC();
-				if (_audioCtx.state === 'suspended') _audioCtx.resume();
-				const ctx = _audioCtx;
-				const now = ctx.currentTime;
-				const master = ctx.createGain();
-				master.gain.setValueAtTime(0.0001, now);
-				master.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
-				master.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
-				master.connect(ctx.destination);
-				// C-major triad, staggered attack for a lighter feel (~280ms)
-				[523.25, 659.25, 783.99].forEach(function (f, i) {
-					const osc = ctx.createOscillator();
-					osc.type = 'triangle';
-					osc.frequency.setValueAtTime(f, now + i * 0.015);
-					osc.connect(master);
-					osc.start(now + i * 0.015);
-					osc.stop(now + 0.34);
-				});
-				return true;
-			} catch (err) {
-				if (console && console.debug) console.debug('[audio fallback]', err && err.name, err && err.message);
-				return false;
-			}
-		}
-
-		function playBalanceSound() {
-			if (!_soundEnabled) return;
-			if (_audioMode === 'fallback') {
-				playBalanceFallbackPolyphony();
-				return;
-			}
-			ensureBalanceAudio();
-			_balanceAudio.currentTime = 0;
-			let p;
-			try { p = _balanceAudio.play(); } catch (err) { p = Promise.reject(err); }
-			if (p && p.catch) {
-				p.catch(function (err) {
-					const type = classifyAudioError(err, _balanceAudio);
-					// Switch to fallback and play immediately so the user hears the signal now
-					_audioMode = 'fallback';
-					const fbOk = playBalanceFallbackPolyphony();
-					if (type === 'blocked') {
-						// Autoplay policy — honest rollback so UI reflects reality
-						if (!fbOk) {
-							_soundEnabled = false;
-							try { localStorage.setItem('balanceSoundEnabled', '0'); } catch (_) { }
-							syncSoundButtonsUI();
-						}
-						if (!_soundErrorToastShown.blocked) {
-							_soundErrorToastShown.blocked = true;
-							showToast('Браузер блокирует звук. Нажмите 🔔 ещё раз после взаимодействия');
-						}
-					} else if (type === 'asset') {
-						if (!_soundErrorToastShown.asset) {
-							_soundErrorToastShown.asset = true;
-							showToast('Не удалось загрузить mp3, включён резервный звук');
-						}
-					} else {
-						if (!_soundErrorToastShown.unknown) {
-							_soundErrorToastShown.unknown = true;
-							showToast('Не удалось воспроизвести mp3, включён резервный звук');
-						}
-					}
-					if (console && console.debug) console.debug('[balance-sound play]', type, err && err.name, err && err.message);
-				});
-			}
 		}
 
 		function setupBalBannerObserver() {
@@ -3897,34 +3777,36 @@
 			return null;
 		}
 		function showVideoFallback(frame, url) {
-			frame.innerHTML = '<a class="video-external-link" href="' + escHtml(url) + '" target="_blank" rel="noopener">'
+			frame.innerHTML = '<a class="video-external-link" href="' + escHtml(url) + '" target="_blank" rel="noopener noreferrer">'
 				+ '<div class="video-play-btn" style="background:rgba(255,255,255,.15)"><svg viewBox="0 0 24 24" width="32" height="32"><path d="M8 5v14l11-7z" fill="#fff"/></svg></div>'
-				+ '<div class="video-open-label">Открыть видео в новой вкладке</div>'
+				+ '<div class="video-open-label">Открыть видео в новой вкладке <span class="external-link-icon" aria-hidden="true">↗</span></div>'
 				+ '</a>';
+		}
+		function showVideoUnavailable(frame) {
+			frame.innerHTML = '<div class="video-unavailable" role="status"><strong>Видео временно недоступно</strong><span>Ссылка повреждена или не поддерживается.</span></div>';
 		}
 		function showDzenFallback(frame, url) {
 			var poster = frame.dataset.poster || '';
 			var posterHtml = poster
 				? '<div class="dzen-link-poster" style="background-image:url(&quot;' + escHtml(poster) + '&quot;)"></div>'
 				: '';
-			frame.innerHTML = '<a class="dzen-link-card" href="' + escHtml(url) + '" target="_blank" rel="noopener">'
+			frame.innerHTML = '<a class="dzen-link-card" href="' + escHtml(url) + '" target="_blank" rel="noopener noreferrer">'
 				+ posterHtml
 				+ '<div class="dzen-link-overlay"></div>'
 				+ '<div class="dzen-link-content">'
 				+ '<div class="dzen-link-icon"><svg viewBox="0 0 24 24" width="48" height="48"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="#fff"/><path d="M11 7.5L16 12l-5 4.5V7.5z" fill="#fff"/></svg></div>'
-				+ '<div class="dzen-link-text">РЎРјРѕС‚СЂРµС‚СЊ РЅР° Р”Р·РµРЅРµ</div>'
+				+ '<div class="dzen-link-text">Смотреть на Дзене <span class="external-link-icon" aria-hidden="true">↗</span></div>'
 				+ '</div>'
 				+ '</a>';
-			frame.innerHTML = frame.innerHTML.replace(
-				/<div class="dzen-link-text">[\s\S]*?<\/div>/,
-				'<div class="dzen-link-text">\u0421\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u043d\u0430 \u0414\u0437\u0435\u043d\u0435</div>'
-			);
 		}
 		function loadVideoFrame(frame) {
 			if (frame.querySelector('iframe') || frame.querySelector('.dzen-link-card') || frame.querySelector('.video-external-link')) return;
-			var url = frame.dataset.url;
+			var url = extractEmbedSrc(frame.dataset.url);
 			var embed = toEmbedUrl(url);
-			if (!embed) return;
+			if (!embed) {
+				showVideoUnavailable(frame);
+				return;
+			}
 			if (embed.startsWith('vk-fallback:')) {
 				showVideoFallback(frame, embed.slice(12));
 				return;
@@ -3936,6 +3818,8 @@
 			}
 			var iframe = document.createElement('iframe');
 			iframe.src = embed;
+			iframe.title = 'Видеорецепт' + (frame.dataset.label ? ': ' + frame.dataset.label : '');
+			iframe.loading = 'lazy';
 			iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
 			iframe.setAttribute('allow', 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen');
 			iframe.allowFullscreen = true;
@@ -4329,26 +4213,28 @@
 			// Гость: избранное — фича только для зарегистрированных, ведём на login.
 			if (Auth.isGuest()) { location.href = Auth._loginUrl(); return; }
 			const isNow = Favorites.toggle(r.id);
-			document.getElementById('recipe-fav-btn')?.classList.toggle('active', isNow);
-		}
-
-		function scrollToStars() {
-			const el = document.getElementById('reviews-section');
-			if (el) {
-				el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-				const starsRow = document.getElementById('recipe-stars-row');
-				if (starsRow) {
-					starsRow.classList.add('stars-highlight');
-					setTimeout(() => starsRow.classList.remove('stars-highlight'), 1500);
-				}
+			const button = document.getElementById('recipe-fav-btn');
+			if (button) {
+				button.classList.toggle('active', isNow);
+				button.setAttribute('aria-pressed', String(isNow));
+				button.setAttribute('aria-label', isNow ? 'Убрать рецепт из избранного' : 'Добавить рецепт в избранное');
 			}
 		}
 
 		function scrollToReviews() {
 			const el = document.getElementById('reviews-section');
 			if (el) {
-				el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				scrollRecipeElementIntoView(el, 'start');
+				const heading = document.getElementById('reviews-title');
+				if (heading) requestAnimationFrame(() => heading.focus({ preventScroll: true }));
 			}
+		}
+
+		function scrollToReviewForm() {
+			scrollToReviews();
+			if (!Auth.isLoggedIn()) return;
+			const field = document.getElementById('review-text');
+			if (field) requestAnimationFrame(() => field.focus({ preventScroll: true }));
 		}
 
 		// ── INLINE STARS ──────────────────────────────────────────────────────
@@ -4572,8 +4458,10 @@
 
 		function setReviewStars(n) {
 			_reviewStars = n;
-			document.querySelectorAll('.review-star').forEach((s, i) =>
-				s.classList.toggle('filled', i < n));
+			document.querySelectorAll('.review-star').forEach((s, i) => {
+				s.classList.toggle('filled', i < n);
+				s.setAttribute('aria-pressed', String(i < n));
+			});
 		}
 
 		async function loadReviews() {
@@ -4589,6 +4477,12 @@
 				const cSpan = document.getElementById('recipe-voter-count');
 				if (cSpan) cSpan.textContent = '(' + reviews.length + ')';
 				const ratingVal = document.getElementById('recipe-rating-val');
+				const curUser = Auth.getUser();
+				const curUserId = curUser && curUser.id;
+				const isAdmin = curUser && curUser.role === 'admin';
+				const hasOwnReview = reviews.some(rv => curUserId && rv.userId === curUserId);
+				const reviewActionLabel = document.getElementById('review-action-label');
+				if (reviewActionLabel) reviewActionLabel.textContent = Auth.isLoggedIn() && !hasOwnReview ? 'Оставить отзыв' : 'Отзывы';
 				if (reviews.length) {
 					const apiAvg = reviews.reduce((s, rv) => s + rv.stars, 0) / reviews.length;
 					document.querySelectorAll('#recipe-stars-row .r-star').forEach((s, i) =>
@@ -4604,10 +4498,6 @@
 					return;
 				}
 
-				const curUser = Auth.getUser();
-				const curUserId = curUser && curUser.id;
-				const isAdmin = curUser && curUser.role === 'admin';
-				const hasOwnReview = reviews.some(rv => curUserId && rv.userId === curUserId);
 				const formWrap = document.getElementById('review-form-wrap');
 				if (formWrap && hasOwnReview) {
 					formWrap.innerHTML = '<div style="font-size:13px;color:var(--text-3);padding:12px 16px;text-align:center">Вы уже оставили отзыв. Удалите его, чтобы написать новый.</div>';
@@ -4622,7 +4512,7 @@
 						: `<span class="review-avatar-fallback">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
 					const canDelete = isAdmin || (curUserId && rv.userId === curUserId);
 					const deleteBtn = canDelete
-						? `<button class="review-delete-btn" data-recipe-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? 'true' : 'false'}" title="Удалить отзыв"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>`
+						? `<button class="review-delete-btn" data-recipe-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? 'true' : 'false'}" aria-label="Удалить отзыв" title="Удалить отзыв"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>`
 						: '';
 					return `<div class="review-item">
                     <div class="review-header">
@@ -4667,7 +4557,10 @@
 				showToast('Отзыв сохранён!');
 				if (textEl) textEl.value = '';
 				_reviewStars = 0;
-				document.querySelectorAll('.review-star').forEach(s => s.classList.remove('filled'));
+				document.querySelectorAll('.review-star').forEach(s => {
+					s.classList.remove('filled');
+					s.setAttribute('aria-pressed', 'false');
+				});
 				const countEl = document.getElementById('review-char-count');
 				if (countEl) countEl.textContent = '0 / 1000';
 				loadReviews();
