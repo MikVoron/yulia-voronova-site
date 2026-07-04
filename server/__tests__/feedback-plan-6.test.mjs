@@ -17,10 +17,11 @@ function guestTourScript() {
   return indexHtml.slice(start, end);
 }
 
-function createHarness({ completed = false, forced = false, storageThrows = false } = {}) {
+function createHarness({ completed = false, forced = false, reducedMotion = false, storageThrows = false } = {}) {
   const classes = new Set();
   const focusCalls = [];
   const replaceCalls = [];
+  const scrollCalls = [];
   const listeners = {};
   const values = new Map(completed ? [['smartplate_guest_tour_completed_v1', '1']] : []);
   const location = {
@@ -28,6 +29,9 @@ function createHarness({ completed = false, forced = false, storageThrows = fals
     search: forced ? '?guestTour=1' : '',
   };
   const elements = {
+    'guest-onboarding': {
+      getBoundingClientRect() { return { top: 24 }; },
+    },
     'guest-onboarding-title': {
       focus(options) { focusCalls.push({ id: 'guest-onboarding-title', options }); },
     },
@@ -78,15 +82,22 @@ function createHarness({ completed = false, forced = false, storageThrows = fals
         },
       },
       getElementById(id) { return elements[id] || null; },
+      querySelector(selector) {
+        if (selector === '.sp-header') return { getBoundingClientRect() { return { height: 96 }; } };
+        return null;
+      },
     },
     window: {
+      scrollY: 500,
       addEventListener(type, listener) { listeners[type] = listener; },
+      matchMedia() { return { matches: reducedMotion }; },
+      scrollTo(options) { scrollCalls.push(options); },
     },
     requestAnimationFrame(callback) { callback(); },
   });
 
   vm.runInContext(guestTourScript(), context, { filename: 'index.html:guest-tour' });
-  return { classes, context, focusCalls, listeners, location, replaceCalls, values };
+  return { classes, context, focusCalls, listeners, location, replaceCalls, scrollCalls, values };
 }
 
 describe('SmartPlate feedback plan 6 contracts', () => {
@@ -94,6 +105,7 @@ describe('SmartPlate feedback plan 6 contracts', () => {
     const harness = createHarness();
 
     expect(harness.classes.has('sp-guest-onboarding-active')).toBe(true);
+    expect(harness.scrollCalls).toHaveLength(0);
     expect(indexHtml).toContain('function primeGuestTourVisibility()');
     expect(indexHtml.indexOf('primeGuestTourVisibility')).toBeLessThan(indexHtml.indexOf('href="style-v4.css'));
     expect(indexHtml).toContain("document.documentElement.classList.add('sp-guest-tour-preview')");
@@ -114,7 +126,7 @@ describe('SmartPlate feedback plan 6 contracts', () => {
     expect(harness.replaceCalls).toHaveLength(1);
     expect(harness.replaceCalls[0].state).toEqual({ preserved: true });
     expect(harness.focusCalls.at(-1)).toEqual({ id: 'guest-tour-trigger', options: { preventScroll: true } });
-    expect(guestTourScript()).not.toContain('scrollIntoView');
+    expect(harness.scrollCalls).toHaveLength(0);
   });
 
   it('does not restore onboarding on reload after completion', () => {
@@ -132,7 +144,16 @@ describe('SmartPlate feedback plan 6 contracts', () => {
     expect(harness.location.search).toBe('?guestTour=1');
     expect(harness.replaceCalls).toHaveLength(1);
     expect(harness.focusCalls.at(-1)).toEqual({ id: 'guest-onboarding-title', options: { preventScroll: true } });
+    expect(harness.scrollCalls).toEqual([{ top: 416, behavior: 'smooth' }]);
     expect(indexHtml.match(/id="guest-onboarding"/g)).toHaveLength(1);
+  });
+
+  it('opens without animation when reduced motion is requested', () => {
+    const harness = createHarness({ completed: true, reducedMotion: true });
+
+    vm.runInContext('openGuestTour();', harness.context);
+
+    expect(harness.scrollCalls).toEqual([{ top: 416, behavior: 'auto' }]);
   });
 
   it('supports a direct guestTour URL and back/forward URL state without extra history entries', () => {

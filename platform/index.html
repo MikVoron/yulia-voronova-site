@@ -3417,16 +3417,26 @@
 			else url.searchParams.delete('guestTour');
 			history.replaceState(history.state, '', url.pathname + url.search + url.hash);
 		}
-		function focusGuestTourHeading() {
+		function revealGuestTourAfterManualOpen() {
+			const onboarding = document.getElementById('guest-onboarding');
 			const heading = document.getElementById('guest-onboarding-title');
-			if (heading) requestAnimationFrame(() => heading.focus({ preventScroll: true }));
+			requestAnimationFrame(() => {
+				if (onboarding) {
+					const header = document.querySelector('.sp-header');
+					const headerOffset = header ? header.getBoundingClientRect().height : 0;
+					const top = window.scrollY + onboarding.getBoundingClientRect().top - headerOffset - 12;
+					const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+					window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion ? 'auto' : 'smooth' });
+				}
+				if (heading) heading.focus({ preventScroll: true });
+			});
 		}
 		function openGuestTour() {
 			_guestTourPreview = true;
 			document.body.classList.remove('sp-guest-tour-preview');
 			updateGuestOnboardingVisibility();
 			replaceGuestTourUrl(true);
-			focusGuestTourHeading();
+			revealGuestTourAfterManualOpen();
 		}
 		function completeGuestTour() {
 			try {
