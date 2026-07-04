@@ -2170,6 +2170,16 @@
 			flex-direction: column;
 		}
 
+		.sp-new-list::before {
+			content: 'Обновления';
+			display: block;
+			font: 800 10px/1 var(--sans);
+			letter-spacing: .14em;
+			text-transform: uppercase;
+			color: var(--text-2);
+			margin-bottom: 14px;
+		}
+
 		.sp-news-item {
 			padding: 20px 0;
 			border-top: 1px solid var(--border);
@@ -2245,23 +2255,11 @@
 				margin-top: 4px;
 			}
 
-			/* Внутри секции «Новое» отделяем текстовые новости от featured-рецепта:
-			   тонкий разделитель + sub-eyebrow «Обновления». Только на mobile —
-			   на desktop secция уже визуально разнесена в 2 колонки. */
+			/* На mobile дополнительно отделяем обновления от featured-рецепта. */
 			.sp-new-list {
 				padding-top: 20px;
 				border-top: 1px solid var(--text);
 				position: relative;
-			}
-
-			.sp-new-list::before {
-				content: 'Обновления';
-				display: block;
-				font: 800 10px/1 var(--sans);
-				letter-spacing: .14em;
-				text-transform: uppercase;
-				color: var(--text-2);
-				margin-bottom: 14px;
 			}
 		}
 
@@ -3219,7 +3217,7 @@
 				</div>
 				<div class="sp-new-grid">
 					<div class="sp-new-feature" id="new-feature"></div>
-					<div class="sp-new-list" id="new-list"></div>
+					<div class="sp-new-list" id="new-list" role="list" aria-label="Обновления"></div>
 				</div>
 			</section>
 
@@ -3858,7 +3856,7 @@
 			// финальному количеству textItems.slice(0, 4).
 			const widths = [['86%', '62%'], ['92%', '58%'], ['80%', '70%'], ['88%', '50%']];
 			listEl.innerHTML = widths.map(function (w, i) {
-				return '<article class="sp-news-item" aria-hidden="true">'
+				return '<article class="sp-news-item" role="listitem" aria-hidden="true">'
 					+ '<span class="sp-skel-line" style="width:32%;height:10px;display:block"></span>'
 					+ '<span class="sp-skel-line" style="width:' + w[0] + ';height:16px;display:block;margin-top:10px"></span>'
 					+ '<span class="sp-skel-line" style="width:' + w[1] + ';height:16px;display:block;margin-top:6px"></span>'
@@ -3998,7 +3996,7 @@
 				const m = text.match(/^(.{10,90}?[\.\!\?])\s+([А-ЯA-Z].*)$/s);
 				if (m) { title = m[1].trim(); desc = m[2].trim(); }
 			}
-			return `<article class="sp-news-item">
+			return `<article class="sp-news-item" role="listitem">
 				<div class="sp-news-item-date">${escHtml(item.date || '')}</div>
 				<h3 class="sp-news-item-title">${escHtml(title)}</h3>
 				${desc ? `<p class="sp-news-item-desc">${escHtml(desc)}</p>` : ''}
