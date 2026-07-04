@@ -34,8 +34,8 @@ describe('SmartPlate feedback plan 3 contracts', () => {
     const js = read('cabinet.js');
     expect(html).toContain('id="hist-export-status" class="hist-export-status" role="status"');
     expect(js).toContain('Настройки выгрузки открыты. Выберите период и формат.');
-    expect(js).toContain("panel.scrollIntoView({ behavior:");
-    expect(js).toContain("panel.scrollIntoView({ behavior: 'auto', block: 'center' });");
+    expect(js).toContain("revealCabinetTargetIfNeeded(panel, { behavior: 'auto', block: 'center' });");
+    expect(js).toContain("if (title) title.focus({ preventScroll: true });");
   });
 
   it('uses payment-status-specific copy and refreshes the visible subscription card', () => {

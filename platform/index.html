@@ -627,6 +627,27 @@
 			max-width: 60%;
 		}
 
+		/* Данные и подпись могут быть готовы раньше самого фото. На медленной
+		   сети держим явное loading-состояние media до фактического load/error. */
+		.sp-hero-aside.is-image-loading .sp-hero-media {
+			background: linear-gradient(90deg, #efe9e0 0%, #f6f2eb 50%, #efe9e0 100%);
+			background-size: 200% 100%;
+			animation: spShimmer 1.4s linear infinite;
+		}
+
+		.sp-hero-loading-status {
+			position: absolute;
+			inset: auto 12px 12px;
+			z-index: 2;
+			width: fit-content;
+			padding: 6px 9px;
+			background: rgba(255, 255, 255, .92);
+			color: var(--text-2);
+			font-size: 10px;
+			font-weight: 700;
+			letter-spacing: .04em;
+		}
+
 		/* Hero search — flatten под editorial */
 		.sp-hero .hero-search {
 			margin: 0;
@@ -2900,7 +2921,8 @@
 			.sp-skel-img,
 			.sp-skel-line,
 			.sp-hero-aside.is-loading .sp-hero-media,
-			.sp-hero-aside.is-loading .sp-hero-caption {
+			.sp-hero-aside.is-loading .sp-hero-caption,
+			.sp-hero-aside.is-image-loading .sp-hero-media {
 				animation: none;
 				background: var(--bg-alt, #efe9e0);
 			}
@@ -4395,11 +4417,24 @@
 			const _emoji = escHtml(String(r.emoji || '🍴'));
 			// loading="eager" + fetchpriority="high" — фото первого экрана, важно для LCP.
 			media.innerHTML = _photo
-				? '<img src="' + escHtml(_photo) + '" alt="' + _name + '" loading="eager" fetchpriority="high" data-fallback-emoji="' + _emoji + '">'
+				? '<span class="sp-hero-loading-status" role="status">Загружаем фото…</span><img src="' + escHtml(_photo) + '" alt="' + _name + '" loading="eager" fetchpriority="high" data-fallback-emoji="' + _emoji + '">'
 				: '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:72px">' + _emoji + '</div>';
 			cap.innerHTML = '<span class="sp-cap-tag">' + escHtml(label) + '</span>'
 				+ '<span class="sp-cap-title">' + escHtml(String(r.name || '')) + '</span>';
 			aside.classList.remove('is-loading');
+			const heroImage = media.querySelector('img');
+			if (heroImage) {
+				aside.classList.add('is-image-loading');
+				aside.setAttribute('aria-busy', 'true');
+				const finishHeroImage = function () {
+					aside.classList.remove('is-image-loading');
+					aside.removeAttribute('aria-busy');
+					media.querySelector('.sp-hero-loading-status')?.remove();
+				};
+				heroImage.addEventListener('load', finishHeroImage, { once: true });
+				heroImage.addEventListener('error', finishHeroImage, { once: true });
+				if (heroImage.complete) finishHeroImage();
+			}
 
 			const access = (typeof Auth !== 'undefined' && typeof Auth.recipeCardAccess === 'function')
 				? Auth.recipeCardAccess(r) : { locked: false, label: '', actionLabel: 'Открыть рецепт' };

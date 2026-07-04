@@ -3435,7 +3435,11 @@
 		function scrollToBalanceBanner() {
 			const banner = document.getElementById('bal-banner');
 			hideRecipeGuestHelper(false);
-			if (banner) banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			if (!banner) return;
+			const rect = banner.getBoundingClientRect();
+			if (rect.top >= 12 && rect.bottom <= window.innerHeight - 12) return;
+			const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			banner.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
 		}
 
 		function hideRecipeGuestHelper(markTourCompleted) {

@@ -465,6 +465,21 @@
 		});
 
 		// ── TABS ──────────────────────────────────────────────────────────────────
+		function revealCabinetTargetIfNeeded(target, options) {
+			if (!target) return false;
+			options = options || {};
+			var rect = target.getBoundingClientRect();
+			var margin = options.margin == null ? 12 : options.margin;
+			var isVisible = rect.top >= margin && rect.bottom <= window.innerHeight - margin;
+			if (isVisible) return false;
+			var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			target.scrollIntoView({
+				behavior: reduceMotion ? 'auto' : (options.behavior || 'smooth'),
+				block: options.block || 'nearest'
+			});
+			return true;
+		}
+
 		function updateCompactTabMode(name) {
 			var main = document.querySelector('.cab-main');
 			if (!main) return;
@@ -822,7 +837,7 @@
 				startPaymentPolling();
 				requestAnimationFrame(function() {
 					var visibleStatus = document.querySelector('#pay-pending-block .pay-pending-card') || success;
-					visibleStatus.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+					revealCabinetTargetIfNeeded(visibleStatus, { block: 'center' });
 					visibleStatus.focus({ preventScroll: true });
 				});
 			} catch (e) {
@@ -1058,7 +1073,7 @@
 				setTimeout(function () {
 					var title = document.getElementById('pay-details-title');
 					var target = title || details;
-					target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+					revealCabinetTargetIfNeeded(target, { block: 'start' });
 					if (title) title.focus({ preventScroll: true });
 				}, 80);
 			} else {
@@ -1280,7 +1295,7 @@
 			setTimeout(function() {
 				const title = document.getElementById('hist-export-title');
 				// Wait for the export panel expansion, then make the result visible in one stable move.
-				panel.scrollIntoView({ behavior: 'auto', block: 'center' });
+				revealCabinetTargetIfNeeded(panel, { behavior: 'auto', block: 'center' });
 				if (title) title.focus({ preventScroll: true });
 			}, 320);
 		}
@@ -1620,8 +1635,9 @@
 			editingNoteId = id;
 			document.getElementById('notes-ta').value = note.text;
 			document.getElementById('notes-save-btn').textContent = 'Обновить';
-			document.getElementById('notes-ta').scrollIntoView({ behavior: 'smooth', block: 'start' });
-			document.getElementById('notes-ta').focus();
+			const noteEditor = document.getElementById('notes-ta');
+			revealCabinetTargetIfNeeded(noteEditor, { block: 'start' });
+			noteEditor.focus({ preventScroll: true });
 		}
 		function deleteNote(id) {
 			Notes.remove(id);

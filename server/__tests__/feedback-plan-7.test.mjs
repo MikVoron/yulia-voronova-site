@@ -87,7 +87,7 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(cabinetJs).toContain("const planText = badge === 'active' ? 'Тариф «Месяц»' : '';");
     expect(cabinetJs).not.toContain("badge === 'trial' ? 'Пробный период'");
     expect(cabinetJs).toContain("/мес. · все рецепты и&nbsp;БЖУ");
-    expect(cabinetHtml).toContain('cabinet.js?v=20260704-feedback-plan7');
+    expect(cabinetHtml).toContain('cabinet.js?v=20260704-feedback-plan8');
   });
 
   it('cache-busts shared UI assets on the audited public surfaces', () => {
