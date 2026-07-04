@@ -29,17 +29,21 @@ describe('SmartPlate feedback plan 5 contracts', () => {
     expect(recipe).toContain('class="bal-item-select"');
     expect(recipe).toContain('aria-pressed="${isChecked ? \'true\' : \'false\'}"');
     expect(recipe).toContain('class="bal-item-recipe-link bal-item-text"');
-    expect(recipe).toContain('<span class="bal-item-name">${escHtml(item.name)}${amountHtml}</span>');
+    expect(recipe).toContain('class="bal-item-link-title"');
+    expect(recipe).toContain('class="bal-item-link-icon"');
+    expect(recipe).not.toContain("hasRecipe ? 'Открыть рецепт'");
     expect(recipe).not.toMatch(/<button class="bal-item[^`]*<a class="bal-item-recipe-link"/);
     expect(recipe).not.toMatch(/bal-item-recipe-link[^>]*target="_blank"/);
   });
 
-  it('lets expanded recipe content grow without a nested vertical scrollbar', () => {
+  it('gives the expanded desktop sidebar its own contained vertical scroll', () => {
     const recipe = read('recipe.html');
     const css = read('style-v4.css');
 
-    expect(recipe).toMatch(/\.recipe-sidebar\s*\{[\s\S]*?max-height:\s*none\s*!important;[\s\S]*?overflow:\s*visible\s*!important;/);
-    expect(css).toContain('.recipe-sidebar { position: sticky; top: 96px; max-height: none; overflow: visible; }');
+    expect(recipe).toMatch(/\.recipe-sidebar\s*\{[\s\S]*?max-height:\s*calc\(100vh - var\(--recipe-sidebar-top\) - 16px\)\s*!important;[\s\S]*?overflow-y:\s*auto\s*!important;/);
+    expect(recipe).toContain('overscroll-behavior: contain;');
+    expect(css).toContain('max-height: calc(100vh - 112px);');
+    expect(css).toContain('scrollbar-gutter: stable;');
   });
 
   it('reserves stable image geometry and keeps desktop images full-width', () => {

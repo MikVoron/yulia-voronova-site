@@ -915,7 +915,14 @@ img { display: block; max-width: 100%; }
 
 /* ── RECIPE PAGE ─────────────────────────────────────── */
 .recipe-layout { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
-.recipe-sidebar { position: sticky; top: 96px; max-height: none; overflow: visible; }
+.recipe-sidebar {
+    position: sticky;
+    top: 96px;
+    max-height: calc(100vh - 112px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
 
 .recipe-hero-img {
     width: 100%; aspect-ratio: 4/3; border-radius: var(--r-l);
@@ -3273,7 +3280,7 @@ img { display: block; max-width: 100%; }
     color: rgba(255,255,255,.6);
 }
 
-/* ── Ряд 2: masthead — бренд по центру, тарелка и профиль справа ─────────── */
+/* ── Ряд 2: masthead — тарелка слева, бренд по центру, профиль справа ───── */
 .sp-masthead {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -3287,10 +3294,8 @@ img { display: block; max-width: 100%; }
 }
 .sp-masthead .sp-burger   { display: none; }
 /* grid-row: 1 обязателен — #user-wrap в DOM идёт после brand/plate, и без
-   явной строки auto-placement выносит профиль во вторую строку masthead.
-   Колонки заданы явно, поэтому порядок в DOM не влияет на раскладку:
-   бренд — по центру (2), тарелка и профиль — в правой utility-колонке (3). */
-.sp-masthead .sp-plate    { grid-column: 3 / 4; grid-row: 1; justify-self: start; }
+   явной строки auto-placement выносит профиль во вторую строку masthead. */
+.sp-masthead .sp-plate    { grid-column: 1 / 2; grid-row: 1; justify-self: start; }
 .sp-masthead .sp-brand    { grid-column: 2 / 3; grid-row: 1; justify-self: center; }
 .sp-masthead .v-user-wrap { grid-column: 3 / 4; grid-row: 1; justify-self: end; }
 

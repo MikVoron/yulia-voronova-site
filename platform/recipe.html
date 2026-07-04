@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=20260704-feedback-plan7b" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=20260704-header-sidebar" id="vcss">
 	<style>
 		.recipe-guest-helper {
 			position: relative;
@@ -803,8 +803,10 @@
 		}
 		.recipe-sidebar {
 			top: var(--recipe-sidebar-top) !important;
-			max-height: none !important;
-			overflow: visible !important;
+			max-height: calc(100vh - var(--recipe-sidebar-top) - 16px) !important;
+			overflow-y: auto !important;
+			overscroll-behavior: contain;
+			scrollbar-gutter: stable;
 		}
 
 		/* HERO: editorial crop, no rounding */
@@ -1062,7 +1064,9 @@
 			gap: 3px;
 			min-width: 0;
 		}
-		.bal-item-recipe-label { text-decoration: underline; text-underline-offset: 2px; }
+		.bal-item-link-title { display: inline-flex; align-items: center; gap: 6px; text-decoration: underline; text-underline-offset: 2px; }
+		.bal-item-link-icon { width: 13px; height: 13px; flex: 0 0 auto; stroke: currentColor; }
+		.bal-item-recipe-label { color: var(--text-3); font-size: 10px; }
 		.bal-item-recipe-link:hover { background: transparent !important; color: var(--text) !important; }
 		.bal-item-linked { cursor: default !important; }
 		.bal-item-select {
@@ -1149,7 +1153,7 @@
 			<span class="sp-author-role">Нутрициолог</span>
 		</div>
 
-		<!-- Row 2: masthead — профиль слева, бренд по центру, тарелка справа -->
+		<!-- Row 2: masthead — тарелка слева, бренд по центру, профиль справа -->
 		<div class="v-wrap">
 			<div class="sp-masthead">
 				<button class="sp-burger" type="button" aria-label="Меню" onclick="openDrawer()">
@@ -3098,14 +3102,14 @@
 				const targetUrl = hasRecipe
 					? recipeLink(item.recipeId, { asIngredient: true, parentRecipeId: r.id })
 					: 'category.html?cat=' + encodeURIComponent(item.catLink);
-				const targetLabel = hasRecipe ? 'Открыть рецепт' : 'Выбрать из списка';
+				const targetLabel = hasRecipe ? '' : 'Выбрать из списка';
 				return `<div class="bal-item bal-item-linked${checkedCls}" id="ai-${key}" style="position:relative">
 							<button class="bal-item-select" type="button" data-balance-key="${escHtml(key)}" data-item-name="${escHtml(item.name)}" data-kcal="${Number(item.kcal || 0)}" data-protein="${Number(item.protein || 0)}" data-fat="${Number(item.fat || 0)}" data-carbs="${Number(item.carbs || 0)}" data-fiber="${Number(item.fiber || 0)}" aria-pressed="${isChecked ? 'true' : 'false'}" aria-label="${isChecked ? 'Убрать' : 'Добавить'} ${escHtml(item.name)}">
 								<span class="bal-item-check" id="chk-${key}" aria-hidden="true"></span>
 							</button>
 							<a class="bal-item-recipe-link bal-item-text" href="${escHtml(targetUrl)}">
-								<span class="bal-item-name">${escHtml(item.name)}${amountHtml}</span>
-								<span class="bal-item-recipe-label">${targetLabel} <span aria-hidden="true">→</span></span>
+								<span class="bal-item-link-title"><span class="bal-item-name">${escHtml(item.name)}${amountHtml}</span><svg class="bal-item-link-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 5h5v5"/><path d="m10 14 9-9"/><path d="M19 13v6H5V5h6"/></svg></span>
+								${targetLabel ? `<span class="bal-item-recipe-label">${targetLabel}</span>` : ''}
 							</a>
 							<div class="bal-item-kcal">+${Number(item.kcal)}</div>
 						</div>`;

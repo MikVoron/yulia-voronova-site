@@ -49,7 +49,7 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(indexHtml).toContain('Email: hello@voronova.online');
     expect(indexHtml).toContain('Подборка нутрициолога');
     expect(indexHtml).not.toContain('function _spTodayRu()');
-    expect(style).toContain('.sp-masthead .sp-plate    { grid-column: 3 / 4;');
+    expect(style).toContain('.sp-masthead .sp-plate    { grid-column: 1 / 2;');
     expect(cabinetJs).toContain("location.href='category.html'\">К рецептам");
   });
 
@@ -93,7 +93,7 @@ describe('SmartPlate feedback plan 7 contracts', () => {
   it('cache-busts shared UI assets on the audited public surfaces', () => {
     for (const file of ['index.html', 'recipe.html', 'cabinet.html', 'category.html', 'ingredient.html']) {
       const html = read(file);
-      expect(html).toContain('style-v4.css?v=20260704-feedback-plan7b');
+      expect(html).toContain('style-v4.css?v=20260704-header-sidebar');
       expect(html).toContain('data-v2.js?v=20260704-feedback-plan7');
       expect(html).toContain('tawk-chat-modal.js?v=20260704-feedback-plan7');
     }
