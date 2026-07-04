@@ -225,6 +225,26 @@
       trigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     });
 
+    // На устройствах с точным указателем desktop-меню снова раскрывается
+    // при наведении. Клик и клавиатура остаются полноценной альтернативой.
+    nav.addEventListener('pointerover', function (e) {
+      if (!global.matchMedia('(min-width: 769px) and (hover: hover) and (pointer: fine)').matches) return;
+      var dd = e.target.closest('.sp-nav-dd');
+      if (!dd || dd.contains(e.relatedTarget)) return;
+      closeAll(dd);
+      dd.classList.add('open');
+      var trigger = dd.querySelector('.sp-nav-trigger');
+      if (trigger) trigger.setAttribute('aria-expanded', 'true');
+    });
+    nav.addEventListener('pointerout', function (e) {
+      if (!global.matchMedia('(min-width: 769px) and (hover: hover) and (pointer: fine)').matches) return;
+      var dd = e.target.closest('.sp-nav-dd');
+      if (!dd || dd.contains(e.relatedTarget)) return;
+      dd.classList.remove('open');
+      var trigger = dd.querySelector('.sp-nav-trigger');
+      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    });
+
     document.addEventListener('click', function (e) {
       if (!e.target.closest('.sp-nav-dd')) closeAll(null);
     });

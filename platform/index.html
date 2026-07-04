@@ -1442,6 +1442,24 @@
 			text-transform: uppercase;
 		}
 
+		.sp-how-card.is-scroll-animated .sp-how-chip {
+			animation: spHowChipOnce .65s cubic-bezier(.2, .75, .25, 1) both;
+		}
+
+		.sp-how-card.is-scroll-animated .sp-how-bar span {
+			animation: spHowBarOnce .9s cubic-bezier(.2, .75, .25, 1) both;
+		}
+
+		@keyframes spHowChipOnce {
+			from { opacity: 0; transform: translateY(12px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		@keyframes spHowBarOnce {
+			from { transform: scaleX(0); transform-origin: left; }
+			to { transform: scaleX(1); transform-origin: left; }
+		}
+
 		.sp-home .filter-more-toggle {
 			display: none;
 		}
@@ -3097,7 +3115,7 @@
 										<circle cx="11" cy="11" r="8"></circle>
 										<path d="m21 21-4.3-4.3"></path>
 									</svg>
-									<span>Найти полезный рецепт</span>
+									<span>Найти рецепт</span>
 								</div>
 								<div class="sp-how-chip">Ингредиенты</div>
 							</div>
@@ -3184,7 +3202,7 @@
 							<path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
 						</svg>
 					</a>
-					<div class="sp-hero-eyebrow" id="sp-hero-eyebrow">Подборка нутрициолога</div>
+					<div class="sp-hero-eyebrow" id="sp-hero-eyebrow"><span id="sp-hero-date"></span> <span id="sp-hero-weekday"></span></div>
 					<h1 class="sp-hero-title" id="sp-hero-title">Полезно,<br>вкусно,<br>по делу.</h1>
 					<p class="sp-hero-sub" id="sp-hero-sub">Персональный помощник в сбалансированном питании. Рецепты, подобранные нутрициологом — с расчётом КБЖУ, заменами продуктов и пошаговыми инструкциями.</p>
 
@@ -3398,7 +3416,7 @@
 
 	<script src="data-v2.js?v=20260704-feedback-plan7"></script>
 	<script src="ingredients.js?v=20260616-shrimp"></script>
-	<script src="header-nav.js?v=20260701-load-stability"></script>
+	<script src="header-nav.js?v=20260704-hover-nav"></script>
 	<script>
 		function escHtml(s) {
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -3579,7 +3597,30 @@
 			return '';
 		}
 
-		if (heroEyebrow) heroEyebrow.textContent = 'Подборка нутрициолога';
+		if (heroEyebrow) {
+			const today = new Date();
+			const dateEl = document.getElementById('sp-hero-date');
+			const weekdayEl = document.getElementById('sp-hero-weekday');
+			if (dateEl) dateEl.textContent = today.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+			if (weekdayEl) weekdayEl.textContent = today.toLocaleDateString('ru-RU', { weekday: 'long' });
+		}
+
+		(function initHowScrollAnimations() {
+			const cards = Array.from(document.querySelectorAll('.sp-how-card')).slice(0, 2);
+			if (!cards.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+			if (!('IntersectionObserver' in window)) {
+				cards.forEach(card => card.classList.add('is-scroll-animated'));
+				return;
+			}
+			const observer = new IntersectionObserver(entries => {
+				entries.forEach(entry => {
+					if (!entry.isIntersecting) return;
+					entry.target.classList.add('is-scroll-animated');
+					observer.unobserve(entry.target);
+				});
+			}, { threshold: .45 });
+			cards.forEach(card => observer.observe(card));
+		})();
 
 		if (user) {
 			const customName = Auth.getDisplayName();

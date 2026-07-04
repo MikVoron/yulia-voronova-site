@@ -17,16 +17,19 @@ const data = read('data-v2.js');
 const chat = read('tawk-chat-modal.js');
 
 describe('SmartPlate feedback plan 7 contracts', () => {
-  it('opens one desktop navigation panel by explicit click, not hover', () => {
+  it('opens one desktop navigation panel by hover or explicit click', () => {
     expect(headerNav).toContain("nav.addEventListener('click'");
     expect(headerNav).toContain('closeAll(dd);');
     expect(headerNav).toContain("dd.classList.toggle('open', willOpen)");
-    expect(style).not.toContain('.sp-nav-dd:hover .sp-nav-panel');
+    expect(headerNav).toContain("nav.addEventListener('pointerover'");
+    expect(headerNav).toContain("nav.addEventListener('pointerout'");
     expect(style).toContain('transition: opacity .28s ease, transform .28s');
   });
 
   it('removes perpetual decorative motion and automatic content entrances', () => {
-    expect(indexHtml).not.toContain('animation: spHow');
+    expect(indexHtml).toContain('animation: spHowChipOnce');
+    expect(indexHtml).toContain('animation: spHowBarOnce');
+    expect(indexHtml).toContain('observer.unobserve(entry.target)');
     expect(style).not.toContain('animation: fabPulse');
     expect(style).not.toContain('starHint');
     expect(cabinetHtml).not.toContain('animation: ebPulse');
@@ -47,8 +50,8 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(indexHtml).toContain('href="index.html" class="sp-brand"');
     expect(indexHtml).toContain('href="mailto:hello@voronova.online"');
     expect(indexHtml).toContain('Email: hello@voronova.online');
-    expect(indexHtml).toContain('Подборка нутрициолога');
-    expect(indexHtml).not.toContain('function _spTodayRu()');
+    expect(indexHtml).toContain("today.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })");
+    expect(indexHtml).toContain("today.toLocaleDateString('ru-RU', { weekday: 'long' })");
     expect(style).toContain('.sp-masthead .sp-plate    { grid-column: 1 / 2;');
     expect(cabinetJs).toContain("location.href='category.html'\">К рецептам");
   });

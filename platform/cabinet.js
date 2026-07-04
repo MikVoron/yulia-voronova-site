@@ -1213,11 +1213,18 @@
 						return `<button type="button" data-cabinet-action="choose-meal-type" data-entry-date="${escHtml(encodeURIComponent(String(entry.date || '')))}" data-meal-type="${escHtml(opt[0])}">${opt[1]}</button>`;
 					}).join('');
 					const mealLabel = mealType ? Plate._mealTypes[mealType] + ' ▾' : '+ Прием пищи';
-					const itemsHtml = items.map(it => `<div class="meal-item">
-						<div class="meal-item-thumb">${escHtml(String(it.emoji || '🍴'))}</div>
+					const itemsHtml = items.map(it => {
+						const linkedRecipe = it.recipeId && typeof RECIPES !== 'undefined' ? RECIPES[it.recipeId] : null;
+						const photo = resolveHistoryThumbPhoto(it, linkedRecipe);
+						const thumb = photo
+							? `<img src="${escHtml(photo)}" alt="" loading="lazy" decoding="async">`
+							: escHtml(String(it.emoji || '🍴'));
+						return `<div class="meal-item">
+						<div class="meal-item-thumb">${thumb}</div>
 						<div class="meal-item-name"><b>${escHtml(String(it.name || ''))}</b></div>
 						<div class="meal-item-kcal">${Number(it.kcal) || 0} ккал</div>
-					</div>`).join('');
+					</div>`;
+					}).join('');
 					return `<article class="hist-card${idx === 0 ? ' open' : ''}" id="he-${idx}">
 						<div class="hist-card-row">
 							<div class="hist-time-col">
@@ -1252,6 +1259,15 @@
 					${mealsHtml}
 				</div>`;
 			}).join('');
+		}
+
+		function resolveHistoryThumbPhoto(item, linkedRecipe) {
+			const ownPhoto = item && item.photo ? String(item.photo) : '';
+			if (linkedRecipe) {
+				const linkedPhoto = linkedRecipe.photo ? String(linkedRecipe.photo) : '';
+				if (linkedPhoto) return linkedPhoto;
+			}
+			return ownPhoto;
 		}
 
 		function toggleHist(idx) {
