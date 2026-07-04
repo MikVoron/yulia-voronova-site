@@ -53,9 +53,10 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(cabinetJs).toContain("location.href='category.html'\">К рецептам");
   });
 
-  it('presents text updates as a clearly labelled non-interactive list', () => {
-    expect(indexHtml).toContain('id="new-list" role="list" aria-label="Обновления"');
-    expect(indexHtml).toContain(".sp-new-list::before {\n\t\t\tcontent: 'Обновления';");
+  it('presents text updates as a non-interactive list without an extra label', () => {
+    expect(indexHtml).toContain('id="new-list" role="list"');
+    expect(indexHtml).not.toMatch(/id="new-list"[^>]*aria-label=/);
+    expect(indexHtml).not.toMatch(/sp-new-list::before/);
     expect(indexHtml).toContain('<article class="sp-news-item" role="listitem">');
     expect(indexHtml).not.toMatch(/renderNewsListItem[\s\S]{0,900}<a\s/);
   });
