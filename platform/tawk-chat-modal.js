@@ -6,6 +6,7 @@
 	var overlay = null;
 	var lastTrigger = null;
 	var previousOverflow = '';
+	var loadTimer = null;
 
 	function addStyles() {
 		if (document.getElementById('tawk-chat-modal-styles')) return;
@@ -19,13 +20,22 @@
 			'.tawk-chat-email{color:rgba(255,255,255,.78);font-size:11px;font-weight:600;text-decoration:underline;text-underline-offset:3px;}' +
 			'.tawk-chat-close{width:36px;height:36px;border:0;border-radius:50%;display:grid;place-items:center;background:transparent;color:#fff;font:28px/1 Arial,sans-serif;cursor:pointer;}' +
 			'.tawk-chat-close:hover,.tawk-chat-close:focus-visible{background:rgba(255,255,255,.14);outline:none;}' +
+			'.tawk-chat-stage{position:relative;display:flex;min-height:0;flex:1;background:#fff;}' +
 			'.tawk-chat-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:#fff;}' +
+			'.tawk-chat-loading,.tawk-chat-fallback{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px;text-align:center;background:#fff;color:#333;font:600 13px/1.5 Montserrat,Arial,sans-serif;}' +
+			'.tawk-chat-loading::before{content:"";width:34px;height:3px;background:#e8400a;}' +
+			'.tawk-chat-fallback[hidden],.tawk-chat-loading[hidden]{display:none;}' +
+			'.tawk-chat-fallback a{color:#c93400;text-underline-offset:3px;}' +
 			'@media(max-width:600px){.tawk-chat-overlay{padding:0;}.tawk-chat-panel{width:100%;height:100%;max-height:none;border-radius:0;}.tawk-chat-header{padding-left:14px;}.tawk-chat-email{font-size:10px;}}';
 		document.head.appendChild(style);
 	}
 
 	function closeChat() {
 		if (!overlay) return;
+		if (loadTimer) {
+			window.clearTimeout(loadTimer);
+			loadTimer = null;
+		}
 		overlay.parentNode.removeChild(overlay);
 		overlay = null;
 		document.body.style.overflow = previousOverflow;
@@ -68,11 +78,34 @@
 		frame.src = CHAT_URL;
 		frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
 
+		var stage = document.createElement('div');
+		stage.className = 'tawk-chat-stage';
+
+		var loading = document.createElement('div');
+		loading.className = 'tawk-chat-loading';
+		loading.setAttribute('role', 'status');
+		loading.textContent = 'Загружаем чат…';
+
+		var fallback = document.createElement('div');
+		fallback.className = 'tawk-chat-fallback';
+		fallback.hidden = true;
+		fallback.innerHTML = 'Чат загружается дольше обычного.<a href="mailto:' + SUPPORT_EMAIL + '">Написать на email</a>';
+
+		frame.addEventListener('load', function () {
+			loading.hidden = true;
+			fallback.hidden = true;
+			if (loadTimer) window.clearTimeout(loadTimer);
+			loadTimer = null;
+		});
+		stage.appendChild(loading);
+		stage.appendChild(fallback);
+		stage.appendChild(frame);
+
 		header.appendChild(title);
 		header.appendChild(email);
 		header.appendChild(close);
 		panel.appendChild(header);
-		panel.appendChild(frame);
+		panel.appendChild(stage);
 		overlay.appendChild(panel);
 		overlay.addEventListener('click', function (event) {
 			if (event.target === overlay) closeChat();
@@ -81,6 +114,10 @@
 		previousOverflow = document.body.style.overflow;
 		document.body.style.overflow = 'hidden';
 		close.focus();
+		loadTimer = window.setTimeout(function () {
+			loading.hidden = true;
+			fallback.hidden = false;
+		}, 12000);
 	}
 
 	window.openTawk = function (event, trigger) {

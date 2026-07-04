@@ -109,33 +109,21 @@ img { display: block; max-width: 100%; }
     border-radius: 0; box-shadow: var(--sh-l);
     min-width: 200px; z-index: 300;
     opacity: 0; pointer-events: none;
-    transform: perspective(800px) rotateX(-8deg) translateY(-6px);
+    transform: translateY(-4px);
     transform-origin: top center;
-    transition: opacity .22s ease, transform .28s cubic-bezier(.2, .8, .2, 1);
+    transition: opacity .28s ease, transform .28s cubic-bezier(.2, .8, .2, 1);
     overflow: hidden;
 }
 .user-dropdown.open {
     opacity: 1; pointer-events: auto;
-    transform: perspective(800px) rotateX(0) translateY(0);
-}
-/* Stagger reveal пунктов: позиции стабильны, даже если feedback скрыт. */
-.user-dropdown .user-dd-item {
-    opacity: 0;
-    transform: translateY(-4px);
-    transition: opacity .2s ease, transform .2s ease;
-}
-.user-dropdown.open .user-dd-item {
-    opacity: 1;
     transform: translateY(0);
 }
-.user-dropdown.open .user-dd-item:nth-child(1) { transition-delay: 120ms; }
-.user-dropdown.open .user-dd-item:nth-child(3) { transition-delay: 140ms; }
-.user-dropdown.open .user-dd-item:nth-child(5) { transition-delay: 155ms; }
-.user-dropdown.open .user-dd-item:nth-child(6) { transition-delay: 170ms; }
-.user-dropdown.open .user-dd-item:nth-child(7) { transition-delay: 185ms; }
-.user-dropdown.open .user-dd-item:nth-child(8) { transition-delay: 200ms; }
-.user-dropdown.open .user-dd-item:nth-child(9) { transition-delay: 215ms; }
-.user-dropdown.open .user-dd-item:nth-child(11) { transition-delay: 230ms; }
+/* Пункты появляются вместе с панелью: без каскада и ощущения «полуанимации». */
+.user-dropdown .user-dd-item {
+    opacity: 1;
+    transform: none;
+    transition: color var(--tr), background var(--tr);
+}
 @media (prefers-reduced-motion: reduce) {
     .user-dropdown,
     .user-dropdown .user-dd-item { transition-duration: .01ms !important; transition-delay: 0 !important; transform: none !important; }
@@ -169,8 +157,7 @@ img { display: block; max-width: 100%; }
     }
     .user-dropdown .user-dd-item {
         padding: 11px 20px;
-        /* Сохраняем reveal-анимацию пунктов (opacity/transform) + добавляем color. */
-        transition: opacity .2s ease, transform .2s ease, color var(--tr);
+        transition: color var(--tr);
     }
     /* Hover — только смена цвета текста на акцент, без цветной подложки. */
     .user-dropdown .user-dd-item:hover { background: none; color: var(--accent); }
@@ -2801,10 +2788,11 @@ img { display: block; max-width: 100%; }
 .stars-animate .r-star:nth-child(3) { animation-delay: .16s; }
 .stars-animate .r-star:nth-child(4) { animation-delay: .24s; }
 .stars-animate .r-star:nth-child(5) { animation-delay: .32s; }
-.anim { animation: fadeUp .35s ease both; }
-.anim-d1 { animation-delay: .07s; }
-.anim-d2 { animation-delay: .14s; }
-.anim-d3 { animation-delay: .21s; }
+/* Контент не въезжает автоматически при загрузке: высота и смысл видны сразу. */
+.anim,
+.anim-d1,
+.anim-d2,
+.anim-d3 { animation: none; }
 
 /* ── STEP PHOTOS ─────────────────────────────────────── */
 .step-photo-placeholder {
@@ -2916,20 +2904,7 @@ img { display: block; max-width: 100%; }
 .recipe-meta-stars .r-star.filled { color: #f5a623; }
 .recipe-meta-stars .r-star:hover { transform: scale(1.3); color: #f5a623; }
 
-/* Gentle hint animation — stars glow sequentially until user rates */
-.recipe-meta-stars:not(.user-rated) .r-star {
-    animation: starHint 3s ease-in-out infinite;
-}
-.recipe-meta-stars:not(.user-rated) .r-star:nth-child(1) { animation-delay: 0s; }
-.recipe-meta-stars:not(.user-rated) .r-star:nth-child(2) { animation-delay: .15s; }
-.recipe-meta-stars:not(.user-rated) .r-star:nth-child(3) { animation-delay: .3s; }
-.recipe-meta-stars:not(.user-rated) .r-star:nth-child(4) { animation-delay: .45s; }
-.recipe-meta-stars:not(.user-rated) .r-star:nth-child(5) { animation-delay: .6s; }
-@keyframes starHint {
-    0%, 100% { color: #ddd; transform: scale(1); }
-    30% { color: #f5c542; transform: scale(1.15); }
-    60% { color: #ddd; transform: scale(1); }
-}
+/* Оценка остаётся статичной до явного hover/click пользователя. */
 .recipe-meta-date { font-size: 12px; color: var(--text-3); }
 
 /* ── COMMENTS BUTTON (see base definition above) ───── */
@@ -2985,14 +2960,21 @@ img { display: block; max-width: 100%; }
     cursor: pointer; border: none;
     transition: background var(--tr), transform .2s;
     font-size: 10px; gap: 3px;
-    animation: fabPulse 3s ease-in-out infinite;
 }
-.chat-fab:hover { background: var(--accent); transform: scale(1.07); animation: none; }
+.chat-fab:hover { background: var(--accent); transform: scale(1.04); }
 .chat-fab-icon { width: 22px; height: 22px; fill: currentColor; }
 .chat-fab-tip { display: none; }
-@keyframes fabPulse {
-    0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,.28); }
-    50% { box-shadow: 0 4px 20px rgba(0,0,0,.28), 0 0 0 8px rgba(232,64,10,.12); }
+
+/* Общий контракт reduced motion: состояние меняется без движения, сценарий сохраняется. */
+@media (prefers-reduced-motion: reduce) {
+    html:focus-within { scroll-behavior: auto !important; }
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        transition-delay: 0s !important;
+        scroll-behavior: auto !important;
+    }
 }
 
 /* ── COMPACT LOGO IN INNER-PAGE HEADERS ─────────────── */
@@ -3460,12 +3442,13 @@ img { display: block; max-width: 100%; }
     box-shadow: 0 6px 22px rgba(26,44,61,.08);
     padding: 24px 28px; z-index: 200;
     opacity: 0; visibility: hidden; pointer-events: none;
-    transition: opacity .18s ease, transform .2s cubic-bezier(.2,.8,.2,1);
+    transition: opacity .28s ease, transform .28s cubic-bezier(.2,.8,.2,1), visibility 0s linear .28s;
     max-width: calc(100vw - 32px);
 }
 .sp-nav-dd.open .sp-nav-panel {
     opacity: 1; visibility: visible; pointer-events: auto;
     transform: translateX(-50%) translateY(0);
+    transition-delay: 0s;
 }
 /* Невидимый «мостик» над панелью закрывает 10px-зазор между триггером и
    панелью: без него при переводе курсора с пункта на меню терялся :hover и
@@ -3476,17 +3459,7 @@ img { display: block; max-width: 100%; }
     content: ''; position: absolute;
     left: 0; right: 0; top: -14px; height: 14px;
 }
-/* Hover-раскрытие только для устройств с настоящим ховером (desktop-указатель).
-   На тач click-логика из header-nav.js управляет классом .open. */
-@media (hover: hover) and (pointer: fine) {
-    .sp-nav-dd:hover .sp-nav-panel {
-        opacity: 1; visibility: visible; pointer-events: auto;
-        transform: translateX(-50%) translateY(0);
-    }
-    .sp-nav-dd:hover .sp-nav-caret { transform: rotate(180deg); }
-    .sp-nav-dd:hover .sp-nav-trigger { color: var(--accent); }
-    .sp-nav-dd:hover .sp-nav-trigger::after { transform: scaleX(1); }
-}
+/* Панели открываются только по клику/клавиатуре через header-nav.js. */
 
 /* Ссылки внутри панелей */
 .sp-nav-panel a {

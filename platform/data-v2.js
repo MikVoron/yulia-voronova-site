@@ -117,6 +117,11 @@ const Auth = {
     renderAvatar(el, displayName) {
         if (!el) return;
         const u = this.getUser();
+        const fallback = (displayName || this.getDisplayName() || (u && u.email) || '?').trim() || '?';
+        const showFallback = () => {
+            el.textContent = fallback.charAt(0).toUpperCase();
+            el.style.backgroundImage = '';
+        };
         // localStorage user_avatar > user.avatar (с сервера при логине, до первого setAvatar).
         const avatar = this.getAvatar() || (u && u.avatar) || null;
         if (avatar) {
@@ -124,13 +129,12 @@ const Auth = {
             img.src = avatar;
             img.alt = '';
             img.className = 'v-user-avatar-img';
+            img.addEventListener('error', showFallback, { once: true });
             el.replaceChildren(img);
             // Сбрасываем background-image, если был выставлен ранее (legacy путь в index.html).
             el.style.backgroundImage = '';
         } else {
-            const fallback = (displayName || this.getDisplayName() || (u && u.email) || '?').trim() || '?';
-            el.textContent = fallback.charAt(0).toUpperCase();
-            el.style.backgroundImage = '';
+            showFallback();
         }
     },
     setAvatar(dataUrl) {

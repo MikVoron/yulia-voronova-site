@@ -127,7 +127,13 @@
 			const image = document.createElement('img');
 			image.src = String(src || '');
 			image.alt = 'avatar';
-			document.getElementById('cab-ava').replaceChildren(image);
+			const avatar = document.getElementById('cab-ava');
+			image.addEventListener('error', function () {
+				const currentUser = Auth.getUser();
+				const fallback = (Auth.getDisplayName() || (currentUser && currentUser.email) || '?').trim() || '?';
+				avatar.textContent = fallback.charAt(0).toUpperCase();
+			}, { once: true });
+			avatar.replaceChildren(image);
 		}
 
 		const user = Auth.getUser();
@@ -553,7 +559,7 @@
 		const SUB_LABELS = { trial: 'Пробный период', active: 'Активна', expired: 'Завершена' };
 		function subscriptionPricePreviewHtml() {
 			var price = (_currentPrices && Number(_currentPrices[1])) || 390;
-			return '<div class="sub-price-preview">От&nbsp;' + formatRubles(price) + ' за месяц · все рецепты и&nbsp;сайдбар БЖУ · условия раннего доступа ниже</div>';
+			return '<div class="sub-price-preview">От&nbsp;' + formatRubles(price) + '/мес. · все рецепты и&nbsp;БЖУ</div>';
 		}
 		function updateSubscriptionPricePreview() {
 			var preview = document.querySelector('.sub-price-preview');
@@ -605,7 +611,7 @@
 					: untilStr
 					? '<div class="sub-active-until">Доступ к рецептам и&nbsp;сайдбару БЖУ — до&nbsp;<b>' + escHtml(untilStr) + '</b></div>'
 					: '';
-				const planText = badge === 'active' ? 'Тариф «Месяц»' : (badge === 'trial' ? 'Пробный период' : '');
+				const planText = badge === 'active' ? 'Тариф «Месяц»' : '';
 				const planHtml = planText ? '<span class="sub-plan">' + escHtml(planText) + '</span>' : '';
 				const ctaText = badge === 'active' ? 'Продлить подписку' : 'Оформить подписку';
 				const pricePreviewHtml = badge === 'active' ? '' : subscriptionPricePreviewHtml();
@@ -1748,7 +1754,7 @@
                 <h2 class="pv1-headline">Соберите первый приём пищи</h2>
                 <div class="pv1-divider"></div>
                 <p class="pv1-sub">Выберите рецепт из категории — и он попадёт сюда. КБЖУ пересчитаются автоматически.</p>
-                <button class="pv1-cta" onclick="closePlate();location.href='index.html'">К рецептам →</button>
+                <button class="pv1-cta" onclick="closePlate();location.href='category.html'">К рецептам →</button>
             </div>`;
 			} else {
 				const t = Plate.totals();
