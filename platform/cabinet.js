@@ -1192,7 +1192,13 @@
 					const t = entry.totals || {};
 					const items = entry.items || [];
 					const timeStr = new Date(entry.date).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-					const primaryName = items.length ? String(items[0].name || 'Тарелка') : 'Тарелка';
+					const primaryItem = items.length ? items[0] : null;
+					const primaryName = primaryItem ? String(primaryItem.name || 'Тарелка') : 'Тарелка';
+					const primaryRecipe = resolveHistoryRecipe(primaryItem);
+					const primaryPhoto = resolveHistoryThumbPhoto(primaryItem, primaryRecipe);
+					const primaryThumb = primaryPhoto
+						? `<span class="hist-info-thumb"><img src="${escHtml(primaryPhoto)}" alt="" loading="lazy" decoding="async"></span>`
+						: '';
 					const mealSummary = items.length === 1
 						? '1 блюдо'
 						: items.length + ' блюда: ' + items.map(function(it) { return String(it.name || ''); }).join(', ');
@@ -1213,12 +1219,12 @@
 						return `<button type="button" data-cabinet-action="choose-meal-type" data-entry-date="${escHtml(encodeURIComponent(String(entry.date || '')))}" data-meal-type="${escHtml(opt[0])}">${opt[1]}</button>`;
 					}).join('');
 					const mealLabel = mealType ? Plate._mealTypes[mealType] + ' ▾' : '+ Прием пищи';
-					const itemsHtml = items.map(it => {
-						const linkedRecipe = it.recipeId && typeof RECIPES !== 'undefined' ? RECIPES[it.recipeId] : null;
+					const itemsHtml = items.slice(1).map(it => {
+						const linkedRecipe = resolveHistoryRecipe(it);
 						const photo = resolveHistoryThumbPhoto(it, linkedRecipe);
 						const thumb = photo
 							? `<img src="${escHtml(photo)}" alt="" loading="lazy" decoding="async">`
-							: escHtml(String(it.emoji || '🍴'));
+							: '';
 						return `<div class="meal-item">
 						<div class="meal-item-thumb">${thumb}</div>
 						<div class="meal-item-name"><b>${escHtml(String(it.name || ''))}</b></div>
@@ -1235,18 +1241,18 @@
 								</div>
 							</div>
 							<div class="hist-info">
-								<h3 class="hist-info-title">${escHtml(primaryName)}</h3>
+								<div class="hist-info-heading">${primaryThumb}<h3 class="hist-info-title">${escHtml(primaryName)}</h3></div>
 								<div class="hist-info-summary">${escHtml(mealSummary)}</div>
 								<div class="meal-macros">${chips}</div>
 							</div>
 							<div class="hist-side">
 								<span class="meal-kcal">${Number(t.kcal) || 0}<small>ккал</small></span>
-								<button class="hist-details" type="button" data-cabinet-action="toggle-history" data-index="${Number(idx)}">Детали <span>⌄</span></button>
+								${items.length > 1 ? `<button class="hist-details" type="button" data-cabinet-action="toggle-history" data-index="${Number(idx)}">Детали <span>⌄</span></button>` : ''}
 							</div>
 						</div>
-						<div class="meal-body">
+						${items.length > 1 ? `<div class="meal-body">
 							<div class="meal-items">${itemsHtml}</div>
-						</div>
+						</div>` : ''}
 					</article>`;
 				}).join('');
 
@@ -1262,12 +1268,39 @@
 		}
 
 		function resolveHistoryThumbPhoto(item, linkedRecipe) {
-			const ownPhoto = item && item.photo ? String(item.photo) : '';
+			const ownPhoto = firstHistoryPhoto(item && item.photo);
 			if (linkedRecipe) {
-				const linkedPhoto = linkedRecipe.photo ? String(linkedRecipe.photo) : '';
+				const linkedPhoto = firstHistoryPhoto(linkedRecipe.photo);
 				if (linkedPhoto) return linkedPhoto;
 			}
 			return ownPhoto;
+		}
+
+		function firstHistoryPhoto(value) {
+			if (Array.isArray(value)) {
+				const first = value.find(function(photo) { return typeof photo === 'string' && photo.trim(); });
+				return first ? first.trim() : '';
+			}
+			return typeof value === 'string' ? value.trim() : '';
+		}
+
+		function resolveHistoryRecipe(item) {
+			if (!item || typeof RECIPES === 'undefined') return null;
+			if (item.recipeId && RECIPES[item.recipeId]) return RECIPES[item.recipeId];
+			const itemName = normalizeHistoryRecipeName(item.name);
+			if (!itemName) return null;
+			return Object.values(RECIPES).find(function(recipe) {
+				return recipe && normalizeHistoryRecipeName(recipe.name) === itemName;
+			}) || null;
+		}
+
+		function normalizeHistoryRecipeName(value) {
+			return String(value || '')
+				.toLocaleLowerCase('ru-RU')
+				.replace(/ё/g, 'е')
+				.replace(/[^а-яa-z0-9]+/gi, ' ')
+				.trim()
+				.replace(/\s+/g, ' ');
 		}
 
 		function toggleHist(idx) {
