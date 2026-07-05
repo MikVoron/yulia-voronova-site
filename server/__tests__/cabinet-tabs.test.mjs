@@ -14,6 +14,11 @@ describe('cabinet tab navigation', () => {
     expect(tabs.resolve('?tab=unknown', '')).toBe('subscription');
   });
 
+  it('supports the dedicated settings tab', () => {
+    expect(tabs.TABS).toContain('settings');
+    expect(tabs.resolve('?tab=settings', '')).toBe('settings');
+  });
+
   it('preserves unrelated query parameters while changing tabs', () => {
     expect(tabs.urlFor('https://app.voronova.online/cabinet.html?tab=subscription&return=recipe.html%3Fid%3Done', 'favorites'))
       .toBe('cabinet.html?tab=favorites&return=recipe.html%3Fid%3Done');

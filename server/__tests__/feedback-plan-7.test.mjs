@@ -93,13 +93,22 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(cabinetJs).toContain("+ headlineHtml");
     expect(cabinetJs).not.toContain("badge === 'trial' ? 'Пробный период'");
     expect(cabinetJs).toContain("/мес. · все рецепты и&nbsp;БЖУ");
-    expect(cabinetHtml).toContain('cabinet.js?v=20260705-subscription-summary');
+    expect(cabinetHtml).toContain('cabinet.js?v=20260705-settings-tab');
   });
 
   it('uses the approved support copy for a repeated payment', () => {
     expect(cabinetJs).toContain("Если нужна помощь с повторной оплатой — напишите ");
     expect(cabinetJs).toContain('>в чат Отдела заботы</a>');
     expect(cabinetJs).toContain(" + ' или на ' + emailLink + '.'");
+  });
+
+  it('moves account settings into a sixth tab without mobile horizontal scrolling', () => {
+    expect(cabinetHtml).toContain('data-tab="settings" href="cabinet.html?tab=settings"');
+    expect(cabinetHtml).toContain('class="cab-tab-panel" id="panel-settings"');
+    expect(cabinetHtml).toContain('.cab-tabs { flex-wrap: wrap; overflow-x: visible; }');
+    expect(cabinetHtml).toContain('flex: 1 1 30%; justify-content: center;');
+    expect(cabinetHtml).toContain('<details class="early-bird-disclosure">');
+    expect(cabinetJs).toContain("if (!payments.length) { el.innerHTML = ''; return; }");
   });
 
   it('cache-busts shared UI assets on the audited public surfaces', () => {

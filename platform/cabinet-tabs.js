@@ -10,7 +10,7 @@
 	'use strict';
 
 	var DEFAULT_TAB = 'subscription';
-	var TABS = ['subscription', 'history', 'favorites', 'notes', 'feedback'];
+	var TABS = ['subscription', 'history', 'favorites', 'notes', 'feedback', 'settings'];
 
 	function isTab(value) {
 		return TABS.indexOf(String(value || '')) !== -1;

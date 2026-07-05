@@ -485,10 +485,10 @@
 		function updateCompactTabMode(name) {
 			var main = document.querySelector('.cab-main');
 			if (!main) return;
-			main.classList.remove('tab-subscription', 'tab-history', 'tab-favorites', 'tab-notes', 'tab-feedback');
+			main.classList.remove('tab-subscription', 'tab-history', 'tab-favorites', 'tab-notes', 'tab-feedback', 'tab-settings');
 			main.classList.add('tab-' + name);
 			main.classList.toggle('is-content-tab',
-				name === 'favorites' || name === 'history' || name === 'notes' || name === 'feedback');
+				name === 'favorites' || name === 'history' || name === 'notes' || name === 'feedback' || name === 'settings');
 		}
 
 		function switchTab(name, btn, options) {
@@ -1035,7 +1035,7 @@
 				// Pending-блокировка wizard (либо снятие блокировки)
 				_renderPendingBlock(pending || latest);
 				var el = document.getElementById('pay-history');
-				if (!payments.length) { el.innerHTML = ''; _injectHistorySupportNote(el, 'none'); return; }
+				if (!payments.length) { el.innerHTML = ''; return; }
 				var payCount = payments.length;
 				var payMeta = payCount + ' ' + (payCount === 1 ? 'операция' : payCount < 5 ? 'операции' : 'операций');
 				var existingHistory = el.querySelector('.pay-history-disclosure');

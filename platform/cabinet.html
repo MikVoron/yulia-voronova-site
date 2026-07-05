@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Мой кабинет — Умная тарелка</title>
 	<link rel="icon" type="image/svg+xml" href="plate-favicon.svg">
-	<script src="cabinet-tabs.js?v=20260702-cabinet-navigation"></script>
+	<script src="cabinet-tabs.js?v=20260705-settings-tab"></script>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
@@ -226,7 +226,8 @@
 		html[data-cabinet-tab="history"] .cab-tab[data-tab="history"],
 		html[data-cabinet-tab="favorites"] .cab-tab[data-tab="favorites"],
 		html[data-cabinet-tab="notes"] .cab-tab[data-tab="notes"],
-		html[data-cabinet-tab="feedback"] .cab-tab[data-tab="feedback"] {
+		html[data-cabinet-tab="feedback"] .cab-tab[data-tab="feedback"],
+		html[data-cabinet-tab="settings"] .cab-tab[data-tab="settings"] {
 			color: var(--text); border-bottom-color: var(--accent);
 		}
 		.cab-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
@@ -242,7 +243,8 @@
 		html[data-cabinet-tab="history"] #panel-history,
 		html[data-cabinet-tab="favorites"] #panel-favorites,
 		html[data-cabinet-tab="notes"] #panel-notes,
-		html[data-cabinet-tab="feedback"] #panel-feedback { display: block; }
+		html[data-cabinet-tab="feedback"] #panel-feedback,
+		html[data-cabinet-tab="settings"] #panel-settings { display: block; }
 
 		.cab-sec-title-row {
 			display: flex; align-items: baseline; justify-content: space-between;
@@ -503,11 +505,21 @@
 		}
 
 		/* Early bird card */
+		.early-bird-disclosure {
+			margin: 0 0 28px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+		}
+		.early-bird-disclosure > summary {
+			cursor: pointer; list-style: none; padding: 16px 4px;
+			font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+			display: flex; align-items: center; justify-content: space-between; gap: 12px;
+		}
+		.early-bird-disclosure > summary::-webkit-details-marker { display: none; }
+		.early-bird-disclosure > summary::after { content: '⌄'; font-size: 18px; color: var(--text-3); transition: transform .2s; }
+		.early-bird-disclosure[open] > summary::after { transform: rotate(180deg); }
 		#early-bird-card {
 			padding: 22px;
-			border: 1px solid var(--border); border-top: 2px solid var(--text);
-			background: #fff;
-			margin-bottom: 28px; position: relative;
+			border-top: 1px dashed var(--border); background: #fff;
+			margin-bottom: 0; position: relative;
 		}
 		.early-access-title {
 			font-family: var(--serif); font-size: 28px; font-weight: 700;
@@ -689,13 +701,11 @@
 			text-decoration: underline; text-underline-offset: 3px;
 		}
 
-		/* ── SETTINGS RAIL (bottom) ───────────────────────────────────── */
+		/* ── SETTINGS TAB ─────────────────────────────────────────────── */
 		.cab-settings-rail {
-			margin-top: 40px; background: #fff;
-			border-top: 2px solid var(--text);
-			border-bottom: 1px solid var(--border);
+			margin: 0; background: #fff;
 		}
-		.cab-settings-rail-inner { padding: 24px 0; }
+		.cab-settings-rail-inner { padding: 0; }
 		.cab-settings-head {
 			font-size: 10px; font-weight: 800; letter-spacing: .2em;
 			text-transform: uppercase; color: var(--text-3); margin-bottom: 14px;
@@ -1500,12 +1510,14 @@
 			.cab-main.tab-history .cab-kpi:not(.kpi-history),
 			.cab-main.tab-favorites .cab-kpi:not(.kpi-favorites) { display: none !important; }
 			.cab-main.tab-notes .cab-kpi:not(:first-child),
-			.cab-main.tab-feedback .cab-kpi:not(:first-child) { display: none !important; }
+			.cab-main.tab-feedback .cab-kpi:not(:first-child),
+			.cab-main.tab-settings .cab-kpi:not(:first-child) { display: none !important; }
 			html[data-cabinet-tab="subscription"] .cab-main .cab-kpi:not(.kpi-base),
 			html[data-cabinet-tab="history"] .cab-main .cab-kpi:not(.kpi-history),
 			html[data-cabinet-tab="favorites"] .cab-main .cab-kpi:not(.kpi-favorites) { display: none !important; }
 			html[data-cabinet-tab="notes"] .cab-main .cab-kpi:not(:first-child),
-			html[data-cabinet-tab="feedback"] .cab-main .cab-kpi:not(:first-child) { display: none !important; }
+			html[data-cabinet-tab="feedback"] .cab-main .cab-kpi:not(:first-child),
+			html[data-cabinet-tab="settings"] .cab-main .cab-kpi:not(:first-child) { display: none !important; }
 
 			/* ── TABS: все разделы видны, компактный перенос ─────────── */
 			.cab-tab-panel { padding: 22px 18px; }
@@ -1820,6 +1832,7 @@
 				<a class="cab-tab" data-tab="favorites" href="cabinet.html?tab=favorites">Избранные</a>
 				<a class="cab-tab" data-tab="notes" href="cabinet.html?tab=notes">Заметки</a>
 				<a class="cab-tab" data-tab="feedback" href="cabinet.html?tab=feedback">Связь <span class="fb-unseen-badge" id="fb-unseen-badge" style="display:none">0</span></a>
+				<a class="cab-tab" data-tab="settings" href="cabinet.html?tab=settings">Настройки</a>
 			</nav>
 		</div>
 
@@ -1936,6 +1949,8 @@
 				</div>
 
 				<!-- Early access pricing: detail follows the primary payment action. -->
+				<details class="early-bird-disclosure">
+					<summary>Условия стартовой цены</summary>
 				<div id="early-bird-card">
 					<div class="early-access-title">Ранний доступ</div>
 					<div class="early-access-copy">Стартовая цена действует для первых 50 пользователей или до 30 сентября 2026 года.</div>
@@ -1945,6 +1960,7 @@
 					</div>
 					<div class="early-access-user-status" id="early-access-user-status">Проверяем доступную для вас цену…</div>
 				</div>
+				</details>
 
 				<div class="pay-history" id="pay-history"></div>
 			</section>
@@ -2059,14 +2075,14 @@
 				<div class="fb-sent" id="fb-sent-list"></div>
 			</section>
 
-		</div>
-	</main>
-
-	<!-- SETTINGS RAIL (bottom) -->
-	<div class="cab-settings-rail">
-		<div class="v-wrap">
+			<!-- Настройки -->
+			<section class="cab-tab-panel" id="panel-settings">
+		<div class="cab-settings-rail">
 			<div class="cab-settings-rail-inner">
-				<div class="cab-settings-head">Настройки аккаунта</div>
+				<div class="cab-sec-title-row">
+					<h2 class="cab-sec-title">Настройки аккаунта</h2>
+					<span class="cab-sec-title-meta">Питание и уведомления</span>
+				</div>
 
 				<details class="cab-dietary" open>
 					<summary>
@@ -2119,7 +2135,10 @@
 				</div>
 			</div>
 		</div>
-	</div>
+			</section>
+
+		</div>
+	</main>
 
 	<!-- MY PLATE MODAL -->
 	<div class="modal-overlay plate-modal-v1" id="plate-overlay" onclick="closePlateIfOutside(event)">
@@ -2186,7 +2205,7 @@
 	<script src="data-v2.js?v=20260704-feedback-plan7"></script>
 <script src="ingredients.js?v=20260616-shrimp"></script>
 	<script src="header-nav.js?v=20260704-hover-nav"></script>
-	<script src="cabinet.js?v=20260705-subscription-summary"></script>
+	<script src="cabinet.js?v=20260705-settings-tab"></script>
 	<script src="tawk-chat-modal.js?v=20260704-feedback-plan7"></script>
 </body>
 
