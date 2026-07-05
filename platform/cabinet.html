@@ -1486,7 +1486,22 @@
 			body.v-page { overflow-x: hidden; }
 
 			/* ── HERO ──────────────────────────────────────────────────── */
-			.cab-hero { padding: 26px 20px; grid-template-columns: 1fr; gap: 20px; }
+			.cab-hero {
+				padding: 24px 20px;
+				grid-template-columns: 76px minmax(0, 1fr);
+				column-gap: 16px;
+				row-gap: 22px;
+			}
+			.cab-hero-info { display: contents; }
+			.cab-hero-eyebrow,
+			.cab-hero-name-row,
+			.cab-hero-meta,
+			.cab-name-edit-row { grid-column: 2; }
+			.cab-hero-eyebrow { align-self: end; margin-bottom: -10px; }
+			.cab-hero-name-row { align-self: center; margin-top: -10px; }
+			.cab-hero-meta { margin-top: -14px; gap: 5px 9px; }
+			.cab-hero-meta-sep { display: none; }
+			.cab-since { flex-basis: 100%; }
 			.cab-main.is-content-tab .cab-hero-wrap { display: block; }
 			.cab-main.is-content-tab .cab-hero {
 				display: block; padding: 0; border: none; background: transparent;
@@ -1497,15 +1512,18 @@
 			.cab-main.is-content-tab .cab-hero-meta,
 			.cab-main.is-content-tab .cab-name-edit-row { display: none !important; }
 			.cab-main.is-content-tab .cab-kpi-strip { margin-top: 0; }
-			.cab-hero-ava { width: 88px; height: 88px; }
+			.cab-hero-ava { width: 76px; height: 76px; grid-row: 1 / span 3; align-self: center; }
 			.cab-hero-ava .cab-ava { font-size: 36px; }
-			.cab-name { font-size: 36px; }
+			.cab-name { font-size: 32px; }
 			.cab-hero-name-row { flex-direction: row; align-items: center; }
 
-			/* ── KPI: одна колонка отдельных карточек ─────────────────── */
-			.cab-kpi-strip { grid-template-columns: 1fr; gap: 10px; }
-			.cab-kpi { padding: 18px 22px; }
-			.cab-kpi-val, .cab-weight-input { font-size: 38px; }
+			/* ── KPI: две компактные карточки без пустой правой половины ─ */
+			.cab-kpi-strip { grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 0; }
+			.cab-kpi { padding: 16px; grid-template-rows: 28px 44px auto; min-width: 0; }
+			.cab-kpi-val, .cab-weight-input { font-size: 34px; }
+			.cab-kpi-label { letter-spacing: .12em; }
+			.cab-kpi-hint { height: auto; min-height: 34px; font-size: 11px; }
+			.cab-kpi-unit { padding-top: 22px; }
 			.cab-main.tab-subscription .cab-kpi:not(.kpi-base),
 			.cab-main.tab-history .cab-kpi:not(.kpi-history),
 			.cab-main.tab-favorites .cab-kpi:not(.kpi-favorites) { display: none !important; }
@@ -1818,7 +1836,7 @@
 							<div class="cab-kpi-row">
 								<span class="cab-kpi-val" id="cab-favorites-count">0</span>
 							</div>
-							<span class="cab-kpi-hint">Рецептов сохранено</span>
+							<span class="cab-kpi-hint" id="cab-favorites-hint">Рецептов сохранено</span>
 						</div>
 					</div>
 				</div>
@@ -2203,10 +2221,10 @@
 		</svg>
 	</a>
 
-	<script src="data-v2.js?v=20260704-feedback-plan7"></script>
+	<script src="data-v2.js?v=20260705-profile-sync"></script>
 <script src="ingredients.js?v=20260616-shrimp"></script>
 	<script src="header-nav.js?v=20260704-hover-nav"></script>
-	<script src="cabinet.js?v=20260705-settings-tab"></script>
+	<script src="cabinet.js?v=20260705-profile-layout"></script>
 	<script src="tawk-chat-modal.js?v=20260704-feedback-plan7"></script>
 </body>
 

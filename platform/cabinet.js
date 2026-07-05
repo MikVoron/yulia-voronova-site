@@ -38,8 +38,8 @@
 			const email = SUPPORT_CONTACT.fallbackEmail;
 			const emailLink = '<a href="' + _supportEmailHref() + '" style="color:var(--accent);text-decoration:underline">' + email + '</a>';
 			if (paymentStatus === 'rejected' && hasChat) {
-				const retryChatLink = '<a href="' + SUPPORT_CONTACT.url + '" data-tawk-open target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">в чат Отдела заботы</a>';
-				return 'Если нужна помощь с повторной оплатой — напишите ' + retryChatLink + ' или на ' + emailLink + '.';
+				const retryChatLink = '<a href="' + SUPPORT_CONTACT.url + '" data-tawk-open target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">чат Отдела заботы</a>';
+				return 'Если нужна помощь с повторной оплатой — напишите в ' + retryChatLink + ' или на ' + emailLink + '.';
 			}
 			const lead = paymentStatus === 'pending'
 				? 'Если проверка занимает дольше 30 минут — '
@@ -1163,8 +1163,18 @@
 		function renderCabSummaryStats() {
 			const platesEl = document.getElementById('cab-plates-count');
 			const favEl = document.getElementById('cab-favorites-count');
+			const favHintEl = document.getElementById('cab-favorites-hint');
 			if (platesEl) platesEl.textContent = String(Plate.getHistory().length || 0);
-			if (favEl) favEl.textContent = String(Favorites.get().length || 0);
+			const favoritesCount = Favorites.get().length || 0;
+			if (favEl) favEl.textContent = String(favoritesCount);
+			if (favHintEl) {
+				const mod100 = favoritesCount % 100;
+				const mod10 = favoritesCount % 10;
+				const word = mod100 >= 11 && mod100 <= 14
+					? 'рецептов'
+					: mod10 === 1 ? 'рецепт' : (mod10 >= 2 && mod10 <= 4 ? 'рецепта' : 'рецептов');
+				favHintEl.textContent = word + (mod100 % 10 === 1 && mod100 !== 11 ? ' сохранён' : ' сохранено');
+			}
 		}
 
 		// ── ИСТОРИЯ ТАРЕЛОК ───────────────────────────────────────────────────────

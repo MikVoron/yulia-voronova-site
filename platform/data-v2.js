@@ -39,6 +39,9 @@ const Auth = {
             weight: weight == null ? null : Number(weight)
         };
         localStorage.setItem(this.KEY, JSON.stringify(user));
+        if (user.weight != null && Number.isFinite(user.weight)) {
+            localStorage.setItem(this._userKey('user_weight'), String(user.weight));
+        }
         if (name) this.setName(name);
         if (avatar) this.setAvatar(avatar);
         if (token) { this._token = token; sessionStorage.setItem(this._ST, token); }
@@ -156,6 +159,9 @@ const Auth = {
             if (user) {
                 user.weight = data.weight == null ? null : Number(data.weight);
                 localStorage.setItem(this.KEY, JSON.stringify(user));
+                if (user.weight != null && Number.isFinite(user.weight)) {
+                    localStorage.setItem(this._userKey('user_weight'), String(user.weight));
+                }
             }
         }
         if (data.createdAt) {
@@ -426,17 +432,23 @@ const Auth = {
         }, 3 * 60 * 1000); // каждые 3 мин
     },
     async api(path, options = {}) {
+        // Plain objects are JSON payloads; pre-stringified bodies keep working.
+        const requestOptions = Object.assign({}, options);
+        const isFormData = typeof FormData !== 'undefined' && requestOptions.body instanceof FormData;
+        if (requestOptions.body != null && typeof requestOptions.body === 'object' && !isFormData) {
+            requestOptions.body = JSON.stringify(requestOptions.body);
+        }
         const token = this.getToken();
-        const needsCT = options.body != null;
+        const needsCT = requestOptions.body != null && !isFormData;
         const defaults = needsCT ? { 'Content-Type': 'application/json' } : {};
-        const headers = Object.assign(defaults, options.headers || {});
+        const headers = Object.assign(defaults, requestOptions.headers || {});
         if (token) headers['Authorization'] = 'Bearer ' + token;
-        const res = await fetch(API_BASE + path, Object.assign({}, options, { headers, credentials: 'include' }));
+        const res = await fetch(API_BASE + path, Object.assign({}, requestOptions, { headers, credentials: 'include' }));
         if (res.status === 401) {
             const refreshed = await this.refreshToken();
             if (refreshed) {
                 headers['Authorization'] = 'Bearer ' + this.getToken();
-                return fetch(API_BASE + path, Object.assign({}, options, { headers, credentials: 'include' }));
+                return fetch(API_BASE + path, Object.assign({}, requestOptions, { headers, credentials: 'include' }));
             }
             // Не делаем logout — пусть checkAccess решит что показать
             return res;
