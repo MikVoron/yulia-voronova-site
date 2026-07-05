@@ -218,8 +218,10 @@ async function subscriptionRoutes(fastify) {
     preHandler: authenticate,
     config: { rateLimit: USER_SETTINGS_RATE_LIMIT }
   }, async (req, reply) => {
-    const id = parseInt(req.params.id, 10);
-    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: 'Некорректный id платежа' });
+    const id = String(req.params.id || '').trim();
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+      return reply.status(400).send({ error: 'Некорректный id платежа' });
+    }
     const result = await db.query(
       `UPDATE payments
           SET notice_dismissed_at=COALESCE(notice_dismissed_at, now())

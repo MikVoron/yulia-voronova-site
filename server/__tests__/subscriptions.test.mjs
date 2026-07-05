@@ -216,9 +216,10 @@ describe('subscription/payment', () => {
   });
 
   it('persists a rejected payment notice dismissal for the signed-in user', async () => {
+    const paymentId = 'fad11838-a168-48ec-a365-202f06ee1d2d';
     const res = await app.inject({
       method: 'PUT',
-      url: '/subscription/payments/17/dismiss-notice',
+      url: '/subscription/payments/' + paymentId + '/dismiss-notice',
       headers: { authorization: 'Bearer ' + makeToken() }
     });
 
@@ -226,7 +227,7 @@ describe('subscription/payment', () => {
     expect(res.json().ok).toBe(true);
     expect(mockQuery).toHaveBeenCalledWith(
       expect.stringContaining("WHERE id=$1 AND user_id=$2 AND status='rejected'"),
-      [17, 1]
+      [paymentId, 1]
     );
   });
 });
