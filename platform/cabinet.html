@@ -770,7 +770,7 @@
 		/* Editorial toggle (square, без скруглений) */
 		.cab-newsletter-toggle {
 			position: relative; display: inline-block;
-			width: 56px; height: 28px; cursor: pointer; flex-shrink: 0;
+			width: 44px; height: 24px; cursor: pointer; flex-shrink: 0;
 		}
 		.cab-newsletter-toggle input {
 			position: absolute; opacity: 0; inset: 0;
@@ -778,16 +778,16 @@
 		}
 		.cab-toggle-bg {
 			position: absolute; inset: 0;
-			background: #ccc; transition: background .2s;
-			border: 1.5px solid #999;
+			background: #fff; transition: border-color .2s;
+			border: 1px solid #999;
 		}
 		.cab-toggle-thumb {
-			position: absolute; top: 2px; left: 2px;
-			width: 22px; height: 22px; background: #fff;
-			transition: transform .2s;
+			position: absolute; top: 4px; left: 4px;
+			width: 16px; height: 16px; background: #999;
+			transition: transform .2s, background .2s;
 		}
-		.cab-newsletter-toggle input:checked ~ .cab-toggle-bg { background: var(--accent); border-color: var(--accent); }
-		.cab-newsletter-toggle input:checked ~ .cab-toggle-thumb { transform: translateX(30px); }
+		.cab-newsletter-toggle input:checked ~ .cab-toggle-bg { border-color: var(--accent); }
+		.cab-newsletter-toggle input:checked ~ .cab-toggle-thumb { background: var(--accent); transform: translateX(20px); }
 
 		.cab-logout-row {
 			display: flex; justify-content: flex-end;

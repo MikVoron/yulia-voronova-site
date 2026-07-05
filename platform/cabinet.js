@@ -254,7 +254,6 @@
 			}
 			const img = new Image();
 			img.onload = function() {
-				URL.revokeObjectURL(objectUrl);
 				// Resize to max 200x200 to keep base64 small
 				const MAX = 200;
 				let w = img.width, h = img.height;
@@ -281,9 +280,17 @@
 				});
 				input.value = '';
 			};
-			img.onerror = function() { URL.revokeObjectURL(objectUrl); showToast('Не удалось открыть изображение'); };
-			const objectUrl = URL.createObjectURL(file);
-			img.src = objectUrl;
+			img.onerror = function() {
+				input.value = '';
+				showToast('Не удалось открыть изображение');
+			};
+			const reader = new FileReader();
+			reader.onload = function() { img.src = String(reader.result || ''); };
+			reader.onerror = function() {
+				input.value = '';
+				showToast('Не удалось прочитать изображение');
+			};
+			reader.readAsDataURL(file);
 		}
 
 		// Допустимо: 30–300 кг и только шаг 0.5 (как step в разметке).
