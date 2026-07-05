@@ -37,10 +37,12 @@
 			const hasChat = !!SUPPORT_CONTACT.url;
 			const email = SUPPORT_CONTACT.fallbackEmail;
 			const emailLink = '<a href="' + _supportEmailHref() + '" style="color:var(--accent);text-decoration:underline">' + email + '</a>';
+			if (paymentStatus === 'rejected' && hasChat) {
+				const retryChatLink = '<a href="' + SUPPORT_CONTACT.url + '" data-tawk-open target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">в чат Отдела заботы</a>';
+				return 'Если нужна помощь с повторной оплатой — напишите ' + retryChatLink + ' или на ' + emailLink + '.';
+			}
 			const lead = paymentStatus === 'pending'
 				? 'Если проверка занимает дольше 30 минут — '
-				: paymentStatus === 'rejected'
-				? 'Если нужна помощь с повторной оплатой — '
 				: 'Если остался вопрос — ';
 			if (hasChat) {
 				const chatLink = '<a href="' + SUPPORT_CONTACT.url + '" data-tawk-open target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">' + SUPPORT_CONTACT.text + '</a>';
@@ -628,8 +630,17 @@
 					: '';
 				const planText = badge === 'active' ? 'Тариф «Месяц»' : '';
 				const planHtml = planText ? '<span class="sub-plan">' + escHtml(planText) + '</span>' : '';
-				const ctaText = badge === 'active' ? 'Продлить подписку' : 'Оформить подписку';
 				const pricePreviewHtml = badge === 'active' ? '' : subscriptionPricePreviewHtml();
+				const activeSummaryHtml = badge === 'active' && untilStr
+					? '<div class="sub-active-until">Активна до <b>' + escHtml(untilStr) + '</b></div>'
+						+ planHtml
+						+ headlineHtml
+					: '';
+				const defaultSummaryHtml = activeSummaryHtml || (
+					'<div class="sub-status-row"><span class="status-pill' + pillClass + '">' + escHtml(label) + '</span>' + planHtml + earlyBadge + '</div>'
+					+ headlineHtml + untilHtml + pricePreviewHtml
+				);
+				const ctaText = badge === 'active' ? 'Продлить подписку' : 'Оформить подписку';
 				const actionsHtml = '<div class="sub-actions-col">'
 					+ '<button type="button" id="sub-renew-btn" class="btn btn-orange sub-action-btn" '
 					+ 'data-cta-default="' + escHtml(ctaText) + '" onclick="togglePaySection()">'
@@ -637,8 +648,7 @@
 					+ '</div>';
 				wrap.innerHTML = '<div class="sub-card">'
 					+ '<div>'
-					+ '<div class="sub-status-row"><span class="status-pill' + pillClass + '">' + escHtml(label) + '</span>' + planHtml + earlyBadge + '</div>'
-					+ headlineHtml + untilHtml + pricePreviewHtml
+					+ defaultSummaryHtml
 					+ '</div>'
 					+ actionsHtml
 					+ '</div>';

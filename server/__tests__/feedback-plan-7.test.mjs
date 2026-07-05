@@ -88,9 +88,18 @@ describe('SmartPlate feedback plan 7 contracts', () => {
 
   it('removes repeated trial wording and shortens the subscription summary', () => {
     expect(cabinetJs).toContain("const planText = badge === 'active' ? 'Тариф «Месяц»' : '';");
+    expect(cabinetJs).toContain("Активна до <b>");
+    expect(cabinetJs).toContain("+ planHtml");
+    expect(cabinetJs).toContain("+ headlineHtml");
     expect(cabinetJs).not.toContain("badge === 'trial' ? 'Пробный период'");
     expect(cabinetJs).toContain("/мес. · все рецепты и&nbsp;БЖУ");
-    expect(cabinetHtml).toContain('cabinet.js?v=20260704-feedback-plan8');
+    expect(cabinetHtml).toContain('cabinet.js?v=20260705-subscription-summary');
+  });
+
+  it('uses the approved support copy for a repeated payment', () => {
+    expect(cabinetJs).toContain("Если нужна помощь с повторной оплатой — напишите ");
+    expect(cabinetJs).toContain('>в чат Отдела заботы</a>');
+    expect(cabinetJs).toContain(" + ' или на ' + emailLink + '.'");
   });
 
   it('cache-busts shared UI assets on the audited public surfaces', () => {

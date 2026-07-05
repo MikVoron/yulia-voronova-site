@@ -37,7 +37,7 @@ describe('SmartPlate feedback plan 8 regression contracts', () => {
     expect(cabinetJs).toContain('revealCabinetTargetIfNeeded(visibleStatus');
     expect(cabinetJs).toContain('revealCabinetTargetIfNeeded(panel');
     expect(cabinetJs).toContain('noteEditor.focus({ preventScroll: true })');
-    expect(cabinetHtml).toContain('cabinet.js?v=20260704-feedback-plan8');
+    expect(cabinetHtml).toContain('cabinet.js?v=20260705-subscription-summary');
   });
 
   it('keeps recipe navigation usable with reduced motion and skips visible targets', () => {
