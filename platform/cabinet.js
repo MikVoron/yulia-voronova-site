@@ -911,7 +911,7 @@
 				return;
 			}
 			var hiddenNoticeId = localStorage.getItem(Auth._userKey('hidden_payment_notice'));
-			if (payment.status === 'rejected' && String(payment.id) === hiddenNoticeId) {
+			if (payment.status === 'rejected' && (payment.notice_dismissed_at || String(payment.id) === hiddenNoticeId)) {
 				if (block) block.remove();
 				return;
 			}
@@ -964,11 +964,18 @@
 				+ support + hideAction + '</div>';
 		}
 
-		function hidePaymentNotice(button) {
+		async function hidePaymentNotice(button) {
 			var paymentId = button && button.getAttribute('data-payment-id');
 			if (paymentId) localStorage.setItem(Auth._userKey('hidden_payment_notice'), paymentId);
 			var block = document.getElementById('pay-pending-block');
 			if (block) block.remove();
+			if (!paymentId) return;
+			try {
+				var res = await Auth.api('/subscription/payments/' + encodeURIComponent(paymentId) + '/dismiss-notice', { method: 'PUT' });
+				if (!res.ok) throw new Error('dismiss_payment_notice_' + res.status);
+			} catch (e) {
+				console.warn('Не удалось синхронизировать скрытие уведомления об оплате', e);
+			}
 		}
 
 		function _injectHistorySupportNote(parent, paymentStatus) {
@@ -1227,7 +1234,7 @@
 						Number(t.protein) ? `<span class="macro-chip prot">Б · ${t.protein}</span>` : '',
 						Number(t.fat)     ? `<span class="macro-chip fat">Ж · ${t.fat}</span>` : '',
 						Number(t.carbs)   ? `<span class="macro-chip carb">У · ${t.carbs}</span>` : '',
-						Number(t.fiber)   ? `<span class="macro-chip fib">Клетч. · ${t.fiber}</span>` : ''
+						Number(t.fiber)   ? `<span class="macro-chip fib">Кл · ${t.fiber}</span>` : ''
 					].filter(Boolean).join('');
 					const mealOptions = [
 						['breakfast', 'Завтрак'],
@@ -1244,7 +1251,7 @@
 						const photo = resolveHistoryThumbPhoto(it, linkedRecipe);
 						const thumb = photo
 							? `<img src="${escHtml(photo)}" alt="" loading="lazy" decoding="async">`
-							: '';
+							: historyAddonIcon(it.name);
 						return `<div class="meal-item">
 						<div class="meal-item-thumb">${thumb}</div>
 						<div class="meal-item-name"><b>${escHtml(String(it.name || ''))}</b></div>
@@ -1294,6 +1301,33 @@
 				if (linkedPhoto) return linkedPhoto;
 			}
 			return ownPhoto;
+		}
+
+		function historyAddonIcon(name) {
+			const value = String(name || '').toLowerCase();
+			const attrs = 'class="meal-addon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
+			if (/кур|индей|мяс|птиц/.test(value)) {
+				return `<svg ${attrs}><path d="M14.8 5.2c2.2 2.2 2.2 5.7 0 7.9s-5.7 2.2-7.9 0-2.2-5.7 0-7.9 5.7-2.2 7.9 0Z"/><path d="m7.2 12.8-3.4 3.4m0 0-1.3-.2-.5.5 2 2 2 2 .5-.5-.2-1.3 3.4-3.4"/></svg>`;
+			}
+			if (/хлеб|тост|бул|лаваш|круп|рис|греч|макарон/.test(value)) {
+				return `<svg ${attrs}><path d="M5 10.2C5 6.8 7.8 4 11.2 4h1.6C16.2 4 19 6.8 19 10.2V20H5v-9.8Z"/><path d="M8.5 9.5c1-1 2-1.5 3.5-1.5s2.5.5 3.5 1.5"/><path d="M9 13h6"/></svg>`;
+			}
+			if (/рыб|лос|тун|треск|морепр/.test(value)) {
+				return `<svg ${attrs}><path d="M4 12c3-4 7-6 12-4l4-3v14l-4-3c-5 2-9 0-12-4Z"/><circle cx="15" cy="11" r=".8" fill="currentColor" stroke="none"/><path d="M8 10c1 1.3 1 2.7 0 4"/></svg>`;
+			}
+			if (/сыр|творог|йогур|кефир|молок/.test(value)) {
+				return `<svg ${attrs}><path d="M4 10 14 4l6 6v10H4V10Z"/><circle cx="14" cy="10" r="1.5"/><circle cx="9" cy="15" r="1.3"/><path d="M4 10h16"/></svg>`;
+			}
+			if (/яйц/.test(value)) {
+				return `<svg ${attrs}><path d="M18 14.5a6 6 0 0 1-12 0C6 10.5 9.5 4 12 4s6 6.5 6 10.5Z"/></svg>`;
+			}
+			if (/масл|авокад|орех|сем|жир/.test(value)) {
+				return `<svg ${attrs}><path d="M12 3s5.5 6.3 5.5 11a5.5 5.5 0 0 1-11 0C6.5 9.3 12 3 12 3Z"/><path d="M9 15.5c.5 1.2 1.4 1.8 2.7 2"/></svg>`;
+			}
+			if (/овощ|салат|зел|помид|огур|капуст|перец/.test(value)) {
+				return `<svg ${attrs}><path d="M19 5C11 5 6 9 6 15c0 2.2 1.8 4 4 4 6 0 9-6 9-14Z"/><path d="M5 20c2.5-5 6-8.5 11-11"/></svg>`;
+			}
+			return `<svg ${attrs}><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>`;
 		}
 
 		function firstHistoryPhoto(value) {

@@ -207,10 +207,28 @@ async function subscriptionRoutes(fastify) {
   // GET /subscription/payments — история платежей пользователя
   fastify.get('/subscription/payments', { preHandler: authenticate }, async (req) => {
     const result = await db.query(
-      'SELECT id, amount, sender_name, payment_date, status, admin_comment, created_at FROM payments WHERE user_id=$1 ORDER BY created_at DESC LIMIT $2',
+      'SELECT id, amount, sender_name, payment_date, status, admin_comment, notice_dismissed_at, created_at FROM payments WHERE user_id=$1 ORDER BY created_at DESC LIMIT $2',
       [req.user.sub, PAYMENT_HISTORY_LIMIT]
     );
     return result.rows;
+  });
+
+  // PUT /subscription/payments/:id/dismiss-notice — hide a rejected notice on every device
+  fastify.put('/subscription/payments/:id/dismiss-notice', {
+    preHandler: authenticate,
+    config: { rateLimit: USER_SETTINGS_RATE_LIMIT }
+  }, async (req, reply) => {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: 'Некорректный id платежа' });
+    const result = await db.query(
+      `UPDATE payments
+          SET notice_dismissed_at=COALESCE(notice_dismissed_at, now())
+        WHERE id=$1 AND user_id=$2 AND status='rejected'
+        RETURNING notice_dismissed_at`,
+      [id, req.user.sub]
+    );
+    if (!result.rows.length) return reply.status(404).send({ error: 'Отклонённый платёж не найден' });
+    return { ok: true, noticeDismissedAt: result.rows[0].notice_dismissed_at };
   });
   // GET /subscription/newsletter — статус подписки на рассылку
   fastify.get('/subscription/newsletter', { preHandler: authenticate }, async (req) => {

@@ -31,6 +31,9 @@ const mockQuery = vi.fn(async (sql) => {
     err.constraint = 'idx_payments_one_pending_per_user';
     throw err;
   }
+  if (/SET notice_dismissed_at=COALESCE/.test(sql)) {
+    return { rows: [{ notice_dismissed_at: '2026-07-05T18:00:00.000Z' }] };
+  }
   return { rows: [] };
 });
 const mockClientQuery = vi.fn(async () => ({ rows: [] }));
@@ -210,6 +213,21 @@ describe('subscription/payment', () => {
     );
     expect(sendPaymentNotification).toHaveBeenCalledWith('user@example.com', 250, '2026-06-26T10:00', true);
     expect(auditLog).toHaveBeenCalled();
+  });
+
+  it('persists a rejected payment notice dismissal for the signed-in user', async () => {
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/subscription/payments/17/dismiss-notice',
+      headers: { authorization: 'Bearer ' + makeToken() }
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json().ok).toBe(true);
+    expect(mockQuery).toHaveBeenCalledWith(
+      expect.stringContaining("WHERE id=$1 AND user_id=$2 AND status='rejected'"),
+      [17, 1]
+    );
   });
 });
 
