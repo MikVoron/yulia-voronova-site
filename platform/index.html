@@ -914,20 +914,21 @@
 			padding: 3px 0;
 			border: 0;
 			background: transparent;
-			color: var(--text-2);
+			color: var(--text);
 			font: inherit;
 			font-size: 12px;
 			font-weight: 600;
 			text-decoration: underline;
-			text-decoration-color: transparent;
-			text-underline-offset: 3px;
+			text-decoration-color: var(--accent);
+			text-decoration-thickness: 1px;
+			text-underline-offset: 4px;
 			cursor: pointer;
 			transition: color .2s ease, text-decoration-color .2s ease;
 		}
 
 		.sp-guest-tour-reopen:hover {
-			color: var(--text);
-			text-decoration-color: currentColor;
+			color: var(--accent);
+			text-decoration-color: var(--accent);
 		}
 
 		.sp-how-grid {
@@ -1490,6 +1491,13 @@
 			letter-spacing: inherit;
 			text-transform: inherit;
 			color: inherit;
+		}
+
+		.sp-home .recipes-total-count.sp-cats-status .rtc-num {
+			font-size: 16px;
+			font-weight: 900;
+			letter-spacing: .02em;
+			color: var(--text);
 		}
 
 		/* ── MOBILE (≤ 767px) ──────────────────────────────────────── */
@@ -3091,7 +3099,7 @@
 						<img class="sp-guest-photo" src="images/YV-blog.webp" alt="Юлия Воронова" loading="eager">
 						<div>
 							<p class="sp-guest-kicker">Привет!</p>
-							<h1 class="sp-guest-title" id="guest-onboarding-title" tabindex="-1">Я Юля Воронова.</h1>
+						<h1 class="sp-guest-title" id="guest-onboarding-title">Я Юля Воронова.</h1>
 							<p class="sp-guest-lead"><span>Семейный нутрициолог</span><span>и автор “Умной тарелки”.</span></p>
 							<p class="sp-guest-copy">Здесь я собрала и продолжаю собирать свои лучшие рецепты, проверенные моей семьей. Это не экзотическая “здоровая еда”, а привычные блюда: супы и борщ, котлеты, паста, блины, просто в более здоровой версии.</p>
 							<p class="sp-guest-copy">Я адаптировала их так, чтобы они были и вкусными, и сбалансированными одновременно.</p>
@@ -3220,7 +3228,7 @@
 						</button>
 						<div class="hero-search-results" id="hero-search-results"></div>
 					</form>
-					<button class="sp-guest-tour-reopen" id="guest-tour-trigger" type="button" onclick="openGuestTour()">Как это работает?</button>
+					<button class="sp-guest-tour-reopen" id="guest-tour-trigger" type="button" onclick="openGuestTour()">Как это работает? →</button>
 				</div>
 				<a class="sp-hero-aside is-loading" id="sp-hero-aside" href="#new-block" aria-label="Сегодняшний рецепт">
 					<div class="sp-hero-media" id="sp-hero-media"></div>
@@ -3445,7 +3453,6 @@
 		}
 		function revealGuestTourAfterManualOpen() {
 			const onboarding = document.getElementById('guest-onboarding');
-			const heading = document.getElementById('guest-onboarding-title');
 			requestAnimationFrame(() => {
 				if (onboarding) {
 					const header = document.querySelector('.sp-header');
@@ -3454,8 +3461,11 @@
 					const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 					window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion ? 'auto' : 'smooth' });
 				}
-				if (heading) heading.focus({ preventScroll: true });
 			});
+		}
+		function scrollToPageTop() {
+			const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
 		}
 		function openGuestTour() {
 			_guestTourPreview = true;
@@ -3474,6 +3484,7 @@
 			replaceGuestTourUrl(false);
 			const trigger = document.getElementById('guest-tour-trigger');
 			if (trigger) requestAnimationFrame(() => trigger.focus({ preventScroll: true }));
+			scrollToPageTop();
 		}
 		function updateGuestOnboardingVisibility() {
 			document.body.classList.toggle('sp-guest-onboarding-active', _guestTourPreview || !isGuestTourCompleted());
@@ -4863,20 +4874,43 @@
 
 		function removeItem(i) { Plate.remove(i); renderPlateModal(); updatePlateIcon(); renderPlateInline(); }
 		function getPlateWeight() {
+			const isValid = value => Number.isFinite(value) && value >= 30 && value <= 300 && Number.isInteger(value * 2);
 			const saved = parseFloat(localStorage.getItem(Auth._userKey('user_weight')));
-			return Number.isFinite(saved) && saved >= 30 && saved <= 300 && Number.isInteger(saved * 2) ? saved : 60;
+			if (isValid(saved)) return saved;
+			const user = Auth.getUser();
+			const accountWeight = user && user.weight != null ? Number(user.weight) : NaN;
+			if (isValid(accountWeight)) {
+				localStorage.setItem(Auth._userKey('user_weight'), String(accountWeight));
+				return accountWeight;
+			}
+			return 60;
 		}
 		function updateWater() {
 			const w = parseFloat(document.getElementById('w-inp').value);
 			if (!Number.isFinite(w) || w < 30 || w > 300) return;
 			document.getElementById('w-res').textContent = Math.round(w * 30);
 		}
-		function commitPlateWeight() {
+		async function commitPlateWeight() {
 			const input = document.getElementById('w-inp');
 			const w = parseFloat(input.value);
 			if (Number.isFinite(w) && w >= 30 && w <= 300 && Number.isInteger(w * 2)) {
 				input.value = w;
 				localStorage.setItem(Auth._userKey('user_weight'), String(w));
+				const user = Auth.getUser();
+				if (user) {
+					user.weight = w;
+					localStorage.setItem(Auth.KEY, JSON.stringify(user));
+					try {
+						const res = await Auth.api('/auth/profile', {
+							method: 'PUT',
+							body: JSON.stringify({ weight: w })
+						});
+						if (!res.ok) throw new Error('weight_save_' + res.status);
+					} catch (e) {
+						console.warn('Не удалось сохранить вес в аккаунте', e);
+						showToast('Не удалось сохранить вес на сервере');
+					}
+				}
 				updateWater();
 				return;
 			}
