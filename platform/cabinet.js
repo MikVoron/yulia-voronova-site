@@ -338,8 +338,7 @@
 				updateWaterNorm(parseFloat(saved));
 			} else {
 				el.value = '';
-				const norm = document.getElementById('water-norm');
-				if (norm) norm.style.display = 'none';
+				resetWaterNorm();
 			}
 		}
 		// ── Newsletter toggle ─────────────────────────────
@@ -435,6 +434,17 @@
 			} catch(e) {
 				showToast('Ошибка сети');
 			}
+		}
+
+		function resetWaterNorm() {
+			const norm = document.getElementById('water-norm');
+			const val = document.getElementById('water-val');
+			const unit = document.getElementById('water-unit');
+			const badge = document.getElementById('water-glasses-badge');
+			if (norm) norm.style.display = 'grid';
+			if (val) val.textContent = '—';
+			if (unit) unit.textContent = '';
+			if (badge) badge.textContent = 'Введите вес для расчёта';
 		}
 
 		function updateWaterNorm(w) {
