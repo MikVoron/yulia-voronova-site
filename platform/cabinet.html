@@ -1040,7 +1040,7 @@
 		/* ── ИЗБРАННЫЕ — фильтры и карточки ──────────────────────────── */
 		.fav-filters {
 			display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px;
-			padding-bottom: 16px; border-bottom: 1px solid var(--border); align-items: center;
+			padding-bottom: 0; border-bottom: 0; align-items: center;
 		}
 		.fav-chip {
 			font-family: var(--sans); background: transparent; border: 1px solid var(--border);
@@ -1773,7 +1773,7 @@
 		</aside>
 	</div>
 
-	<input type="file" id="ava-upload" accept="image/*" style="display:none" onchange="handleAvatarUpload(this)">
+	<input type="file" id="ava-upload" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" onchange="handleAvatarUpload(this)">
 
 	<main class="cab-main">
 		<div class="v-wrap">
@@ -1783,9 +1783,9 @@
 		<!-- HERO -->
 		<div class="v-wrap cab-hero-wrap">
 			<section class="cab-hero anim">
-				<div class="cab-hero-ava" onclick="document.getElementById('ava-upload').click()">
+				<div class="cab-hero-ava">
 					<div class="cab-ava" id="cab-ava">?</div>
-					<button class="cab-hero-ava-edit" type="button" aria-label="Изменить аватар">
+					<button class="cab-hero-ava-edit" type="button" onclick="openAvatarPicker()" aria-label="Изменить аватар">
 						<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83z"/></svg>
 					</button>
 				</div>
@@ -2227,7 +2227,7 @@
 	<script src="data-v2.js?v=20260705-profile-sync"></script>
 <script src="ingredients.js?v=20260616-shrimp"></script>
 	<script src="header-nav.js?v=20260704-hover-nav"></script>
-	<script src="cabinet.js?v=20260705-history-icons"></script>
+	<script src="cabinet.js?v=20260705-feedback-followup"></script>
 	<script src="tawk-chat-modal.js?v=20260704-feedback-plan7"></script>
 </body>
 

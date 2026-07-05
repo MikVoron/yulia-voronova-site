@@ -9,6 +9,18 @@ const platform = path.resolve(here, '../../platform');
 const read = file => fs.readFileSync(path.join(platform, file), 'utf8');
 
 describe('SmartPlate feedback plan 5 contracts', () => {
+  it('keeps the July cabinet and balance polish contracts', () => {
+    const recipe = read('recipe.html');
+    const cabinet = read('cabinet.html');
+    const cabinetJs = read('cabinet.js');
+
+    expect(recipe).toContain('align-items: center !important;');
+    expect(recipe).toContain('.review-form-wrap.is-modal');
+    expect(cabinet).toMatch(/\.fav-filters\s*\{[\s\S]*?border-bottom:\s*0/);
+    expect(cabinet).toContain('onclick="openAvatarPicker()"');
+    expect(cabinetJs).toContain('function openAvatarPicker()');
+    expect(cabinetJs).not.toContain('function updateNlSlider(');
+  });
   it('keeps the ready sound always on without an off switch', () => {
     const recipe = read('recipe.html');
     const css = read('style-v4.css');
@@ -62,13 +74,14 @@ describe('SmartPlate feedback plan 5 contracts', () => {
     const recipe = read('recipe.html');
     const css = read('style-v4.css');
 
-    expect(recipe).toContain('Отзывы и оценка');
+    expect(recipe).toContain('<span class="pr-label">Рейтинг</span>');
     expect(recipe).toContain('function scrollToReviews()');
     expect(recipe).toContain('function scrollToReviewForm()');
     expect(recipe).toContain('heading.focus({ preventScroll: true })');
-    expect(recipe).toContain('field.focus({ preventScroll: true })');
+    expect(recipe).toContain("wrap.classList.add('is-modal')");
+    expect(recipe).toContain('field.focus()');
     expect(recipe).toMatch(/review-form-stars[\s\S]*?join\(''\)\}[\s\S]*?<\/div>[\s\S]*?<textarea id="review-text"/);
-    expect(recipe).toMatch(/<section class="reviews-section"[\s\S]*?<div id="review-form-wrap">[\s\S]*?<\/section>/);
+    expect(recipe).toMatch(/<section class="reviews-section"[\s\S]*?<div class="review-form-wrap" id="review-form-wrap"[\s\S]*?<\/section>/);
     expect(recipe).not.toContain('function scrollToStars()');
     expect(recipe).toContain('class="star review-star" type="button"');
     expect(recipe).toContain('aria-label="Оценка ${i} из 5" aria-pressed="false"');

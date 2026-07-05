@@ -238,11 +238,23 @@
 			}
 		}
 
+		function openAvatarPicker() {
+			const input = document.getElementById('ava-upload');
+			if (!input) return;
+			input.value = '';
+			input.click();
+		}
+
 		function handleAvatarUpload(input) {
 			const file = input.files[0];
 			if (!file) return;
+			if (!/^image\/(png|jpeg|webp|gif)$/.test(file.type)) {
+				showToast('Выберите изображение PNG, JPEG, WebP или GIF');
+				return;
+			}
 			const img = new Image();
 			img.onload = function() {
+				URL.revokeObjectURL(objectUrl);
 				// Resize to max 200x200 to keep base64 small
 				const MAX = 200;
 				let w = img.width, h = img.height;
@@ -250,7 +262,9 @@
 				else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
 				const canvas = document.createElement('canvas');
 				canvas.width = w; canvas.height = h;
-				canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+				const context = canvas.getContext('2d');
+				if (!context) { showToast('Не удалось обработать изображение'); return; }
+				context.drawImage(img, 0, 0, w, h);
 				const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
 				// Save locally
 				Auth.setAvatar(dataUrl);
@@ -259,11 +273,17 @@
 				Auth.renderAvatar(document.getElementById('u-ava'));
 				// Save to server
 				Auth.api('/auth/profile', { method: 'PUT', body: { avatar: dataUrl } }).then(function(res) {
-					if (!res.ok) console.error('Avatar save failed:', res.status);
-				}).catch(function(e) { console.error('Avatar save error:', e); });
+					if (!res.ok) throw new Error('Avatar save failed: ' + res.status);
+					showToast('Аватар обновлён');
+				}).catch(function(e) {
+					console.error('Avatar save error:', e);
+					showToast('Аватар показан, но не сохранился. Попробуйте ещё раз');
+				});
 				input.value = '';
 			};
-			img.src = URL.createObjectURL(file);
+			img.onerror = function() { URL.revokeObjectURL(objectUrl); showToast('Не удалось открыть изображение'); };
+			const objectUrl = URL.createObjectURL(file);
+			img.src = objectUrl;
 		}
 
 		// Допустимо: 30–300 кг и только шаг 0.5 (как step в разметке).
@@ -395,21 +415,11 @@
 				const cb = document.getElementById('newsletter-toggle');
 				if (cb) {
 					cb.checked = data.subscribed;
-					updateNlSlider(data.subscribed);
 				}
 			} catch(e) {}
 		})();
 
-		function updateNlSlider(on) {
-			const slider = document.getElementById('nl-slider');
-			const bg = slider?.parentElement?.querySelector('span');
-			// toggle 56×28 (border 1.5px) + thumb 22×22 at left:2 → ход = 56 - 22 - 2*2 = 30px
-			if (slider) slider.style.transform = on ? 'translateX(30px)' : 'translateX(0)';
-			if (bg) bg.style.background = on ? 'var(--accent)' : '#ccc';
-		}
-
 		async function toggleNewsletter(checked) {
-			updateNlSlider(checked);
 			try {
 				await Auth.api('/subscription/newsletter', {
 					method: 'PUT',
