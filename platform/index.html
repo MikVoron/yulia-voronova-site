@@ -4903,7 +4903,7 @@
 					try {
 						const res = await Auth.api('/auth/profile', {
 							method: 'PUT',
-							body: JSON.stringify({ weight: w })
+							body: { weight: w }
 						});
 						if (!res.ok) throw new Error('weight_save_' + res.status);
 					} catch (e) {

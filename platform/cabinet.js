@@ -217,7 +217,7 @@
 			const val = document.getElementById('cab-custom-name').value.trim();
 			Auth.setName(val);
 			// Sync to server
-			Auth.api('/auth/profile', { method: 'PUT', body: JSON.stringify({ displayName: val }) }).then(function(res) {
+			Auth.api('/auth/profile', { method: 'PUT', body: { displayName: val } }).then(function(res) {
 				if (!res.ok) console.error('Profile save failed:', res.status);
 			}).catch(function(e) { console.error('Profile save error:', e); });
 			document.getElementById('cab-name').textContent = val || user.email.split('@')[0];
@@ -258,7 +258,7 @@
 				setCabinetAvatarImage(dataUrl);
 				Auth.renderAvatar(document.getElementById('u-ava'));
 				// Save to server
-				Auth.api('/auth/profile', { method: 'PUT', body: JSON.stringify({ avatar: dataUrl }) }).then(function(res) {
+				Auth.api('/auth/profile', { method: 'PUT', body: { avatar: dataUrl } }).then(function(res) {
 					if (!res.ok) console.error('Avatar save failed:', res.status);
 				}).catch(function(e) { console.error('Avatar save error:', e); });
 				input.value = '';
@@ -291,7 +291,7 @@
 				try {
 					const res = await Auth.api('/auth/profile', {
 						method: 'PUT',
-						body: JSON.stringify({ weight: n })
+						body: { weight: n }
 					});
 					if (!res.ok) throw new Error('weight_save_' + res.status);
 					const user = Auth.getUser();
@@ -456,7 +456,7 @@
 				try {
 					const res = await Auth.api('/auth/profile', {
 						method: 'PUT',
-						body: JSON.stringify({ weight: localWeight })
+						body: { weight: localWeight }
 					});
 					if (res.ok && user) {
 						user.weight = localWeight;
