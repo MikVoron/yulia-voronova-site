@@ -406,8 +406,7 @@
 				});
 				if (!res.ok) throw new Error('save failed');
 				clearContentCache();
-				if (status) status.textContent = 'Сохранено. Обновляем рецепты…';
-				setTimeout(function() { location.reload(); }, 650);
+				if (status) status.textContent = 'Сохранено';
 			} catch(e) {
 				if (status) status.textContent = 'Не удалось сохранить настройки.';
 				showToast('Ошибка сети');
