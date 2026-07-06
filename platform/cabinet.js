@@ -1899,7 +1899,7 @@
                 <h2 class="pv1-headline">Соберите первый приём пищи</h2>
                 <div class="pv1-divider"></div>
                 <p class="pv1-sub">Выберите рецепт из категории — и он попадёт сюда. КБЖУ пересчитаются автоматически.</p>
-                <button class="pv1-cta" onclick="closePlate();location.href='category.html'">К рецептам →</button>
+                <button class="pv1-cta" onclick="closePlate();location.href='category.html'">Выбрать рецепт →</button>
             </div>`;
 			} else {
 				const t = Plate.totals();

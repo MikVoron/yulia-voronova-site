@@ -80,6 +80,7 @@ describe('SmartPlate feedback plan 5 contracts', () => {
     expect(recipe).toContain('heading.focus({ preventScroll: true })');
     expect(recipe).toContain("wrap.classList.add('is-modal')");
     expect(recipe).toContain('field.focus()');
+    expect(recipe).toContain('prev.hidden = _stepperIdx === 0');
     expect(recipe).toMatch(/review-form-stars[\s\S]*?join\(''\)\}[\s\S]*?<\/div>[\s\S]*?<textarea id="review-text"/);
     expect(recipe).toMatch(/<section class="reviews-section"[\s\S]*?<div class="review-form-wrap" id="review-form-wrap"[\s\S]*?<\/section>/);
     expect(recipe).not.toContain('function scrollToStars()');

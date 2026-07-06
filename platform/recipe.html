@@ -14,7 +14,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=20260704-header-sidebar" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=20260706-mobile-drawer" id="vcss">
 	<style>
 		.recipe-guest-helper {
 			position: relative;
@@ -1636,7 +1636,10 @@
 			if (item) item.classList.toggle('is-done', done);
 			const prev = document.getElementById('stepper-prev');
 			const next = document.getElementById('stepper-next');
-			if (prev) prev.disabled = _stepperIdx === 0;
+			if (prev) {
+				prev.hidden = _stepperIdx === 0;
+				prev.disabled = _stepperIdx === 0;
+			}
 			if (next) next.disabled = _stepperIdx >= _stepsHtmlArr.length - 1;
 		}
 		function renderStepperProgress() {
@@ -4162,7 +4165,7 @@
                 <h2 class="pv1-headline">Соберите первый приём пищи</h2>
                 <div class="pv1-divider"></div>
                 <p class="pv1-sub">Выберите рецепт из категории — и он попадёт сюда. КБЖУ пересчитаются автоматически.</p>
-                <button class="pv1-cta" onclick="closePlate()">К рецептам →</button>
+                <button class="pv1-cta" onclick="closePlate()">Вернуться к рецепту</button>
             </div>`;
 			} else {
 				const t = Plate.totals();

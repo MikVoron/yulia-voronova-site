@@ -27,7 +27,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=20260704-header-sidebar" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=20260706-mobile-drawer" id="vcss">
 	<style>
 		main {
 			padding-bottom: 80px;
@@ -68,13 +68,15 @@
 			position: relative;
 			z-index: 1;
 			width: min(320px, 86vw);
-			height: 100%;
+			height: 100dvh;
+			max-height: 100dvh;
 			background: #fff;
 			border-right: 1px solid var(--border);
 			transform: translateX(-100%);
 			transition: transform .28s cubic-bezier(.2, .8, .2, 1);
 			display: flex;
 			flex-direction: column;
+			overflow: hidden;
 			pointer-events: auto;
 			overscroll-behavior: contain;
 		}
@@ -124,6 +126,8 @@
 		}
 
 		.sp-drawer-nav {
+			flex: 1 1 auto;
+			min-height: 0;
 			padding: 8px 0;
 			display: flex;
 			flex-direction: column;
@@ -229,6 +233,7 @@
 
 		.sp-drawer-content .sp-drawer-subhead:first-child {
 			margin-top: 8px;
+			border-top: 0;
 		}
 
 		/* Заголовки секций (Рецепты / Ингредиенты / Ещё) и подгрупп ингредиентов
@@ -4789,7 +4794,7 @@
                 <h2 class="pv1-headline">Соберите первый приём пищи</h2>
                 <div class="pv1-divider"></div>
                 <p class="pv1-sub">Выберите рецепт из категории — и он попадёт сюда. КБЖУ пересчитаются автоматически.</p>
-                <button class="pv1-cta" onclick="closePlate()">К рецептам →</button>
+                <button class="pv1-cta" onclick="closePlate();location.href='category.html'">Выбрать рецепт →</button>
             </div>`;
 				footer.style.display = 'none';
 				return;

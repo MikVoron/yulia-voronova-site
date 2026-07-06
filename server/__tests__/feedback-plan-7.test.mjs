@@ -17,6 +17,14 @@ const data = read('data-v2.js');
 const chat = read('tawk-chat-modal.js');
 
 describe('SmartPlate feedback plan 7 contracts', () => {
+  it('keeps the mobile drawer inside the dynamic viewport without a leading ingredient divider', () => {
+    expect(style).toContain('height: 100dvh; max-height: 100dvh;');
+    expect(style).toContain('flex: 1 1 auto; min-height: 0;');
+    expect(style).toContain('.sp-drawer-content .sp-drawer-subhead:first-child { margin-top: 8px; border-top: 0; }');
+    expect(indexHtml).toContain('height: 100dvh;');
+    expect(indexHtml).toMatch(/\.sp-drawer-content \.sp-drawer-subhead:first-child\s*\{[\s\S]*?border-top:\s*0/);
+  });
+
   it('opens one desktop navigation panel by hover or explicit click', () => {
     expect(headerNav).toContain("nav.addEventListener('click'");
     expect(headerNav).toContain('closeAll(dd);');
@@ -53,7 +61,7 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(indexHtml).toContain("today.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })");
     expect(indexHtml).toContain("today.toLocaleDateString('ru-RU', { weekday: 'long' })");
     expect(style).toContain('.sp-masthead .sp-plate    { grid-column: 1 / 2;');
-    expect(cabinetJs).toContain("location.href='category.html'\">К рецептам");
+    expect(cabinetJs).toContain("location.href='category.html'\">Выбрать рецепт");
   });
 
   it('presents text updates as a non-interactive list without an extra label', () => {
@@ -114,7 +122,7 @@ describe('SmartPlate feedback plan 7 contracts', () => {
   it('cache-busts shared UI assets on the audited public surfaces', () => {
     for (const file of ['index.html', 'recipe.html', 'cabinet.html', 'category.html', 'ingredient.html']) {
       const html = read(file);
-      expect(html).toContain('style-v4.css?v=20260704-header-sidebar');
+      expect(html).toContain('style-v4.css?v=20260706-mobile-drawer');
       expect(html).toContain('data-v2.js?v=20260704-feedback-plan7');
       expect(html).toContain('tawk-chat-modal.js?v=20260704-feedback-plan7');
     }
