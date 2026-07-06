@@ -79,6 +79,19 @@ describe('SmartPlate feedback plan 3 contracts', () => {
     expect(recipe).toContain('onclick="hideGuestLoginModal()"');
   });
 
+  it('keeps category cards showing ratings for locked recipes while hiding guest favorites and preserving one-line time labels', () => {
+    const category = read('category.html');
+    const style = read('style-v4.css');
+    const cardBlock = category.slice(category.indexOf('function buildDishCard'), category.indexOf('const dishListEl'));
+    expect(cardBlock).toContain('const canShowFav = Auth.isLoggedIn();');
+    expect(cardBlock).toContain('${(!locked && canShowFav) ?');
+    expect(cardBlock).toContain('<div class="recipe-card__rating" id="rrow-');
+    expect(cardBlock).not.toContain('${!locked ? `<div class="recipe-card__rating"');
+    expect(cardBlock).toContain('class="recipe-card__meta-item recipe-card__meta-time"');
+    expect(style).toMatch(/\.recipe-card__rating \{\s*display:\s*flex;\s*align-items:\s*center;\s*gap:\s*6px;\s*min-height:\s*16px;/);
+    expect(style).toMatch(/\.recipe-card__meta-item \{\s*display:\s*inline-flex;\s*align-items:\s*center;\s*gap:\s*4px;\s*white-space:\s*nowrap;\s*\}/);
+  });
+
   it('keeps the payment action responsive at the mobile breakpoint', () => {
     const html = read('cabinet.html');
     expect(html).toMatch(/@media \(max-width: 760px\)[\s\S]*?\.sub-card \{ grid-template-columns: 1fr;/);

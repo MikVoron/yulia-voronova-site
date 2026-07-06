@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
     <style>body{visibility:hidden}</style>
-    <link rel="stylesheet" href="style-v4.css?v=20260706-mobile-drawer" id="vcss">
+    <link rel="stylesheet" href="style-v4.css?v=20260706-card-meta-v2" id="vcss">
     <style>
         /* ── HERO (Variant 1 — фото слева, editorial-серьёзная типографика) ── */
         .cat-hero {
@@ -799,7 +799,8 @@
         const photoHtml = _photo
             ? `<img src="${_photo}" alt="${_name}" loading="lazy" data-fallback-emoji="${_emoji}"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
             : `<div class="recipe-card-emoji">${_emoji}</div>`;
-        const isFav = Auth.isLoggedIn() && Favorites.has(d.id);
+        const canShowFav = Auth.isLoggedIn();
+        const isFav = canShowFav && Favorites.has(d.id);
         const lockBadgeClass = lockLevel === 'pro' ? 'locked-badge' : 'trial-badge';
         const lockBadge = locked
             ? '<div class="' + lockBadgeClass + '"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>'
@@ -817,21 +818,21 @@
             <div class="recipe-card__media">
                 ${photoHtml}
                 ${lockBadge}${freeBadge}
-                ${locked ? '' : `<button class="recipe-card__bookmark${isFav ? ' active' : ''}" id="fav-${escHtml(_id)}" aria-label="В избранное" data-card-action="favorite" data-recipe-id="${escHtml(_id)}">
+                ${(!locked && canShowFav) ? `<button class="recipe-card__bookmark${isFav ? ' active' : ''}" id="fav-${escHtml(_id)}" aria-label="В избранное" data-card-action="favorite" data-recipe-id="${escHtml(_id)}">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-                </button>`}
+                </button>` : ''}
             </div>
             <div class="recipe-card__body">
                 <h3 class="recipe-card__title">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</h3>
-                ${!locked ? `<div class="recipe-card__rating" id="rrow-${escHtml(_id)}">
+                <div class="recipe-card__rating" id="rrow-${escHtml(_id)}">
                     <div class="rating-popup" id="rpop-${escHtml(_id)}">
                         ${[1,2,3,4,5].map(i => `<span class="rp-star" data-n="${i}" data-card-action="rate" data-recipe-id="${escHtml(_id)}">★</span>`).join('')}
                     </div>
                     <span class="recipe-card__rating-stars" id="rstars-${escHtml(_id)}" data-card-action="rating" data-recipe-id="${escHtml(_id)}">${_emptyStars}</span>
                     <span class="recipe-card__rating-text" id="rtext-${escHtml(_id)}"></span>
-                </div>` : ''}
+                </div>
                 <div class="recipe-card__meta">
-                    <span class="recipe-card__meta-item">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
+                    <span class="recipe-card__meta-item recipe-card__meta-time">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
                     <span class="recipe-card__meta-dot"></span>
                     <span>${_diff}</span>
                 </div>

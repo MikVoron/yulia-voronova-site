@@ -619,6 +619,7 @@ img { display: block; max-width: 100%; }
 }
 .recipe-card__rating {
     display: flex; align-items: center; gap: 6px;
+    min-height: 16px;
     margin-bottom: 10px; position: relative;
 }
 .recipe-card__rating .rating-popup { bottom: auto; top: calc(100% + 6px); left: 0; }
@@ -629,7 +630,8 @@ img { display: block; max-width: 100%; }
     font-size: 12px; color: #3a3a3a; font-weight: 500;
     margin-bottom: 12px;
 }
-.recipe-card__meta-item { display: inline-flex; align-items: center; gap: 4px; }
+.recipe-card__meta-item { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.recipe-card__meta-time { min-width: 0; }
 .recipe-card__meta-dot { width: 3px; height: 3px; border-radius: 50%; background: #8a7d6f; }
 .recipe-card__footer {
     margin-top: auto; padding-top: 10px;
