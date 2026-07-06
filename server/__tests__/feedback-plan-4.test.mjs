@@ -80,6 +80,12 @@ describe('SmartPlate feedback plan 4 contracts', () => {
     }
   });
 
+  it('refreshes popular cards after ratings arrive so their stars stay visible', () => {
+    const index = read('index.html');
+
+    expect(index).toMatch(/_renderRecommendedInner\(\);[\s\S]*?if \(_popularActive && typeof renderPopular === 'function'\) \{[\s\S]*?renderPopular\(\);/);
+  });
+
   it('keeps changed inline scripts syntactically valid', () => {
     for (const file of ['index.html', 'category.html', 'ingredient.html']) {
       const html = read(file);

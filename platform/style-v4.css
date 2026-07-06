@@ -1073,7 +1073,7 @@ img { display: block; max-width: 100%; }
 .ing-restore-btn:hover { background: var(--accent); color: #fff; }
 
 /* Steps — vertical layout: number + text, photo below */
-.steps-head { display: flex; align-items: flex-start; justify-content: space-between;
+.steps-head { display: flex; align-items: flex-end; justify-content: space-between;
               gap: 10px; margin-top: 20px; margin-bottom: 4px; }
 .steps-head .v-section-title { margin-top: 0 !important; margin-bottom: 0 !important; }
 .steps-mode-btn {

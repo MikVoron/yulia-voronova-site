@@ -4681,6 +4681,9 @@
 				if (typeof _renderRecommendedInner === 'function') {
 					_renderRecommendedInner();
 				}
+				if (_popularActive && typeof renderPopular === 'function') {
+					renderPopular();
+				}
 				// Featured-карточка «Новое»: если у новинки уже есть оценки —
 				// переотрисуем её со звёздами. Высота строки рейтинга фиксирована
 				// (.sp-new-card-rating min-height), поэтому скачка не будет.

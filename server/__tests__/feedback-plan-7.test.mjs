@@ -25,6 +25,12 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(indexHtml).toMatch(/\.sp-drawer-content \.sp-drawer-subhead:first-child\s*\{[\s\S]*?border-top:\s*0/);
   });
 
+  it('aligns the ingredients and step controls with the section rules', () => {
+    expect(style).toContain('.steps-head { display: flex; align-items: flex-end; justify-content: space-between;');
+    expect(recipe).toContain('display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:20px;margin-bottom:8px;flex-wrap:wrap');
+    expect(recipe).toContain('display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap');
+  });
+
   it('opens one desktop navigation panel by hover or explicit click', () => {
     expect(headerNav).toContain("nav.addEventListener('click'");
     expect(headerNav).toContain('closeAll(dd);');
