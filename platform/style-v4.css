@@ -615,7 +615,7 @@ img { display: block; max-width: 100%; }
     font-size: 22px; font-weight: 600; line-height: 1.15;
     color: #1a1a1a; letter-spacing: -.005em;
     margin: 0 0 8px;
-    min-height: calc(1.15em * 3);
+    min-height: calc(1.15em * 4);
 }
 .recipe-card__rating {
     display: flex; align-items: center; gap: 6px;

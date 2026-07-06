@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
     <style>body{visibility:hidden}</style>
-    <link rel="stylesheet" href="style-v4.css?v=20260706-mobile-drawer" id="vcss">
+    <link rel="stylesheet" href="style-v4.css?v=20260706-card-meta-v2" id="vcss">
     <style>
         /* ── HERO (Variant 1 — фото слева, editorial-серьёзная типографика) ── */
         .cat-hero {
@@ -754,6 +754,8 @@
         const _photo = escHtml(String(d.photo || ''));
         const _imgPos = escHtml(String(d.imgPosition || ''));
         const _diff = escHtml(String(diff_labels[d.diff] || d.diff || ''));
+        const _diffIcon = typeof diffIcon === 'function' ? diffIcon(d.diff) : '';
+        const _diffColor = d.diff === 'hard' ? 'var(--accent)' : d.diff === 'medium' ? '#d97706' : '#8a7d6f';
         const _timeMeta = formatTimeMeta(d.time, d.timeLabel);
         const _timeStr = escHtml(_timeMeta.short);
         const _timeNote = _timeMeta.note ? escHtml(_timeMeta.note) : '';
@@ -798,9 +800,9 @@
                     <span class="recipe-card__rating-text" id="rtext-${_id}"></span>
                 </div>` : ''}
                 <div class="recipe-card__meta">
-                    <span class="recipe-card__meta-item">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
+                    <span class="recipe-card__meta-item recipe-card__meta-time">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
                     <span class="recipe-card__meta-dot"></span>
-                    <span>${_diff}</span>
+                    <span class="recipe-card__meta-item recipe-card__meta-diff" title="${_diff}" aria-label="${_diff}" style="color:${_diffColor}">${_diffIcon}</span>
                 </div>
                 ${_timeNote ? `<div class="recipe-card-time-note"><span class="rcn-arr" aria-hidden="true">↳</span>${_timeNote}</div>` : ''}
                 <div class="recipe-card__footer">

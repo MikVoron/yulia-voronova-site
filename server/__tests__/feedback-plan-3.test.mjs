@@ -81,15 +81,21 @@ describe('SmartPlate feedback plan 3 contracts', () => {
 
   it('keeps category cards showing ratings for locked recipes while hiding guest favorites and preserving one-line time labels', () => {
     const category = read('category.html');
+    const ingredient = read('ingredient.html');
     const style = read('style-v4.css');
     const cardBlock = category.slice(category.indexOf('function buildDishCard'), category.indexOf('const dishListEl'));
+    const ingredientBlock = ingredient.slice(ingredient.indexOf('function buildDishCard'), ingredient.indexOf('function updateRatingRow'));
     expect(cardBlock).toContain('const canShowFav = Auth.isLoggedIn();');
     expect(cardBlock).toContain('${(!locked && canShowFav) ?');
     expect(cardBlock).toContain('<div class="recipe-card__rating" id="rrow-');
     expect(cardBlock).not.toContain('${!locked ? `<div class="recipe-card__rating"');
     expect(cardBlock).toContain('class="recipe-card__meta-item recipe-card__meta-time"');
+    expect(cardBlock).toContain('class="recipe-card__meta-item recipe-card__meta-diff"');
+    expect(ingredientBlock).toContain('class="recipe-card__meta-item recipe-card__meta-time"');
+    expect(ingredientBlock).toContain('class="recipe-card__meta-item recipe-card__meta-diff"');
     expect(style).toMatch(/\.recipe-card__rating \{\s*display:\s*flex;\s*align-items:\s*center;\s*gap:\s*6px;\s*min-height:\s*16px;/);
     expect(style).toMatch(/\.recipe-card__meta-item \{\s*display:\s*inline-flex;\s*align-items:\s*center;\s*gap:\s*4px;\s*white-space:\s*nowrap;\s*\}/);
+    expect(style).toMatch(/\.recipe-card__title \{\s*font-family:[\s\S]*?min-height:\s*calc\(1\.15em \* 4\);/);
   });
 
   it('keeps the payment action responsive at the mobile breakpoint', () => {
