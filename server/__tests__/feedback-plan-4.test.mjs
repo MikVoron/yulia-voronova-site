@@ -84,6 +84,9 @@ describe('SmartPlate feedback plan 4 contracts', () => {
     const index = read('index.html');
 
     expect(index).toMatch(/_renderRecommendedInner\(\);[\s\S]*?if \(_popularActive && typeof renderPopular === 'function'\) \{[\s\S]*?renderPopular\(\);/);
+    expect(index).toContain('class="sp-card-rating"');
+    expect(index).toContain('class="sp-card-rating-stars"');
+    expect(index).toContain('${_ratingAvg.toFixed(1)}');
   });
 
   it('keeps changed inline scripts syntactically valid', () => {

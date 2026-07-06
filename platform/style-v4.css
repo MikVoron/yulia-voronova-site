@@ -1078,8 +1078,8 @@ img { display: block; max-width: 100%; }
               gap: 10px; margin-top: 20px; flex-wrap: wrap; }
 .recipe-section-head { margin-bottom: 8px; }
 .steps-head { margin-bottom: 4px; }
-.recipe-section-head .v-section-title,
-.steps-head .v-section-title { margin-top: 0 !important; margin-bottom: 0 !important; }
+.recipe-main .recipe-section-head .v-section-title,
+.recipe-main .steps-head .v-section-title { margin-top: 0 !important; margin-bottom: 0 !important; }
 .recipe-section-actions { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
 
 /* Steps — vertical layout: number + text, photo below */

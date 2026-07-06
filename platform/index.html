@@ -2589,6 +2589,27 @@
 			font-weight: 700;
 		}
 
+		.sp-card-rating {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			min-height: 16px;
+			margin: -3px 0 10px;
+			font: 600 11px/1 var(--sans);
+			color: var(--text-2);
+		}
+
+		.sp-card-rating-stars {
+			display: inline-flex;
+			gap: 1px;
+			font-size: 13px;
+			letter-spacing: 0;
+			color: #f5a623;
+		}
+
+		.sp-card-rating-stars .empty { color: #d8d2ca; }
+		.sp-card-rating-value { color: var(--text); font-weight: 700; }
+
 		.sp-card-foot {
 			margin-top: auto;
 			padding-top: 12px;
@@ -4373,6 +4394,17 @@
 				const _timeMeta = formatTimeMeta(d.time, d.timeLabel);
 				const _timeStr = escHtml(_timeMeta.short);
 				const _kcal = Number(d.kcal) || 0;
+				const _rating = _apiRatings[d.id] || {};
+				const _ratingAvg = Number(_rating.avg) || 0;
+				const _ratingCount = Number(_rating.count) || 0;
+				const _ratingRounded = Math.round(_ratingAvg);
+				let _ratingStars = '';
+				for (let i = 1; i <= 5; i++) {
+					_ratingStars += `<span${i > _ratingRounded ? ' class="empty"' : ''}>★</span>`;
+				}
+				const _ratingHtml = _ratingAvg > 0
+					? `<div class="sp-card-rating" aria-label="Рейтинг ${_ratingAvg.toFixed(1)} из 5"><span class="sp-card-rating-stars" aria-hidden="true">${_ratingStars}</span><span class="sp-card-rating-value">${_ratingAvg.toFixed(1)}</span>${_ratingCount ? `<span>(${_ratingCount})</span>` : ''}</div>`
+					: '';
 				const bd = spBadgesHtml(d, latestId);
 				const accessHint = bd.locked ? `. ${bd.access.label}. ${bd.access.actionLabel}` : '';
 				return `
@@ -4383,6 +4415,7 @@
 						</div>
 						<div class="sp-card-body">
 							<h3 class="sp-card-title">${_name}</h3>
+							${_ratingHtml}
 							<div class="sp-card-meta">
 								<span>${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
 								${_diff ? `<span>${typeof diffIcon === 'function' ? diffIcon(d.diff) : ''}${_diff}</span>` : ''}

@@ -27,10 +27,10 @@ describe('SmartPlate feedback plan 7 contracts', () => {
 
   it('aligns the ingredients and step controls with the section rules', () => {
     expect(style).toMatch(/\.recipe-section-head,[\s\S]*?\.steps-head \{ display: flex; align-items: flex-end; justify-content: space-between;/);
-    expect(style).toMatch(/\.recipe-section-head \.v-section-title,[\s\S]*?\.steps-head \.v-section-title \{ margin-top: 0 !important; margin-bottom: 0 !important; \}/);
+    expect(style).toMatch(/\.recipe-main \.recipe-section-head \.v-section-title,[\s\S]*?\.recipe-main \.steps-head \.v-section-title \{ margin-top: 0 !important; margin-bottom: 0 !important; \}/);
     expect(recipe).toContain('class="recipe-section-head recipe-ingredients-head"');
     expect(recipe).toContain('class="recipe-section-actions"');
-    expect(recipe).toContain('style-v4.css?v=20260706-recipe-controls-align');
+    expect(recipe).toContain('style-v4.css?v=20260706-recipe-controls-align-v2');
   });
 
   it('opens one desktop navigation panel by hover or explicit click', () => {
