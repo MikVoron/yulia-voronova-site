@@ -4363,22 +4363,23 @@
 			const all = Object.values(RECIPES);
 			if (!all.length) { block.style.display = 'none'; return; }
 
-			// Сначала рейтинговые, потом остальные по дате — но рейтингов может ещё не быть.
+			// «Популярные» — только рецепты с реальными оценками.
 			const withRating = [];
-			const withoutRating = [];
 			all.forEach(function (r) {
 				const rv = _apiRatings[r.id];
 				if (rv && rv.avg > 0) withRating.push({ r, rv });
-				else withoutRating.push(r);
 			});
 			withRating.sort(function (a, b) {
 				if (b.rv.avg !== a.rv.avg) return b.rv.avg - a.rv.avg;
 				if (b.rv.count !== a.rv.count) return b.rv.count - a.rv.count;
 				return (b.r.addedTs || 0) - (a.r.addedTs || 0);
 			});
-			withoutRating.sort(function (a, b) { return (b.addedTs || 0) - (a.addedTs || 0); });
-
-			const shown = withRating.map(function (x) { return x.r; }).concat(withoutRating).slice(0, _spRecCount);
+			const shown = withRating.map(function (x) { return x.r; }).slice(0, _spRecCount);
+			if (!shown.length) {
+				block.style.display = 'none';
+				grid.innerHTML = '';
+				return;
+			}
 			const latestId = _latestRecipeId();
 			const diffLabels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
 
@@ -4760,7 +4761,7 @@
 				if (rb.avg !== ra.avg) return rb.avg - ra.avg;
 				return rb.count - ra.count;
 			});
-			const shown = rated.length ? rated : allRecipes.slice(0, 12);
+			const shown = rated;
 			const latestId = _latestRecipeId();
 			const grid = document.getElementById('cat-grid');
 			grid.innerHTML = shown.map(r => {

@@ -88,6 +88,10 @@ describe('SmartPlate feedback plan 4 contracts', () => {
     expect(index).toContain('class="sp-card-rating-stars"');
     expect(index).toContain('${_ratingAvg.toFixed(1)}');
     expect(index).toContain(': \'<div class="sp-card-rating" aria-hidden="true"></div>\';');
+    expect(index).toContain('const shown = withRating.map(function (x) { return x.r; }).slice(0, _spRecCount);');
+    expect(index).toContain('const shown = rated;');
+    expect(index).not.toContain('.concat(withoutRating)');
+    expect(index).not.toContain('rated.length ? rated : allRecipes.slice(0, 12)');
   });
 
   it('keeps changed inline scripts syntactically valid', () => {
