@@ -4404,7 +4404,7 @@
 				}
 				const _ratingHtml = _ratingAvg > 0
 					? `<div class="sp-card-rating" aria-label="Рейтинг ${_ratingAvg.toFixed(1)} из 5"><span class="sp-card-rating-stars" aria-hidden="true">${_ratingStars}</span><span class="sp-card-rating-value">${_ratingAvg.toFixed(1)}</span>${_ratingCount ? `<span>(${_ratingCount})</span>` : ''}</div>`
-					: '';
+					: '<div class="sp-card-rating" aria-hidden="true"></div>';
 				const bd = spBadgesHtml(d, latestId);
 				const accessHint = bd.locked ? `. ${bd.access.label}. ${bd.access.actionLabel}` : '';
 				return `

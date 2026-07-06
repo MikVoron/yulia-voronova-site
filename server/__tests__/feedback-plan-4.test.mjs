@@ -87,6 +87,7 @@ describe('SmartPlate feedback plan 4 contracts', () => {
     expect(index).toContain('class="sp-card-rating"');
     expect(index).toContain('class="sp-card-rating-stars"');
     expect(index).toContain('${_ratingAvg.toFixed(1)}');
+    expect(index).toContain(': \'<div class="sp-card-rating" aria-hidden="true"></div>\';');
   });
 
   it('keeps changed inline scripts syntactically valid', () => {
