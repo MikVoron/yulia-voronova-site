@@ -739,6 +739,9 @@
 			color: #fff;
 			outline: none;
 		}
+		.guest-login-modal-title {
+			color: var(--accent);
+		}
 		@media (max-width: 480px) {
 			.bal-success-modal-box {
 				width: calc(100% - 24px);
@@ -1300,6 +1303,23 @@
 					style="background:#b45309;border-color:#b45309" onclick="confirmBalanceWarnAdd()">Добавить всё равно</button>
 				<button class="bal-success-modal-secondary" id="bal-warn-secondary" type="button"
 					onclick="hideBalanceWarnModal()">Вернуться и сбалансировать</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- GUEST LOGIN PROMPT -->
+	<div class="bal-success-modal-overlay" id="guest-login-modal" role="dialog" aria-modal="true"
+		aria-labelledby="guest-login-title" aria-describedby="guest-login-text">
+		<div class="bal-success-modal-box">
+			<div class="bal-success-modal-title guest-login-modal-title" id="guest-login-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17l5-5-5-5"/><path d="M15 12H4"/><path d="M20 4v16"/></svg>Вход в аккаунт</div>
+			<div class="bal-success-modal-text" id="guest-login-text">
+				Чтобы добавить блюдо в тарелку, войдите в аккаунт. Тогда тарелка сохранится и будет доступна после входа.
+			</div>
+			<div class="bal-success-modal-actions">
+				<button class="bal-success-modal-primary" id="guest-login-primary" type="button"
+					onclick="goToGuestLogin()">Войти</button>
+				<button class="bal-success-modal-secondary" type="button"
+					onclick="hideGuestLoginModal()">Остаться на рецепте</button>
 			</div>
 		</div>
 	</div>
@@ -4003,8 +4023,8 @@
 		// ── ADD TO PLATE ──────────────────────────────────────────────────────
 		function addToPlate() {
 			if (!r) return;
-			// Гость: добавить в тарелку нельзя — ведём на login.
-			if (Auth.isGuest()) { location.href = Auth._loginUrl(); return; }
+			// Гость: сначала показываем мягкий prompt, чтобы не уводить со страницы сразу.
+			if (Auth.isGuest()) { showGuestLoginModal(); return; }
 			if (isInPlate()) return;
 
 			const isBalanced = checkBalance();
@@ -4155,6 +4175,65 @@
 		}
 
 		// ── MY PLATE MODAL ────────────────────────────────────────────────────
+		let _guestLoginPrevFocus = null;
+
+		function showGuestLoginModal() {
+			const overlay = document.getElementById('guest-login-modal');
+			if (!overlay) return;
+			_guestLoginPrevFocus = document.activeElement;
+			overlay.classList.add('show');
+			overlay.addEventListener('click', _guestLoginBackdropHandler);
+			document.addEventListener('keydown', _guestLoginKeyHandler);
+			const primary = document.getElementById('guest-login-primary');
+			if (primary) setTimeout(() => { try { primary.focus(); } catch (e) { } }, 50);
+		}
+
+		function hideGuestLoginModal() {
+			const overlay = document.getElementById('guest-login-modal');
+			if (!overlay) return;
+			if (!overlay.classList.contains('show')) return;
+			overlay.classList.remove('show');
+			overlay.removeEventListener('click', _guestLoginBackdropHandler);
+			document.removeEventListener('keydown', _guestLoginKeyHandler);
+			if (_guestLoginPrevFocus && typeof _guestLoginPrevFocus.focus === 'function') {
+				try { _guestLoginPrevFocus.focus(); } catch (e) { }
+			}
+			_guestLoginPrevFocus = null;
+		}
+
+		function goToGuestLogin() {
+			const loginUrl = Auth._loginUrl();
+			hideGuestLoginModal();
+			location.href = loginUrl;
+		}
+
+		function _guestLoginBackdropHandler(e) {
+			if (e.target && e.target.id === 'guest-login-modal') hideGuestLoginModal();
+		}
+
+		function _guestLoginKeyHandler(e) {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				hideGuestLoginModal();
+				return;
+			}
+			if (e.key === 'Tab') {
+				const overlay = document.getElementById('guest-login-modal');
+				if (!overlay) return;
+				const focusable = overlay.querySelectorAll('button');
+				if (!focusable.length) return;
+				const first = focusable[0];
+				const last = focusable[focusable.length - 1];
+				if (e.shiftKey && document.activeElement === first) {
+					e.preventDefault();
+					last.focus();
+				} else if (!e.shiftKey && document.activeElement === last) {
+					e.preventDefault();
+					first.focus();
+				}
+			}
+		}
+
 		function openPlate() {
 			// Гость: тарелка — фича только для зарегистрированных, ведём на login.
 			if (Auth.isGuest()) { location.href = Auth._loginUrl(); return; }

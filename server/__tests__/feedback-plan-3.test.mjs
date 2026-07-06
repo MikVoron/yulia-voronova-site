@@ -69,6 +69,16 @@ describe('SmartPlate feedback plan 3 contracts', () => {
     expect(addResult).not.toContain('history.back()');
   });
 
+  it('asks guests before sending them to login from the add-to-plate action', () => {
+    const recipe = read('recipe.html');
+    const addBranch = recipe.slice(recipe.indexOf('// ── ADD TO PLATE ──────────────────────────────────────────────────────'), recipe.indexOf('// ── MY PLATE MODAL ────────────────────────────────────────────────────'));
+    expect(addBranch).toContain('showGuestLoginModal();');
+    expect(addBranch).not.toContain('location.href = Auth._loginUrl();');
+    expect(recipe).toContain('id="guest-login-modal"');
+    expect(recipe).toContain('onclick="goToGuestLogin()"');
+    expect(recipe).toContain('onclick="hideGuestLoginModal()"');
+  });
+
   it('keeps the payment action responsive at the mobile breakpoint', () => {
     const html = read('cabinet.html');
     expect(html).toMatch(/@media \(max-width: 760px\)[\s\S]*?\.sub-card \{ grid-template-columns: 1fr;/);
