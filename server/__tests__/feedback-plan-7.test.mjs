@@ -33,6 +33,10 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(recipe).toContain('style-v4.css?v=20260706-recipe-controls-align-v2');
   });
 
+  it('optically aligns balance checkboxes with linked item labels', () => {
+    expect(recipe).toMatch(/\.bal-item-select\s*\{[\s\S]*?transform:\s*translateY\(3px\);/);
+  });
+
   it('opens one desktop navigation panel by hover or explicit click', () => {
     expect(headerNav).toContain("nav.addEventListener('click'");
     expect(headerNav).toContain('closeAll(dd);');

@@ -94,6 +94,12 @@ describe('SmartPlate feedback plan 4 contracts', () => {
     expect(index).not.toContain('rated.length ? rated : allRecipes.slice(0, 12)');
   });
 
+  it('underlines the complete all-recipes link on hover', () => {
+    const index = read('index.html');
+
+    expect(index).toMatch(/\.sp-sec-link:hover\s*\{[\s\S]*?text-decoration:\s*underline;[\s\S]*?text-underline-offset:\s*4px;/);
+  });
+
   it('keeps changed inline scripts syntactically valid', () => {
     for (const file of ['index.html', 'category.html', 'ingredient.html']) {
       const html = read(file);
