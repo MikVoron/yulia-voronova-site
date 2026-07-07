@@ -941,9 +941,12 @@ function _mapRecipe(r) {
 
 let _contentError = false;
 let _contentErrorType = '';
+let _contentErrorDetails = null;
+let _contentIsStale = false;
 let _contentRefreshInFlight = null;
 const CONTENT_CACHE_PREFIX = 'sp_content_cache_v1:';
 const CONTENT_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
+const CONTENT_STALE_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
 
 function _contentAudienceKey() {
     const user = Auth.getUser();
@@ -958,36 +961,49 @@ function _contentCacheKey() {
 // Экспортируем как обычную глобальную функцию: кабинет и редактор рецептов
 // сбрасывают кэш после изменения данных, влияющих на выдачу.
 function clearContentCache() {
-    try {
-        for (let i = sessionStorage.length - 1; i >= 0; i--) {
-            const key = sessionStorage.key(i);
-            if (key && key.indexOf(CONTENT_CACHE_PREFIX) === 0) sessionStorage.removeItem(key);
-        }
-    } catch (_) {}
+    [sessionStorage, localStorage].forEach(storage => {
+        try {
+            for (let i = storage.length - 1; i >= 0; i--) {
+                const key = storage.key(i);
+                if (key && key.indexOf(CONTENT_CACHE_PREFIX) === 0) storage.removeItem(key);
+            }
+        } catch (_) {}
+    });
 }
 
-function _readContentCache() {
+function _validContentCache(storage, maxAge) {
     try {
-        const cached = JSON.parse(sessionStorage.getItem(_contentCacheKey()) || 'null');
-        if (!cached || !cached.savedAt || Date.now() - cached.savedAt > CONTENT_CACHE_MAX_AGE) return null;
+        const cached = JSON.parse(storage.getItem(_contentCacheKey()) || 'null');
+        if (!cached || !cached.savedAt || Date.now() - cached.savedAt > maxAge) return null;
         if (!Array.isArray(cached.recipes) || !Array.isArray(cached.categories)) return null;
         return cached;
-    } catch (_) {
-        return null;
-    }
+    } catch (_) { return null; }
 }
 
-function _writeContentCache(payload) {
+function _readContentCache(maxAge = CONTENT_CACHE_MAX_AGE) {
+    const sessionCached = _validContentCache(sessionStorage, maxAge);
+    const persistentCached = _validContentCache(localStorage, maxAge);
+    if (!sessionCached) return persistentCached;
+    if (!persistentCached) return sessionCached;
+    return sessionCached.savedAt >= persistentCached.savedAt ? sessionCached : persistentCached;
+}
+
+function _writeContentCache(payload, savedAt = Date.now()) {
+    const serialized = JSON.stringify({
+        savedAt,
+        recipes: payload.recipes,
+        categories: payload.categories,
+        ingredients: payload.ingredients || []
+    });
     try {
-        sessionStorage.setItem(_contentCacheKey(), JSON.stringify({
-            savedAt: Date.now(),
-            recipes: payload.recipes,
-            categories: payload.categories,
-            ingredients: payload.ingredients || []
-        }));
-    } catch (_) {
-        // Safari private mode / quota: кэш — ускорение, но не обязательное условие.
-    }
+        sessionStorage.setItem(_contentCacheKey(), serialized);
+    } catch (_) {}
+    try {
+        // Persistent last-known-good data keeps the catalogue usable in a new tab
+        // and after a short provider/DNS outage. Audience-specific keys plus
+        // clearContentCache() prevent paid payloads crossing account boundaries.
+        localStorage.setItem(_contentCacheKey(), serialized);
+    } catch (_) {}
 }
 
 function _applyContentPayload(payload) {
@@ -1025,18 +1041,32 @@ function _fetchWithTimeout(url, options, timeoutMs) {
     return fetch(url, fetchOptions).finally(() => clearTimeout(timer));
 }
 
-// A transient TLS/network stall should not leave a first-time visitor without
-// content. Retry once with a fresh connection and a longer timeout; cached
-// visitors still take the fast path above and do not wait for either request.
-async function _fetchWithRetry(url, options, firstTimeoutMs, retryTimeoutMs) {
-    try {
-        return await _fetchWithTimeout(url, options, firstTimeoutMs);
-    } catch (err) {
-        const retryable = err && (err.name === 'AbortError' || err.name === 'TypeError');
-        if (!retryable) throw err;
-        await new Promise(resolve => setTimeout(resolve, 300));
-        return _fetchWithTimeout(url, options, retryTimeoutMs);
+// Transient TLS/DNS stalls often affect several requests at once. Fresh attempts
+// are spaced out instead of immediately repeating the same failing route.
+async function _fetchWithRetry(url, options, timeouts) {
+    const attemptTimeouts = Array.isArray(timeouts) && timeouts.length ? timeouts : [8000, 12000, 15000];
+    let lastError = null;
+    for (let attempt = 0; attempt < attemptTimeouts.length; attempt++) {
+        if (attempt > 0) {
+            const baseDelay = attempt === 1 ? 1000 : 3000;
+            const jitter = Math.floor(Math.random() * 500);
+            await new Promise(resolve => setTimeout(resolve, baseDelay + jitter));
+        }
+        try {
+            const response = await _fetchWithTimeout(url, options, attemptTimeouts[attempt]);
+            const retryableStatus = response.status === 408 || response.status === 425 ||
+                response.status === 429 || response.status >= 500;
+            if (!retryableStatus || attempt === attemptTimeouts.length - 1) return response;
+            lastError = new Error('Content API returned retryable status ' + response.status);
+            lastError.contentType = response.status === 429 ? 'rate-limit' : 'server';
+            lastError.status = response.status;
+        } catch (err) {
+            const retryable = err && (err.name === 'AbortError' || err.name === 'TypeError');
+            if (!retryable) throw err;
+            lastError = err;
+        }
     }
+    throw lastError || new Error('Content request failed');
 }
 
 async function _fetchContentPayload() {
@@ -1048,16 +1078,16 @@ async function _fetchContentPayload() {
     const token = Auth.getToken();
     if (token) headers['Authorization'] = 'Bearer ' + token;
     const ingredientsPromise = _fetchWithRetry(
-        API_BASE + '/content/ingredients', { headers }, 2500, 5000
+        API_BASE + '/content/ingredients', { headers }, [2500, 5000]
     ).then(res => res.ok ? res.json() : []).catch(() => []);
     const [recipesRes, catsRes, ingredients] = await Promise.all([
-        _fetchWithRetry(API_BASE + '/content/recipes', { headers }, 8000, 15000),
-        _fetchWithRetry(API_BASE + '/content/categories', { headers }, 8000, 15000),
+        _fetchWithRetry(API_BASE + '/content/recipes', { headers }, [6000, 8000, 10000]),
+        _fetchWithRetry(API_BASE + '/content/categories', { headers }, [6000, 8000, 10000]),
         ingredientsPromise
     ]);
     if (!recipesRes.ok || !catsRes.ok) {
         const error = new Error('Content API returned non-OK status');
-        error.contentType = 'server';
+        error.contentType = recipesRes.status === 429 || catsRes.status === 429 ? 'rate-limit' : 'server';
         error.statuses = [recipesRes.status, catsRes.status];
         throw error;
     }
@@ -1086,9 +1116,14 @@ async function loadContent() {
     if (_contentLoaded) return;
     _contentError = false;
     _contentErrorType = '';
+    _contentErrorDetails = null;
+    _contentIsStale = false;
     const cached = _readContentCache();
     if (cached) {
         _applyContentPayload(cached);
+        // Promote an existing session-only cache to persistent storage without
+        // making it look newer than it really is.
+        _writeContentCache(cached, cached.savedAt);
         _contentLoaded = true;
         _refreshContentCacheInBackground();
         return;
@@ -1099,29 +1134,87 @@ async function loadContent() {
         _writeContentCache(payload);
         _contentLoaded = true;
     } catch (e) {
+        const staleCached = _readContentCache(CONTENT_STALE_MAX_AGE);
+        if (staleCached) {
+            _applyContentPayload(staleCached);
+            _contentLoaded = true;
+            _contentIsStale = true;
+            console.warn('Using last-known-good content after API failure', e);
+            showContentStaleNotice(staleCached.savedAt);
+            window.dispatchEvent(new CustomEvent('smartplate:content-stale', {
+                detail: { savedAt: staleCached.savedAt }
+            }));
+            return;
+        }
         _contentError = true;
         _contentErrorType = e && e.contentType
             ? e.contentType
             : (e && e.name === 'AbortError' ? 'timeout' : 'network');
+        _contentErrorDetails = e || null;
         console.error('Failed to load content from API', e);
     }
 }
 
 function isContentError() { return _contentError; }
+function isContentStale() { return _contentIsStale; }
+
+function showContentStaleNotice(savedAt) {
+    if (!document.body || document.getElementById('content-stale-notice')) return;
+    const notice = document.createElement('div');
+    notice.id = 'content-stale-notice';
+    notice.setAttribute('role', 'status');
+    notice.style.cssText = 'position:fixed;left:50%;bottom:18px;z-index:10000;transform:translateX(-50%);max-width:calc(100vw - 32px);background:#1d1d1b;color:#fff;padding:11px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.22);font:13px/1.4 Arial,sans-serif;display:flex;gap:12px;align-items:center';
+    const date = savedAt ? new Date(savedAt).toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' }) : '';
+    const message = document.createElement('span');
+    message.textContent = 'Показаны сохранённые рецепты' + (date ? ' от ' + date : '') + '. Связь восстановится автоматически.';
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.textContent = 'Проверить';
+    retry.style.cssText = 'border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;padding:6px 9px;border-radius:7px;cursor:pointer;font:inherit;white-space:nowrap';
+    retry.addEventListener('click', async function () {
+        retry.disabled = true;
+        retry.textContent = 'Проверяем…';
+        try {
+            const payload = await _fetchContentPayload();
+            _writeContentCache(payload);
+            _contentIsStale = false;
+            message.textContent = 'Связь восстановлена. Свежие данные загрузятся при переходе в следующий раздел.';
+            retry.remove();
+            setTimeout(() => notice.remove(), 5000);
+            window.dispatchEvent(new CustomEvent('smartplate:content-cache-refreshed'));
+        } catch (err) {
+            retry.disabled = false;
+            retry.textContent = 'Проверить ещё раз';
+            message.textContent = 'Связь пока не восстановилась. Сохранённые рецепты остаются доступны.';
+        }
+    });
+    notice.append(message, retry);
+    document.body.appendChild(notice);
+}
 
 // Показать экран ошибки при недоступности API
 function showApiError(container) {
     if (!container) return;
     const timedOut = _contentErrorType === 'timeout';
-    const title = timedOut ? 'Сервер отвечает дольше обычного' : 'Не удалось загрузить рецепты';
-    const text = timedOut
+    const rateLimited = _contentErrorType === 'rate-limit';
+    const serverError = _contentErrorType === 'server';
+    const title = rateLimited ? 'Слишком много запросов из вашей сети'
+        : (timedOut ? 'Сервер отвечает дольше обычного'
+        : (serverError ? 'Сервис временно недоступен' : 'Не удалось загрузить рецепты'));
+    const text = rateLimited
+        ? 'Подождите немного и попробуйте снова. Такое возможно в мобильной сети с общим IP-адресом.'
+        : (timedOut
         ? 'Мы остановили ожидание, чтобы страница не зависла. Попробуйте загрузить рецепты ещё раз.'
-        : 'Проверьте подключение к интернету или попробуйте позже.';
+        : (serverError ? 'Мы уже можем отличить эту ошибку от проблемы с интернетом. Попробуйте чуть позже.'
+        : 'Проверьте подключение к интернету или попробуйте позже.'));
+    const statusText = _contentErrorDetails && Array.isArray(_contentErrorDetails.statuses)
+        ? ' <small style="display:block;margin-top:8px;color:#999">Код: ' + _contentErrorDetails.statuses.join(' / ') + '</small>'
+        : '';
     container.innerHTML =
         '<div style="text-align:center;padding:60px 20px;max-width:440px;margin:0 auto">' +
             '<div style="font-size:56px;margin-bottom:16px">📡</div>' +
             '<h2 style="font-family:Playfair Display,serif;font-size:24px;color:#1a1a1a;margin-bottom:12px">' + title + '</h2>' +
-            '<p style="color:#666;font-size:15px;line-height:1.5;margin-bottom:24px">' + text + '</p>' +
+            '<p style="color:#666;font-size:15px;line-height:1.5;margin-bottom:24px">' + text + statusText + '</p>' +
             '<button onclick="location.reload()" style="background:var(--accent,#e8734a);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer">Повторить</button>' +
         '</div>';
 }

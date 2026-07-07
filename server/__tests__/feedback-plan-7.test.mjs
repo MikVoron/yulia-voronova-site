@@ -135,7 +135,7 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     for (const file of ['index.html', 'recipe.html', 'cabinet.html', 'category.html', 'ingredient.html']) {
       const html = read(file);
       expect(html).toContain('style-v4.css?v=20260706-mobile-drawer');
-      expect(html).toContain('data-v2.js?v=20260704-feedback-plan7');
+      expect(html).toContain('data-v2.js?v=20260707-access-resilience');
       expect(html).toContain('tawk-chat-modal.js?v=20260704-feedback-plan7');
     }
   });
