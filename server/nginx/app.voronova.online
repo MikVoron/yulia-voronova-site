@@ -12,6 +12,15 @@ server {
     add_header Cache-Control "no-cache" always;
     add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://mc.yandex.ru https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://voronova.online https://*.voronova.online; connect-src 'self' https://api.voronova.online https://mc.yandex.ru https://www.google-analytics.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://vk.com https://vkvideo.ru https://dzen.ru https://tawk.to; child-src https://www.youtube.com https://www.youtube-nocookie.com https://vk.com https://vkvideo.ru https://dzen.ru https://tawk.to; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'" always;
 
+    # Public read-only SmartPlate content through the frontend origin. This
+    # avoids a second DNS/TLS route while auth, payments and writes continue to
+    # use api.voronova.online directly.
+    location ^~ /api/content/ {
+        limit_except GET { deny all; }
+        rewrite ^/api/(.*)$ /$1 break;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
     location / {
         try_files $uri $uri/ =404;
     }

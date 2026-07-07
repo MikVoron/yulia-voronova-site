@@ -36,6 +36,7 @@ function createRuntime(fetchImpl, { session = {}, local = {} } = {}) {
   const localStorage = createStorage(local);
   const context = vm.createContext({
     API_BASE: 'https://api.example.test',
+    CONTENT_API_BASE: 'https://app.example.test/api',
     Auth: {
       getUser: () => null,
       isLoggedIn: () => false,

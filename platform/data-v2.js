@@ -6,6 +6,9 @@
 
 // ─── CONFIG ─────────────────────────────────────────────────────────────────
 const API_BASE  = 'https://api.voronova.online';
+const CONTENT_API_BASE = (typeof location !== 'undefined' && location.hostname === 'app.voronova.online')
+    ? location.origin + '/api'
+    : API_BASE;
 // Включить когда public-offer.html опубликован на voronova.online (после мержа feature → main + GitHub Pages).
 // До этого ссылки на оферту в UI скрыты, чтобы не вести пользователя на 404.
 const LEGAL_OFFER_ENABLED = false;
@@ -1078,11 +1081,11 @@ async function _fetchContentPayload() {
     const token = Auth.getToken();
     if (token) headers['Authorization'] = 'Bearer ' + token;
     const ingredientsPromise = _fetchWithRetry(
-        API_BASE + '/content/ingredients', { headers }, [2500, 5000]
+        CONTENT_API_BASE + '/content/ingredients', { headers }, [2500, 5000]
     ).then(res => res.ok ? res.json() : []).catch(() => []);
     const [recipesRes, catsRes, ingredients] = await Promise.all([
-        _fetchWithRetry(API_BASE + '/content/recipes', { headers }, [6000, 8000, 10000]),
-        _fetchWithRetry(API_BASE + '/content/categories', { headers }, [6000, 8000, 10000]),
+        _fetchWithRetry(CONTENT_API_BASE + '/content/recipes', { headers }, [6000, 8000, 10000]),
+        _fetchWithRetry(CONTENT_API_BASE + '/content/categories', { headers }, [6000, 8000, 10000]),
         ingredientsPromise
     ]);
     if (!recipesRes.ok || !catsRes.ok) {
