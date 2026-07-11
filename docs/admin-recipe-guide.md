@@ -346,10 +346,10 @@
 
 3 отдельных поля: `yt_video`, `vk_video`, `dzen_video`. Пустые = прочерк.
 
-Формат — **полный URL**, не embed-код:
+Формат — **полный URL**; для Дзена допустим embed-код iframe:
 - YouTube: `https://youtu.be/XXXX` или `https://www.youtube.com/watch?v=XXXX`
 - VK: `https://vkvideo.ru/video-XXX_YYY` или `https://vk.com/video-XXX_YYY`
-- Дзен: `https://dzen.ru/video/watch/XXXXX`
+- Дзен: код iframe или `https://dzen.ru/embed/XXXXX`
 
 Фронт сам конвертит в embed при рендере.
 
