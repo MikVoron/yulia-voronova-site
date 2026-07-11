@@ -2994,10 +2994,16 @@ img { display: block; max-width: 100%; }
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     box-shadow: 0 4px 20px rgba(0,0,0,.28);
     cursor: pointer; border: none;
-    transition: background var(--tr), transform .2s;
+    transition: background var(--tr), box-shadow var(--tr), transform .2s;
     font-size: 10px; gap: 3px;
 }
 .chat-fab:hover { background: var(--accent); transform: scale(1.04); }
+.chat-fab.is-over-footer {
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 0 0 3px rgba(232,64,10,.9), 0 10px 26px rgba(0,0,0,.42);
+}
+.chat-fab.is-over-footer:hover { background: #fff7f3; }
 .chat-fab-icon { width: 22px; height: 22px; fill: currentColor; }
 .chat-fab-tip { display: none; }
 

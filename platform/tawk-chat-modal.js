@@ -127,6 +127,33 @@
 		return false;
 	};
 
+	(function bindFooterContrast() {
+		var fab = document.getElementById('support-fab');
+		var footer = document.querySelector('.v-footer');
+		if (!fab || !footer || !window.requestAnimationFrame) return;
+
+		var frame = null;
+		function update() {
+			frame = null;
+			var fabRect = fab.getBoundingClientRect();
+			var footerRect = footer.getBoundingClientRect();
+			var isOverFooter = fabRect.bottom > footerRect.top &&
+				fabRect.top < footerRect.bottom &&
+				fabRect.right > footerRect.left &&
+				fabRect.left < footerRect.right;
+			fab.classList.toggle('is-over-footer', isOverFooter);
+		}
+		function schedule() {
+			if (frame) return;
+			frame = window.requestAnimationFrame(update);
+		}
+
+		update();
+		window.addEventListener('scroll', schedule, { passive: true });
+		window.addEventListener('resize', schedule);
+		window.addEventListener('load', update);
+	})();
+
 	document.addEventListener('click', function (event) {
 		var target = event.target;
 		while (target && target !== document) {

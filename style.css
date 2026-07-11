@@ -14751,21 +14751,6 @@ button[class*="btn-"]:hover,
     box-shadow: 0 6px 20px rgba(120, 175, 200, 0.6);
 }
 
-.chat-launcher.over-footer .chat-launcher-btn {
-    background: linear-gradient(135deg, #eef8fb, #b8dbe8);
-    box-shadow:
-        0 0 0 4px rgba(255, 255, 255, 0.92),
-        0 8px 24px rgba(0, 0, 0, 0.38),
-        0 0 0 12px rgba(184, 219, 232, 0.18);
-}
-
-.chat-launcher.over-footer .chat-launcher-btn:hover {
-    box-shadow:
-        0 0 0 4px rgba(255, 255, 255, 0.96),
-        0 10px 28px rgba(0, 0, 0, 0.44),
-        0 0 0 14px rgba(184, 219, 232, 0.22);
-}
-
 @keyframes chat-pulse {
     0%, 100% {
         box-shadow: 0 4px 15px rgba(120, 175, 200, 0.45);
