@@ -384,7 +384,7 @@
 <!-- FOOTER -->
 <footer class="v-footer">
     <div class="v-footer-inner">
-        <div class="v-footer-brand"><span class="v-logo-name" style="color:rgba(255,255,255,.7)">Юлия Воронова</span><span class="v-logo-brand" style="color:#fff">Умная <span>тарелка</span></span><span class="v-logo-role" style="color:rgba(255,255,255,.45)">Нутрициолог</span></div>
+        <div class="v-footer-brand"><span class="v-logo-brand" style="color:#fff">Умная <span>тарелка</span></span><span class="v-footer-brand-caption">Конструктор питания Юлии Вороновой</span></div>
         <div class="v-footer-links">
             <a href="https://voronova.online" target="_blank" rel="noopener">Сайт</a>
             <span class="v-footer-sep"></span>
@@ -392,6 +392,7 @@
             <span class="v-footer-sep"></span>
             <a href="https://voronova.online/tests.html">Тесты</a>
         </div>
+        <a class="v-footer-email" href="mailto:hello@voronova.online" aria-label="Email: hello@voronova.online">hello@voronova.online</a>
         <div class="v-footer-social">
             <a href="https://t.me/YuliaVoronova78" target="_blank" rel="noopener" aria-label="Telegram">
                 <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
@@ -731,6 +732,7 @@
             </div>
             <div class="recipe-card__body">
                 <h3 class="recipe-card__title">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</h3>
+                <div class="recipe-card__details-line">
                 ${!locked ? `<div class="recipe-card__rating" id="rrow-${_id}">
                     <div class="rating-popup" id="rpop-${_id}">
                         ${[1,2,3,4,5].map(i => `<span class="rp-star" data-n="${i}" onmouseenter="hoverPopStar('${_id}',${i})" onmouseleave="unhoverPopStar('${_id}')" onclick="event.stopPropagation();rateFromPop('${_id}',${i})">★</span>`).join('')}
@@ -742,6 +744,7 @@
                     <span class="recipe-card__meta-item recipe-card__meta-time">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
                     <span class="recipe-card__meta-dot"></span>
                     <span class="recipe-card__meta-item recipe-card__meta-diff" title="${_diff}" aria-label="${_diff}" style="color:${_diffColor}">${_diffIcon}<span class="recipe-card__meta-diff-label">${_diff}</span></span>
+                </div>
                 </div>
                 ${_timeNote ? `<div class="recipe-card-time-note"><span class="rcn-arr" aria-hidden="true">↳</span>${_timeNote}</div>` : ''}
                 <div class="recipe-card__footer">
