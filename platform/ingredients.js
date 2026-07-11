@@ -61,6 +61,7 @@
     { id: 'rice',        name: 'Рис',    group: 'grains' },
     { id: 'quinoa',      name: 'Киноа',  group: 'grains' },
     { id: 'millet',      name: 'Пшено',  group: 'grains' },
+    { id: 'oats',        name: 'Овсянка', group: 'grains' },
     { id: 'bulgur',      name: 'Булгур', group: 'grains' },
     { id: 'pasta',       name: 'Паста',  group: 'grains' },
     // Грибы
@@ -69,6 +70,7 @@
     { id: 'salmon',      name: 'Лосось', group: 'fish' },
     { id: 'tuna',        name: 'Тунец',  group: 'fish' },
     { id: 'shrimp',      name: 'Креветки', group: 'fish' },
+    { id: 'seabass',     name: 'Сибас', group: 'fish' },
     // Птица
     { id: 'chicken',     name: 'Курица', group: 'poultry' }
   ];
