@@ -54,6 +54,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const tawkOpenBtn = document.getElementById('tawkOpenBtn');
 
     if (chatLauncher && chatLauncherBtn) {
+        const footerTargets = Array.from(document.querySelectorAll('footer, .footer, .guide-footer'));
+        const updateChatFooterState = () => {
+            const buttonRect = chatLauncherBtn.getBoundingClientRect();
+            const overFooter = footerTargets.some(footer => {
+                const footerRect = footer.getBoundingClientRect();
+                return buttonRect.bottom > footerRect.top &&
+                    buttonRect.top < footerRect.bottom &&
+                    buttonRect.right > footerRect.left &&
+                    buttonRect.left < footerRect.right;
+            });
+            chatLauncher.classList.toggle('over-footer', overFooter);
+        };
+
+        if (footerTargets.length) {
+            let chatFooterFrame = null;
+            const requestChatFooterState = () => {
+                if (chatFooterFrame) return;
+                chatFooterFrame = requestAnimationFrame(() => {
+                    chatFooterFrame = null;
+                    updateChatFooterState();
+                });
+            };
+
+            updateChatFooterState();
+            window.addEventListener('scroll', requestChatFooterState, { passive: true });
+            window.addEventListener('resize', requestChatFooterState);
+            window.addEventListener('load', updateChatFooterState);
+        }
+
         // Открыть/закрыть меню
         chatLauncherBtn.addEventListener('click', (e) => {
             e.stopPropagation();
