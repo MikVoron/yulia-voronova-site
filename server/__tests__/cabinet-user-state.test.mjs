@@ -9,7 +9,7 @@ const cabinetHtml = readFileSync(resolve(root, 'platform', 'cabinet.html'), 'utf
 describe('cabinet account state', () => {
   it('persists weight through the authenticated profile endpoint', () => {
     expect(cabinetJs).toContain("Auth.api('/auth/profile'");
-    expect(cabinetJs).toContain('JSON.stringify({ weight: n })');
+    expect(cabinetJs).toContain('body: { weight: n }');
     expect(cabinetJs).toContain('user.weight = n');
   });
 

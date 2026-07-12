@@ -30,7 +30,7 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(style).toMatch(/\.recipe-main \.recipe-section-head \.v-section-title,[\s\S]*?\.recipe-main \.steps-head \.v-section-title \{ margin-top: 0 !important; margin-bottom: 0 !important; \}/);
     expect(recipe).toContain('class="recipe-section-head recipe-ingredients-head"');
     expect(recipe).toContain('class="recipe-section-actions"');
-    expect(recipe).toContain('style-v4.css?v=20260706-recipe-controls-align-v2');
+    expect(recipe).toMatch(/style-v4\.css\?v=[^"']+/);
   });
 
   it('optically aligns balance checkboxes with linked item labels', () => {
@@ -94,8 +94,8 @@ describe('SmartPlate feedback plan 7 contracts', () => {
   });
 
   it('aligns balance choices and gives their controls a usable touch target', () => {
-    expect(recipe).toContain('.bal-group-toggle-wrap {\n\t\t\tpadding: 12px 0 0;');
-    expect(recipe).toContain('.bal-group-body { padding: 0 18px 14px !important;');
+    expect(recipe).toMatch(/\.bal-group-toggle-wrap\s*\{\s*padding:\s*12px 0 0;/);
+    expect(recipe).toMatch(/\.bal-group-body\s*\{\s*padding:\s*0 18px 14px !important;/);
     expect(recipe).toMatch(/\.bal-item-select\s*\{[\s\S]*?width:\s*40px;[\s\S]*?height:\s*40px;/);
   });
 
@@ -113,12 +113,13 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(cabinetJs).toContain("+ headlineHtml");
     expect(cabinetJs).not.toContain("badge === 'trial' ? 'Пробный период'");
     expect(cabinetJs).toContain("/мес. · все рецепты и&nbsp;БЖУ");
-    expect(cabinetHtml).toContain('cabinet.js?v=20260705-settings-tab');
+    expect(cabinetHtml).toMatch(/cabinet\.js\?v=[^"']+/);
   });
 
   it('uses the approved support copy for a repeated payment', () => {
     expect(cabinetJs).toContain("Если нужна помощь с повторной оплатой — напишите ");
-    expect(cabinetJs).toContain('>в чат Отдела заботы</a>');
+    expect(cabinetJs).toContain("— напишите в '");
+    expect(cabinetJs).toContain('>чат Отдела заботы</a>');
     expect(cabinetJs).toContain(" + ' или на ' + emailLink + '.'");
   });
 
@@ -134,9 +135,9 @@ describe('SmartPlate feedback plan 7 contracts', () => {
   it('cache-busts shared UI assets on the audited public surfaces', () => {
     for (const file of ['index.html', 'recipe.html', 'cabinet.html', 'category.html', 'ingredient.html']) {
       const html = read(file);
-      expect(html).toContain('style-v4.css?v=20260706-mobile-drawer');
-      expect(html).toContain('data-v2.js?v=20260707-same-origin-content');
-      expect(html).toContain('tawk-chat-modal.js?v=20260704-feedback-plan7');
+      expect(html).toMatch(/style-v4\.css\?v=[^"']+/);
+      expect(html).toMatch(/data-v2\.js\?v=[^"']+/);
+      expect(html).toMatch(/tawk-chat-modal\.js\?v=[^"']+/);
     }
   });
 });

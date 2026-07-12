@@ -115,7 +115,7 @@ describe('SmartPlate feedback plan 6 contracts', () => {
     expect(indexHtml).toMatch(/\.sp-guest-onboarding-active \.sp-guest-onboarding\s*\{\s*display:\s*block/);
   });
 
-  it('collapses, persists completion, cleans the URL, and returns focus without scrolling', () => {
+  it('collapses, persists completion, cleans the URL, and returns focus to the page start', () => {
     const harness = createHarness({ forced: true });
 
     vm.runInContext('completeGuestTour(); updateGuestOnboardingVisibility();', harness.context);
@@ -126,7 +126,7 @@ describe('SmartPlate feedback plan 6 contracts', () => {
     expect(harness.replaceCalls).toHaveLength(1);
     expect(harness.replaceCalls[0].state).toEqual({ preserved: true });
     expect(harness.focusCalls.at(-1)).toEqual({ id: 'guest-tour-trigger', options: { preventScroll: true } });
-    expect(harness.scrollCalls).toHaveLength(0);
+    expect(harness.scrollCalls).toEqual([{ top: 0, behavior: 'smooth' }]);
   });
 
   it('does not restore onboarding on reload after completion', () => {
@@ -143,7 +143,7 @@ describe('SmartPlate feedback plan 6 contracts', () => {
     expect(harness.values.get('smartplate_guest_tour_completed_v1')).toBe('1');
     expect(harness.location.search).toBe('?guestTour=1');
     expect(harness.replaceCalls).toHaveLength(1);
-    expect(harness.focusCalls.at(-1)).toEqual({ id: 'guest-onboarding-title', options: { preventScroll: true } });
+    expect(harness.focusCalls).toHaveLength(0);
     expect(harness.scrollCalls).toEqual([{ top: 416, behavior: 'smooth' }]);
     expect(indexHtml.match(/id="guest-onboarding"/g)).toHaveLength(1);
   });
@@ -195,8 +195,9 @@ describe('SmartPlate feedback plan 6 contracts', () => {
 
   it('provides the approved copy and visible keyboard focus locally on the homepage', () => {
     expect(indexHtml).toContain('onclick="completeGuestTour()">Свернуть</button>');
-    expect(indexHtml).toContain('id="guest-tour-trigger" type="button" onclick="openGuestTour()">Как это работает?</button>');
-    expect(indexHtml).toContain('id="guest-onboarding-title" tabindex="-1"');
+    expect(indexHtml).toContain('id="guest-tour-trigger" type="button" onclick="openGuestTour()">Как это работает? →</button>');
+    expect(indexHtml).toContain('id="guest-onboarding-title"');
+    expect(indexHtml).not.toContain('id="guest-onboarding-title" tabindex="-1"');
     expect(indexHtml).toContain('.sp-guest-tour-reopen:focus-visible');
     expect(indexHtml).toContain('.sp-guest-title:focus');
     expect(indexHtml).not.toContain('onclick="completeGuestTour()">Больше не показывать</button>');
