@@ -1,0 +1,4045 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="robots" content="noindex, nofollow">
+	<title>Как легко ввести растительные продукты в рацион | Юлия Воронова</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-4KF0TQR0VD"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() { dataLayer.push(arguments); }
+		gtag('js', new Date());
+		gtag('config', 'G-4KF0TQR0VD');
+	</script>
+	<script>
+		(function (m, e, t, r, i, k, a) {
+			m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+			m[i].l = 1 * new Date(); k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1,
+				k.src = r, a.parentNode.insertBefore(k, a)
+		})(window, document, 'script',
+			'https://mc.yandex.ru/metrika/tag.js', 'ym');
+		ym(106615581, 'init', { clickmap: true, trackLinks: true, accurateTrackBounce: true });
+	</script>
+	<style>
+		:root {
+			--olive: #8aab80;
+			--olive-dk: #a8c49e;
+			--olive-lt: #c0d8b8;
+			--olive-bg: #eaf3e7;
+			--sage-bg: #d6e8d0;
+			--cream: #faf8f4;
+			--ivory: #f5f0e8;
+			--text: #3a3530;
+			--text-mid: #6b6260;
+			--text-lt: #a09890;
+			--white: #ffffff;
+			--warm-line: #ece6db;
+			--rose: #c9a59a;
+			--ff-display: 'Cormorant Garamond', Georgia, serif;
+			--ff-body: 'Montserrat', sans-serif;
+		}
+
+		*,
+		*::before,
+		*::after {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0
+		}
+
+		html {
+			scroll-behavior: smooth
+		}
+
+		body {
+			font-family: var(--ff-body);
+			background: #eeebe3;
+			color: var(--text);
+			font-size: 16px;
+			line-height: 1.7
+		}
+
+		.mobile-nav {
+			display: flex;
+			flex-wrap: wrap;
+			position: sticky;
+			top: 0;
+			z-index: 100;
+			background: var(--white);
+			border-bottom: 1px solid var(--warm-line)
+		}
+
+		.mobile-nav::-webkit-scrollbar {
+			display: none
+		}
+
+		.mobile-nav a {
+			flex: 1 0 25%;
+			padding: 11px 4px;
+			font-size: 10px;
+			font-weight: 700;
+			letter-spacing: .5px;
+			text-transform: uppercase;
+			color: var(--text-mid);
+			text-decoration: none;
+			text-align: center;
+			border-bottom: 2px solid transparent;
+			border-right: 1px solid var(--warm-line);
+			white-space: nowrap;
+			transition: color .25s, border-color .25s, background .25s
+		}
+
+		.mobile-nav a:last-child {
+			border-right: none
+		}
+
+		.mobile-nav a:hover {
+			color: var(--olive);
+			border-bottom-color: var(--olive)
+		}
+
+		/* Активная кнопка навигации — ссылки */
+		.mobile-nav a.nav-active {
+			background: var(--olive);
+			color: var(--white);
+			border-bottom-color: transparent
+		}
+
+		/* Кнопка «Рецепты» — стиль как у ссылок в навигации */
+		.nav-recipes-btn {
+			flex: 1 0 25%;
+			padding: 11px 4px;
+			font-size: 10px;
+			font-weight: 700;
+			letter-spacing: .5px;
+			text-transform: uppercase;
+			color: var(--text-mid);
+			text-align: center;
+			border: none;
+			border-bottom: 2px solid transparent;
+			border-right: 1px solid var(--warm-line);
+			background: none;
+			cursor: pointer;
+			font-family: var(--ff-body);
+			white-space: nowrap;
+			transition: color .25s, border-color .25s, background .25s
+		}
+
+		.nav-recipes-btn:hover {
+			color: var(--olive);
+			border-bottom-color: var(--olive)
+		}
+
+		/* Активная кнопка «Рецепты» — объявлена после base, чтобы перебить color */
+		.nav-recipes-btn.nav-active {
+			background: var(--olive);
+			color: #fff;
+			border-bottom-color: transparent
+		}
+
+		/* Выпадающий список разделов рецептов */
+		.nav-recipes-drop {
+			position: absolute;
+			top: 100%;
+			left: 0;
+			right: 0;
+			background: var(--white);
+			border-bottom: 2px solid var(--olive-lt);
+			box-shadow: 0 8px 24px rgba(0, 0, 0, .13);
+			z-index: 200;
+			overflow: hidden;
+			opacity: 0;
+			visibility: hidden;
+			transition: opacity .25s ease, visibility 0s linear .25s
+		}
+
+		.nav-recipes-drop.active {
+			opacity: 1;
+			visibility: visible;
+			transition: opacity .25s ease, visibility 0s linear 0s
+		}
+
+		/* Анимация: выезд слева */
+		@keyframes dropItemIn {
+			from {
+				opacity: 0;
+				transform: translateX(-100%)
+			}
+
+			to {
+				opacity: 1;
+				transform: translateX(0)
+			}
+		}
+
+		.nav-drop-item {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 12px 16px 12px 12px;
+			text-decoration: none;
+			color: var(--text);
+			border-bottom: 1px solid var(--warm-line);
+			border-left: 3px solid transparent;
+			opacity: 0;
+			transition: background .15s, border-color .15s;
+			-webkit-tap-highlight-color: transparent
+		}
+
+		.nav-drop-item:last-child {
+			border-bottom: none
+		}
+
+		.nav-drop-item:active,
+		.nav-drop-item:hover {
+			background: rgba(138, 171, 128, .07);
+			border-left-color: var(--olive)
+		}
+
+		/* Поочерёдное появление пунктов */
+		.nav-recipes-drop.active .nav-drop-item {
+			animation: dropItemIn .38s cubic-bezier(0.25, 0.46, 0.45, 0.94) both
+		}
+
+		.nav-recipes-drop.active .nav-drop-item:nth-child(1) {
+			animation-delay: .05s
+		}
+
+		.nav-recipes-drop.active .nav-drop-item:nth-child(2) {
+			animation-delay: .14s
+		}
+
+		.nav-recipes-drop.active .nav-drop-item:nth-child(3) {
+			animation-delay: .23s
+		}
+
+		.nav-recipes-drop.active .nav-drop-item:nth-child(4) {
+			animation-delay: .32s
+		}
+
+		/* Вариант 3: контурный кружок */
+		.nav-drop-num {
+			width: 32px;
+			height: 32px;
+			border-radius: 50%;
+			border: 1.5px solid var(--olive);
+			background: none;
+			color: var(--olive);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 10px;
+			font-weight: 700;
+			font-family: var(--ff-body);
+			letter-spacing: .5px;
+			flex-shrink: 0
+		}
+
+		.nav-drop-text {
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--text);
+			text-align: left
+		}
+
+		.nav-drop-text small {
+			display: block;
+			font-size: 11px;
+			font-weight: 400;
+			color: var(--text-lt);
+			margin-top: 2px;
+			letter-spacing: .3px
+		}
+
+		.page {
+			background: var(--white);
+			margin: 0;
+			box-shadow: none;
+			overflow: hidden
+		}
+
+		#s-legumes .text-section,
+		#r-breakfast .recipes-page,
+		#r-breakfast .recipes-header {
+			background: var(--white);
+		}
+
+		.page+.page {
+			border-top: 1px solid var(--warm-line)
+		}
+
+		.cover-page {
+			display: grid;
+			grid-template-columns: 1fr;
+			position: relative
+		}
+
+		.cover-left {
+			background: var(--white);
+			padding: 36px 24px 32px;
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-start;
+			position: relative;
+			overflow: hidden
+		}
+
+		.cover-title-block {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			justify-content: center
+		}
+
+		.cover-left::after {
+			content: '';
+			position: absolute;
+			bottom: -60px;
+			right: -60px;
+			width: 240px;
+			height: 240px;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, .25);
+			pointer-events: none
+		}
+
+		.cover-tag {
+			display: inline-block;
+			align-self: flex-start;
+			background: var(--olive-lt);
+			color: var(--text);
+			font-size: 9px;
+			font-weight: 700;
+			letter-spacing: 3px;
+			text-transform: uppercase;
+			padding: 5px 12px;
+			margin-bottom: 18px
+		}
+
+		.cover-title-big {
+			font-family: var(--ff-display);
+			font-size: 36px;
+			font-weight: 700;
+			line-height: 1;
+			color: var(--text);
+			margin-bottom: 8px
+		}
+
+		.cover-title-big em {
+			font-style: italic;
+			font-weight: 300;
+			color: var(--olive);
+			display: block;
+			font-size: 32px
+		}
+
+		.cover-title-sub {
+			font-family: var(--ff-display);
+			font-size: 20px;
+			font-weight: 300;
+			font-style: italic;
+			color: var(--text-mid);
+			margin-top: 10px;
+			line-height: 1.4
+		}
+
+		.cover-author-block {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			margin-bottom: 28px
+		}
+
+		.cover-author-photo {
+			width: 56px;
+			height: 56px;
+			flex-shrink: 0;
+			overflow: hidden
+		}
+
+		.cover-author-photo img {
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+			object-position: left center
+		}
+
+		.cover-author-name {
+			font-family: var(--ff-display);
+			font-size: 20px;
+			font-style: italic;
+			font-weight: 600;
+			color: var(--text);
+			line-height: 1.2
+		}
+
+		.cover-author-role {
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 1.5px;
+			text-transform: uppercase;
+			color: var(--olive);
+			margin-top: 4px
+		}
+
+		.cover-right {
+			background: var(--olive-bg);
+			position: relative;
+			overflow: hidden;
+			min-height: 260px
+		}
+
+		.cover-photo-area {
+			width: 100%;
+			height: 100%;
+			min-height: 260px;
+			overflow: hidden
+		}
+
+		.cover-photo-area img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			object-position: top
+		}
+
+		.cover-photo-caption {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			background: rgba(0, 0, 0, .45);
+			color: #fff;
+			padding: 10px 20px;
+			font-size: 10px;
+			font-weight: 600;
+			letter-spacing: 2px;
+			text-transform: uppercase
+		}
+
+		.toc-page {
+			padding: 36px 24px;
+			background: var(--white)
+		}
+
+		.toc-grid {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 24px;
+			margin-top: 20px
+		}
+
+		.page-label {
+			font-size: 9px;
+			font-weight: 700;
+			letter-spacing: 4px;
+			text-transform: uppercase;
+			color: var(--olive);
+			margin-bottom: 8px
+		}
+
+		.page-heading {
+			font-family: var(--ff-display);
+			font-size: 30px;
+			font-weight: 700;
+			line-height: 1.05;
+			color: var(--text);
+			margin-bottom: 20px
+		}
+
+		.page-heading em {
+			font-style: italic;
+			font-weight: 300;
+			color: var(--olive)
+		}
+
+		.toc-part {
+			margin-bottom: 24px
+		}
+
+		.toc-part-header {
+			font-size: 9px;
+			font-weight: 800;
+			letter-spacing: 4px;
+			text-transform: uppercase;
+			color: var(--text-mid);
+			background: var(--ivory);
+			display: inline-block;
+			padding: 5px 14px;
+			margin-bottom: 12px
+		}
+
+		.toc-row {
+			display: flex;
+			align-items: baseline;
+			padding: 8px 0;
+			border-bottom: 1px solid var(--warm-line);
+			gap: 12px;
+			text-decoration: none;
+			color: var(--text);
+			transition: color .2s
+		}
+
+		.toc-row:hover {
+			color: var(--olive)
+		}
+
+		.toc-row-num {
+			font-family: var(--ff-display);
+			font-size: 26px;
+			font-weight: 700;
+			color: var(--olive);
+			line-height: 1;
+			min-width: 36px;
+			flex-shrink: 0
+		}
+
+		.toc-row-name {
+			flex: 1;
+			font-size: 16px;
+			font-weight: 500;
+			line-height: 1.3
+		}
+
+		.toc-row-name small {
+			display: block;
+			font-weight: 400;
+			color: var(--text-lt);
+			font-size: 11px;
+			margin-top: 1px
+		}
+
+		@keyframes tocRowIn {
+			from {
+				opacity: 0;
+				transform: translateY(18px)
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0)
+			}
+		}
+
+		.toc-row {
+			opacity: 0
+		}
+
+		.toc-page.toc-ready .toc-row {
+			animation: tocRowIn .55s cubic-bezier(0.25, 0.46, 0.45, 0.94) both
+		}
+
+		.split-section {
+			display: grid;
+			grid-template-columns: 1fr
+		}
+
+		.split-photo {
+			background: var(--sage-bg);
+			position: relative;
+			overflow: hidden;
+			min-height: 220px
+		}
+
+		.split-photo img {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: cover
+		}
+
+		.split-photo-label {
+			position: absolute;
+			top: 16px;
+			left: 16px;
+			background: var(--olive-dk);
+			color: var(--text);
+			font-size: 8px;
+			font-weight: 700;
+			letter-spacing: 3px;
+			text-transform: uppercase;
+			padding: 4px 10px;
+			z-index: 1
+		}
+
+		.split-content {
+			padding: 32px 24px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			position: relative
+		}
+
+		.chapter-num {
+			font-family: var(--ff-display);
+			font-size: 72px;
+			font-weight: 700;
+			color: var(--sage-bg);
+			line-height: .85;
+			display: block;
+			margin-bottom: -16px;
+			letter-spacing: -4px
+		}
+
+		.split-content h2 {
+			font-family: var(--ff-display);
+			font-size: 28px;
+			font-weight: 700;
+			line-height: 1.1;
+			color: var(--text);
+			margin-bottom: 14px
+		}
+
+		.split-content h2 em {
+			font-style: italic;
+			font-weight: 300;
+			color: var(--olive)
+		}
+
+		.split-content p {
+			font-size: 15px;
+			color: var(--text-mid);
+			line-height: 1.8;
+			margin-bottom: 12px
+		}
+
+		.green-block {
+			background: var(--ivory);
+			padding: 36px 24px;
+			color: var(--text)
+		}
+
+		.green-block h2 {
+			font-family: var(--ff-display);
+			font-size: 30px;
+			font-weight: 700;
+			line-height: 1.1;
+			margin-bottom: 14px;
+			color: var(--text)
+		}
+
+		.green-block h2 em {
+			font-style: italic;
+			font-weight: 300;
+			color: var(--olive)
+		}
+
+		.green-block p {
+			font-size: 15px;
+			line-height: 1.8;
+			color: var(--text-mid);
+			margin-bottom: 12px
+		}
+
+		.green-block h3 {
+			font-family: var(--ff-display);
+			font-size: 22px;
+			font-weight: 700;
+			color: var(--text);
+			margin: 20px 0 10px
+		}
+
+		.text-section {
+			padding: 36px 24px;
+			background: var(--cream)
+		}
+
+		.sw-vscale {
+			margin-top: 20px;
+			padding-left: 20px;
+			border-left: 4px solid transparent;
+			border-image: linear-gradient(to bottom, var(--olive), #c9a96a 55%, var(--rose)) 1;
+			display: flex;
+			flex-direction: column
+		}
+
+		.sw-vitem {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 10px 0;
+			border-bottom: 1px solid var(--warm-line);
+			position: relative
+		}
+
+		.sw-vitem:last-child {
+			border-bottom: none
+		}
+
+		.sw-vitem::before {
+			content: '';
+			position: absolute;
+			left: -27px;
+			width: 10px;
+			height: 10px;
+			border-radius: 50%;
+			border: 2px solid var(--white);
+			background: var(--warm-line)
+		}
+
+		.sw-vitem:nth-child(1)::before,
+		.sw-vitem:nth-child(2)::before {
+			background: var(--olive)
+		}
+
+		.sw-vitem:nth-child(3)::before,
+		.sw-vitem:nth-child(4)::before {
+			background: #c9a96a
+		}
+
+		.sw-vitem:nth-child(5)::before,
+		.sw-vitem:nth-child(6)::before {
+			background: var(--rose)
+		}
+
+		.sw-vitem-num {
+			font-family: var(--ff-display);
+			font-size: 15px;
+			font-weight: 700;
+			color: var(--text-lt);
+			flex-shrink: 0;
+			width: 16px;
+			line-height: 1
+		}
+
+		.sw-vitem-text {
+			font-size: 12px;
+			color: var(--text-mid);
+			line-height: 1.4
+		}
+
+		.sw-vitem-text strong {
+			color: var(--text);
+			font-weight: 600
+		}
+
+		.two-col-text {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 20px;
+			margin-top: 20px
+		}
+
+		.col-text h4 {
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 2px;
+			text-transform: uppercase;
+			color: var(--olive);
+			margin-bottom: 10px;
+			padding-bottom: 6px;
+			border-bottom: 2px solid var(--olive)
+		}
+
+		.col-text p {
+			font-size: 15px;
+			color: var(--text-mid);
+			line-height: 1.8;
+			margin-bottom: 10px
+		}
+
+		.col-text p strong {
+			color: var(--text)
+		}
+
+		.info-box {
+			background: var(--cream);
+			color: var(--text-mid);
+			border-left: 3px solid var(--olive);
+			padding: 18px 20px;
+			margin-top: 16px;
+			font-size: 14px;
+			line-height: 1.7
+		}
+
+		.info-box strong {
+			color: var(--olive);
+			display: block;
+			margin-bottom: 4px
+		}
+
+		.table-section {
+			padding: 0 24px 36px;
+			background: var(--cream)
+		}
+
+		table.guide-table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 13px
+		}
+
+		.guide-table thead tr {
+			background: var(--sage-bg)
+		}
+
+		.guide-table th {
+			padding: 10px 12px;
+			text-align: left;
+			color: var(--text);
+			font-size: 9px;
+			font-weight: 700;
+			letter-spacing: 2px;
+			text-transform: uppercase
+		}
+
+		.guide-table td {
+			padding: 10px 12px;
+			border-bottom: 1px solid var(--warm-line);
+			color: var(--text)
+		}
+
+		.guide-table tbody tr:nth-child(even) {
+			background: var(--olive-bg)
+		}
+
+		.highlight-box {
+			background: var(--ivory);
+			border: 1px solid var(--warm-line);
+			border-left: 4px solid var(--olive);
+			padding: 24px;
+			margin: 24px 0
+		}
+
+		.highlight-box h3 {
+			font-family: var(--ff-display);
+			font-size: 22px;
+			font-weight: 700;
+			color: var(--text);
+			margin-bottom: 12px
+		}
+
+		.highlight-box p {
+			font-size: 15px;
+			color: var(--text-mid);
+			line-height: 1.8;
+			margin-bottom: 10px
+		}
+
+		.highlight-box ol {
+			margin: 8px 0 0 20px;
+			font-size: 15px;
+			color: var(--text-mid);
+			line-height: 1.7
+		}
+
+		.rainbow-cards {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 12px;
+			margin-top: 20px
+		}
+
+		.rainbow-card {
+			background: var(--white);
+			border: 1px solid var(--warm-line);
+			border-left: 4px solid var(--olive-dk);
+			padding: 16px 20px
+		}
+
+		.rainbow-card .rn {
+			font-family: var(--ff-display);
+			font-size: 32px;
+			font-weight: 700;
+			color: var(--sage-bg);
+			line-height: 1;
+			margin-bottom: 4px
+		}
+
+		.rainbow-card h4 {
+			font-size: 12px;
+			font-weight: 700;
+			color: var(--olive);
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			margin-bottom: 6px
+		}
+
+		.rainbow-card p {
+			font-size: 15px;
+			color: var(--text-mid);
+			line-height: 1.6
+		}
+
+		.recipes-page {
+			padding: 0;
+			background: var(--ivory)
+		}
+
+		.recipes-header {
+			padding: 28px 20px 20px;
+			background: var(--ivory)
+		}
+
+		.recipes-header .page-label {
+			color: var(--text-mid)
+		}
+
+		.recipes-header .page-heading {
+			color: var(--text);
+			margin-bottom: 0
+		}
+
+		.recipes-header .page-heading em {
+			color: var(--olive)
+		}
+
+		.recipe-card {
+			display: block;
+			background: var(--white);
+			border-bottom: 1px solid var(--warm-line);
+			break-inside: avoid;
+			page-break-inside: avoid
+		}
+
+		.recipe-card:nth-child(even) {
+			background: var(--cream)
+		}
+
+		.rc-photo {
+			height: 200px;
+			position: relative;
+			overflow: hidden;
+			background: var(--sage-bg)
+		}
+
+		.rc-photo img {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: cover
+		}
+
+		.rc-num-ov {
+			display: none
+		}
+
+		.rc-photo-label {
+			position: absolute;
+			top: 12px;
+			left: 12px;
+			background: var(--olive-dk);
+			color: var(--text);
+			font-size: 8px;
+			font-weight: 700;
+			letter-spacing: 3px;
+			text-transform: uppercase;
+			padding: 4px 10px;
+			display: flex;
+			align-items: center;
+			gap: 7px;
+			z-index: 1
+		}
+
+		.rc-body {
+			padding: 20px
+		}
+
+		.rc-cat {
+			font-size: 9px;
+			font-weight: 700;
+			letter-spacing: 3px;
+			text-transform: uppercase;
+			color: var(--olive-lt);
+			margin-bottom: 4px
+		}
+
+		.rc-title {
+			font-family: var(--ff-display);
+			font-size: 24px;
+			font-weight: 700;
+			color: #3d6b35;
+			margin-bottom: 14px;
+			line-height: 1.2
+		}
+
+		.rc-cols {
+			display: flex;
+			flex-direction: column;
+			gap: 16px
+		}
+
+		.rc-col-label {
+			font-size: 8px;
+			font-weight: 700;
+			letter-spacing: 2px;
+			text-transform: uppercase;
+			color: var(--olive);
+			margin-bottom: 8px;
+			padding-bottom: 4px;
+			border-bottom: 1px solid var(--warm-line)
+		}
+
+		.ingr-list {
+			list-style: none;
+			font-size: 14px;
+			color: var(--text-mid);
+			line-height: 1.6
+		}
+
+		.ingr-list li {
+			padding: 3px 0
+		}
+
+		.ingr-list li::before {
+			content: '-';
+			color: var(--olive-lt);
+			margin-right: 6px;
+			font-weight: 700
+		}
+
+		.steps-list {
+			list-style: none;
+			counter-reset: s;
+			font-size: 14px;
+			color: var(--text-mid);
+			line-height: 1.6
+		}
+
+		.steps-list li {
+			counter-increment: s;
+			display: flex;
+			gap: 10px;
+			margin-bottom: 8px;
+			align-items: flex-start
+		}
+
+		.steps-list li::before {
+			content: counter(s);
+			width: 20px;
+			height: 20px;
+			background: var(--olive-dk);
+			color: var(--text);
+			border-radius: 50%;
+			font-size: 9px;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+			margin-top: 1px
+		}
+
+		.rc-note {
+			font-size: 13px;
+			color: var(--text-lt);
+			font-style: italic;
+			margin-top: 10px;
+			padding-top: 10px;
+			border-top: 1px solid var(--warm-line)
+		}
+
+		.guide-footer {
+			background: var(--ivory);
+			border-top: 1px solid var(--warm-line);
+			padding: 24px 20px
+		}
+
+		.footer-inner {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 20px;
+			text-align: center
+		}
+
+		.footer-logo-link {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			text-decoration: none
+		}
+
+		.footer-logo-link img {
+			width: 36px;
+			height: 36px;
+			display: block
+		}
+
+		.footer-logo-name {
+			font-family: var(--ff-body);
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 2px;
+			text-transform: uppercase;
+			color: var(--text)
+		}
+
+		.footer-links {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 6px
+		}
+
+		.footer-link-main {
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--olive);
+			text-decoration: none
+		}
+
+		.footer-link-main:hover {
+			text-decoration: underline
+		}
+
+		.footer-link-sub {
+			font-size: 12px;
+			color: var(--text-mid);
+			text-decoration: none
+		}
+
+		.footer-link-sub:hover {
+			color: var(--olive)
+		}
+
+		.footer-socials {
+			display: flex;
+			gap: 10px
+		}
+
+		.footer-soc {
+			width: 36px;
+			height: 36px;
+			border-radius: 50%;
+			border: 1px solid var(--olive-lt);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: var(--olive);
+			text-decoration: none;
+			transition: all .2s
+		}
+
+		.footer-soc:hover {
+			border-color: var(--olive);
+			background: rgba(138, 171, 128, .15)
+		}
+
+		.footer-copy-bar {
+			background: rgba(138, 171, 128, .12);
+			padding: 8px 20px;
+			text-align: center;
+			font-size: 9px;
+			color: var(--text-lt);
+			letter-spacing: 1px;
+			text-transform: uppercase
+		}
+
+		@media(min-width:768px) {
+			body {
+				background: #f5f3ef;
+				font-size: 14px
+			}
+
+			.mobile-nav {
+				display: none
+			}
+
+			.page {
+				margin: 24px auto;
+				box-shadow: 0 4px 20px rgba(0, 0, 0, .12);
+				max-width: 800px
+			}
+
+			.page+.page {
+				border-top: none
+			}
+
+			.cover-page {
+				grid-template-columns: 1fr 1fr;
+				min-height: 520px
+			}
+
+			.cover-right {
+				min-height: auto
+			}
+
+			.cover-left {
+				padding: 52px 40px 40px
+			}
+
+			.cover-title-big {
+				font-size: 44px
+			}
+
+			.cover-title-big em {
+				font-size: 40px
+			}
+
+			.cover-title-sub {
+				font-size: 24px
+			}
+
+			.cover-photo-area {
+				min-height: 380px
+			}
+
+			.toc-page {
+				padding: 52px 48px
+			}
+
+			.toc-grid {
+				grid-template-columns: 1fr 1fr;
+				gap: 40px
+			}
+
+			.page-heading {
+				font-size: 40px;
+				margin-bottom: 40px
+			}
+
+			.split-section {
+				grid-template-columns: 1fr 1fr;
+				min-height: 360px
+			}
+
+			.split-photo {
+				min-height: 300px
+			}
+
+			.split-content {
+				padding: 48px 40px
+			}
+
+			.chapter-num {
+				font-size: 100px;
+				margin-bottom: -20px
+			}
+
+			.split-content h2 {
+				font-size: 32px
+			}
+
+			.split-content p {
+				font-size: 14px
+			}
+
+			.green-block {
+				padding: 44px 40px
+			}
+
+			.green-block h2 {
+				font-size: 36px
+			}
+
+			.green-block p {
+				font-size: 14px
+			}
+
+			.text-section {
+				padding: 52px 48px
+			}
+
+			.two-col-text {
+				grid-template-columns: 1fr 1fr;
+				gap: 40px
+			}
+
+			.col-text p {
+				font-size: 14px
+			}
+
+			.info-box {
+				font-size: 13px
+			}
+
+			.table-section {
+				padding: 0 48px 48px
+			}
+
+			.rainbow-cards {
+				grid-template-columns: 1fr 1fr;
+				gap: 16px
+			}
+
+			.recipes-header {
+				padding: 40px 48px 28px
+			}
+
+			.rc-photo {
+				height: 240px
+			}
+
+			.rc-body {
+				padding: 20px 28px 24px
+			}
+
+			.rc-cols {
+				display: grid;
+				grid-template-columns: 160px 1fr;
+				gap: 20px;
+				flex-direction: unset
+			}
+
+			.rc-cols>div:last-child {
+				border-left: 1px solid var(--warm-line);
+				padding-left: 20px
+			}
+
+			.ingr-list {
+				font-size: 13px
+			}
+
+			.steps-list {
+				font-size: 13px
+			}
+
+			.rc-note {
+				font-size: 12px
+			}
+
+			.guide-footer {
+				padding: 28px 48px
+			}
+
+			.footer-inner {
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-between;
+				text-align: left
+			}
+
+			.footer-links {
+				align-items: flex-start
+			}
+
+			.footer-copy-bar {
+				padding: 8px 48px
+			}
+
+			.highlight-box {
+				padding: 32px 40px
+			}
+		}
+
+		@media(max-width:767px) {
+			.rc-photo {
+				margin: 0 20px;
+				border-radius: 6px
+			}
+
+			.recipe-card {
+				border-bottom: none;
+				padding-bottom: 6px
+			}
+
+			.recipe-card::after {
+				content: '';
+				display: block;
+				width: 48px;
+				height: 1px;
+				background: linear-gradient(to right, transparent, var(--olive-lt), transparent);
+				margin: 14px auto 18px
+			}
+		}
+
+		@media print {
+			body {
+				background: none
+			}
+
+			.mobile-nav {
+				display: none
+			}
+
+			.page {
+				margin: 0;
+				box-shadow: none;
+				max-width: none;
+				page-break-after: always;
+				break-after: page
+			}
+
+			@page {
+				size: A4;
+				margin: 12mm 14mm 20mm
+			}
+
+			.cover-page,
+			.split-section,
+			.recipe-card,
+			.cover-left,
+			.green-block,
+			.recipes-header,
+			.guide-footer {
+				-webkit-print-color-adjust: exact;
+				print-color-adjust: exact
+			}
+
+			.recipe-card {
+				break-inside: avoid;
+				page-break-inside: avoid
+			}
+		}
+
+		/* progress bar */
+		.nav-progress {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			height: 2px;
+			width: 0%;
+			background: var(--olive);
+			transition: width .12s linear;
+			pointer-events: none
+		}
+
+		/* FABs */
+		.fab {
+			position: fixed;
+			width: 46px;
+			height: 46px;
+			border-radius: 50%;
+			border: none;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			box-shadow: 0 3px 14px rgba(0, 0, 0, .18);
+			z-index: 300;
+			-webkit-tap-highlight-color: transparent;
+			transition: opacity .3s, transform .3s
+		}
+
+		.fab:active {
+			transform: scale(.91)
+		}
+
+		.fab-top {
+			bottom: 24px;
+			right: 20px;
+			background: var(--olive);
+			color: #fff;
+			opacity: 0;
+			transform: scale(.7);
+			pointer-events: none
+		}
+
+		.fab-top.visible {
+			opacity: 1;
+			transform: scale(1);
+			pointer-events: auto
+		}
+
+		.fab-top.visible:active {
+			transform: scale(.91)
+		}
+
+		.fab-search {
+			bottom: 24px;
+			left: 20px;
+			background: var(--white);
+			color: var(--olive);
+			border: 1.5px solid var(--olive-lt)
+		}
+
+		/* search panel */
+		.search-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, .4);
+			z-index: 400;
+			opacity: 0;
+			visibility: hidden;
+			transition: opacity .25s, visibility 0s linear .25s
+		}
+
+		.search-overlay.active {
+			opacity: 1;
+			visibility: visible;
+			transition: opacity .25s, visibility 0s
+		}
+
+		.search-panel {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			background: var(--white);
+			z-index: 401;
+			box-shadow: 0 6px 28px rgba(0, 0, 0, .15);
+			transform: translateY(-100%);
+			transition: transform .3s cubic-bezier(.25, .46, .45, .94);
+			max-height: 72vh;
+			display: flex;
+			flex-direction: column
+		}
+
+		.search-panel.active {
+			transform: translateY(0)
+		}
+
+		.search-top {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 14px 16px;
+			border-bottom: 1px solid var(--warm-line)
+		}
+
+		.search-input {
+			flex: 1;
+			border: none;
+			outline: none;
+			font-family: var(--ff-body);
+			font-size: 15px;
+			color: var(--text);
+			background: var(--cream);
+			border-radius: 8px;
+			padding: 9px 13px;
+			-webkit-appearance: none
+		}
+
+		.search-input::placeholder {
+			color: var(--text-lt)
+		}
+
+		.search-close {
+			background: none;
+			border: none;
+			color: var(--text-mid);
+			font-size: 24px;
+			line-height: 1;
+			cursor: pointer;
+			padding: 2px 6px;
+			-webkit-tap-highlight-color: transparent
+		}
+
+		.search-results {
+			overflow-y: auto;
+			-webkit-overflow-scrolling: touch;
+			flex: 1
+		}
+
+		.search-item {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 12px 16px;
+			border-bottom: 1px solid var(--warm-line);
+			text-decoration: none;
+			color: var(--text);
+			cursor: pointer;
+			-webkit-tap-highlight-color: transparent
+		}
+
+		.search-item:active {
+			background: var(--olive-bg)
+		}
+
+		.search-item-icon {
+			width: 32px;
+			height: 32px;
+			border-radius: 50%;
+			background: var(--olive-bg);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+			color: var(--olive)
+		}
+
+		.search-item-title {
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--text)
+		}
+
+		.search-item-title mark {
+			background: none;
+			color: var(--olive);
+			font-weight: 700
+		}
+
+		.search-item-sub {
+			font-size: 11px;
+			color: var(--text-lt);
+			margin-top: 2px
+		}
+
+		.search-empty {
+			padding: 36px 16px;
+			text-align: center;
+			color: var(--text-lt);
+			font-size: 14px
+		}
+
+		@media(min-width:768px) {
+
+			.fab-search,
+			.nav-progress {
+				display: none
+			}
+		}
+
+		/* ── Ingredient checkboxes ── */
+		.ingr-list li::before {
+			display: none
+		}
+
+		.ingr-list li {
+			display: flex;
+			align-items: baseline;
+			gap: 8px;
+			cursor: pointer;
+			transition: opacity .2s
+		}
+
+		.ingr-list li input[type=checkbox] {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 15px;
+			height: 15px;
+			flex-shrink: 0;
+			border: 1.5px solid var(--olive-lt);
+			border-radius: 3px;
+			margin-top: 3px;
+			cursor: pointer;
+			transition: background .15s, border-color .15s
+		}
+
+		.ingr-list li input[type=checkbox]:checked {
+			background: var(--olive);
+			border-color: var(--olive);
+			background-image: url("data:image/svg+xml,%3Csvg width='10' height='8' viewBox='0 0 10 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4l3 3 5-6' stroke='white' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+			background-repeat: no-repeat;
+			background-position: center
+		}
+
+		.ingr-list li.ingr-done {
+			opacity: .45
+		}
+
+		.ingr-list li.ingr-done span {
+			text-decoration: line-through
+		}
+
+		/* ── Lightbox ── */
+		.lb-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, .88);
+			z-index: 500;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			visibility: hidden;
+			transition: opacity .25s, visibility 0s linear .25s;
+			cursor: zoom-out;
+			padding: 20px
+		}
+
+		.lb-overlay.active {
+			opacity: 1;
+			visibility: visible;
+			transition: opacity .25s, visibility 0s
+		}
+
+		.lb-img {
+			max-width: 100%;
+			max-height: 90vh;
+			object-fit: contain;
+			border-radius: 4px;
+			transform: scale(.92);
+			transition: transform .25s cubic-bezier(.25, .46, .45, .94)
+		}
+
+		.lb-overlay.active .lb-img {
+			transform: scale(1)
+		}
+
+		.lb-close {
+			position: absolute;
+			top: 16px;
+			right: 20px;
+			color: rgba(255, 255, 255, .7);
+			font-size: 32px;
+			line-height: 1;
+			background: none;
+			border: none;
+			cursor: pointer;
+			-webkit-tap-highlight-color: transparent
+		}
+
+		.lb-caption {
+			position: absolute;
+			bottom: 20px;
+			left: 0;
+			right: 0;
+			text-align: center;
+			color: rgba(255, 255, 255, .6);
+			font-size: 13px;
+			font-family: var(--ff-body)
+		}
+
+		.rc-photo img,
+		.split-photo img {
+			cursor: zoom-in
+		}
+
+		/* Подсказка «можно увеличить» */
+		.rc-photo::after,
+		.split-photo::after {
+			content: '';
+			position: absolute;
+			bottom: 8px;
+			right: 8px;
+			width: 28px;
+			height: 28px;
+			border-radius: 50%;
+			background:
+				rgba(255,255,255,0.72)
+				url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235f6f62'%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E")
+				center / 15px no-repeat;
+			backdrop-filter: blur(3px);
+			-webkit-backdrop-filter: blur(3px);
+			z-index: 2;
+			pointer-events: none;
+			opacity: 0.7;
+			transition: opacity 0.2s;
+		}
+
+		.rc-photo:hover::after,
+		.split-photo:hover::after {
+			opacity: 1;
+		}
+
+		/* ── Sidebar B: Группы ── */
+		.desk-nav {
+			display: none
+		}
+
+		@media (min-width: 768px) {
+			.cover-author-block {
+				gap: 10px;
+				margin-bottom: 32px;
+			}
+			.cover-author-photo {
+				width: 66px;
+				height: 66px;
+			}
+			.cover-author-name {
+				font-size: 23px;
+			}
+			.cover-author-role {
+				font-size: 12px;
+				letter-spacing: 1.6px;
+				margin-top: 4px;
+			}
+		}
+
+		@media (min-width: 1100px) {
+			.desk-nav {
+				display: block;
+				position: fixed;
+				top: 50%;
+				transform: translateY(-50%);
+				left: calc(50% - 560px);
+				width: 140px;
+				z-index: 200
+			}
+		}
+
+		.desk-nav-group {
+			margin-bottom: 18px
+		}
+
+		.desk-nav-label {
+			font-family: var(--ff-body);
+			font-size: 8px;
+			font-weight: 700;
+			letter-spacing: 3px;
+			text-transform: uppercase;
+			color: var(--text-lt);
+			padding: 0 0 6px 12px;
+			margin-bottom: 4px;
+			border-bottom: 1px solid var(--warm-line)
+		}
+
+		.desk-nav-link {
+			display: block;
+			padding: 6px 8px 6px 12px;
+			font-family: var(--ff-body);
+			font-size: 13px;
+			font-weight: 500;
+			color: var(--text-lt);
+			text-decoration: none;
+			border-left: 2px solid transparent;
+			transition: color .2s, border-color .2s
+		}
+
+		.desk-nav-link:hover {
+			color: var(--text-mid)
+		}
+
+		.desk-nav-link.dn-active {
+			color: var(--olive);
+			font-weight: 600;
+			border-left-color: var(--olive)
+		}
+
+		/* ── Recipe quote ── */
+		.rc-quote {
+			margin: 10px 0 16px;
+			padding: 10px 14px;
+			border-left: 3px solid var(--olive-lt);
+			background: var(--olive-bg);
+			font-family: var(--ff-display);
+			font-size: 17px;
+			font-style: italic;
+			line-height: 1.6;
+			color: var(--text-mid)
+		}
+
+		/* ── Водяной знак ── */
+		.wm {
+			position: fixed;
+			inset: 0;
+			pointer-events: none;
+			z-index: 9990;
+			background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27320%27%20height%3D%27160%27%3E%3Ctext%20x%3D%27160%27%20y%3D%2780%27%20text-anchor%3D%27middle%27%20dominant-baseline%3D%27middle%27%20font-family%3D%27Arial%2Csans-serif%27%20font-size%3D%2714%27%20fill%3D%27%23444%27%20transform%3D%27rotate(-30%20160%2080)%27%3Evoronova.online%3C%2Ftext%3E%3C%2Fsvg%3E");
+			background-size: 320px 160px;
+			opacity: 0.04;
+		}
+
+		@media print {
+			.wm {
+				opacity: 0.18;
+				position: fixed;
+			}
+
+			@page {
+				margin: 1.2cm;
+			}
+		}
+
+		.portion-title {
+			font-size: 13px;
+			font-weight: 600;
+			color: var(--olive);
+			margin: 12px 0 6px
+		}
+		.portion-list {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 5px
+		}
+		.portion-list li {
+			font-size: 15px;
+			color: var(--text-mid);
+			line-height: 1.5;
+			padding-left: 16px;
+			position: relative
+		}
+		.portion-list li::before {
+			content: '•';
+			color: var(--olive);
+			position: absolute;
+			left: 0;
+			font-weight: 700
+		}
+
+		.lifehack {
+			background: #f5f0e8;
+			border-left: 3px solid #9ab89e;
+			border-radius: 0 10px 10px 0;
+			padding: 12px 14px;
+			margin: 14px 0;
+			font-size: 13px;
+			line-height: 1.65;
+			color: #3a3530;
+		}
+		.lifehack::before {
+			content: '💡 Лайфхак: ';
+			font-weight: 700;
+			color: #5f6f62;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="wm" aria-hidden="true"></div>
+
+	<!-- STICKY MOBILE NAV -->
+	<nav class="mobile-nav" id="mobile-nav">
+		<a href="#s-toc" class="nav-active">Гайд</a>
+		<a href="#s-breakfast">Завтраки</a>
+		<a href="#s-lunch">Супы</a>
+		<a href="#s-cutlets">Котлеты</a>
+		<a href="#s-rainbow">Радуга</a>
+		<a href="#s-ferment">Полезное</a>
+		<button class="nav-recipes-btn" id="nav-recipes-btn" type="button">Рецепты</button>
+		<div class="nav-recipes-drop" id="nav-recipes-drop">
+			<a href="#r-breakfast" class="nav-drop-item">
+				<span class="nav-drop-num">Р1</span>
+				<div class="nav-drop-text">Завтраки<small>Сырники, каши, намазки — 10 рец.</small></div>
+			</a>
+			<a href="#r-soup" class="nav-drop-item">
+				<span class="nav-drop-num">Р2</span>
+				<div class="nav-drop-text">Cупы<small>Cупы, бульоны, добавки — 12 рец.</small></div>
+			</a>
+			<a href="#r-main" class="nav-drop-item">
+				<span class="nav-drop-num">Р3</span>
+				<div class="nav-drop-text">Вторые блюда<small>Котлеты, плов, паста — 9 рец.</small></div>
+			</a>
+			<a href="#r-sauce" class="nav-drop-item">
+				<span class="nav-drop-num">Р4</span>
+				<div class="nav-drop-text">Соусы<small>Из кешью — 5 рец.</small></div>
+			</a>
+		</div>
+		<div class="nav-progress" id="nav-progress"></div>
+
+	</nav>
+
+	<!-- SIDEBAR B -->
+	<aside class="desk-nav" id="desk-nav">
+		<div class="desk-nav-group">
+			<div class="desk-nav-label">Гайд</div>
+			<a href="#s-toc" class="desk-nav-link">Оглавление</a>
+			<a href="#s-breakfast" class="desk-nav-link">Завтраки</a>
+			<a href="#s-oil" class="desk-nav-link">Масло</a>
+			<a href="#s-legumes" class="desk-nav-link">Бобовые</a>
+			<a href="#s-cutlets" class="desk-nav-link">Котлеты</a>
+			<a href="#s-rainbow" class="desk-nav-link">Радуга</a>
+			<a href="#s-ferment" class="desk-nav-link">Полезное</a>
+		</div>
+		<div class="desk-nav-group">
+			<div class="desk-nav-label">Рецепты</div>
+			<a href="#r-breakfast" class="desk-nav-link">Р1 Завтраки</a>
+			<a href="#r-soup" class="desk-nav-link">Р2 Супы</a>
+			<a href="#r-main" class="desk-nav-link">Р3 Вторые</a>
+			<a href="#r-sauce" class="desk-nav-link">Р4 Соусы</a>
+		</div>
+	</aside>
+
+	<!-- SEARCH + FABs -->
+	<div class="search-overlay" id="search-overlay"></div>
+	<div class="search-panel" id="search-panel">
+		<div class="search-top">
+			<input class="search-input" id="search-input" type="search" placeholder="Найти в гайде…" autocomplete="off" spellcheck="false">
+			<button class="search-close" id="search-close">×</button>
+		</div>
+		<div class="search-results" id="search-results"></div>
+	</div>
+	<button class="fab fab-search" id="fab-search">
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="11" cy="11" r="8" />
+			<line x1="21" y1="21" x2="16.65" y2="16.65" />
+		</svg>
+	</button>
+	<button class="fab fab-top" id="fab-top">
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+			<polyline points="18 15 12 9 6 15" />
+		</svg>
+	</button>
+
+	<!-- ОБЛОЖКА -->
+	<div class="page">
+		<div class="cover-page">
+			<div class="cover-left">
+				<div class="cover-author-block">
+					<div class="cover-author-photo">
+						<img src="../images/icons/logo-small.svg" alt="Юлия Воронова">
+					</div>
+					<div>
+						<div class="cover-author-name">Юлия Воронова</div>
+						<div class="cover-author-role">Нутрициолог · voronova.online</div>
+					</div>
+				</div>
+				<div class="cover-title-block">
+					<span class="cover-tag">Гайд · 2026</span>
+					<h1 class="cover-title-big">Как легко добавить<br><em>растительные продукты в рацион</em></h1>
+					<p class="cover-title-sub">Ваш проводник в мир разнообразия и здоровья</p>
+				</div>
+			</div>
+			<div class="cover-right">
+				<div class="cover-photo-area">
+					<img src="../images/img-guides/plant-based/main-guide-YV.webp" alt="Юлия Воронова">
+				</div>
+				<div class="cover-photo-caption">@voronova_nutrition</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- ОГЛАВЛЕНИЕ -->
+	<div class="page" id="s-toc">
+		<div class="toc-page">
+			<h2 class="page-heading">Что вас<br><em>ждёт внутри</em></h2>
+			<div class="toc-grid">
+				<div>
+					<div class="toc-part">
+						<div class="toc-part-header">Часть I — Гайд</div>
+						<a href="#s-intro" class="toc-row">
+							<span class="toc-row-num">01</span>
+							<span class="toc-row-name">Введение<small>С чего начать, инвестиция №1</small></span>
+						</a>
+						<a href="#s-breakfast" class="toc-row">
+							<span class="toc-row-num">02</span>
+							<span class="toc-row-name">Завтраки<small>Каши, соя, намазки, орехи</small></span>
+						</a>
+						<a href="#s-lunch" class="toc-row">
+							<span class="toc-row-num">03</span>
+							<span class="toc-row-name">Супы и овощные бульоны<small>Бульоны, масла, бобовые</small></span>
+						</a>
+						<a href="#s-cutlets" class="toc-row">
+							<span class="toc-row-num">04</span>
+							<span class="toc-row-name">Котлеты и гарниры<small>Заморозка, крупы, пюре</small></span>
+						</a>
+						<a href="#s-rainbow" class="toc-row">
+							<span class="toc-row-num">05</span>
+							<span class="toc-row-name">Принцип радуги<small>Правило пяти в день</small></span>
+						</a>
+						<a href="#s-ferment" class="toc-row">
+							<span class="toc-row-num">06</span>
+							<span class="toc-row-name">Полезное<small>Ферментация, йод и метаболизм</small></span>
+						</a>
+					</div>
+				</div>
+				<div>
+					<div class="toc-part">
+						<div class="toc-part-header">Часть II — Рецепты</div>
+						<a href="#r-breakfast" class="toc-row">
+							<span class="toc-row-num">Р1</span>
+							<span class="toc-row-name">Завтраки<small>10 рецептов</small></span>
+						</a>
+						<a href="#r-soup" class="toc-row">
+							<span class="toc-row-num">Р2</span>
+							<span class="toc-row-name">К супу<small>Бульоны, супы, сухарики — 12 рец.</small></span>
+						</a>
+						<a href="#r-main" class="toc-row">
+							<span class="toc-row-num">Р3</span>
+							<span class="toc-row-name">Вторые блюда<small>Котлеты, паста, плов — 9 рец.</small></span>
+						</a>
+						<a href="#r-sauce" class="toc-row">
+							<span class="toc-row-num">Р4</span>
+							<span class="toc-row-name">Соусы<small>5 рецептов на основе кешью</small></span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- ВВЕДЕНИЕ -->
+	<div class="page" id="s-guide">
+		<div class="split-section" id="s-intro">
+			<div class="split-photo">
+				<img src="../images/img-guides/plant-based/food.webp" alt="Здоровое питание" loading="lazy">
+				<div class="split-photo-label">Введение</div>
+			</div>
+			<div class="split-content">
+				<span class="chapter-num">01</span>
+				<h2>Введение:<br><em>философия питания</em></h2>
+				<p><strong>Инвестиция №1: Мощный блендер.</strong> Прежде чем начать, дам один технический совет: приобретите мощный блендер. Это вложение в ваше здоровье и время. Ореховые пасты, супы-пюре, соусы — блендер превратит готовку в быстрый и приятный процесс. С ним приготовление разнообразных блюд перестанет быть для вас сложным и утомительным.</p>
+				<p><strong>Философия осознанного питания.</strong> Моя задача не сделать вас вегетарианцами или веганами. Как нутрициолог, я выступаю за разнообразие. Внедрение растительных продуктов в повседневные блюда наравне с привычными мясными или молочными — это залог здоровья.</p>
+				<p>Мои советы подходят для всей семьи. Я сама мама двоих детей и прекрасно понимаю: готовить три разных меню на завтрак, обед и ужин — это путь к выгоранию, а не к здоровью. Стоять у плиты часами — не наш вариант.</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- ЗАВТРАКИ — SPLIT -->
+	<div class="page" id="s-breakfast">
+		<div class="split-section">
+			<div class="split-photo">
+				<img src="../images/img-guides/plant-based/porridge.webp" alt="Завтраки" loading="lazy">
+				<div class="split-photo-label">Завтраки</div>
+			</div>
+			<div class="split-content">
+				<span class="chapter-num">02</span>
+				<h2>Каши и<br><em>растительное молоко</em></h2>
+				<p>Самый простой и сытный завтрак - каши. Особенно, если вы добавляете в них ягоды/фрукты (можно замороженные) и орешки/семена. Овсянка, пшенка, гречка, варите свои любимые каши на разном молоке, найдите свои любимые вкусовые сочетания.</p>
+				<p>Попробуйте варить каши на растительном молоке. Используйте молоко с понятным составом и без добавленного сахара. Овсяное, миндальное, соевое — самые нейтральные.</p>
+				<p>Кокосовое — самое жирное и ароматное. Несмотря на то, что это растение, кокосовое молоко содержит насыщенные жиры, как и обычное молоко. Поэтому увлекаться им не стоит.</p>
+				<p class="lifehack">если покупаете молоко в жестяной банке (400 мл), берите 100–150 мл, разводите водой. Такой банки вам хватит на два-три раза сварить кашу на 4-х человек. Остатки молока обязательно перелейте из жести в стекло.</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- ЗАВТРАКИ — ШКАЛА ПОДСЛАСТИТЕЛЕЙ -->
+	<div class="page">
+		<div class="green-block" style="background:var(--white)">
+			<h2>Чем подсластить завтрак?<br><em>Шкала от лучшего к худшему</em></h2>
+			<div class="sw-vscale">
+				<div class="sw-vitem"><span class="sw-vitem-num">1</span><span class="sw-vitem-text"><strong>Свежие фрукты и ягоды</strong> - банан - идеальный вариант.</span></div>
+				<div class="sw-vitem"><span class="sw-vitem-num">2</span><span class="sw-vitem-text"><strong>Сухофрукты</strong> — самые сладкие — финики.</span></div>
+				<div class="sw-vitem"><span class="sw-vitem-num">3</span><span class="sw-vitem-text"><strong>Мёд</strong> — добавлять лучше в готовые блюда.</span></div>
+				<div class="sw-vitem"><span class="sw-vitem-num">4</span><span class="sw-vitem-text"><strong>Финиковый сироп / Топинамбур / Агава / Стевия.</strong></span></div>
+				<div class="sw-vitem"><span class="sw-vitem-num">5</span><span class="sw-vitem-text"><strong>Кокосовый сахар / Коричневый сахар.</strong></span></div>
+				<div class="sw-vitem"><span class="sw-vitem-num">6</span><span class="sw-vitem-text"><strong>Белый сахар.</strong></span></div>
+			</div>
+			<div class="info-box" style="margin-top:20px">
+				<strong>Важно</strong>
+				Всё, что начинается с 3-го пункта, — это по сути быстрые углеводы, пусть и в растительной форме. Ограничивайте их так же, как обычный сахар.
+			</div>
+		</div>
+	</div>
+
+	<!-- ЗАВТРАКИ — СОЕВЫЕ ПРОДУКТЫ И БОБОВЫЕ -->
+	<div class="page">
+		<div class="split-section">
+			<div class="split-photo">
+				<img src="../images/img-guides/plant-based/soya-products.webp" alt="Соевые продукты" loading="lazy">
+				<div class="split-photo-label">Завтраки</div>
+			</div>
+			<div class="split-content">
+				<h2>Соевые продукты<br><em>и бобовые</em></h2>
+				<p>Соя — это уникальный аминокислотный состав и отсутствие лишних жиров. Очень недооцененный продукт.</p>
+				<p><strong>Тофу:</strong> идеально впитывает вкусы. Его можно крошить в «творог» для сырников или делать «тофу-скрэмбл» с тушеными овощами.</p>
+				<p><strong>Нутовый омлет:</strong> смешайте нутовую муку с водой и залейте этой смесью поджаренные овощи. Очень сытный вариант.</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- ЗАВТРАКИ — НАМАЗКИ -->
+	<div class="page">
+		<div class="split-section">
+			<div class="split-photo">
+				<img src="../images/img-guides/plant-based/avocado.webp" alt="Намазки" loading="lazy">
+				<div class="split-photo-label">Завтраки</div>
+			</div>
+			<div class="split-content">
+				<h2>Намазки:<br><em>альтернатива колбасе</em></h2>
+				<p>Замените колбасу на хумус или паштеты из чечевицы и фасоли на цельнозерновом хлебе. Попробуйте авокадо — прекрасный источник полезных жиров.</p>
+				<p>Самый простой и вкусный способ его полюбить — домашний гуакамоле. Просто разомните спелый плод вилкой, добавьте мелко нарезанные томаты и вашу любимую зелень, можно добавить острый перец.</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- ЗАВТРАКИ — ОРЕХИ И СЕМЕНА -->
+	<div class="page">
+		<div class="split-section">
+			<div class="split-photo">
+				<img src="../images/our-health-your-hands.webp" alt="Орехи и семена" loading="lazy">
+				<div class="split-photo-label">Завтраки</div>
+			</div>
+			<div class="split-content">
+				<h2>Идеальный перекус:<br><em>орехи и семена</em></h2>
+				<p><strong>Семена:</strong> отличный источник Омега-3 и магния. Перемолите семена тыквы, конопли и льна (в одинаковых пропорциях) и добавляйте по 1–2 ч. л. в каши. Храните микс в холодильнике не более недели.</p>
+				<p><strong>Орехи:</strong> покупайте сырые, необжаренные и без соли. Обязательно промывайте перед употреблением. Если ваш ЖКТ хорошо их переносит, можно не замачивать надолго. Просто промойте, просушите и слегка подсушите на сухой сковороде без масла — они станут невероятно хрустящими и вкусными.</p>
+				<p>Я делаю сразу большой объем разных видов орехов, смешиваю их и храню в стеклянной банке в холодильнике. Холод защищает жиры в орехах от окисления, и у вас всегда готов идеальный, чистый и полезный перекус.</p>
+				<p>Оптимальный размер порции: 1–2 ладони орехов в день (примерно 60 г)</p>
+
+			</div>
+		</div>
+	</div>
+
+	<!-- ОБЕДЫ И УЖИНЫ -->
+	<div class="page" id="s-lunch">
+		<div class="split-section">
+			<div class="split-photo">
+				<img src="../images/img-guides/plant-based/soups.webp" alt="Обеды и ужины" loading="lazy">
+				<div class="split-photo-label">Обеды и ужины</div>
+			</div>
+			<div class="split-content">
+				<span class="chapter-num">03</span>
+				<h2>Супы и<br><em>овощные бульоны</em></h2>
+				<p>Чередуйте мясные бульоны с овощными. Для сытости в овощные супы добавляйте бобовые, тофу или белое мясо.</p>
+				<p>Я даю вам два варианта бульонов и рецепт овощной пасты. В первых двух случаях отваренные овощи мы выкидываем после приготовления и процеживаем бульон. При приготовлении пасты мы этого не делаем, все блендируем. Выбирайте, что вам подходит больше!</p>
+				<p>Овощная паста — это «овощная бомба» в одной ложке. Её можно долго хранить в холодильнике (около месяца) и даже замораживать (на 6 месяцев). Этот концентрат всегда есть в моем холодильнике, я добавляю его и при приготовлении круп и различных рагу.</p>
+				<p>В супы можно добавить слегка обжаренные или притушенные с водой овощи для дополнительного аромата и клетчатки. Тут важно масло, на котором вы жарите.</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- ОБЕДЫ — МАСЛА -->
+	<div class="page">
+		<div class="text-section">
+			<div class="page-label">Раздел 03 — продолжение</div>
+			<h2 class="page-heading" id="s-oil">На каком масле<br><em>жарить?</em></h2>
+			<p style="font-size:15px;color:var(--text-mid);line-height:1.8;margin-bottom:12px">Выбирайте масла с высокой точкой дымления (от 210 °C): рафинированное оливковое (на бутылке может быть просто написано «оливковое масло»), любое (рафинированное и нерафинированное) горчичное, масло виноградной косточки или авокадо.</p>
+			<div class="info-box">
+				<strong>Важно</strong>
+				Забудьте о подсолнечном нерафинированном масле для жарки. Оно дымит уже при 100 °C, выделяя токсины. Оставьте его и масла Virgin и Extra Virgin только для заправок готовых блюд.
+			</div>
+		</div>
+	</div>
+
+	<!-- БОБОВЫЕ — ПРАВИЛА + ТАБЛИЦА -->
+	<div class="page" id="s-legumes">
+		<div class="text-section">
+			<div class="page-label">Раздел 03 — бобовые</div>
+			<h2 class="page-heading" style="margin-bottom:16px">Бобовые:<br><em>правила безопасности</em></h2>
+			<p style="font-size:15px;color:var(--text-mid);line-height:1.8;margin-bottom:12px">Добавляйте в свои супы бобовые. Можно покупать консервированные (промывать их водой и использовать) или отваривать сразу большое количество самим и замораживать порционно в обычных пакетах. Это очень экономично. Плюс в любое время у вас под рукой есть готовая порция для добавления в любое блюдо.</p>
+			<p style="font-size:15px;color:var(--text-mid);line-height:1.8;margin-bottom:12px">Не стоит бояться бобовых. Если вводить их постепенно и по правилам, у большинства людей не возникает выраженных вздутий и других неприятных симптомов со стороны ЖКТ. Тут важны два правила: предварительное замачивание и термическая обработка.</p>
+			<p style="font-size:15px;color:var(--text-mid);line-height:1.8;margin-bottom:20px">Самая нейтральная и лёгкая по усвоению — красная чечевица. Её даже не нужно специально замачивать (если только этого не требует конкретный рецепт).</p>
+		</div>
+		<div class="table-section">
+			<div class="page-label" style="margin-bottom:12px">Таблица — время приготовления и замачивания бобовых</div>
+			<table class="guide-table">
+				<thead>
+					<tr>
+						<th>Бобовые</th>
+						<th>Замачивание</th>
+						<th>Время варки</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><strong>Нут</strong></td>
+						<td>8 ч (на ночь)</td>
+						<td>40–60 мин</td>
+					</tr>
+					<tr>
+						<td><strong>Колотый горох</strong></td>
+						<td>3 ч</td>
+						<td>45–60 мин</td>
+					</tr>
+					<tr>
+						<td><strong>Белая фасоль</strong></td>
+						<td>8 ч (на ночь)</td>
+						<td>30–40 мин</td>
+					</tr>
+					<tr>
+						<td><strong>Красная фасоль</strong></td>
+						<td>8 ч (на ночь)</td>
+						<td>40–60 мин</td>
+					</tr>
+					<tr>
+						<td><strong>Маш</strong></td>
+						<td>3–8 ч</td>
+						<td>20–30 мин</td>
+					</tr>
+					<tr>
+						<td><strong>Зелёная чечевица</strong></td>
+						<td>3–8 ч</td>
+						<td>20–30 мин</td>
+					</tr>
+					<tr>
+						<td><strong>Красная/жёлтая чечевица</strong></td>
+						<td>промыть</td>
+						<td>10–15 мин</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="info-box" style="margin-top:16px">
+				<strong>Важно</strong>
+				После замачивания воду, в которой лежали бобовые, обязательно сливаем и варим в свежей. Соль при варке бобовых впрок я не добавляю. Подавайте супы с хрустящими сухариками с орегано или крекерами из цельнозерновой муки и радуйтесь тому, что ваша семья питается вкусно и разнообразно.
+			</div>
+		</div>
+	</div>
+
+	<!-- КОТЛЕТЫ И ГАРНИРЫ -->
+	<div class="page" id="s-cutlets">
+		<div class="split-section">
+			<div class="split-photo">
+				<img src="../images/img-guides/plant-based/green-lentil-cutlets.webp" alt="Котлеты и гарниры" loading="lazy">
+				<div class="split-photo-label">Котлеты и гарниры</div>
+			</div>
+			<div class="split-content">
+				<span class="chapter-num">04</span>
+				<h2>Котлеты<br><em>и панировка</em></h2>
+				<p>Готовьте котлеты впрок и замораживайте часть. Для занятых хозяек это отличный вариант быстрых обедов и ужинов. Обычно по выходным я готовлю сразу много котлет: часть жарю сразу, а остальное замораживаю. Это очень удобно — у меня в морозилке всегда есть заготовки нескольких видов.</p>
+				<p>С ними легко собрать сбалансированную и вкусную тарелку для всей семьи: котлеты плюс любимый гарнир и овощи — и идеальный приём пищи готов. В течение недели вы просто меняете виды котлет и гарниров. Всё максимально просто!</p>
+				<p>Котлеты из морозилки размораживать не нужно — начинайте жарить их сразу.</p>
+				<p><strong>Совет по заморозке:</strong> чтобы котлеты не слипались, возьмите разделочную доску, оберните её пищевой плёнкой и выложите на неё заготовки. Поместите доску горизонтально в морозилку. Через несколько часов замороженные котлеты можно легко снять и переложить в пакет.</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- КОТЛЕТЫ — ПАНИРОВКА И ГАРНИРЫ -->
+	<div class="page">
+		<div class="text-section">
+			<div class="page-label">Раздел 04 — продолжение</div>
+			<div class="two-col-text">
+				<div class="col-text">
+					<h4>Домашняя панировка</h4>
+					<p>Использовать сухари или муку — дело вкуса. Панировка даёт аппетитную корочку, но это не обязательное условие. Вы можете сделать полезную панировку сами из сухарей цельнозернового хлеба (или любого другого с хорошим составом, без сахара и лишних добавок).</p>
+					<ol style="margin:8px 0 0 20px;font-size:15px;color:var(--text-mid);line-height:1.7">
+						<li>Нарежьте хлеб кубиками (1–2 см).</li>
+						<li>Отправьте в духовку, разогретую до 150 °C.</li>
+						<li>В среднем от 20 до 30 минут. Каждые 10 минут перемешивайте.</li>
+						<li>После остывания перемолите сухари в блендере до мелкой крошки.</li>
+					</ol>
+					<div class="info-box" style="margin-top:14px">
+						<strong>Лайфхак</strong>
+						Пересыпьте готовую панировку в стеклянную банку. Храните её в холодильнике не более месяца (при необходимости сухари можно заморозить на срок до 6 месяцев).
+					</div>
+				</div>
+				<div class="col-text">
+					<h4>Разнообразие гарниров</h4>
+					<p>Чередуйте разнообразные крупы. Выбирайте самые полезные и цельные варианты: овсянка, гречка, киноа, перловка, булгур; коричневый, бурый или красный рис; полба, пшено, амарант.</p>
+					<p><strong>Гречка + киноа:</strong> я очень люблю их смешивать. По времени они варятся одинаково. Беру 1 часть гречки, 0,5 части киноа и 2 части воды. Киноа — потрясающий злак (хоть и считается псевдозлаком), он очень богат белком и витаминами.</p>
+					<p><strong>Булгур:</strong> его незаслуженно редко используют. Это пшеничная крупа с богатым составом. Булгур отлично подходит и для супов - например, попробуйте добавить его в рассольник вместо привычного риса или перловки.</p>
+					<p><strong>Цельнозерновой рис:</strong> коричневый, бурый или красный. Этот рис не обработан, в нём сохранена и оболочка, и ядро — всё самое полезное. Для начала можно смешивать с обычным рисом. Он отлично держит форму в супах и не разваривается так сильно, как белый.</p>
+					<p><strong>Цельнозерновые макароны:</strong> обратите внимание, это не просто макароны из твёрдых сортов пшеницы. Продукт из цельнозерновой муки имеет более тёмный оттенок. В такой муке сохранена польза ядра и оболочки, это источник клетчатки и витаминов. Их также можно смешивать с обычными белыми. В выпечке лучше использовать цельнозерновую муку( для начала ее можно смешивать с белой мукой). </p>
+				</div>
+			</div>
+			<div class="highlight-box">
+				<h3>Картофельное пюре</h3>
+				<p>Картофель — прекрасный овощ! Его репутацию испортило только избыточное количество сливочного масла и фритюр. Запекайте, тушите, отваривайте его — это сбалансированный гарнир и отличный углевод.</p>
+				<p><strong>Вариант пюре, который обожает моя семья:</strong></p>
+				<ol>
+					<li>Отварите картофель и разомните его прямо в той воде, в которой он варился.</li>
+					<li>Отдельно в блендере взбейте до гладкости отварную белую фасоль (домашнюю или консервированную). Фасоли я беру в два раза меньше, чем картофеля.</li>
+					<li>Смешайте картошку и фасоль. Это очень вкусно и сытно!</li>
+				</ol>
+				<p style="margin-top:10px">Совет: можно отдельно слегка поджарить лук на оливковом масле и добавить в пюре — это сделает вкус более насыщенным.</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- ПРИНЦИП РАДУГИ -->
+	<div class="page" id="s-rainbow">
+		<div class="split-section">
+			<div class="split-photo">
+				<img src="../images/img-guides/plant-based/rainbow.webp" alt="Принцип радуги" loading="lazy">
+				<div class="split-photo-label">Радуга</div>
+			</div>
+			<div class="split-content">
+				<div class="page-label">Раздел 05</div>
+				<h2 class="page-heading">Принцип «Радуги»<br><em>и правило пяти</em></h2>
+				<p style="font-size:15px;color:var(--text-mid);line-height:1.8">Половина вашей тарелки в идеале должна состоять из овощей и фруктов. Чтобы это не превратилось в рутину, используйте принцип «Радуги»: чем больше разных цветов овощей и фруктов вы соберёте за день, тем шире спектр защитных веществ (фитонутриентов и антиоксиданты) получит ваш организм.</p>
+			</div>
+		</div>
+		<div class="text-section">
+			<div class="rainbow-cards">
+				<div class="rainbow-card">
+					<div class="rn">1</div>
+					<h4>Правило «5 в день»</h4>
+					<p>Старайтесь, чтобы в вашем ежедневном рационе присутствовало минимум 5 порций овощей, ягод и фруктов.</p>
+					<p class="portion-title">Что такое порция?</p>
+					<ul class="portion-list">
+						<li>2–3 ст. л. приготовленных или сырых овощей</li>
+						<li>1 большая горсть салата (микс зелени, например)</li>
+						<li>1 средний/крупный фрукт (например, яблоко)</li>
+						<li>2 небольших фрукта (например, абрикос)</li>
+						<li>1 горсть ягод</li>
+						<li>1 ст. л. сухофруктов</li>
+					</ul>
+				</div>
+				<div class="rainbow-card">
+					<div class="rn">2</div>
+					<h4>Сезонность — это важно</h4>
+					<p>Отдавайте предпочтение именно сезонным продуктам. Летом — свежие томаты, огурцы, перцы и зелень. В холодное время — корнеплоды: морковь, свёкла, репа, редька, сельдерей и все виды капусты.</p>
+				</div>
+				<div class="rainbow-card">
+					<div class="rn">3</div>
+					<h4>Разнообразие</h4>
+					<p>Старайтесь съедать 2–3 разных сезонных фрукта в течение дня. Не зацикливайтесь на чём-то одном — пробуйте разные вкусы и цвета.</p>
+				</div>
+				<div class="rainbow-card">
+					<div class="rn">4</div>
+					<h4>Заморозка</h4>
+					<p>Отличный выход вне сезона. Замороженные овощи, ягоды и шпинат сохраняют максимум пользы и прекрасно подходят для тушения или добавления в основные блюда.</p>
+				</div>
+				<div class="rainbow-card">
+					<div class="rn">5</div>
+					<h4>Сытность</h4>
+					<p>Чтобы салат стал полноценным приёмом пищи, добавьте в него отваренный нут, фасоль или киноа — это придаст сытости и новых интересных вкусовых оттенков.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- ПОЛЕЗНОЕ: ФЕРМЕНТАЦИЯ + ЙОД -->
+	<div class="page" id="s-ferment">
+		<div class="split-section">
+			<div class="split-photo">
+				<img src="../images/img-guides/plant-based/fermentation.webp" alt="Полезные привычки" loading="lazy">
+				<div class="split-photo-label">Полезное</div>
+			</div>
+			<div class="split-content">
+				<span class="chapter-num">06</span>
+				<h2>Полезное:<br><em>ферментация и йод</em></h2>
+			</div>
+		</div>
+		<div class="text-section">
+			<div class="two-col-text">
+				<div class="col-text">
+					<h4>Ферментация</h4>
+					<p>Не забывайте о ферментации! Это настоящая кладезь для нашего микробиома, с помощью которой вы буквально заселяете свой организм полезными бактериями. Это и квашеная капуста, и капуста кимчи, и любые другие ферментированные овощи.</p>
+					<p>Надеюсь, мой гайд поможет вам расширить рацион простыми и полезными продуктами. Помните: мы не воюем с едой, мы учимся её понимать!</p>
+				</div>
+				<div class="col-text">
+					<h4>Йод — топливо для метаболизма</h4>
+					<p>Внедряя больше растений, не забывайте о щитовидной железе. Используйте только йодированную соль. Это самый простой и доступный способ профилактики. Добавляйте её и в процессе приготовления блюд, и в уже готовые варианты.</p>
+					<p>Это правило очень важно, если вы не едите морскую капусту, морепродукты или водоросли (чука, нори). Йод напрямую влияет на работу вашей щитовидной железы и метаболизм.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- РЕЦЕПТЫ — ЗАВТРАКИ -->
+	<div class="page" id="r-breakfast">
+		<div class="recipes-page">
+			<div class="recipes-header">
+				<div class="page-label">Рецепты · Часть I</div>
+				<h2 class="page-heading">Завтраки<br><em>и намазки</em></h2>
+			</div>
+
+			<!-- 1.1 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">1</div><img src="../images/img-guides/plant-based/tofu-sirniki.webp" alt="Сырники из тофу" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Завтрак · 1.1</div>
+					<div class="rc-title">Сырники из тофу</div>
+					<p class="rc-quote">Их сразу и безоговорочно приняла моя семья, а самое главное&nbsp;— дети! Эти сырники могут жить без холодильника, в отличие от их творожных братьев. Если у вас не всегда получались сырники из творога и они разваливались, то эти «тофники» прекрасно держат форму и у вас всё получится с первого раза, легко и просто!</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>300 гр. тофу (не шелковый, без добавок)</li>
+								<li>Сок половины лимона</li>
+								<li>Цедра половины лимона</li>
+								<li>2 ч.л. подсластителя (топинамбур/кленовый сироп или 1 банан)</li>
+								<li>2 ст.л. цельнозерновой муки (или безглютеновой)</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Пробиваем всё в блендере (можно воспользоваться погружным).</li>
+								<li>Обжариваем на сковороде на небольшом количестве оливкового масла до румяной корочки.</li>
+							</ol>
+							<p class="rc-note">Можно сделать тесто заранее, вечером, а утром остаётся только поджарить сырники. Они будут вкусными и в холодном виде. Цедру трите аккуратно, до белой части лимона — нам нужна только жёлтая, так как белая горчит. В тесто можно добавить любимые сухофрукты. Особенно вкусно получается с изюмом, предварително замоченным в кипятке для мягкости.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 1.2 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">2</div><img src="../images/img-guides/plant-based/pancakes-red-lentil.webp" alt="Оладьи из чечевицы" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Завтрак · 1.2</div>
+					<div class="rc-title">Оладьи из чечевицы</div>
+					<p class="rc-quote">Эти оладьи хороши не только со сладким. Напеките, накормите, услышьте хвалебные песни и не говорите из чего они! Вкуса чечевицы нет вообще — и пользы сколько!</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>300 гр. красной чечевицы</li>
+								<li>200 мл. растительного молока</li>
+								<li>2 ст.л. топинамбура или любого жидкого подсластителя</li>
+								<li>170 гр. цельнозерновой муки</li>
+								<li>1,5 ч.л. разрыхлителя</li>
+								<li>Сок 1/2 лимона</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Чечевицу лучше замочить на 2–3 часа или на ночь (в этом случае поставьте в холодильник). Так оладушки получатся более воздушными.</li>
+								<li>Взбить чечевицу со всеми ингредиентами в блендере.</li>
+								<li>Обжарить на сковороде на небольшом количестве оливкового масла.</li>
+							</ol>
+							<p class="rc-note">Вместо сиропа топинамбура можно взять 1–2 банана. Попробуйте помять авокадо, сбрызнуть его лимоном и солью, порезать слайсами помидор и положить всё это слоями на оладушек.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 1.3 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">3</div><img src="../images/img-guides/plant-based/chickpea-omelette.webp" alt="Нутовый омлет" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Завтрак · 1.3</div>
+					<div class="rc-title">Нутовый омлет</div>
+					<p class="rc-quote">При приготовлении вы можете использовать любые любимые овощи.</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>100 гр. нутовой муки</li>
+								<li>200 мл. воды</li>
+								<li>1/2 ч.л. соли</li>
+								<li>1 маленький лук</li>
+								<li>1 кабачок/цукини небольшой сладкий перец</li>
+								<li>1 сладкий перец</li>
+								<li>4 помидоры черри</li>
+								<li>1/2 банки томатов в собственном соку</li>
+								<li>30 гр. любой зелени</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Обжариваем овощи на небольшом количестве оливкового масла (можно добавить немного воды вместо масла и слегка их потушить).</li>
+								<li>Подсолите немного овощи.</li>
+								<li>В муку добавляем соль, перемешиваем, добавляем воду, ещё раз перемешиваем (чтобы не было комочков).</li>
+								<li>Добавляем мелкопорезанную зелень, перемешиваем.</li>
+								<li>Выливаем смесь на овощи, слегка перемешиваем, накрываем крышкой и тушим около 5 мин. на небольшом огне.</li>
+							</ol>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 1.4 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">4</div><img src="../images/img-guides/plant-based/pancakes-lentil-gluten-free.webp" alt="Оладьи из чечевицы без глютена" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Завтрак · без глютена · 1.4</div>
+					<div class="rc-title">Оладьи из чечевицы (без глютена)</div>
+					<p class="rc-quote">Этот вариант чечевичных оладьев без глютена. Они идеально подойдут людям с целиакией, непереносимостью глютена или тем, кому показан безглютеновый рацион. Это способ сохранить любимые вкусы без компромиссов — особенно важно, когда за столом собираются гости с разными пищевыми предпочтениями.</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>200 гр. красной чечевицы</li>
+								<li>240 мл. овсяного (или любого растительного) молока</li>
+								<li>Щепотка соли</li>
+								<li>1 ч.л. разрыхлителя</li>
+								<li>1 банан или немного подсластителя (по вкусу)</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Чечевицу замочить на 2–3 часа или на ночь (в этом случае поставьте в холодильник). Так оладушки получатся более воздушными.</li>
+								<li>Взбить чечевицу со всеми ингредиентами в блендере.</li>
+								<li>Обжарить на сковороде с толстым дном на небольшом количестве оливкового масла. Жарим на среднем огне.</li>
+							</ol>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 1.5 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">5</div><img src="../images/img-guides/plant-based/pancakes-apple.webp" alt="Панкейки с яблочно-грушевым пюре" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Завтрак · 1.5</div>
+					<div class="rc-title">Панкейки с яблочно-грушевым пюре</div>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>3 груши</li>
+								<li>3 яблока</li>
+								<li>6 фиников</li>
+								<li>300 гр. цельнозерновой муки</li>
+								<li>1,5 ч.л. разрыхлителя</li>
+								<li>1 ч.л. яблочного уксуса или сока лимона</li>
+								<li>300 мл. растительного молока</li>
+								<li>3 ст.л. подсластителя (сироп топинамбура или кленовый)</li>
+								<li>2 ст.л. растительного масла</li>
+								<li>1 ст.л. молотых семян льна + 3 ст.л. тёплой воды</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Режем крупно фрукты, из фиников вынимаем косточки. Готовим в пароварке около 10 минут до мягкости ингредиентов (проверяйте по финикам — они самые твёрдые). Пароварку можно сделать самим, использовав кастрюлю и специальную сетку для неё.</li>
+								<li>Отправляем всё в блендер, делаем гладкое и однородное пюре (его можно смешивать с кашами, если не хотите использовать подсластители и мёд).</li>
+								<li>В молотые семена льна добавляем воду, перемешиваем, накрываем и оставляем набухать минут на 10–15. Можно залить почти кипятком — тогда время набухания сокращается до 5 минут, но лучше заливать тёплой водой.</li>
+								<li>Смешиваем все ингредиенты и набухший лён.</li>
+								<li>Жарим панкейки на сухой антипригарной сковороде.</li>
+								<li>Подаём с пюре из фруктов.</li>
+							</ol>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 1.6 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">6</div><img src="../images/img-guides/plant-based/tofu-scrambel.webp" alt="Скрэмбл из тофу" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Завтрак · 1.6</div>
+					<div class="rc-title">Скрэмбл из тофу</div>
+					<p class="rc-quote">Эту альтернативу яичнице принял даже мой муж, у которого по жизни был девиз: « если есть яйца, значит есть и еда!». Человек жить не мог без яичницы. Но тофу (и я, чего уж тут) сделал своё дело, стал альтернативой — теперь очень часто на завтрак муж просит именно этот скрэмбл из тофу!</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>1 луковица</li>
+								<li>1 зубчик чеснока</li>
+								<li>200 гр. томатов в собственном соку или 2 свежих томата</li>
+								<li>200 гр. тофу (не шелковый, обычный)</li>
+								<li>Соль, перец по вкусу</li>
+								<li>Любимая зелень</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Поджариваем луковицу, чеснок на небольшом количестве оливкового масла, добавляем сочные помидоры.</li>
+								<li>Тушим овощи 5 мин. и добавляем 200 гр. раскрошенного тофу.</li>
+								<li>Томим ещё 5 мин., даём тофу возможность напитаться вкусами.</li>
+								<li>Перчим, солим. Зелень по желанию.</li>
+							</ol>
+							<p class="rc-note">Вы можете добавлять всё, что любите в классической яичнице: лук, чеснок, томаты, сладкий перец и т.д. Просто вместо яиц добавьте размятый тофу и побольше свежих помидоров или томатов в собственном соку — тофу сильно впитывает влагу.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 1.7 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">7</div><img src="../images/img-guides/plant-based/humus.webp" alt="Хумус" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Намазка · 1.7</div>
+					<div class="rc-title">Хумус</div>
+					<p class="rc-quote">Невероятно полезный, вкусный и простой в приготовлении — намазка хумус! Возможно, вы его полюбите не сразу, но когда распробуете, то, уверяю вас, будете делать его очень часто! Я готова есть его каждый день!</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>400 гр. отваренного нута или консервированного</li>
+								<li>2 ст. л. тахини (паста из кунжута)</li>
+								<li>Сок 1 среднего лимона</li>
+								<li>1 небольшой зубчик чеснока</li>
+								<li>1 ч.л. соли</li>
+								<li>1 ч.л. кориандра</li>
+								<li>½ ч.л. кумина</li>
+								<li>70–90 мл. воды (в идеале аквафабы)</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Количество жидкости регулируйте сами, делайте желаемую консистенцию.</li>
+								<li>Можно добавить больше лимона.</li>
+								<li>Все отправляем в блендер и готово!</li>
+								<li>Сверху можно полить оливковым маслом и приправить острым чили перцем или паприкой.</li>
+							</ol>
+							<p class="rc-note">Всегда держите замороженный отваренный нут в холодильнике — после его разморозки сделать хумус проще простого! Нут — высокобелковое доступное бобовое: отваривайте его сразу много, фасуйте в пакеты по 400 гр., замораживайте и готовьте хумус так часто, как захотите.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 1.8 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">8</div><img src="../images/img-guides/plant-based/pashtet-red-lentil.webp" alt="Паштет из фасоли" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Намазка · 1.8</div>
+					<div class="rc-title">Паштет из фасоли</div>
+					<p class="rc-quote">С этого паштета началась любовь к бобовым у старшей дочери-подростка, которая до этого ничего, кроме варёной колбаски на хлебе не признавала. А сейчас она с удовольствием ест все мои намазки :) Да, понадобилось время, но ведь главное — результат, мы же играем вдолгую!</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>500 гр. варёной красной фасоли</li>
+								<li>2 средние луковицы</li>
+								<li>2 средние моркови</li>
+								<li>1 зубчик чеснока</li>
+								<li>1/2 ч.л. кориандра</li>
+								<li>1/2 ч.л. сладкой паприки</li>
+								<li>Соль, перец</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Нарезаем чеснок и лук (позже будем всё перекручивать).</li>
+								<li>Натираем морковь на крупной тёрке.</li>
+								<li>Обжариваем на небольшом количестве оливкового масла лук, добавляем чеснок и через 1 мин. морковь. Добавляем специи, всё обжариваем и тушим до мягкости (при необходимости добавьте немного воды в сковороду).</li>
+								<li>Смешиваем фасоль и тушёные овощи и пюрируем погружным блендером, прокручиваем в мясорубке или в любом комбайне.</li>
+								<li>Солим по вкусу. Можно добавить совсем немного любого подсластителя. Вкус поменяется — попробуйте и так и так.</li>
+							</ol>
+							<p class="rc-note">Намазываем на хлеб, питу — вкусно и полезно завтракаем! Готовый паштет можно хранить в холодильнике несколько дней.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 1.9 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">9</div><img src="../images/img-guides/plant-based/avocado-toast.webp" alt="Тост с авокадо" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Завтрак · 1.9</div>
+					<div class="rc-title">Тост с авокадо</div>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>1 авокадо</li>
+								<li>1/2 сладкого красного лука (можно без него)</li>
+								<li>1 маленький помидор</li>
+								<li>Сок 1/2 лимона</li>
+								<li>Пара веточек кинзы</li>
+								<li>Соль</li>
+								<li>Красный перец чили (если любите поострее)</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Авокадо мнём вилкой или чем удобнее.</li>
+								<li>Мелко режем лук, помидор и кинзу.</li>
+								<li>Смешиваем с авокадо, добавляем лимонный сок, перец чили и соль.</li>
+								<li>Хорошо перемешиваем, поджариваем хлеб или делаем тост и густо кладём на него нашу намазку из авокадо.</li>
+							</ol>
+							<p class="rc-note">Если вы в своём рационе допускаете рыбу, то можно на помятое и сдобренное лимонным соком, солью и перцем авокадо положить консервированный тунец (в собственном соку, не в масле). Это очень вкусное сочетание!</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 1.10 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">10</div><img src="../images/img-guides/plant-based/tomato-bruschetta.webp" alt="Брускетта с томатом и соусом из кешью" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Завтрак · 1.10</div>
+					<div class="rc-title">Брускетта с томатом и соусом из кешью</div>
+					<p class="rc-quote">Если у вас сейчас сезон томатов, то этот « бутерброд» не оставит вас равнодушными!</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>1 крупный помидор</li>
+								<li>1/4 или 1/2 красного лука</li>
+								<li>Сок среднего лимона</li>
+								<li>2–3 веточки петрушки</li>
+								<li>2 ст. ложки оливкового масла</li>
+								<li>1 ст. ложка бальзамического уксуса</li>
+								<li>1/2 ч.л. соевого соуса</li>
+								<li>Соль и перец</li>
+								<li>соус из кешью</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Режем мелко лук и смешиваем его в миске с соком лимона, бальзамическим уксусом, оливковым маслом и соевым соусом. Мелко режем петрушку и добавляем в заправку.</li>
+								<li>Режем кружочками помидоры, заливаем их заправкой и оставляем мариноваться 10–15 мин.</li>
+								<li>Поджариваем хлеб на сковороде или делаем тосты.</li>
+								<li>Густо намазываем соусом из кешью, выкладываем помидоры и поливаем сверху остатками заправки.</li>
+							</ol>
+							<p class="rc-note">Подсолите в случае необходимости — соевый соус уже даёт соль заправке. Рецепт соуса из кешью смотрите в разделе «Соусы».</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<!-- РЕЦЕПТЫ — К СУПУ -->
+	<div class="page" id="r-soup">
+		<div class="recipes-page">
+			<div class="recipes-header">
+				<div class="page-label">Рецепты · Часть II</div>
+				<h2 class="page-heading">Супы:<br><em>Супы, бульоны и добавки</em></h2>
+			</div>
+
+			<!-- 2.1 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">1</div><img src="../images/img-guides/plant-based/concentrat.webp" alt="Овощной концентрат" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Для супа · Универсальный · 2.1</div>
+					<div class="rc-title">Овощной концентрат</div>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>200 гр. стеблей сельдерея (или 150 гр. корня)</li>
+								<li>250 гр. моркови</li>
+								<li>100 гр. лука</li>
+								<li>100 гр. помидоров</li>
+								<li>150 гр. кабачков или цукини</li>
+								<li>1 долька чеснока</li>
+								<li>50–100 гр. грибов</li>
+								<li>2 сухих лавровых листа</li>
+								<li>4 веточки розмарина или зелёного базилика</li>
+								<li>30 гр. петрушки</li>
+								<li>120 гр. крупной соли</li>
+								<li>30 гр. воды</li>
+								<li>1 ст. л. оливкового масла</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>В комбайне рубим всё до мелких кусочков (позже будем всё это блендерить).</li>
+								<li>Перекладываем овощи в кастрюлю с антипригарным покрытием или толстым дном.</li>
+								<li>Перемешиваем, добавляем воду, соль и оливковое масло. Ставим на большой огонь. После закипания воды сразу уменьшаем огонь на минимум и оставляем томиться овощи на 40 мин., периодически помешивая (закрывайте крышкой — овощи могут «выстреливать»).</li>
+								<li>Взбиваем овощи в комбайне или тщательно пюрируем погружным блендером до однородной пасты, без цельных кусочков.</li>
+								<li>Остудите получившийся овощной концентрат.</li>
+							</ol>
+							<p class="rc-note">Должно получиться около 750 мл. пасты. Хранить несколько недель в холодильнике и до полугода в морозилке. Концентрат используем из расчёта 1 ч.л. на 500 мл. воды.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 2.2 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">2</div><img src="../images/img-guides/plant-based/clear-broth.webp" alt="Бульон светлый" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Бульон · 2.2</div>
+					<div class="rc-title">Бульон №1 (светлый)</div>
+					<p class="rc-quote">Супы — это то, к чему мы исторически привыкли и то, что любим. Без них совсем не могут мой муж и сын. Сочетания сезонных овощей, бобовых и цельнозерновых круп — это лучшее, что вы можете предложить своему организму.</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>200 г. моркови</li>
+								<li>200 г. лука порея или обычного репчатого</li>
+								<li>200 г. стеблей сельдерея</li>
+								<li>3 л. воды</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Овощи чистим, моем и нарезаем кубиком примерно по 5 мм.</li>
+								<li>Берём 3 литра воды, вносим туда наши порезанные овощи (важно: вода должна быть холодной), доводим почти до кипения (вода только должна начать немного бурлить), уменьшаем огонь и томим 20 мин.</li>
+								<li>Процеживаем бульон.</li>
+							</ol>
+							<p class="rc-note">Теперь вся польза овощей в вашем бульоне. Хранить в холодильнике 7–10 дней или в морозилке 3–4 месяца.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 2.3 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">3</div><img src="../images/img-guides/plant-based/dark-broth.webp" alt="Бульон тёмный" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Бульон · 2.3</div>
+					<div class="rc-title">Бульон №2 (тёмный)</div>
+					<p class="rc-quote">Супы — это то, к чему мы исторически привыкли и то, что любим. Без них совсем не могут мой муж и сын. Сочетания сезонных овощей, бобовых и цельнозерновых круп — это лучшее, что вы можете предложить своему организму.</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>200 г. моркови</li>
+								<li>200 г. лука порея или обычного репчатого</li>
+								<li>200 г. стеблей сельдерея</li>
+								<li>40 г. соевого соуса</li>
+								<li>1–2 свежие веточки розмарина или тимьяна</li>
+								<li>3 л. воды</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Чистим, моем и нарезаем овощи кубиками по 5 мм.</li>
+								<li>Разогреваем кастрюлю с антипригарным покрытием или толстым дном и помещаем туда овощи. Добавляем 1 ст.л. воды, постоянно помешивая (процесс похож на обжаривание, только вместо масла — вода). Добавляем по мере выпаривания воду по 1 ст.л., до тех пор, пока овощи не станут мягче.</li>
+								<li>Добавляем соевый соус, тушим 2–3 мин., вводим веточки свежих трав, тушим ещё 1 мин. Вливаем 3 л. воды, доводим почти до кипения, затем делаем минимальную температуру и томим 15–20 мин.</li>
+								<li>Процеживаем. Теперь вся польза овощей в вашем бульоне.</li>
+							</ol>
+							<p class="rc-note">Хранить в холодильнике 7–10 дней или в морозилке до 4-х месяцев.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 2.4 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">4</div><img src="../images/img-guides/plant-based/lentil-soup.webp" alt="Чечевичный суп" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Суп · 2.4</div>
+					<div class="rc-title">Чечевичный суп</div>
+					<p class="rc-quote">В основной рецепт дополнительно можно вместе с морковью добавить мелко нарезанные 2 стебля сельдерея и 200 гр. томатов в собств. соку. Можно сделать более пряным — добавить вместо кориандра 0,5 ч.л. карри. Можно отдельно отварить мелкую вермишель/рис и добавить порционно каждому в тарелку. Дети с удовольствием едят такой суп.</p>
+
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>300 гр. красной чечевицы</li>
+								<li>1 средняя луковица</li>
+								<li>1 средняя морковь</li>
+								<li>2 зубчика чеснока</li>
+								<li>2 средние картофелины</li>
+								<li>1 ч.л. молотого кориандра</li>
+								<li>1 ч.л. паприки</li>
+								<li>Соль/перец по вкусу</li>
+								<li>3 л. воды</li>
+								<li>6 ч.л. овощного концентрата</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Замочите чечевицу на 1–2 часа (быстрее приготовится).</li>
+								<li>Мелко нарезаем лук, морковь, чеснок.</li>
+								<li>Обжариваем 2 мин. лук в кастрюле на нескольких каплях масла. Добавляем кориандр и паприку, обжариваем вместе с луком 1 мин. до пряного аромата. Добавляем морковь, обжариваем ещё несколько мин. — морковь должна становиться мягче. Добавляем чеснок, обжариваем всё вместе не более 30 сек.</li>
+								<li>Всыпаем в кастрюлю промытую чечевицу, перемешиваем.</li>
+								<li>Заливаем водой, доводим до кипения, добавляем овощной концентрат.</li>
+								<li>Режем кубиком или трём на средней тёрке картофель (отжимаем его от жидкости!), закладываем в суп. Доводим до кипения, солим. Уменьшаем огонь и варим около 20–25 мин. до готовности чечевицы и картофеля.</li>
+								<li>Подавайте с сухариками (смотрите рецепт с орегано).</li>
+							</ol>
+							<p class="rc-note">В основной рецепт дополнительно можно вместе с морковью добавить мелко нарезанные 2 стебля сельдерея и 200 гр. томатов в собственном соку. Можно сделать более пряным — добавить вместо кориандра 0,5 ч.л. карри. Можно отдельно отварить мелкую вермишель/рис и добавить порционно каждому в тарелку. Дети с удовольствием едят такой суп.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 2.5 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">5</div><img src="../images/img-guides/plant-based/borsch.webp" alt="Борщ" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Суп · 2.5</div>
+					<div class="rc-title">Щи и Борщ</div>
+					<p class="rc-quote">Я объединила эти два блюда, так как они отличаются только наличием свёклы и разной фасолью.</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>1 средняя луковица</li>
+								<li>1 крупная морковь</li>
+								<li>2 средние свёклы</li>
+								<li>1 ч.л. паприки</li>
+								<li>2 ч.л. томатной пасты</li>
+								<li>200 гр. томатов в собств. соку</li>
+								<li>1 зубчик чеснока</li>
+								<li>2 картофелины</li>
+								<li>Небольшой вилок капусты</li>
+								<li>1 лимон</li>
+								<li>250 гр. красной фасоли</li>
+								<li>2,5 л. воды</li>
+								<li>5 ч.л. овощной пасты</li>
+								<li>Свежая зелень</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Для насыщенного цвета свёклу лучше запечь отдельно. Духовку разогреваем до 180°C. Свёклу моем, обсушиваем, заворачиваем каждую в пергамент (не в фольгу — она при температуре выделяет алюминий в продукты) и отправляем в духовку. Запекаем от 40 мин. — свёкла должна легко прокалываться.</li>
+								<li>Мелко нарезаем лук, морковь, чеснок. Обжариваем лук 3 мин., добавляем специи и обжариваем ещё 1 мин., вводим морковь, чеснок, томатную пасту или томаты в собственном соку. Тушим около 10 мин., добавляем готовую свёклу и сок 1/2 лимона. Тушим ещё около 3 мин.</li>
+								<li>Шинкуем капусту.</li>
+								<li>В кипящую воду добавляем овощной концентрат и порезанный кубиками или тёртый картофель (отжимаем перед закладкой). Варим 5 мин.</li>
+								<li>Добавляем капусту и зажарку. Если молодая — даём повариться 5 мин. и вносим зажарку. Доводим до кипения, убавляем огонь, варим около 10 мин. Старую капусту варить 10–15 мин. — пробуйте, капуста не должна развариться.</li>
+								<li>Красную фасоль помещаем в блендер и пюрируем с небольшим количеством бульона до однородной консистенции, без кусочков. Вводим пюре в суп, даём немного покипеть, чтобы фасоль подружилась со всеми ингредиентами. Готово!</li>
+								<li>Добавляем сметану из кешью (смотрите рецепт в разделе «Соусы»), любимую рубленную зелень (петрушка, укроп, кинза).</li>
+							</ol>
+							<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--warm-line)">
+								<div class="rc-col-label" style="padding-left:0;margin-bottom:6px">Щи — отличия</div>
+								<p style="font-size:13px;color:var(--text-mid);line-height:1.75">Для щей повторяем все предыдущие шаги, за исключением свёклы. Пюрируем и добавляем белую фасоль. В щи томатную пасту не кладу — это более лёгкий и свежий суп, не утяжеляйте его. Лучше добавьте томаты в собственном соку или свежие томаты. Зелень и сметана из кешью дополнят щи.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 2.6 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">6</div><img src="../images/img-guides/plant-based/chickpea-noodle-soup.webp" alt="Суп с нутом и лапшой" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Суп · 2.6</div>
+					<div class="rc-title">Суп с нутом и лапшой</div>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>1 небольшой лук</li>
+								<li>1 небольшая морковь</li>
+								<li>1 картофелина</li>
+								<li>1 банка нута (или 250 гр. отварного)</li>
+								<li>1 ч.л. паприки</li>
+								<li>5 ч.л. овощной пасты</li>
+								<li>Цельнозерновые макароны</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Мелко режем лук, морковь трём на мелкой тёрке. Тушим в кастрюле или на сковороде на небольшом количестве масла.</li>
+								<li>Можно добавить 1 ч.л. томатной пасты или 100 гр. томатов в собств. соку или мелко нарезанные помидоры. Потушите вместе с овощами (этот шаг не обязателен).</li>
+								<li>Заливаем 2,5 литрами воды. Доводим до кипения, добавляем овощной концентрат. Добавляем картофель, нарезанный кубиками или тёртый на средней тёрке (не забудьте отжать!), убавляем огонь.</li>
+								<li>Тем временем в блендере или комбайне взбиваем нут. Если берём из банки — используем только нут, без аквафабы (вода, в которой был нут).</li>
+								<li>Добавляем бульон из нашего супа и взбиваем нут до состояния гладкого пюре, без комочков. Добавляем массу из нута в кастрюлю. Солим. Варим до готовности картофеля.</li>
+								<li>Отдельно отвариваем цельнозерновые макароны (или прямо в супе). Больше всего подходят самые маленькие макароны или фигурки. Если отвариваете отдельно — разливаете суп по тарелкам и порционно каждому кладёте нужное количество макарон.</li>
+							</ol>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 2.7 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">7</div><img src="../images/img-guides/plant-based/buckwheat-soup.webp" alt="Гречневый суп" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Суп · 2.7</div>
+					<div class="rc-title">Гречневый суп</div>
+					<p class="rc-quote">Гречка — это полезная и низкокалорийная крупа, которая содержит в себе и белок, и витамины группы В, и вообще — кладезь различных минералов! Это любимый суп моих детей, поэтому варю я его достаточно часто.</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>1 лук</li>
+								<li>1 морковь</li>
+								<li>2 картофеля</li>
+								<li>1/2 ч.л. сушёного чеснока или 1 зубчик свежего</li>
+								<li>1 ч.л. паприки</li>
+								<li>1 ч.л. томатной пасты</li>
+								<li>1 ч.л. кориандра</li>
+								<li>1 ч.л. соли</li>
+								<li>160 г. сухой гречки</li>
+								<li>2,5 л. воды</li>
+								<li>5 ч.л. овощной пасты</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Обжариваем в небольшом количестве оливкового масла лук. Добавляем специи и обжариваем ещё 1 мин. Добавляем томатную пасту, перемешиваем. Вводим морковь, тщательно перемешиваем, добавляем пару ложек воды и тушим около 7–9 мин.</li>
+								<li>Вливаем воду, доводим до кипения, добавляем овощной концентрат. Следом кладём натёртый на тёрке или порезанный кубиками картофель и предварительно промытую в воде гречку. Перемешиваем.</li>
+								<li>Убавляем огонь и варим до готовности гречки.</li>
+								<li>Если у вас другие пропорции воды и гречки и вы боитесь сделать слишком густой суп — гречку можно отварить отдельно до готовности.</li>
+								<li>В этом случае варим суп до готовности картофеля, вводим готовую гречку, доводим до кипения и выключаем. Даём супу настояться 30 мин. и подаём.</li>
+							</ol>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 2.8 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">8</div><img src="../images/img-guides/plant-based/broccoli-cream-soup.webp" alt="Крем-суп из брокколи" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Суп-пюре · 2.8</div>
+					<div class="rc-title">Крем-суп из брокколи</div>
+					<p class="rc-quote">Для того, чтобы крем-суп был вкусным и кремовым, в нём обязательно должны присутствовать жиры. В нашем случае это кешью. Ещё в этот рецепт я добавляю картофель. Получается мягкий вкус и нужная консистенция.</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>1 стакан сырого кешью (60 гр.)</li>
+								<li>350 гр. брокколи</li>
+								<li>1 лук</li>
+								<li>1 л воды</li>
+								<li>2 ч.л. овощного концентрата</li>
+								<li>1 картофель</li>
+								<li>соль</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Замачиваем кешью минимум на 2 часа в обычной воде (уровень воды 5 см над орехами, можно замочить на ночь).</li>
+								<li>Разделяем брокколи на соцветия и нарезаем на кусочки по 2–3 см (позже будем её взбивать).</li>
+								<li>Замоченный кешью промыть, поместить в блендер с 30 мл. воды и взбить до однородной массы. Если у вас мощный блендер — этот шаг можно пропустить, а замоченный кешью просто промыть водой и блендерить уже с отваренными овощами. Если будете использовать погружной блендер — лучше орехи взбить отдельно.</li>
+								<li>Обжариваем около 3–5 мин. мелко нарезанный лук в небольшом количестве оливкового масла в кастрюле, в которой будем отваривать картофель и брокколи.</li>
+
+								<li>Добавляем воду, овощной концентрат и порезанный кубиками картофель. Доводим до кипения. Варим до полуготовности картофеля. Вводим брокколи, доводим до кипения. Уменьшаем огонь и готовим до мягкости брокколи (около 6 мин.). Переливаем суп в кухонный комбайн, добавляем кешью и взбиваем до однородности. Переливаем обратно в кастрюлю, солим. Порционно добавляем свежемолотый перец или хлопья чили.</li>
+
+								<li>Если используете погружной блендер: взбитый заранее кешью отправляем в кастрюлю к овощам и пюрируем всё вместе погружным блендером.</li>
+							</ol>
+
+							<p class="rc-note">Детям можно отварить отдельно любимые макароны или рис и добавить порционно в суп. Если любите цветную капусту — замените брокколи на неё. Единственное отличие: варите капусту около 10–12 мин. до мягкости.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 2.9 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">9</div><img src="../images/img-guides/plant-based/rassolnik-soup.webp" alt="Рассольник" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Суп · 2.9</div>
+					<div class="rc-title">Рассольник</div>
+					<p class="rc-quote">Попробуйте разнообразить суп, каждый раз готовя его с разной крупой. Кроме классической перловки, прекрасно подойдут бурый рис и булгур. Подавайте с мелко нарубленным укропом и/или петрушкой. Вкусно с чайной ложкой соуса из кешью (смотрите мой рецепт в разделе «Соусы») или сметаны.</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>1 лук</li>
+								<li>1 морковь</li>
+								<li>1 стебель сельдерея</li>
+								<li>2 картофеля</li>
+								<li>4 солёных огурца</li>
+								<li>1 ч.л. томатной пасты</li>
+								<li>1/2 ч.л. сушёного чеснока</li>
+								<li>1 ч.л. кориандра</li>
+								<li>1 ч.л. паприки</li>
+								<li>Соль, перец</li>
+								<li>200 гр. риса или перловки 150 гр.</li>
+								<li>2 л. воды</li>
+								<li>4 ч.л. овощного концентрата</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Мелко режем лук, морковь и сельдерей, слегка обжариваем на небольшом количестве оливкового масла на сковороде или непосредственно в кастрюле.</li>
+								<li>Добавляем специи, томатную пасту, обжариваем с овощами 1 мин.</li>
+								<li>С солёных огурцов счищаем кожуру, трём на средней тёрке. Добавляем к обжаренным овощам, вливаем немного воды и тушим около 15 минут.</li>
+								<li>Заливаем остальной водой, добавляем овощной концентрат и нарезанный кубиками или натёртый на средней тёрке картофель (не забываем его отжимать!).</li>
+								<li>Доводим до кипения и варим до готовности картофеля.</li>
+								<li>Параллельно отвариваем в большом количестве воды рис или перловку.</li>
+								<li>По готовности картофеля закладываем в суп крупу, доводим до кипения, перемешиваем и выключаем суп.</li>
+							</ol>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 2.10 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">10</div><img src="../images/img-guides/plant-based/roasted-vegetable-soup.webp" alt="Суп с печёными овощами" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Суп · 2.10</div>
+					<div class="rc-title">Суп с печёными овощами</div>
+					<p class="rc-quote">Печёные овощи придают блюду совершенно новый вкус и аромат. Поэтому такой способ приготовления выведет ваш суп на совершенно новый уровень!</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>3 средние картофелины</li>
+								<li>1 средняя морковь</li>
+								<li>200–300 гр. перетёртых томатов или 1 ч.л. томатной пасты</li>
+								<li>1 болгарский перец</li>
+								<li>200–250 гр. готовой красной фасоли</li>
+								<li>2 л. воды</li>
+								<li>4 ч.л. овощного концентрата</li>
+								<li>1 ч.л. сушёного чеснока</li>
+								<li>1 ч.л. копчёной паприки</li>
+								<li>1 ч.л. куркумы</li>
+								<li>1 ч.л. орегано</li>
+								<li>соль, перец</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Разогреваем духовку до 200°C. Режем картофель, морковь и перец на кубики 1х1 см. Овощи на противень, добавляем немного оливкового масла, специи, тщательно перемешиваем и отправляем в духовку на 20 минут.</li>
+								<li>Ставим кипятить 2 литра воды. Как закипит — добавляем овощной концентрат, перемешиваем до его полного растворения и закладываем в бульон овощи из духовки.</li>
+								<li>Добавляем в суп томаты в собственном соку или томатную пасту, 5 мин. провариваем и закладываем готовую фасоль (без жидкости из банки).</li>
+								<li>Доводим суп до кипения, уменьшаем огонь и томим около 5 минут.</li>
+							</ol>
+							<p class="rc-note">Если фасоль нужно спрятать — возьмите к ней немного бульона из супа и взбейте всё в блендере до однородного пюре (можно также с томатами в собственном соку) и отправьте их вместе в бульон.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 3.1 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">+1</div><img src="../images/img-guides/plant-based/oregano-croutons.webp" alt="Сухарики с орегано" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">К супу · 3.1</div>
+					<div class="rc-title">Сухарики с орегано</div>
+					<p class="rc-quote">Этот рецепт, который обожает моя семья. Тут ничего необычного, уверена, что и вы так делаете. Такие сухари просто созданы для супов-пюре и бобовых!</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>Хлеб (лучше цельнозерновой, бездрожжевой, на закваске)</li>
+								<li>Сухое орегано</li>
+								<li>Соль</li>
+								<li>Оливковое масло</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Режем хлеб на кубики 1,5–2 см в глубокую миску.</li>
+								<li>Сбрызгиваем небольшим количеством оливкового масла, перемешиваем руками наши кубики, пропитываем маслом каждый. Добавляем немного соли и орегано.</li>
+								<li>Опять хорошо перемешиваем (пропитанный маслом хлеб очень хорошо принимает соль и травы).</li>
+								<li>Отправляем в духовку при 150°C. Время смотрите сами, духовки у всех разные.</li>
+								<li>После 10–15 минут перемешайте сухарики и допекайте.</li>
+							</ol>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 3.2 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">+2</div><img src="../images/img-guides/plant-based/wholegrain-crackers.webp" alt="Крекеры из цельнозерновой муки" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">К супу · 3.2</div>
+					<div class="rc-title">Крекеры из цельнозерновой муки</div>
+					<p class="rc-quote">Они невероятные, хрустящие, яркие, ароматные и солнечные! Найдите свежий розмарин, с ним крекеры будут просто волшебными!</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>400 гр. цельнозерновой муки</li>
+								<li>1/3 ч.л. разрыхлителя</li>
+								<li>60 гр. оливкового масла</li>
+								<li>170 гр. горячей воды</li>
+								<li>Щепотка соли в тесто</li>
+								<li>Щепотка средней соли для посыпки</li>
+								<li>2 ветки свежего розмарина или 1 ч.л. орегано</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Смешайте муку, разрыхлитель и соль, нарежьте листики розмарина или всыпьте орегано. Влейте оливковое масло, воду и замесите тесто.</li>
+								<li>Делим тесто на две части, чтобы комфортно было запекать. Если духовка позволяет, можно испечь за один раз.</li>
+								<li>Расстилаем пергамент и на нём раскатываем в тонкий пласт наше тесто (толщина около 3 мм).</li>
+								<li>Круглым ножом для пиццы нарезаем на квадратики примерно 2×2 см. Посыпаем солью.</li>
+								<li>Запекаем в духовке при 180°C около 15 минут. Крекеры должны зарумяниться, но не сгореть. Время устанавливайте сами, всё зависит от вашей духовки.</li>
+								<li>Хрустим и добавляем в суп!</li>
+							</ol>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<!-- РЕЦЕПТЫ — ВТОРЫЕ БЛЮДА -->
+	<div class="page" id="r-main">
+		<div class="recipes-page">
+			<div class="recipes-header">
+				<div class="page-label">Рецепты · Часть III</div>
+				<h2 class="page-heading">Вторые блюда:<br><em>котлеты, плов, паста</em></h2>
+			</div>
+
+			<!-- 4.1 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">1</div><img src="../images/img-guides/plant-based/potato-patties.webp" alt="Картофельные котлеты с киноа" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Вторые блюда · 4.1</div>
+					<div class="rc-title">Картофельные котлеты с киноа</div>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты (10 небольших котлет)</div>
+							<ul class="ingr-list">
+								<li>4 средних картофелины</li>
+								<li>4 ст. ложки (с горкой) киноа</li>
+								<li>1 средняя луковица</li>
+								<li>1/3 ч.л. куркумы</li>
+								<li>1/2 ч.л. молотого кориандра</li>
+								<li>Соль, перец</li>
+								<li>1/2 пучка укропа</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Отварить картофель в мундире до полуготовности. Остудить, почистить и натереть на средней тёрке.</li>
+								<li>Отварить киноа до мягкости, допустимо даже немного переварить.</li>
+								<li>Мелко порезать лук, обжарить 3–5 мин., добавить специи, дождаться потрясающего запаха жареных специй, выключить, дать остыть.</li>
+								<li>Смешать картофель, киноа, лук со специями и мелко нарубленный укроп.</li>
+								<li>Влажными руками формируем котлеты, обваливаем в панировочных сухарях.</li>
+								<li>Обжарить на горячей сковороде с небольшим количеством масла.</li>
+							</ol>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 4.2 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">2</div><img src="../images/img-guides/plant-based/green-lentil-cutlets.webp" alt="Котлеты из зелёной чечевицы" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Вторые блюда · 4.2</div>
+					<div class="rc-title">Котлеты из зелёной чечевицы</div>
+					<p class="rc-quote">Из этих ингредиентов получится 6 средних котлет. Они максимально «похожи» на мясные. Ещё котлеты очень вкусны в домашних бургерах. Таких котлет я сразу делаю много, формирую и замораживаю. Потом достаточно просто пожарить их, не размораживая.</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты (6 средних котлет)</div>
+							<ul class="ingr-list">
+								<li>200 гр. зелёной чечевицы (замачиваем на 3–4 часа, лучше на ночь)</li>
+								<li>1 крупный лук</li>
+								<li>1 крупная или 2 средние моркови</li>
+								<li>1/2 ч.л. сушёного чеснока</li>
+								<li>1/2 ч.л. мускатного ореха</li>
+								<li>1 ч.л. паприки (лучше копчёной)</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Мелко режем лук, трём на мелкой тёрке морковь. Обжариваем лук, морковь, добавляем специи. Жарим на маленьком огне 7–10 минут.</li>
+								<li>Сырую чечевицу промываем и блендируем до кашеобразного состояния. Лучше это делать частями. Получаем массу, похожую на фарш.</li>
+								<li>Добавляем обжаренные овощи, соль, перец. Накрываем плёнкой и в холодильник на 20–30 мин.</li>
+								<li>Формируем влажными руками котлеты, панируем в цельнозерновых сухарях и обжариваем с двух сторон (можно без панировки).</li>
+							</ol>
+							<p class="rc-note">К этим котлетам рекомендую сделать томатную подливу и потушить в ней около 5 минут, добавив 1 ч.л. соуса из кешью. Дольше не нужно, котлеты могут развалиться.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 4.3 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">3</div><img src="../images/img-guides/plant-based/broccoli-patties.webp" alt="Котлеты из брокколи, риса и грибов" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Вторые блюда · 12 котлет · 4.3</div>
+					<div class="rc-title">Котлеты из брокколи, риса и грибов</div>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>100 гр. риса (лучше бурый)</li>
+								<li>400 гр. брокколи</li>
+								<li>3 шт. любых грибов (шампиньоны)</li>
+								<li>1 лук</li>
+								<li>1 морковь</li>
+								<li>1/2 ч.л. тимьяна</li>
+								<li>соль</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Отвариваем рис до готовности.</li>
+								<li>Отвариваем брокколи 2–4 минуты.</li>
+								<li>Режем мелко лук, морковь и грибы, обжариваем с несколькими капельками масла вместе с тимьяном и добавляем эту поджарку в измельчённую на комбайне брокколи. Поджарку можно измельчить вместе с брокколи (котлеты будут более однородными).</li>
+								<li>Смешиваем с рисом и солим.</li>
+								<li>Формируем котлеты (не тонкими), обваливаем в сухарях и обжариваем.</li>
+								<li>Переворачивайте очень медленно и аккуратно.</li>
+							</ol>
+							<p class="rc-note">Если вы не любите грибы, можно без них, но в готовых котлетах грибы не чувствуются.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 4.4 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">4</div><img src="../images/img-guides/plant-based/chickpea-eggplant-patties.webp" alt="Котлеты из нута и баклажана" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Вторые блюда · 10 котлет · 4.4</div>
+					<div class="rc-title">Котлеты из нута и баклажана</div>
+					<p class="rc-quote">Это самые вкусные котлеты по версии моих знакомых-мясоедов. Очень советую за раз приготовить сразу пачку нута. Порционно заморозить его и потом размораживать по мере необходимости. В этом уникальность бобовых: они не теряют своих замечательных свойств после заморозки. Их тоже, как из чечевицы, можно заморозить уже сформированные и жарить не размораживая.</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>600 гр. нута</li>
+								<li>1 средний баклажан</li>
+								<li>1 лук</li>
+								<li>1 крупная морковь</li>
+								<li>1 долька чеснока</li>
+								<li>1-2 ст.л. цельнозерновой муки</li>
+								<li>1 ч.л. кориандра</li>
+								<li>1 ч.л. паприки</li>
+								<li>соль</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Режем средним кубиком лук, чеснок, морковь, баклажан.</li>
+								<li>Обжариваем лук минуту, добавляем морковь. Через 3 мин. добавляем чеснок. Через пару минут добавляем баклажан.</li>
+								<li>На маленьком огне тушим до готовности баклажана.</li>
+								<li>600 г. нута перекладываем в блендер. Взбиваем. Можно не взбивать совсем однородно — допустимо, чтобы в фарше присутствовали небольшие кусочки нута.</li>
+								<li>Добавляем к нуту обжаренные овощи, снова немного блендируем.</li>
+								<li>Добавляем муку, тщательно перемешиваем и ставим под плёнкой в холодильник на 30 минут.</li>
+								<li>Формируем котлеты. Обваливаем в панировочных сухарях, желательно из цельнозерновой муки (можно обвалять в нутовой муке).</li>
+								<li>Обжариваем на небольшом количестве масла. Можно на сухой сковороде, так как все ингредиенты уже термически обработаны.</li>
+							</ol>
+							<p class="rc-note">Из этого количества получается 10 средних котлет. Эти котлеты можно делать без баклажана. Я иногда забываю добавлять муку в фарш, в этом случае их чуть сложнее жарить, но это только вопрос опыта.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 4.5 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">5</div><img src="../images/img-guides/plant-based/chickpea-meatballs.webp" alt="Тефтели из нута" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Вторые блюда · 4.5</div>
+					<div class="rc-title">Тефтели из нута</div>
+					<p class="rc-quote">Этот рецепт похож на «Котлеты из нута», но здесь нет баклажана и тефтели мы будем сначала запекать, а потом тушить в томатах. Подавайте с любым гарниром, но я рекомендую с пюре — это что-то с чем-то!</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>400 гр. нута</li>
+								<li>1 лук</li>
+								<li>1 средняя морковь</li>
+								<li>1 ст. л. молотых семян льна + 3 ст. л. воды</li>
+								<li>2 ст. л. цельнозерновой муки</li>
+								<li>Зелень (петрушка или укроп)</li>
+								<li>соль</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Молотые семена льна залить тёплой водой, накрыть и оставить на 10–15 мин.</li>
+								<li>Обжариваем лук, добавляем морковь, поджариваем 5–7 мин.</li>
+								<li>Нут взбиваем в блендере. Добавляем овощи и зелень, снова блендируем.</li>
+								<li>Добавляем муку и набухший лён, солим, перемешиваем. Ставим на 30 мин. в холодильник.</li>
+								<li>Формируем тефтели. Запекаем при 180°C 20–25 мин.</li>
+								<li>Разогреваем духовку до 180°C. Тефтели выкладываем на пергамент и запекаем 20–25 мин. Готовим подливу: а) Поджарить лук, добавить перетёртые томаты, соль, специи, соус из кешью; б) вылить на сковороду перетёртые томаты, посолить, добавить 1/2 ч.л. сушёного чеснока, 1 ч.л. сушёного лука, соус из кешью.</li>
+								<li>Даём тефтелям немного остыть, укладываем в кипящийся соус и томим 3–5 мин. с закрытой крышкой.</li>
+							</ol>
+							<p class="rc-note">Будьте аккуратны при подаче, они очень нежные. Подавайте с пюре!</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 4.6 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">6</div><img src="../images/img-guides/plant-based/red-lentil-cutlets.webp" alt="Котлеты из красной чечевицы" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Вторые блюда · 4.6</div>
+					<div class="rc-title">Котлеты из красной чечевицы</div>
+					<p class="rc-quote">Можно использовать красную, жёлтую или оранжевую чечевицу. Очень нежные котлетки, которые понравятся детям!</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>200 гр. красной чечевицы</li>
+								<li>1 кабачок</li>
+								<li>1 лук</li>
+								<li>1 морковь</li>
+								<li>2 ст. л. цельнозерновой муки</li>
+								<li>Соль/перец</li>
+								<li>1 ч.л. паприки</li>
+								<li>1/2 ч.л. сушёного чеснока</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Чечевицу промыть (можно замочить на 1–2 часа).</li>
+								<li>Отвариваем чечевицу до готовности (около 7 - 10 минут), но не до состояния каши (воды берём в два раза больше, чем чечевицы; если она не впитала всю воду при варке, лишнюю сливаем, чтобы фарш не был жидким).</li>
+								<li>Трём морковь и кабачок на мелкой тёрке.</li>
+								<li>Обжариваем лук, добавляем специи, чеснок, морковь и кабачок. Тушим 5 мин.</li>
+								<li>Блендируем чечевицу, добавляем тушёные овощи и муку. Овощи можно блендировать вместе с чечевицей, тогда фарш будет более однородным (если вы хотите замаскировать овощи в котлетах).</li>
+								<li>Обжариваем на небольшом количестве оливкового масла.</li>
+							</ol>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 4.7 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">7</div><img src="../images/img-guides/plant-based/plov-lentil.webp" alt="Плов с чечевицей и грибами" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Вторые блюда · 4.7</div>
+					<div class="rc-title">Плов с чечевицей и грибами</div>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>1 средняя луковица</li>
+								<li>2 средние моркови</li>
+								<li>1 зубчик чеснока</li>
+								<li>60 гр. грибов</li>
+								<li>2 ч.л. томатной пасты</li>
+								<li>1 ч.л. тимьяна</li>
+								<li>1 ч.л. сумах (можно без неё)</li>
+								<li>1/2 ч.л. кумина (зира)</li>
+								<li>1/2 ч.л. куркумы</li>
+								<li>60 г. чечевицы</li>
+								<li>300 г. риса басмати</li>
+								<li>1 ч.л. соли</li>
+								<li>800 г. воды</li>
+								<li>1 ч.л. овощного концентрата</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Мелко режем лук, чеснок, трём морковь. Грибы нарезаем крупно.</li>
+								<li>Обжариваем лук в оливковом масле 3 мин. Добавляем морковь, чеснок, обжариваем ещё 5 мин.</li>
+								<li>Вводим специи, обжариваем 1 мин. Добавляем грибы, томатную пасту, перемешиваем.</li>
+								<li>Всыпаем чечевицу и соль, хорошо перемешиваем. Добавляем рис, воду и овощной концентрат. Хорошо перемешиваем, чтобы паста растворилась. Уменьшаем огонь и готовим 30 мин.</li>
+								<li>Чечевица и рис приготовятся одновременно. Чтобы плов не был сухим, не ждите, пока рис и чечевица впитают всю воду. Выключайте огонь, когда рис и чечевица готовы, а вода в сотейнике ещё немного есть. Плов «дойдёт» под крышкой. Дайте постоять около часа.</li>
+							</ol>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 4.8 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">8</div><img src="../images/img-guides/plant-based/pasta-boloniase.webp" alt="Паста а-ля болоньезе" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Вторые блюда · 4.8</div>
+					<div class="rc-title">Паста с томатами и баклажанами «а-ля болоньезе»</div>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>1 большой баклажан</li>
+								<li>1–2 зубчика чеснока</li>
+								<li>1 красный лук</li>
+								<li>1/2 ч.л. орегано</li>
+								<li>1 веточка розмарина</li>
+								<li>1/2 ч.л. хлопьев перца чили</li>
+								<li>500 г. томатов в собственном соку</li>
+								<li>1 ст. л. лимонного сока</li>
+								<li>300 гр. пасты</li>
+								<li>свежий базилик</li>
+								<li>1 ст. л. оливкового масла</li>
+								<li>80 г. оливок (по желанию)</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Разогреваем духовку до 200°C.</li>
+								<li>Баклажан режем мелким кубиком (кожуру лучше оставить, она придаст красивый колер) и посыпаем солью. Оставляем на 10 мин., чтобы баклажан отдал лишнюю воду. Затем промываем кубики водой, сушим бумажным полотенцем и выкладываем в посуду для запекания. Добавляем 3–5 черри (можно без них), оливковое масло, веточку розмарина. Запекаем 20 мин. до готовности баклажана.</li>
+								<li>В глубокой сковороде на оливковом масле на небольшом огне обжариваем порезанный чеснок и лук около 20 сек. — не дольше, чеснок быстро сгорает.</li>
+								<li>Добавляем хлопья чили, перемешиваем, добавляем томаты в собственном соку (предварительно помните их вилкой, чтобы не было грубых кусков). Тушим около 10 минут.</li>
+								<li>Добавляем запечённый баклажан, базилик/орегано, лимонный сок, оливки, тушим ещё 5 мин. Солим.</li>
+								<li>Отвариваем пасту, добавляем в соус и перемешиваем.</li>
+							</ol>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 4.9 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">9</div><img src="../images/img-guides/plant-based/pasta-carbonara.webp" alt="Сливочная паста а-ля карбонара" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Вторые блюда · 4.9</div>
+					<div class="rc-title">Сливочная паста «а-ля карбонара»</div>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>150–200 гр. консервированного тунца (в собственном соку)</li>
+								<li>1 красный сладкий лук</li>
+								<li>2 ч.л. каперсов</li>
+								<li>3–6 шт. острых маринованных перцев халапеньо</li>
+								<li>100 гр. соуса из кешью</li>
+								<li>100 гр. воды</li>
+								<li>1/2 ч.л. жидкости из-под каперсов</li>
+								<li>соль по желанию</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Режем тонкими полукольцами лук, обжариваем на 1 ст. л. оливкового масла 5 мин.</li>
+								<li>Каперсы разрезаем пополам, халапеньо — мелко. Добавляем к луку, делаем маленький огонь. Добавляем соус из кешью, воду и жидкость из-под каперсов, томим 1 мин.</li>
+								<li>Вводим тунец, перемешиваем 1 мин., солим по желанию.</li>
+								<li>Отваренную пасту добавляем в сковороду к соусу, перемешиваем и подаём.</li>
+							</ol>
+							<p class="rc-note">Пасту можно сделать без тунца. В этом случае, можно добавить чуть больше каперсов и жидкости из-под них.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<!-- РЕЦЕПТЫ — СОУСЫ -->
+	<div class="page" id="r-sauce">
+		<div class="recipes-page">
+			<div class="recipes-header">
+				<div class="page-label">Рецепты · Часть IV</div>
+				<h2 class="page-heading">Соусы<br><em>на основе кешью</em></h2>
+			</div>
+
+			<!-- 5.1 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">1</div><img src="../images/img-guides/plant-based/cashew-sauce.webp" alt="Соус из кешью" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Соус · Универсальный · 5.1</div>
+					<div class="rc-title">Соус из кешью</div>
+					<p class="rc-quote">Этот универсальный соус. Можно заправлять салаты, добавлять в супы, в томатные подливы. Я также использую его как основу для сливочной пиццы вместо томатного соуса. Если сделать соус чуть гуще, добавить зелень, то можно использовать его как творожный сыр и намазывать на брускетты. Часто для меня соус из кешью является основой для других соусов.</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>200 гр. необжаренного кешью</li>
+								<li>1 щепотка соли</li>
+								<li>Сок ½ небольшого лимона</li>
+								<li>1 зубчик чеснока или 1/2 ч.л. сушёного чеснока</li>
+								<li>100–150 гр. воды (в процессе взбивания подливайте для нужной густоты)</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Кешью замочить на ночь в холодной воде (не менее 5 часов).</li>
+								<li>Взбиваем все в блендере для гладкой, почти муссовой консистенции.</li>
+								<li>Количество лимона, чеснока, соли варьируйте по своему вкусу, я указала граммовку, которую люблю сама.</li>
+							</ol>
+							<p class="rc-note">Если добавить мелкопорезанные солёные огурцы, укроп, оливки и каперсы — получится «тар-тар». Можно добавить горчицу — подобие «майонеза».</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 5.2 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">2</div><img src="../images/img-guides/plant-based/cashew-sour-cream.webp" alt="Сметана из кешью" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Соус · Ферментированный · 5.2</div>
+					<div class="rc-title">Сметана из кешью</div>
+					<p class="rc-quote">Вы не отличите эту сметану от молочной! Белок, полезный жир, микроэлементы — всё в одной ложке. Мы ферментируем кешью, а любой ферментированный продукт — это супереда для полезных бактерий, а значит — для пользы нашего ЖКТ. Добавляем сметану в супы, едим с блинами, панкейками, заправляем салаты — это отличная замена традиционной молочной сметаны!</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>200 гр. необжаренного кешью</li>
+								<li>2 ст. л. сока лимона</li>
+								<li>2 капсулы пробиотика</li>
+								<li>200 гр. воды</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Замачиваем кешью на ночь (не менее 5 часов).</li>
+								<li>Промываем. Добавляем сок лимона, воду и капсулы пробиотика (купить в аптеке или на маркетплейсах, производитель не важен, главное — количество бактерий; я использую «Lactobif 5 млрд.», но можно больше — ферментация пойдёт быстрее).</li>
+								<li>Взбиваем до гладкости. Перекладываем в банку и оставляем при комнатной температуре на сутки в тёмном шкафчике.</li>
+								<li>Через сутки перемешиваем, пробуем. Если не хватает ферментации — оставьте ещё на несколько часов.</li>
+								<li>Готовую сметану храним в холодильнике.</li>
+							</ol>
+							<p class="rc-note">Следующую партию можно сделать, заменив капсулы на 2 ст. л. оставшейся сметаны.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 5.3 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">3</div><img src="../images/img-guides/plant-based/sauce-сesar.webp" alt="Соус а-ля Цезарь" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Соус · 5.3</div>
+					<div class="rc-title">Соус «а-ля Цезарь»</div>
+					<p class="rc-quote">Очень интересный и вкусный соус. Подойдёт к любому сочетанию овощей, не только к салату «Цезарь» — пробуйте!</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>170 гр. необжаренного кешью</li>
+								<li>125 гр. воды</li>
+								<li>1 зубчик чеснока</li>
+								<li>2 ч.л. каперсов</li>
+								<li>1 ст. л. соуса «Тамари» или соевый соус без сахара</li>
+								<li>2 ч.л. дижонской горчицы</li>
+								<li>Соль</li>
+								<li>перец</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Кешью замочить на 5 мин. в кипятке, или на 5 часов/на ночь. Если есть готовый соус из кешью — использовать его, добавляя чеснок, каперсы и далее по рецепту.</li>
+								<li>Все грузим в блендер, доводим до гладкости и однородности.</li>
+							</ol>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 5.4 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">4</div><img src="../images/img-guides/plant-based/white-bean-sauce.webp" alt="Соус из белой фасоли" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Соус · 5.4</div>
+					<div class="rc-title">Соус из белой фасоли</div>
+					<p class="rc-quote">Этот соус может заменить вам майонез. Очень вкусный сам по себе — можно есть со свежеиспечённым цельнозерновым хлебом, добавлять в любое блюдо, в том числе в качестве подливы или намазки для бургера и питы.</p>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>2 банки белой фасоли (без добавления сахара) или 400 гр. отварной</li>
+								<li>1 ч.л. горчицы</li>
+								<li>1/2 ч.л. соли</li>
+								<li>Сок 1/2 лимона</li>
+								<li>100 мл. оливкового масла</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Все в блендер (можно пюрировать погружным).</li>
+							</ol>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 5.5 -->
+			<div class="recipe-card">
+				<div class="rc-photo">
+					<div class="rc-num-ov">5</div><img src="../images/img-guides/plant-based/Roasted-vegetable-sauce.webp" alt="Соус из запечённых овощей" loading="lazy">
+				</div>
+				<div class="rc-body">
+					<div class="rc-cat">Соус · 5.5</div>
+					<div class="rc-title">Соус из запечённых овощей</div>
+					<div class="rc-cols">
+						<div>
+							<div class="rc-col-label">Ингредиенты</div>
+							<ul class="ingr-list">
+								<li>200 гр. помидоров черри</li>
+								<li>2–3 средние морковки (около 400 гр.)</li>
+								<li>1 средний перец</li>
+								<li>2 ст. л. соуса из кешью</li>
+								<li>Вода</li>
+								<li>Свежий базилик или сухие специи (орегано, итальянская смесь)</li>
+								<li>Соль</li>
+							</ul>
+						</div>
+						<div>
+							<div class="rc-col-label">Приготовление</div>
+							<ol class="steps-list">
+								<li>Черри режем пополам, морковь — тонкой соломкой, перец разрезаем пополам, очищаем от семян.</li>
+								<li>Сбрызгиваем овощи оливковым маслом, сухими специями, солим. Перемешиваем, выкладываем в форму и в духовку при 180°C на 25–30 мин.</li>
+								<li>После запекания снимаем кожуру с черри и перца (перец можно положить остывать в пакет — кожура снимается легче).</li>
+								<li>Все овощи перекладываем в блендер, добавляем соус из кешью, базилик, чуть-чуть воды и пюрируем до кремовой текстуры. Солим по вкусу.</li>
+								<li>Воду добавляем по мере необходимости, сами регулируем густоту соуса.</li>
+							</ol>
+							<p class="rc-note">Если использовать черри и морковь, соус получается сладковатый и насыщенный. Если добавите перец — именно он даст больше вкуса и своего аромата соусу.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<!-- ФУТЕР -->
+	<div class="page">
+		<footer class="guide-footer">
+			<div class="footer-inner">
+				<!-- Лого + имя -->
+				<a href="https://voronova.online" class="footer-logo-link" target="_blank" rel="noopener">
+					<img src="../images/icons/logo-small.png" alt="Юлия Воронова" width="36" height="36" loading="lazy">
+					<span class="footer-logo-name">Юлия Воронова</span>
+				</a>
+				<!-- Ссылки -->
+				<div class="footer-links">
+					<a href="https://voronova.online" class="footer-link-main" target="_blank" rel="noopener">www.voronova.online</a>
+					<a href="https://t.me/voronova_nutrition" class="footer-link-sub" target="_blank" rel="noopener">Телеграм канал<br>Здоровье. Еда. Анализы</a>
+				</div>
+				<!-- Соцсети -->
+				<div class="footer-socials">
+					<a href="https://t.me/voronova_nutrition" class="footer-soc" title="Telegram" target="_blank" rel="noopener">
+						<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z" />
+						</svg>
+					</a>
+					<a href="https://youtube.com/@voronova_nutrition" class="footer-soc" title="YouTube" target="_blank" rel="noopener">
+						<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+						</svg>
+					</a>
+					<a href="https://vk.com/voronova_nutrition" class="footer-soc" title="VK" target="_blank" rel="noopener">
+						<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.066 13.394c.49.483 1.007.952 1.404 1.526.176.253.344.513.456.808.158.42.015.882-.366.906l-2.398-.001c-.618.051-1.113-.196-1.541-.609-.338-.326-.65-.673-.972-1.01-.135-.141-.276-.269-.44-.372-.31-.195-.58-.126-.753.207-.177.338-.217.71-.239 1.084-.03.534-.232.674-.766.697-1.143.05-2.227-.12-3.23-.673-.883-.486-1.556-1.188-2.137-1.98-.954-1.3-1.696-2.735-2.363-4.207-.194-.428-.05-.66.417-.668.776-.013 1.553-.011 2.329-.002.31.004.518.19.642.473.394.904.862 1.762 1.416 2.563.148.214.299.428.513.582.244.176.43.118.546-.158.075-.18.107-.372.123-.565.052-.633.059-1.266-.01-1.897-.042-.39-.241-.643-.631-.709-.2-.033-.17-.099-.073-.199.145-.149.282-.242.554-.242h2.043c.322.064.393.209.437.532l.002 2.27c-.004.148.074.587.341.685.215.075.357-.109.486-.244.577-.606.989-1.316 1.342-2.126.132-.299.25-.608.363-.918.084-.23.215-.343.471-.337l2.597.003c.077 0 .155 0 .23.013.375.065.478.231.361.593-.185.571-.537 1.045-.888 1.516-.37.497-.762.976-1.13 1.474-.331.448-.305.672.09 1.052z" />
+						</svg>
+					</a>
+					<a href="https://dzen.ru/voronova_nutrition" class="footer-soc" title="Дзен" target="_blank" rel="noopener">
+						<svg width="17" height="17" viewBox="0 0 129 129" fill="currentColor">
+							<path d="M128.389 62.7804C128.389 62.1406 127.869 61.6108 127.229 61.5808C104.266 60.7111 90.2906 57.782 80.5136 48.0051C70.7167 38.2081 67.7976 24.2225 66.9279 1.20969C66.9079 0.569886 66.3781 0.0500488 65.7283 0.0500488H63.0491C62.4093 0.0500488 61.8795 0.569886 61.8495 1.20969C60.9797 24.2125 58.0607 38.2081 48.2637 48.0051C38.4768 57.792 24.5111 60.7111 1.54831 61.5808C0.908509 61.6008 0.388672 62.1306 0.388672 62.7804V65.4596C0.388672 66.0994 0.908509 66.6292 1.54831 66.6592C24.5111 67.529 38.4868 70.458 48.2637 80.235C58.0407 90.0119 60.9597 103.958 61.8395 126.88C61.8595 127.52 62.3893 128.04 63.0391 128.04H65.7283C66.3681 128.04 66.8979 127.52 66.9279 126.88C67.8076 103.958 70.7267 90.0119 80.5036 80.235C90.2906 70.448 104.256 67.529 127.219 66.6592C127.859 66.6392 128.379 66.1094 128.379 65.4596V62.7804H128.389Z" />
+						</svg>
+					</a>
+					<a href="https://rutube.ru/channel/47038007/" class="footer-soc" title="RuTube" target="_blank" rel="noopener">
+						<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+							<circle cx="12" cy="12" r="12" fill="currentColor" />
+							<path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff" />
+						</svg>
+					</a>
+				</div>
+			</div>
+		</footer>
+		<div class="footer-copy-bar">© 2024–2025 Юлия Воронова · Все права защищены · Перепродажа и распространение запрещены</div>
+	</div>
+
+	<script>
+		(function () {
+			var navLinks = Array.from(document.querySelectorAll('.mobile-nav a'));
+			var btn = document.getElementById('nav-recipes-btn');
+			var drop = document.getElementById('nav-recipes-drop');
+
+			// Маппинг id секции → индекс ссылки
+			var sectionToLink = {
+				's-toc': 0,
+				's-intro': 0,
+				's-guide': 0,
+				's-breakfast': 1,
+				's-lunch': 2,
+				's-cutlets': 3,
+				's-rainbow': 4,
+				's-ferment': 5
+			};
+			var recipeSections = ['r-breakfast', 'r-soup', 'r-main', 'r-sauce'];
+
+			function setActive(linkIndex, isRecipes) {
+				navLinks.forEach(function (l) { l.classList.remove('nav-active'); });
+				if (btn) btn.classList.remove('nav-active');
+				if (isRecipes && btn) {
+					btn.classList.add('nav-active');
+				} else if (linkIndex !== null && navLinks[linkIndex]) {
+					navLinks[linkIndex].classList.add('nav-active');
+				}
+			}
+
+			// Клик по ссылкам навигации
+			navLinks.forEach(function (link, i) {
+				link.addEventListener('click', function () { setActive(i, false); });
+			});
+
+			// Дропдаун «Рецепты»
+			if (btn && drop) {
+				btn.addEventListener('click', function (e) {
+					e.stopPropagation();
+					var open = drop.classList.toggle('active');
+					btn.classList.toggle('active', open);
+					setActive(null, true); // кнопка сразу становится активной
+				});
+
+				drop.querySelectorAll('.nav-drop-item').forEach(function (link) {
+					link.addEventListener('click', function () {
+						drop.classList.remove('active');
+						btn.classList.remove('active');
+						setActive(null, true);
+					});
+				});
+
+				document.addEventListener('click', function () {
+					drop.classList.remove('active');
+					btn.classList.remove('active');
+				});
+			}
+
+			// Scroll spy
+			var allIds = Object.keys(sectionToLink).concat(recipeSections);
+			var sections = allIds.map(function (id) {
+				return document.getElementById(id);
+			}).filter(Boolean);
+
+			function onScroll() {
+				var threshold = window.scrollY + window.innerHeight * 0.4;
+				var active = sections[0];
+				for (var i = 0; i < sections.length; i++) {
+					if (sections[i].offsetTop <= threshold) active = sections[i];
+				}
+				if (!active) return;
+				var id = active.id;
+				if (sectionToLink[id] !== undefined) {
+					setActive(sectionToLink[id], false);
+				} else if (recipeSections.indexOf(id) !== -1) {
+					setActive(null, true);
+				}
+			}
+
+			window.addEventListener('scroll', onScroll, { passive: true });
+			onScroll();
+		})();
+	</script>
+	<script>
+		(function () {
+			var tocPage = document.querySelector('.toc-page');
+			if (!tocPage) return;
+			var rows = Array.from(tocPage.querySelectorAll('.toc-row'));
+			rows.forEach(function (row, i) {
+				row.style.animationDelay = (0.05 + i * 0.09) + 's';
+			});
+			var obs = new IntersectionObserver(function (entries) {
+				if (entries[0].isIntersecting) {
+					tocPage.classList.add('toc-ready');
+					obs.disconnect();
+				}
+			}, { threshold: 0.1 });
+			obs.observe(document.getElementById('s-toc'));
+		})();
+	</script>
+	<script>
+		(function () {
+			var D = [{ title: "Введение", sub: "С чего начать", anchor: "#s-intro", keys: "введение начало старт инвестиция" }, { title: "Завтраки", sub: "Каши, соя, намазки, орехи", anchor: "#s-breakfast", keys: "завтрак каша утро соя тофу намазка орехи" }, { title: "Тофу и соевые продукты", sub: "Завтраки", anchor: "#s-breakfast", keys: "тофу соевый творог сырники" }, { title: "Намазки", sub: "Хумус, паштет, авокадо", anchor: "#s-breakfast", keys: "намазка хумус паштет тост авокадо брускетта" }, { title: "Орехи и семена", sub: "Завтраки", anchor: "#s-breakfast", keys: "орехи семена лён чиа кунжут" }, { title: "Супы и бульоны", sub: "Обеды и ужины", anchor: "#s-lunch", keys: "суп бульон обед ужин варить" }, { title: "На каком масле жарить?", sub: "Точка дымления", anchor: "#s-oil", keys: "масло жарить жарка оливковое горчичное авокадо дымление рафинированное подсолнечное" }, { title: "Бобовые", sub: "Правила безопасности", anchor: "#s-legumes", keys: "бобовые фасоль нут чечевица горох замачивать вздутие консервированные" }, { title: "Котлеты и гарниры", sub: "Заморозка, крупы, панировка", anchor: "#s-cutlets", keys: "котлеты гарниры заморозить заморозка" }, { title: "Крупы", sub: "Гречка, киноа, булгур, рис", anchor: "#s-cutlets", keys: "крупы гречка киноа булгур рис перловка амарант пшено макароны" }, { title: "Картофельное пюре", sub: "Гарнир", anchor: "#s-cutlets", keys: "пюре картофель картошка" }, { title: "Домашняя панировка", sub: "Котлеты", anchor: "#s-cutlets", keys: "панировка сухари мука корочка хлеб" }, { title: "Принцип Радуги", sub: "Пять цветов в день", anchor: "#s-rainbow", keys: "радуга цвета фрукты овощи пять фитонутриенты" }, { title: "Ферментация", sub: "Микробиом и пробиотики", anchor: "#s-ferment", keys: "ферментация квашеная капуста кимчи пробиотики микробиом" }, { title: "Йод и щитовидная железа", sub: "Метаболизм", anchor: "#s-ferment", keys: "йод щитовидная соль йодированная метаболизм водоросли нори" }, { title: "Рецепты: Завтраки", sub: "10 рецептов", anchor: "#r-breakfast", keys: "рецепты завтрак сырники оладьи омлет нутовый тост брускетта" }, { title: "Рецепты: Супы", sub: "12 рецептов", anchor: "#r-soup", keys: "рецепты суп борщ щи крем рассольник бульон сухарики" }, { title: "Рецепты: Вторые блюда", sub: "9 рецептов", anchor: "#r-main", keys: "рецепты котлеты плов паста болоньезе карбонара" }, { title: "Рецепты: Соусы", sub: "5 рецептов", anchor: "#r-sauce", keys: "рецепты соусы кешью цезарь сметана фасоль" }];
+			var rcSections = { "r-breakfast": "Рецепты: Завтраки", "r-soup": "Рецепты: Супы", "r-main": "Рецепты: Вторые блюда", "r-sauce": "Рецепты: Соусы" };
+			document.querySelectorAll(".recipe-card").forEach(function (card, i) {
+				var titleEl = card.querySelector(".rc-title");
+				if (!titleEl) return;
+				var title = titleEl.textContent.trim();
+				var id = "rc-auto-" + i;
+				card.id = id;
+				var el = card.parentElement, sub = "Рецепт";
+				while (el) { if (el.id && rcSections[el.id]) { sub = rcSections[el.id]; break; } el = el.parentElement; }
+				D.push({ title: title, sub: sub, anchor: "#" + id, keys: title.toLowerCase() });
+			});
+			var fS = document.getElementById("fab-search"), fT = document.getElementById("fab-top"), ov = document.getElementById("search-overlay"), pn = document.getElementById("search-panel"), ip = document.getElementById("search-input"), cb = document.getElementById("search-close"), rs = document.getElementById("search-results"), pg = document.getElementById("nav-progress");
+			function onScrollFab() {
+				if (pg) { var h = document.body.scrollHeight - window.innerHeight; pg.style.width = (h > 0 ? Math.min(100, window.scrollY / h * 100) : 0) + "%"; }
+				if (fT) fT.classList.toggle("visible", window.scrollY > window.innerHeight * .8);
+			}
+			window.addEventListener("scroll", onScrollFab, { passive: true });
+			onScrollFab();
+			if (fT) { fT.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); }); }
+			function eR(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+			function render(q) {
+				var query = q.trim().toLowerCase(); var list = query ? D.filter(function (d) { return d.title.toLowerCase().indexOf(query) != -1 || d.sub.toLowerCase().indexOf(query) != -1 || d.keys.toLowerCase().indexOf(query) != -1; }) : D; if (!list.length) { rs.innerHTML = '<div class="search-empty">' + "Ничего не найдено «" + q + '»</div>'; return; }
+				var sv = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+				rs.innerHTML = list.map(function (d) { var t = query ? d.title.replace(new RegExp("(" + eR(query) + ")", "gi"), "<mark>$1</mark>") : d.title; return '<a class="search-item" href="' + d.anchor + '"><div class="search-item-icon">' + sv + '</div><div><div class="search-item-title">' + t + '</div><div class="search-item-sub">' + d.sub + '</div></div></a>'; }).join("");
+				rs.querySelectorAll(".search-item").forEach(function (el) { el.addEventListener("click", function (e) { e.preventDefault(); var id = el.getAttribute("href").slice(1); cls(); setTimeout(function () { var t = document.getElementById(id); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); }, 300); }); });
+			}
+			function opn() { ov.classList.add("active"); pn.classList.add("active"); document.body.style.overflow = "hidden"; render(""); setTimeout(function () { if (ip) ip.focus(); }, 330); }
+			function cls() { ov.classList.remove("active"); pn.classList.remove("active"); document.body.style.overflow = ""; if (ip) ip.value = ""; }
+			if (fS) fS.addEventListener("click", opn);
+			if (ov) ov.addEventListener("click", cls);
+			if (cb) cb.addEventListener("click", cls);
+			if (pn) pn.addEventListener("click", function (e) { e.stopPropagation(); });
+			if (ip) ip.addEventListener("input", function () { render(ip.value); });
+			document.addEventListener("keydown", function (e) { if (e.key === "Escape") cls(); if ((e.ctrlKey || e.metaKey) && e.key === "k") { e.preventDefault(); opn(); } });
+		})();
+	</script>
+	<!-- LIGHTBOX -->
+	<div class="lb-overlay" id="lb-overlay">
+		<button class="lb-close" id="lb-close">×</button>
+		<img class="lb-img" id="lb-img" src="" alt="" loading="lazy">
+		<div class="lb-caption" id="lb-caption"></div>
+	</div>
+	<script>
+		(function () {
+			// ─ Ingredient checkboxes
+			document.querySelectorAll('.ingr-list li').forEach(function (li, i) {
+				var cb = document.createElement('input');
+				cb.type = 'checkbox';
+				var key = 'ingr-' + i;
+				cb.checked = localStorage.getItem(key) == '1';
+				var span = document.createElement('span');
+				span.innerHTML = li.innerHTML;
+				li.innerHTML = '';
+				li.appendChild(cb);
+				li.appendChild(span);
+				if (cb.checked) li.classList.add('ingr-done');
+				cb.addEventListener('change', function () {
+					li.classList.toggle('ingr-done', cb.checked);
+					localStorage.setItem(key, cb.checked ? '1' : '');
+				});
+				li.addEventListener('click', function (e) {
+					if (e.target === cb) return;
+					cb.checked = !cb.checked;
+					cb.dispatchEvent(new Event('change'));
+				});
+			});
+
+			// ─ Lightbox
+			var lbOv = document.getElementById('lb-overlay');
+			var lbImg = document.getElementById('lb-img');
+			var lbCap = document.getElementById('lb-caption');
+			var lbClose = document.getElementById('lb-close');
+			function lbOpen(src, alt) {
+				lbImg.src = src; lbCap.textContent = alt || '';
+				lbOv.classList.add('active'); document.body.style.overflow = 'hidden';
+			}
+			function lbCls() { lbOv.classList.remove('active'); document.body.style.overflow = ''; }
+			// Плашки разделов на фото рецептов
+			var sL = { 'r-breakfast': 'Завтраки', 'r-soup': 'Супы', 'r-main': 'Вторые блюда', 'r-sauce': 'Соусы' };
+			document.querySelectorAll('.rc-photo').forEach(function (ph) {
+				var el = ph;
+				var label = null;
+				while (el) {
+					if (el.id && sL[el.id]) { label = sL[el.id]; break; }
+					el = el.parentElement;
+				}
+				if (label) {
+					var d = document.createElement('div');
+					d.className = 'rc-photo-label';
+					d.textContent = label;
+					ph.appendChild(d);
+				}
+			});
+
+			document.querySelectorAll('.rc-photo img, .split-photo img').forEach(function (img) {
+				img.addEventListener('click', function () { lbOpen(img.src, img.alt); });
+			});
+			if (lbOv) lbOv.addEventListener('click', lbCls);
+			if (lbClose) lbClose.addEventListener('click', function (e) { e.stopPropagation(); lbCls(); });
+			if (lbImg) lbImg.addEventListener('click', function (e) { e.stopPropagation(); });
+			document.addEventListener('keydown', function (e) { if (e.key === 'Escape') lbCls(); });
+		})();
+	</script>
+
+	<script>
+		(function () {
+			var links = document.querySelectorAll('.desk-nav-link');
+			if (!links.length) return;
+			var pairs = [];
+			links.forEach(function (a) {
+				var id = a.getAttribute('href').slice(1);
+				var el = document.getElementById(id);
+				if (el) pairs.push({ el: el, a: a });
+			});
+			function update() {
+				var thr = window.scrollY + window.innerHeight * 0.35;
+				var active = pairs[0];
+				for (var i = 0; i < pairs.length; i++) {
+					if (pairs[i].el.offsetTop <= thr) active = pairs[i];
+				}
+				links.forEach(function (a) { a.classList.remove('dn-active'); });
+				if (active) active.a.classList.add('dn-active');
+			}
+			window.addEventListener('scroll', update, { passive: true });
+			update();
+		})();
+	</script>
+</body>
+
+</html>

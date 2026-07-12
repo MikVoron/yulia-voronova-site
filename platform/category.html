@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Категория — Конструктор питания</title>
+    <link rel="icon" type="image/svg+xml" href="plate-favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+    <style>body{visibility:hidden}</style>
+    <link rel="stylesheet" href="style-v4.css?v=20260711-chat-fab-footer" id="vcss">
+    <style>
+        /* ── HERO (Variant 1 — фото слева, editorial-серьёзная типографика) ── */
+        .cat-hero {
+            padding: 24px 0 28px; margin-bottom: 0;
+            /* Резерв под финальный hero на first paint: avatar 88 + padding 24+28 = 140.
+               Border снизу убран — на Variant 1 единственная линия рисуется
+               border-top'ом фильтр-бара (heavy black, var(--text)). */
+            min-height: 140px; box-sizing: border-box;
+        }
+        .cat-hero-row { display: flex; align-items: center; gap: 24px; }
+        .cat-hero-ava {
+            width: 88px; height: 88px; border-radius: 0;
+            object-fit: cover; flex-shrink: 0;
+            border: 1px solid var(--border);
+            background: var(--bg-alt);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px; overflow: hidden;
+        }
+        .cat-hero-ava img { width: 100%; height: 100%; object-fit: cover; border-radius: 0; }
+
+        /* Brand-вариант аватарки для fallback hero: логотип Юлии вместо emoji.
+           Лого вписывается с object-fit: contain; геометрия квадратного аватара сохраняется. */
+        .cat-hero-ava--logo { background: #fff; }
+        .cat-hero-ava--logo img {
+            width: 64px; height: 64px;
+            object-fit: contain;
+            border-radius: 0;
+        }
+        .cat-hero-name {
+            font-family: var(--serif); font-size: 44px; font-weight: 700;
+            color: var(--text); line-height: 1.05; letter-spacing: -.02em;
+            margin: 0;
+        }
+        .cat-hero-desc {
+            font-size: 15px; color: var(--text-2); margin-top: 8px;
+            line-height: 1.5; max-width: 560px;
+        }
+        @media (max-width: 767px) {
+            .cat-hero { padding: 18px 0 22px; min-height: 0; }
+            .cat-hero-row { gap: 16px; }
+            .cat-hero-ava { width: 64px; height: 64px; font-size: 28px; }
+            .cat-hero-ava--logo img { width: 48px; height: 48px; }
+            .cat-hero-name { font-size: 28px; letter-spacing: -.01em; }
+            .cat-hero-desc { font-size: 13px; margin-top: 5px; }
+        }
+
+        /* Editorial-header (.sp-header) импортирован из style-v4.css.
+           Старые .v-header / vh-* overrides здесь больше не нужны. */
+
+        /* ── BREADCRUMBS ── */
+        .cat-crumbs {
+            display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+            margin: 16px 0 14px;
+            font-family: var(--font); font-size: 12px; font-weight: 600;
+            letter-spacing: .06em;
+            /* Резерв на случай, если catId не из fallback-карты — фильтры не подскочат. */
+            min-height: 16px;
+        }
+        .cat-crumbs a {
+            color: var(--text-2); text-decoration: none;
+            text-transform: uppercase; letter-spacing: inherit;
+            transition: color .15s;
+        }
+        .cat-crumbs a:hover { color: var(--accent); }
+        .cat-crumbs .crumb-sep { color: var(--text-3); font-weight: 500; font-size: 11px; }
+        .cat-crumbs .crumb-current {
+            color: var(--text-3); font-weight: 500;
+            text-transform: uppercase; letter-spacing: inherit;
+            max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        @media (max-width: 767px) {
+            .cat-crumbs .crumb-current { max-width: 140px; }
+        }
+
+        /* ── Editorial filter bar (Variant 1, NYT-style) ──
+           Горизонтальные правила сверху (жирное по тексту) и снизу (тонкое border),
+           прозрачные чипы, активный — подчёркнут оранжевой линией.
+           Скоупим под .cat-page, чтобы не задеть .filter-* на index/recipe. */
+        .cat-page .filter-outer {
+            background: none; border: none; border-radius: 0;
+            border-top: 1px solid var(--text);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 0; margin: 16px 0 0;
+            display: flex; align-items: center;
+        }
+        .cat-page .filter-scroll-wrap {
+            flex: 1; overflow: visible; min-width: 0;
+        }
+        .cat-page .filter-bar {
+            gap: 0; flex-wrap: wrap; align-items: center;
+        }
+        .cat-page .filter-chip,
+        .cat-page .fgroup-btn {
+            position: relative;
+            background: transparent; color: var(--text-2);
+            padding: 6px 12px; border-radius: 0;
+            font-size: 12px; font-weight: 600; letter-spacing: .02em;
+            transition: color .15s;
+        }
+        @media (hover: hover) {
+            .cat-page .filter-chip:hover,
+            .cat-page .fgroup-btn:hover {
+                background: transparent; color: var(--accent); transform: none;
+            }
+        }
+        .cat-page .filter-chip.on,
+        .cat-page .fgroup-btn.has-value {
+            background: transparent; color: var(--text); font-weight: 700;
+        }
+        .cat-page .filter-chip.on::after,
+        .cat-page .fgroup-btn.has-value::after {
+            content: ''; position: absolute; left: 12px; right: 12px; bottom: -1px;
+            height: 2px; background: var(--accent);
+        }
+        .cat-page .filter-sep {
+            width: 1px; height: 16px; background: var(--border); margin: 0 6px;
+        }
+        .cat-page .filter-clear {
+            padding: 6px 0 6px 14px;
+            border-left: 1px solid var(--border);
+            border-top: none; width: auto; text-align: left;
+            color: var(--accent); font-size: 11px; font-weight: 700;
+            letter-spacing: .06em; text-transform: uppercase;
+        }
+        .cat-page .filter-more-toggle { display: none; }
+        .cat-page .filter-more { display: contents; }
+        @media (max-width: 767px) {
+            .cat-page .filter-outer {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+                overflow: visible;
+                padding: 8px 0; gap: 6px;
+            }
+            .cat-page .filter-scroll-wrap { overflow: visible; width: 100%; }
+            .cat-page .filter-bar {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 4px;
+                min-width: 0;
+            }
+            .cat-page .filter-more-toggle {
+                display: inline-flex; align-items: center; gap: 5px;
+                padding: 6px 10px; border: 0; background: transparent;
+                color: var(--accent); font: inherit; font-size: 12px;
+                font-weight: 700; cursor: pointer;
+            }
+            .cat-page .filter-more-toggle span { transition: transform .15s ease; }
+            .cat-page .filter-more-toggle[aria-expanded="true"] span { transform: rotate(180deg); }
+            .cat-page .filter-more {
+                display: none; flex-basis: 100%; flex-wrap: wrap;
+                justify-content: center; gap: 4px;
+            }
+            .cat-page .filter-more.is-open { display: flex; }
+            .cat-page .filter-clear {
+                display: none;
+                flex-shrink: 0;
+                width: 100%;
+                padding: 6px 0 2px;
+                text-align: center;
+                border-left: none;
+                border-top: 1px solid var(--border);
+                margin-top: 4px;
+            }
+            .cat-page .filter-outer.has-active .filter-clear { display: block; }
+        }
+
+        /* ── Count line (editorial uppercase) ── */
+        .cat-page .cat-count-row {
+            margin-top: 18px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .cat-page .cat-count-label {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: .08em; text-transform: uppercase;
+            color: var(--text-3);
+            font-family: var(--sans);
+        }
+
+        /* ── SKELETON CARDS ─────────────────────────────────
+           Повторяет геометрию .recipe-card 1:1 (никакого layout shift
+           при подмене на реальные карточки из buildDishCard). */
+        :root {
+            --sk-base: #efe7d8;   /* тёплый бежевый под палитру «Апельсина» */
+            --sk-hi:   #f7f1e3;   /* мягкий блик shimmer */
+        }
+        .recipe-card.is-skeleton {
+            cursor: default;
+            pointer-events: none;
+        }
+        .recipe-card.is-skeleton:hover {
+            transform: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 24px rgba(26,26,26,.06);
+        }
+        .recipe-card.is-skeleton .recipe-card__media {
+            background: var(--sk-base);
+            position: relative;
+            overflow: hidden;
+        }
+        .recipe-card.is-skeleton .recipe-card__footer {
+            border-top: 1px solid #e8dfd0;
+        }
+        .sk-line {
+            display: block;
+            height: 12px;
+            background: var(--sk-base);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .sk-line--title { height: 18px; }
+
+        /* Soft shimmer — низкий контраст, плавно, без агрессии. */
+        .recipe-card.is-skeleton .recipe-card__media::after,
+        .sk-line::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                var(--sk-hi) 50%,
+                transparent 100%
+            );
+            transform: translateX(-100%);
+            animation: skShimmer 1.6s ease-in-out infinite;
+        }
+        @keyframes skShimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        /* Reduced motion → полностью статичный skeleton (без shimmer и без pulse). */
+        @media (prefers-reduced-motion: reduce) {
+            .recipe-card.is-skeleton .recipe-card__media::after,
+            .sk-line::after {
+                animation: none;
+                background: none;
+            }
+            .recipe-card.is-skeleton .recipe-card__media,
+            .sk-line {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+<body class="v-page">
+
+<!-- HEADER (editorial, shared с index/recipe — стили в style-v4.css) -->
+<header class="sp-header" id="hdr">
+    <!-- Row 1: тёмная авторская полоса (B4 editorial masthead) -->
+    <div class="sp-author-strip">
+        <span class="sp-author-name">Юлия Воронова</span>
+        <span class="sp-author-sep">·</span>
+        <span class="sp-author-role">Нутрициолог</span>
+    </div>
+
+    <!-- Row 2: masthead — профиль слева, бренд по центру, тарелка справа -->
+    <div class="v-wrap">
+        <div class="sp-masthead">
+            <button class="sp-burger" type="button" aria-label="Меню" onclick="openDrawer()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+            <a href="index.html" class="sp-brand">
+                <span class="sp-masthead-rule" aria-hidden="true">
+                    <span class="sp-masthead-line"></span>
+                    <span class="sp-masthead-badge">Персональный помощник в питании</span>
+                    <span class="sp-masthead-line"></span>
+                </span>
+                <span class="sp-brand-title">Умная <span class="sp-brand-accent">тарелка</span></span>
+            </a>
+            <button class="sp-plate" id="plate-btn" onclick="openPlate()" type="button" aria-label="Моя тарелка">
+                <svg class="sp-plate-svg" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" focusable="false">
+                    <circle cx="11" cy="11" r="10" fill="#fff" stroke="var(--text)" stroke-width="1.4"/>
+                    <path d="M11 1 A10 10 0 0 0 11 21 Z" fill="var(--accent)"/>
+                    <path d="M11 1 A10 10 0 0 1 21 11 L11 11 Z" fill="var(--text)"/>
+                    <line x1="11" y1="1" x2="11" y2="21" stroke="#fff" stroke-width="1.2"/>
+                    <line x1="11" y1="11" x2="21" y2="11" stroke="#fff" stroke-width="1.2"/>
+                </svg>
+                <span class="plate-count" style="display:none">0</span>
+            </button>
+            <div class="v-user-wrap" id="user-wrap">
+                <button class="sp-profile" id="user-badge" onclick="toggleUserMenu(event)" type="button">
+                    <span class="v-user-avatar" id="u-ava" aria-hidden="true">?</span>
+                    <svg class="sp-profile-guest-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <span class="sp-profile-name" id="u-name">Войти</span>
+                    <span class="sp-profile-dot" id="sp-profile-dot" hidden aria-label="Новый ответ Юлии"></span>
+                </button>
+                <div class="user-dropdown" id="user-dropdown">
+                    <a href="cabinet.html?tab=feedback" class="user-dd-item user-dd-feedback" id="user-dd-feedback" hidden>Новый ответ Юлии</a>
+                    <div class="user-dd-sep" id="user-dd-feedback-sep" hidden></div>
+                    <a href="cabinet.html" class="user-dd-item"><svg class="user-dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>Мой кабинет</a>
+                    <div class="user-dd-sep"></div>
+                    <a href="cabinet.html?tab=subscription" class="user-dd-item user-dd-subitem">Подписка</a>
+                    <a href="cabinet.html?tab=favorites" class="user-dd-item user-dd-subitem">Избранные</a>
+                    <a href="cabinet.html?tab=history" class="user-dd-item user-dd-subitem">Журнал</a>
+                    <a href="cabinet.html?tab=notes" class="user-dd-item user-dd-subitem">Заметки</a>
+                    <a href="cabinet.html?tab=feedback" class="user-dd-item user-dd-subitem">Связь</a>
+                    <a href="cabinet.html?tab=settings" class="user-dd-item user-dd-subitem">Настройки</a>
+                    <div class="user-dd-sep"></div>
+                    <button class="user-dd-item user-dd-logout" onclick="doLogout()"><svg class="user-dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Выйти</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 3: нижняя desktop-навигация -->
+    <div class="sp-subnav-row">
+        <div class="v-wrap">
+            <nav class="sp-nav" id="sp-nav" aria-label="Разделы">
+                <a class="sp-nav-link" data-nav="home" href="index.html">Главная</a>
+                <div class="sp-nav-dd" data-dd="recipes">
+                    <button class="sp-nav-trigger active" type="button" aria-haspopup="true" aria-expanded="false">Рецепты<span class="sp-nav-caret" aria-hidden="true"></span></button>
+                    <div class="sp-nav-panel sp-nav-panel--recipes" role="menu">
+                        <a class="sp-nav-panel-all" role="menuitem" href="category.html">Все рецепты</a>
+                    </div>
+                </div>
+                <div class="sp-nav-dd" data-dd="ingredients">
+                    <button class="sp-nav-trigger" type="button" aria-haspopup="true" aria-expanded="false">Ингредиенты<span class="sp-nav-caret" aria-hidden="true"></span></button>
+                    <div class="sp-nav-panel sp-nav-panel--ingredients" role="menu"></div>
+                </div>
+                <a class="sp-nav-link" data-nav="favorites" href="cabinet.html?tab=favorites">Избранное</a>
+                <a class="sp-nav-link" href="https://voronova.online/#tariffs">Консультации</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<!-- DRAWER (mobile nav) — общий с index; наполняется header-nav.js -->
+<div class="sp-drawer" id="sp-drawer" hidden>
+    <div class="sp-drawer-back" onclick="closeDrawer()"></div>
+    <aside class="sp-drawer-panel" role="dialog" aria-label="Меню сайта">
+        <div class="sp-drawer-head">
+            <span class="sp-drawer-title">Меню</span>
+            <button class="sp-drawer-close" type="button" onclick="closeDrawer()" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+        </div>
+        <nav class="sp-drawer-nav" id="sp-drawer-nav"></nav>
+    </aside>
+</div>
+
+<main class="cat-page" style="flex:1; padding-bottom: 40px;">
+    <div class="v-wrap">
+
+        <!-- Breadcrumbs — заполняются синхронно из JS до loadContent() (см. ниже). -->
+        <nav class="cat-crumbs" id="cat-crumbs" aria-label="Хлебные крошки"></nav>
+
+        <!-- Category hero — fallback заполняется синхронно из JS (см. ниже),
+             loadContent().then() заменит на актуальные данные из API. .anim снят,
+             чтобы верх страницы не fadeUp-ил и не исчезал на first paint. -->
+        <div class="cat-hero" id="cat-hero"></div>
+
+        <!-- Filters — .anim снят, чтобы не моргали при появлении hero. -->
+        <div class="filter-outer">
+        <div class="filter-scroll-wrap">
+        <div class="filter-bar" id="filter-row">
+            <button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" onclick="toggleFGroup(this)">
+                <span class="fg-label">Время</span>
+                <svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg>
+            </button>
+            <button class="fgroup-btn" id="fg-diff-btn" data-label="Сложность" data-drop="fg-diff-drop" onclick="toggleFGroup(this)">
+                <span class="fg-label">Сложность</span>
+                <svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg>
+            </button>
+            <div class="filter-sep"></div>
+            <button class="filter-chip" data-f="free" onclick="toggleTagFilter(this)">Бесплатные</button>
+            <button class="filter-chip" data-f="popular" onclick="togglePopular(this)">⭐ Популярные</button>
+            <button class="filter-more-toggle" type="button" aria-expanded="false" aria-controls="category-more-filters" onclick="toggleMoreFilters(this)">Ещё фильтры <span aria-hidden="true">⌄</span></button>
+            <div class="filter-more" id="category-more-filters">
+                <button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
+                <button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
+                <button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
+                <button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
+                <button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Бобовые</button>
+            </div>
+        </div>
+        </div>
+        <button class="filter-clear" onclick="clearFilters()">↺ Сбросить</button>
+        </div>
+
+        <!-- Dish list -->
+        <div class="cat-count-row">
+            <div class="cat-count-label anim anim-d1" id="count-label"></div>
+        </div>
+        <div class="recipe-card-grid anim anim-d1" id="dish-list" style="margin-top:14px"></div>
+    </div>
+</main>
+
+<!-- COMMENTS MODAL -->
+<div class="modal-overlay" id="comments-overlay" onclick="closeCommentsIfOutside(event)">
+    <div class="modal-box" id="comments-modal">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <div class="modal-title" id="comments-title">💬 Отзывы</div>
+            <button class="modal-close" onclick="closeComments()"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
+        </div>
+        <div class="modal-body" id="comments-body"></div>
+    </div>
+</div>
+
+<!-- MY PLATE MODAL -->
+<div class="modal-overlay plate-modal-v1" id="plate-overlay" onclick="closePlateIfOutside(event)">
+    <div class="modal-box" id="plate-modal">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <div class="modal-title"><svg class="sp-plate-svg" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="10" fill="#fff" stroke="var(--text)" stroke-width="1.4"/><path d="M11 1 A10 10 0 0 0 11 21 Z" fill="var(--accent)"/><path d="M11 1 A10 10 0 0 1 21 11 L11 11 Z" fill="var(--text)"/><line x1="11" y1="1" x2="11" y2="21" stroke="#fff" stroke-width="1.2"/><line x1="11" y1="11" x2="21" y2="11" stroke="#fff" stroke-width="1.2"/></svg> Моя тарелка</div>
+            <button class="modal-close" onclick="closePlate()"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
+        </div>
+        <div class="modal-body" id="plate-body"></div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="v-footer">
+    <div class="v-footer-inner">
+        <div class="v-footer-brand"><span class="v-logo-brand" style="color:#fff">Умная <span>тарелка</span></span><span class="v-footer-brand-caption">Конструктор питания Юлии Вороновой</span></div>
+        <div class="v-footer-links">
+            <a href="https://voronova.online" target="_blank" rel="noopener">Сайт</a>
+            <span class="v-footer-sep"></span>
+            <a href="https://voronova.online/guides.html">Гайды</a>
+            <span class="v-footer-sep"></span>
+            <a href="https://voronova.online/tests.html">Тесты</a>
+        </div>
+        <a class="v-footer-email" href="mailto:hello@voronova.online" aria-label="Email: hello@voronova.online">hello@voronova.online</a>
+        <div class="v-footer-social">
+            <a href="https://t.me/YuliaVoronova78" target="_blank" rel="noopener" aria-label="Telegram">
+                <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
+            </a>
+            <a href="https://youtube.com/@voronova_nutrition" target="_blank" rel="noopener" aria-label="YouTube">
+                <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+            <a href="https://vk.com/voronova_nutrition" target="_blank" rel="noopener" aria-label="VK">
+                <svg viewBox="0 0 24 24"><path d="M12.785 16.241s.288-.032.436-.194c.136-.148.131-.427.131-.427s-.019-1.304.582-1.496c.592-.189 1.352 1.26 2.158 1.817.61.422 1.073.329 1.073.329l2.155-.03s1.128-.07.593-.957c-.044-.073-.312-.659-1.608-1.865-1.357-1.259-1.175-1.056.459-3.234.997-1.328 1.396-2.139 1.271-2.486-.12-.331-.848-.244-.848-.244l-2.425.015s-.18-.025-.313.055c-.131.079-.215.262-.215.262s-.388 1.036-.905 1.916c-1.09 1.85-1.526 1.948-1.703 1.833-.414-.267-.311-1.073-.311-1.646 0-1.789.271-2.534-.528-2.726-.265-.064-.46-.106-1.138-.113-.871-.009-1.608.003-2.025.207-.278.136-.492.439-.361.456.161.022.527.099.721.363.251.341.242 1.107.242 1.107s.144 2.107-.336 2.368c-.329.18-.781-.187-1.752-1.865-.498-.859-.875-1.81-.875-1.81s-.072-.176-.202-.271c-.157-.115-.376-.151-.376-.151l-2.304.015s-.346.01-.473.161C4.021 8.824 4.117 9.1 4.117 9.1s1.801 4.22 3.839 6.348c1.87 1.951 3.994 1.822 3.994 1.822h.961l.026-.029z"/></svg>
+            </a>
+            <a href="https://dzen.ru/voronova_nutrition" target="_blank" rel="noopener" aria-label="Дзен">
+                <svg viewBox="0 0 129 129"><path d="M128.389 62.78C128.389 62.14 127.869 61.61 127.229 61.58C104.266 60.71 90.291 57.78 80.514 48.005C70.717 38.208 67.798 24.223 66.928 1.21C66.908.57 66.378.05 65.728.05H63.049C62.409.05 61.88.57 61.85 1.21C60.98 24.213 58.061 38.208 48.264 48.005C38.477 57.792 24.511 60.711 1.548 61.58C.909 61.601.389 62.131.389 62.78V65.46C.389 66.099.909 66.629 1.548 66.659C24.511 67.529 38.487 70.458 48.264 80.235C58.041 90.012 60.96 103.958 61.84 126.88C61.86 127.52 62.389 128.04 63.039 128.04H65.728C66.368 128.04 66.898 127.52 66.928 126.88C67.808 103.958 70.727 90.012 80.504 80.235C90.291 70.448 104.256 67.529 127.219 66.659C127.859 66.639 128.379 66.109 128.379 65.46V62.78H128.389Z"/></svg>
+            </a>
+            <a href="https://rutube.ru/channel/47038007/" target="_blank" rel="noopener" aria-label="RuTube">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12"/><path d="M8 7h4.5c2.2 0 3.5 1.3 3.5 3.2 0 1.4-.7 2.3-1.8 2.7l2.6 3.8c.3.4 0 .8-.4.8h-1.5c-.4 0-.7-.2-.9-.5l-2.2-3.2H10v3.2c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5H8zm2 5h2c1 0 1.8-.5 1.8-1.5S13 9 12 9h-2v3z" fill="#fff"/></svg>
+            </a>
+        </div>
+        <div class="v-footer-copy">© Юлия Воронова · Конструктор питания</div>
+    </div>
+</footer>
+
+<!-- FILTER DROPDOWNS (at body level — avoids overflow/transform clipping) -->
+<div class="fgroup-drop" id="fg-time-drop">
+    <button class="filter-chip" data-f="time" data-v="15" onclick="pickFilter(this,'fg-time-btn')">До 15 мин</button>
+    <button class="filter-chip" data-f="time" data-v="30" onclick="pickFilter(this,'fg-time-btn')">До 30 мин</button>
+    <button class="filter-chip" data-f="time" data-v="60" onclick="pickFilter(this,'fg-time-btn')">До 1 часа</button>
+    <button class="filter-chip" data-f="time" data-v="over60" onclick="pickFilter(this,'fg-time-btn')">Более 1 часа</button>
+</div>
+<div class="fgroup-drop" id="fg-diff-drop">
+    <button class="filter-chip" data-f="difficulty" data-v="easy" onclick="pickFilter(this,'fg-diff-btn')">Легкая</button>
+    <button class="filter-chip" data-f="difficulty" data-v="medium" onclick="pickFilter(this,'fg-diff-btn')">Средняя</button>
+    <button class="filter-chip" data-f="difficulty" data-v="hard" onclick="pickFilter(this,'fg-diff-btn')">Сложная</button>
+</div>
+
+<!-- CHAT FAB -->
+<a class="chat-fab" id="support-fab" data-tawk-open href="https://tawk.to/chat/699610c27418241c38dd96b3/1js4rtjr9" target="_blank" rel="noopener" aria-label="Открыть чат поддержки Tawk" title="Чат с отделом заботы">
+    <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+</a>
+
+<script src="data-v2.js?v=20260707-same-origin-content"></script>
+<script src="ingredients.js?v=20260711-oats-seabass"></script>
+<script src="header-nav.js?v=20260704-hover-nav"></script>
+<script>
+    // ── SYNC FALLBACK HERO + CRUMBS ─────────────────────────────────────────
+    // Заполняем верх страницы (название категории и крошки) синхронно, до того
+    // как loadContent() сходит в API. Юзер сразу видит «Завтраки», а не пустоту.
+    // После loadContent().then() ниже хук перерисует hero/crumbs данными из API
+    // (имя/описание/аватар) — позиция и габариты блока совпадают, рывка нет.
+    (function renderFallbackHero() {
+        var p = new URLSearchParams(location.search);
+        var q = (p.get('q') || '').trim();
+        var catP = (p.get('cat') || '').trim();
+        var allMode = !q && !catP;   // category.html без cat/q = каталог «Все рецепты»
+        var id = catP;
+        var hero = document.getElementById('cat-hero');
+        var crumbs = document.getElementById('cat-crumbs');
+        if (q) {
+            if (hero) hero.innerHTML =
+                '<div class="cat-hero-row">' +
+                '<div class="cat-hero-ava">🔍</div>' +
+                '<div><div class="cat-hero-name">Поиск</div></div></div>';
+            if (crumbs) crumbs.innerHTML =
+                '<a href="index.html">Главная</a>' +
+                '<span class="crumb-sep">›</span>' +
+                '<span class="crumb-current">Поиск</span>';
+            return;
+        }
+        if (allMode) {
+            document.title = 'Все рецепты — Конструктор питания';
+            if (hero) hero.innerHTML =
+                '<div class="cat-hero-row">' +
+                '<div class="cat-hero-ava cat-hero-ava--logo">' +
+                '<img src="https://voronova.online/images/icons/logo-small.png" alt="Юлия Воронова">' +
+                '</div>' +
+                '<div><div class="cat-hero-name">Все рецепты</div>' +
+                '<div class="cat-hero-desc">Все блюда платформы — завтраки, супы, горячее, намазки и соусы в одном каталоге</div></div></div>';
+            if (crumbs) crumbs.innerHTML =
+                '<a href="index.html">Главная</a>' +
+                '<span class="crumb-sep">›</span>' +
+                '<span class="crumb-current">Все рецепты</span>';
+            return;
+        }
+        // Источник истины — таблица categories в БД (поле description).
+        // Эти строки должны 1:1 совпадать с тем, что вернёт /content/categories,
+        // иначе текст «прыгает» после loadContent(). Менять — синхронно в БД и здесь.
+        var FB = {
+            breakfasts: { name: 'Завтраки',         desc: 'Каши, омлеты, бутерброды и сырники для энергичного утра' },
+            soups:      { name: 'Супы',             desc: 'Супы, борщи, щи и бульонные блюда' },
+            mains:      { name: 'Горячее',          desc: 'Сытные горячие блюда для обеда и ужина — плов, паста и другие вторые блюда' },
+            pancakes:   { name: 'Блины / Оладьи',   desc: 'Веганские блины и оладьи из цельных продуктов' },
+            spreads:    { name: 'Намазки',          desc: 'Хумус и паштеты — для бутербродов и перекусов' },
+            sauces:     { name: 'Соусы',            desc: 'Кремовые соусы и заправки — из кешью, бобовых и запечённых овощей' }
+        };
+        var fb = FB[id];
+        if (!fb) return;
+        document.title = fb.name + ' — Конструктор питания';
+        if (hero) hero.innerHTML =
+            '<div class="cat-hero-row">' +
+            '<div class="cat-hero-ava cat-hero-ava--logo">' +
+            '<img src="https://voronova.online/images/icons/logo-small.png" alt="Юлия Воронова">' +
+            '</div>' +
+            '<div><div class="cat-hero-name">' + fb.name + '</div>' +
+            '<div class="cat-hero-desc">' + fb.desc + '</div></div></div>';
+        if (crumbs) crumbs.innerHTML =
+            '<a href="index.html">Главная</a>' +
+            '<span class="crumb-sep">›</span>' +
+            '<span class="crumb-current">' + fb.name + '</span>';
+    })();
+
+    loadContent().then(function() {
+        if (isContentError()) {
+            const dishList = document.getElementById('dish-list');
+            dishList.removeAttribute('aria-busy');
+            showApiError(dishList);
+            return;
+        }
+        // Editorial header parity: подсвечиваем текущий раздел (или просто «Главная» в режиме поиска).
+        renderHeaderNav(searchQuery ? null : catId);
+        if (searchQuery) {
+            document.title = 'Поиск «' + searchQuery + '» — Конструктор питания';
+            var total = (typeof searchRecipes === 'function') ? searchRecipes(searchQuery).length : 0;
+            document.getElementById('cat-hero').innerHTML =
+                '<div class="cat-hero-row">' +
+                '<div class="cat-hero-ava">🔍</div>' +
+                '<div><div class="cat-hero-name">Поиск: «' + escHtml(searchQuery) + '»</div>' +
+                '<div class="cat-hero-desc">Всего найдено: ' + pluralR(total) + '</div></div></div>';
+            var crumbsEl = document.getElementById('cat-crumbs');
+            if (crumbsEl) {
+                crumbsEl.innerHTML = '<a href="index.html">Главная</a>' +
+                    '<span class="crumb-sep">›</span>' +
+                    '<span class="crumb-current">Поиск</span>';
+            }
+        } else {
+            cat = getCategory(catId);
+            if (cat) {
+                document.title = cat.name + ' — Конструктор питания';
+                var crumbsEl = document.getElementById('cat-crumbs');
+                if (crumbsEl) {
+                    crumbsEl.innerHTML = '<a href="index.html">Главная</a>' +
+                        '<span class="crumb-sep">›</span>' +
+                        '<span class="crumb-current">' + escHtml(String(cat.name)) + '</span>';
+                }
+                var catAvatars = typeof CAT_AVATARS !== 'undefined' ? CAT_AVATARS : {};
+                var avaUrl = (typeof getCategoryPhoto === 'function' ? getCategoryPhoto(catId, catAvatars[catId]) : catAvatars[catId]) || '';
+                var avaImg = avaUrl
+                    ? '<div class="cat-hero-ava"><img src="' + escHtml(String(avaUrl)) + '" alt="' + escHtml(String(cat.name)) + '" data-category-fallback-emoji="' + escHtml(String(cat.emoji)) + '"></div>'
+                    : '<div class="cat-hero-ava">' + escHtml(String(cat.emoji)) + '</div>';
+                document.getElementById('cat-hero').innerHTML =
+                    '<div class="cat-hero-row">' + avaImg +
+                    '<div><div class="cat-hero-name">' + escHtml(String(cat.name)) + '</div>' +
+                    '<div class="cat-hero-desc">' + escHtml(String(cat.desc)) + '</div></div></div>';
+            }
+        }
+        Auth.checkAccess({ allowGuest: true }).then(function() {
+            if (Auth.isLoggedIn()) {
+                Favorites.load().then(function() { if (typeof renderDishes === 'function') renderDishes(); });
+                Plate.load();
+            } else if (typeof renderDishes === 'function') {
+                renderDishes();
+            }
+        });
+    });
+    updatePlateIcon();
+
+    // User pill init — для гостя меняем на «Войти», прячем dropdown
+    (function() {
+        const user = Auth.getUser();
+        if (!user) {
+            const uAva = document.getElementById('u-ava');
+            if (uAva) {
+                uAva.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
+                uAva.style.color = 'var(--text-2)';
+                uAva.style.display = 'flex';
+                uAva.style.alignItems = 'center';
+                uAva.style.justifyContent = 'center';
+            }
+            const uName = document.getElementById('u-name');
+            if (uName) uName.textContent = 'Войти';
+            const dd = document.getElementById('user-dropdown');
+            if (dd) dd.remove();
+            // Editorial-header: профиль превращается в кнопку «Войти».
+            const ub = document.getElementById('user-badge');
+            if (ub) ub.classList.add('is-guest');
+            return;
+        }
+        const customName = Auth.getDisplayName();
+        const displayName = customName || user.email.split('@')[0];
+        Auth.renderAvatar(document.getElementById('u-ava'), customName || user.email);
+        document.getElementById('u-name').textContent = displayName;
+    })();
+
+    function toggleUserMenu(e) {
+        // Гость: ведём на login, не открываем меню.
+        if (Auth.isGuest()) {
+            e.preventDefault();
+            location.href = Auth._loginUrl();
+            return;
+        }
+        e.stopPropagation();
+        document.getElementById('user-dropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+        const wrap = document.getElementById('user-wrap');
+        if (wrap && !wrap.contains(e.target)) { const dd = document.getElementById('user-dropdown'); if (dd) dd.classList.remove('open'); }
+    });
+    function doLogout() {
+        document.getElementById('user-dropdown').classList.remove('open');
+        const overlay = document.createElement('div');
+        overlay.className = 'farewell-overlay';
+        overlay.innerHTML = '<div class="farewell-card" role="status" aria-live="polite">' +
+            '<div class="farewell-eyebrow">Сеанс завершён</div>' +
+            '<h2 class="farewell-title">До встречи!</h2>' +
+            '<div class="farewell-divider"></div>' +
+            '<p class="farewell-sub">Возвращайтесь — мы ждём вас</p>' +
+            '<p class="farewell-caption">Перенаправляем на страницу входа…</p>' +
+            '<div class="farewell-progress"><span></span></div>' +
+        '</div>';
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add('show'));
+        setTimeout(() => { Auth.logout(); location.href = 'login.html'; }, 1800);
+    }
+
+    // Режим страницы определяется параметрами URL:
+    //   ?q=<query>  → результаты поиска
+    //   ?cat=<id>   → конкретная категория
+    //   (без обоих) → каталог «Все рецепты» (карточки всех категорий)
+    const params = new URLSearchParams(location.search);
+    const searchQuery = (params.get('q') || '').trim();
+    const catParam = (params.get('cat') || '').trim();
+    const isAllMode = !searchQuery && !catParam;
+    const catId = catParam;   // '' в режимах поиска и «Все рецепты»
+    let cat = null;
+    const activeFilters = {};
+
+    // Навигация хедера — единый билдер (header-nav.js). «Рецепты» подсвечиваем
+    // в конкретной категории и в режиме «Все рецепты»; в поиске — без подсветки.
+    function renderHeaderNav(activeCatId) {
+        if (window.SP_HEADER && typeof window.SP_HEADER.render === 'function') {
+            window.SP_HEADER.render({
+                activeCat: activeCatId || null,
+                activeNav: (isAllMode && !activeCatId) ? 'recipes' : null
+            });
+        }
+    }
+    // Ранний рендер: дропдаун «Ингредиенты» и ссылки не зависят от API.
+    renderHeaderNav(catId || null);
+
+    function applyFilters(dishes, filters) {
+        let list = dishes;
+        if (filters.time) {
+            if (filters.time === 'over60') list = list.filter(d => d.time > 60);
+            else list = list.filter(d => d.time <= filters.time);
+        }
+        if (filters.difficulty) list = list.filter(d => d.diff === filters.difficulty);
+        if (filters.gluten)  list = list.filter(d => (d.tags||[]).includes('без глютена'));
+        if (filters.plant)   list = list.filter(d => (d.tags||[]).includes('растительное'));
+        if (filters.fish)    list = list.filter(d => (d.tags||[]).includes('рыбное'));
+        if (filters.noSoy)   list = list.filter(d => (d.tags||[]).includes('без сои'));
+        if (filters.legumes) list = list.filter(d => (d.tags||[]).includes('бобовые'));
+        if (filters.free)    list = list.filter(d => Auth.isFreeRecipe(d));
+        return list;
+    }
+    function getDishesForView() {
+        if (searchQuery) {
+            const matched = (typeof searchRecipes === 'function') ? searchRecipes(searchQuery) : [];
+            return applyFilters(matched, activeFilters);
+        }
+        if (isAllMode) {
+            // Каталог «Все рецепты»: уникальные рецепты из всех категорий (RECIPES
+            // ключуется по id, поэтому дубли исключены), фильтры — по полному списку.
+            const all = (typeof RECIPES !== 'undefined') ? Object.values(RECIPES).filter(Boolean) : [];
+            return applyFilters(all, activeFilters);
+        }
+        return getCategoryDishes(catId, activeFilters);
+    }
+
+    // Restore filters from index.html navigation
+    (function restoreFilters() {
+        const saved = sessionStorage.getItem('platform_filters');
+        if (!saved) return;
+        sessionStorage.removeItem('platform_filters');
+        try {
+            const f = JSON.parse(saved);
+            Object.assign(activeFilters, f);
+        } catch(e) { return; }
+    })();
+
+    const CAT_PHOTOS = {
+        breakfasts: SITE_BASE + '/images/blog/random-pic-blog-5..webp',
+        soups:      SITE_BASE + '/images/recipes/red-lentil-mushroom-soup/red-lentil-mushroom-soup-cover.webp',
+        mains:      SITE_BASE + '/images/cook-healthy-food.webp',
+        pancakes:   SITE_BASE + '/images/blog/random-pic-blog-2.webp',
+        spreads:    SITE_BASE + '/images/blog/random-pic-blog-3.webp',
+        sauces:     SITE_BASE + '/images/recipes/cashew-sauce/cashew-sauce-cover.webp',
+        salads:     SITE_BASE + '/images/blog/random-pic-blog-4.webp',
+        drinks:     SITE_BASE + '/images/blog/random-pic-blog-1.webp',
+    };
+
+    window.addEventListener('scroll', () =>
+        document.getElementById('hdr').classList.toggle('scrolled', scrollY > 10));
+
+    const CAT_AVATARS = {
+        breakfasts: SITE_BASE + '/images/blog/random-pic-blog-5..webp',
+        soups:      SITE_BASE + '/images/recipes/red-lentil-mushroom-soup/red-lentil-mushroom-soup-cover.webp',
+        mains:      SITE_BASE + '/images/cook-healthy-food.webp',
+        pancakes:   SITE_BASE + '/images/blog/random-pic-blog-2.webp',
+        spreads:    SITE_BASE + '/images/blog/random-pic-blog-3.webp',
+        sauces:     SITE_BASE + '/images/recipes/cashew-sauce/cashew-sauce-cover.webp',
+        salads:     SITE_BASE + '/images/blog/random-pic-blog-4.webp',
+        drinks:     SITE_BASE + '/images/blog/random-pic-blog-1.webp',
+    };
+
+    // Hero block rendered after loadContent() — see above
+
+    function imgFallback(img, emoji) {
+        img.onerror = null;
+        img.style.display = 'none';
+        var d = document.createElement('div');
+        d.className = 'recipe-card-emoji';
+        d.textContent = emoji;
+        img.parentElement.insertBefore(d, img);
+    }
+
+    function ratingPillHtml(recipeId) {
+        // Show '—' initially; loadApiRatings() will update with real server data
+        const display = '—';
+        return `<div class="photo-rating-pill" id="rpill-${escHtml(recipeId)}" role="button" data-card-action="rating" data-recipe-id="${escHtml(recipeId)}">
+            <span class="pr-star">★</span>
+            <span class="pr-val">${display}</span>
+        </div>`;
+    }
+
+    function commentBtnHtml(recipeId) {
+        return `<div class="photo-comment-btn" id="cbtn-${escHtml(recipeId)}" role="button" data-card-action="comments" data-recipe-id="${escHtml(recipeId)}">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+            Отзыв</div>`;
+    }
+
+    function pluralR(n) {
+        const m10 = n % 10, m100 = n % 100;
+        if (m100 >= 11 && m100 <= 14) return n + ' рецептов';
+        if (m10 === 1) return n + ' рецепт';
+        if (m10 >= 2 && m10 <= 4) return n + ' рецепта';
+        return n + ' рецептов';
+    }
+
+    function buildDishCard(d, diff_labels) {
+        const _id = String(d.id || '');
+        const _name = escHtml(String(d.name || ''));
+        const _emoji = escHtml(String(d.emoji || '🍴'));
+        const _photo = escHtml(String(d.photo || ''));
+        const _imgPos = escHtml(String(d.imgPosition || ''));
+        const _diff = escHtml(String(diff_labels[d.diff] || d.diff || ''));
+        const _diffIcon = typeof diffIcon === 'function' ? diffIcon(d.diff) : '';
+        const _diffColor = d.diff === 'hard' ? 'var(--accent)' : d.diff === 'medium' ? '#d97706' : '#8a7d6f';
+        const _timeMeta = formatTimeMeta(d.time, d.timeLabel);
+        const _timeStr = escHtml(_timeMeta.short);
+        const _timeNote = _timeMeta.note ? escHtml(_timeMeta.note) : '';
+        const _kcal = Number(d.kcal) || 0;
+        const isSublist = d.isSublist;
+        const access = Auth.recipeCardAccess(d);
+        const locked = access.locked;
+        const lockLevel = locked ? access.level : null;
+        const photoHtml = _photo
+            ? `<img src="${_photo}" alt="${_name}" loading="lazy" data-fallback-emoji="${_emoji}"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
+            : `<div class="recipe-card-emoji">${_emoji}</div>`;
+        const canShowFav = Auth.isLoggedIn();
+        const isFav = canShowFav && Favorites.has(d.id);
+        const lockBadgeClass = lockLevel === 'pro' ? 'locked-badge' : 'trial-badge';
+        const lockBadge = locked
+            ? '<div class="' + lockBadgeClass + '"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>'
+              + access.label + '</div>'
+            : '';
+        // Бейдж «Бесплатно» — показываем только тем, у кого нет полного доступа.
+        const freeBadge = !locked && access.isFree && !Auth.hasFullAccess()
+            ? '<div class="free-badge">Бесплатно</div>'
+            : '';
+        const _emptyStars = Array.from({length: 5}, () =>
+            '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#e8400a" stroke-width="2"><polygon points="12 2 15 9 22 10 17 15 18 22 12 18 6 22 7 15 2 10 9 9 12 2"/></svg>'
+        ).join('');
+        const accessHint = locked ? '. ' + access.label + '. ' + access.actionLabel : '';
+        return `<article class="recipe-card${locked ? ' locked' : ''}" role="button" tabindex="0" aria-label="${_name}${escHtml(accessHint)}" data-card-action="${locked ? 'locked' : 'open'}" data-recipe-id="${escHtml(_id)}">
+            <div class="recipe-card__media">
+                ${photoHtml}
+                ${lockBadge}${freeBadge}
+                ${(!locked && canShowFav) ? `<button class="recipe-card__bookmark${isFav ? ' active' : ''}" id="fav-${escHtml(_id)}" aria-label="В избранное" data-card-action="favorite" data-recipe-id="${escHtml(_id)}">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                </button>` : ''}
+            </div>
+            <div class="recipe-card__body">
+                <h3 class="recipe-card__title">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</h3>
+                <div class="recipe-card__details-line">
+                <div class="recipe-card__rating" id="rrow-${escHtml(_id)}">
+                    <div class="rating-popup" id="rpop-${escHtml(_id)}">
+                        ${[1,2,3,4,5].map(i => `<span class="rp-star" data-n="${i}" data-card-action="rate" data-recipe-id="${escHtml(_id)}">★</span>`).join('')}
+                    </div>
+                    <span class="recipe-card__rating-stars" id="rstars-${escHtml(_id)}" data-card-action="rating" data-recipe-id="${escHtml(_id)}">${_emptyStars}</span>
+                    <span class="recipe-card__rating-text" id="rtext-${escHtml(_id)}"></span>
+                </div>
+                <div class="recipe-card__meta">
+                    <span class="recipe-card__meta-item recipe-card__meta-time">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
+                    <span class="recipe-card__meta-dot"></span>
+                    <span class="recipe-card__meta-item recipe-card__meta-diff" title="${_diff}" aria-label="${_diff}" style="color:${_diffColor}">${_diffIcon}<span class="recipe-card__meta-diff-label">${_diff}</span></span>
+                </div>
+                </div>
+                ${_timeNote ? `<div class="recipe-card-time-note"><span class="rcn-arr" aria-hidden="true">↳</span>${_timeNote}</div>` : ''}
+                <div class="recipe-card__footer">
+                    <span class="recipe-card__kcal-label">калорийность</span>
+                    <span class="recipe-card__kcal-value">${_kcal} <small>ккал</small></span>
+                </div>
+            </div>
+        </article>`;
+    }
+
+    const dishListEl = document.getElementById('dish-list');
+    if (dishListEl) {
+        dishListEl.addEventListener('click', function(event) {
+            const actionEl = event.target.closest('[data-card-action]');
+            if (!actionEl || !dishListEl.contains(actionEl)) return;
+            const recipeId = actionEl.dataset.recipeId || '';
+            const action = actionEl.dataset.cardAction;
+            if (action === 'open') goToRecipe(recipeId);
+            else if (action === 'locked') showLockedMsg(recipeId);
+            else if (action === 'favorite') toggleFav(recipeId);
+            else if (action === 'rating') openRatingPopup(recipeId, actionEl);
+            else if (action === 'comments') openComments(recipeId);
+            else if (action === 'rate') rateFromPop(recipeId, Number(actionEl.dataset.n));
+        });
+        dishListEl.addEventListener('keydown', function(event) {
+            const card = event.target.closest('article[data-card-action]');
+            if (!card || event.target !== card || (event.key !== 'Enter' && event.key !== ' ')) return;
+            event.preventDefault();
+            if (card.dataset.cardAction === 'locked') showLockedMsg(card.dataset.recipeId || '');
+            else goToRecipe(card.dataset.recipeId || '');
+        });
+        dishListEl.addEventListener('mouseover', function(event) {
+            const star = event.target.closest('.rp-star[data-recipe-id]');
+            if (star) hoverPopStar(star.dataset.recipeId || '', Number(star.dataset.n));
+        });
+        dishListEl.addEventListener('mouseout', function(event) {
+            const star = event.target.closest('.rp-star[data-recipe-id]');
+            if (star) unhoverPopStar(star.dataset.recipeId || '');
+        });
+    }
+
+    document.addEventListener('click', function(event) {
+        const actionTarget = event.target.closest('[data-category-action]');
+        if (!actionTarget) return;
+        const action = actionTarget.dataset.categoryAction;
+        if (action === 'delete-review') {
+            deleteCatReview(Number(actionTarget.dataset.reviewId), actionTarget.dataset.isAdmin === 'true');
+        } else if (action === 'select-star') {
+            selectStar(Number(actionTarget.dataset.n));
+        } else if (action === 'remove-plate-item') {
+            removeItemCat(Number(actionTarget.dataset.index));
+        }
+    });
+
+    document.addEventListener('error', function(event) {
+        const image = event.target;
+        if (!(image instanceof HTMLImageElement)) return;
+        if (image.hasAttribute('data-category-fallback-emoji')) {
+            image.parentElement.textContent = image.dataset.categoryFallbackEmoji || '🍴';
+            return;
+        }
+        if (image.hasAttribute('data-fallback-emoji')) {
+            imgFallback(image, image.dataset.fallbackEmoji || '🍴');
+        }
+    }, true);
+
+    function updateRatingRow(recipeId) {
+        const ar = _apiRatings[recipeId];
+        const starsEl = document.getElementById('rstars-' + recipeId);
+        const textEl  = document.getElementById('rtext-' + recipeId);
+        if (!starsEl) return;
+        const filled = ar ? Math.round(ar.avg) : 0;
+        starsEl.innerHTML = Array.from({length: 5}, (_, i) =>
+            `<svg width="11" height="11" viewBox="0 0 24 24" fill="${i < filled ? '#e8400a' : 'none'}" stroke="#e8400a" stroke-width="2"><polygon points="12 2 15 9 22 10 17 15 18 22 12 18 6 22 7 15 2 10 9 9 12 2"/></svg>`
+        ).join('');
+        if (textEl) {
+            if (ar && ar.avg > 0) {
+                textEl.textContent = ar.avg + (ar.count > 0 ? ' (' + ar.count + ')' : '');
+                textEl.style.cursor = 'pointer';
+                textEl.onclick = function(e) { e.stopPropagation(); openComments(recipeId); };
+            } else {
+                textEl.textContent = '';
+                textEl.onclick = null;
+            }
+        }
+    }
+
+    // Ожидаемое количество skeleton-карточек по категориям. Подбирается
+    // близко к реальному размеру категории, чтобы сетка не схлопывалась
+    // с 6 до 3 при подмене скелетона на реальные карточки. Неизвестные → 4.
+    const SKELETON_COUNTS = {
+        pancakes: 3,
+        breakfasts: 6,
+        soups: 6,
+        mains: 6,
+        spreads: 4,
+        sauces: 4
+    };
+
+    // Skeleton-карточки для состояния загрузки.
+    // Геометрия = реальной .recipe-card (классы .recipe-card / __media / __body / __footer),
+    // содержимое — .sk-line блоки разной ширины (живее, чем равные полоски).
+    function renderRecipeSkeletons(count = 6) {
+        const widths = [
+            ['92%','78%','58%'],
+            ['88%','72%','42%'],
+            ['95%','65%','38%'],
+            ['86%','80%','50%'],
+            ['90%','62%','46%'],
+            ['82%','74%','40%']
+        ];
+        const html = Array.from({length: count}, (_, i) => {
+            const [w1, w2, w3] = widths[i % widths.length];
+            return '<div class="recipe-card is-skeleton" aria-hidden="true">'
+                +   '<div class="recipe-card__media"></div>'
+                +   '<div class="recipe-card__body">'
+                +     '<div class="recipe-card__title">'
+                +       '<span class="sk-line sk-line--title" style="width:' + w1 + '"></span>'
+                +       '<span class="sk-line sk-line--title" style="width:' + w2 + ';margin-top:6px"></span>'
+                +       '<span class="sk-line sk-line--title" style="width:' + w3 + ';margin-top:6px"></span>'
+                +     '</div>'
+                +     '<span class="sk-line" style="width:42%;margin-top:14px"></span>'
+                +     '<span class="sk-line" style="width:55%;margin-top:10px"></span>'
+                +     '<div class="recipe-card__footer">'
+                +       '<span class="sk-line" style="width:36%;height:10px"></span>'
+                +       '<span class="sk-line" style="width:24%;height:16px"></span>'
+                +     '</div>'
+                +   '</div>'
+                + '</div>';
+        }).join('');
+        const list = document.getElementById('dish-list');
+        list.setAttribute('aria-busy', 'true');
+        list.innerHTML = html;
+    }
+
+    function renderDishes() {
+        const dishes = getDishesForView();
+        document.getElementById('dish-list').removeAttribute('aria-busy');
+        document.getElementById('count-label').textContent = pluralR(dishes.length);
+        if (!dishes.length) {
+            const emptyMsg = searchQuery
+                ? 'По запросу «' + escHtml(searchQuery) + '» ничего не найдено.'
+                : 'Ничего не найдено. Измените фильтры.';
+            document.getElementById('dish-list').innerHTML =
+                '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">' + emptyMsg + '</div>';
+            return;
+        }
+        const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
+        document.getElementById('dish-list').innerHTML = dishes.map(d => buildDishCard(d, diff_labels)).join('');
+        dishes.forEach(d => { updatePopStars(d.id); updateRatingRow(d.id); });
+    }
+    // Initial render deferred to loadContent().then() — показываем skeleton-карточки,
+    // пока данные не пришли. Геометрия = реальной карточке, без layout shift.
+    renderRecipeSkeletons(isAllMode ? 8 : (SKELETON_COUNTS[catId] || 4));
+
+    // ── LOAD API RATINGS for Popular filter + accurate pills ────────────
+    const _apiRatings = {}; // recipeId → { avg, count }
+    let _popularActive = false;
+
+    (async function loadApiRatings() {
+        try {
+            const res = await fetch(API_BASE + '/content/ratings');
+            if (!res.ok) return;
+            const data = await res.json();
+            Object.assign(_apiRatings, data);
+            Object.entries(_apiRatings).forEach(([rid]) => {
+                updatePopStars(rid);
+                updateRatingRow(rid);
+            });
+        } catch(e) { console.error('Ratings load error:', e); }
+    })();
+
+    function togglePopular(el) {
+        _popularActive = !_popularActive;
+        el.classList.toggle('on', _popularActive);
+        syncFilterControls();
+        renderDishes();
+    }
+
+    // Patch renderDishes to support popular sort
+    const _origRenderDishes = renderDishes;
+    renderDishes = function() {
+        if (_popularActive) {
+            const dishes = getDishesForView();
+            dishes.sort((a, b) => {
+                const ra = _apiRatings[a.id] || { avg: 0, count: 0 };
+                const rb = _apiRatings[b.id] || { avg: 0, count: 0 };
+                if (rb.avg !== ra.avg) return rb.avg - ra.avg;
+                return rb.count - ra.count;
+            });
+            // Render sorted list (copy logic from original but with pre-sorted dishes)
+            document.getElementById('dish-list').removeAttribute('aria-busy');
+            document.getElementById('count-label').textContent = pluralR(dishes.length);
+            if (!dishes.length) {
+                const emptyMsg = searchQuery
+                    ? 'По запросу «' + escHtml(searchQuery) + '» ничего не найдено.'
+                    : 'Ничего не найдено. Измените фильтры.';
+                document.getElementById('dish-list').innerHTML =
+                    '<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3)">' + emptyMsg + '</div>';
+                return;
+            }
+            const diff_labels = typeof DIFF_LABELS !== 'undefined' ? DIFF_LABELS : {};
+            document.getElementById('dish-list').innerHTML = dishes.map(d => buildDishCard(d, diff_labels)).join('');
+            dishes.forEach(d => { updatePopStars(d.id); updateRatingRow(d.id); });
+        } else {
+            _origRenderDishes();
+        }
+    };
+
+    // Restore filter UI (chips + dropdown labels) if filters were loaded from sessionStorage
+    (function syncFilterUI() {
+        const tagFilters = ['free','gluten','plant','fish','noSoy','legumes'];
+        tagFilters.forEach(function(f) {
+            if (activeFilters[f]) {
+                const chip = document.querySelector(`.filter-chip[data-f="${f}"]`);
+                if (chip) chip.classList.add('on');
+            }
+        });
+        ['time','difficulty'].forEach(function(f) {
+            if (activeFilters[f] !== undefined) {
+                const v = String(activeFilters[f]);
+                const chip = document.querySelector(`.fgroup-drop .filter-chip[data-f="${f}"][data-v="${v}"]`);
+                if (!chip) return;
+                chip.classList.add('on');
+                const btnId = f === 'time' ? 'fg-time-btn' : 'fg-diff-btn';
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.classList.add('has-value');
+                    btn.querySelector('.fg-label').textContent = chip.textContent.trim();
+                }
+            }
+        });
+        const hasMoreFilter = ['gluten','plant','fish','noSoy','legumes'].some(f => activeFilters[f]);
+        const more = document.getElementById('category-more-filters');
+        const moreBtn = document.querySelector('[aria-controls="category-more-filters"]');
+        if (hasMoreFilter && more && moreBtn) {
+            more.classList.add('is-open');
+            moreBtn.setAttribute('aria-expanded', 'true');
+        }
+        const outer = document.querySelector('.cat-page .filter-outer');
+        if (outer) outer.classList.toggle('has-active', Object.keys(activeFilters).length > 0);
+    })();
+
+    function goToRecipe(id) {
+        if (searchQuery) {
+            location.href = `recipe.html?id=${encodeURIComponent(id)}&from=search&q=${encodeURIComponent(searchQuery)}`;
+        } else if (isAllMode) {
+            location.href = `recipe.html?id=${encodeURIComponent(id)}&from=all`;
+        } else {
+            location.href = `recipe.html?id=${encodeURIComponent(id)}&from=${encodeURIComponent(catId)}`;
+        }
+    }
+
+    // showLockedMsg() централизован в data-v2.js (общий для index/category/ingredient)
+
+    function toggleFav(id) {
+        // Гость: избранное недоступно — отправляем на login.
+        if (Auth.isGuest()) { location.href = Auth._loginUrl(); return; }
+        const isNowFav = Favorites.toggle(id);
+        const btn = document.getElementById('fav-' + id);
+        if (btn) btn.classList.toggle('active', isNowFav);
+    }
+
+    // ── RATING POPUP ─────────────────────────────────────────────────────────
+    let activePopId = null;
+    function openRatingPopup(recipeId, pillEl) {
+        if (activePopId && activePopId !== recipeId) {
+            document.getElementById('rpop-' + activePopId)?.classList.remove('open');
+        }
+        const pop = document.getElementById('rpop-' + recipeId);
+        if (!pop) return;
+        pop.classList.toggle('open');
+        activePopId = pop.classList.contains('open') ? recipeId : null;
+    }
+    document.addEventListener('click', () => {
+        if (activePopId) {
+            document.getElementById('rpop-' + activePopId)?.classList.remove('open');
+            activePopId = null;
+        }
+    });
+
+    function updatePopStars(recipeId) {
+        const ar = _apiRatings[recipeId];
+        const filled = ar ? Math.round(ar.avg) : 0;
+        document.querySelectorAll(`#rpop-${recipeId} .rp-star`).forEach((s, i) =>
+            s.classList.toggle('filled', i < filled));
+    }
+    function hoverPopStar(recipeId, n) {
+        document.querySelectorAll(`#rpop-${recipeId} .rp-star`).forEach((s, i) =>
+            s.classList.toggle('filled', i < n));
+    }
+    function unhoverPopStar(recipeId) { updatePopStars(recipeId); }
+    async function rateFromPop(recipeId, stars) {
+        // Гость: оценить можно только после логина.
+        if (Auth.isGuest()) {
+            document.getElementById('rpop-' + recipeId)?.classList.remove('open');
+            activePopId = null;
+            location.href = Auth._loginUrl();
+            return;
+        }
+        document.getElementById('rpop-' + recipeId)?.classList.remove('open');
+        activePopId = null;
+        // Отправить оценку на сервер
+        try {
+            const res = await Auth.api('/content/reviews', {
+                method: 'POST',
+                body: JSON.stringify({ recipe_id: recipeId, stars, text: '' })
+            });
+            if (res.ok) {
+                showToast('Оценка сохранена ★');
+                try {
+                    const rr = await fetch(API_BASE + '/content/ratings');
+                    if (rr.ok) {
+                        const data = await rr.json();
+                        Object.assign(_apiRatings, data);
+                        updatePopStars(recipeId);
+                        updateRatingRow(recipeId);
+                    }
+                } catch {}
+
+            } else {
+                showToast('Не удалось сохранить оценку');
+            }
+        } catch {
+            showToast('Ошибка сети');
+        }
+    }
+
+    // ── COMMENTS MODAL (API-based, synced with recipe.html) ─────────────────
+    let commentsRecipeId = null;
+    let _commentStars = 0;
+    const _reviewsCache = {}; // recipeId → [reviews]
+
+    function openComments(recipeId) {
+        commentsRecipeId = recipeId;
+        const r = RECIPES[recipeId] || {};
+        document.getElementById('comments-title').textContent = `💬 ${r.name || 'Отзывы'}`;
+        document.getElementById('comments-body').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-3)">Загрузка…</div>';
+        document.getElementById('comments-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        loadCommentsFromAPI(recipeId);
+    }
+    function closeComments() {
+        document.getElementById('comments-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+        commentsRecipeId = null;
+    }
+    function closeCommentsIfOutside(e) {
+        if (e.target === document.getElementById('comments-overlay')) closeComments();
+    }
+
+    async function loadCommentsFromAPI(recipeId) {
+        try {
+            const res = await fetch(API_BASE + '/content/reviews/' + encodeURIComponent(recipeId));
+            if (!res.ok) throw new Error('API error');
+            const reviews = await res.json();
+            _reviewsCache[recipeId] = reviews;
+            renderCommentsBody(reviews);
+            updateCommentBadge(recipeId, reviews.length);
+        } catch (e) {
+            console.error('Reviews load error:', e);
+            document.getElementById('comments-body').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-3)">Не удалось загрузить отзывы</div>';
+        }
+    }
+
+    function renderCommentsBody(reviews) {
+        const user = Auth.getUser();
+        const curUserId = user ? user.id : null;
+        const isAdmin = user && user.role === 'admin';
+        const hasOwnReview = reviews.some(rv => curUserId && rv.userId === curUserId);
+
+        function starsHtml(n) {
+            return [1,2,3,4,5].map(i =>
+                `<span class="star${i <= n ? ' filled' : ''}" style="font-size:14px;${i <= n ? 'color:#f5a623' : 'color:#ddd'}">★</span>`
+            ).join('');
+        }
+        function fmtDate(ts) {
+            const d = new Date(ts);
+            return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        const list = reviews.length
+            ? `<div class="comments-list">${reviews.map(rv => {
+                const canDelete = isAdmin || (curUserId && rv.userId === curUserId);
+                const avatarHtml = rv.avatar
+                    ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+                      + `<span class="review-avatar-fallback" style="display:none;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
+                    : `<span style="width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
+                return `<div class="comment-item" style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)">
+                    <div style="flex-shrink:0">${avatarHtml}</div>
+                    <div style="flex:1;min-width:0">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+                            <span style="font-weight:700;font-size:14px;color:var(--text)">${escHtml(rv.author)}</span>
+                            <div style="display:flex;align-items:center;gap:6px">
+                                <span style="font-size:11px;color:var(--text-3)">${fmtDate(rv.createdAt)}</span>
+                                ${canDelete ? `<button style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px" data-category-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? 'true' : 'false'}" title="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>` : ''}
+                            </div>
+                        </div>
+                        <div style="margin-bottom:4px">${starsHtml(rv.stars)}</div>
+                        ${rv.text ? `<div style="font-size:13px;color:var(--text);line-height:1.5">${escHtml(rv.text)}</div>` : ''}
+                    </div>
+                </div>`;
+            }).join('')}</div>`
+            : `<div style="text-align:center;padding:24px 0;color:var(--text-3);font-size:14px">Отзывов ещё нет. Поделитесь своим впечатлением.</div>`;
+
+        _commentStars = 0;
+        const formHtml = Auth.isLoggedIn() && !hasOwnReview
+            ? `<div class="comments-form" style="margin-top:14px">
+                <div class="c-star-row">
+                    <label>Оценка:</label>
+                    ${[1,2,3,4,5].map(i => `<span class="cstar" data-category-action="select-star" data-n="${i}">★</span>`).join('')}
+                </div>
+                <textarea class="c-input" id="c-text" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." rows="3"></textarea>
+                <button class="btn btn-orange btn-full" id="c-submit-btn" onclick="submitComment()">Отправить</button>
+            </div>`
+            : Auth.isLoggedIn() && hasOwnReview
+                ? `<div style="text-align:center;padding:16px;color:var(--text-3);font-size:13px">Вы уже оставили отзыв на этот рецепт</div>`
+                : `<div style="text-align:center;padding:16px;color:var(--text-3);font-size:13px"><a href="${Auth._loginUrl()}" style="color:var(--accent);text-decoration:underline">Войдите</a>, чтобы оставить отзыв</div>`;
+
+        document.getElementById('comments-body').innerHTML = list + formHtml;
+    }
+
+    function selectStar(n) {
+        _commentStars = n;
+        document.querySelectorAll('#comments-body .cstar').forEach((s, i) =>
+            s.classList.toggle('on', i < n));
+    }
+
+    window.deleteCatReview = async function(id, isAdmin) {
+        const ok = await showAppConfirm({
+            title: 'Удалить отзыв?',
+            text: 'Это действие нельзя отменить.',
+            confirmText: 'Удалить',
+            cancelText: 'Отмена',
+            danger: true
+        });
+        if (!ok) return;
+        try {
+            const endpoint = isAdmin ? '/admin/reviews/' : '/content/reviews/';
+            const res = await Auth.api(endpoint + id, { method: 'DELETE' });
+            if (!res.ok) { showToast('Не удалось удалить'); return; }
+            showToast('Отзыв удалён');
+            loadCommentsFromAPI(commentsRecipeId);
+        } catch (e) { showToast('Ошибка сети'); }
+    };
+
+    async function submitComment() {
+        if (!_commentStars) { showToast('Выберите оценку'); return; }
+        const text = (document.getElementById('c-text')?.value || '').trim();
+
+        const btn = document.getElementById('c-submit-btn');
+        if (btn) { btn.disabled = true; btn.textContent = '...'; }
+        try {
+            const body = { recipe_id: commentsRecipeId, stars: _commentStars, text: text || '⭐' };
+            const res = await Auth.api('/content/reviews', {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                showToast(err.error || 'Ошибка');
+                return;
+            }
+            showToast('Отзыв сохранён!');
+            loadCommentsFromAPI(commentsRecipeId);
+        } catch (e) {
+            showToast('Ошибка сети');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'Отправить'; }
+        }
+    }
+
+    function updateCommentBadge(recipeId, cnt) {
+        const cbtn = document.getElementById('cbtn-' + recipeId);
+        if (!cbtn) return;
+        let badge = cbtn.querySelector('.photo-comment-badge');
+        if (cnt > 0) {
+            if (!badge) { badge = document.createElement('div'); badge.className = 'photo-comment-badge'; cbtn.appendChild(badge); }
+            badge.textContent = cnt;
+        } else if (badge) {
+            badge.remove();
+        }
+    }
+
+    function escHtml(s) {
+        return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    // ── FILTER GROUPS ─────────────────────────────────────────────────────────
+    let openFGroup = null;
+
+    function toggleFGroup(btn) {
+        const dropId = btn.dataset.drop;
+        const isOpen = openFGroup === dropId;
+        closeFGroups();
+        if (!isOpen) {
+            const drop = document.getElementById(dropId);
+            const rect = btn.getBoundingClientRect();
+            drop.style.top  = (rect.bottom + window.scrollY + 4) + 'px';
+            drop.style.left = Math.max(8, rect.left) + 'px';
+            drop.style.display = 'flex';
+            btn.classList.add('open');
+            openFGroup = dropId;
+        }
+    }
+    function closeFGroups() {
+        document.querySelectorAll('.fgroup-drop').forEach(d => d.style.display = 'none');
+        document.querySelectorAll('.fgroup-btn.open').forEach(b => b.classList.remove('open'));
+        openFGroup = null;
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('[data-drop]') && !e.target.closest('.fgroup-drop')) closeFGroups();
+    });
+
+    function pickFilter(el, btnId) {
+        const f = el.dataset.f, v = el.dataset.v;
+        const btn   = document.getElementById(btnId);
+        const drop  = document.getElementById(btn.dataset.drop);
+        const alreadyOn = el.classList.contains('on');
+        drop.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+        if (alreadyOn) {
+            delete activeFilters[f];
+            btn.classList.remove('has-value');
+            btn.querySelector('.fg-label').textContent = btn.dataset.label;
+        } else {
+            el.classList.add('on');
+            activeFilters[f] = f === 'time' ? (v === 'over60' ? 'over60' : +v) : v;
+            btn.classList.add('has-value');
+            btn.querySelector('.fg-label').textContent = el.textContent.trim();
+        }
+        closeFGroups();
+        syncFilterControls();
+        renderDishes();
+    }
+
+    function toggleTagFilter(el) {
+        const f = el.dataset.f;
+        if (el.classList.contains('on')) { el.classList.remove('on'); delete activeFilters[f]; }
+        else { el.classList.add('on'); activeFilters[f] = true; }
+        syncFilterControls();
+        renderDishes();
+    }
+
+    function toggleMoreFilters(btn) {
+        const panel = document.getElementById(btn.getAttribute('aria-controls'));
+        const open = btn.getAttribute('aria-expanded') !== 'true';
+        btn.setAttribute('aria-expanded', String(open));
+        if (panel) panel.classList.toggle('is-open', open);
+    }
+
+    function syncFilterControls() {
+        const outer = document.querySelector('.cat-page .filter-outer');
+        if (outer) outer.classList.toggle('has-active', Object.keys(activeFilters).length > 0 || _popularActive);
+    }
+
+    function clearFilters() {
+        Object.keys(activeFilters).forEach(k => delete activeFilters[k]);
+        _popularActive = false;
+        const popularChip = document.querySelector('.filter-chip[data-f="popular"]');
+        if (popularChip) popularChip.classList.remove('on');
+        document.querySelectorAll('.filter-chip.on').forEach(c => c.classList.remove('on'));
+        document.querySelectorAll('.fgroup-btn').forEach(b => {
+            b.classList.remove('has-value');
+            b.querySelector('.fg-label').textContent = b.dataset.label;
+        });
+        closeFGroups();
+        syncFilterControls();
+        renderDishes();
+    }
+
+    // My plate modal (editorial V1)
+    function openPlate() {
+        // Гость: тарелка — фича только для зарегистрированных, ведём на login.
+        if (Auth.isGuest()) { location.href = Auth._loginUrl(); return; }
+        const items = Plate.get();
+        const body = document.getElementById('plate-body');
+        if (!items.length) {
+            body.innerHTML = `<div class="pv1-empty">
+                <div class="pv1-eyebrow">Пока пусто</div>
+                <h2 class="pv1-headline">Соберите первый приём пищи</h2>
+                <div class="pv1-divider"></div>
+                <p class="pv1-sub">Выберите рецепт из категории — и он попадёт сюда. КБЖУ пересчитаются автоматически.</p>
+                <button class="pv1-cta" onclick="closePlate()">Продолжить выбирать</button>
+            </div>`;
+        } else {
+            const t = Plate.totals();
+            const list = items.map((item, i) => {
+                const safeName = escHtml(String(item.name || ''));
+                const nameHtml = item.recipeId
+                    ? `<a class="pv1-item-name is-link" href="recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1">${safeName}</a>`
+                    : `<div class="pv1-item-name">${safeName}</div>`;
+                return `<div class="pv1-item">
+                    ${item.photo
+                        ? `<img class="pv1-item-photo" src="${escHtml(String(item.photo))}" alt="">`
+                        : `<div class="pv1-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
+                    <div class="pv1-item-main">
+                        ${nameHtml}
+                        <div class="pv1-item-meta">${Number(item.kcal) || 0} ккал · Б ${Number(item.protein) || 0} · Ж ${Number(item.fat) || 0} · У ${Number(item.carbs) || 0} · Кл ${Number(item.fiber) || 0}</div>
+                    </div>
+                    <button class="pv1-item-del" data-category-action="remove-plate-item" data-index="${Number(i)}" aria-label="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
+                </div>`;
+            }).join('');
+            body.innerHTML = `<div class="pv1-items">${list}</div>
+                <div class="pv1-totals">
+                    <div class="pv1-totals-label">Итого за приём</div>
+                    <div class="pv1-totals-grid">
+                        <div class="pv1-tot is-kcal"><div class="pv1-tot-num">${Number(t.kcal) || 0}</div><div class="pv1-tot-key">Ккал</div></div>
+                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.protein) || 0}</div><div class="pv1-tot-key">Белки, г</div></div>
+                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.fat) || 0}</div><div class="pv1-tot-key">Жиры, г</div></div>
+                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.carbs) || 0}</div><div class="pv1-tot-key">Углев., г</div></div>
+                        <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.fiber) || 0}</div><div class="pv1-tot-key">Клетч., г</div></div>
+                    </div>
+                </div>
+                ${plateMealTypePickerHtml()}
+                <div class="pv1-actions">
+                    <div class="pv1-actions-row">
+                        <button class="pv1-btn" onclick="location.href='index.html'">← На главную</button>
+                        <button class="pv1-btn" onclick="shareShoppingList()">Список продуктов</button>
+                    </div>
+                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateCat()">Записать тарелку в журнал</button>
+                </div>`;
+        }
+        document.getElementById('plate-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closePlate() {
+        document.getElementById('plate-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
+    function removeItemCat(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
+    function savePlateCat() {
+        if (!Plate.count()) return;
+        Plate.saveHistory(getSelectedPlateMealType());
+        updatePlateIcon();
+        closePlate();
+        showToast('Тарелка записана в журнал 🎉');
+    }
+</script>
+<script src="tawk-chat-modal.js?v=20260711-chat-fab-footer"></script>
+</body>
+</html>

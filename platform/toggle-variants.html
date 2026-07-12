@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Варианты переключателей — SmartPlate</title>
+  <style>
+    :root { --ink:#171717; --muted:#777; --line:#dfdfdf; --accent:#ef3f0b; --paper:#fff; --soft:#f7f4ef; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#eeeae4; color:var(--ink); font-family:Arial,sans-serif; }
+    main { width:min(920px,calc(100% - 32px)); margin:36px auto; background:var(--paper); padding:34px; }
+    h1 { margin:0 0 8px; font-family:Georgia,serif; font-size:30px; }
+    .lead { margin:0 0 30px; color:var(--muted); font-size:14px; }
+    .variants { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+    .card { border:1px solid var(--line); padding:22px; }
+    .card h2 { margin:0 0 5px; font:700 12px/1.2 Arial,sans-serif; letter-spacing:.12em; text-transform:uppercase; }
+    .card p { min-height:34px; margin:0 0 18px; color:var(--muted); font-size:12px; line-height:1.4; }
+    .sample-row { display:flex; align-items:center; justify-content:space-between; min-height:48px; border-top:1px solid #eee; border-bottom:1px solid #eee; font-size:14px; }
+    .switch { position:relative; display:inline-block; flex:0 0 auto; cursor:pointer; }
+    .switch input { position:absolute; opacity:0; pointer-events:none; }
+    .switch span { display:block; position:relative; transition:.2s ease; }
+    .switch span::after { content:""; position:absolute; background:#fff; transition:.2s ease; }
+    .v1 span { width:56px; height:28px; background:#ccc; border:1px solid #999; }
+    .v1 span::after { width:22px; height:22px; top:2px; left:2px; }
+    .v1 input:checked + span { background:var(--accent); border-color:var(--accent); }
+    .v1 input:checked + span::after { transform:translateX(28px); }
+    .v2 span { width:44px; height:24px; background:#fff; border:1px solid #999; }
+    .v2 span::after { width:16px; height:16px; top:3px; left:3px; background:#999; }
+    .v2 input:checked + span { border-color:var(--accent); }
+    .v2 input:checked + span::after { background:var(--accent); transform:translateX(20px); }
+    .v3 span { width:48px; height:26px; border-radius:20px; background:#d1d1d1; }
+    .v3 span::after { width:20px; height:20px; border-radius:50%; top:3px; left:3px; box-shadow:0 1px 3px #7778; }
+    .v3 input:checked + span { background:var(--accent); }
+    .v3 input:checked + span::after { transform:translateX(22px); }
+    .v4 span { width:28px; height:28px; border:1px solid #999; background:#fff; }
+    .v4 span::after { width:12px; height:7px; left:7px; top:7px; background:transparent; border-left:2px solid #fff; border-bottom:2px solid #fff; transform:rotate(-45deg) scale(0); }
+    .v4 input:checked + span { background:var(--accent); border-color:var(--accent); }
+    .v4 input:checked + span::after { transform:rotate(-45deg) scale(1); }
+    .v5 span { width:48px; height:26px; background:var(--soft); border:1px solid #bbb; }
+    .v5 span::before { content:"НЕТ"; position:absolute; right:5px; top:8px; color:#777; font:700 8px Arial,sans-serif; }
+    .v5 span::after { width:20px; height:20px; top:2px; left:2px; background:#777; }
+    .v5 input:checked + span { border-color:var(--accent); }
+    .v5 input:checked + span::before { content:"ДА"; left:6px; right:auto; color:var(--accent); }
+    .v5 input:checked + span::after { background:var(--accent); transform:translateX(22px); }
+    .wide { grid-column:1/-1; }
+    .recommend { display:inline-block; margin-top:14px; padding:6px 8px; background:#fff1eb; color:var(--accent); font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    @media (max-width:650px) { main{padding:24px 18px;margin:16px auto}.variants{grid-template-columns:1fr}.wide{grid-column:auto} }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Варианты переключателей</h1>
+  <p class="lead">Все варианты рабочие — нажмите, чтобы увидеть включённое состояние.</p>
+  <div class="variants">
+    <section class="card"><h2>01 — Текущий</h2><p>Крупный прямоугольный переключатель.</p><div class="sample-row"><span>Только вегетарианские</span><label class="switch v1"><input type="checkbox"><span></span></label></div></section>
+    <section class="card"><h2>02 — Компактный</h2><p>Та же строгая геометрия, но легче и аккуратнее.</p><div class="sample-row"><span>Только вегетарианские</span><label class="switch v2"><input type="checkbox"><span></span></label></div><span class="recommend">Мой выбор</span></section>
+    <section class="card"><h2>03 — Скруглённый</h2><p>Привычный системный вид, максимально понятный.</p><div class="sample-row"><span>Только вегетарианские</span><label class="switch v3"><input type="checkbox"><span></span></label></div></section>
+    <section class="card"><h2>04 — Чекбокс</h2><p>Самый спокойный вариант для длинного списка фильтров.</p><div class="sample-row"><span>Только вегетарианские</span><label class="switch v4"><input type="checkbox"><span></span></label></div></section>
+    <section class="card wide"><h2>05 — С подписями</h2><p>Состояние видно не только по цвету и положению.</p><div class="sample-row"><span>Только вегетарианские</span><label class="switch v5"><input type="checkbox"><span></span></label></div></section>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ — Умная тарелка</title>
+    <link rel="icon" type="image/svg+xml" href="plate-favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --accent: #e8400a;
+            --accent-l: #fff2ed;
+            --green: #16a34a;
+            --green-l: #f0fdf4;
+            --yellow: #ca8a04;
+            --yellow-l: #fefce8;
+            --red: #dc2626;
+            --red-l: #fef2f2;
+            --blue: #2563eb;
+            --blue-l: #eff6ff;
+            --text: #111;
+            --text-2: #444;
+            --text-3: #777;
+            --border: #e5e5e5;
+            --bg: #f8f8f8;
+            --card: #fff;
+        }
+
+        body {
+            font-family: 'Montserrat', system-ui, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            min-height: 100dvh;
+        }
+
+        /* ── Top bar ── */
+        .adm-topbar {
+            background: var(--card);
+            border-bottom: 2px solid var(--accent);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .adm-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .adm-topbar-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .adm-topbar-title span { color: var(--accent); }
+
+        .adm-badge {
+            background: var(--accent);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .adm-topbar-user {
+            font-size: 13px;
+            color: var(--text-2);
+        }
+
+        .adm-topbar-logout {
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 12px;
+        }
+
+        /* ── Tabs ── */
+        .adm-tabs {
+            display: flex;
+            gap: 0;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+        }
+
+        .adm-tab {
+            padding: 14px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-3);
+            cursor: pointer;
+            border: none;
+            background: none;
+            border-bottom: 2px solid transparent;
+            transition: all .15s;
+        }
+
+        .adm-tab:hover { color: var(--text); }
+
+        .adm-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .adm-tab-badge {
+            background: var(--red);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 10px;
+            margin-left: 6px;
+        }
+
+        /* ── Main ── */
+        .adm-main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* ── Stats cards ── */
+        .adm-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .adm-stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .adm-stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 6px;
+        }
+
+        .adm-stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .adm-stat-card.accent { border-left: 3px solid var(--accent); }
+        .adm-stat-card.green { border-left: 3px solid var(--green); }
+        .adm-stat-card.yellow { border-left: 3px solid var(--yellow); }
+        .adm-stat-card.red { border-left: 3px solid var(--red); }
+
+        /* ── Section ── */
+        .adm-section {
+            display: none;
+        }
+
+        .adm-section.active { display: block; }
+
+        .adm-section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        /* ── Table ── */
+        .adm-table-wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .adm-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .adm-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--text-3);
+            background: #fafafa;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .adm-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .adm-table tr:last-child td { border-bottom: none; }
+
+        .adm-table tr:hover td { background: #fafafa; }
+
+        /* Status badges */
+        .st-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .st-trial { background: var(--blue-l); color: var(--blue); }
+        .st-active { background: var(--green-l); color: var(--green); }
+        .st-expired { background: var(--yellow-l); color: var(--yellow); }
+        .st-blocked { background: var(--red-l); color: var(--red); }
+        .st-cancelled { background: #f5f5f5; color: var(--text-3); }
+        .st-pending { background: var(--yellow-l); color: var(--yellow); }
+        .st-confirmed { background: var(--green-l); color: var(--green); }
+        .st-rejected { background: var(--red-l); color: var(--red); }
+
+        /* Recipe status badges */
+        .rbadge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .rbadge-draft { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+        .rbadge-free  { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .rbadge-trial { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+        .rbadge-pro   { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
+
+        /* Action buttons */
+        .adm-btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all .15s;
+        }
+
+        .adm-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+        .adm-btn-confirm {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .adm-btn-confirm:hover:not(:disabled) { background: #15803d; }
+
+        .adm-btn-reject {
+            background: var(--red-l);
+            color: var(--red);
+            margin-left: 6px;
+        }
+
+        .adm-btn-reject:hover:not(:disabled) { background: #fecaca; }
+
+        .adm-btn-block {
+            background: var(--red-l);
+            color: var(--red);
+        }
+
+        .adm-btn-block:hover:not(:disabled) { background: #fecaca; }
+
+        .adm-btn-delete {
+            background: var(--red-l);
+            color: var(--red);
+            margin-left: 6px;
+        }
+
+        .adm-btn-delete:hover:not(:disabled) { background: #fecaca; }
+
+        .adm-btn-unblock {
+            background: var(--green-l);
+            color: var(--green);
+        }
+
+        .adm-btn-unblock:hover:not(:disabled) { background: #dcfce7; }
+
+        .adm-btn-extend {
+            background: var(--green-l);
+            color: var(--green);
+            margin-right: 6px;
+        }
+
+        .adm-btn-extend:hover:not(:disabled) { background: #dcfce7; }
+
+        .adm-btn-back {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            margin-bottom: 16px;
+        }
+
+        /* ── Search ── */
+        .adm-search {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        .adm-search:focus { border-color: var(--accent); }
+
+        /* ── Empty state ── */
+        .adm-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-3);
+            font-size: 14px;
+        }
+
+        /* ── Loading ── */
+        .adm-loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-3);
+        }
+
+        .adm-spinner {
+            display: inline-block;
+            width: 24px; height: 24px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin .6s linear infinite;
+            margin-bottom: 8px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Modal ── */
+        .adm-modal-bg {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.4);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .adm-modal-bg.open { display: flex; }
+
+        .adm-modal {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 28px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 8px 40px rgba(0,0,0,.15);
+        }
+
+        .adm-modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .adm-modal-field {
+            margin-bottom: 14px;
+        }
+
+        .adm-modal-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-2);
+            margin-bottom: 4px;
+        }
+
+        .adm-modal-input, .adm-modal-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .adm-modal-input:focus, .adm-modal-select:focus { border-color: var(--accent); }
+
+        .adm-modal-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .adm-modal-actions .adm-btn { padding: 10px 20px; font-size: 14px; }
+
+        /* ── Toast ── */
+        .adm-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 300;
+            transition: transform .3s ease;
+            box-shadow: 0 4px 16px rgba(0,0,0,.2);
+        }
+
+        .adm-toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* ── Date format ── */
+        .adm-date { white-space: nowrap; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .adm-main { padding: 16px; }
+            .adm-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .adm-table { font-size: 12px; }
+            .adm-table th, .adm-table td { padding: 10px 10px; }
+            .adm-tabs { padding: 0 12px; overflow-x: auto; }
+            .adm-tab { padding: 12px 14px; font-size: 13px; white-space: nowrap; }
+        }
+
+        @media (max-width: 480px) {
+            .adm-stats { grid-template-columns: 1fr 1fr; }
+            .adm-stat-num { font-size: 26px; }
+            .adm-topbar { padding: 12px 16px; }
+            .adm-topbar-title { font-size: 17px; }
+        }
+
+        /* SmartPlate admin refresh: visual-only overrides, keep DOM/API intact. */
+        :root {
+            --accent: #e8400a;
+            --accent-l: #fff2ed;
+            --green: #3f7b4a;
+            --green-l: #edf6ee;
+            --yellow: #a46b17;
+            --yellow-l: #fff8e7;
+            --red: #b42318;
+            --red-l: #fff1ee;
+            --blue: #2f5f9f;
+            --blue-l: #eef5ff;
+            --ink: #15130f;
+            --text: #15130f;
+            --text-2: #4f493f;
+            --text-3: #8a8175;
+            --line: #ddd6cb;
+            --border: #e6ded2;
+            --bg: #f7f3ec;
+            --card: #fffdf8;
+            --shadow-soft: 0 18px 48px rgba(64, 45, 28, .08);
+            --shadow-tight: 0 8px 24px rgba(64, 45, 28, .07);
+        }
+
+        body {
+            color: var(--text);
+            background:
+                linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,0) 210px),
+                radial-gradient(circle at top left, rgba(232,64,10,.08), transparent 340px),
+                var(--bg);
+            line-height: 1.45;
+        }
+
+        button,
+        input,
+        select,
+        textarea { font: inherit; }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible,
+        a:focus-visible {
+            outline: 2px solid rgba(232,64,10,.35);
+            outline-offset: 2px;
+        }
+
+        .adm-topbar {
+            min-height: 68px;
+            padding: 14px clamp(16px, 3vw, 32px);
+            background: rgba(255,253,248,.94);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(64,45,28,.06);
+            backdrop-filter: blur(16px);
+        }
+
+        .adm-topbar-left::before {
+            content: "";
+            flex: 0 0 auto;
+            width: 34px;
+            height: 34px;
+            margin-right: 2px;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            background:
+                linear-gradient(90deg, transparent 49%, rgba(232,64,10,.34) 50%, transparent 51%),
+                linear-gradient(0deg, transparent 49%, rgba(63,123,74,.34) 50%, transparent 51%),
+                #fff;
+            box-shadow: inset 0 0 0 7px #fffdf8, 0 6px 16px rgba(64,45,28,.08);
+        }
+
+        .adm-topbar-left { gap: 10px; }
+
+        .adm-topbar-title {
+            font-size: 19px;
+            letter-spacing: 0;
+        }
+
+        .adm-badge {
+            border-radius: 999px;
+            background: var(--ink);
+            padding: 5px 9px;
+            letter-spacing: .12em;
+        }
+
+        .adm-topbar-user {
+            display: inline-flex;
+            align-items: center;
+            min-height: 34px;
+            padding: 0 11px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: #fff;
+            color: var(--text-2);
+            font-size: 12px;
+            font-weight: 600;
+            max-width: min(42vw, 360px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+        }
+
+        .adm-topbar-logout {
+            margin-left: 8px;
+            min-height: 34px;
+            padding: 0 12px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: #fff;
+            color: var(--text);
+            transition: border-color .16s ease, color .16s ease, background .16s ease;
+        }
+
+        .adm-topbar-logout:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-l);
+        }
+
+        .adm-tabs {
+            position: sticky;
+            top: 68px;
+            z-index: 90;
+            gap: 6px;
+            padding: 10px clamp(16px, 3vw, 32px);
+            background: rgba(247,243,236,.92);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            scrollbar-width: thin;
+            backdrop-filter: blur(16px);
+        }
+
+        .adm-tab {
+            flex: 0 0 auto;
+            min-height: 38px;
+            padding: 9px 13px;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            color: var(--text-2);
+            background: transparent;
+            font-size: 12px;
+            letter-spacing: .02em;
+            white-space: nowrap;
+            transition: background .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease;
+        }
+
+        .adm-tab:hover {
+            color: var(--text);
+            background: rgba(255,255,255,.72);
+            border-color: var(--border);
+        }
+
+        .adm-tab.active {
+            color: var(--accent);
+            border-color: rgba(232,64,10,.24);
+            background: #fff;
+            box-shadow: var(--shadow-tight);
+        }
+
+        .adm-tab-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: var(--accent);
+            font-size: 10px;
+        }
+
+        .adm-main {
+            width: min(100%, 1240px);
+            max-width: 1240px;
+            padding: 28px clamp(16px, 3vw, 32px) 56px;
+        }
+
+        .adm-stats {
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .adm-stat-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            border-color: var(--border);
+            background: linear-gradient(180deg, #fffdf8, #fffaf2);
+            padding: 18px 18px 16px;
+            box-shadow: var(--shadow-tight);
+        }
+
+        .adm-stat-card::after {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto;
+            height: 3px;
+            background: var(--text);
+            opacity: .12;
+        }
+
+        .adm-stat-card.accent::after { background: var(--accent); opacity: 1; }
+        .adm-stat-card.green::after { background: var(--green); opacity: 1; }
+        .adm-stat-card.yellow::after { background: var(--yellow); opacity: 1; }
+        .adm-stat-card.red::after { background: var(--red); opacity: 1; }
+        .adm-stat-card.accent,
+        .adm-stat-card.green,
+        .adm-stat-card.yellow,
+        .adm-stat-card.red { border-left: 1px solid var(--border); }
+
+        .adm-stat-label {
+            color: var(--text-3);
+            font-size: 10.5px;
+            letter-spacing: .1em;
+        }
+
+        .adm-stat-num {
+            color: var(--text);
+            font-size: 34px;
+            line-height: 1;
+        }
+
+        .adm-section-title {
+            font-size: 24px;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            color: var(--text);
+        }
+
+        .adm-table-wrap {
+            border-radius: 8px;
+            border-color: var(--border);
+            background: var(--card);
+            box-shadow: var(--shadow-soft);
+            overflow-x: auto;
+        }
+
+        .adm-table {
+            min-width: 760px;
+            background: var(--card);
+        }
+
+        .adm-table th {
+            padding: 13px 16px;
+            background: #f4eee5;
+            color: #756b5f;
+            font-size: 10px;
+            letter-spacing: .1em;
+        }
+
+        .adm-table td {
+            padding: 14px 16px;
+            border-bottom-color: #eee6dc;
+        }
+
+        .adm-table tr:hover td { background: #fff8ee; }
+
+        .st-badge,
+        .rbadge {
+            border-radius: 999px;
+            padding: 4px 10px;
+            line-height: 1.1;
+        }
+
+        .rbadge-draft { background: #f1eee8; color: #70675b; border-color: #ddd6cb; }
+        .rbadge-free { background: var(--green-l); color: #315f39; border-color: rgba(63,123,74,.28); }
+        .rbadge-trial { background: var(--blue-l); color: #2f5f9f; border-color: rgba(47,95,159,.28); }
+        .rbadge-pro { background: var(--accent-l); color: var(--accent); border-color: rgba(232,64,10,.28); }
+
+        .adm-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 32px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: #fff;
+            color: var(--text);
+            font-weight: 700;
+            transition: background .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease, transform .12s ease;
+        }
+
+        .adm-btn:hover:not(:disabled) {
+            border-color: rgba(232,64,10,.32);
+            color: var(--accent);
+            box-shadow: 0 8px 18px rgba(64,45,28,.08);
+        }
+
+        .adm-btn:active:not(:disabled) { transform: translateY(1px); }
+
+        .adm-btn-confirm {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .adm-btn-confirm:hover:not(:disabled) {
+            background: #c93308;
+            color: #fff;
+        }
+
+        .adm-btn-reject,
+        .adm-btn-block,
+        .adm-btn-delete {
+            border-color: rgba(180,35,24,.18);
+            background: var(--red-l);
+            color: var(--red);
+        }
+
+        .adm-btn-unblock,
+        .adm-btn-extend {
+            border-color: rgba(63,123,74,.18);
+            background: var(--green-l);
+            color: var(--green);
+        }
+
+        .adm-search,
+        .adm-modal-input,
+        .adm-modal-select {
+            border-radius: 8px;
+            border-color: var(--border);
+            background: #fff;
+            color: var(--text);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+        }
+
+        .adm-search {
+            min-height: 42px;
+            max-width: 360px;
+        }
+
+        .adm-search::placeholder,
+        .adm-modal-input::placeholder { color: #aaa196; }
+
+        .adm-search:focus,
+        .adm-modal-input:focus,
+        .adm-modal-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(232,64,10,.1);
+        }
+
+        .adm-empty,
+        .adm-loading {
+            color: var(--text-3);
+            background: rgba(255,253,248,.58);
+        }
+
+        .adm-spinner {
+            border-color: #eadfd1;
+            border-top-color: var(--accent);
+        }
+
+        .adm-modal-bg {
+            background: rgba(21,19,15,.42);
+            padding: 16px;
+            backdrop-filter: blur(8px);
+        }
+
+        .adm-modal {
+            max-height: calc(100dvh - 32px);
+            overflow: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            box-shadow: 0 28px 80px rgba(31,22,14,.24);
+        }
+
+        .adm-modal-title {
+            font-size: 22px;
+            line-height: 1.15;
+        }
+
+        .adm-modal-label {
+            color: var(--text-2);
+            font-size: 11px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .adm-modal-actions {
+            position: sticky;
+            bottom: 0;
+            margin: 20px -2px -2px;
+            padding-top: 12px;
+            background: linear-gradient(180deg, rgba(255,253,248,0), var(--card) 34%);
+        }
+
+        .adm-toast {
+            border-radius: 999px;
+            background: var(--ink);
+            box-shadow: 0 16px 36px rgba(21,19,15,.22);
+        }
+
+        .icon-x {
+            width: 14px;
+            height: 14px;
+            display: block;
+        }
+
+        #news-list > div,
+        #recipes-list > div,
+        #categories-list > div,
+        #feedback-list > div:not(.adm-empty) {
+            border-radius: 8px !important;
+            border-color: var(--border) !important;
+            background: var(--card) !important;
+            box-shadow: 0 8px 22px rgba(64,45,28,.05);
+        }
+
+        #news-list > div:hover,
+        #recipes-list > div:hover,
+        #categories-list > div:hover,
+        #feedback-list > div:not(.adm-empty):hover {
+            border-color: rgba(232,64,10,.26) !important;
+            background: #fffaf2 !important;
+        }
+
+        @media (max-width: 768px) {
+            .adm-topbar {
+                min-height: auto;
+                align-items: flex-start;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .adm-topbar > div:last-child {
+                width: 100%;
+                display: flex;
+                gap: 8px;
+            }
+
+            .adm-topbar-user {
+                flex: 1 1 auto;
+                max-width: none;
+            }
+
+            .adm-tabs { top: 95px; }
+            .adm-main { padding-top: 20px; }
+            .adm-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .adm-stat-card { padding: 15px; }
+            .adm-section-title { font-size: 21px; }
+            .adm-table th,
+            .adm-table td { padding: 12px; }
+        }
+
+        @media (max-width: 480px) {
+            .adm-topbar-title { font-size: 18px; }
+            .adm-tabs { top: 106px; padding-block: 8px; }
+            .adm-tab { min-height: 34px; padding: 8px 11px; }
+            .adm-stat-num { font-size: 28px; }
+            .adm-modal { width: 100%; padding: 22px; }
+            .adm-modal-actions { flex-wrap: wrap; }
+            .adm-modal-actions .adm-btn { flex: 1 1 auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="adm-topbar">
+    <div class="adm-topbar-left">
+        <div class="adm-topbar-title">Умная <span>тарелка</span></div>
+        <div class="adm-badge">Admin</div>
+    </div>
+    <div>
+        <span class="adm-topbar-user" id="admin-email"></span>
+        <button class="adm-topbar-logout" onclick="doLogout()">Выйти</button>
+    </div>
+</div>
+
+<div class="adm-tabs">
+    <button class="adm-tab active" data-tab="dashboard" onclick="switchTab('dashboard')">Дашборд</button>
+    <button class="adm-tab" data-tab="users" onclick="switchTab('users')">Пользователи</button>
+    <button class="adm-tab" data-tab="payments" onclick="switchTab('payments')">
+        Платежи <span class="adm-tab-badge" id="pending-badge" style="display:none">0</span>
+    </button>
+    <button class="adm-tab" data-tab="news" onclick="switchTab('news')">Новости</button>
+    <button class="adm-tab" data-tab="recipes" onclick="switchTab('recipes')">Рецепты</button>
+    <button class="adm-tab" data-tab="video-requests" onclick="switchTab('video-requests')">
+        Видеозапросы <span class="adm-tab-badge" id="video-requests-badge" style="display:none">0</span>
+    </button>
+    <button class="adm-tab" data-tab="categories" onclick="switchTab('categories')">Категории</button>
+    <button class="adm-tab" data-tab="feedback" onclick="switchTab('feedback')">
+        Обращения <span class="adm-tab-badge" id="feedback-badge" style="display:none">0</span>
+    </button>
+    <button class="adm-tab" data-tab="audit" onclick="switchTab('audit')">Аудит</button>
+</div>
+
+<div class="adm-main">
+
+    <!-- Dashboard -->
+    <div class="adm-section active" id="sec-dashboard">
+        <div class="adm-stats" id="stats-grid">
+            <div class="adm-loading"><div class="adm-spinner"></div><br>Загрузка...</div>
+        </div>
+    </div>
+
+    <!-- Users -->
+    <div class="adm-section" id="sec-users">
+        <div class="adm-section-title">Пользователи</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+            <input type="text" class="adm-search" id="user-search" placeholder="Поиск по email или имени..." oninput="filterUsers()" style="margin-bottom:0;flex:1;min-width:200px">
+            <select class="adm-modal-select" id="user-status-filter" onchange="filterUsers()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="">Все статусы</option>
+                <option value="trial">Trial</option>
+                <option value="active">Активные</option>
+                <option value="expired">Истекшие</option>
+                <option value="blocked">Заблокированные</option>
+                <option value="admin">Админы</option>
+            </select>
+        </div>
+        <div class="adm-table-wrap">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Имя</th>
+                        <th>Подписка</th>
+                        <th>До</th>
+                        <th>Регистрация</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="users-tbody">
+                    <tr><td colspan="6" class="adm-loading"><div class="adm-spinner"></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Payments -->
+    <div class="adm-section" id="sec-payments">
+        <div class="adm-section-title">Платежи</div>
+        <div style="margin-bottom:16px">
+            <button class="adm-btn" style="margin-right:4px" onclick="loadPayments('pending')" id="pay-filter-pending">Ожидающие</button>
+            <button class="adm-btn" onclick="loadPayments('confirmed')" id="pay-filter-confirmed">Подтверждённые</button>
+            <button class="adm-btn" onclick="loadPayments('rejected')" id="pay-filter-rejected">Отклонённые</button>
+        </div>
+        <div class="adm-table-wrap">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Сумма</th>
+                        <th>Дата и время перевода</th>
+                        <th>Скрин</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="payments-tbody">
+                    <tr><td colspan="6" class="adm-empty">Нет платежей</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- News -->
+    <div class="adm-section" id="sec-news">
+        <div class="adm-section-title" style="display:flex;justify-content:space-between;align-items:center">
+            Новости
+            <button class="adm-btn" style="background:var(--accent);color:#fff" onclick="openNewsModal()">+ Добавить</button>
+        </div>
+        <div id="news-list"></div>
+    </div>
+
+    <!-- Recipes -->
+    <div class="adm-section" id="sec-recipes">
+        <div class="adm-section-title" style="display:flex;justify-content:space-between;align-items:center">
+            Рецепты
+            <button class="adm-btn" style="background:var(--accent);color:#fff" onclick="openRecipeEditor()">+ Новый рецепт</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="recipe-cat-filters"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+            <select class="adm-modal-select" id="recipe-status-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Все статусы</option>
+                <option value="published">Опубликованные</option>
+                <option value="unpublished">Неопубликованные</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-access-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Все уровни</option>
+                <option value="free">Free</option>
+                <option value="trial">Trial</option>
+                <option value="pro">Pro</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-seasonal-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Любая сезонность</option>
+                <option value="seasonal">Сезонные</option>
+                <option value="not-seasonal">Не сезонные</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-video-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Любые видео</option>
+                <option value="with-video">С видео</option>
+                <option value="without-video">Без видео</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-photo-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Любые фото</option>
+                <option value="with-photo">С фото</option>
+                <option value="without-photo">Без фото</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-nutrition-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Любые КБЖУ</option>
+                <option value="nutrition-filled">КБЖУ заполнены</option>
+                <option value="nutrition-missing">КБЖУ не заполнены</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-addons-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Любые автодобавки</option>
+                <option value="with-addons">Есть автодобавки</option>
+                <option value="without-addons">Нет автодобавок</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-soup-filter" onchange="filterRecipes()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+                <option value="all">Все типы</option>
+                <option value="soups">Супы</option>
+                <option value="not-soups">Не супы</option>
+            </select>
+        </div>
+        <input type="text" class="adm-search" id="recipe-search" placeholder="Поиск по названию..." oninput="filterRecipes()">
+        <div id="recipes-list"></div>
+    </div>
+
+    <!-- Video requests -->
+    <div class="adm-section" id="sec-video-requests">
+        <div class="adm-section-title">Очередь видеорецептов</div>
+        <div style="font-size:13px;line-height:1.55;color:var(--text-2);margin:-4px 0 16px">
+            После 10 голосов рецепт становится обязательным к съёмке. Голоса продолжают считаться и помогают расставлять приоритеты.
+        </div>
+        <div class="adm-table-wrap">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Рецепт</th>
+                        <th>Голоса</th>
+                        <th>Статус</th>
+                        <th>Цель достигнута</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="video-requests-tbody">
+                    <tr><td colspan="5" class="adm-loading"><div class="adm-spinner"></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="adm-section" id="sec-categories">
+        <div class="adm-section-title" style="display:flex;justify-content:space-between;align-items:center">
+            Категории
+            <button class="adm-btn" style="background:var(--accent);color:#fff" onclick="openCategoryModal()">+ Новая категория</button>
+        </div>
+        <div style="font-size:12px;color:var(--text-3);margin-bottom:12px">
+            Авто-добавки: правила автоматически подтягивают рецепты из указанной категории как добавки к текущему блюду.
+            Рецепт-уровень перекрывает категорию для одного слота.
+        </div>
+        <div id="categories-list"></div>
+    </div>
+
+    <!-- Category edit modal -->
+    <div class="adm-modal-bg" id="category-modal">
+        <div class="adm-modal" style="max-width:560px">
+            <div class="adm-modal-title" id="category-modal-title">Новая категория</div>
+            <div class="adm-modal-field">
+                <label class="adm-modal-label">ID (латиница, без пробелов)</label>
+                <input type="text" class="adm-modal-input" id="cat-id" placeholder="sides" autocomplete="off">
+            </div>
+            <div class="adm-modal-field">
+                <label class="adm-modal-label">Название</label>
+                <input type="text" class="adm-modal-input" id="cat-name" placeholder="Гарниры">
+            </div>
+            <div style="display:flex;gap:10px">
+                <div class="adm-modal-field" style="flex:1">
+                    <label class="adm-modal-label">Эмодзи</label>
+                    <input type="text" class="adm-modal-input" id="cat-emoji" placeholder="🍚" maxlength="4">
+                </div>
+                <div class="adm-modal-field" style="flex:1">
+                    <label class="adm-modal-label">Цвет</label>
+                    <input type="text" class="adm-modal-input" id="cat-color" placeholder="#d97706">
+                </div>
+                <div class="adm-modal-field" style="flex:1">
+                    <label class="adm-modal-label">Порядок</label>
+                    <input type="number" class="adm-modal-input" id="cat-sort" value="0">
+                </div>
+            </div>
+            <div class="adm-modal-field">
+                <label class="adm-modal-label">Описание</label>
+                <input type="text" class="adm-modal-input" id="cat-desc" placeholder="">
+            </div>
+            <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+                <div style="font-weight:600;font-size:13px;margin-bottom:8px">Авто-добавки (правила для всех рецептов этой категории)</div>
+                <div style="font-size:11px;color:var(--text-3);margin-bottom:10px">Для каждого слота можно выбрать категорию-источник. Все опубликованные рецепты из источника автоматически попадут в сайдбар.</div>
+                <div class="adm-modal-field">
+                    <label class="adm-modal-label">💪 Белок ← из категории</label>
+                    <select class="adm-modal-select" id="cat-aa-protein"><option value="">— нет —</option></select>
+                    <textarea class="adm-modal-input" id="cat-aa-protein-order" rows="2" style="display:none"></textarea>
+                    <div id="cat-aa-protein-order-list" style="margin-top:6px"></div>
+                    <textarea class="adm-modal-input" id="cat-aa-protein-items" rows="2" style="display:none"></textarea>
+                    <div id="cat-aa-protein-items-list" style="margin-top:8px"></div>
+                </div>
+                <div class="adm-modal-field">
+                    <label class="adm-modal-label">🥑 Жиры ← из категории</label>
+                    <select class="adm-modal-select" id="cat-aa-fat"><option value="">— нет —</option></select>
+                    <textarea class="adm-modal-input" id="cat-aa-fat-order" rows="2" style="display:none"></textarea>
+                    <div id="cat-aa-fat-order-list" style="margin-top:6px"></div>
+                    <textarea class="adm-modal-input" id="cat-aa-fat-items" rows="2" style="display:none"></textarea>
+                    <div id="cat-aa-fat-items-list" style="margin-top:8px"></div>
+                </div>
+                <div class="adm-modal-field">
+                    <label class="adm-modal-label">🌾 Углеводы ← из категории</label>
+                    <select class="adm-modal-select" id="cat-aa-carbs"><option value="">— нет —</option></select>
+                    <textarea class="adm-modal-input" id="cat-aa-carbs-order" rows="2" style="display:none"></textarea>
+                    <div id="cat-aa-carbs-order-list" style="margin-top:6px"></div>
+                    <textarea class="adm-modal-input" id="cat-aa-carbs-items" rows="2" style="display:none"></textarea>
+                    <div id="cat-aa-carbs-items-list" style="margin-top:8px"></div>
+                </div>
+                <div class="adm-modal-field">
+                    <label class="adm-modal-label">🥬 Клетчатка ← из категории</label>
+                    <select class="adm-modal-select" id="cat-aa-fiber"><option value="">— нет —</option></select>
+                    <textarea class="adm-modal-input" id="cat-aa-fiber-order" rows="2" style="display:none"></textarea>
+                    <div id="cat-aa-fiber-order-list" style="margin-top:6px"></div>
+                    <textarea class="adm-modal-input" id="cat-aa-fiber-items" rows="2" style="display:none"></textarea>
+                    <div id="cat-aa-fiber-items-list" style="margin-top:8px"></div>
+                </div>
+            </div>
+            <div class="adm-modal-actions">
+                <button class="adm-btn adm-btn-reject" id="cat-delete-btn" onclick="deleteCategory()" style="margin-right:auto;display:none">Удалить</button>
+                <button class="adm-btn" onclick="closeCategoryModal()">Отмена</button>
+                <button class="adm-btn adm-btn-confirm" onclick="saveCategory()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback -->
+    <div class="adm-section" id="sec-feedback">
+        <div class="adm-section-title">Обращения пользователей</div>
+        <div style="margin-bottom:16px">
+            <button class="adm-btn" style="margin-right:4px" onclick="loadFeedback('waiting_admin')" id="fb-filter-waiting_admin">Ждут ответа</button>
+            <button class="adm-btn" onclick="loadFeedback('waiting_user')" id="fb-filter-waiting_user">Юлия ответила</button>
+            <button class="adm-btn" onclick="loadFeedback('closed')" id="fb-filter-closed">Решённые</button>
+            <button class="adm-btn" onclick="loadFeedback('all')" id="fb-filter-all">Все</button>
+        </div>
+        <div id="feedback-list">
+            <div class="adm-empty">Нажмите на вкладку для загрузки</div>
+        </div>
+    </div>
+
+    <!-- Feedback reply modal -->
+    <div class="adm-modal-bg" id="fb-reply-modal">
+        <div class="adm-modal" style="max-width:600px">
+            <div class="adm-modal-title">Ответить на обращение</div>
+            <input type="hidden" id="fb-reply-id">
+            <div style="padding:12px;background:var(--bg);border-radius:8px;margin-bottom:12px;font-size:13px;color:var(--text-2);line-height:1.5" id="fb-reply-original"></div>
+            <div style="max-height:280px;overflow-y:auto;margin-bottom:12px;padding:4px" id="fb-reply-thread"></div>
+            <div class="adm-modal-field">
+                <label class="adm-modal-label">Новое сообщение</label>
+                <textarea class="adm-modal-input" id="fb-reply-text" rows="4" style="resize:vertical" placeholder="Ваш ответ пользователю..."></textarea>
+            </div>
+            <div class="adm-modal-actions">
+                <button class="adm-btn adm-btn-reject" onclick="closeFbReplyModal()">Отмена</button>
+                <button class="adm-btn adm-btn-confirm" id="fb-reply-submit" onclick="submitFbReply()">Отправить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit log -->
+    <div class="adm-section" id="sec-audit">
+        <div class="adm-section-title" style="display:flex;justify-content:space-between;align-items:center">
+            Аудит-лог
+            <select class="adm-modal-select" id="audit-filter" onchange="loadAudit()" style="width:auto;padding:6px 10px;font-size:13px">
+                <option value="">Все события</option>
+                <option value="login">Вход</option>
+                <option value="register">Регистрация</option>
+                <option value="trial_granted">Триал выдан</option>
+                <option value="trial_denied">Триал отказан</option>
+                <option value="trial_fingerprint_invalid">Fingerprint отклонён</option>
+                <option value="trial_fingerprint_missing">Fingerprint отсутствует</option>
+                <option value="trial_network_watch">Сеть: наблюдение</option>
+                <option value="trial_network_alert">Сеть: сигнал</option>
+                <option value="login_blocked">Вход заблок.</option>
+                <option value="payment_confirm">Платёж подтв.</option>
+                <option value="payment_reject">Платёж откл.</option>
+                <option value="user_block">Блокировка</option>
+                <option value="user_unblock">Разблокировка</option>
+                <option value="payment_submit">Платёж отправлен</option>
+                <option value="feedback_reply">Ответ на обращ.</option>
+                <option value="news_create">Новость создана</option>
+                <option value="news_update">Новость изменена</option>
+                <option value="news_delete">Новость удалена</option>
+                <option value="recipe_create">Рецепт создан</option>
+                <option value="recipe_update">Рецепт изменён</option>
+                <option value="recipe_delete">Рецепт удалён</option>
+            </select>
+        </div>
+        <div class="adm-table-wrap">
+            <table class="adm-table">
+                <thead><tr>
+                    <th>Время</th>
+                    <th>Событие</th>
+                    <th>Email</th>
+                    <th>Детали</th>
+                    <th>IP</th>
+                </tr></thead>
+                <tbody id="audit-tbody">
+                    <tr><td colspan="5" class="adm-empty">Нажмите на вкладку для загрузки</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm payment modal -->
+<div class="adm-modal-bg" id="confirm-modal">
+    <div class="adm-modal">
+        <div class="adm-modal-title">Подтвердить оплату</div>
+        <div class="adm-modal-field">
+            <label class="adm-modal-label">Продлить на</label>
+            <select class="adm-modal-select" id="confirm-months">
+                <option value="1">1 месяц (30 дней)</option>
+                <option value="3">3 месяца (90 дней)</option>
+                <option value="6">6 месяцев (180 дней)</option>
+                <option value="12">12 месяцев (360 дней)</option>
+            </select>
+        </div>
+        <div class="adm-modal-field">
+            <label class="adm-modal-label">Комментарий (необязательно)</label>
+            <input type="text" class="adm-modal-input" id="confirm-comment" placeholder="Оплата по переводу...">
+        </div>
+        <div class="adm-modal-actions">
+            <button class="adm-btn adm-btn-reject" onclick="closeModal()">Отмена</button>
+            <button class="adm-btn adm-btn-confirm" id="confirm-submit-btn" onclick="submitConfirm()">Подтвердить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Extend subscription modal -->
+<div class="adm-modal-bg" id="extend-modal">
+    <div class="adm-modal">
+        <div class="adm-modal-title">Продлить подписку</div>
+        <div class="adm-modal-field">
+            <label class="adm-modal-label">Пользователь</label>
+            <div id="extend-user-email" style="font-size:14px;font-weight:600;color:var(--text-1)"></div>
+            <div id="extend-current-until" style="font-size:12px;color:var(--text-3);margin-top:2px"></div>
+        </div>
+        <div class="adm-modal-field">
+            <label class="adm-modal-label">На сколько дней продлить</label>
+            <input type="number" min="1" max="3650" class="adm-modal-input" id="extend-days" value="30">
+            <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+                <button type="button" class="adm-btn" onclick="document.getElementById('extend-days').value=7">7 дн.</button>
+                <button type="button" class="adm-btn" onclick="document.getElementById('extend-days').value=30">30 дн.</button>
+                <button type="button" class="adm-btn" onclick="document.getElementById('extend-days').value=90">90 дн.</button>
+                <button type="button" class="adm-btn" onclick="document.getElementById('extend-days').value=180">180 дн.</button>
+                <button type="button" class="adm-btn" onclick="document.getElementById('extend-days').value=360">360 дн.</button>
+            </div>
+        </div>
+        <div class="adm-modal-actions">
+            <button class="adm-btn adm-btn-reject" onclick="closeExtendModal()">Отмена</button>
+            <button class="adm-btn adm-btn-confirm" id="extend-submit-btn" onclick="submitExtend()">Продлить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Screenshot modal -->
+<div class="adm-modal-bg" id="screenshot-modal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="adm-modal" style="max-width:600px;text-align:center">
+        <div class="adm-modal-title">Скриншот перевода</div>
+        <img id="screenshot-modal-img" style="max-width:100%;max-height:70vh;border-radius:8px;margin:12px 0">
+        <div class="adm-modal-actions">
+            <button class="adm-btn" onclick="document.getElementById('screenshot-modal').classList.remove('open')">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<!-- News modal -->
+<div class="adm-modal-bg" id="news-modal">
+    <div class="adm-modal" style="max-width:500px">
+        <div class="adm-modal-title" id="news-modal-title">Новая новость</div>
+        <input type="hidden" id="news-edit-id">
+        <div class="adm-modal-field">
+            <label class="adm-modal-label">Тип</label>
+            <select class="adm-modal-select" id="news-type">
+                <option value="news">Текстовая новость</option>
+                <option value="recipe">Анонс рецепта</option>
+            </select>
+        </div>
+        <div class="adm-modal-field">
+            <label class="adm-modal-label">Текст новости</label>
+            <textarea class="adm-modal-input" id="news-text" rows="4" style="resize:vertical" placeholder="Этот текст появится в новости на платформе и в email-рассылке"></textarea>
+        </div>
+        <div class="adm-modal-field" id="news-recipe-field" style="display:none">
+            <label class="adm-modal-label">ID рецепта</label>
+            <input type="text" class="adm-modal-input" id="news-recipe-id" placeholder="lentil-mushroom-pilaf">
+        </div>
+        <div class="adm-modal-field" id="news-badge-field" style="display:none">
+            <label class="adm-modal-label">Бейдж</label>
+            <input type="text" class="adm-modal-input" id="news-badge" placeholder="Новый рецепт">
+        </div>
+        <div class="adm-modal-field" id="news-label-field" style="display:none">
+            <label class="adm-modal-label">Подпись</label>
+            <input type="text" class="adm-modal-input" id="news-label" placeholder="Сезонный рецепт">
+        </div>
+        <div class="adm-modal-field" style="display:flex;align-items:center;gap:8px">
+            <input type="checkbox" id="news-published" checked>
+            <label for="news-published" style="font-size:13px;cursor:pointer">Опубликовать сразу</label>
+        </div>
+        <div class="adm-modal-actions">
+            <button class="adm-btn adm-btn-reject" onclick="closeNewsModal()">Отмена</button>
+            <button class="adm-btn adm-btn-confirm" onclick="saveNews()">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="adm-toast" id="adm-toast"></div>
+
+<script src="data-v2.js?v=20260707-same-origin-content"></script>
+<script src="admin.js?v=20260628-dashboard-tab"></script>
+</body>
+</html>

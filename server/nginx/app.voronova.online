@@ -1,0 +1,44 @@
+server {
+    server_name app.voronova.online;
+
+    root /var/www/smartplate-platform;
+    index index.html;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options DENY always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
+    add_header Cache-Control "no-cache" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://mc.yandex.ru https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://voronova.online https://*.voronova.online; connect-src 'self' https://api.voronova.online https://mc.yandex.ru https://www.google-analytics.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://vk.com https://vkvideo.ru https://dzen.ru https://tawk.to; child-src https://www.youtube.com https://www.youtube-nocookie.com https://vk.com https://vkvideo.ru https://dzen.ru https://tawk.to; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'" always;
+
+    # Public read-only SmartPlate content through the frontend origin. This
+    # avoids a second DNS/TLS route while auth, payments and writes continue to
+    # use api.voronova.online directly.
+    location ^~ /api/content/ {
+        limit_except GET { deny all; }
+        rewrite ^/api/(.*)$ /$1 break;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    listen 443 ssl http2; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/app.voronova.online/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/app.voronova.online/privkey.pem; # managed by Certbot
+    # Temporary TSPU compatibility profile: TLS 1.2 only, HTTP/2 stays enabled.
+    include /etc/nginx/snippets/options-ssl-nginx-tls12.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+
+server {
+    if ($host = app.voronova.online) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80;
+    server_name app.voronova.online;
+    return 404; # managed by Certbot
+}

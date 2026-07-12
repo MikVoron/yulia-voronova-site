@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recipe Card V1 — эталон для разработки</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Manrope', sans-serif;
+  background: #f7f3ec;
+  color: #2a2520;
+  padding: 40px 24px;
+  min-height: 100vh;
+}
+.container { max-width: 1200px; margin: 0 auto; }
+.section-label {
+  font-size: 11px; font-weight: 700; color: #8a7d6f;
+  letter-spacing: .08em; text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+@media (max-width: 1024px) { .recipe-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .recipe-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; } }
+@media (max-width: 480px)  { .recipe-grid { grid-template-columns: 1fr; } }
+
+/* ───────────────── RECIPE CARD V1 ───────────────── */
+.recipe-card {
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 24px rgba(26,26,26,.06);
+  transition: all .2s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+.recipe-card:hover {
+  box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 12px 32px rgba(26,26,26,.1);
+  transform: translateY(-2px);
+}
+
+.recipe-card__media { position: relative; aspect-ratio: 4/3; background: #eee; }
+.recipe-card__img   { width: 100%; height: 100%; object-fit: cover; display: block; }
+.recipe-card__bookmark {
+  position: absolute; top: 10px; right: 10px;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(255,255,255,.95);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,.15);
+  border: none; cursor: pointer;
+}
+
+.recipe-card__body { padding: 16px 16px 18px; display: flex; flex-direction: column; flex: 1; }
+
+.recipe-card__title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 22px; font-weight: 600; line-height: 1.15;
+  color: #1a1a1a; letter-spacing: -.005em;
+  margin-bottom: 8px;
+}
+
+.recipe-card__rating {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 10px;
+}
+.recipe-card__rating-stars { display: inline-flex; gap: 1px; }
+.recipe-card__rating-text  { font-size: 11px; color: #8a7d6f; font-weight: 500; }
+
+.recipe-card__meta {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px; color: #3a3a3a; font-weight: 500;
+  margin-bottom: 12px;
+}
+.recipe-card__meta-item { display: inline-flex; align-items: center; gap: 4px; }
+.recipe-card__meta-dot {
+  width: 3px; height: 3px; border-radius: 50%; background: #8a7d6f;
+}
+
+.recipe-card__tip {
+  font-size: 12px; color: #c2845a; font-style: italic;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 5px;
+}
+
+.recipe-card__footer {
+  margin-top: auto; padding-top: 10px;
+  border-top: 1px solid #e8dfd0;
+  display: flex; align-items: baseline; justify-content: space-between;
+}
+.recipe-card__kcal-label {
+  font-size: 11px; color: #8a7d6f; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+}
+.recipe-card__kcal-value {
+  font-size: 18px; font-weight: 700; color: #e8400a;
+}
+.recipe-card__kcal-value small {
+  font-size: 11px; font-weight: 600; color: #3a3a3a;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="section-label">5 рецептов</div>
+  <div class="recipe-grid" id="grid"></div>
+</div>
+
+<script>
+const RECIPES = [
+  { id:1, title:'Пшенники с яблоком', img:'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=800&q=80', time:'20 мин', diff:'Лёгкая', kcal:110, tip:'без варки пшёнки', rating:4.8, reviews:124 },
+  { id:2, title:'Сырники из тофу',    img:'https://images.unsplash.com/photo-1568051243851-f9b136146e97?w=800&q=80', time:'20 мин', diff:'Лёгкая', kcal:210, rating:4.9, reviews:312 },
+  { id:3, title:'Нутовый омлет',      img:'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=800&q=80', time:'20 мин', diff:'Лёгкая', kcal:195, rating:4.7, reviews:88 },
+  { id:4, title:'Скрэмбл из тофу',    img:'https://images.unsplash.com/photo-1605379399642-870262d3d051?w=800&q=80', time:'15 мин', diff:'Лёгкая', kcal:175, rating:4.6, reviews:201 },
+];
+
+function star(filled) {
+  return `<svg width="11" height="11" viewBox="0 0 24 24" fill="${filled?'#e8400a':'none'}" stroke="#e8400a" stroke-width="2"><polygon points="12 2 15 9 22 10 17 15 18 22 12 18 6 22 7 15 2 10 9 9 12 2"/></svg>`;
+}
+function stars(rating) {
+  const r = Math.round(rating);
+  return Array.from({length:5}, (_, i) => star(i < r)).join('');
+}
+
+function renderCard(r) {
+  return `
+    <article class="recipe-card" data-recipe-id="${r.id}">
+      <div class="recipe-card__media">
+        <img class="recipe-card__img" src="${r.img}" alt="${r.title}" loading="lazy">
+        <button class="recipe-card__bookmark" aria-label="В избранное">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+      </div>
+      <div class="recipe-card__body">
+        <h3 class="recipe-card__title">${r.title}</h3>
+        <div class="recipe-card__rating">
+          <span class="recipe-card__rating-stars">${stars(r.rating)}</span>
+          <span class="recipe-card__rating-text">${r.rating} (${r.reviews})</span>
+        </div>
+        <div class="recipe-card__meta">
+          <span class="recipe-card__meta-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3a3a3a" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            ${r.time}
+          </span>
+          <span class="recipe-card__meta-dot"></span>
+          <span>${r.diff}</span>
+        </div>
+        ${r.tip ? `<div class="recipe-card__tip">🌿 ${r.tip}</div>` : ''}
+        <div class="recipe-card__footer">
+          <span class="recipe-card__kcal-label">калорийность</span>
+          <span class="recipe-card__kcal-value">${r.kcal} <small>ккал</small></span>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+document.getElementById('grid').innerHTML = RECIPES.map(renderCard).join('');
+</script>
+</body>
+</html>

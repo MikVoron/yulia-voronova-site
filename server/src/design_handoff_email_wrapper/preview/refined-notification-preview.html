@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Превью email — аккуратные уведомления</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+	<style>
+		* { box-sizing: border-box; }
+		body {
+			margin: 0;
+			background: #e8e4dd;
+			color: #171717;
+			font-family: Montserrat, Arial, Helvetica, sans-serif;
+		}
+		.showcase {
+			max-width: 1240px;
+			margin: 0 auto;
+			padding: 38px 26px 60px;
+		}
+		.showcase-head {
+			display: flex;
+			align-items: end;
+			justify-content: space-between;
+			gap: 28px;
+			margin-bottom: 28px;
+		}
+		.showcase-kicker {
+			margin: 0 0 8px;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 2.1px;
+			text-transform: uppercase;
+			color: #c73208;
+		}
+		h1 {
+			margin: 0;
+			font-family: "Playfair Display", Georgia, serif;
+			font-size: clamp(30px, 4vw, 48px);
+			line-height: 1.04;
+			letter-spacing: -0.7px;
+		}
+		.showcase-copy {
+			max-width: 460px;
+			margin: 0;
+			font-size: 14px;
+			line-height: 1.6;
+			color: #57534e;
+		}
+		.previews {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) 390px;
+			gap: 28px;
+			align-items: start;
+		}
+		.preview-panel {
+			min-width: 0;
+			background: rgba(255,255,255,.48);
+			border: 1px solid rgba(22,22,22,.1);
+			padding: 14px;
+		}
+		.preview-label {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin: 0 2px 12px;
+			font-size: 10px;
+			font-weight: 700;
+			letter-spacing: 1.6px;
+			text-transform: uppercase;
+			color: #6b655d;
+		}
+		.preview-label span:last-child {
+			font-weight: 500;
+			letter-spacing: .4px;
+			text-transform: none;
+		}
+		.viewport {
+			overflow: hidden;
+			background: #f0ede7;
+			box-shadow: 0 22px 60px rgba(27, 22, 17, .10);
+		}
+		.viewport.desktop { min-height: 740px; }
+		.viewport.mobile { width: 360px; margin: 0 auto; }
+		.mobile .email-outer-cell { padding: 14px 10px !important; }
+		.mobile .email-card { width: 100% !important; }
+		.mobile .email-author { padding: 10px 16px !important; font-size: 9px !important; letter-spacing: 1.5px !important; }
+		.mobile .email-mast { padding: 22px 20px 20px !important; }
+		.mobile .email-brand { font-size: 26px !important; }
+		.mobile .email-content { padding: 28px 22px 30px !important; }
+		.mobile .email-title { font-size: 23px !important; }
+		.mobile .email-help { padding: 18px 22px !important; }
+		.mobile .email-footer { padding: 18px 22px 20px !important; }
+		@media (max-width: 920px) {
+			.showcase-head { display: block; }
+			.showcase-copy { margin-top: 14px; }
+			.previews { grid-template-columns: 1fr; }
+			.preview-panel.mobile-panel { max-width: 420px; }
+		}
+		@media (max-width: 500px) {
+			.showcase { padding: 24px 12px 40px; }
+			.showcase-head { padding: 0 4px; }
+			.preview-panel { padding: 8px; }
+			.viewport.mobile { width: 100%; }
+			.desktop-panel { display: none; }
+		}
+	</style>
+</head>
+<body>
+	<main class="showcase">
+		<header class="showcase-head">
+			<div>
+				<p class="showcase-kicker">Концепт 02 · Compact editorial</p>
+				<h1>Уведомления без визуального шума</h1>
+			</div>
+			<p class="showcase-copy">Единая типографика, короткая шапка, смысловой блок с датой и компактная CTA-кнопка. Ниже — одно и то же письмо в desktop- и mobile-ширине.</p>
+		</header>
+
+		<section class="previews" aria-label="Сравнение размеров письма">
+			<div class="preview-panel desktop-panel">
+				<div class="preview-label"><span>Desktop</span><span>600 px</span></div>
+				<div class="viewport desktop" id="desktop-preview"></div>
+			</div>
+			<div class="preview-panel mobile-panel">
+				<div class="preview-label"><span>Mobile</span><span>360 px</span></div>
+				<div class="viewport mobile" id="mobile-preview"></div>
+			</div>
+		</section>
+	</main>
+
+	<template id="email-template">
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse:collapse; background-color:#f0ede7; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;">
+			<tr>
+				<td class="email-outer-cell" align="center" style="padding:24px 16px;">
+					<table class="email-card" role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px; max-width:100%; border-collapse:collapse; background-color:#ffffff; border:1px solid #dedad3;">
+						<tr>
+							<td class="email-author" align="center" bgcolor="#171717" style="padding:11px 20px; background-color:#171717; font-family:Montserrat,Arial,Helvetica,sans-serif; font-size:9px; line-height:1.4; font-weight:700; letter-spacing:1.9px; color:#ffffff; text-transform:uppercase;">
+								Юлия Воронова&nbsp;&nbsp;<span style="color:#e8400a;">●</span>&nbsp;&nbsp;Нутрициолог
+							</td>
+						</tr>
+						<tr>
+							<td class="email-mast" align="center" style="padding:25px 28px 23px; border-bottom:1px solid #e5e1db;">
+								<div style="font-family:Montserrat,Arial,Helvetica,sans-serif; font-size:9px; line-height:1.4; font-weight:700; letter-spacing:2.2px; color:#77716a; text-transform:uppercase;">Персональный помощник в питании</div>
+								<div class="email-brand" style="margin-top:8px; font-family:'Playfair Display',Georgia,'Times New Roman',serif; font-size:29px; line-height:1.05; font-weight:700; letter-spacing:-0.4px; color:#171717;">Умная <span style="color:#e8400a;">тарелка</span></div>
+							</td>
+						</tr>
+						<tr>
+							<td class="email-content" style="padding:32px 36px 34px; font-family:Montserrat,Arial,Helvetica,sans-serif; color:#33302d;">
+								<div style="margin:0 0 8px; font-size:10px; line-height:1.4; font-weight:700; letter-spacing:1.7px; color:#c73208; text-transform:uppercase;">Статус подписки</div>
+								<h2 class="email-title" style="margin:0 0 14px; font-family:'Playfair Display',Georgia,'Times New Roman',serif; font-size:25px; line-height:1.22; font-weight:700; letter-spacing:-0.25px; color:#171717;">Подписка продлена</h2>
+								<p style="margin:0; font-family:Montserrat,Arial,Helvetica,sans-serif; font-size:15px; line-height:1.65; font-weight:400; color:#4a4642;">Готово — доступ ко всем рецептам и конструктору тарелки активен.</p>
+
+								<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%; margin:20px 0 22px; border-collapse:collapse; background-color:#faf7f2; border-left:3px solid #e8400a;">
+									<tr>
+										<td style="padding:15px 17px; font-family:Montserrat,Arial,Helvetica,sans-serif;">
+											<div style="font-size:10px; line-height:1.4; font-weight:700; letter-spacing:1.4px; color:#7c756d; text-transform:uppercase;">Доступ активен до</div>
+											<div style="margin-top:4px; font-size:16px; line-height:1.45; font-weight:600; color:#171717;">4 июля 2026</div>
+										</td>
+									</tr>
+								</table>
+
+								<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate; margin:0 0 22px;">
+									<tr>
+										<td align="center" bgcolor="#e8400a" style="background-color:#e8400a; border-radius:3px;">
+											<a href="https://app.voronova.online/" target="_blank" style="display:inline-block; padding:13px 21px; font-family:Montserrat,Arial,Helvetica,sans-serif; font-size:14px; line-height:1.2; font-weight:700; letter-spacing:0; color:#ffffff; text-decoration:none; white-space:nowrap;">Открыть платформу&nbsp;&nbsp;→</a>
+										</td>
+									</tr>
+								</table>
+
+								<p style="margin:0 0 5px; font-family:Montserrat,Arial,Helvetica,sans-serif; font-size:15px; line-height:1.65; font-weight:400; color:#4a4642;">Спасибо, что вы со мной!</p>
+								<p style="margin:0; font-family:Montserrat,Arial,Helvetica,sans-serif; font-size:15px; line-height:1.65; font-weight:600; color:#171717;">Ваша Юля</p>
+							</td>
+						</tr>
+						<tr>
+							<td class="email-help" bgcolor="#faf8f5" style="padding:18px 36px; background-color:#faf8f5; border-top:1px solid #e5e1db; font-family:Montserrat,Arial,Helvetica,sans-serif; font-size:12px; line-height:1.65; font-weight:400; color:#625d57;">
+								Нужна помощь? Напишите на <a href="mailto:hello@voronova.online" style="color:#c73208; font-weight:600; text-decoration:underline;">hello@voronova.online</a> или в разделе <a href="https://app.voronova.online/cabinet.html?tab=feedback" target="_blank" style="color:#c73208; font-weight:600; text-decoration:underline;">«Связь»</a>.
+							</td>
+						</tr>
+						<tr>
+							<td class="email-footer" align="center" style="padding:19px 28px 21px; border-top:1px solid #e5e1db; font-family:Montserrat,Arial,Helvetica,sans-serif;">
+								<div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif; font-size:14px; line-height:1.3; font-weight:700; color:#171717;">Умная <span style="color:#e8400a;">тарелка</span></div>
+								<div style="margin-top:7px; font-size:11px; line-height:1.55; color:#8a847d;"><a href="https://app.voronova.online/" target="_blank" style="color:#77716a; text-decoration:underline;">Открыть платформу</a>&nbsp;&nbsp;·&nbsp;&nbsp;© 2026 Юлия Воронова</div>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</template>
+
+	<script>
+		const template = document.getElementById('email-template');
+		document.getElementById('desktop-preview').append(template.content.cloneNode(true));
+		document.getElementById('mobile-preview').append(template.content.cloneNode(true));
+	</script>
+</body>
+</html>

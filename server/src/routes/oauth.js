@@ -1,0 +1,249 @@
+const crypto = require('crypto');
+const db = require('../db');
+const { generateRefreshToken } = require('../auth');
+const { issueRefreshSession } = require('../refresh-sessions');
+const { sendWelcome, sendNewUserNotification } = require('../email');
+const { tryGrantTrial } = require('../trial-guard');
+const { reportTrialSignals } = require('../trial-monitor');
+const audit = require('../audit');
+
+// ── VK ID ───────────────────────────────────────────────────────────────────
+
+const VK_APP_ID = process.env.VK_APP_ID;
+const VK_APP_SECRET = process.env.VK_APP_SECRET;
+const VK_REDIRECT = process.env.VK_REDIRECT || 'https://api.voronova.online/auth/oauth/vk/callback';
+
+// ── Yandex ID ───────────────────────────────────────────────────────────────
+
+const YANDEX_CLIENT_ID = process.env.YANDEX_CLIENT_ID;
+const YANDEX_CLIENT_SECRET = process.env.YANDEX_CLIENT_SECRET;
+const YANDEX_REDIRECT = process.env.YANDEX_REDIRECT || 'https://api.voronova.online/auth/oauth/yandex/callback';
+
+const PLATFORM_URL = process.env.PLATFORM_URL || 'https://app.voronova.online';
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+function setCookieAndRedirect(reply, refreshToken, isNew) {
+  reply.setCookie('refreshToken', refreshToken, {
+    path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 2592000
+  });
+  const target = PLATFORM_URL + '/auth-callback.html' + (isNew ? '?welcome=1' : '');
+  return reply.redirect(target);
+}
+
+async function findOrCreateUser(provider, providerId, email, displayName, fastify, ip, ua) {
+  let isNew = false;
+
+  // 1. Ищем существующий auth_account
+  const existing = await db.query(
+    'SELECT u.* FROM auth_accounts aa JOIN users u ON u.id=aa.user_id WHERE aa.provider=$1 AND aa.provider_id=$2',
+    [provider, providerId]
+  );
+  if (existing.rows.length) {
+    return { user: existing.rows[0], isNew };
+  }
+
+  // 2. Если провайдер вернул email — ищем user по email (линковка)
+  let user = null;
+  if (email) {
+    const byEmail = await db.query('SELECT * FROM users WHERE email=$1', [email]);
+    if (byEmail.rows.length) {
+      user = byEmail.rows[0];
+      // Привязываем новый auth_account к существующему user
+      await db.query(
+        'INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)',
+        [user.id, provider, providerId]
+      );
+      return { user, isNew };
+    }
+  }
+
+  // 3. Новый пользователь
+  isNew = true;
+  const insertRes = await db.query(
+    'INSERT INTO users (email, display_name) VALUES ($1, $2) RETURNING *',
+    [email || null, displayName || null]
+  );
+  user = insertRes.rows[0];
+  await db.query(
+    'INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)',
+    [user.id, provider, providerId]
+  );
+  // Атомарная проверка + fingerprint + subscription — всё в одной транзакции
+  const trial = await tryGrantTrial(null, ip, user.id);
+  if (trial.grant) {
+    audit.log('trial_granted', { userId: user.id, email, detail: provider, ip });
+  } else {
+    audit.log('trial_denied', { userId: user.id, email, detail: trial.reason + ' (' + provider + ')', ip });
+  }
+  audit.log('register', { userId: user.id, email, detail: provider, ip });
+  reportTrialSignals({
+    trial,
+    userId: user.id,
+    email,
+    method: provider,
+    ip,
+    ua,
+    fastify,
+    fingerprintStatus: 'not_collected'
+  });
+  if (email) {
+    sendWelcome(email, trial.grant).catch(e => fastify.log.error(e, 'Welcome email error (OAuth)'));
+  }
+  sendNewUserNotification(
+    { id: user.id, email: email || null },
+    { method: provider, ip, userAgent: ua, trialGranted: trial.grant }
+  ).catch(e => fastify.log.error(e, 'New user notification error (OAuth)'));
+
+  return { user, isNew };
+}
+
+async function issueTokens(user, req, reply, isNew, fastify) {
+  if (user.is_blocked) {
+    audit.log('login_blocked', { userId: user.id, email: user.email, ip: req.ip });
+    return reply.redirect(PLATFORM_URL + '/login.html?error=blocked');
+  }
+  audit.log('login', { userId: user.id, email: user.email, detail: 'oauth', ip: req.ip, ua: req.headers['user-agent'] });
+  const refreshToken = generateRefreshToken();
+  await issueRefreshSession(user.id, refreshToken, req);
+  return setCookieAndRedirect(reply, refreshToken, isNew);
+}
+
+// ── Routes ──────────────────────────────────────────────────────────────────
+
+async function oauthRoutes(fastify) {
+
+  // ── VK: redirect ──
+  fastify.get('/auth/oauth/vk', async (req, reply) => {
+    if (!VK_APP_ID) return reply.status(500).send({ error: 'VK OAuth не настроен' });
+    const state = crypto.randomBytes(24).toString('hex');
+    reply.setCookie('oauth_state_vk', state, { path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 600 });
+    const url = 'https://id.vk.com/authorize'
+      + '?response_type=code'
+      + '&client_id=' + VK_APP_ID
+      + '&redirect_uri=' + encodeURIComponent(VK_REDIRECT)
+      + '&scope=email'
+      + '&state=' + state;
+    return reply.redirect(url);
+  });
+
+  // ── VK: callback ──
+  fastify.get('/auth/oauth/vk/callback', {
+    config: { rateLimit: { max: 10, timeWindow: '15 minutes' } }
+  }, async (req, reply) => {
+    const { code, state } = req.query;
+    if (!code) return reply.redirect(PLATFORM_URL + '/login.html?error=no_code');
+    const expectedState = req.cookies.oauth_state_vk;
+    reply.clearCookie('oauth_state_vk', { path: '/' });
+    if (!state || !expectedState || state !== expectedState) {
+      return reply.redirect(PLATFORM_URL + '/login.html?error=invalid_state');
+    }
+
+    try {
+      // Exchange code for token
+      const tokenRes = await fetch('https://id.vk.com/oauth2/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          code,
+          client_id: VK_APP_ID,
+          client_secret: VK_APP_SECRET,
+          redirect_uri: VK_REDIRECT,
+          code_verifier: ''
+        })
+      });
+      const tokenData = await tokenRes.json();
+      if (!tokenData.access_token) {
+        fastify.log.error(tokenData, 'VK token exchange failed');
+        return reply.redirect(PLATFORM_URL + '/login.html?error=vk_token');
+      }
+
+      // Get user info
+      const userRes = await fetch('https://id.vk.com/oauth2/user_info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          access_token: tokenData.access_token,
+          client_id: VK_APP_ID
+        })
+      });
+      const userData = await userRes.json();
+      const user = userData.user || userData;
+
+      const vkId = String(user.user_id || user.id);
+      const email = user.email || tokenData.email || null;
+      const displayName = [user.first_name, user.last_name].filter(Boolean).join(' ') || null;
+
+      const { user: dbUser, isNew } = await findOrCreateUser('vk', vkId, email, displayName, fastify, req.ip, req.headers['user-agent']);
+      return issueTokens(dbUser, req, reply, isNew, fastify);
+    } catch (e) {
+      fastify.log.error(e, 'VK OAuth error');
+      return reply.redirect(PLATFORM_URL + '/login.html?error=vk_fail');
+    }
+  });
+
+  // ── Yandex: redirect ──
+  fastify.get('/auth/oauth/yandex', async (req, reply) => {
+    if (!YANDEX_CLIENT_ID) return reply.status(500).send({ error: 'Yandex OAuth не настроен' });
+    const state = crypto.randomBytes(24).toString('hex');
+    reply.setCookie('oauth_state_yandex', state, { path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 600 });
+    const url = 'https://oauth.yandex.ru/authorize'
+      + '?response_type=code'
+      + '&client_id=' + YANDEX_CLIENT_ID
+      + '&redirect_uri=' + encodeURIComponent(YANDEX_REDIRECT)
+      + '&force_confirm=yes'
+      + '&state=' + state;
+    return reply.redirect(url);
+  });
+
+  // ── Yandex: callback ──
+  fastify.get('/auth/oauth/yandex/callback', {
+    config: { rateLimit: { max: 10, timeWindow: '15 minutes' } }
+  }, async (req, reply) => {
+    const { code, state } = req.query;
+    if (!code) return reply.redirect(PLATFORM_URL + '/login.html?error=no_code');
+    const expectedState = req.cookies.oauth_state_yandex;
+    reply.clearCookie('oauth_state_yandex', { path: '/' });
+    if (!state || !expectedState || state !== expectedState) {
+      return reply.redirect(PLATFORM_URL + '/login.html?error=invalid_state');
+    }
+
+    try {
+      // Exchange code for token
+      const tokenRes = await fetch('https://oauth.yandex.ru/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          code,
+          client_id: YANDEX_CLIENT_ID,
+          client_secret: YANDEX_CLIENT_SECRET
+        })
+      });
+      const tokenData = await tokenRes.json();
+      if (!tokenData.access_token) {
+        fastify.log.error(tokenData, 'Yandex token exchange failed');
+        return reply.redirect(PLATFORM_URL + '/login.html?error=yandex_token');
+      }
+
+      // Get user info
+      const userRes = await fetch('https://login.yandex.ru/info?format=json', {
+        headers: { 'Authorization': 'OAuth ' + tokenData.access_token }
+      });
+      const user = await userRes.json();
+
+      const yandexId = String(user.id);
+      const email = user.default_email || null;
+      const displayName = user.display_name || user.real_name || null;
+
+      const { user: dbUser, isNew } = await findOrCreateUser('yandex', yandexId, email, displayName, fastify, req.ip, req.headers['user-agent']);
+      return issueTokens(dbUser, req, reply, isNew, fastify);
+    } catch (e) {
+      fastify.log.error(e, 'Yandex OAuth error');
+      return reply.redirect(PLATFORM_URL + '/login.html?error=yandex_fail');
+    }
+  });
+}
+
+module.exports = oauthRoutes;
