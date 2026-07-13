@@ -143,6 +143,13 @@ fallback. Production-smoke подтвердил карточки, locked/favorit
 reviews, plate и history API-записи были перехвачены до сети; CSP- и
 JavaScript-ошибок нет.
 
+Все 39 inline handlers в шаблонах `recipe-page.js` заменены делегированными
+click/change/error listeners. Production-smoke на реальном рецепте «Гречотто»
+подтвердил 31 доступное действие, stepper, список покупок и image/avatar
+fallback; inline-атрибутов, CSP- и JavaScript-ошибок нет. Старая папка
+`.deploy-backups`, которая была доступна из web-root, перенесена без удаления
+данных в закрытый `/var/backups/smartplate-platform/`.
+
 Статические production HTML-файлы теперь очищены:
 
 | Страница | `on*=` обработчики | Основные оставшиеся группы |
@@ -157,14 +164,13 @@ JavaScript-ошибок нет.
 | `admin.html` | 0 | 50 статических controls перенесены в `admin.js` |
 | `popup-preview.html` | 0 | 11 preview actions перенесены в `popup-preview.js` |
 
-В JavaScript-шаблонах остаётся 39 обработчиков — только в `recipe-page.js`.
+В JavaScript-шаблонах обработчиков не осталось. `recipe-page.js`,
 `ingredient-page.js`, `cabinet.js`, `index-page.js`, `recipe-editor.js`,
 `category-page.js` и `data-v2.js` очищены полностью.
 В `header-nav.js` и `admin.js` подстановка данных в JavaScript-атрибуты
 удалена полностью.
 
-В production HTML обработчиков не осталось; 39 всё ещё создаётся
-JS-шаблонами.
+В активных production HTML и JavaScript-шаблонах обработчиков не осталось.
 Полный актуальный список воспроизводится командой:
 
 ```powershell
@@ -213,11 +219,11 @@ rg -n "\son[a-z]+\s*=" platform -g "*.html" -g "*.js"
 1. ✅ Вынести встроенные блоки в first-party JS без изменения порядка
    выполнения. Выполнено 13 июля для `index`, `recipe`, `category`,
    `ingredient`, `login`.
-2. Переносить оставшиеся обработчики партиями: `login`, `admin`,
+2. ✅ Перенести оставшиеся обработчики партиями: `login`, `admin`,
    `popup-preview`, общие header/drawer controls и статические фильтры готовы;
    статические plate/comments modal controls и `index.html` также готовы;
-   `recipe.html`, `recipe-editor.html` и `cabinet.html` также готовы; далее
-   обработчики JS-шаблонов.
+   `recipe.html`, `recipe-editor.html`, `cabinet.html` и все JS-шаблоны также
+   готовы. Завершено 13 июля.
 3. Для статического nginx-сайта основной вариант — внешние first-party
    скрипты. Для редкого неизбежного inline bootstrap использовать SHA-256
    hash. Nonce применять только если HTML начнёт формироваться на каждый
