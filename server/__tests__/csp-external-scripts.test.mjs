@@ -63,6 +63,23 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain("block.classList.add('has-error')");
   });
 
+  it('keeps the shared Tawk modal independent of dynamically injected styles', () => {
+    const script = fs.readFileSync(path.join(platformDir, 'tawk-chat-modal.js'), 'utf8');
+    const css = fs.readFileSync(path.join(platformDir, 'tawk-chat-modal.css'), 'utf8');
+    const consumers = ['index.html', 'recipe.html', 'category.html', 'ingredient.html', 'cabinet.html', 'login.html'];
+
+    expect(script).not.toContain("createElement('style')");
+    expect(script).not.toMatch(/\.style\./);
+    expect(script).toContain("document.body.classList.add('tawk-chat-open')");
+    expect(script).toContain("document.body.classList.remove('tawk-chat-open')");
+    expect(css).toContain('body.tawk-chat-open');
+    consumers.forEach(fileName => {
+      const html = fs.readFileSync(path.join(platformDir, fileName), 'utf8');
+      expect(html, fileName).toContain('tawk-chat-modal.css?v=20260713-csp-styles');
+      expect(html, fileName).toContain('tawk-chat-modal.js?v=20260713-csp-styles');
+    });
+  });
+
   it('keeps static admin controls free of inline event handlers', () => {
     const html = fs.readFileSync(path.join(platformDir, 'admin.html'), 'utf8');
     const script = fs.readFileSync(path.join(platformDir, 'admin.js'), 'utf8');
