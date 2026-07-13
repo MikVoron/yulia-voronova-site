@@ -227,16 +227,16 @@
     function ratingPillHtml(recipeId) {
         // Show '—' initially; loadApiRatings() will update with real server data
         const display = '—';
-        return `<div class="photo-rating-pill" id="rpill-${recipeId}" role="button"
-            onclick="event.stopPropagation();openRatingPopup('${recipeId}',this)">
+        return `<div class="photo-rating-pill" id="rpill-${recipeId}" role="button" tabindex="0"
+            data-ingredient-action="open-rating" data-recipe-id="${escHtml(recipeId)}">
             <span class="pr-star">★</span>
             <span class="pr-val">${display}</span>
         </div>`;
     }
 
     function commentBtnHtml(recipeId) {
-        return `<div class="photo-comment-btn" id="cbtn-${recipeId}" role="button"
-            onclick="event.stopPropagation();openComments('${recipeId}')">
+        return `<div class="photo-comment-btn" id="cbtn-${recipeId}" role="button" tabindex="0"
+            data-ingredient-action="open-comments" data-recipe-id="${escHtml(recipeId)}">
             <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
             Отзыв</div>`;
     }
@@ -267,7 +267,7 @@
         const locked = access.locked;
         const lockLevel = locked ? access.level : null;
         const photoHtml = _photo
-            ? `<img src="${_photo}" alt="${_name}" loading="lazy" onerror="imgFallback(this,'${_emoji}')"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
+            ? `<img src="${_photo}" alt="${_name}" loading="lazy" data-fallback-emoji="${_emoji}"${_imgPos ? ` style="object-position:${_imgPos}"` : ''}>`
             : `<div class="recipe-card-emoji">${_emoji}</div>`;
         const isFav = Auth.isLoggedIn() && Favorites.has(d.id);
         const lockBadgeClass = lockLevel === 'pro' ? 'locked-badge' : 'trial-badge';
@@ -282,13 +282,12 @@
         const _emptyStars = Array.from({length: 5}, () =>
             '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#e8400a" stroke-width="2"><polygon points="12 2 15 9 22 10 17 15 18 22 12 18 6 22 7 15 2 10 9 9 12 2"/></svg>'
         ).join('');
-        const clickAction = locked ? "showLockedMsg('" + _id + "')" : "goToRecipe('" + _id + "')";
         const accessHint = locked ? '. ' + access.label + '. ' + access.actionLabel : '';
-        return `<article class="recipe-card${locked ? ' locked' : ''}" role="button" tabindex="0" aria-label="${_name}${escHtml(accessHint)}" onclick="${clickAction}" onkeydown="if((event.key==='Enter'||event.key===' ')&&event.target===event.currentTarget){event.preventDefault();${clickAction}}">
+        return `<article class="recipe-card${locked ? ' locked' : ''}" role="button" tabindex="0" aria-label="${_name}${escHtml(accessHint)}" data-ingredient-card-action="${locked ? 'locked' : 'open'}" data-recipe-id="${escHtml(_id)}">
             <div class="recipe-card__media">
                 ${photoHtml}
                 ${lockBadge}${freeBadge}
-                ${locked ? '' : `<button class="recipe-card__bookmark${isFav ? ' active' : ''}" id="fav-${_id}" aria-label="В избранное" onclick="event.stopPropagation();toggleFav('${_id}')">
+                ${locked ? '' : `<button class="recipe-card__bookmark${isFav ? ' active' : ''}" id="fav-${_id}" aria-label="В избранное" data-ingredient-action="toggle-favorite" data-recipe-id="${escHtml(_id)}">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                 </button>`}
             </div>
@@ -297,9 +296,9 @@
                 <div class="recipe-card__details-line">
                 ${!locked ? `<div class="recipe-card__rating" id="rrow-${_id}">
                     <div class="rating-popup" id="rpop-${_id}">
-                        ${[1,2,3,4,5].map(i => `<span class="rp-star" data-n="${i}" onmouseenter="hoverPopStar('${_id}',${i})" onmouseleave="unhoverPopStar('${_id}')" onclick="event.stopPropagation();rateFromPop('${_id}',${i})">★</span>`).join('')}
+                        ${[1,2,3,4,5].map(i => `<span class="rp-star" data-n="${i}" data-ingredient-action="rate-from-popup" data-ingredient-hover="rating-star" data-recipe-id="${escHtml(_id)}" data-rating="${i}">★</span>`).join('')}
                     </div>
-                    <span class="recipe-card__rating-stars" id="rstars-${_id}" onclick="event.stopPropagation();openRatingPopup('${_id}',this)">${_emptyStars}</span>
+                    <span class="recipe-card__rating-stars" id="rstars-${_id}" data-ingredient-action="open-rating" data-recipe-id="${escHtml(_id)}">${_emptyStars}</span>
                     <span class="recipe-card__rating-text" id="rtext-${_id}"></span>
                 </div>` : ''}
                 <div class="recipe-card__meta">
@@ -330,10 +329,16 @@
             if (ar && ar.avg > 0) {
                 textEl.textContent = ar.avg + (ar.count > 0 ? ' (' + ar.count + ')' : '');
                 textEl.style.cursor = 'pointer';
-                textEl.onclick = function(e) { e.stopPropagation(); openComments(recipeId); };
+                textEl.dataset.ingredientAction = 'open-comments';
+                textEl.dataset.recipeId = recipeId;
+                textEl.setAttribute('role', 'button');
+                textEl.tabIndex = 0;
             } else {
                 textEl.textContent = '';
-                textEl.onclick = null;
+                delete textEl.dataset.ingredientAction;
+                delete textEl.dataset.recipeId;
+                textEl.removeAttribute('role');
+                textEl.removeAttribute('tabindex');
             }
         }
     }
@@ -619,7 +624,7 @@
             ? `<div class="comments-list">${reviews.map(rv => {
                 const canDelete = isAdmin || (curUserId && rv.userId === curUserId);
                 const avatarHtml = rv.avatar
-                    ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+                    ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0" data-review-avatar-fallback>`
                       + `<span class="review-avatar-fallback" style="display:none;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
                     : `<span style="width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
                 return `<div class="comment-item" style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)">
@@ -629,7 +634,7 @@
                             <span style="font-weight:700;font-size:14px;color:var(--text)">${escHtml(rv.author)}</span>
                             <div style="display:flex;align-items:center;gap:6px">
                                 <span style="font-size:11px;color:var(--text-3)">${fmtDate(rv.createdAt)}</span>
-                                ${canDelete ? `<button style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px" onclick="deleteCatReview(${rv.id},${isAdmin})" title="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>` : ''}
+                                ${canDelete ? `<button style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px" data-ingredient-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? '1' : '0'}" title="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>` : ''}
                             </div>
                         </div>
                         <div style="margin-bottom:4px">${starsHtml(rv.stars)}</div>
@@ -644,10 +649,10 @@
             ? `<div class="comments-form" style="margin-top:14px">
                 <div class="c-star-row">
                     <label>Оценка:</label>
-                    ${[1,2,3,4,5].map(i => `<span class="cstar" data-n="${i}" onclick="selectStar(${i})">★</span>`).join('')}
+                    ${[1,2,3,4,5].map(i => `<span class="cstar" data-n="${i}" data-ingredient-action="select-comment-star" data-rating="${i}">★</span>`).join('')}
                 </div>
                 <textarea class="c-input" id="c-text" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." rows="3"></textarea>
-                <button class="btn btn-orange btn-full" id="c-submit-btn" onclick="submitComment()">Отправить</button>
+                <button class="btn btn-orange btn-full" id="c-submit-btn" data-ingredient-action="submit-comment">Отправить</button>
             </div>`
             : Auth.isLoggedIn() && hasOwnReview
                 ? `<div style="text-align:center;padding:16px;color:var(--text-3);font-size:13px">Вы уже оставили отзыв на этот рецепт</div>`
@@ -798,14 +803,14 @@
                 <h2 class="pv1-headline">Соберите первый приём пищи</h2>
                 <div class="pv1-divider"></div>
                 <p class="pv1-sub">Выберите рецепт из категории — и он попадёт сюда. КБЖУ пересчитаются автоматически.</p>
-                <button class="pv1-cta" onclick="closePlate()">К рецептам →</button>
+                <button class="pv1-cta" data-ingredient-action="close-plate">К рецептам →</button>
             </div>`;
         } else {
             const t = Plate.totals();
             const list = items.map((item, i) => {
                 const safeName = escHtml(String(item.name || ''));
                 const nameHtml = item.recipeId
-                    ? `<div class="pv1-item-name is-link" onclick="closePlate();location.href='recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1'">${safeName}</div>`
+                    ? `<div class="pv1-item-name is-link" data-ingredient-action="open-plate-recipe" data-recipe-id="${escHtml(String(item.recipeId))}">${safeName}</div>`
                     : `<div class="pv1-item-name">${safeName}</div>`;
                 return `<div class="pv1-item">
                     ${item.photo
@@ -815,7 +820,7 @@
                         ${nameHtml}
                         <div class="pv1-item-meta">${Number(item.kcal) || 0} ккал · Б ${Number(item.protein) || 0} · Ж ${Number(item.fat) || 0} · У ${Number(item.carbs) || 0} · Кл ${Number(item.fiber) || 0}</div>
                     </div>
-                    <button class="pv1-item-del" onclick="removeItemCat(${Number(i)})" aria-label="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
+                    <button class="pv1-item-del" data-ingredient-action="remove-plate-item" data-index="${Number(i)}" aria-label="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
                 </div>`;
             }).join('');
             body.innerHTML = `<div class="pv1-items">${list}</div>
@@ -832,10 +837,10 @@
                 ${plateMealTypePickerHtml()}
                 <div class="pv1-actions">
                     <div class="pv1-actions-row">
-                        <button class="pv1-btn" onclick="location.href='index.html'">← На главную</button>
-                        <button class="pv1-btn" onclick="shareShoppingList()">Список продуктов</button>
+                        <button class="pv1-btn" data-ingredient-action="go-home">← На главную</button>
+                        <button class="pv1-btn" data-ingredient-action="share-shopping-list">Список продуктов</button>
                     </div>
-                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateCat()">Сохранить в журнал</button>
+                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" data-ingredient-action="save-plate">Сохранить в журнал</button>
                 </div>`;
         }
         document.getElementById('plate-overlay').classList.add('open');
@@ -854,6 +859,73 @@
         closePlate();
         showToast('Тарелка сохранена в журнал 🎉');
     }
+
+// CSP: dynamic ingredient templates use delegated events instead of event attributes.
+document.addEventListener('click', function (event) {
+    var actionTarget = event.target.closest('[data-ingredient-action]');
+    if (actionTarget) {
+        event.stopPropagation();
+        var action = actionTarget.dataset.ingredientAction;
+        var recipeId = actionTarget.dataset.recipeId || '';
+        if (action === 'open-rating') openRatingPopup(recipeId, actionTarget);
+        else if (action === 'open-comments') openComments(recipeId);
+        else if (action === 'toggle-favorite') toggleFav(recipeId);
+        else if (action === 'rate-from-popup') rateFromPop(recipeId, Number(actionTarget.dataset.rating));
+        else if (action === 'delete-review') deleteCatReview(Number(actionTarget.dataset.reviewId), actionTarget.dataset.isAdmin === '1');
+        else if (action === 'select-comment-star') selectStar(Number(actionTarget.dataset.rating));
+        else if (action === 'submit-comment') submitComment();
+        else if (action === 'close-plate') closePlate();
+        else if (action === 'open-plate-recipe') {
+            closePlate();
+            location.href = 'recipe.html?id=' + encodeURIComponent(recipeId) + '&from=plate&simple=1';
+        }
+        else if (action === 'remove-plate-item') removeItemCat(Number(actionTarget.dataset.index));
+        else if (action === 'go-home') location.href = 'index.html';
+        else if (action === 'share-shopping-list') shareShoppingList();
+        else if (action === 'save-plate') savePlateCat();
+        return;
+    }
+    var card = event.target.closest('[data-ingredient-card-action]');
+    if (!card) return;
+    var cardRecipeId = card.dataset.recipeId || '';
+    if (card.dataset.ingredientCardAction === 'locked') showLockedMsg(cardRecipeId);
+    else goToRecipe(cardRecipeId);
+});
+
+document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    var actionTarget = event.target.closest('[data-ingredient-action][role="button"]');
+    if (actionTarget && event.target === actionTarget) {
+        event.preventDefault();
+        actionTarget.click();
+        return;
+    }
+    var card = event.target.closest('[data-ingredient-card-action]');
+    if (!card || event.target !== card) return;
+    event.preventDefault();
+    card.click();
+});
+
+document.addEventListener('mouseover', function (event) {
+    var star = event.target.closest('[data-ingredient-hover="rating-star"]');
+    if (star) hoverPopStar(star.dataset.recipeId || '', Number(star.dataset.rating));
+});
+document.addEventListener('mouseout', function (event) {
+    var star = event.target.closest('[data-ingredient-hover="rating-star"]');
+    if (!star || star.contains(event.relatedTarget)) return;
+    unhoverPopStar(star.dataset.recipeId || '');
+});
+
+document.addEventListener('error', function (event) {
+    var image = event.target;
+    if (!(image instanceof HTMLImageElement)) return;
+    if (image.hasAttribute('data-review-avatar-fallback')) {
+        image.style.display = 'none';
+        if (image.nextElementSibling) image.nextElementSibling.style.display = 'flex';
+        return;
+    }
+    if (image.hasAttribute('data-fallback-emoji')) imgFallback(image, image.dataset.fallbackEmoji || '🍴');
+}, true);
 
 // CSP: static plate and comments modal controls migrated from HTML attributes.
 document.querySelectorAll('[data-modal-action]').forEach(function (control) {

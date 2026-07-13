@@ -184,6 +184,20 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain("image.hasAttribute('data-review-avatar-fallback')");
   });
 
+  it('keeps ingredient JavaScript templates free of inline event handlers', () => {
+    const html = fs.readFileSync(path.join(platformDir, 'ingredient.html'), 'utf8');
+    const script = fs.readFileSync(path.join(platformDir, 'ingredient-page.js'), 'utf8');
+
+    expect(script).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(script).not.toContain('.onclick =');
+    expect(html).toContain('ingredient-page.js?v=20260713-csp-template-actions');
+    expect(script).toContain('data-ingredient-card-action="${locked ? \'locked\' : \'open\'}"');
+    expect(script).toContain('data-ingredient-action="rate-from-popup"');
+    expect(script).toContain('data-ingredient-action="delete-review"');
+    expect(script).toContain('data-ingredient-action="save-plate"');
+    expect(script).toContain("image.hasAttribute('data-review-avatar-fallback')");
+  });
+
   it('keeps shared retry templates free of inline handlers and cache-busts every consumer', () => {
     const script = fs.readFileSync(path.join(platformDir, 'data-v2.js'), 'utf8');
     const consumers = [
