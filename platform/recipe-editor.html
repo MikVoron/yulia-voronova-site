@@ -1180,8 +1180,8 @@
     </div>
     <div class="re-topbar-actions">
         <span class="re-autosave" id="autosave-status"></span>
-        <button class="re-btn re-btn-secondary" id="btn-cancel" onclick="goBack()">Отмена</button>
-        <button class="re-btn re-btn-primary" id="btn-save" onclick="saveRecipe()">Сохранить</button>
+        <button class="re-btn re-btn-secondary" id="btn-cancel" data-editor-static-action="go-back">Отмена</button>
+        <button class="re-btn re-btn-primary" id="btn-save" data-editor-static-action="save-recipe">Сохранить</button>
     </div>
 </div>
 
@@ -1198,8 +1198,8 @@
                 <b>Найден несохранённый черновик</b> от <span id="draft-date"></span>. Восстановить?
             </div>
             <div class="re-draft-banner-actions">
-                <button class="re-btn" onclick="restoreDraft()" style="padding:6px 14px;font-size:12px;background:var(--yellow);color:#fff;border-color:var(--yellow)">Восстановить</button>
-                <button class="re-btn" onclick="discardDraft()" style="padding:6px 14px;font-size:12px">Отклонить</button>
+                <button class="re-btn" data-editor-static-action="restore-draft" style="padding:6px 14px;font-size:12px;background:var(--yellow);color:#fff;border-color:var(--yellow)">Восстановить</button>
+                <button class="re-btn" data-editor-static-action="discard-draft" style="padding:6px 14px;font-size:12px">Отклонить</button>
             </div>
         </div>
 
@@ -1209,7 +1209,7 @@
 
         <!-- ══════════ AI Autofill Panel ══════════ -->
         <div class="re-ai-panel" id="ai-panel">
-            <button class="re-ai-toggle" onclick="toggleAiPanel()">
+            <button class="re-ai-toggle" data-editor-static-action="toggle-ai-panel">
                 <span>🤖 AI-помощник — заполнить рецепт из текста</span>
                 <span class="re-ai-toggle-arrow">▼</span>
             </button>
@@ -1220,7 +1220,7 @@
                 </div>
                 <textarea class="re-ai-textarea" id="ai-input" placeholder="Вставьте сюда текст рецепта...&#10;&#10;Например:&#10;Паста с томатами и базиликом&#10;Время: 25 минут&#10;На 2 порции&#10;&#10;Ингредиенты:&#10;- 200 г спагетти&#10;- 3 помидора&#10;- Пучок базилика&#10;- 2 зубчика чеснока&#10;- Оливковое масло&#10;&#10;Приготовление:&#10;1. Отварить пасту до состояния аль денте.&#10;2. Нарезать помидоры и чеснок.&#10;3. Обжарить чеснок в масле, добавить помидоры.&#10;4. Смешать с пастой, добавить базилик."></textarea>
                 <div class="re-ai-actions">
-                    <button class="re-ai-btn" id="ai-parse-btn" onclick="aiParseRecipe()">Распознать</button>
+                    <button class="re-ai-btn" id="ai-parse-btn" data-editor-static-action="ai-parse-recipe">Распознать</button>
                     <span class="re-ai-status" id="ai-status"></span>
                 </div>
                 <div id="ai-result"></div>
@@ -1238,7 +1238,7 @@
                     <label class="re-label">ID (slug)</label>
                     <div style="display:flex;gap:6px">
                         <input type="text" class="re-input" id="re-id" placeholder="my-new-recipe" style="flex:1">
-                        <button class="re-btn" id="btn-gen-slug" onclick="generateSlug()" title="Сгенерировать из названия" style="padding:8px 12px;font-size:12px;white-space:nowrap">ID ←</button>
+                        <button class="re-btn" id="btn-gen-slug" data-editor-static-action="generate-slug" title="Сгенерировать из названия" style="padding:8px 12px;font-size:12px;white-space:nowrap">ID ←</button>
                     </div>
                     <div class="re-hint">Уникальный идентификатор. Нельзя менять после создания.</div>
                 </div>
@@ -1470,7 +1470,7 @@
             </div>
 
             <!-- Автоматический расчёт КБЖУ временно отключён: считает КБЖУ сухих ингредиентов, а нужно на готовое блюдо. Вводите значения вручную. -->
-            <button class="re-nutrition-btn" id="btn-calc-nutrition" onclick="calcNutrition()" style="display:none">
+            <button class="re-nutrition-btn" id="btn-calc-nutrition" data-editor-static-action="calc-nutrition" style="display:none">
                 🔬 Рассчитать КБЖУ по ингредиентам
             </button>
             <div style="font-size:12px;color:var(--text-3);padding:8px 0">
@@ -1498,8 +1498,8 @@
                 </table>
                 <div class="re-nutrition-warnings" id="nutrition-warnings"></div>
                 <div class="re-nutrition-actions">
-                    <button class="re-btn" onclick="applyNutrition()" style="background:var(--accent);color:#fff;border-color:var(--accent)">Применить на порцию</button>
-                    <button class="re-btn" onclick="applyNutrition();document.getElementById('nutrition-panel').classList.remove('open')">Применить и закрыть</button>
+                    <button class="re-btn" data-editor-static-action="apply-nutrition" style="background:var(--accent);color:#fff;border-color:var(--accent)">Применить на порцию</button>
+                    <button class="re-btn" data-editor-static-action="apply-nutrition-close">Применить и закрыть</button>
                 </div>
             </div>
         </div>
@@ -1511,7 +1511,7 @@
                 <span class="re-section-count" id="count-ingredients"></span>
             </div>
             <div class="re-list" id="re-ingredients-list"></div>
-            <button class="re-list-add" onclick="addIngredient()">+ Добавить ингредиент</button>
+            <button class="re-list-add" data-editor-static-action="add-ingredient">+ Добавить ингредиент</button>
         </div>
 
         <!-- ══════════ Секция 4б: Основные ингредиенты для выборок ══════════ -->
@@ -1536,7 +1536,7 @@
                     <label class="re-label" for="re-mi-id">id</label>
                     <input class="re-input" id="re-mi-id" placeholder="cod">
                 </div>
-                <button type="button" class="re-btn" onclick="addMainIngredientToCatalog()">Добавить</button>
+                <button type="button" class="re-btn" data-editor-static-action="add-main-ingredient-to-catalog">Добавить</button>
                 <div class="re-mi-add-status" id="re-mi-add-status">Добавление создаёт ингредиент в общем справочнике и сразу отмечает его в рецепте.</div>
             </div>
             <div id="re-main-ingredients" class="re-mi"></div>
@@ -1549,7 +1549,7 @@
                 <span class="re-section-count" id="count-steps"></span>
             </div>
             <div class="re-list" id="re-steps-list"></div>
-            <button class="re-list-add" onclick="addStep()">+ Добавить шаг</button>
+            <button class="re-list-add" data-editor-static-action="add-step">+ Добавить шаг</button>
         </div>
 
         <!-- ══════════ Секция 6: Добавки к тарелке ══════════ -->
@@ -1565,25 +1565,25 @@
             <div class="re-add-panel-group">
                 <div class="re-add-panel-label">🥩 Добавить белок</div>
                 <div class="re-list" id="re-add-protein-list"></div>
-                <button class="re-list-add" onclick="addAddItem('protein')">+ Белок</button>
+                <button class="re-list-add" data-editor-static-action="add-addon-item" data-addon-group="protein">+ Белок</button>
             </div>
 
             <div class="re-add-panel-group">
                 <div class="re-add-panel-label">🥑 Добавить жиры</div>
                 <div class="re-list" id="re-add-fat-list"></div>
-                <button class="re-list-add" onclick="addAddItem('fat')">+ Жиры</button>
+                <button class="re-list-add" data-editor-static-action="add-addon-item" data-addon-group="fat">+ Жиры</button>
             </div>
 
             <div class="re-add-panel-group">
                 <div class="re-add-panel-label">🍞 Добавить углеводы</div>
                 <div class="re-list" id="re-add-carbs-list"></div>
-                <button class="re-list-add" onclick="addAddItem('carbs')">+ Углеводы</button>
+                <button class="re-list-add" data-editor-static-action="add-addon-item" data-addon-group="carbs">+ Углеводы</button>
             </div>
 
             <div class="re-add-panel-group">
                 <div class="re-add-panel-label">🥬 Добавить клетчатку</div>
                 <div class="re-list" id="re-add-fiber-list"></div>
-                <button class="re-list-add" onclick="addAddItem('fiber')">+ Клетчатка</button>
+                <button class="re-list-add" data-editor-static-action="add-addon-item" data-addon-group="fiber">+ Клетчатка</button>
             </div>
 
             <div style="margin-top:20px;padding-top:16px;border-top:1px dashed var(--border)">
@@ -1614,7 +1614,7 @@
 
         <!-- ══════════ Preview ══════════ -->
         <div class="re-preview-section" id="preview-section">
-            <button class="re-preview-toggle" onclick="togglePreview()">
+            <button class="re-preview-toggle" data-editor-static-action="toggle-preview">
                 <span>👁 Превью карточки</span>
                 <span class="re-ai-toggle-arrow" id="preview-arrow">▼</span>
             </button>
@@ -1634,7 +1634,7 @@
         <div class="re-save-success-sub" id="save-success-sub"></div>
         <div class="re-save-success-actions">
             <a class="re-btn re-btn-primary" id="save-success-open" href="#">Открыть рецепт</a>
-            <button class="re-btn re-btn-secondary" onclick="dismissSuccess()">Продолжить редактирование</button>
+            <button class="re-btn re-btn-secondary" data-editor-static-action="dismiss-success">Продолжить редактирование</button>
             <a class="re-btn re-btn-secondary" href="admin.html?tab=recipes">&larr; Вернуться к списку рецептов</a>
         </div>
     </div>
@@ -1645,6 +1645,6 @@
 
 <script src="data-v2.js?v=20260713-secure-content-cache"></script>
 <script src="ingredients.js?v=20260711-oats-seabass"></script>
-<script src="recipe-editor.js?v=20260713-csp-external-scripts"></script>
+<script src="recipe-editor.js?v=20260713-csp-static-controls"></script>
 </body>
 </html>

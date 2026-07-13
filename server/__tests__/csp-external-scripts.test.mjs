@@ -130,4 +130,16 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain("document.querySelectorAll('[data-recipe-static-action]')");
     expect(script).toContain("control.addEventListener('keydown', handleMiniStatusKey)");
   });
+
+  it('keeps the recipe editor free of static inline event handlers', () => {
+    const html = fs.readFileSync(path.join(platformDir, 'recipe-editor.html'), 'utf8');
+    const script = fs.readFileSync(path.join(platformDir, 'recipe-editor.js'), 'utf8');
+
+    expect(html).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(html.match(/\sdata-editor-static-action=/g)).toHaveLength(19);
+    expect(html.match(/\sdata-addon-group=/g)).toHaveLength(4);
+    expect(html).toContain('recipe-editor.js?v=20260713-csp-static-controls');
+    expect(script).toContain("document.querySelectorAll('[data-editor-static-action]')");
+    expect(script).toContain("addAddItem(control.dataset.addonGroup || '')");
+  });
 });

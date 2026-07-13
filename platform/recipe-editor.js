@@ -1906,6 +1906,32 @@
         clearError('re-cat');
     });
 
+    // CSP: static editor controls migrated from HTML event attributes.
+    document.querySelectorAll('[data-editor-static-action]').forEach(function(control) {
+        control.addEventListener('click', function() {
+            var action = control.dataset.editorStaticAction;
+            if (action === 'go-back') goBack();
+            else if (action === 'save-recipe') saveRecipe();
+            else if (action === 'restore-draft') restoreDraft();
+            else if (action === 'discard-draft') discardDraft();
+            else if (action === 'toggle-ai-panel') toggleAiPanel();
+            else if (action === 'ai-parse-recipe') aiParseRecipe();
+            else if (action === 'generate-slug') generateSlug();
+            else if (action === 'calc-nutrition') calcNutrition();
+            else if (action === 'apply-nutrition') applyNutrition();
+            else if (action === 'apply-nutrition-close') {
+                applyNutrition();
+                document.getElementById('nutrition-panel').classList.remove('open');
+            }
+            else if (action === 'add-ingredient') addIngredient();
+            else if (action === 'add-main-ingredient-to-catalog') addMainIngredientToCatalog();
+            else if (action === 'add-step') addStep();
+            else if (action === 'add-addon-item') addAddItem(control.dataset.addonGroup || '');
+            else if (action === 'toggle-preview') togglePreview();
+            else if (action === 'dismiss-success') dismissSuccess();
+        });
+    });
+
     function esc(s) {
         return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
