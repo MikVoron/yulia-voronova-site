@@ -88,12 +88,18 @@ production-smoke подтвердил открытие plate и закрытие
 Один `onclick` кнопки новостей появляется только из известного JS-шаблона и
 учтён в отдельном остатке JavaScript ниже.
 
+Все 16 статических event attributes `recipe.html` перенесены в
+`recipe-page.js`: mini balance status, back-to-top, добавление в тарелку,
+balance/guest modals и grocery modal. Desktop/mobile production-smoke
+подтвердил мышь и клавиатуру, гостевой prompt, прокрутку и grocery controls;
+enforced CSP- и JavaScript-ошибок, а также горизонтального overflow нет.
+
 В самих HTML-файлах сейчас остаются:
 
 | Страница | `on*=` обработчики | Основные оставшиеся группы |
 |---|---:|---|
 | `index.html` | 0 | статические handlers полностью перенесены |
-| `recipe.html` | 16 | balance UI, карусель шагов, grocery modal |
+| `recipe.html` | 0 | статические handlers полностью перенесены |
 | `category.html` | 0 | статические handlers полностью перенесены |
 | `ingredient.html` | 0 | статические handlers полностью перенесены |
 | `recipe-editor.html` | 19 | редактор и modal actions |
@@ -108,7 +114,7 @@ production-smoke подтвердил открытие plate и закрытие
 В `header-nav.js` и `admin.js` подстановка данных в JavaScript-атрибуты
 удалена полностью.
 
-В production HTML осталось 77 обработчиков, ещё 90 создаётся JS-шаблонами.
+В production HTML остался 61 обработчик, ещё 90 создаётся JS-шаблонами.
 Полный актуальный список воспроизводится командой:
 
 ```powershell
@@ -160,8 +166,8 @@ rg -n "\son[a-z]+\s*=" platform -g "*.html" -g "*.js"
 2. Переносить оставшиеся обработчики партиями: `login`, `admin`,
    `popup-preview`, общие header/drawer controls и статические фильтры готовы;
    статические plate/comments modal controls и `index.html` также готовы;
-   далее статические controls в `recipe`, `recipe-editor` и `cabinet`, затем
-   обработчики JS-шаблонов.
+   `recipe.html` также готов; далее статические controls в `recipe-editor` и
+   `cabinet`, затем обработчики JS-шаблонов.
 3. Для статического nginx-сайта основной вариант — внешние first-party
    скрипты. Для редкого неизбежного inline bootstrap использовать SHA-256
    hash. Nonce применять только если HTML начнёт формироваться на каждый
