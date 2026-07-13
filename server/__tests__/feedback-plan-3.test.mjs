@@ -3,10 +3,11 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { readPlatformSource } from './helpers/platform-source.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const platform = path.resolve(here, '../../platform');
-const read = file => fs.readFileSync(path.join(platform, file), 'utf8');
+const read = file => readPlatformSource(platform, file);
 
 describe('SmartPlate feedback plan 3 contracts', () => {
   it('keeps payment details above the longer early-access explanation', () => {

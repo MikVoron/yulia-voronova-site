@@ -1,0 +1,37 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import vm from 'node:vm';
+import { describe, expect, it } from 'vitest';
+
+const platformDir = path.resolve(import.meta.dirname, '../../platform');
+const nginxConfig = fs.readFileSync(path.resolve(import.meta.dirname, '../nginx/app.voronova.online'), 'utf8');
+const htmlFiles = fs.readdirSync(platformDir).filter(name => name.endsWith('.html'));
+
+describe('SmartPlate CSP script migration', () => {
+  it('keeps executable script blocks out of every platform HTML file', () => {
+    for (const name of htmlFiles) {
+      const html = fs.readFileSync(path.join(platformDir, name), 'utf8');
+      expect(html, name).not.toMatch(/<script(?![^>]*\bsrc=)[^>]*>/i);
+    }
+  });
+
+  it('references existing, syntactically valid first-party scripts', () => {
+    for (const name of htmlFiles) {
+      const html = fs.readFileSync(path.join(platformDir, name), 'utf8');
+      for (const match of html.matchAll(/<script[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi)) {
+        const src = match[1].split('?')[0];
+        if (/^(?:https?:)?\/\//i.test(src)) continue;
+        const scriptPath = path.resolve(platformDir, src);
+        expect(fs.existsSync(scriptPath), `${name} -> ${src}`).toBe(true);
+        expect(() => new vm.Script(fs.readFileSync(scriptPath, 'utf8'), { filename: src })).not.toThrow();
+      }
+    }
+  });
+
+  it('blocks inline script elements while observing remaining event attributes', () => {
+    expect(nginxConfig).toContain("script-src-elem 'self'");
+    expect(nginxConfig).toContain("script-src-attr 'unsafe-inline'");
+    expect(nginxConfig).toContain('Content-Security-Policy-Report-Only');
+    expect(nginxConfig).toContain("script-src-attr 'none'");
+  });
+});

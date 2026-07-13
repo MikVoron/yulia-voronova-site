@@ -1,6 +1,6 @@
 # CSP и остаточный XSS-аудит SmartPlate
 
-Дата проверки: 2026-06-27.
+Дата проверки: 2026-06-27. Первый этап CSP-миграции обновлён 2026-07-13.
 
 ## Область проверки
 
@@ -22,18 +22,36 @@
 
 ## Inline scripts
 
+13 июля все исполняемые inline `<script>` вынесены во внешние first-party
+файлы без изменения порядка выполнения: `index-bootstrap.js`, `index-page.js`,
+`recipe-page.js`, `category-page.js`, `ingredient-page.js` и `login.js`. В целевых HTML-файлах
+исполняемых inline script-блоков больше нет.
+
+Дополнительная проверка всей production-папки выявила и закрыла inline-блоки
+в `auth-callback.html`, `recipe-editor.html` и `popup-preview.html`. Для них
+добавлены `auth-callback.js`, `recipe-editor-access-level.js`,
+`recipe-editor.js` и `popup-preview.js`. Поиск по всем `platform/*.html`
+теперь не находит исполняемых `<script>` без `src`.
+
+Enforced CSP использует `script-src-elem 'self'`, поэтому новый inline
+`<script>` блокируется в CSP3-браузерах. Атрибуты-обработчики временно
+разрешены отдельным `script-src-attr 'unsafe-inline'`. Параллельно включена
+`Content-Security-Policy-Report-Only` с `script-src-attr 'none'`: она показывает
+оставшиеся обработчики, но не ломает production до окончания миграции.
+
 | Страница | Встроенные `<script>` | Внешние first-party scripts |
 |---|---:|---:|
-| `index.html` | 1 | 4 |
-| `recipe.html` | 1 | 4 |
-| `category.html` | 1 | 4 |
-| `ingredient.html` | 1 | 4 |
+| `index.html` | 0 | 6 |
+| `recipe.html` | 0 | 5 |
+| `category.html` | 0 | 5 |
+| `ingredient.html` | 0 | 5 |
 | `cabinet.html` | 0 | 5 |
-| `login.html` | 1 | 2 |
+| `login.html` | 0 | 3 |
 | `admin.html` | 0 | 2 |
 
-Итого: 4 больших встроенных script-блока. Именно они, вместе с HTML-
-обработчиками, пока не позволяют удалить `'unsafe-inline'` из `script-src`.
+В основных пользовательских страницах встроенных script-блоков больше нет.
+Полностью удалить fallback `'unsafe-inline'` пока не позволяют HTML-
+обработчики и поддержка старых браузеров без `script-src-attr`.
 
 ## Inline handlers
 
@@ -98,17 +116,18 @@ rg -n "on(click|submit|error|change|input|keydown|mouseenter|mouseleave)=" platf
 
 ## План перехода CSP
 
-1. Вынести четыре встроенных блока в `index-page.js`, `recipe-page.js`,
-   `category-page.js`, `login.js` и подключать их с `defer`.
+1. ✅ Вынести встроенные блоки в first-party JS без изменения порядка
+   выполнения. Выполнено 13 июля для `index`, `recipe`, `category`,
+   `ingredient`, `login`.
 2. Переносить оставшиеся обработчики партиями: `login` готов; далее
    `admin`, header/drawer, фильтры, plate modal, затем сложный balance UI.
 3. Для статического nginx-сайта основной вариант — внешние first-party
    скрипты. Для редкого неизбежного inline bootstrap использовать SHA-256
    hash. Nonce применять только если HTML начнёт формироваться на каждый
    запрос; постоянный nonce безопасности не даёт.
-4. Сначала включить `Content-Security-Policy-Report-Only` без
-   `'unsafe-inline'` в `script-src`, собрать нарушения обычных сценариев и
-   исправить их.
+4. ✅ Включить `Content-Security-Policy-Report-Only` без
+   `'unsafe-inline'` в `script-src` и с `script-src-attr 'none'`. Включено в
+   конфигурации; до production deploy требуется smoke-проверка основных страниц.
 5. После чистого отчёта включить enforced CSP. `'unsafe-inline'` в
    `style-src` убирать отдельным этапом после переноса inline styles.
 
