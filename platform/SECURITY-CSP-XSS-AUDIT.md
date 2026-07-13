@@ -130,6 +130,12 @@ JavaScript-ошибок нет.
 вес и норму воды, shop mode, копирование списка и empty-plate CTA. Запись веса
 была перехвачена до сети; CSP- и JavaScript-ошибок нет.
 
+Все девять inline handlers в шаблонах `cabinet.js` перенесены в существующий
+`data-cabinet-action` dispatcher: обе subscription CTA, dismiss платёжного
+уведомления, reload и пять действий plate modal. Изолированный production-smoke
+подтвердил все маршруты; dismiss, plate sync и history API-записи были
+перехвачены до сети, CSP- и JavaScript-ошибок нет.
+
 Статические production HTML-файлы теперь очищены:
 
 | Страница | `on*=` обработчики | Основные оставшиеся группы |
@@ -144,13 +150,13 @@ JavaScript-ошибок нет.
 | `admin.html` | 0 | 50 статических controls перенесены в `admin.js` |
 | `popup-preview.html` | 0 | 11 preview actions перенесены в `popup-preview.js` |
 
-В JavaScript-шаблонах остаётся 68 обработчиков: `recipe-page.js` — 39,
-`ingredient-page.js` — 20 и `cabinet.js` — 9. `index-page.js`,
-`recipe-editor.js`, `category-page.js` и `data-v2.js` очищены полностью.
+В JavaScript-шаблонах остаётся 59 обработчиков: `recipe-page.js` — 39 и
+`ingredient-page.js` — 20. `cabinet.js`, `index-page.js`, `recipe-editor.js`,
+`category-page.js` и `data-v2.js` очищены полностью.
 В `header-nav.js` и `admin.js` подстановка данных в JavaScript-атрибуты
 удалена полностью.
 
-В production HTML обработчиков не осталось; 68 всё ещё создаётся
+В production HTML обработчиков не осталось; 59 всё ещё создаётся
 JS-шаблонами.
 Полный актуальный список воспроизводится командой:
 
