@@ -127,7 +127,9 @@ rg -n "on(click|submit|error|change|input|keydown|mouseenter|mouseleave)=" platf
    запрос; постоянный nonce безопасности не даёт.
 4. ✅ Включить `Content-Security-Policy-Report-Only` без
    `'unsafe-inline'` в `script-src` и с `script-src-attr 'none'`. Включено в
-   конфигурации; до production deploy требуется smoke-проверка основных страниц.
+   production 13 июля. Desktop/mobile smoke основных страниц прошёл без
+   JavaScript-ошибок; CSP-лог содержит только ожидаемые Report-Only нарушения
+   от ещё не перенесённых event attributes, блокировок внешних scripts нет.
 5. После чистого отчёта включить enforced CSP. `'unsafe-inline'` в
    `style-src` убирать отдельным этапом после переноса inline styles.
 
