@@ -1851,6 +1851,20 @@
 				else if (action === 'close-feedback-thread') closeFeedbackThread(actionTarget.dataset.threadId || '', actionTarget);
 				else if (action === 'close-feedback-reply') closeFeedbackReplyForm(actionTarget.dataset.threadId || '');
 				else if (action === 'hide-feedback') hideFeedback(actionTarget.dataset.threadId || '', actionTarget);
+				else if (action === 'open-avatar-picker') openAvatarPicker();
+				else if (action === 'start-edit-name') startEditName();
+				else if (action === 'open-history-export') openHistoryExport();
+				else if (action === 'toggle-pay-section') togglePaySection();
+				else if (action === 'go-pay-step') goPayStep(Number(actionTarget.dataset.step));
+				else if (action === 'copy-card') copyCard();
+				else if (action === 'clear-screenshot') clearScreenshot();
+				else if (action === 'submit-payment') submitPayment();
+				else if (action === 'reset-pay-wizard') resetPayWizard();
+				else if (action === 'close-history-export') closeHistoryExport();
+				else if (action === 'export-history') exportHistory();
+				else if (action === 'add-note') addNote();
+				else if (action === 'pick-feedback-category') pickFbCat(actionTarget);
+				else if (action === 'send-feedback') sendFeedback();
 				return;
 			}
 			const favoriteTarget = event.target.closest('[data-favorite-id]');
@@ -2339,4 +2353,56 @@ document.querySelectorAll('[data-modal-action]').forEach(function (control) {
         else if (action === 'close-plate') closePlate();
         else if (action === 'save-plate') savePlate();
     });
+});
+
+// CSP: remaining static cabinet fields migrated from HTML event attributes.
+var cabinetAvatarUpload = document.getElementById('ava-upload');
+cabinetAvatarUpload.addEventListener('change', function () {
+    handleAvatarUpload(cabinetAvatarUpload);
+});
+
+var cabinetCustomName = document.getElementById('cab-custom-name');
+cabinetCustomName.addEventListener('focus', function () {
+    cabinetCustomName.style.borderColor = 'var(--accent)';
+});
+cabinetCustomName.addEventListener('blur', function () {
+    cabinetCustomName.style.borderColor = 'var(--border)';
+    finishEditName();
+});
+cabinetCustomName.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') cabinetCustomName.blur();
+});
+
+var cabinetWeight = document.getElementById('cab-weight');
+cabinetWeight.addEventListener('input', function () {
+    previewWeight(cabinetWeight.value);
+});
+cabinetWeight.addEventListener('blur', function () {
+    commitWeight(cabinetWeight);
+});
+
+var payScreenshotLabel = document.getElementById('pay-screenshot-label');
+payScreenshotLabel.addEventListener('mouseenter', function () {
+    payScreenshotLabel.style.borderColor = 'var(--accent)';
+});
+payScreenshotLabel.addEventListener('mouseleave', function () {
+    payScreenshotLabel.style.borderColor = 'var(--border)';
+});
+
+document.querySelectorAll('[data-cabinet-change]').forEach(function (control) {
+    control.addEventListener('change', function () {
+        var action = control.dataset.cabinetChange;
+        if (action === 'preview-screenshot') previewScreenshot(control);
+        else if (action === 'history-range') updateHistoryDateRange();
+        else if (action === 'history-custom-range') useCustomHistoryRange();
+    });
+});
+
+document.querySelectorAll('[data-dietary-flag], #dietary-allow-swaps').forEach(function (control) {
+    control.addEventListener('change', scheduleDietarySave);
+});
+
+var newsletterToggle = document.getElementById('newsletter-toggle');
+newsletterToggle.addEventListener('change', function () {
+    toggleNewsletter(newsletterToggle.checked);
 });

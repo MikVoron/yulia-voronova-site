@@ -142,4 +142,17 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain("document.querySelectorAll('[data-editor-static-action]')");
     expect(script).toContain("addAddItem(control.dataset.addonGroup || '')");
   });
+
+  it('keeps the cabinet free of static inline event handlers', () => {
+    const html = fs.readFileSync(path.join(platformDir, 'cabinet.html'), 'utf8');
+    const script = fs.readFileSync(path.join(platformDir, 'cabinet.js'), 'utf8');
+
+    expect(html).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(html).toContain('cabinet.js?v=20260713-csp-static-controls');
+    expect(html.match(/\sdata-cabinet-action=/g)).toHaveLength(19);
+    expect(html.match(/\sdata-cabinet-change=/g)).toHaveLength(4);
+    expect(script).toContain("else if (action === 'open-avatar-picker') openAvatarPicker()");
+    expect(script).toContain("document.querySelectorAll('[data-cabinet-change]')");
+    expect(script).toContain("control.addEventListener('change', scheduleDietarySave)");
+  });
 });

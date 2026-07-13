@@ -18,7 +18,7 @@ describe('SmartPlate feedback plan 5 contracts', () => {
     expect(recipe).toContain('align-items: center !important;');
     expect(recipe).toContain('.review-form-wrap.is-modal');
     expect(cabinet).toMatch(/\.fav-filters\s*\{[\s\S]*?border-bottom:\s*0/);
-    expect(cabinet).toContain('onclick="openAvatarPicker()"');
+    expect(cabinet).toContain('data-cabinet-action="open-avatar-picker"');
     expect(cabinetJs).toContain('function openAvatarPicker()');
     expect(cabinetJs).not.toContain('function updateNlSlider(');
   });

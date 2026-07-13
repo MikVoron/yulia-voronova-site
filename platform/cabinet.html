@@ -1774,7 +1774,7 @@
 		</aside>
 	</div>
 
-	<input type="file" id="ava-upload" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" onchange="handleAvatarUpload(this)">
+	<input type="file" id="ava-upload" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none">
 
 	<main class="cab-main">
 		<div class="v-wrap">
@@ -1786,7 +1786,7 @@
 			<section class="cab-hero anim">
 				<div class="cab-hero-ava">
 					<div class="cab-ava" id="cab-ava">?</div>
-					<button class="cab-hero-ava-edit" type="button" onclick="openAvatarPicker()" aria-label="Изменить аватар">
+					<button class="cab-hero-ava-edit" type="button" data-cabinet-action="open-avatar-picker" aria-label="Изменить аватар">
 						<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83z"/></svg>
 					</button>
 				</div>
@@ -1794,7 +1794,7 @@
 					<div class="cab-hero-eyebrow">Личный кабинет</div>
 					<div class="cab-hero-name-row">
 						<h1 class="cab-name" id="cab-name">—</h1>
-						<button id="name-edit-btn" class="cab-hero-name-edit" type="button" onclick="startEditName()" style="display:none" title="Изменить имя" aria-label="Изменить имя">
+						<button id="name-edit-btn" class="cab-hero-name-edit" type="button" data-cabinet-action="start-edit-name" style="display:none" title="Изменить имя" aria-label="Изменить имя">
 							<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg>
 						</button>
 					</div>
@@ -1804,7 +1804,7 @@
 						<span class="cab-since" id="cab-since"></span>
 					</div>
 					<div class="cab-name-edit-row" id="name-edit-row" style="display:none">
-						<input type="text" id="cab-custom-name" placeholder="Как вас зовут?" maxlength="30" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)';finishEditName()" onkeydown="if(event.key==='Enter'){this.blur()}">
+						<input type="text" id="cab-custom-name" placeholder="Как вас зовут?" maxlength="30" data-cabinet-field="custom-name">
 						<span class="cab-name-saved" id="name-saved-msg">Сохранено</span>
 					</div>
 
@@ -1812,7 +1812,7 @@
 						<div class="cab-kpi kpi-base">
 							<span class="cab-kpi-label"><svg class="cab-kpi-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a4 4 0 0 1 4 4c0 1.5-.8 2.5-1.5 3.5C16 12 19 14 19 18a7 7 0 0 1-14 0c0-4 3-6 4.5-7.5C8.8 9.5 8 8.5 8 7a4 4 0 0 1 4-4z"/></svg>Мой вес</span>
 							<div class="cab-kpi-row">
-								<input type="number" class="cab-weight-input" id="cab-weight" placeholder="—" min="30" max="300" step="0.5" inputmode="decimal" oninput="previewWeight(this.value)" onblur="commitWeight(this)">
+								<input type="number" class="cab-weight-input" id="cab-weight" placeholder="—" min="30" max="300" step="0.5" inputmode="decimal" data-cabinet-field="weight">
 								<span class="cab-kpi-unit">кг</span>
 							</div>
 							<span class="cab-kpi-hint">Введите вес — рассчитаем норму воды</span>
@@ -1832,7 +1832,7 @@
 							<div class="cab-kpi-row">
 								<span class="cab-kpi-val" id="cab-plates-count">0</span>
 							</div>
-							<button class="cab-kpi-export" type="button" onclick="openHistoryExport()">Выгрузить журнал →</button>
+							<button class="cab-kpi-export" type="button" data-cabinet-action="open-history-export">Выгрузить журнал →</button>
 						</div>
 
 						<div class="cab-kpi kpi-favorites">
@@ -1872,7 +1872,7 @@
 				<div id="sub-status-wrap"></div>
 
 				<div class="pay-section">
-					<button class="btn btn-orange" id="pay-toggle-btn" onclick="togglePaySection()" type="button" style="display:none;width:100%;padding:16px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;border-radius:0" aria-hidden="true">
+					<button class="btn btn-orange" id="pay-toggle-btn" data-cabinet-action="toggle-pay-section" type="button" style="display:none;width:100%;padding:16px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;border-radius:0" aria-hidden="true">
 						Оформить подписку
 					</button>
 					<div id="pay-details" style="display:none;margin-top:24px">
@@ -1892,7 +1892,7 @@
 						<div class="pay-wizard-step" id="pay-step-1">
 							<div class="pay-plan-grid" id="pay-plan-grid"></div>
 							<div class="pay-actions pay-actions--single">
-								<button class="btn btn-orange pay-action-btn pay-action-primary pay-next-btn" id="pay-next-1" onclick="goPayStep(2)" type="button" disabled>Далее</button>
+								<button class="btn btn-orange pay-action-btn pay-action-primary pay-next-btn" id="pay-next-1" data-cabinet-action="go-pay-step" data-step="2" type="button" disabled>Далее</button>
 							</div>
 						</div>
 
@@ -1905,7 +1905,7 @@
 										<div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Номер карты</div>
 										<div class="pay-card-number" id="pay-card-num">5536 9140 1940 4148</div>
 									</div>
-									<button class="pay-copy-btn" onclick="copyCard()" type="button" id="pay-copy-btn">Скопировать</button>
+									<button class="pay-copy-btn" data-cabinet-action="copy-card" type="button" id="pay-copy-btn">Скопировать</button>
 								</div>
 								<div class="pay-card-details">
 									<div><span style="color:var(--text-3)">Получатель:</span> <strong>Воронова Юлия Игоревна</strong></div>
@@ -1916,8 +1916,8 @@
 								</div>
 							</div>
 						<div class="pay-actions">
-							<button class="btn btn-ghost pay-action-btn pay-action-back" onclick="goPayStep(1)" type="button">Назад</button>
-							<button class="btn btn-orange pay-action-btn pay-action-primary pay-transfer-btn" onclick="goPayStep(3)" type="button">Я перевёл, далее</button>
+							<button class="btn btn-ghost pay-action-btn pay-action-back" data-cabinet-action="go-pay-step" data-step="1" type="button">Назад</button>
+							<button class="btn btn-orange pay-action-btn pay-action-primary pay-transfer-btn" data-cabinet-action="go-pay-step" data-step="3" type="button">Я перевёл, далее</button>
 							</div>
 						</div>
 
@@ -1935,14 +1935,14 @@
 								</div>
 								<div class="pay-field">
 									<label for="pay-screenshot">Скриншот перевода <span style="font-weight:400;color:var(--text-3);text-transform:none;letter-spacing:0">(необязательно)</span></label>
-									<label id="pay-screenshot-label" style="display:flex;align-items:center;gap:8px;padding:12px 16px;border:1.5px dashed var(--border);cursor:pointer;font-size:13px;color:var(--text-2);transition:border-color .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+									<label id="pay-screenshot-label" data-cabinet-hover="screenshot-label" style="display:flex;align-items:center;gap:8px;padding:12px 16px;border:1.5px dashed var(--border);cursor:pointer;font-size:13px;color:var(--text-2);transition:border-color .2s">
 										<span style="font-size:20px">📎</span>
 										<span id="pay-screenshot-name">Прикрепить изображение</span>
-										<input type="file" id="pay-screenshot" accept="image/*" style="display:none" onchange="previewScreenshot(this)">
+										<input type="file" id="pay-screenshot" accept="image/*" style="display:none" data-cabinet-change="preview-screenshot">
 									</label>
 									<div id="pay-screenshot-preview" style="display:none;margin-top:10px;position:relative">
 										<img id="pay-screenshot-img" style="max-width:100%;max-height:200px;border:1px solid var(--border)">
-										<button onclick="clearScreenshot()" type="button" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;line-height:24px"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
+										<button data-cabinet-action="clear-screenshot" type="button" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;line-height:24px"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
 									</div>
 								</div>
 								<div class="pay-field">
@@ -1953,8 +1953,8 @@
 								<div id="pay-error" style="color:#c0392b;font-size:13px;display:none"></div>
 								<div id="pay-wizard-legal" style="font-size:12px;color:var(--text-3);line-height:1.5;margin-bottom:10px"></div>
 								<div class="pay-actions" style="margin-top:0">
-									<button class="btn btn-ghost pay-action-btn pay-action-back" onclick="goPayStep(2)" type="button">Назад</button>
-									<button class="btn btn-orange pay-action-btn pay-action-primary" id="pay-submit-btn" onclick="submitPayment()" type="button">Отправить на проверку</button>
+									<button class="btn btn-ghost pay-action-btn pay-action-back" data-cabinet-action="go-pay-step" data-step="2" type="button">Назад</button>
+									<button class="btn btn-orange pay-action-btn pay-action-primary" id="pay-submit-btn" data-cabinet-action="submit-payment" type="button">Отправить на проверку</button>
 								</div>
 							</div>
 						</div>
@@ -1965,7 +1965,7 @@
 							<div class="pay-success-title">Платёж отправлен на&nbsp;проверку</div>
 							<div class="pay-success-text">Обычно подтверждаем в&nbsp;течение 30&nbsp;минут.</div>
 							<div class="pay-success-text">Статус появится в&nbsp;истории платежей ниже.</div>
-							<button class="btn btn-ghost" onclick="resetPayWizard()" type="button" style="margin-top:18px;padding:12px 26px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0">Готово</button>
+							<button class="btn btn-ghost" data-cabinet-action="reset-pay-wizard" type="button" style="margin-top:18px;padding:12px 26px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0">Готово</button>
 						</div>
 
 					</div><!-- /pay-details -->
@@ -1995,14 +1995,14 @@
 					<span class="cab-sec-title-meta">Архив ваших блюд</span>
 				</div>
 				<div class="hist-export" id="hist-export" role="region" aria-labelledby="hist-export-title">
-					<button class="hist-export-close" type="button" onclick="closeHistoryExport()" aria-label="Закрыть выгрузку">
+					<button class="hist-export-close" type="button" data-cabinet-action="close-history-export" aria-label="Закрыть выгрузку">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
 					</button>
 					<h3 class="hist-export-title" id="hist-export-title" tabindex="-1">Выгрузить журнал</h3>
 					<div class="hist-export-controls">
 						<div class="hist-export-field">
 							<label for="hist-range">Период</label>
-							<select id="hist-range" onchange="updateHistoryDateRange()">
+							<select id="hist-range" data-cabinet-change="history-range">
 								<option value="7">Последние 7 дней</option>
 								<option value="30" selected>Последние 30 дней</option>
 								<option value="custom">Выбрать даты</option>
@@ -2010,11 +2010,11 @@
 						</div>
 						<div class="hist-export-field">
 							<label for="hist-from">С</label>
-							<input type="date" id="hist-from" onchange="useCustomHistoryRange()">
+							<input type="date" id="hist-from" data-cabinet-change="history-custom-range">
 						</div>
 						<div class="hist-export-field">
 							<label for="hist-to">По</label>
-							<input type="date" id="hist-to" onchange="useCustomHistoryRange()">
+							<input type="date" id="hist-to" data-cabinet-change="history-custom-range">
 						</div>
 						<div class="hist-export-field">
 							<label for="hist-format">Формат</label>
@@ -2023,7 +2023,7 @@
 								<option value="csv">CSV</option>
 							</select>
 						</div>
-						<button class="hist-export-btn" type="button" onclick="exportHistory()">Скачать</button>
+						<button class="hist-export-btn" type="button" data-cabinet-action="export-history">Скачать</button>
 					</div>
 					<p class="hist-export-help"><b>PDF</b> удобен для просмотра или отправки специалисту. <b>CSV</b> подойдет для анализа в таблице.</p>
 					<p id="hist-export-status" class="hist-export-status" role="status" aria-live="polite"></p>
@@ -2052,7 +2052,7 @@
 						</div>
 						<textarea class="notes-textarea" id="notes-ta" placeholder="Идеи рецептов, цели, наблюдения о питании…"></textarea>
 						<div class="cab-note-compose-foot">
-							<button id="notes-save-btn" class="btn btn-orange" type="button" style="padding:12px 22px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0" onclick="addNote()">Сохранить</button>
+							<button id="notes-save-btn" class="btn btn-orange" type="button" style="padding:12px 22px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0" data-cabinet-action="add-note">Сохранить</button>
 						</div>
 					</div>
 					<!-- List -->
@@ -2087,13 +2087,13 @@
 
 				<div style="font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--text-3);margin-bottom:10px">Тип обращения</div>
 				<div class="cab-seg fb-cats" id="fb-cats">
-					<button class="fb-cat active" type="button" onclick="pickFbCat(this)" data-cat="wish"><span class="seg-dot wish"></span>Пожелание</button>
-					<button class="fb-cat" type="button" onclick="pickFbCat(this)" data-cat="recipe"><span class="seg-dot idea"></span>Идея рецепта</button>
-					<button class="fb-cat" type="button" onclick="pickFbCat(this)" data-cat="problem"><span class="seg-dot bug"></span>Проблема</button>
+					<button class="fb-cat active" type="button" data-cabinet-action="pick-feedback-category" data-cat="wish"><span class="seg-dot wish"></span>Пожелание</button>
+					<button class="fb-cat" type="button" data-cabinet-action="pick-feedback-category" data-cat="recipe"><span class="seg-dot idea"></span>Идея рецепта</button>
+					<button class="fb-cat" type="button" data-cabinet-action="pick-feedback-category" data-cat="problem"><span class="seg-dot bug"></span>Проблема</button>
 				</div>
 				<textarea class="fb-textarea" id="fb-text" placeholder="Опишите Вашу идею, пожелание или проблему…" style="margin-top:16px"></textarea>
 				<div class="fb-actions" style="justify-content:flex-end;align-items:center">
-					<button class="btn btn-orange" type="button" onclick="sendFeedback()" style="padding:12px 26px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0;flex-shrink:0">Отправить</button>
+					<button class="btn btn-orange" type="button" data-cabinet-action="send-feedback" style="padding:12px 26px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:0;flex-shrink:0">Отправить</button>
 				</div>
 				<div class="fb-sent" id="fb-sent-list"></div>
 			</section>
@@ -2119,23 +2119,23 @@
 						<div class="cab-dietary-grid" id="dietary-options">
 							<div class="cab-dietary-group">
 								<h5 class="cab-dietary-group-title">Тип питания</h5>
-								<label class="cab-dietary-row">Только вегетарианские <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="vegetarian" onchange="scheduleDietarySave()"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
-								<label class="cab-dietary-row">Только веганские <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="vegan" onchange="scheduleDietarySave()"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
-								<label class="cab-dietary-row">Без мяса <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="meat" onchange="scheduleDietarySave()"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
-								<label class="cab-dietary-row">Без рыбы <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="fish" onchange="scheduleDietarySave()"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
+								<label class="cab-dietary-row">Только вегетарианские <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="vegetarian"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
+								<label class="cab-dietary-row">Только веганские <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="vegan"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
+								<label class="cab-dietary-row">Без мяса <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="meat"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
+								<label class="cab-dietary-row">Без рыбы <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="fish"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
 							</div>
 							<div class="cab-dietary-group">
 								<h5 class="cab-dietary-group-title">Исключить продукты</h5>
-								<label class="cab-dietary-row">Без молока <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="milk" onchange="scheduleDietarySave()"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
-								<label class="cab-dietary-row">Без яиц <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="eggs" onchange="scheduleDietarySave()"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
-								<label class="cab-dietary-row">Без глютена <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="gluten" onchange="scheduleDietarySave()"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
-								<label class="cab-dietary-row">Без арахиса <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="peanuts" onchange="scheduleDietarySave()"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
-								<label class="cab-dietary-row">Без орехов <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="nuts" onchange="scheduleDietarySave()"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
+								<label class="cab-dietary-row">Без молока <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="milk"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
+								<label class="cab-dietary-row">Без яиц <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="eggs"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
+								<label class="cab-dietary-row">Без глютена <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="gluten"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
+								<label class="cab-dietary-row">Без арахиса <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="peanuts"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
+								<label class="cab-dietary-row">Без орехов <span class="cab-newsletter-toggle"><input type="checkbox" data-dietary-flag="nuts"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span></label>
 							</div>
 						</div>
 						<label class="cab-dietary-mode">
 							<span><strong>Показывать рецепты, если есть подходящая замена</strong><span>Например, рецепт со сливками останется видимым, если их можно заменить вариантом без молока.</span></span>
-							<span class="cab-newsletter-toggle"><input type="checkbox" id="dietary-allow-swaps" checked onchange="scheduleDietarySave()"><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span>
+							<span class="cab-newsletter-toggle"><input type="checkbox" id="dietary-allow-swaps" checked><span class="cab-toggle-bg"></span><span class="cab-toggle-thumb"></span></span>
 						</label>
 						<div class="cab-dietary-status" id="dietary-status"></div>
 					</div>
@@ -2147,7 +2147,7 @@
 						<p class="cab-setting-desc">Получать уведомления о&nbsp;новых рецептах, подборках и&nbsp;статьях редакции.</p>
 					</div>
 					<span class="cab-newsletter-toggle">
-						<input type="checkbox" id="newsletter-toggle" checked onchange="toggleNewsletter(this.checked)">
+						<input type="checkbox" id="newsletter-toggle" checked>
 						<span class="cab-toggle-bg"></span>
 						<span class="cab-toggle-thumb" id="nl-slider"></span>
 					</span>
@@ -2229,7 +2229,7 @@
 	<script src="data-v2.js?v=20260713-secure-content-cache"></script>
 <script src="ingredients.js?v=20260711-oats-seabass"></script>
 	<script src="header-nav.js?v=20260713-csp-handlers"></script>
-	<script src="cabinet.js?v=20260713-csp-modals"></script>
+	<script src="cabinet.js?v=20260713-csp-static-controls"></script>
 	<script src="tawk-chat-modal.js?v=20260711-chat-fab-footer"></script>
 </body>
 
