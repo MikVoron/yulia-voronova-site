@@ -80,11 +80,19 @@ production-smoke подтвердил открытие plate и закрытие
 пяти страницах, а также оба способа закрытия comments на `category` и
 `ingredient`; ошибок CSP, JavaScript и HTTP нет.
 
+Последние три статических обработчика `index.html` — сворачивание и повторное
+открытие гостевого тура, а также отправка hero search — перенесены в
+`index-page.js`. Desktop/mobile production-smoke подтвердил оба состояния тура,
+возврат фокуса на кнопку повторного открытия и переход поиска на
+`category.html`; CSP- и JavaScript-ошибок, а также горизонтального overflow нет.
+Один `onclick` кнопки новостей появляется только из известного JS-шаблона и
+учтён в отдельном остатке JavaScript ниже.
+
 В самих HTML-файлах сейчас остаются:
 
 | Страница | `on*=` обработчики | Основные оставшиеся группы |
 |---|---:|---|
-| `index.html` | 3 | гостевой тур и поиск |
+| `index.html` | 0 | статические handlers полностью перенесены |
 | `recipe.html` | 16 | balance UI, карусель шагов, grocery modal |
 | `category.html` | 0 | статические handlers полностью перенесены |
 | `ingredient.html` | 0 | статические handlers полностью перенесены |
@@ -100,7 +108,7 @@ production-smoke подтвердил открытие plate и закрытие
 В `header-nav.js` и `admin.js` подстановка данных в JavaScript-атрибуты
 удалена полностью.
 
-В production HTML осталось 80 обработчиков, ещё 90 создаётся JS-шаблонами.
+В production HTML осталось 77 обработчиков, ещё 90 создаётся JS-шаблонами.
 Полный актуальный список воспроизводится командой:
 
 ```powershell
@@ -151,8 +159,9 @@ rg -n "\son[a-z]+\s*=" platform -g "*.html" -g "*.js"
    `ingredient`, `login`.
 2. Переносить оставшиеся обработчики партиями: `login`, `admin`,
    `popup-preview`, общие header/drawer controls и статические фильтры готовы;
-   статические plate/comments modal controls также готовы; далее
-   сложный balance UI и обработчики JS-шаблонов.
+   статические plate/comments modal controls и `index.html` также готовы;
+   далее статические controls в `recipe`, `recipe-editor` и `cabinet`, затем
+   обработчики JS-шаблонов.
 3. Для статического nginx-сайта основной вариант — внешние first-party
    скрипты. Для редкого неизбежного inline bootstrap использовать SHA-256
    hash. Nonce применять только если HTML начнёт формироваться на каждый
