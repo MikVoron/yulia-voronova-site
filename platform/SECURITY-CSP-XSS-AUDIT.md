@@ -123,6 +123,13 @@ HTML-потребителях. Production-smoke подтвердил реаль�
 production-smoke без API-записей подтвердил все пять маршрутов; CSP- и
 JavaScript-ошибок нет.
 
+Все восемь реальных inline handlers в шаблонах `index-page.js` заменены
+делегированными click/input/blur/error listeners; девятое совпадение старого
+отчёта было обычной JavaScript-переменной `onboarding`, а не event attribute.
+Изолированный production-smoke подтвердил news toggle, оба image fallback,
+вес и норму воды, shop mode, копирование списка и empty-plate CTA. Запись веса
+была перехвачена до сети; CSP- и JavaScript-ошибок нет.
+
 Статические production HTML-файлы теперь очищены:
 
 | Страница | `on*=` обработчики | Основные оставшиеся группы |
@@ -137,13 +144,13 @@ JavaScript-ошибок нет.
 | `admin.html` | 0 | 50 статических controls перенесены в `admin.js` |
 | `popup-preview.html` | 0 | 11 preview actions перенесены в `popup-preview.js` |
 
-В JavaScript-шаблонах остаётся 77 обработчиков: `recipe-page.js` — 39,
-`ingredient-page.js` — 20, `cabinet.js` и `index-page.js` — по 9.
+В JavaScript-шаблонах остаётся 68 обработчиков: `recipe-page.js` — 39,
+`ingredient-page.js` — 20 и `cabinet.js` — 9. `index-page.js`,
 `recipe-editor.js`, `category-page.js` и `data-v2.js` очищены полностью.
 В `header-nav.js` и `admin.js` подстановка данных в JavaScript-атрибуты
 удалена полностью.
 
-В production HTML обработчиков не осталось; 77 всё ещё создаётся
+В production HTML обработчиков не осталось; 68 всё ещё создаётся
 JS-шаблонами.
 Полный актуальный список воспроизводится командой:
 
