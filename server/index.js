@@ -1,5 +1,10 @@
 require('dotenv').config();
-const fastify = require('fastify')({ logger: true, trustProxy: '127.0.0.1,::1', bodyLimit: 8 * 1024 * 1024 });
+const { safeRequestPath, requestSerializer } = require('./src/request-logging');
+const fastify = require('fastify')({
+  logger: { serializers: { req: requestSerializer } },
+  trustProxy: '127.0.0.1,::1',
+  bodyLimit: 8 * 1024 * 1024
+});
 const cors = require('@fastify/cors');
 const cookie = require('@fastify/cookie');
 const helmet = require('@fastify/helmet');
@@ -17,11 +22,6 @@ const aiRoutes = require('./src/routes/ai');
 const nutritionRoutes = require('./src/routes/nutrition');
 const { startCron } = require('./src/cron');
 const { sendTelegramAlert, startTelegramBot } = require('./src/telegram');
-
-function safeRequestPath(req) {
-  try { return new URL(req.url, 'http://localhost').pathname; }
-  catch { return String(req.url || '').split('?')[0]; }
-}
 
 const isProd = process.env.NODE_ENV === 'production';
 const corsOrigins = ['https://voronova.online', 'https://www.voronova.online', 'https://app.voronova.online'];
