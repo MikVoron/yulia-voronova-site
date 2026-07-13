@@ -72,7 +72,7 @@ crontab -e
 
 ```bash
 # 1. Бэкап создаётся (запустить вручную)
-/opt/voronova/backup.sh
+source /opt/voronova/.b2-credentials && /opt/voronova/backup.sh
 
 # 2. Файл не пустой (> 1 KB)
 ls -lh /opt/voronova/backups/*.gpg | tail -1
@@ -87,10 +87,11 @@ trap 'rm -rf "$RESTORE_DIR"' EXIT
 gpg --batch --decrypt --passphrase-file /opt/voronova/.gpg-passphrase \
   --output "$RESTORE_DIR/backup.dump" <latest>.dump.gpg
 pg_restore --list "$RESTORE_DIR/backup.dump" >/dev/null
-pg_restore -U smartplate -d test_restore "$RESTORE_DIR/backup.dump"
-psql -U smartplate -d test_restore -c "SELECT count(*) FROM recipes;"
+sudo -u postgres createdb test_restore
+sudo -u postgres pg_restore -d test_restore "$RESTORE_DIR/backup.dump"
+sudo -u postgres psql -d test_restore -c "SELECT count(*) FROM recipes;"
 # Должно вернуть > 0 строк
-dropdb -U smartplate test_restore  # cleanup
+sudo -u postgres dropdb test_restore  # cleanup
 ```
 
 **Рекомендация:** проводить тест восстановления раз в месяц.
@@ -106,7 +107,7 @@ aws s3 ls s3://voronova-backups/db/ --endpoint-url https://s3.eu-central-003.bac
 # 2. Скачать нужный файл
 AWS_ACCESS_KEY_ID="$B2_KEY_ID" \
 AWS_SECRET_ACCESS_KEY="$B2_APP_KEY" \
-aws s3 cp s3://voronova-backups/db/smartplate_2026-03-25_03-00.dump.gpg ./backup.dump.gpg \
+aws s3 cp s3://voronova-backups/db/smartplate_db_2026-03-25_03-00.dump.gpg ./backup.dump.gpg \
     --endpoint-url https://s3.eu-central-003.backblazeb2.com
 
 # 3. Расшифровать
@@ -115,5 +116,5 @@ gpg --batch --decrypt --passphrase-file /opt/voronova/.gpg-passphrase \
 pg_restore --list backup.dump >/dev/null
 
 # 4. Восстановить
-pg_restore -U smartplate -d smartplate backup.dump
+sudo -u postgres pg_restore -d smartplate_db backup.dump
 ```

@@ -6,8 +6,7 @@ set -Eeuo pipefail
 umask 077
 
 # ── Настройки ──
-DB_NAME="smartplate"
-DB_USER="smartplate"
+DB_NAME="smartplate_db"
 BUCKET="voronova-backups"
 B2_ENDPOINT="${B2_ENDPOINT:-https://s3.eu-central-003.backblazeb2.com}"
 B2_KEY_ID="${B2_KEY_ID:?ОШИБКА: задайте B2_KEY_ID}"
@@ -30,10 +29,12 @@ mkdir -p "$BACKUP_DIR"
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M)
 DUMP_FILE="$BACKUP_DIR/${DB_NAME}_${TIMESTAMP}.dump"
 ENCRYPTED_FILE="${DUMP_FILE}.gpg"
+cleanup() { rm -f "$DUMP_FILE"; }
+trap cleanup EXIT
 
 echo "$(date): Начинаю бэкап..."
 
-pg_dump -U "$DB_USER" --format=custom --file="$DUMP_FILE" "$DB_NAME"
+sudo -u postgres pg_dump --format=custom "$DB_NAME" > "$DUMP_FILE"
 pg_restore --list "$DUMP_FILE" >/dev/null
 echo "$(date): Дамп создан: $(du -h "$DUMP_FILE" | cut -f1)"
 
