@@ -132,9 +132,15 @@ describe('SmartPlate CSP script migration', () => {
 
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
     expect(html.match(/\sdata-recipe-static-action=/g)).toHaveLength(15);
-    expect(html).toContain('recipe-page.js?v=20260713-csp-recipe-static');
+    expect(html).toContain('recipe-page.js?v=20260713-csp-template-actions');
     expect(script).toContain("document.querySelectorAll('[data-recipe-static-action]')");
     expect(script).toContain("control.addEventListener('keydown', handleMiniStatusKey)");
+    expect(script).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(script).toContain('data-recipe-action="step-photo-move"');
+    expect(script).toContain('data-recipe-action="submit-video-vote"');
+    expect(script).toContain('data-recipe-change="toggle-stepper-done"');
+    expect(script).toContain("image.dataset.recipeImageFallback === 'step'");
+    expect(script).toContain("image.hasAttribute('data-review-avatar-fallback')");
   });
 
   it('keeps the recipe editor free of static inline event handlers', () => {

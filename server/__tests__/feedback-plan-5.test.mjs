@@ -65,7 +65,7 @@ describe('SmartPlate feedback plan 5 contracts', () => {
 
     expect(recipe).toContain('function markRecipeImageError(image)');
     expect(recipe).toContain('class="recipe-ingredients-photo"');
-    expect(recipe).toContain('decoding="async" onerror="markRecipeImageError(this)"');
+    expect(recipe).toContain('decoding="async" data-recipe-image-fallback="step"');
     expect(css).toMatch(/\.step-photo-wrap,[\s\S]*?\.recipe-ingredients-photo\s*\{[\s\S]*?width:\s*100%;\s*aspect-ratio:\s*4\/3/);
     expect(css).toMatch(/\.step-photo-carousel\s*\{[^}]*aspect-ratio:\s*4\/3/);
     expect(css).toMatch(/\.step-photo-carousel \.step-photo-img\s*\{[^}]*width:\s*100%;\s*height:\s*100%/);

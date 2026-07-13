@@ -437,7 +437,7 @@
 					'<div style="text-align:center;padding:80px 20px">' +
 					'<div style="font-size:48px">😕</div>' +
 					'<div style="font-size:16px;color:var(--text-2);margin-top:12px">Рецепт не найден</div>' +
-					'<button class="recipe-inline-action" style="margin-top:20px" onclick="history.back()">← Назад</button>' +
+					'<button class="recipe-inline-action" style="margin-top:20px" data-recipe-action="history-back">← Назад</button>' +
 					'</div>';
 			} else if (!Auth.canViewRecipe(r)) {
 				// Нет доступа — preview-state по матрице из docs/guest-mode-mvp.md §6.4
@@ -471,7 +471,7 @@
 				? '<div class="rp-tags">' + r.tags.map(t => '<span class="rp-tag">' + escHtml(tagLabels[t] || t) + '</span>').join('') + '</div>'
 				: '';
 			const photoBlock = photoSrc
-				? '<div class="rp-photo"><img src="' + escHtml(photoSrc) + '" alt="' + escHtml(r.name) + '" onerror="this.style.display=\'none\'"></div>'
+				? '<div class="rp-photo"><img src="' + escHtml(photoSrc) + '" alt="' + escHtml(r.name) + '" data-recipe-image-fallback="hide"></div>'
 				: '';
 
 			document.getElementById('page-content').innerHTML =
@@ -539,7 +539,7 @@
                         </button>`).join('')}
                 </div>
                 ${r.tip ? `<div class="julia-tip anim" style="margin-top:20px">
-                    <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
+                    <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" data-recipe-image-fallback="hide">
                     <div class="julia-tip-bubble">
                         <div class="julia-tip-text">«${escHtml(r.tip)}»</div>
 
@@ -1355,21 +1355,21 @@
 				} else if (Array.isArray(photo)) {
 					const imgs = photo.filter(p => typeof p === 'string' && p);
 					if (imgs.length === 1) {
-						photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(imgs[0]))}" alt="Фото шага ${i + 1}" loading="lazy" decoding="async" onerror="markRecipeImageError(this)">`;
+						photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(imgs[0]))}" alt="Фото шага ${i + 1}" loading="lazy" decoding="async" data-recipe-image-fallback="step">`;
 					} else if (imgs.length > 1) {
 						photoHtml = `<div class="step-photo-carousel" data-index="0">` +
 							imgs.map((p, idx) =>
-								`<img class="step-photo-img${idx === 0 ? ' is-active' : ''}" src="${escHtml(photoUrl(p))}" alt="Фото шага ${i + 1} (${idx + 1})" loading="lazy" decoding="async" onerror="markRecipeImageError(this)">`
+								`<img class="step-photo-img${idx === 0 ? ' is-active' : ''}" src="${escHtml(photoUrl(p))}" alt="Фото шага ${i + 1} (${idx + 1})" loading="lazy" decoding="async" data-recipe-image-fallback="step">`
 							).join('') +
-							`<button type="button" class="step-photo-nav step-photo-prev" onclick="stepPhotoCarouselMove(this,-1)" aria-label="Предыдущее фото">‹</button>` +
-							`<button type="button" class="step-photo-nav step-photo-next" onclick="stepPhotoCarouselMove(this,1)" aria-label="Следующее фото">›</button>` +
+							`<button type="button" class="step-photo-nav step-photo-prev" data-recipe-action="step-photo-move" data-direction="-1" aria-label="Предыдущее фото">‹</button>` +
+							`<button type="button" class="step-photo-nav step-photo-next" data-recipe-action="step-photo-move" data-direction="1" aria-label="Следующее фото">›</button>` +
 							`<div class="step-photo-hint">Листайте фото</div>` +
 							`<div class="step-photo-dots">` + imgs.map((_, idx) => `<span class="step-photo-dot${idx === 0 ? ' is-active' : ''}"></span>`).join('') + `</div>` +
 							`<div class="step-photo-counter"><span data-carousel-current>1</span> / ${imgs.length}</div>` +
 							`</div>`;
 					}
 				} else if (typeof photo === 'string' && photo) {
-					photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i + 1}" loading="lazy" decoding="async" onerror="markRecipeImageError(this)">`;
+					photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i + 1}" loading="lazy" decoding="async" data-recipe-image-fallback="step">`;
 				}
 				return `<div class="step-item">
                 <div class="step-num">${i + 1}</div>
@@ -1394,7 +1394,7 @@
                 <div class="step-num">${n}</div>
                 <div class="step-body">
                     <div class="step-text">Наслаждайтесь! Приятного вам аппетита 😋</div>
-					<div class="step-photo-wrap"><img class="step-photo-img" src="${escHtml(photoUrl(finalPhoto))}" alt="Готовое блюдо" loading="lazy" decoding="async" onerror="markRecipeImageError(this)"></div>
+					<div class="step-photo-wrap"><img class="step-photo-img" src="${escHtml(photoUrl(finalPhoto))}" alt="Готовое блюдо" loading="lazy" decoding="async" data-recipe-image-fallback="step"></div>
                 </div>
             </div>`);
 			}
@@ -1452,8 +1452,8 @@
                 ${addCarbs.length   ? buildGroup('c',  addCarbs,   stepOf.c)  : ''}
                 ${addFiber.length   ? buildGroup('fi', addFiber,   stepOf.fi) : ''}
                 <div class="bal-wizard-nav">
-                    <button type="button" class="bal-wizard-prev" id="bal-wizard-prev" onclick="balWizardGo(-1)">← Назад</button>
-                    <button type="button" class="bal-wizard-next" id="bal-wizard-next" onclick="balWizardGo(1)">Далее →</button>
+                    <button type="button" class="bal-wizard-prev" id="bal-wizard-prev" data-recipe-action="balance-wizard" data-delta="-1">← Назад</button>
+                    <button type="button" class="bal-wizard-next" id="bal-wizard-next" data-recipe-action="balance-wizard" data-delta="1">Далее →</button>
                 </div>
                 <div class="bal-total" id="bal-total-bar">
                     <div class="bal-total-header">
@@ -1480,7 +1480,7 @@
 				: '';
 
 			const tipHtml = r.tip ? `<div class="julia-tip">
-            <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" onerror="this.style.display='none'">
+            <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" class="julia-tip-ava" data-recipe-image-fallback="hide">
             <div class="julia-tip-bubble">
                 <div class="julia-tip-text">«${escHtml(r.tip)}»</div>
             </div>
@@ -1490,7 +1490,7 @@
 			// Stars and count will be filled from API by loadReviews()
 			const isFav = Favorites.has(r.id);
 			const starsRow = [1, 2, 3, 4, 5].map(i =>
-				`<button class="star r-star${i <= 0 ? ' filled' : ''}" type="button" aria-label="Открыть отзывы и оценку" onclick="scrollToReviews()">★</button>`).join('');
+				`<button class="star r-star${i <= 0 ? ' filled' : ''}" type="button" aria-label="Открыть отзывы и оценку" data-recipe-action="scroll-to-reviews">★</button>`).join('');
 			const voterCount = 0;
 			const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 			const dateStr = r.added || '';
@@ -1528,13 +1528,13 @@
 			} catch (_) {}
 			const guestHelpHtml = guestHelpRequested && (guestHelpForced || !guestTourCompleted)
 				? `<section class="recipe-guest-helper" aria-label="Подсказка по рецепту">
-					<button class="recipe-guest-helper-dismiss" type="button" onclick="dismissRecipeGuestHelper()" aria-label="Больше не показывать">×</button>
+					<button class="recipe-guest-helper-dismiss" type="button" data-recipe-action="dismiss-guest-helper" aria-label="Больше не показывать">×</button>
 					<div>
 						<h2>Посмотрите, как работает «Баланс блюда»</h2>
 						<p>Система подскажет, чего не хватает рецепту до полноценного приёма пищи. Здесь же можно посмотреть рейтинг, прочитать отзывы и проголосовать за съёмку видеорецепта.</p>
 					</div>
 					<div class="recipe-guest-helper-actions">
-						<button class="recipe-guest-helper-btn" type="button" onclick="scrollToBalanceBanner()">Перейти к балансу</button>
+						<button class="recipe-guest-helper-btn" type="button" data-recipe-action="scroll-to-balance">Перейти к балансу</button>
 						<a class="recipe-guest-helper-back" href="index.html?guestTour=1">Все возможности платформы →</a>
 					</div>
 				</section>`
@@ -1547,7 +1547,7 @@
                     <nav class="recipe-crumbs" aria-label="Хлебные крошки">${crumbsHtml}</nav>
                     <div class="recipe-title-row">
                         <h1 class="recipe-title">${escHtml(r.name)}</h1>
-                        <button class="recipe-title-share" type="button" onclick="shareRecipe()" aria-label="Поделиться рецептом" title="Поделиться">
+                        <button class="recipe-title-share" type="button" data-recipe-action="share-recipe" aria-label="Поделиться рецептом" title="Поделиться">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7"/>
                                 <path d="M16 6l-4-4-4 4"/>
@@ -1576,17 +1576,17 @@
                         ${!r.photo ? `<div class="recipe-hero-emoji" style="position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)">${escHtml(r.emoji)}</div>` : ''}
 						<button class="card-fav-btn${isFav ? ' active' : ''}" id="recipe-fav-btn" type="button"
 							aria-label="${isFav ? 'Убрать рецепт из избранного' : 'Добавить рецепт в избранное'}" aria-pressed="${isFav ? 'true' : 'false'}"
-							onclick="event.stopPropagation();toggleRecipeFav()">
+							data-recipe-action="toggle-favorite">
 							<svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
 						</button>
                         <div class="photo-overlay">
 							<button class="photo-rating-pill" id="recipe-rpill" type="button"
-								onclick="event.stopPropagation();scrollToReviews()">
+								data-recipe-action="scroll-to-reviews">
 								<span class="pr-label">Рейтинг</span>
 								<span class="pr-star">★</span>
 								<span class="pr-val" id="recipe-rating-val">—</span>
 							</button>
-							<button class="photo-comment-btn" id="review-action-btn" type="button" onclick="event.stopPropagation();scrollToReviewForm()">
+							<button class="photo-comment-btn" id="review-action-btn" type="button" data-recipe-action="scroll-to-review-form">
 								<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
 								<span id="review-action-label">${Auth.isLoggedIn() ? 'Оставить отзыв' : 'Отзывы'}</span>
 							</button>
@@ -1595,7 +1595,7 @@
                     ${r.quote ? `<div class="julia-tip" style="margin-top:0;margin-bottom:18px">
                         <div class="julia-tip-bubble">
                             <div class="julia-tip-byline">
-                                <img src="https://voronova.online/images/YV-small.webp" alt="Юлия Воронова" class="julia-tip-ava" onerror="this.style.display='none'">
+                                <img src="https://voronova.online/images/YV-small.webp" alt="Юлия Воронова" class="julia-tip-ava" data-recipe-image-fallback="hide">
                                 <div class="julia-tip-author">
                                     <span class="julia-tip-author-name">Юлия Воронова</span>
                                     <span class="julia-tip-author-role">Автор Умной Тарелки</span>
@@ -1617,18 +1617,18 @@
                     <div class="recipe-section-head recipe-ingredients-head">
                         <div class="v-section-title">Ингредиенты</div>
                         <div class="recipe-section-actions">
-                            <button class="recipe-share-btn" type="button" onclick="openRecipeGroceryList()">Список покупок</button>
+                            <button class="recipe-share-btn" type="button" data-recipe-action="open-grocery-list">Список покупок</button>
                         </div>
                     </div>
                     <div class="ing-list">${ingHtml}</div>
                     ${(() => {
                         const startPhoto = r.photo ? derivePhoto(r.photo, 'start') : (r.id ? `images/recipes/${r.id}/${r.id}-start.webp` : '');
-						return startPhoto ? `<div class="recipe-ingredients-photo"><img class="step-photo-img" src="${escHtml(photoUrl(startPhoto))}" alt="Ингредиенты" loading="lazy" decoding="async" onerror="markRecipeImageError(this)"></div>` : '';
+						return startPhoto ? `<div class="recipe-ingredients-photo"><img class="step-photo-img" src="${escHtml(photoUrl(startPhoto))}" alt="Ингредиенты" loading="lazy" decoding="async" data-recipe-image-fallback="step"></div>` : '';
                     })()}
 
                     <div class="steps-head">
                         <div class="v-section-title">Приготовление</div>
-                        ${_stepsCount > 1 ? `<button class="steps-mode-btn" id="steps-mode-btn" type="button" onclick="toggleStepperMode()">
+                        ${_stepsCount > 1 ? `<button class="steps-mode-btn" id="steps-mode-btn" type="button" data-recipe-action="toggle-stepper-mode">
                             <span class="steps-mode-icon" id="steps-mode-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5h12"/><path d="M8 12h12"/><path d="M8 19h12"/><path d="M3.5 5h.01"/><path d="M3.5 12h.01"/><path d="M3.5 19h.01"/></svg></span>
                             <span id="steps-mode-label">Пошагово</span>
                         </button>` : ''}
@@ -1636,11 +1636,11 @@
                     ${_stepsCount > 8 ? `<div class="steps-hint" id="steps-hint" hidden>
                         <span class="steps-hint-icon">💡</span>
                         <span class="steps-hint-text">Совет: включите <b>«Пошагово»</b> — так удобнее готовить длинный рецепт.</span>
-                        <button class="steps-hint-close" type="button" onclick="dismissStepsHint()" aria-label="Закрыть подсказку"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
+                        <button class="steps-hint-close" type="button" data-recipe-action="dismiss-steps-hint" aria-label="Закрыть подсказку"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>
                     </div>` : ''}
                     <div class="steps-omit-hints" id="steps-omit-hints" hidden></div>
                     <div class="steps-list" id="steps-list">${stepsHtml}</div>
-                    ${_stepsCount > 3 ? `<button class="steps-expand-btn" id="steps-expand-btn" type="button" onclick="toggleStepsExpanded()">
+                    ${_stepsCount > 3 ? `<button class="steps-expand-btn" id="steps-expand-btn" type="button" data-recipe-action="toggle-steps-expanded">
                         <span id="steps-expand-label">Показать все шаги (${_stepsCount})</span>
                         <span class="steps-expand-arrow" id="steps-expand-arrow">▾</span>
                     </button>` : ''}
@@ -1651,12 +1651,12 @@
                         </div>
                         <div class="stepper-current" id="stepper-current"></div>
                         <label class="stepper-done">
-                            <input type="checkbox" id="stepper-done-cb" onchange="toggleStepperDone()">
+                            <input type="checkbox" id="stepper-done-cb" data-recipe-change="toggle-stepper-done">
                             <span>Выполнено</span>
                         </label>
                         <div class="stepper-nav">
-                            <button class="stepper-nav-btn" id="stepper-prev" type="button" onclick="stepperPrev()">← Назад</button>
-                            <button class="stepper-nav-btn stepper-nav-next" id="stepper-next" type="button" onclick="stepperNext()">Далее →</button>
+                            <button class="stepper-nav-btn" id="stepper-prev" type="button" data-recipe-action="stepper-prev">← Назад</button>
+                            <button class="stepper-nav-btn stepper-nav-next" id="stepper-next" type="button" data-recipe-action="stepper-next">Далее →</button>
                         </div>
                     </div>` : ''}
 
@@ -1695,10 +1695,10 @@
 					<section class="reviews-section" id="reviews-section" aria-labelledby="reviews-title">
 						<h2 class="reviews-title" id="reviews-title" tabindex="-1">Отзывы</h2>
                         <div id="reviews-list" style="margin-bottom:16px"></div>
-						<div class="review-form-wrap" id="review-form-wrap" onclick="closeReviewFormIfOutside(event)">
+						<div class="review-form-wrap" id="review-form-wrap" data-recipe-action="close-review-outside">
 							${Auth.isLoggedIn() ? `
 							<div class="review-form">
-								<button class="review-form-modal-close" type="button" onclick="closeReviewForm()" aria-label="Закрыть">×</button>
+								<button class="review-form-modal-close" type="button" data-recipe-action="close-review-form" aria-label="Закрыть">×</button>
 								<h3 class="review-form-modal-title">Оставить отзыв</h3>
                                 <div class="review-form-stars" id="review-form-stars">
 									${[1, 2, 3, 4, 5].map(i => `<button class="star review-star" type="button" data-recipe-action="set-review-stars" data-n="${i}" aria-label="Оценка ${i} из 5" aria-pressed="false">★</button>`).join('')}
@@ -1706,7 +1706,7 @@
                                 <textarea id="review-text" class="review-textarea" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." maxlength="1000" rows="3"></textarea>
                                 <div style="display:flex;align-items:center;justify-content:space-between">
                                     <span class="review-char-count" id="review-char-count">0 / 1000</span>
-                                    <button class="recipe-review-submit" id="review-submit-btn" type="button" onclick="submitReview()">Отправить</button>
+                                    <button class="recipe-review-submit" id="review-submit-btn" type="button" data-recipe-action="submit-review">Отправить</button>
                                 </div>
                             </div>` : `<div style="font-size:13px;color:var(--text-3);margin-bottom:12px"><a href="${Auth._loginUrl()}" style="color:var(--accent);text-decoration:underline">Войдите</a>, чтобы оставить отзыв</div>`}
 						</div>
@@ -2588,12 +2588,12 @@
 			var newBadge = showNew ? '<span class="video-request-new">Новое</span>' : '';
 			var actions;
 			if (!Auth.isLoggedIn()) {
-				actions = '<button class="video-vote-btn" type="button" onclick="location.href=Auth._loginUrl()">Войти и проголосовать</button>';
+				actions = '<button class="video-vote-btn" type="button" data-recipe-action="video-login">Войти и проголосовать</button>';
 			} else if (data.voted) {
 				actions = '<button class="video-vote-btn is-voted" type="button" disabled>Ваш голос учтён ✓</button>'
-					+ '<button class="video-vote-cancel" type="button" onclick="removeVideoVote()">Отменить голос</button>';
+					+ '<button class="video-vote-cancel" type="button" data-recipe-action="remove-video-vote">Отменить голос</button>';
 			} else {
-				actions = '<button class="video-vote-btn" type="button" onclick="submitVideoVote()">Хочу видеорецепт</button>';
+				actions = '<button class="video-vote-btn" type="button" data-recipe-action="submit-video-vote">Хочу видеорецепт</button>';
 			}
 
 			el.className = '';
@@ -2885,7 +2885,7 @@
                 <h2 class="pv1-headline">Соберите первый приём пищи</h2>
                 <div class="pv1-divider"></div>
                 <p class="pv1-sub">Выберите рецепт из категории — и он попадёт сюда. КБЖУ пересчитаются автоматически.</p>
-                <button class="pv1-cta" onclick="closePlate()">Вернуться к рецепту</button>
+                <button class="pv1-cta" data-recipe-action="close-plate">Вернуться к рецепту</button>
             </div>`;
 			} else {
 				const t = Plate.totals();
@@ -2928,10 +2928,10 @@
                 ${plateMealTypePickerHtml()}
                 <div class="pv1-actions">
                     <div class="pv1-actions-row">
-                        <button class="pv1-btn" onclick="location.href='index.html'">← Вернуться</button>
-                        <button class="pv1-btn" onclick="shareShoppingList()">Список продуктов</button>
+                        <button class="pv1-btn" data-recipe-action="go-home">← Вернуться</button>
+                        <button class="pv1-btn" data-recipe-action="share-shopping-list">Список продуктов</button>
                     </div>
-                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateR()">Записать тарелку в журнал</button>
+                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" data-recipe-action="save-plate">Записать тарелку в журнал</button>
                 </div>`;
 			}
 			document.getElementById('plate-overlay').classList.add('open');
@@ -3272,7 +3272,7 @@
 					const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 					const starsHtml = [1, 2, 3, 4, 5].map(i => `<span class="star${i <= rv.stars ? ' filled' : ''}" style="font-size:14px">★</span>`).join('');
 					const avatarHtml = rv.avatar
-						? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+						? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" data-review-avatar-fallback>`
 						+ `<span class="review-avatar-fallback" style="display:none">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
 						: `<span class="review-avatar-fallback">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
 					const canDelete = isAdmin || (curUserId && rv.userId === curUserId);
@@ -3366,6 +3366,7 @@
 		document.addEventListener('click', function (event) {
 			const actionTarget = event.target.closest('[data-recipe-action]');
 			if (actionTarget) {
+				event.stopPropagation();
 				const action = actionTarget.dataset.recipeAction;
 				const index = Number(actionTarget.dataset.index);
 				if (action === 'apply-swap') applySwap(index, Number(actionTarget.dataset.optionIndex));
@@ -3381,6 +3382,33 @@
 				else if (action === 'toggle-grocery') toggleRecipeGroceryChecked(index);
 				else if (action === 'remove-grocery') removeRecipeGroceryItem(index);
 				else if (action === 'delete-review') deleteReview(Number(actionTarget.dataset.reviewId), actionTarget.dataset.isAdmin === 'true');
+				else if (action === 'history-back') history.back();
+				else if (action === 'step-photo-move') stepPhotoCarouselMove(actionTarget, Number(actionTarget.dataset.direction));
+				else if (action === 'balance-wizard') balWizardGo(Number(actionTarget.dataset.delta));
+				else if (action === 'scroll-to-reviews') scrollToReviews();
+				else if (action === 'dismiss-guest-helper') dismissRecipeGuestHelper();
+				else if (action === 'scroll-to-balance') scrollToBalanceBanner();
+				else if (action === 'share-recipe') shareRecipe();
+				else if (action === 'toggle-favorite') toggleRecipeFav();
+				else if (action === 'scroll-to-review-form') scrollToReviewForm();
+				else if (action === 'open-grocery-list') openRecipeGroceryList();
+				else if (action === 'toggle-stepper-mode') toggleStepperMode();
+				else if (action === 'dismiss-steps-hint') dismissStepsHint();
+				else if (action === 'toggle-steps-expanded') toggleStepsExpanded();
+				else if (action === 'stepper-prev') stepperPrev();
+				else if (action === 'stepper-next') stepperNext();
+				else if (action === 'close-review-outside') {
+					if (event.target === actionTarget) closeReviewForm();
+				}
+				else if (action === 'close-review-form') closeReviewForm();
+				else if (action === 'submit-review') submitReview();
+				else if (action === 'video-login') location.href = Auth._loginUrl();
+				else if (action === 'remove-video-vote') removeVideoVote();
+				else if (action === 'submit-video-vote') submitVideoVote();
+				else if (action === 'close-plate') closePlate();
+				else if (action === 'go-home') location.href = 'index.html';
+				else if (action === 'share-shopping-list') shareShoppingList();
+				else if (action === 'save-plate') savePlateR();
 				return;
 			}
 
@@ -3408,16 +3436,36 @@
 			);
 		});
 
+		document.addEventListener('change', function (event) {
+			const changeTarget = event.target.closest('[data-recipe-change]');
+			if (changeTarget && changeTarget.dataset.recipeChange === 'toggle-stepper-done') toggleStepperDone();
+		});
+
 		document.addEventListener('error', function (event) {
 			const image = event.target;
-			if (!(image instanceof HTMLImageElement) || !image.hasAttribute('data-fallback-emoji')) return;
-			image.style.display = 'none';
-			const fallback = document.createElement('div');
-			fallback.className = 'recipe-hero-emoji';
-			fallback.style.cssText = 'position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)';
-			fallback.textContent = image.dataset.fallbackEmoji || '🍴';
-			image.parentElement.insertBefore(fallback, image);
-			image.removeAttribute('data-fallback-emoji');
+			if (!(image instanceof HTMLImageElement)) return;
+			if (image.dataset.recipeImageFallback === 'step') {
+				markRecipeImageError(image);
+				return;
+			}
+			if (image.dataset.recipeImageFallback === 'hide') {
+				image.style.display = 'none';
+				return;
+			}
+			if (image.hasAttribute('data-review-avatar-fallback')) {
+				image.style.display = 'none';
+				if (image.nextElementSibling) image.nextElementSibling.style.display = 'flex';
+				return;
+			}
+			if (image.hasAttribute('data-fallback-emoji')) {
+				image.style.display = 'none';
+				const fallback = document.createElement('div');
+				fallback.className = 'recipe-hero-emoji';
+				fallback.style.cssText = 'position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)';
+				fallback.textContent = image.dataset.fallbackEmoji || '🍴';
+				image.parentElement.insertBefore(fallback, image);
+				image.removeAttribute('data-fallback-emoji');
+			}
 		}, true);
 
 		// loadReviews is now called inside initRecipe() after renderRecipe(r)
