@@ -854,16 +854,3 @@
         closePlate();
         showToast('Тарелка сохранена в журнал 🎉');
     }
-
-// CSP: static recipe filters migrated from HTML event attributes.
-document.querySelectorAll('[data-filter-action]').forEach(function (control) {
-    control.addEventListener('click', function () {
-        var action = control.dataset.filterAction;
-        if (action === 'toggle-group') toggleFGroup(control);
-        else if (action === 'toggle-tag') toggleTagFilter(control);
-        else if (action === 'toggle-popular') togglePopular(control);
-        else if (action === 'toggle-more') toggleMoreFilters(control);
-        else if (action === 'clear') clearFilters();
-        else if (action === 'pick') pickFilter(control, control.dataset.filterOwner);
-    });
-});

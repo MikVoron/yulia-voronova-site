@@ -71,8 +71,7 @@ describe('SmartPlate CSP script migration', () => {
   it('binds static recipe filters without inline handlers', () => {
     const pages = [
       ['index.html', 'index-page.js', 18],
-      ['category.html', 'category-page.js', 18],
-      ['ingredient.html', 'ingredient-page.js', 7]
+      ['category.html', 'category-page.js', 18]
     ];
     const forbidden = /onclick="(?:toggleFGroup|toggleTagFilter|togglePopular|toggleMoreFilters|clearFilters|pickFilter)\(/;
 
@@ -83,5 +82,10 @@ describe('SmartPlate CSP script migration', () => {
       expect(html.match(/\sdata-filter-action=/g), htmlName).toHaveLength(count);
       expect(script, scriptName).toContain("document.querySelectorAll('[data-filter-action]')");
     }
+
+    const ingredientHtml = fs.readFileSync(path.join(platformDir, 'ingredient.html'), 'utf8');
+    expect(ingredientHtml).not.toContain('data-filter-action');
+    expect(ingredientHtml).not.toContain('id="fg-time-drop"');
+    expect(ingredientHtml).not.toContain('id="fg-diff-drop"');
   });
 });
