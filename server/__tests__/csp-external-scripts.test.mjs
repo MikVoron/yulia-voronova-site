@@ -37,6 +37,15 @@ describe('SmartPlate CSP script migration', () => {
     expect(nginxConfig).toContain('Content-Security-Policy-Report-Only');
   });
 
+  it('keeps the OAuth callback independent of inline styles', () => {
+    const html = fs.readFileSync(path.join(platformDir, 'auth-callback.html'), 'utf8');
+    const script = fs.readFileSync(path.join(platformDir, 'auth-callback.js'), 'utf8');
+    expect(html).toContain('auth-callback.css?v=20260713-csp-styles');
+    expect(html).not.toMatch(/<style\b|\sstyle\s*=/i);
+    expect(script).not.toMatch(/\.style\.|\sstyle\s*=/i);
+    expect(script).toContain("err.classList.add('is-visible')");
+  });
+
   it('keeps static admin controls free of inline event handlers', () => {
     const html = fs.readFileSync(path.join(platformDir, 'admin.html'), 'utf8');
     const script = fs.readFileSync(path.join(platformDir, 'admin.js'), 'utf8');

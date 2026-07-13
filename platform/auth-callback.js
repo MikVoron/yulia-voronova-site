@@ -12,15 +12,19 @@
 
         document.getElementById('title').textContent = 'Добро пожаловать!';
         document.getElementById('sub').textContent = 'Загружаем платформу...';
-        document.getElementById('spinner').style.borderTopColor = '#27ae60';
+        document.getElementById('spinner').classList.add('is-success');
 
         setTimeout(function() { location.href = 'index.html'; }, 800);
     } catch (e) {
-        document.getElementById('spinner').style.display = 'none';
+        document.getElementById('spinner').classList.add('is-hidden');
         document.getElementById('title').textContent = 'Ошибка авторизации';
-        document.getElementById('sub').style.display = 'none';
+        document.getElementById('sub').classList.add('is-hidden');
         var err = document.getElementById('error');
-        err.style.display = 'block';
-        err.innerHTML = 'Не удалось войти. <a href="login.html" style="color:#e8400a">Попробовать снова</a>';
+        var retryLink = document.createElement('a');
+        retryLink.href = 'login.html';
+        retryLink.className = 'cb-error-link';
+        retryLink.textContent = 'Попробовать снова';
+        err.replaceChildren(document.createTextNode('Не удалось войти. '), retryLink);
+        err.classList.add('is-visible');
     }
 })();
