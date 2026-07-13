@@ -112,6 +112,11 @@ profile, payment wizard, history export, feedback, dietary и newsletter
 comment/plate action dispatch, avatar fallback и переход на главную без
 реальной отправки отзыва или записи тарелки; CSP- и JavaScript-ошибок нет.
 
+Оба retry-handler в шаблонах `data-v2.js` заменены общим
+`data-shared-action="reload"`; cache-bust синхронно обновлён во всех девяти
+HTML-потребителях. Production-smoke подтвердил реальный reload, а live-проверка
+— новую версию на каждой странице; CSP- и JavaScript-ошибок нет.
+
 Статические production HTML-файлы теперь очищены:
 
 | Страница | `on*=` обработчики | Основные оставшиеся группы |
@@ -126,13 +131,13 @@ comment/plate action dispatch, avatar fallback и переход на главн
 | `admin.html` | 0 | 50 статических controls перенесены в `admin.js` |
 | `popup-preview.html` | 0 | 11 preview actions перенесены в `popup-preview.js` |
 
-В JavaScript-шаблонах остаётся 84 обработчика: `recipe-page.js` — 39,
+В JavaScript-шаблонах остаётся 82 обработчика: `recipe-page.js` — 39,
 `ingredient-page.js` — 20, `cabinet.js` и `index-page.js` — по 9,
-`recipe-editor.js` — 5 и `data-v2.js` — 2. `category-page.js` очищен полностью.
+`recipe-editor.js` — 5. `category-page.js` и `data-v2.js` очищены полностью.
 В `header-nav.js` и `admin.js` подстановка данных в JavaScript-атрибуты
 удалена полностью.
 
-В production HTML обработчиков не осталось; 84 всё ещё создаётся
+В production HTML обработчиков не осталось; 82 всё ещё создаётся
 JS-шаблонами.
 Полный актуальный список воспроизводится командой:
 
