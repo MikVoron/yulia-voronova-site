@@ -28,11 +28,13 @@ describe('SmartPlate CSP script migration', () => {
     }
   });
 
-  it('blocks inline script elements while observing remaining event attributes', () => {
-    expect(nginxConfig).toContain("script-src-elem 'self'");
-    expect(nginxConfig).toContain("script-src-attr 'unsafe-inline'");
+  it('enforces external first-party scripts and blocks event attributes', () => {
+    const enforced = nginxConfig.match(/add_header Content-Security-Policy "([^"]+)"/)?.[1] || '';
+    expect(enforced).toContain("script-src 'self';");
+    expect(enforced).not.toContain("script-src 'self' 'unsafe-inline'");
+    expect(enforced).toContain("script-src-elem 'self'");
+    expect(enforced).toContain("script-src-attr 'none'");
     expect(nginxConfig).toContain('Content-Security-Policy-Report-Only');
-    expect(nginxConfig).toContain("script-src-attr 'none'");
   });
 
   it('keeps static admin controls free of inline event handlers', () => {
