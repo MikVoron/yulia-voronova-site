@@ -107,6 +107,11 @@ profile, payment wizard, history export, feedback, dietary и newsletter
 маршруты; enforced CSP- и JavaScript-ошибок нет. Наблюдаемый в живом DOM
 `onclick` кнопки продления создаётся JS-шаблоном и учтён в остатке ниже.
 
+Все шесть inline handlers в шаблонах `category-page.js` заменены на
+`data-category-action` и capture error fallback. Production-smoke подтвердил
+comment/plate action dispatch, avatar fallback и переход на главную без
+реальной отправки отзыва или записи тарелки; CSP- и JavaScript-ошибок нет.
+
 Статические production HTML-файлы теперь очищены:
 
 | Страница | `on*=` обработчики | Основные оставшиеся группы |
@@ -121,13 +126,13 @@ profile, payment wizard, history export, feedback, dietary и newsletter
 | `admin.html` | 0 | 50 статических controls перенесены в `admin.js` |
 | `popup-preview.html` | 0 | 11 preview actions перенесены в `popup-preview.js` |
 
-В JavaScript-шаблонах остаётся 90 обработчиков: `recipe-page.js` — 39,
+В JavaScript-шаблонах остаётся 84 обработчика: `recipe-page.js` — 39,
 `ingredient-page.js` — 20, `cabinet.js` и `index-page.js` — по 9,
-`category-page.js` — 6, `recipe-editor.js` — 5 и `data-v2.js` — 2.
+`recipe-editor.js` — 5 и `data-v2.js` — 2. `category-page.js` очищен полностью.
 В `header-nav.js` и `admin.js` подстановка данных в JavaScript-атрибуты
 удалена полностью.
 
-В production HTML обработчиков не осталось; 90 всё ещё создаётся
+В production HTML обработчиков не осталось; 84 всё ещё создаётся
 JS-шаблонами.
 Полный актуальный список воспроизводится командой:
 
