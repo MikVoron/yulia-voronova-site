@@ -119,4 +119,15 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain("document.querySelectorAll('[data-index-action]')");
     expect(script).toContain("heroSearchForm.addEventListener('submit'");
   });
+
+  it('keeps the recipe page free of static inline event handlers', () => {
+    const html = fs.readFileSync(path.join(platformDir, 'recipe.html'), 'utf8');
+    const script = fs.readFileSync(path.join(platformDir, 'recipe-page.js'), 'utf8');
+
+    expect(html).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(html.match(/\sdata-recipe-static-action=/g)).toHaveLength(15);
+    expect(html).toContain('recipe-page.js?v=20260713-csp-recipe-static');
+    expect(script).toContain("document.querySelectorAll('[data-recipe-static-action]')");
+    expect(script).toContain("control.addEventListener('keydown', handleMiniStatusKey)");
+  });
 });

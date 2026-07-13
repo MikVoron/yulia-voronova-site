@@ -1251,11 +1251,11 @@
 	</div>
 
 	<!-- STICKY MINI BALANCE STATUS -->
-	<div id="bal-mini-status" class="bal-mini-status" onclick="scrollToBalanceBanner()" onkeydown="handleMiniStatusKey(event)" role="button" tabindex="0" aria-label="Прогресс баланса — перейти к добавкам">
+	<div id="bal-mini-status" class="bal-mini-status" data-recipe-static-action="scroll-to-balance" role="button" tabindex="0" aria-label="Прогресс баланса — перейти к добавкам">
 		<span class="bal-mini-progress" id="bal-mini-progress">0 / 0</span>
 		<span class="bal-mini-label" id="bal-mini-label">Не сбалансировано</span>
 	</div>
-	<button class="recipe-back-to-top" id="recipe-back-to-top" type="button" onclick="scrollRecipeToTop()" hidden>
+	<button class="recipe-back-to-top" id="recipe-back-to-top" type="button" data-recipe-static-action="scroll-to-top" hidden>
 		<span aria-hidden="true">↑</span><span>Наверх</span>
 	</button>
 
@@ -1267,7 +1267,7 @@
 	<!-- STICKY ADD BUTTON -->
 	<div class="sticky-add" id="sticky-add" style="display:none">
 		<div class="sticky-add-inner" style="display:flex;justify-content:center">
-			<button class="recipe-add-btn" id="add-btn" onclick="addToPlate()">
+			<button class="recipe-add-btn" id="add-btn" data-recipe-static-action="add-to-plate">
 				+ Добавить в тарелку
 			</button>
 		</div>
@@ -1282,9 +1282,9 @@
 			<div class="bal-success-modal-text" id="bal-success-text">Добавьте его в тарелку — это полноценный приём пищи.</div>
 			<div class="bal-success-modal-actions">
 				<button class="bal-success-modal-primary" id="bal-success-primary" type="button"
-					onclick="confirmBalanceSuccessAdd()">+ Добавить в тарелку</button>
+					data-recipe-static-action="confirm-balance-success-add">+ Добавить в тарелку</button>
 				<button class="bal-success-modal-secondary" type="button"
-					onclick="hideBalanceSuccessModal('secondary')">Не добавлять</button>
+					data-recipe-static-action="hide-balance-success">Не добавлять</button>
 			</div>
 		</div>
 	</div>
@@ -1300,9 +1300,9 @@
 			</div>
 			<div class="bal-success-modal-actions">
 				<button class="bal-success-modal-primary" id="bal-warn-primary" type="button"
-					style="background:#b45309;border-color:#b45309" onclick="confirmBalanceWarnAdd()">Добавить всё равно</button>
+					style="background:#b45309;border-color:#b45309" data-recipe-static-action="confirm-balance-warn-add">Добавить всё равно</button>
 				<button class="bal-success-modal-secondary" id="bal-warn-secondary" type="button"
-					onclick="hideBalanceWarnModal()">Вернуться и сбалансировать</button>
+					data-recipe-static-action="hide-balance-warn">Вернуться и сбалансировать</button>
 			</div>
 		</div>
 	</div>
@@ -1317,9 +1317,9 @@
 			</div>
 			<div class="bal-success-modal-actions">
 				<button class="bal-success-modal-primary" id="guest-login-primary" type="button"
-					onclick="goToGuestLogin()">Войти</button>
+					data-recipe-static-action="go-to-guest-login">Войти</button>
 				<button class="bal-success-modal-secondary" type="button"
-					onclick="hideGuestLoginModal()">Остаться на рецепте</button>
+					data-recipe-static-action="hide-guest-login">Остаться на рецепте</button>
 			</div>
 		</div>
 	</div>
@@ -1337,22 +1337,22 @@
 	</div>
 
 	<!-- RECIPE GROCERY LIST MODAL -->
-	<div class="modal-overlay grocery-modal" id="recipe-grocery-overlay" onclick="closeRecipeGroceryIfOutside(event)" role="dialog" aria-modal="true" aria-labelledby="recipe-grocery-title">
+	<div class="modal-overlay grocery-modal" id="recipe-grocery-overlay" data-recipe-static-action="close-grocery-outside" role="dialog" aria-modal="true" aria-labelledby="recipe-grocery-title">
 		<div class="modal-box grocery-modal-box">
 			<div class="modal-handle"></div>
 			<div class="grocery-modal-head">
 				<div class="grocery-modal-kicker">Список покупок <span>|</span> 1 рецепт</div>
 				<div class="grocery-modal-recipe-row">
-					<button class="grocery-modal-chevron" type="button" onclick="toggleRecipeGroceryList()" aria-label="Свернуть список" aria-expanded="true"></button>
+					<button class="grocery-modal-chevron" type="button" data-recipe-static-action="toggle-grocery-list" aria-label="Свернуть список" aria-expanded="true"></button>
 					<div class="grocery-modal-title" id="recipe-grocery-title"></div>
-					<button class="grocery-modal-remove-all" type="button" onclick="removeAllRecipeGroceryItems()">Убрать всё</button>
+					<button class="grocery-modal-remove-all" type="button" data-recipe-static-action="remove-all-grocery-items">Убрать всё</button>
 				</div>
 			</div>
 			<div class="grocery-modal-body" id="recipe-grocery-body"></div>
 			<div class="grocery-modal-footer">
-				<button class="grocery-modal-btn grocery-modal-btn-ghost" type="button" onclick="copyRecipeGroceryList()">Скопировать</button>
-				<button class="grocery-modal-btn grocery-modal-btn-ghost" id="grocery-shop-mode-btn" type="button" onclick="toggleGroceryShopMode()" aria-pressed="false">В магазине</button>
-				<button class="grocery-modal-btn grocery-modal-btn-primary" type="button" onclick="closeRecipeGroceryList()">Готово</button>
+				<button class="grocery-modal-btn grocery-modal-btn-ghost" type="button" data-recipe-static-action="copy-grocery-list">Скопировать</button>
+				<button class="grocery-modal-btn grocery-modal-btn-ghost" id="grocery-shop-mode-btn" type="button" data-recipe-static-action="toggle-grocery-shop-mode" aria-pressed="false">В магазине</button>
+				<button class="grocery-modal-btn grocery-modal-btn-primary" type="button" data-recipe-static-action="close-grocery-list">Готово</button>
 			</div>
 		</div>
 	</div>
@@ -1367,7 +1367,7 @@
 	<script src="data-v2.js?v=20260713-secure-content-cache"></script>
 	<script src="ingredients.js?v=20260711-oats-seabass"></script>
 	<script src="header-nav.js?v=20260713-csp-handlers"></script>
-	<script src="recipe-page.js?v=20260713-csp-modals"></script>
+	<script src="recipe-page.js?v=20260713-csp-recipe-static"></script>
 	<script src="tawk-chat-modal.js?v=20260711-chat-fab-footer"></script>
 </body>
 

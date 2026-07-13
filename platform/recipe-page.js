@@ -3433,3 +3433,28 @@ document.querySelectorAll('[data-modal-action]').forEach(function (control) {
         else if (action === 'save-plate') savePlate();
     });
 });
+
+// CSP: static recipe controls migrated from HTML event attributes.
+document.querySelectorAll('[data-recipe-static-action]').forEach(function (control) {
+    control.addEventListener('click', function (event) {
+        var action = control.dataset.recipeStaticAction;
+        if (action === 'scroll-to-balance') scrollToBalanceBanner();
+        else if (action === 'scroll-to-top') scrollRecipeToTop();
+        else if (action === 'add-to-plate') addToPlate();
+        else if (action === 'confirm-balance-success-add') confirmBalanceSuccessAdd();
+        else if (action === 'hide-balance-success') hideBalanceSuccessModal('secondary');
+        else if (action === 'confirm-balance-warn-add') confirmBalanceWarnAdd();
+        else if (action === 'hide-balance-warn') hideBalanceWarnModal();
+        else if (action === 'go-to-guest-login') goToGuestLogin();
+        else if (action === 'hide-guest-login') hideGuestLoginModal();
+        else if (action === 'close-grocery-outside') closeRecipeGroceryIfOutside(event);
+        else if (action === 'toggle-grocery-list') toggleRecipeGroceryList();
+        else if (action === 'remove-all-grocery-items') removeAllRecipeGroceryItems();
+        else if (action === 'copy-grocery-list') copyRecipeGroceryList();
+        else if (action === 'toggle-grocery-shop-mode') toggleGroceryShopMode();
+        else if (action === 'close-grocery-list') closeRecipeGroceryList();
+    });
+    if (control.dataset.recipeStaticAction === 'scroll-to-balance') {
+        control.addEventListener('keydown', handleMiniStatusKey);
+    }
+});

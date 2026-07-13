@@ -76,8 +76,8 @@ describe('SmartPlate feedback plan 3 contracts', () => {
     expect(addBranch).toContain('showGuestLoginModal();');
     expect(addBranch).not.toContain('location.href = Auth._loginUrl();');
     expect(recipe).toContain('id="guest-login-modal"');
-    expect(recipe).toContain('onclick="goToGuestLogin()"');
-    expect(recipe).toContain('onclick="hideGuestLoginModal()"');
+    expect(recipe).toContain('data-recipe-static-action="go-to-guest-login"');
+    expect(recipe).toContain('data-recipe-static-action="hide-guest-login"');
   });
 
   it('keeps category cards showing ratings for locked recipes while hiding guest favorites and preserving one-line time labels', () => {
