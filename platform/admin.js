@@ -1453,4 +1453,58 @@
     if (initialTab !== 'users') {
         switchTab(initialTab);
     }
+
+    // CSP: static admin handlers migrated from HTML attributes.
+    function bindStaticAdminHandler(eventName, id, handler) {
+        document.querySelectorAll('[data-admin-' + eventName + '="' + id + '"]')
+            .forEach(function(element) {
+                element.addEventListener(eventName, function(event) {
+                    if (handler.call(this, event) === false) event.preventDefault();
+                });
+            });
+    }
+
+    bindStaticAdminHandler("click", "d81da2bb858d", function(event) { doLogout() });
+    bindStaticAdminHandler("click", "48095b44bae8", function(event) { switchTab('dashboard') });
+    bindStaticAdminHandler("click", "695f4a379b55", function(event) { switchTab('users') });
+    bindStaticAdminHandler("click", "f594c8aaab75", function(event) { switchTab('payments') });
+    bindStaticAdminHandler("click", "ff4a35111351", function(event) { switchTab('news') });
+    bindStaticAdminHandler("click", "7c5d2f2d56d3", function(event) { switchTab('recipes') });
+    bindStaticAdminHandler("click", "08960e2bb8be", function(event) { switchTab('video-requests') });
+    bindStaticAdminHandler("click", "9ddbe8a190e7", function(event) { switchTab('categories') });
+    bindStaticAdminHandler("click", "b0a333bacfb0", function(event) { switchTab('feedback') });
+    bindStaticAdminHandler("click", "c829355ef746", function(event) { switchTab('audit') });
+    bindStaticAdminHandler("input", "af40a244cf7b", function(event) { filterUsers() });
+    bindStaticAdminHandler("change", "2ae747887602", function(event) { filterUsers() });
+    bindStaticAdminHandler("click", "6509a16e5375", function(event) { loadPayments('pending') });
+    bindStaticAdminHandler("click", "25cd91e1b230", function(event) { loadPayments('confirmed') });
+    bindStaticAdminHandler("click", "7b81491b9670", function(event) { loadPayments('rejected') });
+    bindStaticAdminHandler("click", "f087ddda46f6", function(event) { openNewsModal() });
+    bindStaticAdminHandler("click", "53bdeb78bea9", function(event) { openRecipeEditor() });
+    bindStaticAdminHandler("change", "2fc16510c28d", function(event) { filterRecipes() });
+    bindStaticAdminHandler("input", "8978f80bc9b7", function(event) { filterRecipes() });
+    bindStaticAdminHandler("click", "9467f5428096", function(event) { openCategoryModal() });
+    bindStaticAdminHandler("click", "fc157669aa96", function(event) { deleteCategory() });
+    bindStaticAdminHandler("click", "28bd28d03811", function(event) { closeCategoryModal() });
+    bindStaticAdminHandler("click", "bafe2329042c", function(event) { saveCategory() });
+    bindStaticAdminHandler("click", "3119f882a5cf", function(event) { loadFeedback('waiting_admin') });
+    bindStaticAdminHandler("click", "c970900869a0", function(event) { loadFeedback('waiting_user') });
+    bindStaticAdminHandler("click", "be1cdb16d86f", function(event) { loadFeedback('closed') });
+    bindStaticAdminHandler("click", "9d429658dc34", function(event) { loadFeedback('all') });
+    bindStaticAdminHandler("click", "b8da07356966", function(event) { closeFbReplyModal() });
+    bindStaticAdminHandler("click", "870fb8fc606b", function(event) { submitFbReply() });
+    bindStaticAdminHandler("change", "4a89cbc6b5fc", function(event) { loadAudit() });
+    bindStaticAdminHandler("click", "089ea8a8218e", function(event) { closeModal() });
+    bindStaticAdminHandler("click", "a2bff23a5dff", function(event) { submitConfirm() });
+    bindStaticAdminHandler("click", "19c712bc4549", function(event) { document.getElementById('extend-days').value=7 });
+    bindStaticAdminHandler("click", "7aed6be2c3ac", function(event) { document.getElementById('extend-days').value=30 });
+    bindStaticAdminHandler("click", "448626bc5df9", function(event) { document.getElementById('extend-days').value=90 });
+    bindStaticAdminHandler("click", "43dfe700a981", function(event) { document.getElementById('extend-days').value=180 });
+    bindStaticAdminHandler("click", "a34cae9e09b6", function(event) { document.getElementById('extend-days').value=360 });
+    bindStaticAdminHandler("click", "5d336537a4ad", function(event) { closeExtendModal() });
+    bindStaticAdminHandler("click", "dc3813cfe9fa", function(event) { submitExtend() });
+    bindStaticAdminHandler("click", "166dc944b93d", function(event) { if(event.target===this)this.classList.remove('open') });
+    bindStaticAdminHandler("click", "1c7b2b8ca44a", function(event) { document.getElementById('screenshot-modal').classList.remove('open') });
+    bindStaticAdminHandler("click", "fdf0249d21c5", function(event) { closeNewsModal() });
+    bindStaticAdminHandler("click", "23ad11339792", function(event) { saveNews() });
 })();

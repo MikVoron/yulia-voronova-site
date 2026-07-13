@@ -34,4 +34,15 @@ describe('SmartPlate CSP script migration', () => {
     expect(nginxConfig).toContain('Content-Security-Policy-Report-Only');
     expect(nginxConfig).toContain("script-src-attr 'none'");
   });
+
+  it('keeps static admin controls free of inline event handlers', () => {
+    const html = fs.readFileSync(path.join(platformDir, 'admin.html'), 'utf8');
+    const script = fs.readFileSync(path.join(platformDir, 'admin.js'), 'utf8');
+    const bindings = [...script.matchAll(/bindStaticAdminHandler\("(?:click|input|change)", "([a-f0-9]{12})"/g)];
+
+    expect(html).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(html.match(/\sdata-admin-(?:click|input|change)="[a-f0-9]{12}"/g)).toHaveLength(50);
+    expect(bindings).toHaveLength(43);
+    expect(new Set(bindings.map(match => match[1])).size).toBe(43);
+  });
 });
