@@ -209,8 +209,18 @@ Desktop/mobile production-smoke подтвердил прежнюю геомет
 возврат фокуса и отсутствие динамических `<style>`, `style=`, горизонтального
 overflow, CSP- и JavaScript-ошибок.
 
+Пятая партия закрыла статическую часть главной страницы: два CSS-блока из
+`index.html` вынесены в `index-critical.css` и `index.css`, семь статических
+атрибутов заменены классами или `hidden`. Общий счётчик тарелки на пяти
+страницах также переведён с `style.display` на `hidden`. Desktop/mobile
+production-smoke подтвердил точное совпадение контрольной геометрии с baseline,
+загрузку обоих новых CSS, отсутствие горизонтального overflow, CSP- и
+JavaScript-ошибок. В исходном `index.html` больше нет `<style>` и `style=`;
+динамические стили `index-page.js` остаются следующей отдельной партией.
+
 Повторная буквальная инвентаризация текущего Git-среза `platform/*.html` и
-`platform/*.js`: 429 `style=` и 16 `<style>`-блоков.
+`platform/*.js`: 418 `style=` и 14 `<style>`-блоков. Разрешение
+`'unsafe-inline'` остаётся в `style-src` до полного завершения миграции.
 
 ## Проверка `innerHTML`
 
