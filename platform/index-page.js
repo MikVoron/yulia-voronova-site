@@ -1696,3 +1696,17 @@ document.querySelectorAll('[data-modal-action]').forEach(function (control) {
         else if (action === 'save-plate') savePlate();
     });
 });
+
+// CSP: remaining static homepage controls migrated from HTML attributes.
+document.querySelectorAll('[data-index-action]').forEach(function (control) {
+    control.addEventListener('click', function () {
+        if (control.dataset.indexAction === 'complete-guest-tour') completeGuestTour();
+        else if (control.dataset.indexAction === 'open-guest-tour') openGuestTour();
+    });
+});
+var heroSearchForm = document.querySelector('[data-index-submit="hero-search"]');
+if (heroSearchForm) {
+    heroSearchForm.addEventListener('submit', function (event) {
+        submitHeroSearch(event);
+    });
+}

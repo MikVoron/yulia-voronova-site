@@ -195,12 +195,12 @@ describe('SmartPlate feedback plan 6 contracts', () => {
   });
 
   it('provides the approved copy and visible keyboard focus locally on the homepage', () => {
-    expect(indexHtml).toContain('onclick="completeGuestTour()">Свернуть</button>');
-    expect(indexHtml).toContain('id="guest-tour-trigger" type="button" onclick="openGuestTour()">Как это работает? →</button>');
+    expect(indexHtml).toContain('data-index-action="complete-guest-tour">Свернуть</button>');
+    expect(indexHtml).toContain('id="guest-tour-trigger" type="button" data-index-action="open-guest-tour">Как это работает? →</button>');
     expect(indexHtml).toContain('id="guest-onboarding-title"');
     expect(indexHtml).not.toContain('id="guest-onboarding-title" tabindex="-1"');
     expect(indexHtml).toContain('.sp-guest-tour-reopen:focus-visible');
     expect(indexHtml).toContain('.sp-guest-title:focus');
-    expect(indexHtml).not.toContain('onclick="completeGuestTour()">Больше не показывать</button>');
+    expect(indexHtml).not.toContain('data-index-action="complete-guest-tour">Больше не показывать</button>');
   });
 });

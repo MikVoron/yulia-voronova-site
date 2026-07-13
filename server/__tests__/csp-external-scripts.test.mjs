@@ -107,4 +107,16 @@ describe('SmartPlate CSP script migration', () => {
       expect(script, scriptName).toContain("document.querySelectorAll('[data-modal-action]')");
     }
   });
+
+  it('keeps the homepage free of static inline event handlers', () => {
+    const html = fs.readFileSync(path.join(platformDir, 'index.html'), 'utf8');
+    const script = fs.readFileSync(path.join(platformDir, 'index-page.js'), 'utf8');
+
+    expect(html).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(html.match(/\sdata-index-action=/g)).toHaveLength(2);
+    expect(html).toContain('data-index-submit="hero-search"');
+    expect(html).toContain('index-page.js?v=20260713-csp-index-static');
+    expect(script).toContain("document.querySelectorAll('[data-index-action]')");
+    expect(script).toContain("heroSearchForm.addEventListener('submit'");
+  });
 });
