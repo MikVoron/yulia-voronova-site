@@ -155,4 +155,15 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain("document.querySelectorAll('[data-cabinet-change]')");
     expect(script).toContain("control.addEventListener('change', scheduleDietarySave)");
   });
+
+  it('keeps category JavaScript templates free of inline event handlers', () => {
+    const html = fs.readFileSync(path.join(platformDir, 'category.html'), 'utf8');
+    const script = fs.readFileSync(path.join(platformDir, 'category-page.js'), 'utf8');
+
+    expect(script).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(html).toContain('category-page.js?v=20260713-csp-template-actions');
+    expect(script).toContain("else if (action === 'submit-comment')");
+    expect(script).toContain("else if (action === 'save-plate')");
+    expect(script).toContain("image.hasAttribute('data-review-avatar-fallback')");
+  });
 });

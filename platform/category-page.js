@@ -410,12 +410,27 @@
             selectStar(Number(actionTarget.dataset.n));
         } else if (action === 'remove-plate-item') {
             removeItemCat(Number(actionTarget.dataset.index));
+        } else if (action === 'submit-comment') {
+            submitComment();
+        } else if (action === 'close-plate') {
+            closePlate();
+        } else if (action === 'go-home') {
+            location.href = 'index.html';
+        } else if (action === 'share-shopping-list') {
+            shareShoppingList();
+        } else if (action === 'save-plate') {
+            savePlateCat();
         }
     });
 
     document.addEventListener('error', function(event) {
         const image = event.target;
         if (!(image instanceof HTMLImageElement)) return;
+        if (image.hasAttribute('data-review-avatar-fallback')) {
+            image.style.display = 'none';
+            if (image.nextElementSibling) image.nextElementSibling.style.display = 'flex';
+            return;
+        }
         if (image.hasAttribute('data-category-fallback-emoji')) {
             image.parentElement.textContent = image.dataset.categoryFallbackEmoji || '🍴';
             return;
@@ -744,7 +759,7 @@
             ? `<div class="comments-list">${reviews.map(rv => {
                 const canDelete = isAdmin || (curUserId && rv.userId === curUserId);
                 const avatarHtml = rv.avatar
-                    ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+                    ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0" data-review-avatar-fallback>`
                       + `<span class="review-avatar-fallback" style="display:none;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
                     : `<span style="width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
                 return `<div class="comment-item" style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)">
@@ -772,7 +787,7 @@
                     ${[1,2,3,4,5].map(i => `<span class="cstar" data-category-action="select-star" data-n="${i}">★</span>`).join('')}
                 </div>
                 <textarea class="c-input" id="c-text" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." rows="3"></textarea>
-                <button class="btn btn-orange btn-full" id="c-submit-btn" onclick="submitComment()">Отправить</button>
+                <button class="btn btn-orange btn-full" id="c-submit-btn" data-category-action="submit-comment">Отправить</button>
             </div>`
             : Auth.isLoggedIn() && hasOwnReview
                 ? `<div style="text-align:center;padding:16px;color:var(--text-3);font-size:13px">Вы уже оставили отзыв на этот рецепт</div>`
@@ -941,7 +956,7 @@
                 <h2 class="pv1-headline">Соберите первый приём пищи</h2>
                 <div class="pv1-divider"></div>
                 <p class="pv1-sub">Выберите рецепт из категории — и он попадёт сюда. КБЖУ пересчитаются автоматически.</p>
-                <button class="pv1-cta" onclick="closePlate()">Продолжить выбирать</button>
+                <button class="pv1-cta" data-category-action="close-plate">Продолжить выбирать</button>
             </div>`;
         } else {
             const t = Plate.totals();
@@ -975,10 +990,10 @@
                 ${plateMealTypePickerHtml()}
                 <div class="pv1-actions">
                     <div class="pv1-actions-row">
-                        <button class="pv1-btn" onclick="location.href='index.html'">← На главную</button>
-                        <button class="pv1-btn" onclick="shareShoppingList()">Список продуктов</button>
+                        <button class="pv1-btn" data-category-action="go-home">← На главную</button>
+                        <button class="pv1-btn" data-category-action="share-shopping-list">Список продуктов</button>
                     </div>
-                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateCat()">Записать тарелку в журнал</button>
+                    <button class="pv1-btn pv1-btn-primary pv1-btn-full" data-category-action="save-plate">Записать тарелку в журнал</button>
                 </div>`;
         }
         document.getElementById('plate-overlay').classList.add('open');
