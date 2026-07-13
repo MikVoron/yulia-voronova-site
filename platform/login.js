@@ -131,13 +131,13 @@
 
 		function showCodeStep() {
 			document.getElementById('email-show-text').textContent = currentEmail;
-			document.getElementById('step-email').style.display = 'none';
+			document.getElementById('step-email').classList.add('is-hidden');
 			var step2 = document.getElementById('step-code');
-			document.getElementById('mfa-field').style.display = _isAdminLogin ? 'block' : 'none';
-			step2.style.display = 'block';
-			step2.style.animation = 'none';
+			document.getElementById('mfa-field').classList.toggle('is-hidden', !_isAdminLogin);
+			step2.classList.add('is-animation-reset');
+			step2.classList.remove('is-hidden');
 			requestAnimationFrame(function () {
-				step2.style.animation = 'fadeUp .32s ease both';
+				step2.classList.remove('is-animation-reset');
 				document.getElementById('code-input').focus();
 			});
 			startTimer();
@@ -147,7 +147,7 @@
 			var sec = 60;
 			var timerEl = document.getElementById('timer-sec');
 			var block = document.getElementById('timer-block');
-			block.style.color = '';
+			block.classList.remove('has-error');
 			block.innerHTML = 'Отправить повторно через <span id="timer-sec">60</span> сек';
 			timerEl = document.getElementById('timer-sec');
 			clearInterval(timerInterval);
@@ -179,13 +179,14 @@
 				});
 				var data = await res.json();
 				if (!res.ok) {
-					block.style.color = '#c0392b';
+					block.classList.add('has-error');
 					block.textContent = data.error || 'Ошибка';
 					return;
 				}
 				startTimer();
 			} catch (e) {
-				block.innerHTML = '<span style="color:#c0392b">Ошибка сети</span>';
+				block.classList.add('has-error');
+				block.textContent = 'Ошибка сети';
 			}
 		}
 
@@ -206,10 +207,9 @@
 				var data = await res.json();
 				if (!res.ok) { showError('code-error', data.error || 'Ошибка'); setLoading('verify-btn', false); return; }
 				Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription, data.user.avatar, data.user.role, data.user.createdAt, data.user.id, data.user.weight);
-				document.getElementById('step-code').style.display = 'none';
+				document.getElementById('step-code').classList.add('is-hidden');
 				var success = document.getElementById('step-success');
-				success.style.display = 'block';
-				success.style.animation = 'fadeUp .32s ease both';
+				success.classList.add('is-visible');
 				setTimeout(function () { location.href = _returnUrl; }, 900);
 			} catch (e) {
 				showError('code-error', 'Ошибка сети');
@@ -219,20 +219,20 @@
 
 		function goBack() {
 			clearInterval(timerInterval);
-			document.getElementById('step-code').style.display = 'none';
+			document.getElementById('step-code').classList.add('is-hidden');
 			document.getElementById('code-input').value = '';
 			document.getElementById('mfa-code-input').value = '';
 			var s1 = document.getElementById('step-email');
-			s1.style.display = 'block';
-			s1.style.animation = 'none';
-			requestAnimationFrame(function () { s1.style.animation = 'fadeUp .32s ease both'; });
+			s1.classList.add('is-animation-reset');
+			s1.classList.remove('is-hidden');
+			requestAnimationFrame(function () { s1.classList.remove('is-animation-reset'); });
 			document.getElementById('email-input').focus();
 		}
 
 		document.addEventListener('keydown', function (e) {
 			if (e.key !== 'Enter') return;
-			if (document.getElementById('step-email').style.display !== 'none') sendCode();
-			else if (document.getElementById('step-code').style.display !== 'none') verifyCode();
+			if (!document.getElementById('step-email').classList.contains('is-hidden')) sendCode();
+			else if (!document.getElementById('step-code').classList.contains('is-hidden')) verifyCode();
 		});
 		document.getElementById('code-input').addEventListener('input', function () {
 			if (!_isAdminLogin && this.value.length === 6) verifyCode();
@@ -241,5 +241,5 @@
 		document.getElementById('verify-btn').addEventListener('click', verifyCode);
 		document.getElementById('login-back-btn').addEventListener('click', goBack);
 		document.getElementById('login-media-image').addEventListener('error', function () {
-			this.style.display = 'none';
+			this.classList.add('is-hidden');
 		});

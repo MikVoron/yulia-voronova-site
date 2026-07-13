@@ -52,6 +52,17 @@ describe('SmartPlate CSP script migration', () => {
     expect(html).not.toMatch(/<style\b|\sstyle\s*=/i);
   });
 
+  it('keeps the login flow independent of inline styles', () => {
+    const html = fs.readFileSync(path.join(platformDir, 'login.html'), 'utf8');
+    const script = fs.readFileSync(path.join(platformDir, 'login.js'), 'utf8');
+    expect(html).toContain('login.css?v=20260713-csp-styles');
+    expect(html).not.toMatch(/<style\b|\sstyle\s*=/i);
+    expect(script).not.toMatch(/\.style\.|\sstyle\s*=/i);
+    expect(script).toContain("step2.classList.remove('is-hidden')");
+    expect(script).toContain("success.classList.add('is-visible')");
+    expect(script).toContain("block.classList.add('has-error')");
+  });
+
   it('keeps static admin controls free of inline event handlers', () => {
     const html = fs.readFileSync(path.join(platformDir, 'admin.html'), 'utf8');
     const script = fs.readFileSync(path.join(platformDir, 'admin.js'), 'utf8');
