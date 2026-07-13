@@ -166,4 +166,20 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain("else if (action === 'save-plate')");
     expect(script).toContain("image.hasAttribute('data-review-avatar-fallback')");
   });
+
+  it('keeps shared retry templates free of inline handlers and cache-busts every consumer', () => {
+    const script = fs.readFileSync(path.join(platformDir, 'data-v2.js'), 'utf8');
+    const consumers = [
+      'index.html', 'ingredient.html', 'login.html', 'category.html', 'auth-callback.html',
+      'recipe-editor.html', 'recipe.html', 'cabinet.html', 'admin.html'
+    ];
+
+    expect(script).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(script.match(/data-shared-action="reload"/g)).toHaveLength(3);
+    expect(script).toContain("event.target.closest('[data-shared-action=\"reload\"]')");
+    consumers.forEach(fileName => {
+      const html = fs.readFileSync(path.join(platformDir, fileName), 'utf8');
+      expect(html, fileName).toContain('data-v2.js?v=20260713-csp-template-actions');
+    });
+  });
 });

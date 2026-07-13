@@ -340,7 +340,7 @@ const Auth = {
             icon = NET_SVG;
             title = 'Не удалось связаться с сервером';
             text = 'Проверьте подключение к интернету и попробуйте снова. Если проблема не исчезнет — напишите нам.';
-            actionHtml = '<button class="paywall-btn" onclick="location.reload()">Повторить</button>';
+            actionHtml = '<button class="paywall-btn" data-shared-action="reload">Повторить</button>';
         } else {
             icon = LOCK_SVG;
             title = isTrialNotGranted ? 'Пробный период не активирован' : (isExpired ? 'Подписка завершена' : 'Нужна подписка');
@@ -1243,7 +1243,7 @@ function showApiError(container) {
             '<div style="font-size:56px;margin-bottom:16px">📡</div>' +
             '<h2 style="font-family:Playfair Display,serif;font-size:24px;color:#1a1a1a;margin-bottom:12px">' + title + '</h2>' +
             '<p style="color:#666;font-size:15px;line-height:1.5;margin-bottom:24px">' + text + statusText + '</p>' +
-            '<button onclick="location.reload()" style="background:var(--accent,#e8734a);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer">Повторить</button>' +
+            '<button data-shared-action="reload" style="background:var(--accent,#e8734a);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer">Повторить</button>' +
         '</div>';
 }
 
@@ -1465,3 +1465,9 @@ function shareShoppingList() {
     if (navigator.share) { navigator.share({ text: txt }).catch(() => {}); }
     else { navigator.clipboard.writeText(txt).then(() => showToast('📋 Скопировано!')).catch(() => showToast('Не удалось скопировать')); }
 }
+
+// CSP: shared retry buttons migrated from JavaScript-template event attributes.
+document.addEventListener('click', function (event) {
+    const reloadControl = event.target.closest('[data-shared-action="reload"]');
+    if (reloadControl) location.reload();
+});
