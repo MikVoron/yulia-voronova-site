@@ -74,16 +74,22 @@ Production-smoke проверил time, difficulty, tag, popular, раскрыт
 footer-dropdown без существующих owner-кнопок; они не были частью доступного
 интерфейса и могли выбрасывать исключение при программном вызове.
 
+15 статических plate/comments modal controls перенесены в page scripts на
+`index`, `category`, `ingredient`, `recipe` и `cabinet`. Авторизованный
+production-smoke подтвердил открытие plate и закрытие кнопкой/backdrop на всех
+пяти страницах, а также оба способа закрытия comments на `category` и
+`ingredient`; ошибок CSP, JavaScript и HTTP нет.
+
 В самих HTML-файлах сейчас остаются:
 
 | Страница | `on*=` обработчики | Основные оставшиеся группы |
 |---|---:|---|
-| `index.html` | 6 | тур и модальная тарелка |
-| `recipe.html` | 18 | balance UI, карусель шагов, модальные окна |
-| `category.html` | 4 | comments и plate modal |
-| `ingredient.html` | 4 | comments и plate modal |
+| `index.html` | 3 | гостевой тур и поиск |
+| `recipe.html` | 16 | balance UI, карусель шагов, grocery modal |
+| `category.html` | 0 | статические handlers полностью перенесены |
+| `ingredient.html` | 0 | статические handlers полностью перенесены |
 | `recipe-editor.html` | 19 | редактор и modal actions |
-| `cabinet.html` | 44 | профиль, оплата, журнал, настройки |
+| `cabinet.html` | 42 | профиль, оплата, журнал, настройки |
 | `login.html` | 0 | страница очищена от inline handlers |
 | `admin.html` | 0 | 50 статических controls перенесены в `admin.js` |
 | `popup-preview.html` | 0 | 11 preview actions перенесены в `popup-preview.js` |
@@ -94,7 +100,7 @@ footer-dropdown без существующих owner-кнопок; они не 
 В `header-nav.js` и `admin.js` подстановка данных в JavaScript-атрибуты
 удалена полностью.
 
-В production HTML осталось 95 обработчиков, ещё 90 создаётся JS-шаблонами.
+В production HTML осталось 80 обработчиков, ещё 90 создаётся JS-шаблонами.
 Полный актуальный список воспроизводится командой:
 
 ```powershell
@@ -145,7 +151,7 @@ rg -n "\son[a-z]+\s*=" platform -g "*.html" -g "*.js"
    `ingredient`, `login`.
 2. Переносить оставшиеся обработчики партиями: `login`, `admin`,
    `popup-preview`, общие header/drawer controls и статические фильтры готовы;
-   далее plate modal, затем
+   статические plate/comments modal controls также готовы; далее
    сложный balance UI и обработчики JS-шаблонов.
 3. Для статического nginx-сайта основной вариант — внешние first-party
    скрипты. Для редкого неизбежного inline bootstrap использовать SHA-256
