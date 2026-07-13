@@ -2328,3 +2328,15 @@
 				if (btn) { btn.disabled = false; btn.textContent = 'Скрыть'; }
 			}
 		}
+
+// CSP: static plate and comments modal controls migrated from HTML attributes.
+document.querySelectorAll('[data-modal-action]').forEach(function (control) {
+    control.addEventListener('click', function (event) {
+        var action = control.dataset.modalAction;
+        if (action === 'close-comments-outside') closeCommentsIfOutside(event);
+        else if (action === 'close-comments') closeComments();
+        else if (action === 'close-plate-outside') closePlateIfOutside(event);
+        else if (action === 'close-plate') closePlate();
+        else if (action === 'save-plate') savePlate();
+    });
+});

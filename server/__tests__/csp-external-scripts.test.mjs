@@ -88,4 +88,23 @@ describe('SmartPlate CSP script migration', () => {
     expect(ingredientHtml).not.toContain('id="fg-time-drop"');
     expect(ingredientHtml).not.toContain('id="fg-diff-drop"');
   });
+
+  it('binds static plate and comments modal controls without inline handlers', () => {
+    const pages = [
+      ['index.html', 'index-page.js', 3],
+      ['category.html', 'category-page.js', 4],
+      ['ingredient.html', 'ingredient-page.js', 4],
+      ['recipe.html', 'recipe-page.js', 2],
+      ['cabinet.html', 'cabinet.js', 2]
+    ];
+    const forbidden = /onclick="(?:closeCommentsIfOutside|closeComments|closePlateIfOutside|closePlate|savePlate)\(/;
+
+    for (const [htmlName, scriptName, count] of pages) {
+      const html = fs.readFileSync(path.join(platformDir, htmlName), 'utf8');
+      const script = fs.readFileSync(path.join(platformDir, scriptName), 'utf8');
+      expect(html, htmlName).not.toMatch(forbidden);
+      expect(html.match(/\sdata-modal-action=/g), htmlName).toHaveLength(count);
+      expect(script, scriptName).toContain("document.querySelectorAll('[data-modal-action]')");
+    }
+  });
 });
