@@ -24,12 +24,12 @@
 			history.replaceState(history.state, '', url.pathname + url.search + url.hash);
 		}
 		function revealGuestTourAfterManualOpen() {
-			const onboarding = document.getElementById('guest-onboarding');
+			const guestTourEl = document.getElementById('guest-onboarding');
 			requestAnimationFrame(() => {
-				if (onboarding) {
+				if (guestTourEl) {
 					const header = document.querySelector('.sp-header');
 					const headerOffset = header ? header.getBoundingClientRect().height : 0;
-					const top = window.scrollY + onboarding.getBoundingClientRect().top - headerOffset - 12;
+					const top = window.scrollY + guestTourEl.getBoundingClientRect().top - headerOffset - 12;
 					const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 					window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion ? 'auto' : 'smooth' });
 				}
@@ -385,7 +385,7 @@
                     <div class="news-text-card-date">${escHtml(item.date || '')}</div>
                     <div class="news-text-card-top">
                         <div class="news-text-card-ava">
-                            <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" onerror="this.parentElement.textContent='👩‍🍳'">
+                            <img src="https://voronova.online/images/YV-small.webp" alt="Юлия" data-index-avatar-fallback="👩‍🍳">
                         </div>
                         <div class="news-text-card-author">Юлия Воронова</div>
                     </div>
@@ -641,7 +641,7 @@
 
 		function renderNewsListToggle(count) {
 			if (count <= 1) return '';
-			return `<button class="news-toggle-btn" id="sp-news-toggle-btn" type="button" onclick="toggleMobileNewsList()">
+			return `<button class="news-toggle-btn" id="sp-news-toggle-btn" type="button" data-index-template-action="toggle-mobile-news">
 				<span class="news-toggle-label">Показать ещё новости (${count - 1})</span>
 				<span class="arr">⌄</span>
 			</button>`;
@@ -693,7 +693,7 @@
 						? `<span class="hero-search-access${access.isFree ? ' is-free' : ''}">· ${escHtml(access.label)}</span>`
 						: '';
 					const thumb = _photo
-						? `<img class="hero-search-thumb" src="${_photo}" alt="" onerror="this.style.display='none'">`
+						? `<img class="hero-search-thumb" src="${_photo}" alt="" data-index-image-fallback="hide">`
 						: `<div class="hero-search-thumb"></div>`;
 					return `<a class="hero-search-item" href="${_href}">
 						${thumb}
@@ -1379,7 +1379,7 @@
                 <h2 class="pv1-headline">Соберите первый приём пищи</h2>
                 <div class="pv1-divider"></div>
                 <p class="pv1-sub">Выберите рецепт из категории — и он попадёт сюда. КБЖУ пересчитаются автоматически.</p>
-                <button class="pv1-cta" onclick="closePlate();location.href='category.html'">Выбрать рецепт →</button>
+                <button class="pv1-cta" data-index-template-action="browse-recipes">Выбрать рецепт →</button>
             </div>`;
 				footer.style.display = 'none';
 				return;
@@ -1437,7 +1437,7 @@
                 </span>
                 <span class="hydration-label">Ваш вес</span>
                 <span class="hydration-input-wrap">
-                    <input class="hydration-input" type="number" id="w-inp" value="${hydrationWeight}" min="30" max="300" step="0.5" oninput="updateWater()" onblur="commitPlateWeight()" aria-label="Ваш вес в килограммах">
+                    <input class="hydration-input" type="number" id="w-inp" value="${hydrationWeight}" min="30" max="300" step="0.5" data-index-template-input="plate-weight" data-index-template-blur="plate-weight" aria-label="Ваш вес в килограммах">
                     <span class="hydration-unit">кг</span>
                 </span>
                 <span class="hydration-arrow" aria-hidden="true">→</span>
@@ -1450,8 +1450,8 @@
                     Список покупок${ingCount ? ` · ${ingCount} шт` : ''}
                 </div>
                 <div class="shop-actions">
-                    <button class="shop-btn shop-btn-primary" id="plate-shop-mode-btn" onclick="togglePlateShopMode()" aria-pressed="false">В магазине</button>
-                    <button class="shop-btn shop-btn-ghost" onclick="doCopy()">Скопировать</button>
+                    <button class="shop-btn shop-btn-primary" id="plate-shop-mode-btn" data-index-template-action="toggle-shop-mode" aria-pressed="false">В магазине</button>
+                    <button class="shop-btn shop-btn-ghost" data-index-template-action="copy-shopping-list">Скопировать</button>
                 </div>
                 <div class="plate-shop-list" id="plate-shop-list" hidden></div>
             </div>`;
@@ -1645,6 +1645,18 @@
 		}
 
 		document.addEventListener('click', function (event) {
+			const templateActionTarget = event.target.closest('[data-index-template-action]');
+			if (templateActionTarget) {
+				const action = templateActionTarget.dataset.indexTemplateAction;
+				if (action === 'toggle-mobile-news') toggleMobileNewsList();
+				else if (action === 'browse-recipes') {
+					closePlate();
+					location.href = 'category.html';
+				}
+				else if (action === 'toggle-shop-mode') togglePlateShopMode();
+				else if (action === 'copy-shopping-list') doCopy();
+				return;
+			}
 			const actionTarget = event.target.closest('[data-main-action]');
 			if (actionTarget) {
 				if (actionTarget.dataset.mainAction === 'remove-plate-item') removeItem(Number(actionTarget.dataset.index));
@@ -1668,8 +1680,23 @@
 
 		document.addEventListener('error', function (event) {
 			const image = event.target;
-			if (!(image instanceof HTMLImageElement) || !image.hasAttribute('data-fallback-emoji')) return;
-			imgFallback(image, image.dataset.fallbackEmoji || '🍴');
+			if (!(image instanceof HTMLImageElement)) return;
+			if (image.hasAttribute('data-index-avatar-fallback')) {
+				if (image.parentElement) image.parentElement.textContent = image.dataset.indexAvatarFallback || '👩‍🍳';
+				return;
+			}
+			if (image.dataset.indexImageFallback === 'hide') {
+				image.style.display = 'none';
+				return;
+			}
+			if (image.hasAttribute('data-fallback-emoji')) imgFallback(image, image.dataset.fallbackEmoji || '🍴');
+		}, true);
+
+		document.addEventListener('input', function (event) {
+			if (event.target.dataset && event.target.dataset.indexTemplateInput === 'plate-weight') updateWater();
+		});
+		document.addEventListener('blur', function (event) {
+			if (event.target.dataset && event.target.dataset.indexTemplateBlur === 'plate-weight') commitPlateWeight();
 		}, true);
 
 // CSP: static recipe filters migrated from HTML event attributes.

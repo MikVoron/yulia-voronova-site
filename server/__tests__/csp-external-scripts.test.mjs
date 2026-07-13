@@ -115,9 +115,15 @@ describe('SmartPlate CSP script migration', () => {
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
     expect(html.match(/\sdata-index-action=/g)).toHaveLength(2);
     expect(html).toContain('data-index-submit="hero-search"');
-    expect(html).toContain('index-page.js?v=20260713-csp-index-static');
+    expect(html).toContain('index-page.js?v=20260713-csp-template-actions');
     expect(script).toContain("document.querySelectorAll('[data-index-action]')");
     expect(script).toContain("heroSearchForm.addEventListener('submit'");
+    expect(script).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(script).toContain('data-index-template-action="toggle-mobile-news"');
+    expect(script).toContain('data-index-template-action="browse-recipes"');
+    expect(script).toContain('data-index-template-input="plate-weight"');
+    expect(script).toContain("image.hasAttribute('data-index-avatar-fallback')");
+    expect(script).toContain("image.dataset.indexImageFallback === 'hide'");
   });
 
   it('keeps the recipe page free of static inline event handlers', () => {
