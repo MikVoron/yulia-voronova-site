@@ -55,4 +55,16 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain("event.target.closest('[data-preview-action]')");
     expect(script).toContain("action === 'close-backdrop' && event.target === control");
   });
+
+  it('binds shared header and drawer controls without inline handlers', () => {
+    const names = ['index.html', 'category.html', 'ingredient.html', 'recipe.html', 'cabinet.html'];
+    const forbidden = /onclick="(?:openDrawer|closeDrawer|openPlate|toggleUserMenu|onUserBadgeClick|doLogout)\(/;
+
+    for (const name of names) {
+      const html = fs.readFileSync(path.join(platformDir, name), 'utf8');
+      expect(html, name).not.toMatch(forbidden);
+      expect(html, name).toContain('header-nav.js?v=20260713-csp-handlers');
+      expect(html.match(/\sdata-sp-action=/g)?.length || 0, name).toBeGreaterThanOrEqual(6);
+    }
+  });
 });

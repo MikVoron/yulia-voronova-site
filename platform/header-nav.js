@@ -310,8 +310,8 @@
   }
 
   // ── Mobile drawer open/close ───────────────────────────────────────────────
-  // Общие для всех страниц, где есть #sp-drawer (бургер вызывает onclick="openDrawer()").
-  // index.html объявляет свои одноимённые функции инлайн позже и переопределяет эти —
+  // Общие для всех страниц, где есть #sp-drawer.
+  // index.html объявляет свои одноимённые функции позже и переопределяет эти —
   // логика идентична, поэтому конфликта нет.
   var drawerScrollY = 0;
   var drawerBodyStyles = null;
@@ -364,6 +364,19 @@
   }
   if (!global.openDrawer) global.openDrawer = openDrawer;
   if (!global.closeDrawer) global.closeDrawer = closeDrawer;
+
+  document.querySelectorAll('[data-sp-action]').forEach(function (control) {
+    control.addEventListener('click', function (event) {
+      var action = control.dataset.spAction;
+      if (action === 'open-drawer' && typeof global.openDrawer === 'function') global.openDrawer();
+      else if (action === 'close-drawer' && typeof global.closeDrawer === 'function') global.closeDrawer();
+      else if (action === 'open-plate' && typeof global.openPlate === 'function') global.openPlate();
+      else if (action === 'user-menu') {
+        var toggle = global.onUserBadgeClick || global.toggleUserMenu;
+        if (typeof toggle === 'function') toggle(event);
+      } else if (action === 'logout' && typeof global.doLogout === 'function') global.doLogout();
+    });
+  });
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
     var dr = document.getElementById('sp-drawer');
