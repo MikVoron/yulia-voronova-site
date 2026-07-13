@@ -664,7 +664,7 @@
                     '<div class="re-hint">Текст увидит пользователь над блоком шагов, если исключит этот ингредиент. Шаги автоматически не переписываются.</div>' +
                 '</div>' +
             '</div>' +
-            '<button class="re-item-remove" onclick="removeItem(this)" title="Удалить">&times;</button>';
+            '<button class="re-item-remove" data-editor-template-action="remove-item" title="Удалить">&times;</button>';
         list.appendChild(item);
         var swapInput = item.querySelector('[data-field="swap"]');
         if (swapInput) {
@@ -743,7 +743,7 @@
                     '<textarea class="re-item-textarea" data-field="photo" rows="2" placeholder="Один URL или несколько URL по одному в строке">' + esc(photo) + '</textarea>' +
                 '</div>' +
             '</div>' +
-            '<button class="re-item-remove" onclick="removeItem(this)" title="Удалить">&times;</button>';
+            '<button class="re-item-remove" data-editor-template-action="remove-item" title="Удалить">&times;</button>';
         list.appendChild(item);
         initDrag(item, list);
         updateCounts();
@@ -789,7 +789,7 @@
                     '<span class="re-add-source manual" data-source-badge>✏️ вручную</span>' +
                 '</div>' +
             '</div>' +
-            '<button class="re-item-remove" onclick="removeItem(this)" title="Удалить">&times;</button>';
+            '<button class="re-item-remove" data-editor-template-action="remove-item" title="Удалить">&times;</button>';
         list.appendChild(item);
         initDrag(item, list);
 
@@ -1604,7 +1604,7 @@
 
             var matchedHtml = item.matched ? esc(item.matched) : '—';
             if (item.alternatives && item.alternatives.length > 1) {
-                matchedHtml = '<select class="re-nutr-alt-select" data-item-idx="' + idx + '" onchange="selectNutrAlt(this)">';
+                matchedHtml = '<select class="re-nutr-alt-select" data-item-idx="' + idx + '" data-editor-template-change="select-nutr-alt">';
                 item.alternatives.forEach(function(alt, ai) {
                     matchedHtml += '<option value="' + ai + '"' + (ai === 0 ? ' selected' : '') + '>' + esc(alt.description) + '</option>';
                 });
@@ -1676,7 +1676,7 @@
 
         var imgHtml;
         if (data.photo) {
-            imgHtml = '<img src="' + escAttr(resolvePhotoUrl(data.photo)) + '" style="' + (data.img_position ? 'object-position:' + data.img_position : '') + '" onerror="this.parentNode.innerHTML=\'' + esc(data.emoji || '🍴') + '\'">';
+            imgHtml = '<img src="' + escAttr(resolvePhotoUrl(data.photo)) + '" style="' + (data.img_position ? 'object-position:' + data.img_position : '') + '" data-editor-preview-fallback="' + escAttr(data.emoji || '🍴') + '">';
         } else {
             imgHtml = data.emoji || '🍴';
         }
@@ -1931,6 +1931,23 @@
             else if (action === 'dismiss-success') dismissSuccess();
         });
     });
+
+    // CSP: controls created by editor templates use delegated events.
+    document.addEventListener('click', function(event) {
+        var control = event.target.closest('[data-editor-template-action]');
+        if (!control) return;
+        if (control.dataset.editorTemplateAction === 'remove-item') removeItem(control);
+    });
+    document.addEventListener('change', function(event) {
+        var control = event.target.closest('[data-editor-template-change]');
+        if (!control) return;
+        if (control.dataset.editorTemplateChange === 'select-nutr-alt') selectNutrAlt(control);
+    });
+    document.addEventListener('error', function(event) {
+        var image = event.target;
+        if (!image || !image.hasAttribute || !image.hasAttribute('data-editor-preview-fallback')) return;
+        if (image.parentNode) image.parentNode.textContent = image.dataset.editorPreviewFallback || '🍴';
+    }, true);
 
     function esc(s) {
         return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

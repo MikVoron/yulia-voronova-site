@@ -138,9 +138,14 @@ describe('SmartPlate CSP script migration', () => {
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
     expect(html.match(/\sdata-editor-static-action=/g)).toHaveLength(19);
     expect(html.match(/\sdata-addon-group=/g)).toHaveLength(4);
-    expect(html).toContain('recipe-editor.js?v=20260713-csp-static-controls');
+    expect(html).toContain('recipe-editor.js?v=20260713-csp-template-actions');
     expect(script).toContain("document.querySelectorAll('[data-editor-static-action]')");
     expect(script).toContain("addAddItem(control.dataset.addonGroup || '')");
+    expect(script).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(script.match(/data-editor-template-action="remove-item"/g)).toHaveLength(3);
+    expect(script).toContain('data-editor-template-change="select-nutr-alt"');
+    expect(script).toContain('data-editor-preview-fallback="');
+    expect(script).toContain("image.hasAttribute('data-editor-preview-fallback')");
   });
 
   it('keeps the cabinet free of static inline event handlers', () => {
