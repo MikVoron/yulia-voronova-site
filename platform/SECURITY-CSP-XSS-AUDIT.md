@@ -1,6 +1,6 @@
 # CSP и остаточный XSS-аудит SmartPlate
 
-Дата проверки: 2026-06-27. Первый этап CSP-миграции обновлён 2026-07-13.
+Дата проверки: 2026-06-27. CSP-миграция обновлена 2026-07-13.
 
 ## Область проверки
 
@@ -55,26 +55,38 @@ Enforced CSP использует `script-src-elem 'self'`, поэтому но�
 
 ## Inline handlers
 
-После первого этапа миграции в самих HTML-файлах остаются:
+После двух следующих production-партий `admin.html` и `popup-preview.html`
+полностью очищены от event attributes. Авторизованный smoke админки проверил
+все девять вкладок, фильтры и безопасные modal actions; публичный smoke preview
+проверил toast, paywall toast и закрытие modal через кнопку, backdrop и Escape.
+В обоих тестах нет enforced CSP violations, JavaScript-ошибок и неуспешных
+HTTP-ответов.
+
+В самих HTML-файлах сейчас остаются:
 
 | Страница | `on*=` обработчики | Основные оставшиеся группы |
 |---|---:|---|
-| `index.html` | 36 | header, фильтры, модальная тарелка |
-| `recipe.html` | 56 | header, balance UI, карусель шагов, модальные окна |
-| `category.html` | 32 | header, фильтры, модальные окна |
-| `cabinet.html` | 52 | профиль, оплата, журнал, настройки |
+| `index.html` | 31 | header, фильтры, модальная тарелка |
+| `recipe.html` | 24 | header, balance UI, карусель шагов, модальные окна |
+| `category.html` | 28 | header, фильтры, модальные окна |
+| `ingredient.html` | 17 | header, фильтры, модальные окна |
+| `recipe-editor.html` | 19 | редактор и modal actions |
+| `cabinet.html` | 51 | профиль, оплата, журнал, настройки |
 | `login.html` | 0 | страница очищена от inline handlers |
-| `admin.html` | 49 | вкладки, фильтры и статические modal actions |
+| `admin.html` | 0 | 50 статических controls перенесены в `admin.js` |
+| `popup-preview.html` | 0 | 11 preview actions перенесены в `popup-preview.js` |
 
-В `cabinet.js` остаются 8 статических обработчиков внутри шаблонов. В
-`admin.js` подстановка данных в JavaScript-атрибуты удалена полностью.
+В JavaScript-шаблонах остаётся 91 обработчик: `recipe-page.js` — 39,
+`ingredient-page.js` — 20, `cabinet.js` и `index-page.js` — по 9,
+`category-page.js` — 6, `recipe-editor.js` — 5, `data-v2.js` — 2 и
+`header-nav.js` — 1. В `admin.js` подстановка данных в JavaScript-атрибуты
+удалена полностью.
 
-До этого этапа только в шести HTML-файлах было 277 обработчиков; теперь 225.
+В production HTML осталось 170 обработчиков, ещё 91 создаётся JS-шаблонами.
 Полный актуальный список воспроизводится командой:
 
 ```powershell
-rg -n "\son[a-z]+\s*=" platform/index.html platform/recipe.html platform/category.html platform/cabinet.html platform/login.html platform/admin.html
-rg -n "on(click|submit|error|change|input|keydown|mouseenter|mouseleave)=" platform/cabinet.js platform/admin.js
+rg -n "\son[a-z]+\s*=" platform -g "*.html" -g "*.js"
 ```
 
 ## Проверка `innerHTML`
@@ -119,8 +131,9 @@ rg -n "on(click|submit|error|change|input|keydown|mouseenter|mouseleave)=" platf
 1. ✅ Вынести встроенные блоки в first-party JS без изменения порядка
    выполнения. Выполнено 13 июля для `index`, `recipe`, `category`,
    `ingredient`, `login`.
-2. Переносить оставшиеся обработчики партиями: `login` готов; далее
-   `admin`, header/drawer, фильтры, plate modal, затем сложный balance UI.
+2. Переносить оставшиеся обработчики партиями: `login`, `admin` и
+   `popup-preview` готовы; далее header/drawer, фильтры, plate modal, затем
+   сложный balance UI и обработчики JS-шаблонов.
 3. Для статического nginx-сайта основной вариант — внешние first-party
    скрипты. Для редкого неизбежного inline bootstrap использовать SHA-256
    hash. Nonce применять только если HTML начнёт формироваться на каждый
