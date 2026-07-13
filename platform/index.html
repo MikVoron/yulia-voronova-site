@@ -3290,32 +3290,32 @@
 					<div class="filter-outer anim anim-d1">
 						<div class="filter-scroll-wrap">
 							<div class="filter-bar" id="filter-row">
-								<button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" onclick="toggleFGroup(this)">
+								<button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" data-filter-action="toggle-group">
 									<span class="fg-label">Время</span>
 									<svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2">
 										<path d="M1 1l4 4 4-4" />
 									</svg>
 								</button>
-								<button class="fgroup-btn" id="fg-diff-btn" data-label="Сложность" data-drop="fg-diff-drop" onclick="toggleFGroup(this)">
+								<button class="fgroup-btn" id="fg-diff-btn" data-label="Сложность" data-drop="fg-diff-drop" data-filter-action="toggle-group">
 									<span class="fg-label">Сложность</span>
 									<svg class="fg-arrow" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2">
 										<path d="M1 1l4 4 4-4" />
 									</svg>
 								</button>
 								<div class="filter-sep"></div>
-								<button class="filter-chip" data-f="free" onclick="toggleTagFilter(this)">Бесплатные</button>
-								<button class="filter-chip" data-f="popular" id="popular-chip" onclick="togglePopular(this)">⭐ Популярные</button>
-								<button class="filter-more-toggle" type="button" aria-expanded="false" aria-controls="home-more-filters" onclick="toggleMoreFilters(this)">Ещё фильтры <span aria-hidden="true">⌄</span></button>
+								<button class="filter-chip" data-f="free" data-filter-action="toggle-tag">Бесплатные</button>
+								<button class="filter-chip" data-f="popular" id="popular-chip" data-filter-action="toggle-popular">⭐ Популярные</button>
+								<button class="filter-more-toggle" type="button" aria-expanded="false" aria-controls="home-more-filters" data-filter-action="toggle-more">Ещё фильтры <span aria-hidden="true">⌄</span></button>
 								<div class="filter-more" id="home-more-filters">
-									<button class="filter-chip" data-f="gluten" onclick="toggleTagFilter(this)">Без глютена</button>
-									<button class="filter-chip" data-f="plant" onclick="toggleTagFilter(this)">Растительные</button>
-									<button class="filter-chip" data-f="fish" onclick="toggleTagFilter(this)">Рыбные</button>
-									<button class="filter-chip" data-f="noSoy" onclick="toggleTagFilter(this)">Без сои</button>
-									<button class="filter-chip" data-f="legumes" onclick="toggleTagFilter(this)">Бобовые</button>
+									<button class="filter-chip" data-f="gluten" data-filter-action="toggle-tag">Без глютена</button>
+									<button class="filter-chip" data-f="plant" data-filter-action="toggle-tag">Растительные</button>
+									<button class="filter-chip" data-f="fish" data-filter-action="toggle-tag">Рыбные</button>
+									<button class="filter-chip" data-f="noSoy" data-filter-action="toggle-tag">Без сои</button>
+									<button class="filter-chip" data-f="legumes" data-filter-action="toggle-tag">Бобовые</button>
 								</div>
 							</div>
 						</div>
-						<button class="filter-clear" onclick="clearFilters()">↺ Сбросить</button>
+						<button class="filter-clear" data-filter-action="clear">↺ Сбросить</button>
 					</div>
 				</div>
 				<div class="recipes-total-count sp-cats-status" id="recipes-total-count"></div>
@@ -3418,15 +3418,15 @@
 
 	<!-- FILTER DROPDOWNS -->
 	<div class="fgroup-drop" id="fg-time-drop">
-		<button class="filter-chip" data-f="time" data-v="15" onclick="pickFilter(this,'fg-time-btn')">До 15 мин</button>
-		<button class="filter-chip" data-f="time" data-v="30" onclick="pickFilter(this,'fg-time-btn')">До 30 мин</button>
-		<button class="filter-chip" data-f="time" data-v="60" onclick="pickFilter(this,'fg-time-btn')">До 1 часа</button>
-		<button class="filter-chip" data-f="time" data-v="over60" onclick="pickFilter(this,'fg-time-btn')">Более 1 часа</button>
+		<button class="filter-chip" data-f="time" data-v="15" data-filter-action="pick" data-filter-owner="fg-time-btn">До 15 мин</button>
+		<button class="filter-chip" data-f="time" data-v="30" data-filter-action="pick" data-filter-owner="fg-time-btn">До 30 мин</button>
+		<button class="filter-chip" data-f="time" data-v="60" data-filter-action="pick" data-filter-owner="fg-time-btn">До 1 часа</button>
+		<button class="filter-chip" data-f="time" data-v="over60" data-filter-action="pick" data-filter-owner="fg-time-btn">Более 1 часа</button>
 	</div>
 	<div class="fgroup-drop" id="fg-diff-drop">
-		<button class="filter-chip" data-f="difficulty" data-v="easy" onclick="pickFilter(this,'fg-diff-btn')">Легкая</button>
-		<button class="filter-chip" data-f="difficulty" data-v="medium" onclick="pickFilter(this,'fg-diff-btn')">Средняя</button>
-		<button class="filter-chip" data-f="difficulty" data-v="hard" onclick="pickFilter(this,'fg-diff-btn')">Сложная</button>
+		<button class="filter-chip" data-f="difficulty" data-v="easy" data-filter-action="pick" data-filter-owner="fg-diff-btn">Легкая</button>
+		<button class="filter-chip" data-f="difficulty" data-v="medium" data-filter-action="pick" data-filter-owner="fg-diff-btn">Средняя</button>
+		<button class="filter-chip" data-f="difficulty" data-v="hard" data-filter-action="pick" data-filter-owner="fg-diff-btn">Сложная</button>
 	</div>
 
 	<!-- CHAT FAB -->
@@ -3439,7 +3439,7 @@
 	<script src="data-v2.js?v=20260713-secure-content-cache"></script>
 	<script src="ingredients.js?v=20260711-oats-seabass"></script>
 	<script src="header-nav.js?v=20260713-csp-handlers"></script>
-	<script src="index-page.js?v=20260713-csp-external-scripts"></script>
+	<script src="index-page.js?v=20260713-csp-filters"></script>
 	<script src="tawk-chat-modal.js?v=20260711-chat-fab-footer"></script>
 </body>
 

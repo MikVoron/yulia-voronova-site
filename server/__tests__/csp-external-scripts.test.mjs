@@ -67,4 +67,21 @@ describe('SmartPlate CSP script migration', () => {
       expect(html.match(/\sdata-sp-action=/g)?.length || 0, name).toBeGreaterThanOrEqual(6);
     }
   });
+
+  it('binds static recipe filters without inline handlers', () => {
+    const pages = [
+      ['index.html', 'index-page.js', 18],
+      ['category.html', 'category-page.js', 18],
+      ['ingredient.html', 'ingredient-page.js', 7]
+    ];
+    const forbidden = /onclick="(?:toggleFGroup|toggleTagFilter|togglePopular|toggleMoreFilters|clearFilters|pickFilter)\(/;
+
+    for (const [htmlName, scriptName, count] of pages) {
+      const html = fs.readFileSync(path.join(platformDir, htmlName), 'utf8');
+      const script = fs.readFileSync(path.join(platformDir, scriptName), 'utf8');
+      expect(html, htmlName).not.toMatch(forbidden);
+      expect(html.match(/\sdata-filter-action=/g), htmlName).toHaveLength(count);
+      expect(script, scriptName).toContain("document.querySelectorAll('[data-filter-action]')");
+    }
+  });
 });
