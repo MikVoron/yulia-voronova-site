@@ -9,6 +9,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const platform = path.resolve(here, '../../platform');
 const read = file => readPlatformSource(platform, file);
 const indexHtml = read('index.html');
+const indexCss = read('index.css');
 
 function guestTourScript() {
   const start = indexHtml.indexOf("const GUEST_TOUR_COMPLETED_KEY = 'smartplate_guest_tour_completed_v1';");
@@ -112,8 +113,8 @@ describe('SmartPlate feedback plan 6 contracts', () => {
     expect(indexHtml).toContain("document.documentElement.classList.add('sp-guest-tour-preview')");
     expect(indexHtml).toContain("document.documentElement.classList.remove('sp-guest-tour-preview')");
     expect(indexHtml.indexOf('updateGuestOnboardingVisibility();')).toBeLessThan(indexHtml.indexOf('loadContent().then'));
-    expect(indexHtml).toMatch(/\.sp-guest-onboarding\s*\{[\s\S]*?display:\s*none/);
-    expect(indexHtml).toMatch(/\.sp-guest-onboarding-active \.sp-guest-onboarding\s*\{\s*display:\s*block/);
+    expect(indexCss).toMatch(/\.sp-guest-onboarding\s*\{[\s\S]*?display:\s*none/);
+    expect(indexCss).toMatch(/\.sp-guest-onboarding-active \.sp-guest-onboarding\s*\{\s*display:\s*block/);
   });
 
   it('collapses, persists completion, cleans the URL, and returns focus to the page start', () => {
@@ -199,8 +200,8 @@ describe('SmartPlate feedback plan 6 contracts', () => {
     expect(indexHtml).toContain('id="guest-tour-trigger" type="button" data-index-action="open-guest-tour">Как это работает? →</button>');
     expect(indexHtml).toContain('id="guest-onboarding-title"');
     expect(indexHtml).not.toContain('id="guest-onboarding-title" tabindex="-1"');
-    expect(indexHtml).toContain('.sp-guest-tour-reopen:focus-visible');
-    expect(indexHtml).toContain('.sp-guest-title:focus');
+    expect(indexCss).toContain('.sp-guest-tour-reopen:focus-visible');
+    expect(indexCss).toContain('.sp-guest-title:focus');
     expect(indexHtml).not.toContain('data-index-action="complete-guest-tour">Больше не показывать</button>');
   });
 });

@@ -9,6 +9,7 @@ const platform = path.resolve(here, '../../platform');
 const read = file => readPlatformSource(platform, file);
 
 const indexHtml = read('index.html');
+const indexCss = read('index.css');
 const style = read('style-v4.css');
 const headerNav = read('header-nav.js');
 const recipe = read('recipe.html');
@@ -22,8 +23,8 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(style).toContain('height: 100dvh; max-height: 100dvh;');
     expect(style).toContain('flex: 1 1 auto; min-height: 0;');
     expect(style).toContain('.sp-drawer-content .sp-drawer-subhead:first-child { margin-top: 8px; border-top: 0; }');
-    expect(indexHtml).toContain('height: 100dvh;');
-    expect(indexHtml).toMatch(/\.sp-drawer-content \.sp-drawer-subhead:first-child\s*\{[\s\S]*?border-top:\s*0/);
+    expect(indexCss).toContain('height: 100dvh;');
+    expect(indexCss).toMatch(/\.sp-drawer-content \.sp-drawer-subhead:first-child\s*\{[\s\S]*?border-top:\s*0/);
   });
 
   it('aligns the ingredients and step controls with the section rules', () => {
@@ -48,8 +49,8 @@ describe('SmartPlate feedback plan 7 contracts', () => {
   });
 
   it('removes perpetual decorative motion and automatic content entrances', () => {
-    expect(indexHtml).toContain('animation: spHowChipOnce');
-    expect(indexHtml).toContain('animation: spHowBarOnce');
+    expect(indexCss).toContain('animation: spHowChipOnce');
+    expect(indexCss).toContain('animation: spHowBarOnce');
     expect(indexHtml).toContain('observer.unobserve(entry.target)');
     expect(style).not.toContain('animation: fabPulse');
     expect(style).not.toContain('starHint');
@@ -67,7 +68,7 @@ describe('SmartPlate feedback plan 7 contracts', () => {
   });
 
   it('keeps headings and contacts legible and navigation destinations explicit', () => {
-    expect(indexHtml).toMatch(/\.sp-sec-title\s*\{[\s\S]*?font-size:\s*15px/);
+    expect(indexCss).toMatch(/\.sp-sec-title\s*\{[\s\S]*?font-size:\s*15px/);
     expect(indexHtml).toContain('href="index.html" class="sp-brand"');
     expect(indexHtml).toContain('href="mailto:hello@voronova.online"');
     expect(indexHtml).toContain('Email: hello@voronova.online');

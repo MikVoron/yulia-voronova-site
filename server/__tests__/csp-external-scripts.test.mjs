@@ -63,6 +63,27 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain("block.classList.add('has-error')");
   });
 
+  it('keeps homepage static markup and shared plate counts independent of inline styles', () => {
+    const html = fs.readFileSync(path.join(platformDir, 'index.html'), 'utf8');
+    const criticalCss = fs.readFileSync(path.join(platformDir, 'index-critical.css'), 'utf8');
+    const css = fs.readFileSync(path.join(platformDir, 'index.css'), 'utf8');
+    const data = fs.readFileSync(path.join(platformDir, 'data-v2.js'), 'utf8');
+    const plateConsumers = ['index.html', 'recipe.html', 'category.html', 'ingredient.html', 'cabinet.html'];
+
+    expect(html).toContain('index-critical.css?v=20260713-csp-static');
+    expect(html).toContain('index.css?v=20260713-csp-static');
+    expect(html).not.toMatch(/<style\b|\sstyle\s*=/i);
+    expect(criticalCss).toContain('visibility: hidden;');
+    expect(css).toContain('.index-is-hidden');
+    expect(css).toContain('.v-logo-brand--inverse');
+    expect(data).toContain('el.hidden = n <= 0;');
+    expect(data).not.toContain("el.style.display = n > 0 ? 'flex' : 'none'");
+    plateConsumers.forEach(fileName => {
+      const consumer = fs.readFileSync(path.join(platformDir, fileName), 'utf8');
+      expect(consumer, fileName).toContain('<span class="plate-count" hidden>0</span>');
+    });
+  });
+
   it('keeps the shared Tawk modal independent of dynamically injected styles', () => {
     const script = fs.readFileSync(path.join(platformDir, 'tawk-chat-modal.js'), 'utf8');
     const css = fs.readFileSync(path.join(platformDir, 'tawk-chat-modal.css'), 'utf8');
@@ -261,7 +282,7 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain("event.target.closest('[data-shared-action=\"reload\"]')");
     consumers.forEach(fileName => {
       const html = fs.readFileSync(path.join(platformDir, fileName), 'utf8');
-      expect(html, fileName).toContain('data-v2.js?v=20260713-csp-template-actions');
+      expect(html, fileName).toContain('data-v2.js?v=20260713-csp-static-styles');
     });
   });
 });

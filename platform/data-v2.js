@@ -858,7 +858,7 @@ function updatePlateIcon() {
     const n = Plate.count();
     document.querySelectorAll('.plate-count').forEach(el => {
         el.textContent = n;
-        el.style.display = n > 0 ? 'flex' : 'none';
+        el.hidden = n <= 0;
     });
 }
 

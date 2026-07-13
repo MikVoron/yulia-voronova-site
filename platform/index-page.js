@@ -835,7 +835,7 @@
 				r = latestId ? RECIPES[latestId] : null;
 				isFallback = true;
 			}
-			if (!r) { block.style.display = 'none'; return; }
+			if (!r) { block.classList.add('index-is-hidden'); return; }
 
 			const latestId = _latestRecipeId();
 			const _id = encodeURIComponent(r.id);
@@ -861,7 +861,7 @@
 			const bd = spBadgesHtml(r, latestId);
 			const eyebrow = isFallback ? 'Последнее на главной' : 'Сезонный выбор';
 
-			block.style.display = '';
+			block.classList.remove('index-is-hidden');
 			body.innerHTML = `
 				<button class="sp-seasonal${bd.locked ? ' locked' : ''}" type="button" ${spActionAttrs(r, bd.locked)}>
 					<div class="sp-seasonal-media">
@@ -1003,17 +1003,17 @@
 
 			// Пользователь закрыл CTA — больше не показываем (spec §3.5).
 			try {
-				if (localStorage.getItem('smartplate.cta.dismissed')) { block.style.display = 'none'; return; }
+				if (localStorage.getItem('smartplate.cta.dismissed')) { block.classList.add('index-is-hidden'); return; }
 			} catch (e) { /* private mode — игнорируем */ }
 
 			// Полная подписка не нужна — скрываем CTA. (Гость/триал/expired — видят.)
 			if (Auth.hasFullAccess && Auth.hasFullAccess()) {
-				block.style.display = 'none';
+				block.classList.add('index-is-hidden');
 				return;
 			}
 
 			const n = Object.keys(RECIPES).length;
-			if (!n) { block.style.display = 'none'; return; }
+			if (!n) { block.classList.add('index-is-hidden'); return; }
 			const rounded = _roundDownMarketing(n);
 			const countLabel = rounded + '+';
 			txt.innerHTML = '<span class="sp-cta-text-line"><span class="sp-cta-count">' + escHtml(countLabel) + '</span> адаптивных блюд с автоматическим расчётом КБЖУ, заменой продуктов и сезонными рецептами.</span>'
@@ -1024,7 +1024,7 @@
 				btn.href = Auth.isGuest && Auth.isGuest() ? Auth._loginUrl() : 'cabinet.html#subscription';
 				btn.textContent = Auth.isGuest && Auth.isGuest() ? 'Попробовать бесплатно' : 'Оформить подписку';
 			}
-			block.style.display = '';
+			block.classList.remove('index-is-hidden');
 		}
 
 		// Hero photo + caption — берём из сезонного рецепта; fallback на последний опубликованный.
@@ -1174,7 +1174,7 @@
 		function dismissCtaStrip() {
 			try { localStorage.setItem(CTA_DISMISS_KEY, '1'); } catch (e) { /* private mode */ }
 			const block = document.getElementById('cta-strip-block');
-			if (block) block.style.display = 'none';
+			if (block) block.classList.add('index-is-hidden');
 		}
 
 		// showLockedMsg() централизован в data-v2.js (общий для index/category/ingredient)
@@ -1381,7 +1381,7 @@
                 <p class="pv1-sub">Выберите рецепт из категории — и он попадёт сюда. КБЖУ пересчитаются автоматически.</p>
                 <button class="pv1-cta" data-index-template-action="browse-recipes">Выбрать рецепт →</button>
             </div>`;
-				footer.style.display = 'none';
+				footer.classList.add('index-is-hidden');
 				return;
 			}
 
@@ -1455,7 +1455,7 @@
                 </div>
                 <div class="plate-shop-list" id="plate-shop-list" hidden></div>
             </div>`;
-			footer.style.display = 'block';
+			footer.classList.remove('index-is-hidden');
 			document.getElementById('plate-meal-picker').innerHTML = plateMealTypePickerHtml();
 			renderPlateShopMode();
 		}
@@ -1592,7 +1592,7 @@
 			const items = Plate.get();
 			const section = document.getElementById('plate-inline-section');
 			if (!items.length) {
-				section.style.display = 'none';
+				section.classList.add('index-is-hidden');
 				return;
 			}
 			const t = Plate.totals();
@@ -1600,7 +1600,7 @@
 			const word = n === 1 ? 'блюдо' : (n >= 2 && n <= 4 ? 'блюда' : 'блюд');
 			document.getElementById('plate-summary-count').textContent = `В тарелке: ${n} ${word}`;
 			document.getElementById('plate-summary-kcal').textContent = `${Number(t.kcal) || 0} ккал`;
-			section.style.display = 'flex';
+			section.classList.remove('index-is-hidden');
 		}
 
 		// Swipe to close

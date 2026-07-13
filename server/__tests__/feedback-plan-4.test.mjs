@@ -38,16 +38,16 @@ describe('SmartPlate feedback plan 4 contracts', () => {
 
   it('does not animate locked recipe cards as if they were available', () => {
     const sharedCss = read('style-v4.css');
-    const index = read('index.html');
+    const indexCss = read('index.css');
 
     expect(sharedCss).toContain('.recipe-card:not(.locked):hover .recipe-card__media img');
     expect(sharedCss).toContain('.featured-card:not(.locked):hover .featured-card-photo img');
     expect(sharedCss).toContain('.cat-card:not(.locked):hover .cat-icon-wrap img');
     expect(sharedCss).not.toMatch(/\.recipe-card\.locked:hover/);
     expect(sharedCss).not.toMatch(/\.featured-card\.locked:hover/);
-    expect(index).toContain('.sp-card:not(.locked):hover .sp-card-media img');
-    expect(index).toContain('.sp-seasonal:not(.locked):hover .sp-seasonal-media img');
-    expect(index).toContain('.sp-new-card:not(.locked) .sp-new-card-media:hover img');
+    expect(indexCss).toContain('.sp-card:not(.locked):hover .sp-card-media img');
+    expect(indexCss).toContain('.sp-seasonal:not(.locked):hover .sp-seasonal-media img');
+    expect(indexCss).toContain('.sp-new-card:not(.locked) .sp-new-card-media:hover img');
   });
 
   it('offers an explicit free filter without hiding locked search results by default', () => {
@@ -96,9 +96,9 @@ describe('SmartPlate feedback plan 4 contracts', () => {
   });
 
   it('underlines the complete all-recipes link on hover', () => {
-    const index = read('index.html');
+    const indexCss = read('index.css');
 
-    expect(index).toMatch(/\.sp-sec-link:hover\s*\{[\s\S]*?text-decoration:\s*underline;[\s\S]*?text-underline-offset:\s*4px;/);
+    expect(indexCss).toMatch(/\.sp-sec-link:hover\s*\{[\s\S]*?text-decoration:\s*underline;[\s\S]*?text-underline-offset:\s*4px;/);
   });
 
   it('keeps changed inline scripts syntactically valid', () => {

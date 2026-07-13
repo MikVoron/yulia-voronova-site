@@ -9,6 +9,7 @@ const platform = path.resolve(here, '../../platform');
 const read = file => readPlatformSource(platform, file);
 
 const indexHtml = read('index.html');
+const indexCss = read('index.css');
 const recipe = read('recipe.html');
 const cabinetHtml = read('cabinet.html');
 const cabinetJs = read('cabinet.js');
@@ -26,9 +27,9 @@ describe('SmartPlate feedback plan 8 regression contracts', () => {
   });
 
   it('does not use animation alone to explain a slow hero image', () => {
-    expect(indexHtml).toContain('.sp-hero-aside.is-image-loading .sp-hero-media');
-    expect(indexHtml).toContain('.sp-hero-loading-status');
-    expect(indexHtml).toMatch(/prefers-reduced-motion[\s\S]*?\.sp-hero-aside\.is-image-loading \.sp-hero-media[\s\S]*?animation:\s*none/);
+    expect(indexCss).toContain('.sp-hero-aside.is-image-loading .sp-hero-media');
+    expect(indexCss).toContain('.sp-hero-loading-status');
+    expect(indexCss).toMatch(/prefers-reduced-motion[\s\S]*?\.sp-hero-aside\.is-image-loading \.sp-hero-media[\s\S]*?animation:\s*none/);
   });
 
   it('scrolls cabinet targets only when they are outside the viewport', () => {
