@@ -33,11 +33,10 @@
 `recipe-editor.js` и `popup-preview.js`. Поиск по всем `platform/*.html`
 теперь не находит исполняемых `<script>` без `src`.
 
-Enforced CSP использует `script-src-elem 'self'`, поэтому новый inline
-`<script>` блокируется в CSP3-браузерах. Атрибуты-обработчики временно
-разрешены отдельным `script-src-attr 'unsafe-inline'`. Параллельно включена
-`Content-Security-Policy-Report-Only` с `script-src-attr 'none'`: она показывает
-оставшиеся обработчики, но не ломает production до окончания миграции.
+Enforced CSP использует `script-src 'self'`, `script-src-elem 'self'` и
+`script-src-attr 'none'`: inline scripts, `javascript:` URL и HTML-
+обработчики блокируются. `Content-Security-Policy-Report-Only` сохраняется с
+теми же script-ограничениями для наблюдения за будущими регрессиями.
 
 | Страница | Встроенные `<script>` | Внешние first-party scripts |
 |---|---:|---:|
@@ -50,8 +49,8 @@ Enforced CSP использует `script-src-elem 'self'`, поэтому но�
 | `admin.html` | 0 | 2 |
 
 В основных пользовательских страницах встроенных script-блоков больше нет.
-Полностью удалить fallback `'unsafe-inline'` пока не позволяют HTML-
-обработчики и поддержка старых браузеров без `script-src-attr`.
+Fallback `'unsafe-inline'` полностью удалён из script-политики, включая
+старые браузеры без поддержки `script-src-attr`.
 
 ## Inline handlers
 
@@ -231,9 +230,11 @@ rg -n "\son[a-z]+\s*=" platform -g "*.html" -g "*.js"
 4. ✅ Включить `Content-Security-Policy-Report-Only` без
    `'unsafe-inline'` в `script-src` и с `script-src-attr 'none'`. Включено в
    production 13 июля. Desktop/mobile smoke основных страниц прошёл без
-   JavaScript-ошибок; CSP-лог содержит только ожидаемые Report-Only нарушения
-   от ещё не перенесённых event attributes, блокировок внешних scripts нет.
-5. После чистого отчёта включить enforced CSP. `'unsafe-inline'` в
+   JavaScript-ошибок; после завершения миграции нарушений script-политики нет.
+5. ✅ Включить enforced CSP без script fallback. Выполнено 13 июля:
+   `script-src 'self'`, `script-src-elem 'self'`, `script-src-attr 'none'`.
+   Production-smoke восьми основных маршрутов и функциональный smoke страницы
+   рецепта прошли без CSP- и JavaScript-ошибок. `'unsafe-inline'` в
    `style-src` убирать отдельным этапом после переноса inline styles.
 
 Запрещено добавлять `https:` или `*`. Текущий allowlist аналитики и iframe
