@@ -201,6 +201,14 @@ CSS-блок вынесен в отдельный файл. Desktop/mobile produ
 загрузку внешнего CSS, отсутствие горизонтального overflow, CSP- и
 JavaScript-ошибок. На странице больше нет `<style>`, `style=` и `.style.*`.
 
+Четвёртая партия закрыла общий динамический стиль Tawk modal, который не входил
+в статический счётчик: CSS из `document.createElement('style')` вынесен в
+`tawk-chat-modal.css`, а `body.style.overflow` заменён классом
+`body.tawk-chat-open`. Новый CSS явно подключён на шести production-страницах.
+Desktop/mobile production-smoke подтвердил прежнюю геометрию, scroll-lock,
+возврат фокуса и отсутствие динамических `<style>`, `style=`, горизонтального
+overflow, CSP- и JavaScript-ошибок.
+
 Повторная буквальная инвентаризация текущего Git-среза `platform/*.html` и
 `platform/*.js`: 429 `style=` и 16 `<style>`-блоков.
 
