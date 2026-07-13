@@ -45,4 +45,14 @@ describe('SmartPlate CSP script migration', () => {
     expect(bindings).toHaveLength(43);
     expect(new Set(bindings.map(match => match[1])).size).toBe(43);
   });
+
+  it('keeps popup preview controls free of inline event handlers', () => {
+    const html = fs.readFileSync(path.join(platformDir, 'popup-preview.html'), 'utf8');
+    const script = fs.readFileSync(path.join(platformDir, 'popup-preview.js'), 'utf8');
+
+    expect(html).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(html.match(/\sdata-preview-action=/g)).toHaveLength(11);
+    expect(script).toContain("event.target.closest('[data-preview-action]')");
+    expect(script).toContain("action === 'close-backdrop' && event.target === control");
+  });
 });

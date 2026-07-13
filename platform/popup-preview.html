@@ -215,8 +215,8 @@
 				<h2>Toast</h2>
 				<p>Короткое системное уведомление снизу: добавление в тарелку, сохранение, ошибки сети.</p>
 				<div class="preview-actions">
-					<button class="preview-btn primary" type="button" onclick="showPreviewToast('Добавлено в тарелку')">Показать toast</button>
-					<button class="preview-btn" type="button" onclick="showLockedPreview()">Paywall toast</button>
+					<button class="preview-btn primary" type="button" data-preview-action="toast" data-preview-message="Добавлено в тарелку">Показать toast</button>
+					<button class="preview-btn" type="button" data-preview-action="locked-toast">Paywall toast</button>
 				</div>
 			</section>
 
@@ -238,7 +238,7 @@
 				<h2>Balance success</h2>
 				<p>Окно после выбора последней нужной добавки. Теперь оно не исчезает само и даёт один понятный основной путь.</p>
 				<div class="preview-actions">
-					<button class="preview-btn primary" type="button" onclick="openModal('balance-modal')">Открыть</button>
+					<button class="preview-btn primary" type="button" data-preview-action="open-modal" data-preview-modal="balance-modal">Открыть</button>
 				</div>
 			</section>
 
@@ -246,7 +246,7 @@
 				<h2>Unbalanced warning</h2>
 				<p>Предупреждение, если пользователь хочет добавить блюдо без обязательных добавок.</p>
 				<div class="preview-actions">
-					<button class="preview-btn primary" type="button" onclick="openModal('warn-modal')">Открыть</button>
+					<button class="preview-btn primary" type="button" data-preview-action="open-modal" data-preview-modal="warn-modal">Открыть</button>
 				</div>
 			</section>
 
@@ -254,7 +254,7 @@
 				<h2>Plate modal</h2>
 				<p>Окно по иконке тарелки в шапке. Внутренние строки, удаление, селект и кнопки приведены к общему sharp-стилю.</p>
 				<div class="preview-actions">
-					<button class="preview-btn primary" type="button" onclick="openModal('plate-preview')">Открыть</button>
+					<button class="preview-btn primary" type="button" data-preview-action="open-modal" data-preview-modal="plate-preview">Открыть</button>
 				</div>
 			</section>
 
@@ -273,8 +273,8 @@
 			<div class="bal-success-modal-title">Блюдо сбалансировано!</div>
 			<div class="bal-success-modal-text">Добавьте его в тарелку — это полноценный приём пищи.</div>
 			<div class="bal-success-modal-actions">
-				<button class="bal-success-modal-primary" type="button" onclick="showPreviewToast('Добавлено в тарелку'); closeModal('balance-modal')">+ Добавить в тарелку</button>
-				<button class="bal-success-modal-secondary" type="button" onclick="closeModal('balance-modal')">Не добавлять</button>
+				<button class="bal-success-modal-primary" type="button" data-preview-action="toast-close" data-preview-message="Добавлено в тарелку" data-preview-modal="balance-modal">+ Добавить в тарелку</button>
+				<button class="bal-success-modal-secondary" type="button" data-preview-action="close-modal" data-preview-modal="balance-modal">Не добавлять</button>
 			</div>
 		</div>
 	</div>
@@ -284,17 +284,17 @@
 			<div class="bal-success-modal-title" style="color:#b45309">Тарелка не сбалансирована</div>
 			<div class="bal-success-modal-text">Не хватает углеводов для энергии. Можно вернуться и выбрать добавку или добавить блюдо без балансировки.</div>
 			<div class="bal-success-modal-actions">
-				<button class="bal-success-modal-primary" type="button" style="background:#b45309;border-color:#b45309" onclick="showPreviewToast('Добавлено без балансировки'); closeModal('warn-modal')">Добавить всё равно</button>
-				<button class="bal-success-modal-secondary" type="button" onclick="closeModal('warn-modal')">Вернуться и сбалансировать</button>
+				<button class="bal-success-modal-primary" type="button" style="background:#b45309;border-color:#b45309" data-preview-action="toast-close" data-preview-message="Добавлено без балансировки" data-preview-modal="warn-modal">Добавить всё равно</button>
+				<button class="bal-success-modal-secondary" type="button" data-preview-action="close-modal" data-preview-modal="warn-modal">Вернуться и сбалансировать</button>
 			</div>
 		</div>
 	</div>
 
-	<div class="modal-overlay plate-modal-v1" id="plate-preview" onclick="if(event.target===this)closeModal('plate-preview')">
+	<div class="modal-overlay plate-modal-v1" id="plate-preview" data-preview-action="close-backdrop" data-preview-modal="plate-preview">
 		<div class="modal-box">
 			<div class="modal-header">
 				<div class="modal-title">Моя тарелка</div>
-				<button class="modal-close" type="button" onclick="closeModal('plate-preview')">×</button>
+				<button class="modal-close" type="button" data-preview-action="close-modal" data-preview-modal="plate-preview">×</button>
 			</div>
 			<div class="modal-body">
 				<div class="preview-mini-page">
@@ -345,6 +345,6 @@
 		</div>
 	</div>
 
-	<script src="popup-preview.js?v=20260713-csp-external-scripts"></script>
+	<script src="popup-preview.js?v=20260713-csp-handlers"></script>
 </body>
 </html>

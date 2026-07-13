@@ -34,6 +34,22 @@
 			el.classList.remove('show');
 			el.classList.remove('open');
 		}
+		document.addEventListener('click', function (event) {
+			const control = event.target.closest('[data-preview-action]');
+			if (!control) return;
+			const action = control.dataset.previewAction;
+			const modal = control.dataset.previewModal;
+			if (action === 'toast') showPreviewToast(control.dataset.previewMessage || '');
+			else if (action === 'locked-toast') showLockedPreview();
+			else if (action === 'open-modal') openModal(modal);
+			else if (action === 'close-modal') closeModal(modal);
+			else if (action === 'toast-close') {
+				showPreviewToast(control.dataset.previewMessage || '');
+				closeModal(modal);
+			} else if (action === 'close-backdrop' && event.target === control) {
+				closeModal(modal);
+			}
+		});
 		document.addEventListener('keydown', function (e) {
 			if (e.key !== 'Escape') return;
 			['balance-modal', 'warn-modal', 'plate-preview'].forEach(closeModal);
