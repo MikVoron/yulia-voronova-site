@@ -176,6 +176,20 @@ fallback; inline-атрибутов, CSP- и JavaScript-ошибок нет. С�
 rg -n "\son[a-z]+\s*=" platform -g "*.html" -g "*.js"
 ```
 
+## Inline styles
+
+После закрытия script-политики начат отдельный переход от
+`style-src 'unsafe-inline'`. Базовая инвентаризация активных `platform/*.html`
+и `platform/*.js` на 13 июля выявила 432 атрибута `style=` и 19 блоков
+`<style>`. Их перенос выполняется отдельными страницами с production-smoke;
+enforced `style-src` не ужесточается до полного завершения миграции.
+
+Первая партия завершена для `auth-callback.html`: встроенный CSS вынесен в
+`auth-callback.css`, динамические `element.style` и inline-стиль ссылки ошибки
+заменены CSS-классами и безопасным DOM. Production-smoke подтвердил error- и
+success-состояния, загрузку внешних CSS/JS, отсутствие `<style>`, `style=` и
+CSP-ошибок. Текущий статический остаток: 431 `style=` и 18 `<style>`-блоков.
+
 ## Проверка `innerHTML`
 
 Проверены все 158 присваиваний `innerHTML` в целевых страницах и общих
