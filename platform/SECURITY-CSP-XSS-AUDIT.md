@@ -68,14 +68,20 @@ HTTP-ответов.
 `ingredient`, `recipe` и `cabinet` подтвердил открытие/закрытие drawer и plate
 modal без CSP-, JavaScript- и HTTP-ошибок.
 
+36 видимых filter-actions на `index` и `category` перенесены в page scripts.
+Production-smoke проверил time, difficulty, tag, popular, раскрытие
+дополнительных фильтров и сброс. На `ingredient` удалены семь невидимых
+footer-dropdown без существующих owner-кнопок; они не были частью доступного
+интерфейса и могли выбрасывать исключение при программном вызове.
+
 В самих HTML-файлах сейчас остаются:
 
 | Страница | `on*=` обработчики | Основные оставшиеся группы |
 |---|---:|---|
-| `index.html` | 24 | фильтры, тур, модальная тарелка |
+| `index.html` | 6 | тур и модальная тарелка |
 | `recipe.html` | 18 | balance UI, карусель шагов, модальные окна |
-| `category.html` | 22 | фильтры и модальные окна |
-| `ingredient.html` | 11 | фильтры и модальные окна |
+| `category.html` | 4 | comments и plate modal |
+| `ingredient.html` | 4 | comments и plate modal |
 | `recipe-editor.html` | 19 | редактор и modal actions |
 | `cabinet.html` | 44 | профиль, оплата, журнал, настройки |
 | `login.html` | 0 | страница очищена от inline handlers |
@@ -88,7 +94,7 @@ modal без CSP-, JavaScript- и HTTP-ошибок.
 В `header-nav.js` и `admin.js` подстановка данных в JavaScript-атрибуты
 удалена полностью.
 
-В production HTML осталось 138 обработчиков, ещё 90 создаётся JS-шаблонами.
+В production HTML осталось 95 обработчиков, ещё 90 создаётся JS-шаблонами.
 Полный актуальный список воспроизводится командой:
 
 ```powershell
@@ -138,8 +144,8 @@ rg -n "\son[a-z]+\s*=" platform -g "*.html" -g "*.js"
    выполнения. Выполнено 13 июля для `index`, `recipe`, `category`,
    `ingredient`, `login`.
 2. Переносить оставшиеся обработчики партиями: `login`, `admin`,
-   `popup-preview` и общие header/drawer controls готовы; далее фильтры,
-   plate modal, затем
+   `popup-preview`, общие header/drawer controls и статические фильтры готовы;
+   далее plate modal, затем
    сложный balance UI и обработчики JS-шаблонов.
 3. Для статического nginx-сайта основной вариант — внешние first-party
    скрипты. Для редкого неизбежного inline bootstrap использовать SHA-256
