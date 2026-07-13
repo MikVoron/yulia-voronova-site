@@ -100,7 +100,14 @@ enforced CSP- и JavaScript-ошибок, а также горизонтальн
 каждый listener-маршрут, slug, AI-panel, добавление ингредиента/шага/добавок,
 preview и success modal; enforced CSP- и JavaScript-ошибок нет.
 
-В самих HTML-файлах сейчас остаются:
+Все 42 event attributes `cabinet.html` перенесены в существующий
+`data-cabinet-action` dispatcher и прямые field listeners. Изолированный
+production frontend-smoke без реальных платежей и API-записей подтвердил
+profile, payment wizard, history export, feedback, dietary и newsletter
+маршруты; enforced CSP- и JavaScript-ошибок нет. Наблюдаемый в живом DOM
+`onclick` кнопки продления создаётся JS-шаблоном и учтён в остатке ниже.
+
+Статические production HTML-файлы теперь очищены:
 
 | Страница | `on*=` обработчики | Основные оставшиеся группы |
 |---|---:|---|
@@ -109,7 +116,7 @@ preview и success modal; enforced CSP- и JavaScript-ошибок нет.
 | `category.html` | 0 | статические handlers полностью перенесены |
 | `ingredient.html` | 0 | статические handlers полностью перенесены |
 | `recipe-editor.html` | 0 | статические handlers полностью перенесены |
-| `cabinet.html` | 42 | профиль, оплата, журнал, настройки |
+| `cabinet.html` | 0 | статические handlers полностью перенесены |
 | `login.html` | 0 | страница очищена от inline handlers |
 | `admin.html` | 0 | 50 статических controls перенесены в `admin.js` |
 | `popup-preview.html` | 0 | 11 preview actions перенесены в `popup-preview.js` |
@@ -120,7 +127,8 @@ preview и success modal; enforced CSP- и JavaScript-ошибок нет.
 В `header-nav.js` и `admin.js` подстановка данных в JavaScript-атрибуты
 удалена полностью.
 
-В production HTML осталось 42 обработчика, ещё 90 создаётся JS-шаблонами.
+В production HTML обработчиков не осталось; 90 всё ещё создаётся
+JS-шаблонами.
 Полный актуальный список воспроизводится командой:
 
 ```powershell
@@ -172,8 +180,8 @@ rg -n "\son[a-z]+\s*=" platform -g "*.html" -g "*.js"
 2. Переносить оставшиеся обработчики партиями: `login`, `admin`,
    `popup-preview`, общие header/drawer controls и статические фильтры готовы;
    статические plate/comments modal controls и `index.html` также готовы;
-   `recipe.html` и `recipe-editor.html` также готовы; далее статические controls
-   в `cabinet`, затем обработчики JS-шаблонов.
+   `recipe.html`, `recipe-editor.html` и `cabinet.html` также готовы; далее
+   обработчики JS-шаблонов.
 3. Для статического nginx-сайта основной вариант — внешние first-party
    скрипты. Для редкого неизбежного inline bootstrap использовать SHA-256
    hash. Nonce применять только если HTML начнёт формироваться на каждый
