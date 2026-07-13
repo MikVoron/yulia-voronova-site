@@ -622,7 +622,7 @@
 				+ '</div>'
 				+ '<div class="sub-actions-col">'
 				+ '<button type="button" id="sub-renew-btn" class="btn btn-orange sub-action-btn" '
-				+ 'data-cta-default="' + ctaText + '" onclick="togglePaySection()">' + ctaText + '</button>'
+				+ 'data-cta-default="' + ctaText + '" data-cabinet-action="toggle-pay-section">' + ctaText + '</button>'
 				+ '</div>'
 				+ '</div>';
 		}
@@ -669,7 +669,7 @@
 				const ctaText = badge === 'active' ? 'Продлить подписку' : 'Оформить подписку';
 				const actionsHtml = '<div class="sub-actions-col">'
 					+ '<button type="button" id="sub-renew-btn" class="btn btn-orange sub-action-btn" '
-					+ 'data-cta-default="' + escHtml(ctaText) + '" onclick="togglePaySection()">'
+					+ 'data-cta-default="' + escHtml(ctaText) + '" data-cabinet-action="toggle-pay-section">'
 					+ escHtml(ctaText) + '</button>'
 					+ '</div>';
 				wrap.innerHTML = '<div class="sub-card">'
@@ -982,7 +982,7 @@
 				if (success) success.style.display = 'none';
 			}
 			var hideAction = payment.status === 'rejected'
-				? '<button type="button" class="pay-notice-hide" data-payment-id="' + escHtml(String(payment.id)) + '" onclick="hidePaymentNotice(this)">Скрыть уведомление</button>'
+				? '<button type="button" class="pay-notice-hide" data-payment-id="' + escHtml(String(payment.id)) + '" data-cabinet-action="hide-payment-notice">Скрыть уведомление</button>'
 				: '';
 			block.innerHTML = '<div class="' + cardClass + '" role="status" aria-live="polite" tabindex="-1">'
 				+ '<div class="pay-pending-eyebrow">' + title + '</div>'
@@ -1630,7 +1630,7 @@
 				grid.innerHTML = '<div class="fav-empty" style="text-align:center">' +
 					'<div style="font-size:32px;margin-bottom:8px">📡</div>' +
 					'Не удалось загрузить рецепты<br>' +
-					'<button onclick="location.reload()" style="margin-top:12px;background:var(--accent,#e8734a);color:#fff;border:none;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:14px">Повторить</button>' +
+					'<button data-cabinet-action="reload-page" style="margin-top:12px;background:var(--accent,#e8734a);color:#fff;border:none;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:14px">Повторить</button>' +
 					'</div>';
 				return;
 			}
@@ -1855,6 +1855,16 @@
 				else if (action === 'start-edit-name') startEditName();
 				else if (action === 'open-history-export') openHistoryExport();
 				else if (action === 'toggle-pay-section') togglePaySection();
+				else if (action === 'hide-payment-notice') hidePaymentNotice(actionTarget);
+				else if (action === 'reload-page') location.reload();
+				else if (action === 'browse-recipes') {
+					closePlate();
+					location.href = 'category.html';
+				}
+				else if (action === 'toggle-plate-shop-mode') toggleCabinetPlateShopMode();
+				else if (action === 'copy-plate-shopping-list') copyCabinetPlateShoppingList();
+				else if (action === 'go-home') location.href = 'index.html';
+				else if (action === 'save-plate') savePlateCabinet();
 				else if (action === 'go-pay-step') goPayStep(Number(actionTarget.dataset.step));
 				else if (action === 'copy-card') copyCard();
 				else if (action === 'clear-screenshot') clearScreenshot();
@@ -1913,7 +1923,7 @@
                 <h2 class="pv1-headline">Соберите первый приём пищи</h2>
                 <div class="pv1-divider"></div>
                 <p class="pv1-sub">Выберите рецепт из категории — и он попадёт сюда. КБЖУ пересчитаются автоматически.</p>
-                <button class="pv1-cta" onclick="closePlate();location.href='category.html'">Выбрать рецепт →</button>
+                <button class="pv1-cta" data-cabinet-action="browse-recipes">Выбрать рецепт →</button>
             </div>`;
 			} else {
 				const t = Plate.totals();
@@ -1945,17 +1955,17 @@
 						Список покупок${ingCount ? ` · ${ingCount} шт` : ''}
 					</div>
 					<div class="shop-actions">
-						<button class="shop-btn shop-btn-primary" id="cabinet-plate-shop-mode-btn" type="button" onclick="toggleCabinetPlateShopMode()" aria-pressed="false">В магазине</button>
-						<button class="shop-btn shop-btn-ghost" type="button" onclick="copyCabinetPlateShoppingList()">Скопировать</button>
+						<button class="shop-btn shop-btn-primary" id="cabinet-plate-shop-mode-btn" type="button" data-cabinet-action="toggle-plate-shop-mode" aria-pressed="false">В магазине</button>
+						<button class="shop-btn shop-btn-ghost" type="button" data-cabinet-action="copy-plate-shopping-list">Скопировать</button>
 					</div>
 					<div class="plate-shop-list" id="cabinet-plate-shop-list" hidden></div>
 				</div>
 				${plateMealTypePickerHtml()}
 				<div class="pv1-actions">
 					<div class="pv1-actions-row">
-						<button class="pv1-btn" onclick="location.href='index.html'">← На главную</button>
+						<button class="pv1-btn" data-cabinet-action="go-home">← На главную</button>
 					</div>
-					<button class="pv1-btn pv1-btn-primary pv1-btn-full" onclick="savePlateCabinet()">Записать тарелку в журнал</button>
+					<button class="pv1-btn pv1-btn-primary pv1-btn-full" data-cabinet-action="save-plate">Записать тарелку в журнал</button>
 				</div>`;
 				renderCabinetPlateShopMode();
 			}

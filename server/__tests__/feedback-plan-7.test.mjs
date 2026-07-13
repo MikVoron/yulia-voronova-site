@@ -74,7 +74,8 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(indexHtml).toContain("today.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })");
     expect(indexHtml).toContain("today.toLocaleDateString('ru-RU', { weekday: 'long' })");
     expect(style).toContain('.sp-masthead .sp-plate    { grid-column: 1 / 2;');
-    expect(cabinetJs).toContain("location.href='category.html'\">Выбрать рецепт");
+    expect(cabinetJs).toContain('data-cabinet-action="browse-recipes">Выбрать рецепт');
+    expect(cabinetJs).toContain("location.href = 'category.html'");
   });
 
   it('presents text updates as a non-interactive list without an extra label', () => {

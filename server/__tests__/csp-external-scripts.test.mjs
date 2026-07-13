@@ -159,12 +159,18 @@ describe('SmartPlate CSP script migration', () => {
     const script = fs.readFileSync(path.join(platformDir, 'cabinet.js'), 'utf8');
 
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
-    expect(html).toContain('cabinet.js?v=20260713-csp-static-controls');
+    expect(html).toContain('cabinet.js?v=20260713-csp-template-actions');
     expect(html.match(/\sdata-cabinet-action=/g)).toHaveLength(19);
     expect(html.match(/\sdata-cabinet-change=/g)).toHaveLength(4);
     expect(script).toContain("else if (action === 'open-avatar-picker') openAvatarPicker()");
     expect(script).toContain("document.querySelectorAll('[data-cabinet-change]')");
     expect(script).toContain("control.addEventListener('change', scheduleDietarySave)");
+    expect(script).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(script).toContain('data-cabinet-action="hide-payment-notice"');
+    expect(script).toContain('data-cabinet-action="reload-page"');
+    expect(script).toContain('data-cabinet-action="browse-recipes"');
+    expect(script).toContain('data-cabinet-action="toggle-plate-shop-mode"');
+    expect(script).toContain("else if (action === 'save-plate') savePlateCabinet()");
   });
 
   it('keeps category JavaScript templates free of inline event handlers', () => {
