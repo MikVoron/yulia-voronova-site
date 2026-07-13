@@ -123,10 +123,14 @@
 				const header = document.getElementById('hdr');
 				if (!header || window.matchMedia('(max-width: 1024px)').matches) {
 					root.style.removeProperty('--recipe-sidebar-top');
+					root.style.removeProperty('--recipe-sidebar-max-height');
 					return;
 				}
 				const top = Math.max(96, Math.round(header.getBoundingClientRect().height + 16));
+				const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+				const maxHeight = Math.max(120, Math.floor(viewportHeight - top - 16));
 				root.style.setProperty('--recipe-sidebar-top', `${top}px`);
+				root.style.setProperty('--recipe-sidebar-max-height', `${maxHeight}px`);
 			}
 			update();
 			window.addEventListener('resize', update, { passive: true });

@@ -53,10 +53,14 @@ describe('SmartPlate feedback plan 5 contracts', () => {
     const recipe = read('recipe.html');
     const css = read('style-v4.css');
 
-    expect(recipe).toMatch(/\.recipe-sidebar\s*\{[\s\S]*?max-height:\s*calc\(100vh - var\(--recipe-sidebar-top\) - 16px\)\s*!important;[\s\S]*?overflow-y:\s*auto\s*!important;/);
+    expect(recipe).toMatch(/\.recipe-sidebar\s*\{[\s\S]*?max-height:\s*var\(--recipe-sidebar-max-height, calc\(100dvh - var\(--recipe-sidebar-top\) - 16px\)\)\s*!important;[\s\S]*?overflow-y:\s*auto\s*!important;/);
     expect(recipe).toContain('overscroll-behavior: contain;');
+    expect(recipe).toContain('padding-bottom: 16px;');
+    expect(read('recipe-page.js')).toContain("root.style.setProperty('--recipe-sidebar-max-height', `${maxHeight}px`);");
     expect(css).toContain('max-height: calc(100vh - 112px);');
-    expect(css).toContain('scrollbar-gutter: stable;');
+    expect(css).toContain('scrollbar-width: none;');
+    expect(css).toContain('.recipe-sidebar::-webkit-scrollbar { width: 0; height: 0; }');
+    expect(css.match(/\.recipe-sidebar\s*\{[^}]*\}/)?.[0]).not.toContain('scrollbar-gutter: stable;');
   });
 
   it('reserves stable image geometry and keeps desktop images full-width', () => {

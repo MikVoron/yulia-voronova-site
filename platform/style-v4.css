@@ -934,8 +934,10 @@ img { display: block; max-width: 100%; }
     max-height: calc(100vh - 112px);
     overflow-y: auto;
     overscroll-behavior: contain;
-    scrollbar-gutter: stable;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+.recipe-sidebar::-webkit-scrollbar { width: 0; height: 0; }
 
 .recipe-hero-img {
     width: 100%; aspect-ratio: 4/3; border-radius: var(--r-l);
