@@ -136,6 +136,13 @@ JavaScript-ошибок нет.
 подтвердил все маршруты; dismiss, plate sync и history API-записи были
 перехвачены до сети, CSP- и JavaScript-ошибок нет.
 
+Все 20 inline-handler совпадений в `ingredient-page.js` заменены единым
+click/keyboard dispatcher, делегированным hover рейтинга и capture-error
+fallback. Production-smoke подтвердил карточки, locked/favorite, рейтинг,
+комментарии, avatar/photo fallback и все действия plate modal. Favorites,
+reviews, plate и history API-записи были перехвачены до сети; CSP- и
+JavaScript-ошибок нет.
+
 Статические production HTML-файлы теперь очищены:
 
 | Страница | `on*=` обработчики | Основные оставшиеся группы |
@@ -150,13 +157,13 @@ JavaScript-ошибок нет.
 | `admin.html` | 0 | 50 статических controls перенесены в `admin.js` |
 | `popup-preview.html` | 0 | 11 preview actions перенесены в `popup-preview.js` |
 
-В JavaScript-шаблонах остаётся 59 обработчиков: `recipe-page.js` — 39 и
-`ingredient-page.js` — 20. `cabinet.js`, `index-page.js`, `recipe-editor.js`,
+В JavaScript-шаблонах остаётся 39 обработчиков — только в `recipe-page.js`.
+`ingredient-page.js`, `cabinet.js`, `index-page.js`, `recipe-editor.js`,
 `category-page.js` и `data-v2.js` очищены полностью.
 В `header-nav.js` и `admin.js` подстановка данных в JavaScript-атрибуты
 удалена полностью.
 
-В production HTML обработчиков не осталось; 59 всё ещё создаётся
+В production HTML обработчиков не осталось; 39 всё ещё создаётся
 JS-шаблонами.
 Полный актуальный список воспроизводится командой:
 
