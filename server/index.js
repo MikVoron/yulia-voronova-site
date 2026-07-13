@@ -18,6 +18,11 @@ const nutritionRoutes = require('./src/routes/nutrition');
 const { startCron } = require('./src/cron');
 const { sendTelegramAlert, startTelegramBot } = require('./src/telegram');
 
+function safeRequestPath(req) {
+  try { return new URL(req.url, 'http://localhost').pathname; }
+  catch { return String(req.url || '').split('?')[0]; }
+}
+
 const isProd = process.env.NODE_ENV === 'production';
 const corsOrigins = ['https://voronova.online', 'https://www.voronova.online', 'https://app.voronova.online'];
 if (!isProd) corsOrigins.push('http://127.0.0.1:5500', 'http://localhost:5500');
@@ -83,11 +88,12 @@ fastify.get('/health', async () => {
 fastify.setErrorHandler((err, req, reply) => {
   const status = err.statusCode || 500;
   if (status >= 500) {
-    fastify.log.error(err, `Unhandled error on ${req.method} ${req.url}`);
+    const requestPath = safeRequestPath(req);
+    fastify.log.error(err, `Unhandled error on ${req.method} ${requestPath}`);
     sendTelegramAlert(
-      `${req.method} ${req.url}\nstatus: ${status}\n${err.stack || err.message}`,
+      `${req.method} ${requestPath}\nstatus: ${status}\n${err.stack || err.message}`,
       {
-        key: `http-${status}-${req.method}-${req.url}`,
+        key: `http-${status}-${req.method}-${requestPath}`,
         title: 'SmartPlate API error',
         fastify
       }

@@ -20,6 +20,11 @@ CONTENT_WARN_SECONDS="${CONTENT_WARN_SECONDS:-4}"
 CONTENT_MIN_BYTES="${CONTENT_MIN_BYTES:-1000}"
 
 ERRORS=""
+TMP_DIR="$(mktemp -d)"
+chmod 700 "$TMP_DIR"
+trap 'rm -rf "$TMP_DIR"' EXIT
+HEALTH_FILE="$TMP_DIR/health.json"
+RECIPES_FILE="$TMP_DIR/recipes.json"
 
 # ── Функции ────────────────────────────────────────────────────────────────
 read_pm2_status() {
@@ -69,9 +74,9 @@ ok() {
 }
 
 # ── 1. Health endpoint ─────────────────────────────────────────────────────
-HTTP_CODE=$(curl -s -o /tmp/health.json -w "%{http_code}" "${API_URL}/health" --connect-timeout 5 --max-time 10 2>/dev/null || echo "000")
+HTTP_CODE=$(curl -s -o "$HEALTH_FILE" -w "%{http_code}" "${API_URL}/health" --connect-timeout 5 --max-time 10 2>/dev/null || echo "000")
 if [ "$HTTP_CODE" = "200" ]; then
-  DB_STATUS=$(cat /tmp/health.json | grep -o '"db":"[^"]*"' | cut -d'"' -f4 || echo "unknown")
+  DB_STATUS=$(grep -o '"db":"[^"]*"' "$HEALTH_FILE" | cut -d'"' -f4 || echo "unknown")
   if [ "$DB_STATUS" = "ok" ]; then
     ok "health: API + DB"
   else
@@ -84,11 +89,11 @@ fi
 # ── 2. Реальный пользовательский endpoint каталога ───────────────────────
 # /health делает только лёгкую DB-проверку и может быть зелёным, даже если
 # каталог зависает. Здесь проверяем nginx → API → SQL → валидный JSON целиком.
-CONTENT_RESULT=$(curl --compressed -sS -o /tmp/recipes.json \
+CONTENT_RESULT=$(curl --compressed -sS -o "$RECIPES_FILE" \
   -w "%{http_code} %{time_total} %{size_download}" \
   "${API_URL}/content/recipes" --connect-timeout 5 --max-time 12 2>/dev/null || echo "000 12 0")
 read -r CONTENT_CODE CONTENT_TIME CONTENT_BYTES <<< "$CONTENT_RESULT"
-CONTENT_FIRST_CHAR=$(head -c 1 /tmp/recipes.json 2>/dev/null || echo "")
+CONTENT_FIRST_CHAR=$(head -c 1 "$RECIPES_FILE" 2>/dev/null || echo "")
 if [ "$CONTENT_CODE" != "200" ]; then
   fail "Каталог рецептов недоступен (HTTP ${CONTENT_CODE}, ${CONTENT_TIME}s)"
 elif [ "$CONTENT_FIRST_CHAR" != "[" ] || [ "$CONTENT_BYTES" -lt "$CONTENT_MIN_BYTES" ]; then

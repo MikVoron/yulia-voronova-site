@@ -31,7 +31,7 @@ function setCookieAndRedirect(reply, refreshToken, isNew) {
   return reply.redirect(target);
 }
 
-async function findOrCreateUser(provider, providerId, email, displayName, fastify, ip, ua) {
+async function findOrCreateUser(provider, providerId, email, displayName, emailVerified, fastify, ip, ua) {
   let isNew = false;
 
   // 1. Ищем существующий auth_account
@@ -45,10 +45,17 @@ async function findOrCreateUser(provider, providerId, email, displayName, fastif
 
   // 2. Если провайдер вернул email — ищем user по email (линковка)
   let user = null;
-  if (email) {
+  if (email && emailVerified) {
     const byEmail = await db.query('SELECT * FROM users WHERE email=$1', [email]);
     if (byEmail.rows.length) {
       user = byEmail.rows[0];
+      // Административный аккаунт нельзя привязать к новому OAuth-провайдеру
+      // только по совпадению email. Привязка выполняется отдельно из защищённой сессии.
+      if (user.role === 'admin') {
+        const error = new Error('admin_oauth_link_denied');
+        error.code = 'ADMIN_OAUTH_LINK_DENIED';
+        throw error;
+      }
       // Привязываем новый auth_account к существующему user
       await db.query(
         'INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)',
@@ -102,6 +109,10 @@ async function issueTokens(user, req, reply, isNew, fastify) {
   if (user.is_blocked) {
     audit.log('login_blocked', { userId: user.id, email: user.email, ip: req.ip });
     return reply.redirect(PLATFORM_URL + '/login.html?error=blocked');
+  }
+  if (user.role === 'admin') {
+    audit.log('admin_oauth_denied', { userId: user.id, email: user.email, ip: req.ip, ua: req.headers['user-agent'] });
+    return reply.redirect(PLATFORM_URL + '/login.html?error=admin_mfa_required');
   }
   audit.log('login', { userId: user.id, email: user.email, detail: 'oauth', ip: req.ip, ua: req.headers['user-agent'] });
   const refreshToken = generateRefreshToken();
@@ -175,7 +186,7 @@ async function oauthRoutes(fastify) {
       const email = user.email || tokenData.email || null;
       const displayName = [user.first_name, user.last_name].filter(Boolean).join(' ') || null;
 
-      const { user: dbUser, isNew } = await findOrCreateUser('vk', vkId, email, displayName, fastify, req.ip, req.headers['user-agent']);
+      const { user: dbUser, isNew } = await findOrCreateUser('vk', vkId, email, displayName, Boolean(email), fastify, req.ip, req.headers['user-agent']);
       return issueTokens(dbUser, req, reply, isNew, fastify);
     } catch (e) {
       fastify.log.error(e, 'VK OAuth error');
@@ -237,7 +248,7 @@ async function oauthRoutes(fastify) {
       const email = user.default_email || null;
       const displayName = user.display_name || user.real_name || null;
 
-      const { user: dbUser, isNew } = await findOrCreateUser('yandex', yandexId, email, displayName, fastify, req.ip, req.headers['user-agent']);
+      const { user: dbUser, isNew } = await findOrCreateUser('yandex', yandexId, email, displayName, Boolean(email), fastify, req.ip, req.headers['user-agent']);
       return issueTokens(dbUser, req, reply, isNew, fastify);
     } catch (e) {
       fastify.log.error(e, 'Yandex OAuth error');

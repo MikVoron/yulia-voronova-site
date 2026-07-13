@@ -156,7 +156,7 @@ async function adminRoutes(fastify) {
       // отправить email подтверждения (вне транзакции)
       const userRes = await db.query('SELECT email FROM users WHERE id=$1', [p.user_id]);
       const payEmail = userRes.rows.length ? userRes.rows[0].email : null;
-      audit.log('payment_confirm', { userId: req.user.sub, email: payEmail, detail: 'payment#' + id + ' +' + days + 'd', ip: req.ip });
+      await audit.log('payment_confirm', { userId: req.user.sub, email: payEmail, detail: 'payment#' + id + ' +' + days + 'd', ip: req.ip });
       if (payEmail) {
         sendPaymentConfirmed(payEmail, days, newUntil, comment || '').catch(e => fastify.log.error(e, 'Payment confirmed email error'));
       }
@@ -192,7 +192,7 @@ async function adminRoutes(fastify) {
     }
     const userRes = await db.query('SELECT email FROM users WHERE id=$1', [updated.rows[0].user_id]);
     const userEmail = userRes.rows.length ? userRes.rows[0].email : null;
-    audit.log('payment_reject', { userId: req.user.sub, email: userEmail, detail: 'payment#' + id, ip: req.ip });
+    await audit.log('payment_reject', { userId: req.user.sub, email: userEmail, detail: 'payment#' + id, ip: req.ip });
     if (userEmail) {
       sendPaymentRejected(userEmail, adminComment).catch(e => fastify.log.error(e, 'Payment rejected email error'));
     }
@@ -209,7 +209,7 @@ async function adminRoutes(fastify) {
     await db.query('UPDATE users SET is_blocked=true, updated_at=now() WHERE id=$1', [id]);
     await db.query("UPDATE subscriptions SET status='blocked', updated_at=now() WHERE user_id=$1", [id]);
     await db.query('DELETE FROM refresh_sessions WHERE user_id=$1', [id]);
-    audit.log('user_block', { userId: req.user.sub, detail: 'blocked user#' + id, ip: req.ip });
+    await audit.log('user_block', { userId: req.user.sub, detail: 'blocked user#' + id, ip: req.ip });
     return { ok: true };
   });
 
@@ -230,7 +230,7 @@ async function adminRoutes(fastify) {
       END, updated_at = now()
       WHERE user_id = $1 AND status = 'blocked'
     `, [id]);
-    audit.log('user_unblock', { userId: req.user.sub, detail: 'unblocked user#' + id, ip: req.ip });
+    await audit.log('user_unblock', { userId: req.user.sub, detail: 'unblocked user#' + id, ip: req.ip });
     return { ok: true };
   });
 
@@ -294,7 +294,7 @@ async function adminRoutes(fastify) {
       client.release();
     }
 
-    audit.log('user_delete', {
+    await audit.log('user_delete', {
       userId: req.user.sub,
       email: deletedEmail,
       detail: 'deleted test user#' + id,
@@ -338,7 +338,7 @@ async function adminRoutes(fastify) {
         );
       }
       await client.query('COMMIT');
-      audit.log('subscription_extend', { userId: req.user.sub, email: userRes.rows[0].email, detail: 'user#' + id + ' +' + days + 'd → ' + newUntil.toISOString(), ip: req.ip });
+      await audit.log('subscription_extend', { userId: req.user.sub, email: userRes.rows[0].email, detail: 'user#' + id + ' +' + days + 'd → ' + newUntil.toISOString(), ip: req.ip });
       // Email вне транзакции — не роняем ответ если SMTP упал
       if (userRes.rows[0].email) {
         sendSubscriptionExtended(userRes.rows[0].email, days, newUntil).catch(e => fastify.log.error(e, 'Subscription extended email error'));
@@ -492,7 +492,7 @@ async function adminRoutes(fastify) {
       sendFeedbackReply(userEmail, head.category, firstUserMsg.rows[0]?.text || '', trimmed, userRow.rows[0]?.display_name)
         .catch(e => fastify.log.error(e, 'Feedback reply email error'));
     }
-    audit.log('feedback_reply', { userId: req.user.sub, detail: 'feedback#' + id, ip: req.ip });
+    await audit.log('feedback_reply', { userId: req.user.sub, detail: 'feedback#' + id, ip: req.ip });
     return { ok: true };
   });
 

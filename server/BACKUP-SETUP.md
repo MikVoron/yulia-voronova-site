@@ -23,6 +23,11 @@ cat /opt/voronova/.gpg-passphrase
 
 ## 3. Настроить ключи Backblaze B2
 
+> Инцидент безопасности: ключ B2 ранее присутствовал в истории Git. Перед
+> следующим запуском обязательно отзови все старые ключи этого проекта и создай
+> новый ограниченный ключ только для bucket `voronova-backups`. Удаление строки
+> из текущей версии репозитория не отзывает исторический ключ.
+
 Создай файл с секретами (доступ только root):
 
 ```bash
@@ -77,8 +82,12 @@ AWS_ACCESS_KEY_ID="..." AWS_SECRET_ACCESS_KEY="..." \
 aws s3 ls s3://voronova-backups/db/ --endpoint-url https://s3.eu-central-003.backblazeb2.com | tail -3
 
 # 4. Тест восстановления (на тестовой БД!)
-gpg --batch --decrypt --passphrase-file /opt/voronova/.gpg-passphrase <latest>.gpg | gunzip > /tmp/test.sql
-psql -U smartplate -d test_restore < /tmp/test.sql
+RESTORE_DIR="$(mktemp -d)"
+trap 'rm -rf "$RESTORE_DIR"' EXIT
+gpg --batch --decrypt --passphrase-file /opt/voronova/.gpg-passphrase \
+  --output "$RESTORE_DIR/backup.dump" <latest>.dump.gpg
+pg_restore --list "$RESTORE_DIR/backup.dump" >/dev/null
+pg_restore -U smartplate -d test_restore "$RESTORE_DIR/backup.dump"
 psql -U smartplate -d test_restore -c "SELECT count(*) FROM recipes;"
 # Должно вернуть > 0 строк
 dropdb -U smartplate test_restore  # cleanup
@@ -97,12 +106,14 @@ aws s3 ls s3://voronova-backups/db/ --endpoint-url https://s3.eu-central-003.bac
 # 2. Скачать нужный файл
 AWS_ACCESS_KEY_ID="$B2_KEY_ID" \
 AWS_SECRET_ACCESS_KEY="$B2_APP_KEY" \
-aws s3 cp s3://voronova-backups/db/smartplate_2026-03-25_03-00.sql.gz.gpg ./backup.sql.gz.gpg \
+aws s3 cp s3://voronova-backups/db/smartplate_2026-03-25_03-00.dump.gpg ./backup.dump.gpg \
     --endpoint-url https://s3.eu-central-003.backblazeb2.com
 
 # 3. Расшифровать
-gpg --batch --decrypt --passphrase-file /opt/voronova/.gpg-passphrase backup.sql.gz.gpg | gunzip > backup.sql
+gpg --batch --decrypt --passphrase-file /opt/voronova/.gpg-passphrase \
+  --output backup.dump backup.dump.gpg
+pg_restore --list backup.dump >/dev/null
 
 # 4. Восстановить
-psql -U smartplate -d smartplate < backup.sql
+pg_restore -U smartplate -d smartplate backup.dump
 ```

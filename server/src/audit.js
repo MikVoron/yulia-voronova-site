@@ -13,9 +13,21 @@ async function log(event, opts) {
       [userId || null, email || null, event, detail || null, ip || null, ua || null]
     );
   } catch (e) {
-    // Не ломаем основной flow если лог не записался
+    // Основной flow не ломаем, но потерю аудита больше не скрываем: дежурный
+    // получает отдельный сигнал, не содержащий пользовательских секретов.
     console.error('audit.log error:', e.message);
+    try {
+      const { sendTelegramAlert } = require('./telegram');
+      await sendTelegramAlert(`audit_log недоступен\nevent: ${String(event).slice(0, 80)}\n${String(e.message).slice(0, 300)}`, {
+        key: 'audit-log-write-failed',
+        title: 'SmartPlate audit failure'
+      });
+    } catch (alertError) {
+      console.error('audit alert error:', alertError.message);
+    }
+    return false;
   }
+  return true;
 }
 
 module.exports = { log };

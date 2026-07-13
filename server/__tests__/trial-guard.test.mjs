@@ -55,6 +55,17 @@ beforeEach(() => {
 });
 
 describe('trial network observation', () => {
+  it('fails closed when no browser fingerprint is supplied', async () => {
+    const result = await tryGrantTrial(null, '203.0.113.9', 'user-0');
+
+    expect(result).toEqual({ grant: false, reason: 'fingerprint_missing', observation: null });
+    expect(mockDb.query).toHaveBeenCalledWith(
+      expect.stringContaining("'expired'"),
+      ['user-0', '203.0.113.9']
+    );
+    expect(mockDb.query.mock.calls.some(([, params]) => Array.isArray(params) && params.includes('none'))).toBe(false);
+  });
+
   it('defines watch and alert thresholds without treating IP as identity', () => {
     expect(classifyNetworkObservation({ count24h: 5, count7d: 10, count90d: 20 })).toBe('normal');
     expect(classifyNetworkObservation({ count24h: 6, count7d: 10, count90d: 20 })).toBe('watch');

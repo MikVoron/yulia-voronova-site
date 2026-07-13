@@ -234,7 +234,22 @@ async function contentRoutes(fastify) {
       `SELECT r.id, r.cat, r.name, r.emoji, r.time_min, r.time_label, r.difficulty, r.servings,
               r.is_free, r.access_level, r.is_seasonal,
               r.kcal, r.protein, r.fat, r.carbs, r.fiber, r.tags, r.photo, r.img_position, r.quote,
-              r.ingredients, r.steps, r.note, r.vk_video, r.yt_video, r.dzen_video,
+              CASE WHEN
+                $1 IN ('active', 'admin')
+                OR COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'free'
+                OR ($1 = 'trial' AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'trial')
+              THEN r.ingredients ELSE NULL END AS ingredients,
+              CASE WHEN
+                $1 IN ('active', 'admin')
+                OR COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'free'
+                OR ($1 = 'trial' AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'trial')
+              THEN r.steps ELSE NULL END AS steps,
+              CASE WHEN
+                $1 IN ('active', 'admin')
+                OR COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'free'
+                OR ($1 = 'trial' AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'trial')
+              THEN r.note ELSE NULL END AS note,
+              r.vk_video, r.yt_video, r.dzen_video,
               r.add_protein, r.add_fat, r.add_carbs, r.add_fiber, r.auto_addons, r.is_soup,
               r.main_ingredients, r.dietary_flags, r.dietary_verified,
               r.portion_grams, r.sort_order, r.created_at,
@@ -243,7 +258,8 @@ async function contentRoutes(fastify) {
                  FROM recipe_categories rc WHERE rc.recipe_id = r.id),
                 ARRAY[r.cat]
               ) AS categories
-       FROM recipes r WHERE r.is_published = true ORDER BY r.sort_order, r.created_at`
+       FROM recipes r WHERE r.is_published = true ORDER BY r.sort_order, r.created_at`,
+      [tier]
     );
     const dietaryPreferences = await getUserDietaryPreferences(db, req.user?.sub);
     return result.rows.filter(r => isRecipeCompatible(r, dietaryPreferences)).map(r => {
@@ -396,7 +412,7 @@ async function contentRoutes(fastify) {
   }, async (req, reply) => {
     const result = await db.query('DELETE FROM reviews WHERE id=$1 RETURNING id', [req.params.id]);
     if (!result.rows.length) return reply.status(404).send({ error: 'Отзыв не найден' });
-    audit.log('review_delete', { userId: req.user.sub, detail: 'review#' + req.params.id, ip: req.ip });
+    await audit.log('review_delete', { userId: req.user.sub, detail: 'review#' + req.params.id, ip: req.ip });
     return { ok: true };
   });
 
@@ -586,7 +602,7 @@ async function contentRoutes(fastify) {
       [recipeId, status]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Запрос не найден' });
-    audit.log('video_request_status', { userId: req.user.sub, detail: 'recipe:' + recipeId + ':' + status, ip: req.ip });
+    await audit.log('video_request_status', { userId: req.user.sub, detail: 'recipe:' + recipeId + ':' + status, ip: req.ip });
     return result.rows[0];
   });
 
@@ -682,7 +698,7 @@ async function contentRoutes(fastify) {
       })();
     }
 
-    audit.log('news_create', { userId: req.user.sub, detail: 'news#' + result.rows[0].id, ip: req.ip });
+    await audit.log('news_create', { userId: req.user.sub, detail: 'news#' + result.rows[0].id, ip: req.ip });
     return result.rows[0];
   });
 
@@ -700,7 +716,7 @@ async function contentRoutes(fastify) {
       [type || 'news', text, recipe_id || null, badge || null, label || null, is_published === true, req.params.id]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
-    audit.log('news_update', { userId: req.user.sub, detail: 'news#' + req.params.id, ip: req.ip });
+    await audit.log('news_update', { userId: req.user.sub, detail: 'news#' + req.params.id, ip: req.ip });
     return result.rows[0];
   });
 
@@ -711,7 +727,7 @@ async function contentRoutes(fastify) {
   }, async (req, reply) => {
     const result = await db.query('DELETE FROM news WHERE id=$1 RETURNING id', [req.params.id]);
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
-    audit.log('news_delete', { userId: req.user.sub, detail: 'news#' + req.params.id, ip: req.ip });
+    await audit.log('news_delete', { userId: req.user.sub, detail: 'news#' + req.params.id, ip: req.ip });
     return { ok: true };
   });
 
@@ -786,7 +802,7 @@ async function contentRoutes(fastify) {
     for (const catId of cats) {
       await db.query('INSERT INTO recipe_categories (recipe_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [r.id, catId]);
     }
-    audit.log('recipe_create', { userId: req.user.sub, detail: 'recipe:' + r.id, ip: req.ip });
+    await audit.log('recipe_create', { userId: req.user.sub, detail: 'recipe:' + r.id, ip: req.ip });
     result.rows[0].categories = cats;
     return result.rows[0];
   });
@@ -865,7 +881,7 @@ async function contentRoutes(fastify) {
        WHERE recipe_id=$1`,
       [req.params.id, hasVideo]
     );
-    audit.log('recipe_update', { userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip });
+    await audit.log('recipe_update', { userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip });
     result.rows[0].categories = cats;
     return result.rows[0];
   });
@@ -877,7 +893,7 @@ async function contentRoutes(fastify) {
   }, async (req, reply) => {
     const result = await db.query('DELETE FROM recipes WHERE id=$1 RETURNING id', [req.params.id]);
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
-    audit.log('recipe_delete', { userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip });
+    await audit.log('recipe_delete', { userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip });
     return { ok: true };
   });
 
@@ -904,7 +920,7 @@ async function contentRoutes(fastify) {
       await client.query('UPDATE recipes SET is_seasonal = FALSE WHERE is_seasonal = TRUE AND id <> $1', [id]);
       await client.query('UPDATE recipes SET is_seasonal = TRUE WHERE id = $1', [id]);
       await client.query('COMMIT');
-      audit.log('recipe_seasonal_set', { userId: req.user.sub, detail: 'recipe:' + id, ip: req.ip });
+      await audit.log('recipe_seasonal_set', { userId: req.user.sub, detail: 'recipe:' + id, ip: req.ip });
       return { ok: true, id };
     } catch (e) {
       await client.query('ROLLBACK');
@@ -920,7 +936,7 @@ async function contentRoutes(fastify) {
     config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
   }, async (req) => {
     await db.query('UPDATE recipes SET is_seasonal = FALSE WHERE is_seasonal = TRUE');
-    audit.log('recipe_seasonal_clear', { userId: req.user.sub, detail: 'all', ip: req.ip });
+    await audit.log('recipe_seasonal_clear', { userId: req.user.sub, detail: 'all', ip: req.ip });
     return { ok: true };
   });
 
@@ -951,7 +967,7 @@ async function contentRoutes(fastify) {
        RETURNING id, name, group_id AS "group", sort_order`,
       [item.id, item.name, item.groupId, item.sortOrder]
     );
-    audit.log('ingredient_catalog_upsert', { userId: req.user.sub, detail: 'ingredient:' + item.id, ip: req.ip });
+    await audit.log('ingredient_catalog_upsert', { userId: req.user.sub, detail: 'ingredient:' + item.id, ip: req.ip });
     return result.rows[0];
   });
 
@@ -980,7 +996,7 @@ async function contentRoutes(fastify) {
        VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
       [id, name, emoji || '', color || '#999', description || '', sort_order || 0, JSON.stringify(auto_addons || {})]
     );
-    audit.log('category_create', { userId: req.user.sub, detail: 'category:' + id, ip: req.ip });
+    await audit.log('category_create', { userId: req.user.sub, detail: 'category:' + id, ip: req.ip });
     return result.rows[0];
   });
 
@@ -996,7 +1012,7 @@ async function contentRoutes(fastify) {
       [name, emoji, color, description, sort_order || 0, JSON.stringify(auto_addons || {}), req.params.id]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
-    audit.log('category_update', { userId: req.user.sub, detail: 'category:' + req.params.id, ip: req.ip });
+    await audit.log('category_update', { userId: req.user.sub, detail: 'category:' + req.params.id, ip: req.ip });
     return result.rows[0];
   });
 
@@ -1009,7 +1025,7 @@ async function contentRoutes(fastify) {
     if (inUse.rows[0].n > 0) return reply.status(409).send({ error: 'В категории есть рецепты (' + inUse.rows[0].n + '). Сначала удалите или перенесите.' });
     const result = await db.query('DELETE FROM categories WHERE id=$1 RETURNING id', [req.params.id]);
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
-    audit.log('category_delete', { userId: req.user.sub, detail: 'category:' + req.params.id, ip: req.ip });
+    await audit.log('category_delete', { userId: req.user.sub, detail: 'category:' + req.params.id, ip: req.ip });
     return { ok: true };
   });
 }

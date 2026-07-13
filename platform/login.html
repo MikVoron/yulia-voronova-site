@@ -595,6 +595,10 @@
 						<label class="form-label" for="code-input">6-значный код</label>
 						<input class="form-input code-input" type="text" id="code-input" placeholder="------" maxlength="6" inputmode="numeric" autocomplete="one-time-code" aria-describedby="code-error">
 					</div>
+					<div class="field" id="mfa-field" style="display:none">
+						<label class="form-label" for="mfa-code-input">Код приложения-аутентификатора</label>
+						<input class="form-input code-input" type="text" id="mfa-code-input" placeholder="------" maxlength="6" inputmode="numeric" autocomplete="one-time-code" aria-describedby="code-error">
+					</div>
 					<div class="lp-error" id="code-error" role="alert" aria-live="polite"></div>
 					<button class="btn-primary" id="verify-btn" type="button">Войти →</button>
 
@@ -628,7 +632,7 @@
 		</div>
 	</div>
 
-	<script src="data-v2.js?v=20260707-same-origin-content"></script>
+	<script src="data-v2.js?v=20260713-secure-content-cache"></script>
 	<script>
 		// Защита от open-redirect: только относительные пути в пределах поддомена
 		function _safeReturn(url) {
@@ -765,6 +769,7 @@
 			document.getElementById('email-show-text').textContent = currentEmail;
 			document.getElementById('step-email').style.display = 'none';
 			var step2 = document.getElementById('step-code');
+			document.getElementById('mfa-field').style.display = _isAdminLogin ? 'block' : 'none';
 			step2.style.display = 'block';
 			step2.style.animation = 'none';
 			requestAnimationFrame(function () {
@@ -824,13 +829,15 @@
 			hideError('code-error');
 			var code = document.getElementById('code-input').value.trim();
 			if (code.length !== 6) { showError('code-error', 'Введите 6-значный код'); return; }
+			var mfaCode = document.getElementById('mfa-code-input').value.trim();
+			if (_isAdminLogin && mfaCode.length !== 6) { showError('code-error', 'Введите код приложения-аутентификатора'); return; }
 			setLoading('verify-btn', true);
 			try {
 				var res = await fetch(API_BASE + '/auth/verify', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					credentials: 'include',
-					body: JSON.stringify({ email: currentEmail, code: code, fingerprint: _fingerprint })
+					body: JSON.stringify({ email: currentEmail, code: code, fingerprint: _fingerprint, context: _isAdminLogin ? 'admin' : undefined, mfaCode: _isAdminLogin ? mfaCode : undefined })
 				});
 				var data = await res.json();
 				if (!res.ok) { showError('code-error', data.error || 'Ошибка'); setLoading('verify-btn', false); return; }
@@ -850,6 +857,7 @@
 			clearInterval(timerInterval);
 			document.getElementById('step-code').style.display = 'none';
 			document.getElementById('code-input').value = '';
+			document.getElementById('mfa-code-input').value = '';
 			var s1 = document.getElementById('step-email');
 			s1.style.display = 'block';
 			s1.style.animation = 'none';
@@ -863,7 +871,7 @@
 			else if (document.getElementById('step-code').style.display !== 'none') verifyCode();
 		});
 		document.getElementById('code-input').addEventListener('input', function () {
-			if (this.value.length === 6) verifyCode();
+			if (!_isAdminLogin && this.value.length === 6) verifyCode();
 		});
 		document.getElementById('send-code-btn').addEventListener('click', sendCode);
 		document.getElementById('verify-btn').addEventListener('click', verifyCode);

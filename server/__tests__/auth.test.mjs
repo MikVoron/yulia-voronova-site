@@ -139,6 +139,38 @@ describe('auth/verify', () => {
     expect(res.statusCode).toBe(400);
     expect(res.json().error).toContain('fingerprint');
   });
+
+  it('does not issue an admin session without a valid authenticator code', async () => {
+    const bcrypt = require('bcrypt');
+    const codeHash = await bcrypt.hash('123456', 4);
+    const defaultImplementation = mockQuery.getMockImplementation();
+    mockQuery.mockImplementation(async (sql) => {
+      if (/COALESCE.*SUM.*attempts/.test(sql)) return { rows: [{ total: '0' }] };
+      if (/SELECT \* FROM login_codes WHERE email/.test(sql)) {
+        return { rows: [{ id: 77, code_hash: codeHash, attempts: 0 }] };
+      }
+      if (/SELECT \* FROM users WHERE email/.test(sql)) {
+        return { rows: [{ id: 9, email: 'admin@example.com', role: 'admin', is_blocked: false }] };
+      }
+      return { rows: [] };
+    });
+    const previousSecret = process.env.ADMIN_TOTP_SECRET;
+    process.env.ADMIN_TOTP_SECRET = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
+
+    try {
+      const res = await app.inject({
+        method: 'POST', url: '/auth/verify',
+        payload: { email: 'admin@example.com', code: '123456', context: 'admin', mfaCode: '000000' }
+      });
+      expect(res.statusCode).toBe(403);
+      expect(mockQuery.mock.calls.some(([sql]) => /RETURNING id/.test(sql))).toBe(false);
+      expect(mockQuery.mock.calls.some(([sql]) => /INSERT INTO refresh_sessions/.test(sql))).toBe(false);
+    } finally {
+      if (previousSecret === undefined) delete process.env.ADMIN_TOTP_SECRET;
+      else process.env.ADMIN_TOTP_SECRET = previousSecret;
+      mockQuery.mockImplementation(defaultImplementation);
+    }
+  });
 });
 
 describe('auth/refresh', () => {
@@ -222,7 +254,10 @@ describe('auth/refresh', () => {
       });
 
       expect(res.statusCode).toBe(403);
-      expect(mockQuery).not.toHaveBeenCalledWith(expect.stringMatching(/INSERT INTO refresh_sessions/), expect.any(Array));
+      const rotationSql = mockQuery.mock.calls[0][0];
+      expect(rotationSql).toMatch(/INSERT INTO refresh_sessions/);
+      expect(rotationSql).toMatch(/WHERE is_blocked=false/);
+      expect(mockQuery).toHaveBeenCalledTimes(1);
     } finally {
       mockQuery.mockImplementation(defaultImplementation);
     }

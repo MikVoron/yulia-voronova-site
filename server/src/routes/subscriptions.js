@@ -199,7 +199,7 @@ async function subscriptionRoutes(fastify) {
       }
       throw e;
     }
-    audit.log('payment_submit', { userId: req.user.sub, email: senderEmail, detail: amount + '₽', ip: req.ip });
+    await audit.log('payment_submit', { userId: req.user.sub, email: senderEmail, detail: amount + '₽', ip: req.ip });
     sendPaymentNotification(senderEmail, amount, paymentDate, !!screenshot).catch(err => fastify.log.error(err, 'payment notification email failed'));
     return { ok: true, message: 'Платёж отправлен на проверку' };
   });

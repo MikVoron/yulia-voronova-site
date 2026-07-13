@@ -71,7 +71,7 @@ async function evaluate(context, expression) {
 }
 
 describe('SmartPlate content resilience', () => {
-  it('persists a successful payload in both session and local storage', async () => {
+  it('persists guest card metadata in both session and local storage', async () => {
     const fetchMock = async url => {
       if (url.endsWith('/content/recipes')) return response(200, [{ id: 'recipe-1' }]);
       if (url.endsWith('/content/categories')) return response(200, [{ id: 'mains', dishes: ['recipe-1'] }]);
@@ -88,7 +88,7 @@ describe('SmartPlate content resilience', () => {
   });
 
   it('uses a seven-hour-old persistent payload when every API request fails', async () => {
-    const cacheKey = 'sp_content_cache_v1:guest';
+    const cacheKey = 'sp_content_cache_v2:guest';
     const cached = JSON.stringify({
       savedAt: Date.now() - 7 * 60 * 60 * 1000,
       recipes: [{ id: 'cached-recipe' }],
@@ -108,7 +108,7 @@ describe('SmartPlate content resilience', () => {
   });
 
   it('promotes an existing fresh session cache without changing its timestamp', async () => {
-    const cacheKey = 'sp_content_cache_v1:guest';
+    const cacheKey = 'sp_content_cache_v2:guest';
     const savedAt = Date.now() - 30 * 60 * 1000;
     const cached = JSON.stringify({
       savedAt,
@@ -143,8 +143,8 @@ describe('SmartPlate content resilience', () => {
 
   it('clears audience caches from both storage layers', async () => {
     const runtime = createRuntime(async () => response(200, []), {
-      session: { 'sp_content_cache_v1:guest': '{}', unrelated: 'keep' },
-      local: { 'sp_content_cache_v1:user': '{}', unrelated: 'keep' },
+      session: { 'sp_content_cache_v1:guest': '{}', 'sp_content_cache_v2:guest': '{}', unrelated: 'keep' },
+      local: { 'sp_content_cache_v1:user': '{}', 'sp_content_cache_v2:user': '{}', unrelated: 'keep' },
     });
 
     await evaluate(runtime.context, 'clearContentCache()');

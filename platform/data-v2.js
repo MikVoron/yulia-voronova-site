@@ -947,7 +947,8 @@ let _contentErrorType = '';
 let _contentErrorDetails = null;
 let _contentIsStale = false;
 let _contentRefreshInFlight = null;
-const CONTENT_CACHE_PREFIX = 'sp_content_cache_v1:';
+const LEGACY_CONTENT_CACHE_PREFIX = 'sp_content_cache_v1:';
+const CONTENT_CACHE_PREFIX = 'sp_content_cache_v2:';
 const CONTENT_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
 const CONTENT_STALE_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
 
@@ -968,7 +969,9 @@ function clearContentCache() {
         try {
             for (let i = storage.length - 1; i >= 0; i--) {
                 const key = storage.key(i);
-                if (key && key.indexOf(CONTENT_CACHE_PREFIX) === 0) storage.removeItem(key);
+                if (key && (key.indexOf(CONTENT_CACHE_PREFIX) === 0 || key.indexOf(LEGACY_CONTENT_CACHE_PREFIX) === 0)) {
+                    storage.removeItem(key);
+                }
             }
         } catch (_) {}
     });
@@ -984,6 +987,9 @@ function _validContentCache(storage, maxAge) {
 }
 
 function _readContentCache(maxAge = CONTENT_CACHE_MAX_AGE) {
+    // Авторизованный пользователь всегда получает свежую серверную матрицу
+    // доступа и не восстанавливает ранее выданные платные поля из storage.
+    if (Auth.isLoggedIn()) return null;
     const sessionCached = _validContentCache(sessionStorage, maxAge);
     const persistentCached = _validContentCache(localStorage, maxAge);
     if (!sessionCached) return persistentCached;
@@ -992,11 +998,19 @@ function _readContentCache(maxAge = CONTENT_CACHE_MAX_AGE) {
 }
 
 function _writeContentCache(payload, savedAt = Date.now()) {
+    if (Auth.isLoggedIn()) return;
+    // Защищённые поля никогда не переживают вкладку/сессию. Offline-кэш нужен
+    // только для каталога карточек; ingredients/steps/note повторно запрашиваются
+    // у API после серверной проверки доступа.
+    const publicRecipes = payload.recipes.map(recipe => {
+        const { ingredients, steps, note, ...meta } = recipe || {};
+        return meta;
+    });
     const serialized = JSON.stringify({
         savedAt,
-        recipes: payload.recipes,
+        recipes: publicRecipes,
         categories: payload.categories,
-        ingredients: payload.ingredients || []
+        ingredients: []
     });
     try {
         sessionStorage.setItem(_contentCacheKey(), serialized);
@@ -1008,6 +1022,17 @@ function _writeContentCache(payload, savedAt = Date.now()) {
         localStorage.setItem(_contentCacheKey(), serialized);
     } catch (_) {}
 }
+
+// Одноразовая миграция: v1 мог содержать полный платный payload. Удаляем его
+// сразу при загрузке новой версии, до любого чтения каталога.
+[sessionStorage, localStorage].forEach(storage => {
+    try {
+        for (let i = storage.length - 1; i >= 0; i--) {
+            const key = storage.key(i);
+            if (key && key.indexOf(LEGACY_CONTENT_CACHE_PREFIX) === 0) storage.removeItem(key);
+        }
+    } catch (_) {}
+});
 
 function _applyContentPayload(payload) {
     Object.keys(RECIPES).forEach(id => { delete RECIPES[id]; });

@@ -2,7 +2,8 @@
 # Бэкап PostgreSQL → GPG → Backblaze B2
 # Cron: 0 3 * * * . /opt/voronova/.b2-credentials && /opt/voronova/backup.sh >> /var/log/voronova-backup.log 2>&1
 
-set -e
+set -Eeuo pipefail
+umask 077
 
 # ── Настройки ──
 DB_NAME="smartplate"
@@ -27,12 +28,13 @@ mkdir -p "$BACKUP_DIR"
 
 # ── Дамп БД ──
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M)
-DUMP_FILE="$BACKUP_DIR/${DB_NAME}_${TIMESTAMP}.sql.gz"
+DUMP_FILE="$BACKUP_DIR/${DB_NAME}_${TIMESTAMP}.dump"
 ENCRYPTED_FILE="${DUMP_FILE}.gpg"
 
 echo "$(date): Начинаю бэкап..."
 
-pg_dump -U "$DB_USER" "$DB_NAME" | gzip > "$DUMP_FILE"
+pg_dump -U "$DB_USER" --format=custom --file="$DUMP_FILE" "$DB_NAME"
+pg_restore --list "$DUMP_FILE" >/dev/null
 echo "$(date): Дамп создан: $(du -h "$DUMP_FILE" | cut -f1)"
 
 # ── Шифрование ──
@@ -47,7 +49,7 @@ echo "$(date): Зашифровано: $(du -h "$ENCRYPTED_FILE" | cut -f1)"
 AWS_ACCESS_KEY_ID="$B2_KEY_ID" \
 AWS_SECRET_ACCESS_KEY="$B2_APP_KEY" \
 aws s3 cp "$ENCRYPTED_FILE" \
-    "s3://${BUCKET}/db/${DB_NAME}_${TIMESTAMP}.sql.gz.gpg" \
+    "s3://${BUCKET}/db/${DB_NAME}_${TIMESTAMP}.dump.gpg" \
     --endpoint-url "$B2_ENDPOINT"
 
 echo "$(date): Загружено в B2"

@@ -36,6 +36,17 @@ function classifyNetworkObservation(counts) {
  * @returns {{ grant: boolean, reason: string, observation: object }}
  */
 async function tryGrantTrial(fingerprint, ip, userId) {
+  // Нет устойчивого device signal — нет автоматического пробного доступа.
+  // Раньше null превращался в общую строку "none", исключённую из UNIQUE,
+  // поэтому новые email/OAuth-аккаунты могли получать триал повторно.
+  if (!fingerprint) {
+    await db.query(
+      "INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip, registration_fingerprint) VALUES ($1, 'expired', now(), $2, NULL) ON CONFLICT DO NOTHING",
+      [userId, ip]
+    );
+    return { grant: false, reason: 'fingerprint_missing', observation: null };
+  }
+
   const client = await db.pool.connect();
   let observation = null;
   try {
@@ -86,7 +97,7 @@ async function tryGrantTrial(fingerprint, ip, userId) {
     // 2. Триал одобрен — записываем fingerprint + подписку в одной транзакции
     await client.query(
       'INSERT INTO trial_fingerprints (fingerprint, ip, user_id) VALUES ($1, $2, $3)',
-      [fingerprint || 'none', ip, userId]
+      [fingerprint, ip, userId]
     );
     await client.query(
       "INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip, registration_fingerprint) VALUES ($1, 'trial', now() + interval '" + TRIAL_DAYS + " days', $2, $3)",

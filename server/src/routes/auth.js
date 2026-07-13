@@ -7,6 +7,7 @@ const { authenticate } = require('../middleware');
 const { tryGrantTrial } = require('../trial-guard');
 const { inspectFingerprint, reportTrialSignals } = require('../trial-monitor');
 const audit = require('../audit');
+const { verifyTotp } = require('../totp');
 
 const AUTH_SEND_CODE_RATE_LIMIT = { max: 10, timeWindow: '15 minutes' };
 const AUTH_VERIFY_RATE_LIMIT = { max: 20, timeWindow: '15 minutes' };
@@ -48,7 +49,7 @@ async function authRoutes(fastify) {
   fastify.post('/auth/verify', {
     config: { rateLimit: AUTH_VERIFY_RATE_LIMIT }
   }, async (req, reply) => {
-    const { email, code, fingerprint: rawFingerprint } = req.body || {};
+    const { email, code, fingerprint: rawFingerprint, context, mfaCode } = req.body || {};
     if (!email || !code) return reply.status(400).send({ error: 'email и code обязательны' });
     const lower = email.toLowerCase().trim();
     const fingerprintCheck = inspectFingerprint(rawFingerprint);
@@ -68,18 +69,35 @@ async function authRoutes(fastify) {
     if (!result.rows.length) return reply.status(400).send({ error: 'Код не найден или истёк' });
     const row = result.rows[0];
     if (row.attempts >= 3) {
-      await db.query('UPDATE login_codes SET used=true WHERE id=$1', [row.id]);
+      await db.query('UPDATE login_codes SET used=true WHERE id=$1 AND used=false', [row.id]);
       return reply.status(400).send({ error: 'Превышено число попыток' });
     }
     const valid = await bcrypt.compare(code, row.code_hash);
     if (!valid) {
-      await db.query('UPDATE login_codes SET attempts=attempts+1 WHERE id=$1', [row.id]);
+      await db.query('UPDATE login_codes SET attempts=attempts+1 WHERE id=$1 AND used=false AND attempts < 3', [row.id]);
       return reply.status(400).send({ error: 'Неверный код' });
     }
-    await db.query('UPDATE login_codes SET used=true WHERE id=$1', [row.id]);
-    // найти или создать пользователя
-
+    // Сначала определяем роль: для администратора email-код сам по себе недостаточен.
     let userRes = await db.query('SELECT * FROM users WHERE email=$1', [lower]);
+    const existingUser = userRes.rows[0] || null;
+    if (existingUser?.role === 'admin') {
+      const mfaSecret = process.env.ADMIN_TOTP_SECRET;
+      if (!mfaSecret) {
+        fastify.log.error('ADMIN_TOTP_SECRET is missing; admin login denied');
+        return reply.status(503).send({ error: 'Вход администратора временно недоступен' });
+      }
+      if (context !== 'admin' || !verifyTotp(mfaCode, mfaSecret)) {
+        audit.log('admin_mfa_failed', { userId: existingUser.id, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
+        return reply.status(403).send({ error: 'Неверный код приложения-аутентификатора' });
+      }
+    }
+    const consumed = await db.query(
+      'UPDATE login_codes SET used=true WHERE id=$1 AND used=false AND expires_at > now() RETURNING id',
+      [row.id]
+    );
+    if (!consumed.rows.length) return reply.status(400).send({ error: 'Код уже использован или истёк' });
+
+    // найти или создать пользователя
     let isNew = false;
     if (!userRes.rows.length) {
       isNew = true;
@@ -119,9 +137,10 @@ async function authRoutes(fastify) {
     audit.log('login', { userId: user.id, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken();
-    await issueRefreshSession(user.id, refreshToken, req);
+    const isAdminSession = user.role === 'admin';
+    await issueRefreshSession(user.id, refreshToken, req, { admin: isAdminSession });
     reply.setCookie('refreshToken', refreshToken, {
-      path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 2592000
+      path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: isAdminSession ? 43200 : 2592000
     });
     return { accessToken, user: { id: user.id, email: user.email, displayName: user.display_name, avatar: user.avatar || null, weight: user.weight_kg == null ? null : Number(user.weight_kg), role: user.role, createdAt: user.created_at }, isNew };
   });
@@ -134,15 +153,27 @@ async function authRoutes(fastify) {
     const token = req.cookies.refreshToken;
     if (!token) return reply.status(401).send({ error: 'Нет refresh токена' });
     const tokenHash = hashToken(token);
+    const newRefresh = generateRefreshToken();
+    const newRefreshHash = hashToken(newRefresh);
     const result = await db.query(
-      `DELETE FROM refresh_sessions rs
-        USING users u
-       WHERE rs.user_id=u.id
-         AND rs.refresh_token_hash=$1
-         AND rs.expires_at > now()
-       RETURNING rs.user_id, u.email, u.role, u.display_name, u.avatar, u.weight_kg,
-                 u.is_blocked, u.created_at AS user_created_at`,
-      [tokenHash]
+      `WITH consumed AS (
+         DELETE FROM refresh_sessions rs
+          USING users u
+          WHERE rs.user_id=u.id
+            AND rs.refresh_token_hash=$1
+            AND rs.expires_at > now()
+          RETURNING rs.user_id, u.email, u.role, u.display_name, u.avatar, u.weight_kg,
+                    u.is_blocked, u.created_at AS user_created_at
+       ), inserted AS (
+         INSERT INTO refresh_sessions (user_id, refresh_token_hash, ua, ip, expires_at)
+         SELECT user_id, $2, $3, $4,
+                now() + CASE WHEN role='admin' THEN interval '12 hours' ELSE interval '30 days' END
+           FROM consumed
+          WHERE is_blocked=false
+         RETURNING user_id
+       )
+       SELECT consumed.* FROM consumed`,
+      [tokenHash, newRefreshHash, req.headers['user-agent'] || '', req.ip]
     );
     if (!result.rows.length) {
       // Do not clear the cookie here: another tab may have just rotated the
@@ -151,11 +182,17 @@ async function authRoutes(fastify) {
     }
     const session = result.rows[0];
     if (session.is_blocked) return reply.status(403).send({ error: 'Аккаунт заблокирован' });
-    const newRefresh = generateRefreshToken();
-    await issueRefreshSession(session.user_id, newRefresh, req);
+    await db.query(
+      `DELETE FROM refresh_sessions
+        WHERE id IN (
+          SELECT id FROM refresh_sessions WHERE user_id=$1
+           ORDER BY expires_at DESC, id DESC OFFSET 10
+        )`,
+      [session.user_id]
+    );
     const accessToken = generateAccessToken({ id: session.user_id, email: session.email, role: session.role });
     reply.setCookie('refreshToken', newRefresh, {
-      path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 2592000
+      path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: session.role === 'admin' ? 43200 : 2592000
     });
     return { accessToken, user: { id: session.user_id, email: session.email, displayName: session.display_name, avatar: session.avatar || null, weight: session.weight_kg == null ? null : Number(session.weight_kg), role: session.role, createdAt: session.user_created_at } };
   });

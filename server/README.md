@@ -25,6 +25,7 @@ npm install
 PORT=3000
 DATABASE_URL=postgresql://user:password@localhost:5432/smartplate_db
 JWT_SECRET=your-secret-key-here
+ADMIN_TOTP_SECRET=base32-secret-from-your-authenticator
 NODE_ENV=development
 
 # SMTP (отправка кодов и уведомлений)
@@ -80,6 +81,11 @@ node index.js
 pm2 start index.js --name smartplate-api
 pm2 save
 ```
+
+`ADMIN_TOTP_SECRET` обязателен для входа пользователей с ролью `admin` и должен
+совпадать с секретом, добавленным в приложение-аутентификатор. Если переменная
+не задана, сервер намеренно запрещает административный вход. Храните секрет
+только в переменных окружения production-сервера, не в Git.
 
 Telegram-бот отвечает только чату из `TG_CHAT_ID`. Доступные команды:
 
