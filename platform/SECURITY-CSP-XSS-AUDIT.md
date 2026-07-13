@@ -188,7 +188,12 @@ enforced `style-src` не ужесточается до полного заве�
 `auth-callback.css`, динамические `element.style` и inline-стиль ссылки ошибки
 заменены CSS-классами и безопасным DOM. Production-smoke подтвердил error- и
 success-состояния, загрузку внешних CSS/JS, отсутствие `<style>`, `style=` и
-CSP-ошибок. Текущий статический остаток: 431 `style=` и 18 `<style>`-блоков.
+CSP-ошибок.
+
+Вторая партия завершена для `personal-data-processing-policy.html`: единственный
+CSS-блок вынесен в отдельный файл. Desktop/mobile production-метрики до и
+после развёртывания совпали, горизонтального overflow и CSP-ошибок нет.
+Текущий статический остаток: 431 `style=` и 17 `<style>`-блоков.
 
 ## Проверка `innerHTML`
 
