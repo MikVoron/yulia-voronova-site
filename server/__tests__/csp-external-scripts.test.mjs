@@ -46,6 +46,12 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain("err.classList.add('is-visible')");
   });
 
+  it('keeps the personal data policy independent of inline styles', () => {
+    const html = fs.readFileSync(path.join(platformDir, 'personal-data-processing-policy.html'), 'utf8');
+    expect(html).toContain('personal-data-processing-policy.css?v=20260713-csp-styles');
+    expect(html).not.toMatch(/<style\b|\sstyle\s*=/i);
+  });
+
   it('keeps static admin controls free of inline event handlers', () => {
     const html = fs.readFileSync(path.join(platformDir, 'admin.html'), 'utf8');
     const script = fs.readFileSync(path.join(platformDir, 'admin.js'), 'utf8');
