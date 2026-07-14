@@ -26,8 +26,8 @@
             document.title = 'Все рецепты — Конструктор питания';
             if (hero) hero.innerHTML =
                 '<div class="cat-hero-row">' +
-                '<div class="cat-hero-ava cat-hero-ava--logo">' +
-                '<img src="https://voronova.online/images/icons/logo-small.png" alt="Юлия Воронова">' +
+                '<div class="cat-hero-ava cat-hero-ava--icon" aria-hidden="true">' +
+                '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15h17c6 0 10 3 10 9v27c-3-3-7-4-12-4H12z"/><path d="M52 15H35c-6 0-10 3-10 9v27c3-3 7-4 12-4h15z"/><path d="M32 24c5-6 12-6 16-2-2 8-9 12-16 14-7-2-14-6-16-14 4-4 11-4 16 2z" fill="#f5b223" stroke="none"/></svg>' +
                 '</div>' +
                 '<div><div class="cat-hero-name">Все рецепты</div>' +
                 '<div class="cat-hero-desc">Все блюда платформы — завтраки, супы, горячее, намазки и соусы в одном каталоге</div></div></div>';

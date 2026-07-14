@@ -1408,7 +1408,17 @@ main {
 
 /* У «Популярные» используем тот же ::after 2px, что и у каждого активного
    фильтра. Сдвиг его начала исключает только звезду. */
-.sp-home .sp-cats-head .filter-chip[data-f="popular"].on::after { left: 28px; }
+.sp-home .sp-cats-head .filter-chip[data-f="popular"].on::after {
+	left: 28px !important;
+	right: 12px !important;
+	bottom: -1px !important;
+	height: 2px !important;
+	min-height: 2px !important;
+	max-height: 2px;
+	display: block !important;
+	opacity: 1 !important;
+	transform: none !important;
+}
 .sp-home .sp-cats-head .filter-chip[data-f="popular"] .filter-chip__label {
 	display: inline-block;
 }
