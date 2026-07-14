@@ -768,7 +768,7 @@
                     <div style="flex-shrink:0">${avatarHtml}</div>
                     <div style="flex:1;min-width:0">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
-                            <span style="font-weight:700;font-size:14px;color:var(--text)">${escHtml(rv.author)}</span>
+                            <span style="font-weight:700;font-size:14px;color:var(--text)">${escHtml(rv.author)}${rv.isEarlyBird ? '<small style="margin-left:6px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)">Друг Умной тарелки</small>' : ''}</span>
                             <div style="display:flex;align-items:center;gap:6px">
                                 <span style="font-size:11px;color:var(--text-3)">${fmtDate(rv.createdAt)}</span>
                                 ${canDelete ? `<button style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px" data-category-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? 'true' : 'false'}" title="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>` : ''}

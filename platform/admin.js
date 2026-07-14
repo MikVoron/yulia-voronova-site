@@ -71,7 +71,7 @@
         document.getElementById('sec-' + tab).classList.add('active');
 
         if (tab === 'users' && !allUsers.length) loadUsers();
-        if (tab === 'payments') loadPayments('pending');
+        if (tab === 'payments') { loadPayments('pending'); loadEarlyAccessState(); }
         if (tab === 'news') loadNews();
         if (tab === 'recipes') loadRecipesList();
         if (tab === 'video-requests') loadVideoRequests();
@@ -261,6 +261,22 @@
     };
 
     // ── Payments ──
+    window.loadEarlyAccessState = function() {
+        api('/admin/early-access').then(function(data) {
+            var el = document.getElementById('early-access-admin-state');
+            if (el) el.textContent = 'Подтверждённых участников: ' + data.confirmedMembers + ' из ' + data.limit + ' · резерв вручную: ' + (data.manualReserved > 0 ? '+' : '') + data.manualReserved + ' · доступно: ' + data.remaining;
+        }).catch(function() {});
+    };
+    window.saveEarlyAccessAdjustment = function() {
+        var delta = Number(document.getElementById('early-access-delta').value);
+        var comment = document.getElementById('early-access-comment').value.trim();
+        api('/admin/early-access/adjustments', { method: 'POST', body: { slotsDelta: delta, comment: comment } }).then(function(data) {
+            document.getElementById('early-access-delta').value = '';
+            document.getElementById('early-access-comment').value = '';
+            showToast('Корректировка сохранена');
+            loadEarlyAccessState();
+        }).catch(function(e) { showToast(e.message || 'Не удалось сохранить корректировку'); });
+    };
     window.loadPayments = function(status) {
         document.querySelectorAll('[id^="pay-filter-"]').forEach(function(b) {
             b.style.background = b.id === 'pay-filter-' + status ? 'var(--accent)' : '';
@@ -1479,6 +1495,7 @@
     bindStaticAdminHandler("click", "6509a16e5375", function(event) { loadPayments('pending') });
     bindStaticAdminHandler("click", "25cd91e1b230", function(event) { loadPayments('confirmed') });
     bindStaticAdminHandler("click", "7b81491b9670", function(event) { loadPayments('rejected') });
+    bindStaticAdminHandler("click", "a4f41ea9f9b7", function(event) { saveEarlyAccessAdjustment() });
     bindStaticAdminHandler("click", "f087ddda46f6", function(event) { openNewsModal() });
     bindStaticAdminHandler("click", "53bdeb78bea9", function(event) { openRecipeEditor() });
     bindStaticAdminHandler("change", "2fc16510c28d", function(event) { filterRecipes() });

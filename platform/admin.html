@@ -1007,6 +1007,15 @@
     <!-- Payments -->
     <div class="adm-section" id="sec-payments">
         <div class="adm-section-title">Платежи</div>
+        <div style="margin:0 0 16px;padding:14px 16px;border:1px solid var(--border);background:#fff8f3">
+            <div style="font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase">Ранний доступ</div>
+            <div id="early-access-admin-state" style="margin:7px 0 11px;font-size:13px;color:var(--text-2)">Загрузка…</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <input id="early-access-delta" class="adm-modal-input" type="number" min="-30" max="30" placeholder="Резерв: +1 / -1" style="max-width:150px">
+                <input id="early-access-comment" class="adm-modal-input" type="text" maxlength="500" placeholder="Причина корректировки" style="flex:1;min-width:220px">
+                <button class="adm-btn" data-admin-click="a4f41ea9f9b7" type="button">Сохранить</button>
+            </div>
+        </div>
         <div style="margin-bottom:16px">
             <button class="adm-btn" style="margin-right:4px" data-admin-click="6509a16e5375" id="pay-filter-pending">Ожидающие</button>
             <button class="adm-btn" data-admin-click="25cd91e1b230" id="pay-filter-confirmed">Подтверждённые</button>
