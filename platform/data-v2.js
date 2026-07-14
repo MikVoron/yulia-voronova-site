@@ -1337,6 +1337,11 @@ function formatTimeMeta(time, timeLabel) {
         let base = label, note = '';
         const m = label.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
         if (m) { base = m[1].trim(); note = m[2].trim(); }
+        // Часть старых рецептов хранит уточнение через запятую:
+        // «25 мин, без учёта замачивания». Выносим его в отдельную строку,
+        // чтобы длинная подпись не налезала на рейтинг.
+        const commaNote = base.match(/^(.+?),\s*(без\s+.+)$/i);
+        if (commaNote) { base = commaNote[1].trim(); note = commaNote[2].trim(); }
         const short = base.replace(/минут[ауы]?/gi, 'мин').replace(/\s+/g, ' ').trim();
         return { short: short || ((Number(time) || 0) + ' мин'), note: note };
     }

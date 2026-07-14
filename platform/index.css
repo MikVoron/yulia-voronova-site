@@ -1406,17 +1406,15 @@ main {
 	background: var(--accent);
 }
 
-/* У «Популярные» активная линия относится только к слову, не к звезде. */
-.sp-home .sp-cats-head .filter-chip[data-f="popular"].on::after { content: none; }
+/* У «Популярные» используем тот же ::after 2px, что и у каждого активного
+   фильтра. Сдвиг его начала исключает только звезду. */
+.sp-home .sp-cats-head .filter-chip[data-f="popular"].on::after { left: 28px; }
 .sp-home .sp-cats-head .filter-chip[data-f="popular"] .filter-chip__label {
 	display: inline-block;
 }
-.sp-home .sp-cats-head .filter-chip[data-f="popular"].on .filter-chip__label {
-	/* Та же видимая толщина, что у остальных активных фильтров; border
-	   не размывается при позиционировании псевдоэлемента. */
-	border-bottom: 2px solid var(--accent);
-	padding-bottom: 7px;
-	margin-bottom: -7px;
+.sp-home .sp-cats-head .filter-chip[data-f="popular"] .filter-chip__star {
+	display: inline-block;
+	margin-right: 4px;
 }
 
 .sp-home .sp-cats-head .filter-sep {
