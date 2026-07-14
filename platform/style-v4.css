@@ -623,11 +623,12 @@ img { display: block; max-width: 100%; }
     margin-bottom: 10px; position: relative;
 }
 .recipe-card__details-line {
-    display: flex; align-items: center; gap: 9px;
+    display: flex; align-items: center; gap: 9px; flex-wrap: nowrap;
     margin-bottom: 12px; min-width: 0;
 }
 .recipe-card__details-line .recipe-card__rating,
 .recipe-card__details-line .recipe-card__meta { margin-bottom: 0; }
+.recipe-card__details-line .recipe-card__rating { flex-shrink: 0; white-space: nowrap; }
 .recipe-card__details-line .recipe-card__meta { gap: 8px; min-width: 0; }
 .recipe-card__rating .rating-popup { bottom: auto; top: calc(100% + 6px); left: 0; }
 .recipe-card__rating-stars { display: inline-flex; gap: 1px; cursor: pointer; }
@@ -3528,8 +3529,8 @@ img { display: block; max-width: 100%; }
    иначе короткая линия будет скрыта (display:none). */
 .sp-nav-panel a.sp-nav-panel-all::after {
     display: block; content: '';
-    position: absolute; left: 10px; bottom: 0;
-    width: 26px; height: 2px; background: var(--accent);
+    position: absolute; left: 10px; right: 10px; bottom: 0;
+    height: 2px; background: var(--accent);
 }
 
 /* Рецепты: группы категорий в 4 смысловые колонки. */

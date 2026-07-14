@@ -357,7 +357,7 @@
                 <div class="recipe-card__meta">
                     <span class="recipe-card__meta-item recipe-card__meta-time">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
                     <span class="recipe-card__meta-dot"></span>
-                    <span class="recipe-card__meta-item recipe-card__meta-diff" title="${_diff}" aria-label="${_diff}" style="color:${_diffColor}">${_diffIcon}<span class="recipe-card__meta-diff-label">${_diff}</span></span>
+                    <span class="recipe-card__meta-item recipe-card__meta-diff" title="${_diff}" aria-label="${_diff}" style="color:${_diffColor}">${_diffIcon}${isAllMode ? '' : `<span class="recipe-card__meta-diff-label">${_diff}</span>`}</span>
                 </div>
                 </div>
                 ${_timeNote ? `<div class="recipe-card-time-note"><span class="rcn-arr" aria-hidden="true">↳</span>${_timeNote}</div>` : ''}
