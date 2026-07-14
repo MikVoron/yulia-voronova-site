@@ -928,6 +928,127 @@
             .adm-modal-actions { flex-wrap: wrap; }
             .adm-modal-actions .adm-btn { flex: 1 1 auto; }
         }
+
+        /* Strict admin workspace: navigation and layout only, no API changes. */
+        :root {
+            --accent: #d94b19;
+            --accent-l: #fff1eb;
+            --green: #217a52;
+            --green-l: #eaf6ef;
+            --yellow: #9a6700;
+            --yellow-l: #fff7df;
+            --red: #c9362b;
+            --red-l: #fff0ef;
+            --blue: #2867a6;
+            --blue-l: #edf5ff;
+            --text: #171b22;
+            --text-2: #535c68;
+            --text-3: #7b8490;
+            --border: #dfe3e8;
+            --bg: #f4f6f8;
+            --card: #ffffff;
+            --shadow-soft: 0 10px 24px rgba(20, 31, 45, .05);
+            --shadow-tight: none;
+        }
+
+        body { background: var(--bg); }
+
+        .adm-topbar {
+            min-height: 68px;
+            background: #fff;
+            box-shadow: none;
+            backdrop-filter: none;
+        }
+
+        .adm-topbar-left::before {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            background: var(--text);
+            box-shadow: none;
+        }
+
+        .adm-topbar-logo { display: none; }
+        .adm-topbar-title { font-family: 'Montserrat', system-ui, sans-serif; font-size: 16px; letter-spacing: -.02em; }
+        .adm-topbar-title span { color: var(--text); }
+        .adm-badge { background: #eef0f3; color: #5c6570; border-radius: 4px; font-size: 9px; }
+        .adm-topbar-user, .adm-topbar-logout { border-radius: 5px; }
+
+        .adm-tabs {
+            position: fixed;
+            inset: 68px auto 0 0;
+            z-index: 90;
+            width: 244px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 3px;
+            padding: 16px 12px;
+            background: #fff;
+            border: 0;
+            border-right: 1px solid var(--border);
+            box-shadow: none;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            backdrop-filter: none;
+        }
+
+        .adm-tab {
+            width: 100%;
+            min-height: 40px;
+            padding: 10px 12px;
+            border: 0;
+            border-radius: 5px;
+            color: var(--text-2);
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: none;
+        }
+
+        .adm-tab:hover { background: #f3f5f7; border-color: transparent; }
+        .adm-tab.active { background: #20262f; color: #fff; border-color: #20262f; box-shadow: none; }
+        .adm-tab-badge { float: right; background: var(--accent); }
+
+        .adm-main {
+            width: auto;
+            max-width: 1420px;
+            margin: 0 24px 0 268px;
+            padding: 32px 8px 56px;
+        }
+
+        .adm-stat-card,
+        .adm-table-wrap {
+            border-radius: 6px;
+            background: #fff;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .adm-stat-card { padding: 18px; }
+        .adm-stat-card::after { height: 2px; }
+        .adm-section-title { font-family: 'Montserrat', system-ui, sans-serif; font-size: 22px; letter-spacing: -.03em; }
+        .adm-table th { background: #f7f8fa; color: #68727e; }
+        .adm-table tr:hover td { background: #f8fafb; }
+        .adm-btn, .st-badge, .rbadge, .adm-search, .adm-modal-input, .adm-modal-select { border-radius: 5px; }
+
+        @media (max-width: 768px) {
+            .adm-tabs {
+                position: sticky;
+                inset: auto;
+                top: 68px;
+                width: auto;
+                flex-direction: row;
+                padding: 9px 12px;
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+
+            .adm-tab { width: auto; padding: 9px 12px; }
+            .adm-tab-badge { float: none; }
+            .adm-main { margin: 0; padding: 24px 16px 48px; }
+        }
     </style>
 </head>
 <body>
