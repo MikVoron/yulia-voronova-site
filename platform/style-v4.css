@@ -623,13 +623,13 @@ img { display: block; max-width: 100%; }
     margin-bottom: 10px; position: relative;
 }
 .recipe-card__details-line {
-    display: flex; align-items: center; gap: 9px; flex-wrap: nowrap;
+    display: flex; align-items: center; justify-content: space-between; gap: 9px; flex-wrap: nowrap;
     margin-bottom: 12px; min-width: 0;
 }
 .recipe-card__details-line .recipe-card__rating,
 .recipe-card__details-line .recipe-card__meta { margin-bottom: 0; }
 .recipe-card__details-line .recipe-card__rating { flex-shrink: 0; white-space: nowrap; }
-.recipe-card__details-line .recipe-card__meta { gap: 8px; min-width: 0; }
+.recipe-card__details-line .recipe-card__meta { gap: 8px; min-width: 0; margin-left: auto; }
 .recipe-card__rating .rating-popup { bottom: auto; top: calc(100% + 6px); left: 0; }
 .recipe-card__rating-stars { display: inline-flex; gap: 1px; cursor: pointer; }
 .recipe-card__rating-text { font-size: 11px; color: #8a7d6f; font-weight: 500; }
@@ -3519,19 +3519,26 @@ img { display: block; max-width: 100%; }
    uppercase, короткая оранжевая линия снизу как небольшой акцент (вместо
    полноширинной разделительной границы). */
 .sp-nav-panel-all {
-    position: relative;
+    display: inline-flex !important;
     color: var(--text) !important;
     font-weight: 700 !important;
     text-transform: uppercase; letter-spacing: .07em; font-size: 12px !important;
     margin-bottom: 12px; padding-bottom: 11px !important;
 }
-/* Специфичность ≥ .sp-nav-panel a::after (которое глушит underline ссылок),
-   иначе короткая линия будет скрыта (display:none). */
+/* Линия ограничена текстом внутри ссылки: padding меню не влияет на её ширину. */
 .sp-nav-panel a.sp-nav-panel-all::after {
-    display: block; content: '';
-    position: absolute; left: 10px; right: 10px; bottom: 0;
-    height: 2px; background: var(--accent);
+    display: none;
 }
+.sp-nav-panel a.sp-nav-panel-all > span {
+    position: relative;
+}
+.sp-nav-panel a.sp-nav-panel-all > span::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -11px;
+    height: 2px; background: var(--accent);
+    opacity: 0; transition: opacity var(--tr);
+}
+.sp-nav-panel a.sp-nav-panel-all:hover > span::after,
+.sp-nav-panel a.sp-nav-panel-all:focus-visible > span::after { opacity: 1; }
 
 /* Рецепты: группы категорий в 4 смысловые колонки. */
 .sp-nav-cols { display: grid; grid-template-columns: repeat(2, minmax(150px, 1fr)); gap: 2px 32px; }

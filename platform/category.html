@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
     <style>body{visibility:hidden}</style>
-    <link rel="stylesheet" href="style-v4.css?v=20260714-catalog-row" id="vcss">
+    <link rel="stylesheet" href="style-v4.css?v=20260714-platform-refresh" id="vcss">
     <link rel="stylesheet" href="tawk-chat-modal.css?v=20260713-csp-styles">
     <style>
         /* ── HERO (Variant 1 — фото слева, editorial-серьёзная типографика) ── */
@@ -96,6 +96,13 @@
             padding: 10px 0; margin: 16px 0 0;
             display: flex; align-items: center;
         }
+        /* Заголовок и фильтры образуют одну строку на desktop. */
+        .cat-page .filter-heading {
+            flex: 0 0 126px;
+            color: var(--text); font-size: 15px; font-weight: 800;
+            letter-spacing: .08em; text-transform: uppercase;
+            line-height: 1;
+        }
         .cat-page .filter-scroll-wrap {
             flex: 1; overflow-x: auto; min-width: 0;
         }
@@ -126,7 +133,7 @@
             height: 2px; background: var(--accent);
         }
         /* У «Популярные» подчёркиваем только слово, а не иконку звезды. */
-        .cat-page .filter-chip[data-f="popular"].on::after { display: none; }
+        .cat-page .filter-chip[data-f="popular"].on::after { content: none !important; }
         .cat-page .filter-chip[data-f="popular"] .filter-chip__label {
             position: relative;
         }
@@ -155,6 +162,7 @@
                 padding: 8px 0; gap: 6px;
             }
             .cat-page .filter-scroll-wrap { overflow: visible; width: 100%; }
+            .cat-page .filter-heading { display: none; }
             .cat-page .filter-bar {
                 flex-wrap: wrap;
                 justify-content: center;
@@ -337,7 +345,7 @@
                 <div class="sp-nav-dd" data-dd="recipes">
                     <button class="sp-nav-trigger active" type="button" aria-haspopup="true" aria-expanded="false">Рецепты<span class="sp-nav-caret" aria-hidden="true"></span></button>
                     <div class="sp-nav-panel sp-nav-panel--recipes" role="menu">
-                        <a class="sp-nav-panel-all" role="menuitem" href="category.html">Все рецепты</a>
+                        <a class="sp-nav-panel-all" role="menuitem" href="category.html"><span>Все рецепты</span></a>
                     </div>
                 </div>
                 <div class="sp-nav-dd" data-dd="ingredients">
@@ -376,6 +384,7 @@
 
         <!-- Filters — .anim снят, чтобы не моргали при появлении hero. -->
         <div class="filter-outer">
+        <div class="filter-heading">Категории</div>
         <div class="filter-scroll-wrap">
         <div class="filter-bar" id="filter-row">
             <button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" data-filter-action="toggle-group">
