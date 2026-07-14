@@ -52,8 +52,8 @@
         document.title = ING.name + ' — Умная тарелка';
         if (hero) hero.innerHTML =
             '<div class="cat-hero-row">' +
-            '<div class="cat-hero-ava cat-hero-ava--icon" aria-hidden="true">' +
-            '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M31 51c-8-9-8-21 0-31 8 10 8 22 0 31z" fill="#f5b223" stroke="none"/><path d="M31 21c-8-10-16-9-21-4 3 9 11 13 21 14M32 21c8-10 16-9 21-4-3 9-11 13-21 14"/><path d="M31 31v20"/></svg>' +
+            '<div class="cat-hero-ava cat-hero-ava--image" aria-hidden="true">' +
+            '<img src="images/icons/ingredients.png" alt="">' +
             '</div>' +
             '<div><div class="cat-hero-name">' + escHtml(String(ING.name)) + '</div>' +
             '<div class="cat-hero-desc">Рецепты на основе этого ингредиента</div></div></div>';

@@ -1406,21 +1406,23 @@ main {
 	background: var(--accent);
 }
 
-/* У «Популярные» используем тот же ::after 2px, что и у каждого активного
-   фильтра. Сдвиг его начала исключает только звезду. */
+/* «Популярные»: звезда — самостоятельная декоративная часть. Не используем
+   общий ::after кнопки, чтобы её метрики не влияли на линию фильтра. */
 .sp-home .sp-cats-head .filter-chip[data-f="popular"].on::after {
-	left: 28px !important;
-	right: 12px !important;
-	bottom: -1px !important;
-	height: 2px !important;
-	min-height: 2px !important;
-	max-height: 2px;
-	display: block !important;
-	opacity: 1 !important;
-	transform: none !important;
+	display: none;
 }
 .sp-home .sp-cats-head .filter-chip[data-f="popular"] .filter-chip__label {
 	display: inline-block;
+	position: relative;
+}
+.sp-home .sp-cats-head .filter-chip[data-f="popular"].on .filter-chip__label::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -6px;
+	height: 2px;
+	background: var(--accent);
 }
 .sp-home .sp-cats-head .filter-chip[data-f="popular"] .filter-chip__star {
 	display: inline-block;
