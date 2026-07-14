@@ -94,14 +94,14 @@
             border-top: 1px solid var(--text);
             border-bottom: 1px solid var(--border);
             padding: 10px 0; margin: 16px 0 0;
-            display: flex; align-items: center;
+            display: grid; grid-template-columns: 126px minmax(0, 1fr) auto;
+            align-items: center;
         }
         /* Заголовок и фильтры образуют одну строку на desktop. */
         .cat-page .filter-heading {
-            flex: 0 0 126px;
             color: var(--text); font-size: 15px; font-weight: 800;
             letter-spacing: .08em; text-transform: uppercase;
-            line-height: 1;
+            line-height: 1; align-self: center;
         }
         .cat-page .filter-scroll-wrap {
             flex: 1; overflow-x: auto; min-width: 0;
@@ -135,11 +135,12 @@
         /* У «Популярные» подчёркиваем только слово, а не иконку звезды. */
         .cat-page .filter-chip[data-f="popular"].on::after { content: none !important; }
         .cat-page .filter-chip[data-f="popular"] .filter-chip__label {
-            position: relative;
+            position: relative; display: inline-block;
         }
         .cat-page .filter-chip[data-f="popular"].on .filter-chip__label::after {
             content: ''; position: absolute; left: 0; right: 0; bottom: -7px;
-            height: 2px; background: var(--accent);
+            height: 2px !important; min-height: 2px; border: 0;
+            background: var(--accent);
         }
         .cat-page .filter-sep {
             width: 1px; height: 16px; background: var(--border); margin: 0 6px;
@@ -155,7 +156,7 @@
         .cat-page .filter-more { display: contents; }
         @media (max-width: 767px) {
             .cat-page .filter-outer {
-                flex-direction: column;
+                display: flex; flex-direction: column;
                 align-items: stretch;
                 width: 100%;
                 overflow: visible;
@@ -496,8 +497,8 @@
 
 <script src="data-v2.js?v=20260713-csp-static-styles"></script>
 <script src="ingredients.js?v=20260711-oats-seabass"></script>
-<script src="header-nav.js?v=20260713-csp-handlers"></script>
-<script src="category-page.js?v=20260713-csp-template-actions"></script>
+<script src="header-nav.js?v=20260714-category-nav"></script>
+<script src="category-page.js?v=20260714-card-meta-order"></script>
 <script src="tawk-chat-modal.js?v=20260713-csp-styles"></script>
 </body>
 </html>

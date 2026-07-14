@@ -122,7 +122,7 @@
 
     var recipesPanel =
       '<div class="sp-nav-panel sp-nav-panel--recipes" role="menu">' +
-        '<a class="sp-nav-panel-all" role="menuitem" href="' + ALL_RECIPES_URL + '">Все рецепты</a>' +
+        '<a class="sp-nav-panel-all" role="menuitem" href="' + ALL_RECIPES_URL + '"><span>Все рецепты</span></a>' +
         '<div class="sp-nav-cols">' + catCols.join('') + '</div>' +
       '</div>';
 
