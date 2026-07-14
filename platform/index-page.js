@@ -1291,10 +1291,8 @@
 			el.classList.toggle('on', _popularActive);
 			syncFilterControls();
 			if (_popularActive) {
-				document.getElementById('cats-title').textContent = 'Популярные рецепты';
 				renderPopular();
 			} else {
-				document.getElementById('cats-title').textContent = 'Категории';
 				renderCats();
 			}
 		}
@@ -1340,7 +1338,6 @@
 			_popularActive = false;
 			const chip = document.getElementById('popular-chip');
 			if (chip) chip.classList.remove('on');
-			document.getElementById('cats-title').textContent = 'Категории';
 			document.querySelectorAll('.filter-chip.on').forEach(c => c.classList.remove('on'));
 			document.querySelectorAll('.fgroup-btn').forEach(b => {
 				b.classList.remove('has-value');

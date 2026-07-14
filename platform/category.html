@@ -135,12 +135,11 @@
         /* У «Популярные» подчёркиваем только слово, а не иконку звезды. */
         .cat-page .filter-chip[data-f="popular"].on::after { content: none !important; }
         .cat-page .filter-chip[data-f="popular"] .filter-chip__label {
-            position: relative; display: inline-block;
+            display: inline-block;
         }
-        .cat-page .filter-chip[data-f="popular"].on .filter-chip__label::after {
-            content: ''; position: absolute; left: 0; right: 0; bottom: -7px;
-            height: 2px !important; min-height: 2px; border: 0;
-            background: var(--accent);
+        .cat-page .filter-chip[data-f="popular"].on .filter-chip__label {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 7px; margin-bottom: -7px;
         }
         .cat-page .filter-sep {
             width: 1px; height: 16px; background: var(--border); margin: 0 6px;
