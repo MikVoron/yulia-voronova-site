@@ -354,13 +354,15 @@
                     <span class="recipe-card__rating-stars" id="rstars-${escHtml(_id)}" data-card-action="rating" data-recipe-id="${escHtml(_id)}">${_emptyStars}</span>
                     <span class="recipe-card__rating-text" id="rtext-${escHtml(_id)}"></span>
                 </div>
-                <div class="recipe-card__meta">
-                    <span class="recipe-card__meta-item recipe-card__meta-diff" title="${_diff}" aria-label="${_diff}" style="color:${_diffColor}">${_diffIcon}${isAllMode ? '' : `<span class="recipe-card__meta-diff-label">${_diff}</span>`}</span>
-                    <span class="recipe-card__meta-dot"></span>
-                    <span class="recipe-card__meta-item recipe-card__meta-time">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
+                <div class="recipe-card__meta-wrap">
+                    <div class="recipe-card__meta">
+                        <span class="recipe-card__meta-item recipe-card__meta-diff" title="${_diff}" aria-label="${_diff}" style="color:${_diffColor}">${_diffIcon}${isAllMode ? '' : `<span class="recipe-card__meta-diff-label">${_diff}</span>`}</span>
+                        <span class="recipe-card__meta-dot"></span>
+                        <span class="recipe-card__meta-item recipe-card__meta-time">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
+                    </div>
+                    ${_timeNote ? `<div class="recipe-card-time-note"><span class="rcn-arr" aria-hidden="true">↳</span>${_timeNote}</div>` : ''}
                 </div>
                 </div>
-                ${_timeNote ? `<div class="recipe-card-time-note"><span class="rcn-arr" aria-hidden="true">↳</span>${_timeNote}</div>` : ''}
                 <div class="recipe-card__footer">
                     <span class="recipe-card__kcal-label">калорийность</span>
                     <span class="recipe-card__kcal-value">${_kcal} <small>ккал</small></span>

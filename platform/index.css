@@ -1322,14 +1322,14 @@ main {
 }
 
 .sp-cats-head {
-	display: flex;
+	display: grid;
+	grid-template-columns: max-content minmax(0, 1fr);
 	align-items: center;
 	justify-content: flex-start;
 	gap: 24px;
 	margin-bottom: 10px;
 	padding-bottom: 8px;
 	border-bottom: 1px solid var(--text);
-	flex-wrap: wrap;
 }
 
 .sp-cats-head .sp-sec-title {
@@ -1354,14 +1354,14 @@ main {
 
 .sp-home .sp-cats-head .filter-scroll-wrap {
 	flex: 1;
-	overflow: visible;
+	overflow-x: auto;
 	min-width: 0;
 }
 
 .sp-home .sp-cats-head .filter-bar {
 	justify-content: flex-end;
 	gap: 0;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	align-items: center;
 }
 
@@ -1402,6 +1402,22 @@ main {
 	left: 12px;
 	right: 12px;
 	bottom: -1px;
+	height: 2px;
+	background: var(--accent);
+}
+
+/* У «Популярные» активная линия относится только к слову, не к звезде. */
+.sp-home .sp-cats-head .filter-chip[data-f="popular"].on::after { content: none; }
+.sp-home .sp-cats-head .filter-chip[data-f="popular"] .filter-chip__label {
+	position: relative;
+	display: inline-block;
+}
+.sp-home .sp-cats-head .filter-chip[data-f="popular"].on .filter-chip__label::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -7px;
 	height: 2px;
 	background: var(--accent);
 }
@@ -1547,6 +1563,7 @@ main {
 	}
 
 	.sp-cats-head {
+		display: flex;
 		flex-direction: column;
 		align-items: stretch;
 		gap: 10px;
