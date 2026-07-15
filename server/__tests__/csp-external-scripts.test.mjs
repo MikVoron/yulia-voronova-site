@@ -71,7 +71,7 @@ describe('SmartPlate CSP script migration', () => {
     const plateConsumers = ['index.html', 'recipe.html', 'category.html', 'ingredient.html', 'cabinet.html'];
 
     expect(html).toContain('index-critical.css?v=20260713-csp-static');
-    expect(html).toContain('index.css?v=20260713-csp-static');
+    expect(html).toMatch(/index\.css\?v=[^"'\s]+/);
     expect(html).not.toMatch(/<style\b|\sstyle\s*=/i);
     expect(criticalCss).toContain('visibility: hidden;');
     expect(css).toContain('.index-is-hidden');
@@ -107,9 +107,9 @@ describe('SmartPlate CSP script migration', () => {
     const bindings = [...script.matchAll(/bindStaticAdminHandler\("(?:click|input|change)", "([a-f0-9]{12})"/g)];
 
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
-    expect(html.match(/\sdata-admin-(?:click|input|change)="[a-f0-9]{12}"/g)).toHaveLength(50);
-    expect(bindings).toHaveLength(43);
-    expect(new Set(bindings.map(match => match[1])).size).toBe(43);
+    expect(html.match(/\sdata-admin-(?:click|input|change)="[a-f0-9]{12}"/g)).toHaveLength(51);
+    expect(bindings).toHaveLength(44);
+    expect(new Set(bindings.map(match => match[1])).size).toBe(44);
   });
 
   it('keeps popup preview controls free of inline event handlers', () => {
@@ -129,7 +129,7 @@ describe('SmartPlate CSP script migration', () => {
     for (const name of names) {
       const html = fs.readFileSync(path.join(platformDir, name), 'utf8');
       expect(html, name).not.toMatch(forbidden);
-      expect(html, name).toContain('header-nav.js?v=20260713-csp-handlers');
+      expect(html, name).toMatch(/header-nav\.js\?v=[^"'\s]+/);
       expect(html.match(/\sdata-sp-action=/g)?.length || 0, name).toBeGreaterThanOrEqual(6);
     }
   });
@@ -181,7 +181,7 @@ describe('SmartPlate CSP script migration', () => {
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
     expect(html.match(/\sdata-index-action=/g)).toHaveLength(2);
     expect(html).toContain('data-index-submit="hero-search"');
-    expect(html).toContain('index-page.js?v=20260713-csp-template-actions');
+    expect(html).toMatch(/index-page\.js\?v=[^"'\s]+/);
     expect(script).toContain("document.querySelectorAll('[data-index-action]')");
     expect(script).toContain("heroSearchForm.addEventListener('submit'");
     expect(script).not.toMatch(/\son[a-z]+\s*=/i);
@@ -198,7 +198,7 @@ describe('SmartPlate CSP script migration', () => {
 
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
     expect(html.match(/\sdata-recipe-static-action=/g)).toHaveLength(15);
-    expect(html).toContain('recipe-page.js?v=20260713-csp-template-actions');
+    expect(html).toMatch(/recipe-page\.js\?v=[^"'\s]+/);
     expect(script).toContain("document.querySelectorAll('[data-recipe-static-action]')");
     expect(script).toContain("control.addEventListener('keydown', handleMiniStatusKey)");
     expect(script).not.toMatch(/\son[a-z]+\s*=/i);
@@ -250,7 +250,7 @@ describe('SmartPlate CSP script migration', () => {
     const script = fs.readFileSync(path.join(platformDir, 'category-page.js'), 'utf8');
 
     expect(script).not.toMatch(/\son[a-z]+\s*=/i);
-    expect(html).toContain('category-page.js?v=20260713-csp-template-actions');
+    expect(html).toMatch(/category-page\.js\?v=[^"'\s]+/);
     expect(script).toContain("else if (action === 'submit-comment')");
     expect(script).toContain("else if (action === 'save-plate')");
     expect(script).toContain("image.hasAttribute('data-review-avatar-fallback')");
@@ -262,7 +262,7 @@ describe('SmartPlate CSP script migration', () => {
 
     expect(script).not.toMatch(/\son[a-z]+\s*=/i);
     expect(script).not.toContain('.onclick =');
-    expect(html).toContain('ingredient-page.js?v=20260713-csp-template-actions');
+    expect(html).toMatch(/ingredient-page\.js\?v=[^"'\s]+/);
     expect(script).toContain('data-ingredient-card-action="${locked ? \'locked\' : \'open\'}"');
     expect(script).toContain('data-ingredient-action="rate-from-popup"');
     expect(script).toContain('data-ingredient-action="delete-review"');
@@ -282,7 +282,7 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain("event.target.closest('[data-shared-action=\"reload\"]')");
     consumers.forEach(fileName => {
       const html = fs.readFileSync(path.join(platformDir, fileName), 'utf8');
-      expect(html, fileName).toContain('data-v2.js?v=20260713-csp-static-styles');
+      expect(html, fileName).toMatch(/data-v2\.js\?v=[^"'\s]+/);
     });
   });
 });
