@@ -246,7 +246,8 @@ async function authRoutes(fastify) {
           status,
           trialEndsAt: u.trial_ends_at,
           activeUntil: u.active_until,
-          trialNotGranted: u.trial_not_granted === true
+          trialNotGranted: u.trial_not_granted === true,
+          isEarlyBird: u.early_access_member === true
         }
       };
     } catch (e) {

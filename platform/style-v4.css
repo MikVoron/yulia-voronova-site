@@ -623,11 +623,13 @@ img { display: block; max-width: 100%; }
     margin-bottom: 10px; position: relative;
 }
 .recipe-card__details-line {
-    display: flex; align-items: center; gap: 9px;
+    display: flex; align-items: center; justify-content: space-between; gap: 9px; flex-wrap: nowrap;
     margin-bottom: 12px; min-width: 0;
 }
 .recipe-card__details-line .recipe-card__rating,
 .recipe-card__details-line .recipe-card__meta { margin-bottom: 0; }
+.recipe-card__details-line .recipe-card__rating { flex-shrink: 0; white-space: nowrap; }
+.recipe-card__details-line .recipe-card__meta-wrap { margin-left: auto; min-width: 0; display: flex; flex-direction: column; align-items: flex-end; }
 .recipe-card__details-line .recipe-card__meta { gap: 8px; min-width: 0; }
 .recipe-card__rating .rating-popup { bottom: auto; top: calc(100% + 6px); left: 0; }
 .recipe-card__rating-stars { display: inline-flex; gap: 1px; cursor: pointer; }
@@ -698,6 +700,7 @@ img { display: block; max-width: 100%; }
     outline: 2px solid var(--accent);
     outline-offset: 3px;
 }
+.recipe-card__meta-wrap .recipe-card-time-note { justify-content: flex-end; margin: 3px 0 0; text-align: right; }
 /* Бейджи уровня доступа — editorial-стиль, top-left, 10px Montserrat 800,
    без скруглений. Совпадают с .sp-bd--* на главной. */
 .locked-badge,
@@ -934,8 +937,10 @@ img { display: block; max-width: 100%; }
     max-height: calc(100vh - 112px);
     overflow-y: auto;
     overscroll-behavior: contain;
-    scrollbar-gutter: stable;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+.recipe-sidebar::-webkit-scrollbar { width: 0; height: 0; }
 
 .recipe-hero-img {
     width: 100%; aspect-ratio: 4/3; border-radius: var(--r-l);
@@ -3516,19 +3521,27 @@ img { display: block; max-width: 100%; }
    uppercase, короткая оранжевая линия снизу как небольшой акцент (вместо
    полноширинной разделительной границы). */
 .sp-nav-panel-all {
-    position: relative;
+    display: inline-flex !important;
     color: var(--text) !important;
     font-weight: 700 !important;
     text-transform: uppercase; letter-spacing: .07em; font-size: 12px !important;
     margin-bottom: 12px; padding-bottom: 11px !important;
 }
-/* Специфичность ≥ .sp-nav-panel a::after (которое глушит underline ссылок),
-   иначе короткая линия будет скрыта (display:none). */
+/* Линия ограничена текстом внутри ссылки: padding меню не влияет на её ширину. */
 .sp-nav-panel a.sp-nav-panel-all::after {
-    display: block; content: '';
-    position: absolute; left: 10px; bottom: 0;
-    width: 26px; height: 2px; background: var(--accent);
+    display: none;
 }
+.sp-nav-panel a.sp-nav-panel-all > span {
+    position: relative;
+}
+.sp-nav-panel a.sp-nav-panel-all > span::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -11px;
+    height: 2px; background: var(--accent);
+    transform: scaleX(0); transform-origin: left center;
+    transition: transform .26s cubic-bezier(.2,.8,.2,1);
+}
+.sp-nav-panel a.sp-nav-panel-all:hover > span::after,
+.sp-nav-panel a.sp-nav-panel-all:focus-visible > span::after { transform: scaleX(1); }
 
 /* Рецепты: группы категорий в 4 смысловые колонки. */
 .sp-nav-cols { display: grid; grid-template-columns: repeat(2, minmax(150px, 1fr)); gap: 2px 32px; }

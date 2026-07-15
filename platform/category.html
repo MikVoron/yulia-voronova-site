@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
     <style>body{visibility:hidden}</style>
-    <link rel="stylesheet" href="style-v4.css?v=20260713-csp-static-styles" id="vcss">
+    <link rel="stylesheet" href="style-v4.css?v=20260714-nav-filter-polish" id="vcss">
     <link rel="stylesheet" href="tawk-chat-modal.css?v=20260713-csp-styles">
     <style>
         /* ── HERO (Variant 1 — фото слева, editorial-серьёзная типографика) ── */
@@ -39,6 +39,10 @@
             object-fit: contain;
             border-radius: 0;
         }
+        .cat-hero-ava--icon { background: #fff8ed; color: var(--accent); }
+        .cat-hero-ava--icon svg { width: 52px; height: 52px; display: block; }
+        .cat-hero-ava--image { background: #fff; }
+        .cat-hero-ava--image img { transform: scale(1.75); }
         .cat-hero-name {
             font-family: var(--serif); font-size: 44px; font-weight: 700;
             color: var(--text); line-height: 1.05; letter-spacing: -.02em;
@@ -94,13 +98,20 @@
             border-top: 1px solid var(--text);
             border-bottom: 1px solid var(--border);
             padding: 10px 0; margin: 16px 0 0;
-            display: flex; align-items: center;
+            display: grid; grid-template-columns: 126px minmax(0, 1fr) auto;
+            align-items: center;
+        }
+        /* Заголовок и фильтры образуют одну строку на desktop. */
+        .cat-page .filter-heading {
+            color: var(--text); font-size: 15px; font-weight: 800;
+            letter-spacing: .08em; text-transform: uppercase;
+            line-height: 1; align-self: center;
         }
         .cat-page .filter-scroll-wrap {
-            flex: 1; overflow: visible; min-width: 0;
+            flex: 1; overflow-x: auto; min-width: 0;
         }
         .cat-page .filter-bar {
-            gap: 0; flex-wrap: wrap; align-items: center;
+            gap: 0; flex-wrap: nowrap; align-items: center;
         }
         .cat-page .filter-chip,
         .cat-page .fgroup-btn {
@@ -125,6 +136,19 @@
             content: ''; position: absolute; left: 12px; right: 12px; bottom: -1px;
             height: 2px; background: var(--accent);
         }
+        /* У «Популярные» тот же 2px-псевдоэлемент, что у остальных фильтров,
+           но начинается после звезды. */
+        .cat-page .filter-chip[data-f="popular"].on::after {
+            left: 28px !important; right: 12px !important; bottom: -1px !important;
+            height: 2px !important; min-height: 2px !important; max-height: 2px;
+            display: block !important; opacity: 1 !important; transform: none !important;
+        }
+        .cat-page .filter-chip[data-f="popular"] .filter-chip__label {
+            display: inline-block;
+        }
+        .cat-page .filter-chip[data-f="popular"] .filter-chip__star {
+            display: inline-block; margin-right: 4px;
+        }
         .cat-page .filter-sep {
             width: 1px; height: 16px; background: var(--border); margin: 0 6px;
         }
@@ -139,13 +163,14 @@
         .cat-page .filter-more { display: contents; }
         @media (max-width: 767px) {
             .cat-page .filter-outer {
-                flex-direction: column;
+                display: flex; flex-direction: column;
                 align-items: stretch;
                 width: 100%;
                 overflow: visible;
                 padding: 8px 0; gap: 6px;
             }
             .cat-page .filter-scroll-wrap { overflow: visible; width: 100%; }
+            .cat-page .filter-heading { display: none; }
             .cat-page .filter-bar {
                 flex-wrap: wrap;
                 justify-content: center;
@@ -328,7 +353,7 @@
                 <div class="sp-nav-dd" data-dd="recipes">
                     <button class="sp-nav-trigger active" type="button" aria-haspopup="true" aria-expanded="false">Рецепты<span class="sp-nav-caret" aria-hidden="true"></span></button>
                     <div class="sp-nav-panel sp-nav-panel--recipes" role="menu">
-                        <a class="sp-nav-panel-all" role="menuitem" href="category.html">Все рецепты</a>
+                        <a class="sp-nav-panel-all" role="menuitem" href="category.html"><span>Все рецепты</span></a>
                     </div>
                 </div>
                 <div class="sp-nav-dd" data-dd="ingredients">
@@ -367,6 +392,7 @@
 
         <!-- Filters — .anim снят, чтобы не моргали при появлении hero. -->
         <div class="filter-outer">
+        <div class="filter-heading">Категории</div>
         <div class="filter-scroll-wrap">
         <div class="filter-bar" id="filter-row">
             <button class="fgroup-btn" id="fg-time-btn" data-label="Время" data-drop="fg-time-drop" data-filter-action="toggle-group">
@@ -379,7 +405,7 @@
             </button>
             <div class="filter-sep"></div>
             <button class="filter-chip" data-f="free" data-filter-action="toggle-tag">Бесплатные</button>
-            <button class="filter-chip" data-f="popular" data-filter-action="toggle-popular">⭐ Популярные</button>
+            <button class="filter-chip" data-f="popular" data-filter-action="toggle-popular"><span class="filter-chip__star" aria-hidden="true">⭐</span><span class="filter-chip__label">Популярные</span></button>
             <button class="filter-more-toggle" type="button" aria-expanded="false" aria-controls="category-more-filters" data-filter-action="toggle-more">Ещё фильтры <span aria-hidden="true">⌄</span></button>
             <div class="filter-more" id="category-more-filters">
                 <button class="filter-chip" data-f="gluten" data-filter-action="toggle-tag">Без глютена</button>
@@ -476,10 +502,10 @@
     <svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </a>
 
-<script src="data-v2.js?v=20260713-csp-static-styles"></script>
+<script src="data-v2.js?v=20260714-time-notes"></script>
 <script src="ingredients.js?v=20260711-oats-seabass"></script>
-<script src="header-nav.js?v=20260713-csp-handlers"></script>
-<script src="category-page.js?v=20260713-csp-template-actions"></script>
+<script src="header-nav.js?v=20260714-category-nav"></script>
+<script src="category-page.js?v=20260714-hero-icons-png"></script>
 <script src="tawk-chat-modal.js?v=20260713-csp-styles"></script>
 </body>
 </html>

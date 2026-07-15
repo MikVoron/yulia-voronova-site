@@ -4,9 +4,9 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 let duplicatePendingOnInsert = true;
-let reservedEarlyUsers = 0;
-let confirmedEarlyPayments = 0;
-let firstEarlyPaymentAt = null;
+let confirmedEarlyMembers = 0;
+let earlyAccessMember = false;
+let earlyAccessUntil = null;
 
 const mockQuery = vi.fn(async (sql) => {
   if (/SELECT is_blocked FROM users WHERE id/.test(sql)) {
@@ -18,11 +18,14 @@ const mockQuery = vi.fn(async (sql) => {
   if (/SELECT email FROM users WHERE id=\$1/.test(sql)) {
     return { rows: [{ email: 'user@example.com' }] };
   }
-  if (/COUNT\(DISTINCT p\.user_id\)/.test(sql)) {
-    return { rows: [{ count: reservedEarlyUsers }] };
+  if (/COUNT\(\*\)::int AS count FROM users WHERE early_access_member=true/.test(sql)) {
+    return { rows: [{ count: confirmedEarlyMembers }] };
   }
-  if (/MIN\(created_at\) AS first_early_payment_at/.test(sql)) {
-    return { rows: [{ count: confirmedEarlyPayments, first_early_payment_at: firstEarlyPaymentAt }] };
+  if (/SUM\(slots_delta\)/.test(sql)) {
+    return { rows: [{ count: 0 }] };
+  }
+  if (/SELECT u\.early_access_member, s\.active_until/.test(sql)) {
+    return { rows: [{ early_access_member: earlyAccessMember, active_until: earlyAccessUntil }] };
   }
   if (/INSERT INTO payments/.test(sql)) {
     if (!duplicatePendingOnInsert) return { rows: [] };
@@ -83,9 +86,9 @@ afterAll(async () => {
 
 beforeEach(() => {
   duplicatePendingOnInsert = true;
-  reservedEarlyUsers = 0;
-  confirmedEarlyPayments = 0;
-  firstEarlyPaymentAt = null;
+  confirmedEarlyMembers = 0;
+  earlyAccessMember = false;
+  earlyAccessUntil = null;
   mockQuery.mockClear();
   mockClientQuery.mockClear();
   mockRelease.mockClear();
@@ -106,10 +109,10 @@ describe('subscription/early-bird', () => {
     );
   }
 
-  it('offers one early-price renewal to an early member with one confirmed payment', async () => {
-    reservedEarlyUsers = 18;
-    confirmedEarlyPayments = 1;
-    firstEarlyPaymentAt = '2026-06-30T10:00:00.000Z';
+  it('keeps the early price for an early member who renews in time', async () => {
+    confirmedEarlyMembers = 18;
+    earlyAccessMember = true;
+    earlyAccessUntil = '2099-06-30T10:00:00.000Z';
 
     const res = await app.inject({
       method: 'GET',
@@ -121,16 +124,16 @@ describe('subscription/early-bird', () => {
     expect(res.json()).toMatchObject({
       eligible: true,
       eligibility: 'renewal',
-      renewalAvailable: true,
-      remaining: 32,
-      prices: { 1: 250, 3: 690, 12: 2490 }
+      remaining: 12,
+      isEarlyBird: true,
+      prices: { 1: 190, 3: 540, 12: 1900 }
     });
   });
 
-  it('switches an early member to regular prices after the included renewal', async () => {
-    reservedEarlyUsers = 18;
-    confirmedEarlyPayments = 2;
-    firstEarlyPaymentAt = '2026-06-30T10:00:00.000Z';
+  it('switches an early member to regular prices after a break longer than 7 days', async () => {
+    confirmedEarlyMembers = 18;
+    earlyAccessMember = true;
+    earlyAccessUntil = '2020-06-30T10:00:00.000Z';
 
     const res = await app.inject({
       method: 'GET',
@@ -142,8 +145,8 @@ describe('subscription/early-bird', () => {
     expect(res.json()).toMatchObject({
       eligible: false,
       eligibility: 'standard',
-      renewalUsed: true,
-      prices: { 1: 390, 3: 990, 12: 2990 }
+      isEarlyBird: true,
+      prices: { 1: 250, 3: 690, 12: 2500 }
     });
   });
 });

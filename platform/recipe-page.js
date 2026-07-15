@@ -123,10 +123,14 @@
 				const header = document.getElementById('hdr');
 				if (!header || window.matchMedia('(max-width: 1024px)').matches) {
 					root.style.removeProperty('--recipe-sidebar-top');
+					root.style.removeProperty('--recipe-sidebar-max-height');
 					return;
 				}
 				const top = Math.max(96, Math.round(header.getBoundingClientRect().height + 16));
+				const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+				const maxHeight = Math.max(120, Math.floor(viewportHeight - top - 16));
 				root.style.setProperty('--recipe-sidebar-top', `${top}px`);
+				root.style.setProperty('--recipe-sidebar-max-height', `${maxHeight}px`);
 			}
 			update();
 			window.addEventListener('resize', update, { passive: true });
@@ -3283,7 +3287,7 @@
                     <div class="review-header">
                         <div class="review-author-wrap">
                             ${avatarHtml}
-                            <span class="review-author">${escHtml(rv.author)}</span>
+                            <span class="review-author">${escHtml(rv.author)}</span>${rv.isEarlyBird ? '<span style="font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);padding:2px 5px">Друг Умной тарелки</span>' : ''}
                         </div>
                         <div style="display:flex;align-items:center;gap:8px">
                             <span class="review-date">${escHtml(dateStr)}</span>

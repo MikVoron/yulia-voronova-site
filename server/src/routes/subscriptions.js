@@ -3,6 +3,7 @@ const { authenticate, optionalAuthenticate } = require('../middleware');
 const { sendPaymentNotification, sendFeedback } = require('../email');
 const audit = require('../audit');
 const { normalizeDietaryPreferences } = require('../dietary');
+const { getEarlyAccessState } = require('../early-access');
 
 const PAYMENT_SCREENSHOT_MAX_LENGTH = 7 * 1024 * 1024;
 const PAYMENT_COMMENT_MAX_LENGTH = 1000;
@@ -14,64 +15,6 @@ const FEEDBACK_CATEGORIES = new Set(['wish', 'recipe', 'problem']);
 const USER_SETTINGS_RATE_LIMIT = { max: 30, timeWindow: '1 minute' };
 const FEEDBACK_STATE_RATE_LIMIT = { max: 30, timeWindow: '1 minute' };
 const FEEDBACK_READ_RATE_LIMIT = { max: 60, timeWindow: '1 minute' };
-const EARLY_ACCESS_LIMIT = 50;
-const EARLY_ACCESS_END = new Date('2026-09-30T20:59:59.999Z');
-const EARLY_ACCESS_AMOUNTS = [250, 690, 2490];
-const EARLY_ACCESS_PRICES = { 1: 250, 3: 690, 12: 2490 };
-const REGULAR_PRICES = { 1: 390, 3: 990, 12: 2990 };
-
-async function getEarlyAccessState(userId) {
-  const reservedResult = await db.query(
-    `SELECT COUNT(DISTINCT p.user_id)::int AS count
-       FROM payments p
-       JOIN users u ON u.id = p.user_id
-      WHERE p.status IN ('pending', 'confirmed')
-        AND p.amount = ANY($1::numeric[])
-        AND p.created_at <= $2
-        AND u.role != 'admin'`,
-    [EARLY_ACCESS_AMOUNTS, EARLY_ACCESS_END]
-  );
-  const reserved = Number(reservedResult.rows[0]?.count || 0);
-  const remaining = Math.max(0, EARLY_ACCESS_LIMIT - reserved);
-  const campaignActive = new Date() <= EARLY_ACCESS_END && remaining > 0;
-
-  let confirmedEarlyPayments = 0;
-  let earlyMember = false;
-  if (userId) {
-    const userResult = await db.query(
-      `SELECT COUNT(*)::int AS count, MIN(created_at) AS first_early_payment_at
-         FROM payments
-        WHERE user_id = $1
-          AND status = 'confirmed'
-          AND amount = ANY($2::numeric[])`,
-      [userId, EARLY_ACCESS_AMOUNTS]
-    );
-    confirmedEarlyPayments = Number(userResult.rows[0]?.count || 0);
-    const firstEarlyPaymentAt = userResult.rows[0]?.first_early_payment_at;
-    earlyMember = !!firstEarlyPaymentAt && new Date(firstEarlyPaymentAt) <= EARLY_ACCESS_END;
-  }
-
-  const renewalAvailable = earlyMember && confirmedEarlyPayments === 1;
-  const renewalUsed = earlyMember && confirmedEarlyPayments >= 2;
-  const eligible = renewalAvailable || (!earlyMember && confirmedEarlyPayments === 0 && campaignActive);
-  const eligibility = renewalAvailable
-    ? 'renewal'
-    : (renewalUsed ? 'standard' : (campaignActive ? 'first_purchase' : 'standard'));
-
-  return {
-    active: campaignActive,
-    eligible,
-    eligibility,
-    renewalAvailable,
-    renewalUsed,
-    remaining,
-    limit: EARLY_ACCESS_LIMIT,
-    endsAt: EARLY_ACCESS_END.toISOString(),
-    prices: eligible ? EARLY_ACCESS_PRICES : REGULAR_PRICES,
-    earlyPrices: EARLY_ACCESS_PRICES,
-    regularPrices: REGULAR_PRICES
-  };
-}
 
 function normalizePaymentRequest(body) {
   const amount = Number(body && body.amount);
@@ -128,7 +71,7 @@ async function subscriptionRoutes(fastify) {
   // GET /subscription — статус подписки текущего пользователя
   fastify.get('/subscription', { preHandler: authenticate }, async (req) => {
     const result = await db.query(
-      `SELECT u.role, s.status, s.trial_ends_at, s.active_until, s.created_at,
+      `SELECT u.role, u.early_access_member, s.status, s.trial_ends_at, s.active_until, s.created_at,
               (s.status = 'expired'
                 AND s.trial_ends_at IS NOT NULL
                 AND s.created_at IS NOT NULL
@@ -163,7 +106,8 @@ async function subscriptionRoutes(fastify) {
       activeUntil: sub.active_until,
       daysLeft,
       createdAt: sub.created_at,
-      trialNotGranted: sub.trial_not_granted === true
+      trialNotGranted: sub.trial_not_granted === true,
+      isEarlyBird: sub.early_access_member === true
     };
   });
 

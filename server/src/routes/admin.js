@@ -2,6 +2,7 @@ const db = require('../db');
 const { requireAdmin } = require('../middleware');
 const { sendPaymentConfirmed, sendPaymentRejected, sendSubscriptionExtended, sendFeedbackReply } = require('../email');
 const audit = require('../audit');
+const { EARLY_ACCESS_LIMIT, EARLY_ACCESS_PRICES, EARLY_ACCESS_GRACE_MS, getEarlyAccessState } = require('../early-access');
 
 const CONFIRM_PAYMENT_MONTHS = new Set([1, 3, 6, 12]);
 const PAYMENT_STATUSES = new Set(['pending', 'confirmed', 'rejected']);
@@ -15,6 +16,7 @@ const AUDIT_EVENTS = new Set([
   'payment_submit',
   'payment_confirm',
   'payment_reject',
+  'early_access_adjust',
   'user_block',
   'user_unblock',
   'user_delete',
@@ -96,6 +98,34 @@ async function adminRoutes(fastify) {
     return result.rows;
   });
 
+  // Early-access capacity is derived from confirmed members. Adjustments are an
+  // auditable reserve for exceptional manual corrections, never a replacement
+  // for payment history.
+  fastify.get('/admin/early-access', {
+    preHandler: requireAdmin,
+    config: { rateLimit: ADMIN_READ_RATE_LIMIT }
+  }, async () => getEarlyAccessState());
+
+  fastify.post('/admin/early-access/adjustments', {
+    preHandler: requireAdmin,
+    config: { rateLimit: { max: 20, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
+    const delta = Number(req.body?.slotsDelta);
+    const comment = String(req.body?.comment || '').trim();
+    if (!Number.isInteger(delta) || delta === 0 || delta < -30 || delta > 30) {
+      return reply.status(400).send({ error: 'Укажите целое число мест от -30 до 30, кроме нуля' });
+    }
+    if (comment.length < 3 || comment.length > 500) {
+      return reply.status(400).send({ error: 'Добавьте короткий комментарий от 3 до 500 символов' });
+    }
+    await db.query(
+      'INSERT INTO early_access_adjustments (slots_delta, comment, created_by) VALUES ($1,$2,$3)',
+      [delta, comment, req.user.sub]
+    );
+    await audit.log('early_access_adjust', { userId: req.user.sub, detail: (delta > 0 ? '+' : '') + delta + ' мест: ' + comment, ip: req.ip });
+    return getEarlyAccessState();
+  });
+
   // GET /admin/payments/:id/screenshot — получить скриншот платежа
   fastify.get('/admin/payments/:id/screenshot', {
     preHandler: requireAdmin,
@@ -137,6 +167,33 @@ async function adminRoutes(fastify) {
         return reply.status(409).send({ error: 'Платёж уже обработан (статус: ' + exists.rows[0].status + ')' });
       }
       const p = payment.rows[0];
+      // Serialise the last early-access seat: only confirmed payments can claim it.
+      await client.query('SELECT pg_advisory_xact_lock(20260714)');
+      const memberResult = await client.query(
+        `SELECT u.early_access_member, s.active_until
+           FROM users u LEFT JOIN subscriptions s ON s.user_id=u.id
+          WHERE u.id=$1`, [p.user_id]
+      );
+      const member = memberResult.rows[0] || {};
+      const earlyAmount = EARLY_ACCESS_PRICES[normalizedMonths];
+      const requestsEarlyPrice = Number(p.amount) === Number(earlyAmount);
+      let grantsEarlyMembership = false;
+      if (requestsEarlyPrice) {
+        if (member.early_access_member) {
+          const renewalDeadline = member.active_until && new Date(member.active_until).getTime() + EARLY_ACCESS_GRACE_MS;
+          if (!renewalDeadline || renewalDeadline < Date.now()) {
+            await client.query('ROLLBACK');
+            return reply.status(409).send({ error: 'Льготный период ранней цены завершён: подтвердите оплату по актуальному тарифу.' });
+          }
+        } else {
+          const earlyState = await getEarlyAccessState(p.user_id, client.query.bind(client));
+          if (!earlyState.eligible || earlyState.remaining < 1) {
+            await client.query('ROLLBACK');
+            return reply.status(409).send({ error: 'Все места раннего доступа уже заняты. Подтвердите оплату по актуальному тарифу.' });
+          }
+          grantsEarlyMembership = true;
+        }
+      }
       // UPSERT подписку: продлить существующую или создать новую
       const sub = await client.query('SELECT * FROM subscriptions WHERE user_id=$1', [p.user_id]);
       let newUntil;
@@ -150,6 +207,12 @@ async function adminRoutes(fastify) {
         await client.query(
           "INSERT INTO subscriptions (user_id, status, active_until) VALUES ($1, 'active', $2)",
           [p.user_id, newUntil]
+        );
+      }
+      if (grantsEarlyMembership) {
+        await client.query(
+          'UPDATE users SET early_access_member=true, early_access_granted_at=now() WHERE id=$1',
+          [p.user_id]
         );
       }
       await client.query('COMMIT');

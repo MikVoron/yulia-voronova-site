@@ -15,7 +15,7 @@
 			visibility: hidden
 		}
 	</style>
-	<link rel="stylesheet" href="style-v4.css?v=20260713-csp-static-styles" id="vcss">
+    <link rel="stylesheet" href="style-v4.css?v=20260714-nav-filter-polish" id="vcss">
 	<link rel="stylesheet" href="tawk-chat-modal.css?v=20260713-csp-styles">
 	<style>
 		/* ──────────────────────────────────────────────────────────────
@@ -335,16 +335,22 @@
 			display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;
 		}
 		.pay-plan-card {
-			padding: 20px 18px; border: 1px solid var(--border);
+			min-height: 210px; box-sizing: border-box; padding: 22px 18px 20px; border: 1px solid var(--border);
 			background: #fff; cursor: pointer; transition: all .18s;
 			text-align: center; position: relative;
 		}
 		.pay-plan-card:hover { border-color: var(--text); }
 		.pay-plan-card.selected {
 			border-color: var(--accent);
-			background: #fff;
+			background: #fff8f3;
 			box-shadow: inset 0 0 0 1px var(--accent);
 		}
+		.pay-plan-selected-label { display: none; }
+		.pay-plan-card.selected .pay-plan-selected-label {
+			display: inline-flex; align-items: center; gap: 5px; position: absolute; top: 9px; left: 10px;
+			font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--accent);
+		}
+		.pay-plan-card.selected .pay-plan-selected-label::before { content: '✓'; font-size: 12px; }
 		.pay-plan-duration {
 			font-size: 12px; font-weight: 700; color: var(--text-2); margin-top: 5px;
 		}
@@ -361,6 +367,17 @@
 		.pay-plan-future {
 			font-size: 11px; color: var(--text-3); margin-top: 9px; line-height: 1.4;
 		}
+		.pay-plan-benefit { font-size: 11px; color: var(--text-2); line-height: 1.35; margin-top: 8px; }
+		.pay-plan-card.featured .pay-plan-benefit { color: var(--accent); font-weight: 700; }
+		.pay-early-summary {
+			margin: 0 0 16px; padding: 15px 17px; border-left: 3px solid var(--accent); background: #fff8f3;
+		}
+		.pay-early-summary-title { font-family: var(--serif); font-size: 19px; font-weight: 700; }
+		.pay-early-summary-copy { margin-top: 5px; font-size: 13px; line-height: 1.5; color: var(--text-2); }
+		.pay-early-summary-count { margin-top: 8px; font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--accent); }
+		.pay-early-note { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-2); line-height: 1.55; }
+		.pay-early-note strong { color: var(--text); }
+		.pay-early-link { display: inline-block; margin-top: 8px; color: var(--accent); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 		.pay-plan-card.featured {
 			border-color: var(--text); background: #fff;
 		}
@@ -406,6 +423,7 @@
 		}
 		@media (max-width: 480px) {
 			.pay-plan-grid { grid-template-columns: 1fr; }
+			.pay-plan-card { min-height: 0; }
 		}
 
 		.pay-info-card {
@@ -1749,7 +1767,7 @@
 					<div class="sp-nav-dd" data-dd="recipes">
 						<button class="sp-nav-trigger" type="button" aria-haspopup="true" aria-expanded="false">Рецепты<span class="sp-nav-caret" aria-hidden="true"></span></button>
 						<div class="sp-nav-panel sp-nav-panel--recipes" role="menu">
-							<a class="sp-nav-panel-all" role="menuitem" href="category.html">Все рецепты</a>
+							<a class="sp-nav-panel-all" role="menuitem" href="category.html"><span>Все рецепты</span></a>
 						</div>
 					</div>
 					<div class="sp-nav-dd" data-dd="ingredients">
@@ -1891,7 +1909,16 @@
 
 						<!-- Шаг 1: Выбор тарифа -->
 						<div class="pay-wizard-step" id="pay-step-1">
+							<div class="pay-early-summary" id="pay-early-summary">
+								<div class="pay-early-summary-title">Ранний доступ</div>
+								<div class="pay-early-summary-copy">Оформите подписку по стартовой цене. После раннего доступа действуют актуальные тарифы.</div>
+								<div class="pay-early-summary-count" id="pay-early-summary-count">Проверяем доступные места…</div>
+							</div>
 							<div class="pay-plan-grid" id="pay-plan-grid"></div>
+							<div class="pay-early-note" id="pay-early-note">
+								<strong>Как сохраняется ранняя цена.</strong> Продлевайте подписку до окончания периода или в течение 7 календарных дней после него. Во время перерыва доступ к платным материалам приостанавливается.<br>
+								<a class="pay-early-link" href="how-subscription-works.html">Подробнее о том, как работает подписка</a>
+							</div>
 							<div class="pay-actions pay-actions--single">
 								<button class="btn btn-orange pay-action-btn pay-action-primary pay-next-btn" id="pay-next-1" data-cabinet-action="go-pay-step" data-step="2" type="button" disabled>Далее</button>
 							</div>
@@ -1974,15 +2001,15 @@
 
 				<!-- Early access pricing: detail follows the primary payment action. -->
 				<details class="early-bird-disclosure">
-					<summary>Условия стартовой цены</summary>
-				<div id="early-bird-card">
-					<div class="early-access-title">Ранний доступ</div>
-					<div class="early-access-copy">Стартовая цена действует для первых 50 пользователей или до 30 сентября 2026 года.</div>
-					<div class="early-access-meta">
-						<div class="early-access-pill"><span class="eb-pulse" id="early-bird-remaining">—</span><span>мест по стартовой цене</span></div>
-						<div class="early-access-pill">Одно продление по стартовой цене</div>
-					</div>
-					<div class="early-access-user-status" id="early-access-user-status">Проверяем доступную для вас цену…</div>
+					<summary>Условия раннего доступа</summary>
+					<div id="early-bird-card">
+						<div class="early-access-title">Ранний доступ</div>
+						<div class="early-access-copy">Стартовые цены доступны первым 30 подтверждённо оплатившим участникам. Цена сохраняется при своевременном продлении или в течение 7 календарных дней после окончания доступа.</div>
+						<div class="early-access-meta">
+							<div class="early-access-pill"><span class="eb-pulse" id="early-bird-remaining">—</span><span>мест по стартовой цене</span></div>
+						</div>
+						<div class="early-access-user-status" id="early-access-user-status">Проверяем доступную для вас цену…</div>
+						<a class="pay-early-link" href="how-subscription-works.html">Прочитать полные условия</a>
 				</div>
 				</details>
 
@@ -2229,7 +2256,7 @@
 
 	<script src="data-v2.js?v=20260713-csp-static-styles"></script>
 <script src="ingredients.js?v=20260711-oats-seabass"></script>
-	<script src="header-nav.js?v=20260713-csp-handlers"></script>
+<script src="header-nav.js?v=20260714-category-nav"></script>
 	<script src="cabinet.js?v=20260713-csp-template-actions"></script>
 	<script src="tawk-chat-modal.js?v=20260713-csp-styles"></script>
 </body>

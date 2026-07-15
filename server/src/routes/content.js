@@ -335,7 +335,7 @@ async function contentRoutes(fastify) {
     if (!recipeId) return reply.status(400).send({ error: 'Некорректный recipeId' });
     const result = await db.query(
       `SELECT r.id, r.stars, r.text, r.created_at, r.user_id,
-              u.display_name, u.avatar
+              u.display_name, u.avatar, u.early_access_member
        FROM reviews r JOIN users u ON u.id = r.user_id
        WHERE r.recipe_id = $1 ORDER BY r.created_at DESC LIMIT $2`,
       [recipeId, REVIEW_LIST_LIMIT]
@@ -347,7 +347,8 @@ async function contentRoutes(fastify) {
       createdAt: row.created_at,
       userId: row.user_id,
       author: row.display_name || 'Аноним',
-      avatar: row.avatar || null
+      avatar: row.avatar || null,
+      isEarlyBird: row.early_access_member === true
     }));
   });
 

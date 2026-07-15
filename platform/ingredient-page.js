@@ -52,8 +52,9 @@
         document.title = ING.name + ' — Умная тарелка';
         if (hero) hero.innerHTML =
             '<div class="cat-hero-row">' +
-            '<div class="cat-hero-ava cat-hero-ava--logo">' +
-            '<img src="https://voronova.online/images/icons/logo-small.png" alt="Юлия Воронова"></div>' +
+            '<div class="cat-hero-ava cat-hero-ava--image" aria-hidden="true">' +
+            '<img src="images/icons/ingredients.png" alt="">' +
+            '</div>' +
             '<div><div class="cat-hero-name">' + escHtml(String(ING.name)) + '</div>' +
             '<div class="cat-hero-desc">Рецепты на основе этого ингредиента</div></div></div>';
         if (crumbs) crumbs.innerHTML =
@@ -301,13 +302,15 @@
                     <span class="recipe-card__rating-stars" id="rstars-${_id}" data-ingredient-action="open-rating" data-recipe-id="${escHtml(_id)}">${_emptyStars}</span>
                     <span class="recipe-card__rating-text" id="rtext-${_id}"></span>
                 </div>` : ''}
-                <div class="recipe-card__meta">
-                    <span class="recipe-card__meta-item recipe-card__meta-time">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
-                    <span class="recipe-card__meta-dot"></span>
-                    <span class="recipe-card__meta-item recipe-card__meta-diff" title="${_diff}" aria-label="${_diff}" style="color:${_diffColor}">${_diffIcon}<span class="recipe-card__meta-diff-label">${_diff}</span></span>
+                <div class="recipe-card__meta-wrap">
+                    <div class="recipe-card__meta">
+                        <span class="recipe-card__meta-item recipe-card__meta-diff" title="${_diff}" aria-label="${_diff}" style="color:${_diffColor}">${_diffIcon}<span class="recipe-card__meta-diff-label">${_diff}</span></span>
+                        <span class="recipe-card__meta-dot"></span>
+                        <span class="recipe-card__meta-item recipe-card__meta-time">${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
+                    </div>
+                    ${_timeNote ? `<div class="recipe-card-time-note"><span class="rcn-arr" aria-hidden="true">↳</span>${_timeNote}</div>` : ''}
                 </div>
                 </div>
-                ${_timeNote ? `<div class="recipe-card-time-note"><span class="rcn-arr" aria-hidden="true">↳</span>${_timeNote}</div>` : ''}
                 <div class="recipe-card__footer">
                     <span class="recipe-card__kcal-label">калорийность</span>
                     <span class="recipe-card__kcal-value">${_kcal} <small>ккал</small></span>
@@ -631,7 +634,7 @@
                     <div style="flex-shrink:0">${avatarHtml}</div>
                     <div style="flex:1;min-width:0">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
-                            <span style="font-weight:700;font-size:14px;color:var(--text)">${escHtml(rv.author)}</span>
+                            <span style="font-weight:700;font-size:14px;color:var(--text)">${escHtml(rv.author)}${rv.isEarlyBird ? '<small style="margin-left:6px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)">Друг Умной тарелки</small>' : ''}</span>
                             <div style="display:flex;align-items:center;gap:6px">
                                 <span style="font-size:11px;color:var(--text-3)">${fmtDate(rv.createdAt)}</span>
                                 ${canDelete ? `<button style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px" data-ingredient-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? '1' : '0'}" title="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>` : ''}

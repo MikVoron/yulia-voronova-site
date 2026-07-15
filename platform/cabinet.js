@@ -601,7 +601,7 @@
 		// ── ПОДПИСКА ──────────────────────────────────────────────────────────────
 		const SUB_LABELS = { trial: 'Пробный период', active: 'Активна', expired: 'Завершена' };
 		function subscriptionPricePreviewHtml() {
-			var price = (_currentPrices && Number(_currentPrices[1])) || 390;
+			var price = (_currentPrices && Number(_currentPrices[1])) || 250;
 			return '<div class="sub-price-preview">От&nbsp;' + formatRubles(price) + '/мес. · все рецепты и&nbsp;БЖУ</div>';
 		}
 		function updateSubscriptionPricePreview() {
@@ -783,28 +783,34 @@
 
 		function renderPlanCards() {
 			var plans = [
-				{ months: 1, name: 'Знакомство', label: '1 месяц', amount: _currentPrices[1], future: _regularPrices[1] },
-				{ months: 3, name: 'Оптимальный старт', label: '3 месяца', amount: _currentPrices[3], future: _regularPrices[3], badge: 'Рекомендуем', featured: true },
-				{ months: 12, name: 'Годовой доступ', label: '12 месяцев', amount: _currentPrices[12], future: _regularPrices[12], badge: 'Самая выгодная цена' }
+				{ months: 1, name: '1 месяц', label: 'Для знакомства', amount: _currentPrices[1], future: _regularPrices[1], perMonth: '', benefit: 'Можно не продлевать' },
+				{ months: 3, name: '3 месяца', label: 'Оптимальный старт', amount: _currentPrices[3], future: _regularPrices[3], perMonth: Math.round(_currentPrices[3] / 3) + ' ₽ в месяц', benefit: _showFuturePrices ? 'Экономия ' + formatPlainRubles(_regularPrices[3] - _currentPrices[3]) + ' относительно обычной цены' : 'Экономия ' + formatPlainRubles(_regularPrices[1] * 3 - _regularPrices[3]) + ' по сравнению с ежемесячной оплатой', badge: 'Рекомендуем', featured: true },
+				{ months: 12, name: '12 месяцев', label: 'Максимальная выгода', amount: _currentPrices[12], future: _regularPrices[12], perMonth: '≈ ' + Math.round(_currentPrices[12] / 12) + ' ₽ в месяц', benefit: _showFuturePrices ? 'Экономия ' + formatPlainRubles(_regularPrices[12] - _currentPrices[12]) + ' относительно обычной цены' : 'Экономия ' + formatPlainRubles(_regularPrices[1] * 12 - _regularPrices[12]) + ' по сравнению с ежемесячной оплатой', badge: 'Лучшая цена' }
 			];
 			var grid = document.getElementById('pay-plan-grid');
 			grid.innerHTML = plans.map(function(pl) {
 				var badgeHtml = pl.badge ? '<div class="pay-plan-badge">' + pl.badge + '</div>' : '';
 				var futureHtml = _showFuturePrices
-					? '<div class="pay-plan-future">' + _futurePriceLabel + ' — ' + formatRubles(pl.future) + '</div>'
+					? '<div class="pay-plan-future">Цена после раннего доступа — ' + formatRubles(pl.future) + '</div>'
 					: '';
 				return '<div class="pay-plan-card' + (pl.featured ? ' featured' : '') + '" data-cabinet-action="select-plan" data-months="' + Number(pl.months) + '" data-amount="' + Number(pl.amount) + '">'
 					+ badgeHtml
+					+ '<span class="pay-plan-selected-label">Выбрано</span>'
 					+ '<div class="pay-plan-name">' + pl.name + '</div>'
 					+ '<div class="pay-plan-duration">' + pl.label + '</div>'
 					+ '<div class="pay-plan-price">' + formatRubles(pl.amount) + '</div>'
+					+ (pl.perMonth ? '<div class="pay-plan-permonth">' + pl.perMonth + '</div>' : '<div class="pay-plan-permonth">Оплата только за один месяц</div>')
 					+ futureHtml
+					+ '<div class="pay-plan-benefit">' + pl.benefit + '</div>'
 					+ '</div>';
 			}).join('');
 		}
 
 		function formatRubles(amount) {
 			return Number(amount).toLocaleString('ru-RU') + '&nbsp;₽';
+		}
+		function formatPlainRubles(amount) {
+			return Number(amount).toLocaleString('ru-RU') + ' ₽';
 		}
 
 		function resetPayWizard() {
@@ -1126,8 +1132,8 @@
 			}
 		}
 
-		var _currentPrices = { 1: 390, 3: 990, 12: 2990 };
-		var _regularPrices = { 1: 390, 3: 990, 12: 2990 };
+		var _currentPrices = { 1: 250, 3: 690, 12: 2500 };
+		var _regularPrices = { 1: 250, 3: 690, 12: 2500 };
 		var _showFuturePrices = false;
 		var _futurePriceLabel = 'После раннего доступа';
 
@@ -1150,16 +1156,29 @@
 				_currentPrices = data.prices || _currentPrices;
 				_regularPrices = data.regularPrices || _regularPrices;
 				_showFuturePrices = !!data.eligible;
-				_futurePriceLabel = data.eligibility === 'renewal' ? 'Следующее продление' : 'После раннего доступа';
+				_futurePriceLabel = 'Цена после раннего доступа';
+				var summary = document.getElementById('pay-early-summary');
+				var summaryCount = document.getElementById('pay-early-summary-count');
+				if (summary && summaryCount) {
+					if (data.active && !data.isEarlyBird) {
+						summary.style.display = '';
+						summaryCount.textContent = data.remaining === data.limit ? 'Доступно ' + data.limit + ' мест по стартовой цене' : 'Осталось ' + data.remaining + ' из ' + data.limit + ' мест по стартовой цене';
+					} else if (data.isEarlyBird) {
+						summary.style.display = '';
+						summary.querySelector('.pay-early-summary-title').textContent = 'Друг Умной тарелки';
+						summary.querySelector('.pay-early-summary-copy').textContent = 'За вами сохранена ранняя цена: продлевайте вовремя или в течение 7 дней после окончания доступа.';
+						summaryCount.textContent = 'Ранняя цена закреплена за вами';
+					} else {
+						summary.style.display = 'none';
+					}
+				}
 				if (statusEl) {
 					if (data.eligibility === 'renewal') {
-						statusEl.textContent = 'За вами сохранено одно продление по стартовой цене. После него будет действовать актуальная цена на момент продления.';
-					} else if (data.renewalUsed) {
-						statusEl.textContent = 'Вы уже использовали продление по стартовой цене. Для следующего продления действуют актуальные цены.';
+						statusEl.textContent = 'Вы — Друг Умной тарелки. Ранняя цена сохранена при своевременном продлении.';
 					} else if (data.eligible) {
-						statusEl.textContent = 'Вам доступна стартовая цена. После первой покупки вы сможете один раз продлить подписку по той же цене.';
+						statusEl.textContent = 'Стартовая цена закрепляется после подтверждения оплаты. Затем она сохраняется при своевременном продлении.';
 					} else {
-						statusEl.textContent = 'Ранний доступ завершён. Для оформления и продления действуют актуальные цены.';
+						statusEl.textContent = 'Ранний доступ завершён. Для оформления действуют актуальные цены.';
 					}
 				}
 			} catch (e) { /* ignore */ }
