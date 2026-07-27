@@ -94,9 +94,10 @@ describe('email visual system', () => {
       'unsubscribe-token',
       'Анна'
     );
+    await email.sendTestingInvitation('user@example.com', 'testing-token', 'Анна');
     await email.sendFeedbackReply('user@example.com', 'wish', 'Моё обращение', 'Спасибо за идею', 'Анна');
 
-    expect(sendMail).toHaveBeenCalledTimes(15);
+    expect(sendMail).toHaveBeenCalledTimes(16);
     for (const [message] of sendMail.mock.calls) {
       expect(message.html).toContain('width="560"');
       expect(message.html).toContain('class="em-content"');
@@ -134,5 +135,19 @@ describe('email visual system', () => {
     const generic = sendMail.mock.calls[1][0].html;
     expect(generic).toContain('Привет!');
     expect(generic).not.toContain('Привет, !');
+  });
+
+  it('renders the testing invitation in the branded email system', async () => {
+    await email.sendTestingInvitation('user@example.com', 'testing token', 'Анна <Иванова>');
+    const message = sendMail.mock.calls[0][0];
+
+    expect(message.subject).toBe('Приглашение на тестирование «Умной тарелки»');
+    expect(message.html).toContain('Привет, Анна &lt;Иванова&gt;!');
+    expect(message.html).toContain('Уже 88 рецептов.');
+    expect(message.html).toContain('Соберите минимум 3 разные тарелки');
+    expect(message.html).toContain('padding:13px 21px');
+    expect(message.html).toContain('/api/unsubscribe?token=testing%20token');
+    expect(message.html).toContain('согласились помочь с тестированием проекта');
+    expect(message.html).toContain('/cabinet.html?tab=feedback');
   });
 });

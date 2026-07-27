@@ -1164,8 +1164,11 @@
     <!-- News -->
     <div class="adm-section" id="sec-news">
         <div class="adm-section-title" style="display:flex;justify-content:space-between;align-items:center">
-            Новости
-            <button class="adm-btn" style="background:var(--accent);color:#fff" data-admin-click="f087ddda46f6">+ Добавить</button>
+            <span>Новости</span>
+            <div style="display:flex;gap:8px">
+                <button class="adm-btn" data-admin-click="6e20c755b43a">Пригласить тестера</button>
+                <button class="adm-btn" style="background:var(--accent);color:#fff" data-admin-click="f087ddda46f6">+ Добавить</button>
+            </div>
         </div>
         <div id="news-list"></div>
     </div>
@@ -1388,6 +1391,7 @@
                 <option value="user_unblock">Разблокировка</option>
                 <option value="payment_submit">Платёж отправлен</option>
                 <option value="feedback_reply">Ответ на обращ.</option>
+                <option value="testing_invitation_send">Приглашение тестеру</option>
                 <option value="news_create">Новость создана</option>
                 <option value="news_update">Новость изменена</option>
                 <option value="news_delete">Новость удалена</option>
@@ -1514,10 +1518,31 @@
     </div>
 </div>
 
+<!-- Testing invitation modal -->
+<div class="adm-modal-bg" id="testing-invitation-modal">
+    <div class="adm-modal" style="max-width:500px">
+        <div class="adm-modal-title">Пригласить тестера</div>
+        <p style="margin:0 0 18px;font-size:13px;line-height:1.55;color:var(--text-2)">Письмо уйдёт только на указанный адрес. Это не рассылка всем пользователям.</p>
+        <div class="adm-modal-field">
+            <label class="adm-modal-label" for="testing-invitation-email">Email *</label>
+            <input class="adm-modal-input" id="testing-invitation-email" type="email" autocomplete="email" placeholder="tester@example.com">
+        </div>
+        <div class="adm-modal-field">
+            <label class="adm-modal-label" for="testing-invitation-name">Имя</label>
+            <input class="adm-modal-input" id="testing-invitation-name" type="text" maxlength="100" autocomplete="name" placeholder="Например, Анна">
+            <div style="margin-top:6px;font-size:11px;line-height:1.45;color:var(--text-3)">Необязательно. Если указать имя, письмо начнётся с «Привет, Имя!».</div>
+        </div>
+        <div class="adm-modal-actions">
+            <button class="adm-btn adm-btn-reject" data-admin-click="c5b913705c2f">Отмена</button>
+            <button class="adm-btn adm-btn-confirm" id="testing-invitation-submit" data-admin-click="b582456d1193">Отправить письмо</button>
+        </div>
+    </div>
+</div>
+
 <!-- Toast -->
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260713-csp-static-styles"></script>
-<script src="admin.js?v=20260713-csp-handlers"></script>
+<script src="admin.js?v=20260727-testing-invitation"></script>
 </body>
 </html>

@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 const FROM = '"Умная тарелка" <' + (process.env.SMTP_FROM || 'noreply@voronova.online') + '>';
 const PLATFORM_URL = process.env.PLATFORM_URL || 'https://app.voronova.online';
 
-function wrap(body, unsubscribeToken, showSupportFooter = false, newsletterFooter = false) {
+function wrap(body, unsubscribeToken, showSupportFooter = false, newsletterFooter = false, newsletterFooterText = '') {
   const unsubLink = unsubscribeToken
     ? '<a href="' + PLATFORM_URL + '/api/unsubscribe?token=' + encodeURIComponent(unsubscribeToken) + '" style="color:#77716a; text-decoration:underline;">Отписаться от рассылки</a>'
     : '';
@@ -28,10 +28,11 @@ function wrap(body, unsubscribeToken, showSupportFooter = false, newsletterFoote
   const mailingFooter = `<tr>
 	<td class="em-footer" align="center" style="border-top:1px solid #e5e1db; padding:19px 28px 21px;">
 		<div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif; font-size:14px; line-height:1.3; font-weight:700; color:#171717;">Умная&nbsp;<span style="color:#e8400a;">тарелка</span></div>
-		<div style="margin-top:7px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;">Вы получили это письмо, потому что подписались на новости проекта.</div>
+		<div style="margin-top:7px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;">{{FOOTER_NOTE}}</div>
 		<div style="margin-top:3px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;">{{UNSUBSCRIBE_LINK}}{{COPYRIGHT_SEPARATOR}}© 2026 Юлия Воронова</div>
 	</td>
 </tr>`
+    .replace('{{FOOTER_NOTE}}', () => escHtml(newsletterFooterText || 'Вы получили это письмо, потому что подписались на новости проекта.'))
     .replace('{{UNSUBSCRIBE_LINK}}', () => unsubLink)
     .replace('{{COPYRIGHT_SEPARATOR}}', () => unsubLink ? '&nbsp;&nbsp;·&nbsp;&nbsp;' : '');
   const footer = newsletterFooter ? mailingFooter : standardFooter;
@@ -413,6 +414,52 @@ async function sendNewsletter(to, news, unsubscribeToken, displayName) {
   await send(to, subject, wrap(body, unsubscribeToken, false, true));
 }
 
+// ── 9b. Приглашение в тестирование ──
+async function sendTestingInvitation(to, unsubscribeToken, displayName) {
+  const safeName = escHtml(String(displayName || '').trim());
+  const greeting = safeName ? 'Привет, ' + safeName + '!' : 'Привет!';
+  const taskList = [
+    'Зарегистрируйтесь и войдите в аккаунт.',
+    'Посмотрите каталог, категории и фильтры.',
+    'Откройте несколько рецептов: описание, ингредиенты, шаги, фото и видео.',
+    'Соберите минимум 3 разные тарелки: основные блюда, гарниры, салаты и соусы.',
+    'Проверьте избранное, список покупок, журнал и заметки.',
+    'Выйдите из аккаунта и войдите снова — сохранённые данные должны остаться на месте.',
+    'Если будет возможность, приготовьте хотя бы одно блюдо по рецепту.'
+  ].map((item, index) =>
+    '<tr>'
+    + '<td valign="top" style="width:25px;padding:0 8px 10px 0;font-family:\'Montserrat\',Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6;font-weight:700;color:#e8400a">' + (index + 1) + '.</td>'
+    + '<td valign="top" style="padding:0 0 10px;font-family:\'Montserrat\',Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#4a4642">' + item + '</td>'
+    + '</tr>'
+  ).join('');
+  const feedbackList = [
+    'работает неправильно;',
+    'непонятно без дополнительных объяснений;',
+    'неудобно на телефоне или компьютере;',
+    'выглядит лишним или, наоборот, отсутствует;',
+    'мешает найти рецепт или собрать тарелку.'
+  ].map(item => '•&nbsp; ' + item).join('<br>');
+  const body =
+    heading('Приглашаю на тестирование', 'Умная тарелка')
+    + paragraph(greeting)
+    + paragraph('Спасибо, что согласились поучаствовать в тестировании <strong>«Умной тарелки»</strong>. Это наш семейный проект: мы создаём его сами и многое делаем впервые. Поэтому ваша внимательность и честное мнение для меня особенно ценны.')
+    + callout('<strong style="color:#171717">Уже 88 рецептов.</strong><br>Каждую неделю я буду добавлять как минимум один новый — проверенный, вкусный и полезный. А идеи рецептов и улучшений от участников помогут платформе становиться удобнее.')
+    + btn('Открыть Умную тарелку', PLATFORM_URL + '/')
+    + paragraph('<strong style="color:#171717">Что попробовать</strong>', '0 0 11px')
+    + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:0 0 10px;border-collapse:collapse">' + taskList + '</table>'
+    + paragraph('<strong style="color:#171717">На что обратить внимание</strong>', '8px 0 8px')
+    + callout('<div style="white-space:normal">' + feedbackList + '</div>')
+    + paragraph('<strong style="color:#171717">Если найдёте ошибку</strong>, ответьте на это письмо и, пожалуйста, напишите: что вы делали, что ожидали увидеть, что произошло. Если возможно, приложите скриншот.', '0 0 16px')
+    + paragraph('Полезны не только ошибки, но и честное мнение о рецептах, навигации и самой идее платформы. После тестирования часть участников получит дополнительный бесплатный доступ — его получат те, кто действительно пользовался платформой, собирал тарелки и присылал конкретную обратную связь.', '0 0 16px')
+    + paragraph('Готовьте с удовольствием!', '0 0 5px')
+    + signature();
+  await send(
+    to,
+    'Приглашение на тестирование «Умной тарелки»',
+    wrap(body, unsubscribeToken, true, true, 'Вы получили это письмо, потому что согласились помочь с тестированием проекта.')
+  );
+}
+
 // ── 10. Уведомление пользователю об ответе на обращение ──
 async function sendFeedbackReply(to, category, originalText, replyText, displayName) {
   const labels = { wish: 'Пожелание', recipe: 'Идея рецепта', problem: 'Проблема' };
@@ -443,5 +490,6 @@ module.exports = {
   sendFeedbackReply,
   sendReviewNotification,
   sendVideoRequestThresholdNotification,
-  sendNewsletter
+  sendNewsletter,
+  sendTestingInvitation
 };

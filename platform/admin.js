@@ -536,6 +536,44 @@
     };
 
     // ── RECIPES ───────────────────────────────────────────────────────────────
+    // ── TESTING INVITATION ────────────────────────────────────────────────────
+    window.openTestingInvitationModal = function() {
+        document.getElementById('testing-invitation-email').value = '';
+        document.getElementById('testing-invitation-name').value = '';
+        document.getElementById('testing-invitation-modal').classList.add('open');
+        setTimeout(function() { document.getElementById('testing-invitation-email').focus(); }, 0);
+    };
+
+    window.closeTestingInvitationModal = function() {
+        document.getElementById('testing-invitation-modal').classList.remove('open');
+    };
+
+    window.sendTestingInvitation = function() {
+        var email = document.getElementById('testing-invitation-email').value.trim();
+        var displayName = document.getElementById('testing-invitation-name').value.trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showToast('Укажите корректный email');
+            document.getElementById('testing-invitation-email').focus();
+            return;
+        }
+        if (!confirm('Отправить приглашение на ' + email + '?')) return;
+        var button = document.getElementById('testing-invitation-submit');
+        button.disabled = true;
+        button.textContent = 'Отправка…';
+        api('/admin/testing-invitations', {
+            method: 'POST',
+            body: { email: email, displayName: displayName || null }
+        }).then(function(data) {
+            closeTestingInvitationModal();
+            showToast('Приглашение отправлено: ' + data.email);
+        }).catch(function(e) {
+            showToast(e.message || 'Не удалось отправить письмо');
+        }).finally(function() {
+            button.disabled = false;
+            button.textContent = 'Отправить письмо';
+        });
+    };
+
     var allRecipes = [];
     var recipeCatFilter = 'all';
     var allCategories = [];          // full category objects from API
@@ -1496,6 +1534,7 @@
     bindStaticAdminHandler("click", "25cd91e1b230", function(event) { loadPayments('confirmed') });
     bindStaticAdminHandler("click", "7b81491b9670", function(event) { loadPayments('rejected') });
     bindStaticAdminHandler("click", "a4f41ea9f9b7", function(event) { saveEarlyAccessAdjustment() });
+    bindStaticAdminHandler("click", "6e20c755b43a", function(event) { openTestingInvitationModal() });
     bindStaticAdminHandler("click", "f087ddda46f6", function(event) { openNewsModal() });
     bindStaticAdminHandler("click", "53bdeb78bea9", function(event) { openRecipeEditor() });
     bindStaticAdminHandler("change", "2fc16510c28d", function(event) { filterRecipes() });
@@ -1524,4 +1563,6 @@
     bindStaticAdminHandler("click", "1c7b2b8ca44a", function(event) { document.getElementById('screenshot-modal').classList.remove('open') });
     bindStaticAdminHandler("click", "fdf0249d21c5", function(event) { closeNewsModal() });
     bindStaticAdminHandler("click", "23ad11339792", function(event) { saveNews() });
+    bindStaticAdminHandler("click", "c5b913705c2f", function(event) { closeTestingInvitationModal() });
+    bindStaticAdminHandler("click", "b582456d1193", function(event) { sendTestingInvitation() });
 })();

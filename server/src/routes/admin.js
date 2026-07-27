@@ -1,6 +1,6 @@
 const db = require('../db');
 const { requireAdmin } = require('../middleware');
-const { sendPaymentConfirmed, sendPaymentRejected, sendSubscriptionExtended, sendFeedbackReply } = require('../email');
+const { sendPaymentConfirmed, sendPaymentRejected, sendSubscriptionExtended, sendFeedbackReply, sendTestingInvitation } = require('../email');
 const audit = require('../audit');
 const { EARLY_ACCESS_LIMIT, EARLY_ACCESS_PRICES, EARLY_ACCESS_GRACE_MS, getEarlyAccessState } = require('../early-access');
 
@@ -35,9 +35,11 @@ const AUDIT_EVENTS = new Set([
   'category_create',
   'category_update',
   'category_delete',
+  'testing_invitation_send',
 ]);
 const ADMIN_READ_RATE_LIMIT = { max: 60, timeWindow: '1 minute' };
 const ADMIN_HEAVY_READ_RATE_LIMIT = { max: 30, timeWindow: '1 minute' };
+const ADMIN_EMAIL_SEND_RATE_LIMIT = { max: 10, timeWindow: '1 hour' };
 const ADMIN_LIST_LIMIT_MAX = 200;
 const ADMIN_LIST_PAGE_MAX = 500;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -69,6 +71,41 @@ function parseListWindow(query, fallbackLimit, maxLimit = ADMIN_LIST_LIMIT_MAX) 
 }
 
 async function adminRoutes(fastify) {
+
+  // POST /admin/testing-invitations — one addressed tester invitation, never a bulk send
+  fastify.post('/admin/testing-invitations', {
+    preHandler: requireAdmin,
+    config: { rateLimit: ADMIN_EMAIL_SEND_RATE_LIMIT }
+  }, async (req, reply) => {
+    const { email, displayName } = req.body || {};
+    const recipient = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) {
+      return reply.status(400).send({ error: 'Укажите корректный email' });
+    }
+    if (displayName != null && typeof displayName !== 'string') {
+      return reply.status(400).send({ error: 'Некорректное имя' });
+    }
+    const name = typeof displayName === 'string' ? displayName.trim().slice(0, 100) : '';
+    const userResult = await db.query(
+      'SELECT display_name, unsubscribe_token FROM users WHERE email=$1 LIMIT 1',
+      [recipient]
+    );
+    const user = userResult.rows[0];
+    const recipientName = name || user?.display_name || '';
+    try {
+      await sendTestingInvitation(recipient, user?.unsubscribe_token || null, recipientName);
+    } catch (err) {
+      fastify.log.error(err, 'Testing invitation email error');
+      return reply.status(500).send({ error: 'Не удалось отправить письмо' });
+    }
+    await audit.log('testing_invitation_send', {
+      userId: req.user.sub,
+      email: recipient,
+      detail: recipientName ? 'name=' + recipientName : 'without_name',
+      ip: req.ip
+    });
+    return { ok: true, email: recipient };
+  });
 
   // GET /admin/users — список пользователей
   fastify.get('/admin/users', {

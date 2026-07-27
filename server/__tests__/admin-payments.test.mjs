@@ -12,6 +12,7 @@ const sendPaymentConfirmed = vi.fn().mockResolvedValue(true);
 const sendPaymentRejected = vi.fn().mockResolvedValue(true);
 const sendSubscriptionExtended = vi.fn().mockResolvedValue(true);
 const sendFeedbackReply = vi.fn().mockResolvedValue(true);
+const sendTestingInvitation = vi.fn().mockResolvedValue(true);
 const auditLog = vi.fn();
 
 const path = require('path');
@@ -37,7 +38,8 @@ registerMock(path.join(srcDir, 'email.js'), {
   sendPaymentConfirmed,
   sendPaymentRejected,
   sendSubscriptionExtended,
-  sendFeedbackReply
+  sendFeedbackReply,
+  sendTestingInvitation
 });
 registerMock(path.join(srcDir, 'audit.js'), { log: auditLog });
 
@@ -69,6 +71,7 @@ beforeEach(() => {
   sendPaymentRejected.mockClear();
   sendSubscriptionExtended.mockClear();
   sendFeedbackReply.mockClear();
+  sendTestingInvitation.mockClear();
   auditLog.mockClear();
 });
 
@@ -275,5 +278,48 @@ describe('admin feedback hardening', () => {
     expect(res.statusCode).toBe(400);
     expect(res.json().error).toContain('текст ответа');
     expect(mockConnect).not.toHaveBeenCalled();
+  });
+});
+
+describe('admin testing invitations', () => {
+  it('sends one invitation with an optional name and records the action', async () => {
+    mockQuery.mockImplementation(async (sql) => {
+      if (sql.includes('SELECT display_name, unsubscribe_token FROM users')) {
+        return { rows: [{ display_name: 'Имя из профиля', unsubscribe_token: 'unsubscribe-token' }] };
+      }
+      return { rows: [] };
+    });
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/testing-invitations',
+      payload: { email: ' Tester@Example.com ', displayName: ' Анна ' }
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ ok: true, email: 'tester@example.com' });
+    expect(sendTestingInvitation).toHaveBeenCalledWith('tester@example.com', 'unsubscribe-token', 'Анна');
+    expect(auditLog).toHaveBeenCalledWith('testing_invitation_send', expect.objectContaining({
+      userId: 'admin-1', email: 'tester@example.com', detail: 'name=Анна'
+    }));
+  });
+
+  it('uses the saved name when the form name is empty and rejects bad email addresses', async () => {
+    mockQuery.mockImplementation(async () => ({ rows: [{ display_name: 'Мария', unsubscribe_token: null }] }));
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/testing-invitations',
+      payload: { email: 'tester@example.com', displayName: '' }
+    });
+    expect(res.statusCode).toBe(200);
+    expect(sendTestingInvitation).toHaveBeenCalledWith('tester@example.com', null, 'Мария');
+
+    const invalid = await app.inject({
+      method: 'POST',
+      url: '/admin/testing-invitations',
+      payload: { email: 'not-an-email' }
+    });
+    expect(invalid.statusCode).toBe(400);
+    expect(sendTestingInvitation).toHaveBeenCalledTimes(1);
   });
 });
