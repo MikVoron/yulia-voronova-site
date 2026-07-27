@@ -266,6 +266,25 @@
 
 		const activeFilters = {};
 
+		// Общая выборка для режимов, которые показывают отдельные рецепты, а не категории.
+		// «Популярные» должен сужать уже отфильтрованный список, а не сбрасывать его.
+		function getFilteredRecipes() {
+			let dishes = Object.values(RECIPES).filter(Boolean);
+			if (activeFilters.time) {
+				dishes = activeFilters.time === 'over60'
+					? dishes.filter(d => d.time > 60)
+					: dishes.filter(d => d.time <= activeFilters.time);
+			}
+			if (activeFilters.difficulty) dishes = dishes.filter(d => d.diff === activeFilters.difficulty);
+			if (activeFilters.gluten)  dishes = dishes.filter(d => (d.tags || []).includes('без глютена'));
+			if (activeFilters.plant)   dishes = dishes.filter(d => (d.tags || []).includes('растительное'));
+			if (activeFilters.fish)    dishes = dishes.filter(d => (d.tags || []).includes('рыбное'));
+			if (activeFilters.noSoy)   dishes = dishes.filter(d => (d.tags || []).includes('без сои'));
+			if (activeFilters.legumes) dishes = dishes.filter(d => (d.tags || []).includes('бобовые'));
+			if (activeFilters.free)    dishes = dishes.filter(d => Auth.isFreeRecipe(d));
+			return dishes;
+		}
+
 		function renderCats() {
 			updateRecipeCount();
 			const grid = document.getElementById('cat-grid');
@@ -756,22 +775,30 @@
 		}
 		renderPlateInline();
 
-		// Recipe total count + applied filters indicator (вызывается из renderCats / renderPopular).
+		// Общее число рецептов + названия выбранных фильтров (вызывается из renderCats / renderPopular).
+		// Число всегда общее, поэтому явно маркируем его «Всего», чтобы не выдавать
+		// его за количество рецептов в текущей фильтрации.
 		function updateRecipeCount() {
 			const rcEl = document.getElementById('recipes-total-count');
 			if (!rcEl) return;
 			const n = Object.keys(RECIPES).length;
 			const m10 = n % 10, m100 = n % 100;
 			const word = (m100 >= 11 && m100 <= 14) ? 'рецептов' : m10 === 1 ? 'рецепт' : (m10 >= 2 && m10 <= 4) ? 'рецепта' : 'рецептов';
-			const k = Object.keys(activeFilters).length + (typeof _popularActive !== 'undefined' && _popularActive ? 1 : 0);
-			let applied = '';
-			if (k > 0) {
-				const k10 = k % 10, k100 = k % 100;
-				const verb = (k100 >= 11 && k100 <= 14) ? 'применено' : k10 === 1 ? 'применён' : 'применено';
-				const fword = (k100 >= 11 && k100 <= 14) ? 'фильтров' : k10 === 1 ? 'фильтр' : (k10 >= 2 && k10 <= 4) ? 'фильтра' : 'фильтров';
-				applied = `<span class="rtc-applied">· ${verb} ${k} ${fword}</span>`;
-			}
-			rcEl.innerHTML = `<span class="rtc-num">${n}</span><span class="rtc-label">${word}</span>${applied}`;
+			const filterLabels = {
+				free: 'Бесплатные', gluten: 'Без глютена', plant: 'Растительные',
+				fish: 'Рыбные', noSoy: 'Без сои', legumes: 'Бобовые',
+				time: { 15: 'До 15 мин', 30: 'До 30 мин', 60: 'До 1 часа', over60: 'Более 1 часа' },
+				difficulty: { easy: 'Лёгкая', medium: 'Средняя', hard: 'Сложная' }
+			};
+			const selected = Object.keys(activeFilters).map(function(key) {
+				const label = filterLabels[key];
+				return typeof label === 'object' ? label[activeFilters[key]] : label;
+			}).filter(Boolean);
+			if (typeof _popularActive !== 'undefined' && _popularActive) selected.push('Популярные');
+			const applied = selected.length
+				? `<span class="rtc-applied">· ${selected.length === 1 ? 'Выбран фильтр' : 'Выбраны фильтры'}: ${selected.join(', ')}</span>`
+				: '';
+			rcEl.innerHTML = `<span class="rtc-applied">Всего</span><span class="rtc-num">${n}</span><span class="rtc-label">${word}</span>${applied}`;
 		}
 
 		// ── EDITORIAL HOMEPAGE BLOCKS ──────────────────────────────────────
@@ -1228,14 +1255,16 @@
 			}
 			closeFGroups();
 			syncFilterControls();
-			renderCats();
+			if (_popularActive) renderPopular();
+			else renderCats();
 		}
 		function toggleTagFilter(el) {
 			const f = el.dataset.f;
 			if (el.classList.contains('on')) { el.classList.remove('on'); delete activeFilters[f]; }
 			else { el.classList.add('on'); activeFilters[f] = true; }
 			syncFilterControls();
-			renderCats();
+			if (_popularActive) renderPopular();
+			else renderCats();
 		}
 		function toggleMoreFilters(btn) {
 			const panel = document.getElementById(btn.getAttribute('aria-controls'));
@@ -1299,7 +1328,7 @@
 
 		function renderPopular() {
 			updateRecipeCount();
-			const allRecipes = Object.values(RECIPES);
+			const allRecipes = getFilteredRecipes();
 			const rated = allRecipes.filter(r => _apiRatings[r.id] && _apiRatings[r.id].avg > 0);
 			rated.sort((a, b) => {
 				const ra = _apiRatings[a.id];

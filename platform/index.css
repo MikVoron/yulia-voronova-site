@@ -1475,7 +1475,7 @@ main {
 	display: contents;
 }
 
-/* Status row — «55 рецептов · применён 1 фильтр» под линией. */
+/* Status row — «Всего 55 рецептов · Выбран фильтр: Бесплатные» под линией. */
 .sp-home .recipes-total-count.sp-cats-status {
 	display: flex;
 	align-items: center;
