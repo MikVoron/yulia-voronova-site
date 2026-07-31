@@ -105,14 +105,15 @@ async function authRoutes(fastify) {
       userRes = await db.query('INSERT INTO users (email) VALUES ($1) RETURNING *', [lower]);
       const userId = userRes.rows[0].id;
       await db.query('INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)', [userId, 'email', lower]);
+      // Keep the audit trail in the same order as the account lifecycle.
+      await audit.log('register', { userId, email: lower, detail: 'email', ip: req.ip, ua: req.headers['user-agent'] });
       // Атомарная проверка + fingerprint + subscription — всё в одной транзакции
       const trial = await tryGrantTrial(fingerprint, req.ip, userId);
       if (trial.grant) {
-        audit.log('trial_granted', { userId, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
+        await audit.log('trial_granted', { userId, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
       } else {
-        audit.log('trial_denied', { userId, email: lower, detail: trial.reason, ip: req.ip, ua: req.headers['user-agent'] });
+        await audit.log('trial_denied', { userId, email: lower, detail: trial.reason, ip: req.ip, ua: req.headers['user-agent'] });
       }
-      audit.log('register', { userId, email: lower, detail: 'email', ip: req.ip, ua: req.headers['user-agent'] });
       reportTrialSignals({
         trial,
         userId,
@@ -134,7 +135,7 @@ async function authRoutes(fastify) {
       audit.log('login_blocked', { userId: user.id, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
       return reply.status(403).send({ error: 'Аккаунт заблокирован' });
     }
-    audit.log('login', { userId: user.id, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
+    await audit.log('login', { userId: user.id, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken();
     const isAdminSession = user.role === 'admin';

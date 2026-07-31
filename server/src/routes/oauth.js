@@ -76,14 +76,15 @@ async function findOrCreateUser(provider, providerId, email, displayName, emailV
     'INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)',
     [user.id, provider, providerId]
   );
+  // Keep the audit trail in the same order as the account lifecycle.
+  await audit.log('register', { userId: user.id, email, detail: provider, ip });
   // Атомарная проверка + fingerprint + subscription — всё в одной транзакции
   const trial = await tryGrantTrial(null, ip, user.id);
   if (trial.grant) {
-    audit.log('trial_granted', { userId: user.id, email, detail: provider, ip });
+    await audit.log('trial_granted', { userId: user.id, email, detail: provider, ip });
   } else {
-    audit.log('trial_denied', { userId: user.id, email, detail: trial.reason + ' (' + provider + ')', ip });
+    await audit.log('trial_denied', { userId: user.id, email, detail: trial.reason + ' (' + provider + ')', ip });
   }
-  audit.log('register', { userId: user.id, email, detail: provider, ip });
   reportTrialSignals({
     trial,
     userId: user.id,
@@ -114,7 +115,7 @@ async function issueTokens(user, req, reply, isNew, fastify) {
     audit.log('admin_oauth_denied', { userId: user.id, email: user.email, ip: req.ip, ua: req.headers['user-agent'] });
     return reply.redirect(PLATFORM_URL + '/login.html?error=admin_mfa_required');
   }
-  audit.log('login', { userId: user.id, email: user.email, detail: 'oauth', ip: req.ip, ua: req.headers['user-agent'] });
+  await audit.log('login', { userId: user.id, email: user.email, detail: 'oauth', ip: req.ip, ua: req.headers['user-agent'] });
   const refreshToken = generateRefreshToken();
   await issueRefreshSession(user.id, refreshToken, req);
   return setCookieAndRedirect(reply, refreshToken, isNew);
