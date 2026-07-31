@@ -399,6 +399,18 @@
 		function initRecipe() {
 			r = RECIPES[recipeId];
 			cat = (fromCat && fromCat !== 'plate' && fromCat !== 'search') ? CATEGORIES[fromCat] : null;
+			if (window.SmartPlateSEO) {
+				if (r) {
+					SmartPlateSEO.setRecipe(r);
+				} else {
+					SmartPlateSEO.setPage({
+						title: 'Рецепт не найден — Умная тарелка',
+						description: 'Запрошенный рецепт не найден. Откройте каталог полезных рецептов «Умной тарелки».',
+						canonical: SmartPlateSEO.origin + '/recipe.html',
+						noindex: true
+					});
+				}
+			}
 
 			// Back button. На мобильном хедере стрелка «Назад» заменена бургером
 			// (drawer), поэтому элемент #back-btn может отсутствовать — весь блок

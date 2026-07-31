@@ -76,6 +76,15 @@
         if (searchQuery) {
             document.title = 'Поиск «' + searchQuery + '» — Конструктор питания';
             var total = (typeof searchRecipes === 'function') ? searchRecipes(searchQuery).length : 0;
+            if (window.SmartPlateSEO) {
+                SmartPlateSEO.setCollection({
+                    name: 'Поиск по рецептам',
+                    description: 'Результаты поиска по каталогу полезных рецептов «Умной тарелки».',
+                    canonical: SmartPlateSEO.origin + '/category.html',
+                    noindex: true,
+                    items: []
+                });
+            }
             document.getElementById('cat-hero').innerHTML =
                 '<div class="cat-hero-row">' +
                 '<div class="cat-hero-ava">🔍</div>' +
@@ -89,8 +98,24 @@
             }
         } else {
             cat = getCategory(catId);
+            if (isAllMode && window.SmartPlateSEO) {
+                SmartPlateSEO.setCollection({
+                    name: 'Каталог полезных рецептов',
+                    description: 'Полезные рецепты от нутрициолога Юлии Вороновой: КБЖУ, замены продуктов и пошаговое приготовление.',
+                    canonical: SmartPlateSEO.origin + '/category.html',
+                    items: Object.keys(RECIPES).map(function (key) { return RECIPES[key]; }).filter(Boolean)
+                });
+            }
             if (cat) {
                 document.title = cat.name + ' — Конструктор питания';
+                if (window.SmartPlateSEO) {
+                    SmartPlateSEO.setCollection({
+                        name: cat.name + ' — полезные рецепты',
+                        description: cat.desc || ('Подборка рецептов категории «' + cat.name + '» с расчётом КБЖУ и пошаговым приготовлением.'),
+                        canonical: SmartPlateSEO.origin + '/category.html?cat=' + encodeURIComponent(catId),
+                        items: getDishesForView()
+                    });
+                }
                 var crumbsEl = document.getElementById('cat-crumbs');
                 if (crumbsEl) {
                     crumbsEl.innerHTML = '<a href="index.html">Главная</a>' +

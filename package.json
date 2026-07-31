@@ -6,6 +6,8 @@
     "build:css": "cleancss -o style.min.css style.css",
     "build:js": "terser main.js -o main.min.js -c -m",
     "build": "npm run build:css && npm run build:js",
+    "generate:smartplate-sitemap": "node scripts/generate-smartplate-sitemap.js",
+    "test:smartplate-seo": "node scripts/test-smartplate-seo.js",
     "test": "cd server && npm test",
     "serve": "serve . -p 3000"
   },

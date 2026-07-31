@@ -38,6 +38,14 @@
         if (ING_UNKNOWN) {
             if (!INGREDIENT_CATALOG_READY && ING_ID) return;
             document.title = 'Ингредиент не найден — Умная тарелка';
+            if (window.SmartPlateSEO) {
+                SmartPlateSEO.setPage({
+                    title: 'Ингредиент не найден — Умная тарелка',
+                    description: 'Запрошенный ингредиент не найден в каталоге «Умной тарелки».',
+                    canonical: SmartPlateSEO.origin + '/ingredient.html',
+                    noindex: true
+                });
+            }
             if (hero) hero.innerHTML =
                 '<div class="cat-hero-row">' +
                 '<div class="cat-hero-ava">🤔</div>' +
@@ -50,6 +58,14 @@
             return;
         }
         document.title = ING.name + ' — Умная тарелка';
+        if (window.SmartPlateSEO) {
+            SmartPlateSEO.setCollection({
+                name: 'Рецепты с ингредиентом «' + ING.name + '»',
+                description: 'Подборка полезных рецептов с ингредиентом «' + ING.name + '» и расчётом КБЖУ.',
+                canonical: SmartPlateSEO.origin + '/ingredient.html?id=' + encodeURIComponent(ING_ID),
+                items: INGREDIENT_CATALOG_READY ? getDishesForView() : []
+            });
+        }
         if (hero) hero.innerHTML =
             '<div class="cat-hero-row">' +
             '<div class="cat-hero-ava cat-hero-ava--image" aria-hidden="true">' +
