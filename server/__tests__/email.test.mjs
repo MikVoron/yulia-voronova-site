@@ -95,9 +95,12 @@ describe('email visual system', () => {
       'Анна'
     );
     await email.sendTestingInvitation('user@example.com', 'testing-token', 'Анна');
+    await email.sendPersonalMessage('user@example.com', {
+      sender: 'hello', subject: 'Личное сообщение', text: 'Здравствуйте!', displayName: 'Анна'
+    });
     await email.sendFeedbackReply('user@example.com', 'wish', 'Моё обращение', 'Спасибо за идею', 'Анна');
 
-    expect(sendMail).toHaveBeenCalledTimes(16);
+    expect(sendMail).toHaveBeenCalledTimes(17);
     for (const [message] of sendMail.mock.calls) {
       expect(message.html).toContain('width="560"');
       expect(message.html).toContain('class="em-content"');
@@ -149,5 +152,36 @@ describe('email visual system', () => {
     expect(message.html).toContain('/api/unsubscribe?token=testing%20token');
     expect(message.html).toContain('согласились помочь с тестированием проекта');
     expect(message.html).toContain('/cabinet.html?tab=feedback');
+  });
+
+  it('sends a branded personal message from the selected mailbox and escapes free text', async () => {
+    await email.sendPersonalMessage('user@example.com', {
+      sender: 'yulia',
+      subject: 'Важная <тема>',
+      text: 'Текст <script>bad()</script>\nВторая строка',
+      displayName: 'Анна <Иванова>'
+    });
+    const message = sendMail.mock.calls[0][0];
+
+    expect(message.from).toBe('"Юлия Воронова" <yulia@voronova.online>');
+    expect(message.replyTo).toBe('yulia@voronova.online');
+    expect(message.subject).toBe('Важная <тема>');
+    expect(message.html).toContain('Здравствуйте, Анна &lt;Иванова&gt;!');
+    expect(message.html).toContain('Важная &lt;тема&gt;');
+    expect(message.html).toContain('Текст &lt;script&gt;bad()&lt;/script&gt;');
+    expect(message.html).toContain('white-space:pre-wrap');
+
+    const preview = email.previewPersonalMessage({
+      sender: 'hello', subject: 'Проверка', text: 'Текст', displayName: ''
+    });
+    expect(preview).toContain('Отдел заботы');
+    expect(preview).toContain('Здравствуйте!');
+
+    await email.sendPersonalMessage('user@example.com', {
+      sender: 'hello', subject: 'Проверка', text: 'Текст', displayName: ''
+    });
+    const helloMessage = sendMail.mock.calls[1][0];
+    expect(helloMessage.from).toBe('"Умная тарелка" <hello@voronova.online>');
+    expect(helloMessage.replyTo).toBe('hello@voronova.online');
   });
 });

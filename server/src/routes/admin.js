@@ -1,6 +1,6 @@
 const db = require('../db');
 const { requireAdmin } = require('../middleware');
-const { sendPaymentConfirmed, sendPaymentRejected, sendSubscriptionExtended, sendFeedbackReply, sendTestingInvitation } = require('../email');
+const { sendPaymentConfirmed, sendPaymentRejected, sendSubscriptionExtended, sendFeedbackReply, sendTestingInvitation, previewPersonalMessage, sendPersonalMessage } = require('../email');
 const audit = require('../audit');
 const { EARLY_ACCESS_LIMIT, EARLY_ACCESS_PRICES, EARLY_ACCESS_GRACE_MS, getEarlyAccessState } = require('../early-access');
 
@@ -36,10 +36,13 @@ const AUDIT_EVENTS = new Set([
   'category_update',
   'category_delete',
   'testing_invitation_send',
+  'personal_message_send',
 ]);
 const ADMIN_READ_RATE_LIMIT = { max: 60, timeWindow: '1 minute' };
 const ADMIN_HEAVY_READ_RATE_LIMIT = { max: 30, timeWindow: '1 minute' };
 const ADMIN_EMAIL_SEND_RATE_LIMIT = { max: 10, timeWindow: '1 hour' };
+const PERSONAL_MESSAGE_SUBJECT_LIMIT = 180;
+const PERSONAL_MESSAGE_TEXT_LIMIT = 6000;
 const ADMIN_LIST_LIMIT_MAX = 200;
 const ADMIN_LIST_PAGE_MAX = 500;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -68,6 +71,26 @@ function parseListWindow(query, fallbackLimit, maxLimit = ADMIN_LIST_LIMIT_MAX) 
   const rawLimit = parseInt(query.limit, 10);
   const limit = Math.min(maxLimit, Math.max(1, Number.isFinite(rawLimit) ? rawLimit : fallbackLimit));
   return { page, limit, offset: (page - 1) * limit };
+}
+
+function readPersonalMessagePayload(body) {
+  const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: 'Укажите корректный email' };
+  if (body.displayName != null && typeof body.displayName !== 'string') return { error: 'Некорректное имя' };
+  if (body.sender !== 'yulia' && body.sender !== 'hello') return { error: 'Выберите отправителя' };
+  if (typeof body.subject !== 'string' || !body.subject.trim()) return { error: 'Укажите тему письма' };
+  if (body.subject.trim().length > PERSONAL_MESSAGE_SUBJECT_LIMIT) return { error: 'Тема слишком длинная' };
+  if (typeof body.text !== 'string' || !body.text.trim()) return { error: 'Введите текст письма' };
+  if (body.text.trim().length > PERSONAL_MESSAGE_TEXT_LIMIT) return { error: 'Текст письма слишком длинный' };
+  return {
+    value: {
+      email,
+      displayName: typeof body.displayName === 'string' ? body.displayName.trim().slice(0, 100) : '',
+      sender: body.sender,
+      subject: body.subject.trim(),
+      text: body.text.trim()
+    }
+  };
 }
 
 async function adminRoutes(fastify) {
@@ -105,6 +128,45 @@ async function adminRoutes(fastify) {
       ip: req.ip
     });
     return { ok: true, email: recipient };
+  });
+
+  // POST /admin/personal-messages — branded, one-to-one message or safe preview
+  fastify.post('/admin/personal-messages', {
+    preHandler: requireAdmin,
+    config: { rateLimit: ADMIN_EMAIL_SEND_RATE_LIMIT }
+  }, async (req, reply) => {
+    const body = req.body || {};
+    if (body.preview != null && typeof body.preview !== 'boolean') {
+      return reply.status(400).send({ error: 'Некорректный режим предпросмотра' });
+    }
+    const parsed = readPersonalMessagePayload(body);
+    if (parsed.error) return reply.status(400).send({ error: parsed.error });
+    const payload = parsed.value;
+    const userResult = await db.query('SELECT display_name FROM users WHERE email=$1 LIMIT 1', [payload.email]);
+    if (!payload.displayName) payload.displayName = userResult.rows[0]?.display_name || '';
+
+    if (body.preview === true) {
+      try {
+        return { html: previewPersonalMessage(payload) };
+      } catch (err) {
+        fastify.log.error(err, 'Personal message preview error');
+        return reply.status(500).send({ error: 'Не удалось собрать предпросмотр' });
+      }
+    }
+
+    try {
+      await sendPersonalMessage(payload.email, payload);
+    } catch (err) {
+      fastify.log.error(err, 'Personal message email error');
+      return reply.status(500).send({ error: 'Не удалось отправить письмо' });
+    }
+    await audit.log('personal_message_send', {
+      userId: req.user.sub,
+      email: payload.email,
+      detail: payload.sender + '; chars=' + payload.text.length,
+      ip: req.ip
+    });
+    return { ok: true, email: payload.email };
   });
 
   // GET /admin/users — список пользователей

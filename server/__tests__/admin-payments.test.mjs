@@ -13,6 +13,8 @@ const sendPaymentRejected = vi.fn().mockResolvedValue(true);
 const sendSubscriptionExtended = vi.fn().mockResolvedValue(true);
 const sendFeedbackReply = vi.fn().mockResolvedValue(true);
 const sendTestingInvitation = vi.fn().mockResolvedValue(true);
+const previewPersonalMessage = vi.fn(() => '<html>preview</html>');
+const sendPersonalMessage = vi.fn().mockResolvedValue(true);
 const auditLog = vi.fn();
 
 const path = require('path');
@@ -39,7 +41,9 @@ registerMock(path.join(srcDir, 'email.js'), {
   sendPaymentRejected,
   sendSubscriptionExtended,
   sendFeedbackReply,
-  sendTestingInvitation
+  sendTestingInvitation,
+  previewPersonalMessage,
+  sendPersonalMessage
 });
 registerMock(path.join(srcDir, 'audit.js'), { log: auditLog });
 
@@ -72,6 +76,8 @@ beforeEach(() => {
   sendSubscriptionExtended.mockClear();
   sendFeedbackReply.mockClear();
   sendTestingInvitation.mockClear();
+  previewPersonalMessage.mockClear();
+  sendPersonalMessage.mockClear();
   auditLog.mockClear();
 });
 
@@ -321,5 +327,53 @@ describe('admin testing invitations', () => {
     });
     expect(invalid.statusCode).toBe(400);
     expect(sendTestingInvitation).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('admin personal messages', () => {
+  it('renders a safe preview without sending or auditing it', async () => {
+    mockQuery.mockImplementation(async () => ({ rows: [{ display_name: 'Мария' }] }));
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/personal-messages',
+      payload: {
+        email: 'user@example.com', sender: 'yulia', subject: 'Важная тема', text: 'Текст письма', preview: true
+      }
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ html: '<html>preview</html>' });
+    expect(previewPersonalMessage).toHaveBeenCalledWith(expect.objectContaining({
+      email: 'user@example.com', displayName: 'Мария', sender: 'yulia'
+    }));
+    expect(sendPersonalMessage).not.toHaveBeenCalled();
+    expect(auditLog).not.toHaveBeenCalled();
+  });
+
+  it('sends only a valid personal message and records no free-text content in audit', async () => {
+    mockQuery.mockImplementation(async () => ({ rows: [] }));
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/personal-messages',
+      payload: {
+        email: ' User@Example.com ', displayName: ' Анна ', sender: 'hello', subject: 'Добрый день', text: 'Приватный текст'
+      }
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(sendPersonalMessage).toHaveBeenCalledWith('user@example.com', expect.objectContaining({
+      sender: 'hello', subject: 'Добрый день', text: 'Приватный текст', displayName: 'Анна'
+    }));
+    expect(auditLog).toHaveBeenCalledWith('personal_message_send', expect.objectContaining({
+      email: 'user@example.com', detail: 'hello; chars=15'
+    }));
+
+    const invalid = await app.inject({
+      method: 'POST',
+      url: '/admin/personal-messages',
+      payload: { email: 'bad', sender: 'other', subject: '', text: '' }
+    });
+    expect(invalid.statusCode).toBe(400);
+    expect(sendPersonalMessage).toHaveBeenCalledTimes(1);
   });
 });

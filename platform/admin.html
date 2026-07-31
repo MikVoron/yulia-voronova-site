@@ -1392,6 +1392,7 @@
                 <option value="payment_submit">Платёж отправлен</option>
                 <option value="feedback_reply">Ответ на обращ.</option>
                 <option value="testing_invitation_send">Приглашение тестеру</option>
+                <option value="personal_message_send">Личное письмо</option>
                 <option value="news_create">Новость создана</option>
                 <option value="news_update">Новость изменена</option>
                 <option value="news_delete">Новость удалена</option>
@@ -1518,6 +1519,44 @@
     </div>
 </div>
 
+<!-- Personal message modal -->
+<div class="adm-modal-bg" id="personal-message-modal">
+    <div class="adm-modal" style="max-width:620px">
+        <div class="adm-modal-title">Написать пользователю</div>
+        <div style="margin:-4px 0 18px;font-size:13px;color:var(--text-2)">Получатель: <strong id="personal-message-recipient"></strong></div>
+        <div class="adm-modal-field">
+            <label class="adm-modal-label" for="personal-message-sender">Отправитель и адрес для ответа</label>
+            <select class="adm-modal-select" id="personal-message-sender">
+                <option value="yulia">Юлия Воронова — yulia@voronova.online</option>
+                <option value="hello">Умная тарелка — hello@voronova.online</option>
+            </select>
+        </div>
+        <div class="adm-modal-field">
+            <label class="adm-modal-label" for="personal-message-subject">Тема *</label>
+            <input class="adm-modal-input" id="personal-message-subject" type="text" maxlength="180" placeholder="Например, ответ на ваш вопрос">
+        </div>
+        <div class="adm-modal-field">
+            <label class="adm-modal-label" for="personal-message-text">Текст *</label>
+            <textarea class="adm-modal-input" id="personal-message-text" rows="8" maxlength="6000" style="resize:vertical" placeholder="Текст письма…"></textarea>
+            <div style="margin-top:6px;font-size:11px;line-height:1.45;color:var(--text-3)">Обращение по имени и подпись добавятся автоматически. Получатель сможет ответить прямо на письмо.</div>
+        </div>
+        <div class="adm-modal-actions">
+            <button class="adm-btn" id="personal-message-preview-btn" data-admin-click="394601a0e265">Предпросмотр</button>
+            <button class="adm-btn adm-btn-reject" data-admin-click="15c3c6500a6b">Отмена</button>
+            <button class="adm-btn adm-btn-confirm" id="personal-message-submit" data-admin-click="05d9cc5c3790">Отправить письмо</button>
+        </div>
+    </div>
+</div>
+
+<!-- Personal message preview -->
+<div class="adm-modal-bg" id="personal-message-preview-modal">
+    <div class="adm-modal" style="max-width:680px;width:94%;height:min(90vh,820px);display:flex;flex-direction:column">
+        <div class="adm-modal-title">Предпросмотр письма</div>
+        <iframe id="personal-message-preview-frame" title="Предпросмотр письма" sandbox="allow-popups" style="width:100%;flex:1;min-height:420px;border:1px solid var(--border);border-radius:8px;background:#f0ede7"></iframe>
+        <div class="adm-modal-actions"><button class="adm-btn" data-admin-click="8d2d6ca2e5d4">Закрыть</button></div>
+    </div>
+</div>
+
 <!-- Testing invitation modal -->
 <div class="adm-modal-bg" id="testing-invitation-modal">
     <div class="adm-modal" style="max-width:500px">
@@ -1543,6 +1582,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260713-csp-static-styles"></script>
-<script src="admin.js?v=20260727-testing-invitation"></script>
+<script src="admin.js?v=20260731-personal-messages"></script>
 </body>
 </html>

@@ -9,6 +9,20 @@ const transporter = nodemailer.createTransport({
 
 const FROM = '"Умная тарелка" <' + (process.env.SMTP_FROM || 'noreply@voronova.online') + '>';
 const PLATFORM_URL = process.env.PLATFORM_URL || 'https://app.voronova.online';
+const PERSONAL_SENDERS = {
+  yulia: {
+    address: process.env.SMTP_JULIA_FROM || 'yulia@voronova.online',
+    fromName: 'Юлия Воронова',
+    eyebrow: 'Сообщение от Юлии',
+    signature: 'Ваша Юля'
+  },
+  hello: {
+    address: process.env.SMTP_HELLO_FROM || 'hello@voronova.online',
+    fromName: 'Умная тарелка',
+    eyebrow: 'Отдел заботы',
+    signature: 'Отдел заботы · Умная тарелка'
+  }
+};
 
 function wrap(body, unsubscribeToken, showSupportFooter = false, newsletterFooter = false, newsletterFooterText = '') {
   const unsubLink = unsubscribeToken
@@ -112,8 +126,10 @@ function btn(text, url) {
     .replace('{{TEXT}}', () => text);
 }
 
-async function send(to, subject, html) {
-  await transporter.sendMail({ from: FROM, to, subject, html });
+async function send(to, subject, html, options = {}) {
+  const message = { from: options.from || FROM, to, subject, html };
+  if (options.replyTo) message.replyTo = options.replyTo;
+  await transporter.sendMail(message);
 }
 
 function escHtml(s) {
@@ -171,6 +187,36 @@ function detailTable(rows) {
     + '</tr>'
   ).join('');
   return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:2px 0 20px;border-collapse:collapse">' + body + '</table>';
+}
+
+function buildPersonalMessage({ sender, subject, text, displayName }) {
+  const profile = PERSONAL_SENDERS[sender];
+  if (!profile) throw new Error('Неизвестный профиль отправителя');
+  const safeName = escHtml(String(displayName || '').trim());
+  const greeting = safeName ? 'Здравствуйте, ' + safeName + '!' : 'Здравствуйте!';
+  const body =
+    heading(escHtml(subject), profile.eyebrow)
+    + paragraph(greeting)
+    + paragraph(escHtml(text), '0 0 18px', '#4a4642', 'white-space:pre-wrap;')
+    + smallText('На это письмо можно ответить напрямую.', '0 0 11px', '#7c756d')
+    + signature(profile.signature);
+  return {
+    html: wrap(body),
+    from: '"' + profile.fromName + '" <' + profile.address + '>',
+    replyTo: profile.address
+  };
+}
+
+function previewPersonalMessage(payload) {
+  return buildPersonalMessage(payload).html;
+}
+
+async function sendPersonalMessage(to, payload) {
+  const message = buildPersonalMessage(payload);
+  await send(to, String(payload.subject).trim(), message.html, {
+    from: message.from,
+    replyTo: message.replyTo
+  });
 }
 
 // ── 1. Код для входа ──
@@ -491,5 +537,7 @@ module.exports = {
   sendReviewNotification,
   sendVideoRequestThresholdNotification,
   sendNewsletter,
-  sendTestingInvitation
+  sendTestingInvitation,
+  previewPersonalMessage,
+  sendPersonalMessage
 };

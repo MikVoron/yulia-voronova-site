@@ -148,16 +148,15 @@
             else if (u.sub_status === 'trial' && u.trial_ends_at) untilDate = fmtDate(u.trial_ends_at);
             else if (u.sub_status === 'active' && u.active_until) untilDate = fmtDate(u.active_until);
 
-            var actions = '';
+            var messageAction = '<button class="adm-btn" data-admin-action="compose-message" data-admin-id="' + esc(u.id) + '" title="Написать пользователю">Написать</button>';
+            var actions = messageAction;
             if (u.is_blocked) {
-                actions = '<button class="adm-btn adm-btn-unblock" data-admin-action="unblock-user" data-admin-id="' + esc(u.id) + '">Разблокировать</button>' +
+                actions += '<button class="adm-btn adm-btn-unblock" data-admin-action="unblock-user" data-admin-id="' + esc(u.id) + '">Разблокировать</button>' +
                     '<button class="adm-btn adm-btn-delete" data-admin-action="delete-user" data-admin-id="' + esc(u.id) + '">Удалить</button>';
             } else if (u.role !== 'admin') {
-                actions = '<button class="adm-btn adm-btn-extend" data-admin-action="extend-user" data-admin-id="' + esc(u.id) + '">Продлить</button>' +
+                actions += '<button class="adm-btn adm-btn-extend" data-admin-action="extend-user" data-admin-id="' + esc(u.id) + '">Продлить</button>' +
                     '<button class="adm-btn adm-btn-block" data-admin-action="block-user" data-admin-id="' + esc(u.id) + '">Блок</button>' +
                     '<button class="adm-btn adm-btn-delete" data-admin-action="delete-user" data-admin-id="' + esc(u.id) + '">Удалить</button>';
-            } else {
-                actions = '<span style="color:var(--text-3);font-size:12px">admin</span>';
             }
 
             return '<tr>' +
@@ -189,6 +188,79 @@
         // id из onclick всегда строка, allUsers.id может быть числом/UUID
         return allUsers.find(function(u) { return String(u.id) === String(id); });
     }
+
+    var personalMessageUser = null;
+    window.openPersonalMessageModalById = function(id) {
+        var u = findUserById(id);
+        if (!u || !u.email) { showToast('Пользователь не найден'); return; }
+        personalMessageUser = u;
+        document.getElementById('personal-message-recipient').textContent = u.email;
+        document.getElementById('personal-message-sender').value = 'yulia';
+        document.getElementById('personal-message-subject').value = '';
+        document.getElementById('personal-message-text').value = '';
+        document.getElementById('personal-message-modal').classList.add('open');
+        setTimeout(function() { document.getElementById('personal-message-subject').focus(); }, 0);
+    };
+
+    window.closePersonalMessageModal = function() {
+        document.getElementById('personal-message-modal').classList.remove('open');
+        personalMessageUser = null;
+    };
+
+    function personalMessagePayload(preview) {
+        if (!personalMessageUser) { showToast('Пользователь не выбран'); return null; }
+        var subject = document.getElementById('personal-message-subject').value.trim();
+        var text = document.getElementById('personal-message-text').value.trim();
+        if (!subject) { showToast('Укажите тему письма'); document.getElementById('personal-message-subject').focus(); return null; }
+        if (!text) { showToast('Введите текст письма'); document.getElementById('personal-message-text').focus(); return null; }
+        return {
+            email: personalMessageUser.email,
+            displayName: personalMessageUser.display_name || null,
+            sender: document.getElementById('personal-message-sender').value,
+            subject: subject,
+            text: text,
+            preview: !!preview
+        };
+    }
+
+    window.previewPersonalMessage = function() {
+        var payload = personalMessagePayload(true);
+        if (!payload) return;
+        var button = document.getElementById('personal-message-preview-btn');
+        button.disabled = true;
+        button.textContent = 'Собираем…';
+        api('/admin/personal-messages', { method: 'POST', body: payload }).then(function(data) {
+            document.getElementById('personal-message-preview-frame').srcdoc = data.html;
+            document.getElementById('personal-message-preview-modal').classList.add('open');
+        }).catch(function(e) {
+            showToast(e.message || 'Не удалось собрать предпросмотр');
+        }).finally(function() {
+            button.disabled = false;
+            button.textContent = 'Предпросмотр';
+        });
+    };
+
+    window.closePersonalMessagePreview = function() {
+        document.getElementById('personal-message-preview-modal').classList.remove('open');
+    };
+
+    window.sendPersonalMessage = function() {
+        var payload = personalMessagePayload(false);
+        if (!payload) return;
+        if (!confirm('Отправить письмо на ' + payload.email + '?')) return;
+        var button = document.getElementById('personal-message-submit');
+        button.disabled = true;
+        button.textContent = 'Отправка…';
+        api('/admin/personal-messages', { method: 'POST', body: payload }).then(function(data) {
+            closePersonalMessageModal();
+            showToast('Письмо отправлено: ' + data.email);
+        }).catch(function(e) {
+            showToast(e.message || 'Не удалось отправить письмо');
+        }).finally(function() {
+            button.disabled = false;
+            button.textContent = 'Отправить письмо';
+        });
+    };
 
     window.blockUserById = function(id) {
         var u = findUserById(id);
@@ -1418,7 +1490,9 @@
         payment_confirm: '💰 Платёж подтв.',
         payment_reject: '❌ Платёж откл.',
         user_block: '🔒 Блокировка',
-        user_unblock: '🔓 Разблокировка'
+        user_unblock: '🔓 Разблокировка',
+        testing_invitation_send: '✉ Приглашение тестеру',
+        personal_message_send: '✉ Личное письмо'
     };
 
     window.loadAudit = function(append) {
@@ -1477,6 +1551,7 @@
         if (action === 'unblock-user') window.unblockUser(id);
         else if (action === 'delete-user') window.deleteUserById(id);
         else if (action === 'extend-user') window.openExtendModalById(id);
+        else if (action === 'compose-message') window.openPersonalMessageModalById(id);
         else if (action === 'block-user') window.blockUserById(id);
         else if (action === 'confirm-payment') window.openConfirm(id);
         else if (action === 'reject-payment') window.rejectPayment(id);
@@ -1565,4 +1640,8 @@
     bindStaticAdminHandler("click", "23ad11339792", function(event) { saveNews() });
     bindStaticAdminHandler("click", "c5b913705c2f", function(event) { closeTestingInvitationModal() });
     bindStaticAdminHandler("click", "b582456d1193", function(event) { sendTestingInvitation() });
+    bindStaticAdminHandler("click", "394601a0e265", function(event) { previewPersonalMessage() });
+    bindStaticAdminHandler("click", "15c3c6500a6b", function(event) { closePersonalMessageModal() });
+    bindStaticAdminHandler("click", "05d9cc5c3790", function(event) { sendPersonalMessage() });
+    bindStaticAdminHandler("click", "8d2d6ca2e5d4", function(event) { closePersonalMessagePreview() });
 })();
