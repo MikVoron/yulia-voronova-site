@@ -2,7 +2,7 @@
     'use strict';
 
     const ORIGIN = 'https://app.voronova.online';
-    const SHARE_IMAGE = ORIGIN + '/images/smartplate-share-1200x630.webp';
+    const SHARE_IMAGE = ORIGIN + '/images/smartplate-share-telegram-1200x630.jpg';
 
     function upsertMeta(attribute, key, content) {
         if (!content) return;
@@ -69,6 +69,8 @@
         upsertMeta('property', 'og:title', title);
         upsertMeta('property', 'og:description', description);
         upsertMeta('property', 'og:image', image);
+        upsertMeta('property', 'og:image:secure_url', image);
+        upsertMeta('property', 'og:image:type', /\.jpe?g(?:$|\?)/i.test(image) ? 'image/jpeg' : (/\.png(?:$|\?)/i.test(image) ? 'image/png' : 'image/webp'));
         upsertMeta('property', 'og:url', canonical);
         upsertMeta('property', 'og:type', opts.type || 'website');
         upsertMeta('property', 'og:locale', 'ru_RU');
