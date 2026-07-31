@@ -8,6 +8,7 @@ const srcDir = path.resolve(import.meta.dirname, '..', 'src');
 
 let networkCounts;
 let fingerprintUsed;
+let fingerprintOwnerIp;
 
 const mockClient = {
   query: vi.fn(async (sql) => {
@@ -20,8 +21,8 @@ const mockClient = {
         }]
       };
     }
-    if (/SELECT 1 FROM trial_fingerprints/.test(sql)) {
-      return { rows: fingerprintUsed ? [{ '?column?': 1 }] : [] };
+    if (/SELECT ip::text AS ip FROM trial_fingerprints/.test(sql)) {
+      return { rows: fingerprintUsed ? [{ ip: fingerprintOwnerIp }] : [] };
     }
     return { rows: [] };
   }),
@@ -48,6 +49,7 @@ const {
 beforeEach(() => {
   networkCounts = { count24h: 0, count7d: 0, count90d: 0 };
   fingerprintUsed = false;
+  fingerprintOwnerIp = null;
   mockClient.query.mockClear();
   mockClient.release.mockClear();
   mockDb.pool.connect.mockClear();
@@ -88,8 +90,9 @@ describe('trial network observation', () => {
     expect(mockClient.query.mock.calls.some(([sql]) => /ip_limit/.test(sql))).toBe(false);
   });
 
-  it('still denies reuse of the same valid fingerprint', async () => {
+  it('still denies reuse of the same valid fingerprint from the same IP', async () => {
     fingerprintUsed = true;
+    fingerprintOwnerIp = '203.0.113.11';
 
     const result = await tryGrantTrial('b'.repeat(64), '203.0.113.11', 'user-2');
 
@@ -99,6 +102,20 @@ describe('trial network observation', () => {
     expect(mockClient.query).toHaveBeenCalledWith(
       expect.stringContaining("'expired'"),
       ['user-2', '203.0.113.11', 'b'.repeat(64)]
+    );
+  });
+
+  it('grants a trial for a repeated fingerprint seen from another IP', async () => {
+    fingerprintUsed = true;
+    fingerprintOwnerIp = '203.0.113.12';
+
+    const result = await tryGrantTrial('c'.repeat(64), '203.0.113.13', 'user-3');
+
+    expect(result.grant).toBe(true);
+    expect(result.reason).toBe('fingerprint_seen_other_network');
+    expect(mockClient.query).toHaveBeenCalledWith(
+      expect.stringContaining('ON CONFLICT DO NOTHING'),
+      ['c'.repeat(64), '203.0.113.13', 'user-3']
     );
   });
 });

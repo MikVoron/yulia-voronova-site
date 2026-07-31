@@ -110,7 +110,13 @@ async function authRoutes(fastify) {
       // Атомарная проверка + fingerprint + subscription — всё в одной транзакции
       const trial = await tryGrantTrial(fingerprint, req.ip, userId);
       if (trial.grant) {
-        await audit.log('trial_granted', { userId, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
+        await audit.log('trial_granted', {
+          userId,
+          email: lower,
+          detail: trial.reason === 'fingerprint_seen_other_network' ? trial.reason : null,
+          ip: req.ip,
+          ua: req.headers['user-agent']
+        });
       } else {
         await audit.log('trial_denied', { userId, email: lower, detail: trial.reason, ip: req.ip, ua: req.headers['user-agent'] });
       }
