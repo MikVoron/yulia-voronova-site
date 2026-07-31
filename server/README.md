@@ -35,6 +35,17 @@ SMTP_USER=your-smtp-user
 SMTP_PASS=your-smtp-password
 SMTP_FROM="Юлия Воронова <noreply@voronova.online>"
 
+# IMAP — сохранение ручных писем из админки в «Отправленные» выбранного ящика
+# Укажите отдельные пароли почтовых ящиков; они хранятся только на сервере.
+IMAP_HOST=mail.hosting.reg.ru
+IMAP_PORT=993
+IMAP_YULIA_USER=yulia@voronova.online
+IMAP_YULIA_PASS=app-password-for-yulia
+IMAP_YULIA_SENT_MAILBOX=Sent
+IMAP_HELLO_USER=hello@voronova.online
+IMAP_HELLO_PASS=app-password-for-hello
+IMAP_HELLO_SENT_MAILBOX=Sent
+
 # Опциональные — уведомление админу о новых регистрациях
 NEW_USER_NOTIFY_ENABLED=true                 # false отключает (по умолчанию включено)
 NEW_USER_NOTIFY_TO=hello@voronova.online     # получатель уведомления

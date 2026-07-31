@@ -6,6 +6,7 @@ const path = require('path');
 const Module = require('module');
 
 const sendMail = vi.fn().mockResolvedValue(true);
+const appendSentCopy = vi.fn().mockResolvedValue({ saved: true });
 let email;
 
 function registerMock(moduleName, exports) {
@@ -20,6 +21,7 @@ beforeAll(() => {
   registerMock('nodemailer', {
     createTransport: () => ({ sendMail })
   });
+  registerMock(path.resolve(import.meta.dirname, '..', 'src', 'imap-sent.js'), { appendSentCopy });
   const emailPath = path.resolve(import.meta.dirname, '..', 'src', 'email.js');
   delete require.cache[require.resolve(emailPath)];
   email = require(emailPath);
@@ -27,6 +29,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   sendMail.mockClear();
+  appendSentCopy.mockClear();
 });
 
 describe('email template escaping', () => {
@@ -170,6 +173,8 @@ describe('email visual system', () => {
     expect(message.html).toContain('Текст &lt;script&gt;bad()&lt;/script&gt;');
     expect(message.html).not.toContain('Здравствуйте');
     expect(message.html).toContain('white-space:pre-wrap');
+    expect(appendSentCopy).toHaveBeenCalledWith('yulia', expect.stringContaining('Subject: =?UTF-8?B?'));
+    expect(appendSentCopy.mock.calls[0][1]).toContain('Content-Type: multipart/alternative');
 
     const preview = email.previewPersonalMessage({
       sender: 'hello', subject: 'Проверка', text: 'Привет! Текст'

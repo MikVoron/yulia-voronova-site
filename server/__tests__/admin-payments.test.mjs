@@ -364,7 +364,7 @@ describe('admin personal messages', () => {
       sender: 'hello', subject: 'Добрый день', text: 'Приватный текст'
     }));
     expect(auditLog).toHaveBeenCalledWith('personal_message_send', expect.objectContaining({
-      email: 'user@example.com', detail: 'hello; chars=15'
+      email: 'user@example.com', detail: 'hello; chars=15; sent_copy=not_configured'
     }));
 
     const invalid = await app.inject({

@@ -151,18 +151,19 @@ async function adminRoutes(fastify) {
     }
 
     try {
-      await sendPersonalMessage(payload.email, payload);
+      const result = await sendPersonalMessage(payload.email, payload);
+      const sentCopy = result && result.sentCopy ? result.sentCopy : { saved: false, reason: 'not_configured' };
+      await audit.log('personal_message_send', {
+        userId: req.user.sub,
+        email: payload.email,
+        detail: payload.sender + '; chars=' + payload.text.length + '; sent_copy=' + (sentCopy.saved ? 'saved' : sentCopy.reason),
+        ip: req.ip
+      });
+      return { ok: true, email: payload.email, sentCopy };
     } catch (err) {
       fastify.log.error(err, 'Personal message email error');
       return reply.status(500).send({ error: 'Не удалось отправить письмо' });
     }
-    await audit.log('personal_message_send', {
-      userId: req.user.sub,
-      email: payload.email,
-      detail: payload.sender + '; chars=' + payload.text.length,
-      ip: req.ip
-    });
-    return { ok: true, email: payload.email };
   });
 
   // GET /admin/users — список пользователей

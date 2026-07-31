@@ -252,7 +252,11 @@
         button.textContent = 'Отправка…';
         api('/admin/personal-messages', { method: 'POST', body: payload }).then(function(data) {
             closePersonalMessageModal();
-            showToast('Письмо отправлено: ' + data.email);
+            if (data.sentCopy && data.sentCopy.saved) {
+                showToast('Письмо отправлено и сохранено в «Отправленных»: ' + data.email);
+            } else {
+                showToast('Письмо отправлено, но копия не сохранена в «Отправленных». Проверьте IMAP-настройку.');
+            }
         }).catch(function(e) {
             showToast(e.message || 'Не удалось отправить письмо');
         }).finally(function() {

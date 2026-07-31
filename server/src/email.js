@@ -1,4 +1,6 @@
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const { appendSentCopy } = require('./imap-sent');
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -208,12 +210,54 @@ function previewPersonalMessage(payload) {
   return buildPersonalMessage(payload).html;
 }
 
+function encodeHeader(value) {
+  const encoded = Buffer.from(String(value), 'utf8').toString('base64');
+  return encoded.match(/.{1,52}/g).map((part) => '=?UTF-8?B?' + part + '?=').join('\r\n ');
+}
+
+function makeRawPersonalMessage(to, payload, message) {
+  const profile = PERSONAL_SENDERS[payload.sender];
+  const boundary = 'smartplate-' + crypto.randomBytes(16).toString('hex');
+  const messageId = '<' + crypto.randomBytes(16).toString('hex') + '@voronova.online>';
+  const text = String(payload.text).trim() + '\n\n' + profile.signature + '\n\nНа это письмо можно ответить напрямую.';
+  const base64 = (value) => Buffer.from(value, 'utf8').toString('base64').match(/.{1,76}/g).join('\r\n');
+  return [
+    'From: ' + encodeHeader(profile.fromName) + ' <' + profile.address + '>',
+    'To: <' + to + '>',
+    'Reply-To: ' + profile.address,
+    'Subject: ' + encodeHeader(String(payload.subject).trim()),
+    'Date: ' + new Date().toUTCString(),
+    'Message-ID: ' + messageId,
+    'MIME-Version: 1.0',
+    'Content-Type: multipart/alternative; boundary="' + boundary + '"',
+    '',
+    '--' + boundary,
+    'Content-Type: text/plain; charset=utf-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+    base64(text),
+    '--' + boundary,
+    'Content-Type: text/html; charset=utf-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+    base64(message.html),
+    '--' + boundary + '--',
+    ''
+  ].join('\r\n');
+}
+
 async function sendPersonalMessage(to, payload) {
   const message = buildPersonalMessage(payload);
   await send(to, String(payload.subject).trim(), message.html, {
     from: message.from,
     replyTo: message.replyTo
   });
+  try {
+    return { sentCopy: await appendSentCopy(payload.sender, makeRawPersonalMessage(to, payload, message)) };
+  } catch (err) {
+    console.error('Personal message sent-copy error:', err.message);
+    return { sentCopy: { saved: false, reason: 'save_failed' } };
+  }
 }
 
 // ── 1. Код для входа ──
