@@ -76,7 +76,6 @@ function parseListWindow(query, fallbackLimit, maxLimit = ADMIN_LIST_LIMIT_MAX) 
 function readPersonalMessagePayload(body) {
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: 'Укажите корректный email' };
-  if (body.displayName != null && typeof body.displayName !== 'string') return { error: 'Некорректное имя' };
   if (body.sender !== 'yulia' && body.sender !== 'hello') return { error: 'Выберите отправителя' };
   if (typeof body.subject !== 'string' || !body.subject.trim()) return { error: 'Укажите тему письма' };
   if (body.subject.trim().length > PERSONAL_MESSAGE_SUBJECT_LIMIT) return { error: 'Тема слишком длинная' };
@@ -85,7 +84,6 @@ function readPersonalMessagePayload(body) {
   return {
     value: {
       email,
-      displayName: typeof body.displayName === 'string' ? body.displayName.trim().slice(0, 100) : '',
       sender: body.sender,
       subject: body.subject.trim(),
       text: body.text.trim()
@@ -142,8 +140,6 @@ async function adminRoutes(fastify) {
     const parsed = readPersonalMessagePayload(body);
     if (parsed.error) return reply.status(400).send({ error: parsed.error });
     const payload = parsed.value;
-    const userResult = await db.query('SELECT display_name FROM users WHERE email=$1 LIMIT 1', [payload.email]);
-    if (!payload.displayName) payload.displayName = userResult.rows[0]?.display_name || '';
 
     if (body.preview === true) {
       try {

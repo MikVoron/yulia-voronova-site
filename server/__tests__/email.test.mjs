@@ -158,27 +158,28 @@ describe('email visual system', () => {
     await email.sendPersonalMessage('user@example.com', {
       sender: 'yulia',
       subject: 'Важная <тема>',
-      text: 'Текст <script>bad()</script>\nВторая строка',
-      displayName: 'Анна <Иванова>'
+      text: 'Привет, Анна!\nТекст <script>bad()</script>\nВторая строка'
     });
     const message = sendMail.mock.calls[0][0];
 
     expect(message.from).toBe('"Юлия Воронова" <yulia@voronova.online>');
     expect(message.replyTo).toBe('yulia@voronova.online');
     expect(message.subject).toBe('Важная <тема>');
-    expect(message.html).toContain('Здравствуйте, Анна &lt;Иванова&gt;!');
     expect(message.html).toContain('Важная &lt;тема&gt;');
+    expect(message.html).toContain('Привет, Анна!');
     expect(message.html).toContain('Текст &lt;script&gt;bad()&lt;/script&gt;');
+    expect(message.html).not.toContain('Здравствуйте');
     expect(message.html).toContain('white-space:pre-wrap');
 
     const preview = email.previewPersonalMessage({
-      sender: 'hello', subject: 'Проверка', text: 'Текст', displayName: ''
+      sender: 'hello', subject: 'Проверка', text: 'Привет! Текст'
     });
     expect(preview).toContain('Отдел заботы');
-    expect(preview).toContain('Здравствуйте!');
+    expect(preview).toContain('Привет! Текст');
+    expect(preview).not.toContain('Здравствуйте');
 
     await email.sendPersonalMessage('user@example.com', {
-      sender: 'hello', subject: 'Проверка', text: 'Текст', displayName: ''
+      sender: 'hello', subject: 'Проверка', text: 'Привет! Текст'
     });
     const helloMessage = sendMail.mock.calls[1][0];
     expect(helloMessage.from).toBe('"Умная тарелка" <hello@voronova.online>');

@@ -189,14 +189,11 @@ function detailTable(rows) {
   return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:2px 0 20px;border-collapse:collapse">' + body + '</table>';
 }
 
-function buildPersonalMessage({ sender, subject, text, displayName }) {
+function buildPersonalMessage({ sender, subject, text }) {
   const profile = PERSONAL_SENDERS[sender];
   if (!profile) throw new Error('Неизвестный профиль отправителя');
-  const safeName = escHtml(String(displayName || '').trim());
-  const greeting = safeName ? 'Здравствуйте, ' + safeName + '!' : 'Здравствуйте!';
   const body =
     heading(escHtml(subject), profile.eyebrow)
-    + paragraph(greeting)
     + paragraph(escHtml(text), '0 0 18px', '#4a4642', 'white-space:pre-wrap;')
     + smallText('На это письмо можно ответить напрямую.', '0 0 11px', '#7c756d')
     + signature(profile.signature);

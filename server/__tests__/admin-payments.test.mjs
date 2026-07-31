@@ -332,7 +332,6 @@ describe('admin testing invitations', () => {
 
 describe('admin personal messages', () => {
   it('renders a safe preview without sending or auditing it', async () => {
-    mockQuery.mockImplementation(async () => ({ rows: [{ display_name: 'Мария' }] }));
     const res = await app.inject({
       method: 'POST',
       url: '/admin/personal-messages',
@@ -344,7 +343,7 @@ describe('admin personal messages', () => {
     expect(res.statusCode).toBe(200);
     expect(res.json()).toEqual({ html: '<html>preview</html>' });
     expect(previewPersonalMessage).toHaveBeenCalledWith(expect.objectContaining({
-      email: 'user@example.com', displayName: 'Мария', sender: 'yulia'
+      email: 'user@example.com', sender: 'yulia'
     }));
     expect(sendPersonalMessage).not.toHaveBeenCalled();
     expect(auditLog).not.toHaveBeenCalled();
@@ -356,13 +355,13 @@ describe('admin personal messages', () => {
       method: 'POST',
       url: '/admin/personal-messages',
       payload: {
-        email: ' User@Example.com ', displayName: ' Анна ', sender: 'hello', subject: 'Добрый день', text: 'Приватный текст'
+        email: ' User@Example.com ', sender: 'hello', subject: 'Добрый день', text: 'Приватный текст'
       }
     });
 
     expect(res.statusCode).toBe(200);
     expect(sendPersonalMessage).toHaveBeenCalledWith('user@example.com', expect.objectContaining({
-      sender: 'hello', subject: 'Добрый день', text: 'Приватный текст', displayName: 'Анна'
+      sender: 'hello', subject: 'Добрый день', text: 'Приватный текст'
     }));
     expect(auditLog).toHaveBeenCalledWith('personal_message_send', expect.objectContaining({
       email: 'user@example.com', detail: 'hello; chars=15'

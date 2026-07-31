@@ -215,7 +215,6 @@
         if (!text) { showToast('Введите текст письма'); document.getElementById('personal-message-text').focus(); return null; }
         return {
             email: personalMessageUser.email,
-            displayName: personalMessageUser.display_name || null,
             sender: document.getElementById('personal-message-sender').value,
             subject: subject,
             text: text,
