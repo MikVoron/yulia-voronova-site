@@ -5,7 +5,7 @@
         title: 'Умная тарелка — рецепты и сбалансированное питание',
         description: 'Умная тарелка Юлии Вороновой: полезные рецепты с расчётом КБЖУ, заменами продуктов, пошаговыми инструкциями и помощником для сбалансированного питания.',
         canonical: 'https://app.voronova.online/',
-        image: 'https://app.voronova.online/images/smartplate-share-telegram-1200x630.jpg',
+        image: 'https://voronova.online/images/smartplate-share-telegram-1200x630.jpg',
         schema: {
             '@context': 'https://schema.org',
             '@type': 'WebSite',

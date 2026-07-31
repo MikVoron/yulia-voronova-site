@@ -9,7 +9,7 @@ const read = file => fs.readFileSync(path.join(platform, file), 'utf8');
 
 const index = read('index.html');
 assert.match(index, /<link rel="canonical" href="https:\/\/app\.voronova\.online\/">/);
-assert.match(index, /property="og:image" content="https:\/\/app\.voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
+assert.match(index, /property="og:image" content="https:\/\/voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
 assert.match(index, /property="og:image:type" content="image\/jpeg"/);
 assert.match(index, /name="twitter:card" content="summary_large_image"/);
 assert.match(index, /src="seo\.js\?v=20260731-seo"/);
@@ -48,6 +48,7 @@ for (const file of technicalPages) {
 }
 
 assert(fs.statSync(path.join(platform, 'images', 'smartplate-share-telegram-1200x630.jpg')).size > 0);
+assert(fs.statSync(path.join(root, 'images', 'smartplate-share-telegram-1200x630.jpg')).size > 0);
 
 function createSeoDom() {
     const nodes = [];

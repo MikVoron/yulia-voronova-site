@@ -2,7 +2,7 @@
     'use strict';
 
     const ORIGIN = 'https://app.voronova.online';
-    const SHARE_IMAGE = ORIGIN + '/images/smartplate-share-telegram-1200x630.jpg';
+    const SHARE_IMAGE = 'https://voronova.online/images/smartplate-share-telegram-1200x630.jpg';
 
     function upsertMeta(attribute, key, content) {
         if (!content) return;
