@@ -1683,8 +1683,10 @@
 			.cab-tab-panel { padding: 20px 14px; }
 			.early-access-title { font-size: 23px; }
 			.pay-plan-grid { grid-template-columns: 1fr; }
-			.pay-action-back { flex: 1; width: auto; }
-			.pay-action-primary { flex: 2; width: auto; }
+			.pay-actions:not(.pay-actions--single) { gap: 8px; }
+			.pay-action-btn { padding-inline: 12px; font-size: 11px; letter-spacing: .08em; }
+			.pay-action-back { flex: 0 0 auto; width: auto; }
+			.pay-action-primary { flex: 1 1 0; min-width: 0; width: auto; }
 			.pay-actions--single .pay-action-primary { flex: 1; width: 100%; }
 		}
 		@media (max-width: 360px) {
