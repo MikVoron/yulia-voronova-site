@@ -469,7 +469,7 @@
 		// Preview-режим для locked-рецепта. Никаких пустых блоков ingredients/steps/note —
 		// один CTA-блок вместо них.
 		function renderRecipePreview(r) {
-			document.title = r.name + ' — Конструктор питания';
+			document.title = r.name + ' — рецепт | Умная тарелка';
 			const cta = Auth.recipePaywallCta(r) || {
 				title: 'Доступ к рецепту ограничен',
 				btn: 'Оформить подписку',
@@ -532,7 +532,7 @@
 
 		// ── SUBLIST (e.g. Здоровые бутерброды → список намазок) ─────────────
 		function renderSublist(r) {
-			document.title = r.name + ' — Конструктор питания';
+			document.title = r.name + ' — рецепт | Умная тарелка';
 			const items = (r.subItems || []).map(id => RECIPES[id]).filter(Boolean);
 			const html = `
             <div class="anim">
@@ -1062,7 +1062,7 @@
 				: '';
 			const portionDetail = portionNote || (r.portionGrams ? ('1 порция ≈ ' + Number(r.portionGrams) + ' г') : '');
 			window.__currentRecipeId = r.id;
-			document.title = r.name + ' — Конструктор питания';
+			document.title = r.name + ' — рецепт | Умная тарелка';
 			const _asIngredient = new URLSearchParams(location.search).get('asIngredient') === '1';
 			document.getElementById('sticky-add').style.display = _asIngredient ? 'none' : 'block';
 			const fab = document.getElementById('support-fab');

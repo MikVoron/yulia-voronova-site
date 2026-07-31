@@ -47,6 +47,14 @@
         return String(value || '').replace(/^[«"']|[»"']$/g, '').replace(/\s+/g, ' ').trim();
     }
 
+    function summary(value, maxLength) {
+        const text = clean(value);
+        const limit = maxLength || 180;
+        if (text.length <= limit) return text;
+        const shortened = text.slice(0, limit + 1).replace(/\s+\S*$/, '').replace(/[\s,;:—-]+$/, '');
+        return shortened + '…';
+    }
+
     function setPage(options) {
         const opts = options || {};
         const title = clean(opts.title) || 'Умная тарелка';
@@ -73,7 +81,8 @@
     }
 
     function ingredientText(item) {
-        return clean(typeof item === 'string' ? item : item && item.name);
+        return clean(typeof item === 'string' ? item : item && item.name)
+            .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
     }
 
     function stepText(step) {
@@ -83,7 +92,7 @@
     function setRecipe(recipe) {
         if (!recipe || !recipe.id) return;
         const canonical = ORIGIN + '/recipe.html?id=' + encodeURIComponent(recipe.id);
-        const description = clean(recipe.quote) || (recipe.name + ' — рецепт с расчётом КБЖУ и пошаговым приготовлением в сервисе «Умная тарелка».');
+        const description = summary(recipe.quote) || (recipe.name + ' — рецепт с расчётом КБЖУ и пошаговым приготовлением в сервисе «Умная тарелка».');
         const image = absoluteUrl(recipe.photo);
         const isFree = recipe.accessLevel === 'free' || recipe.free === true;
         const schema = {

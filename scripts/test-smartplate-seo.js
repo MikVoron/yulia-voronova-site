@@ -80,7 +80,7 @@ sandbox.window.SmartPlateSEO.setRecipe({
     id: 'test-free-recipe', name: 'Тестовый рецепт', accessLevel: 'free',
     quote: 'Полезный тестовый рецепт', photo: 'images/recipes/test/cover.webp',
     servings: 2, time: 25, kcal: 320, protein: 18, fat: 10, carbs: 40, fiber: 6,
-    ingredients: [{ name: 'Нут: 200 г' }], steps: [{ text: 'Смешать ингредиенты.' }]
+    ingredients: [{ name: '[Нут](hummus): 200 г' }], steps: [{ text: 'Смешать ингредиенты.' }]
 });
 assert.strictEqual(document.title, 'Тестовый рецепт — рецепт | Умная тарелка');
 assert.strictEqual(document.head.querySelector('link[rel="canonical"]').attributes.href, 'https://app.voronova.online/recipe.html?id=test-free-recipe');
