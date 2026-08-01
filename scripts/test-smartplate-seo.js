@@ -50,6 +50,13 @@ for (const file of technicalPages) {
 assert(fs.statSync(path.join(platform, 'images', 'smartplate-share-telegram-1200x630.jpg')).size > 0);
 assert(fs.statSync(path.join(root, 'images', 'smartplate-share-telegram-1200x630.jpg')).size > 0);
 
+const sharePage = fs.readFileSync(path.join(root, 'smartplate', 'index.html'), 'utf8');
+assert.match(sharePage, /meta name="robots" content="noindex, follow"/);
+assert.match(sharePage, /rel="canonical" href="https:\/\/app\.voronova\.online\/"/);
+assert.match(sharePage, /property="og:url" content="https:\/\/voronova\.online\/smartplate\/"/);
+assert.match(sharePage, /property="og:image" content="https:\/\/voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
+assert.match(fs.readFileSync(path.join(root, 'smartplate', 'redirect.js'), 'utf8'), /location\.replace\('https:\/\/app\.voronova\.online\/'\)/);
+
 function createSeoDom() {
     const nodes = [];
     function find(selector) {
