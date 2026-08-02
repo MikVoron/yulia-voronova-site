@@ -128,10 +128,37 @@ function btn(text, url) {
     .replace('{{TEXT}}', () => text);
 }
 
+function recipientDomain(to) {
+  const match = String(to || '').match(/@([^\s>@]+)$/);
+  return match ? match[1].toLowerCase() : 'invalid';
+}
+
 async function send(to, subject, html, options = {}) {
   const message = { from: options.from || FROM, to, subject, html };
   if (options.replyTo) message.replyTo = options.replyTo;
-  await transporter.sendMail(message);
+  const startedAt = Date.now();
+  const domain = recipientDomain(to);
+  try {
+    const info = await transporter.sendMail(message) || {};
+    console.info(JSON.stringify({
+      event: 'smtp_message_accepted',
+      recipientDomain: domain,
+      messageId: info.messageId || null,
+      acceptedCount: Array.isArray(info.accepted) ? info.accepted.length : 0,
+      rejectedCount: Array.isArray(info.rejected) ? info.rejected.length : 0,
+      elapsedMs: Date.now() - startedAt
+    }));
+    return info;
+  } catch (err) {
+    console.error(JSON.stringify({
+      event: 'smtp_message_failed',
+      recipientDomain: domain,
+      errorCode: err && err.code ? err.code : null,
+      responseCode: err && err.responseCode ? err.responseCode : null,
+      elapsedMs: Date.now() - startedAt
+    }));
+    throw err;
+  }
 }
 
 function escHtml(s) {
@@ -261,11 +288,11 @@ async function sendPersonalMessage(to, payload) {
 }
 
 // ── 1. Код для входа ──
-async function sendLoginCode(to, code) {
+async function sendLoginCode(to, code, ttlMinutes = 10) {
   const body =
     heading('Ваш код для входа', 'Безопасный вход')
     + callout('<div style="font-size:30px;line-height:1.3;font-weight:700;letter-spacing:8px;text-align:center;color:#171717">' + escHtml(code) + '</div>', true)
-    + smallText('Код действует 5 минут. Никому не сообщайте его.<br>Если вы не запрашивали вход в «Умную тарелку», просто проигнорируйте это письмо.');
+    + smallText('Код действует ' + escHtml(ttlMinutes) + ' минут. Никому не сообщайте его.<br>Если вы не запрашивали вход в «Умную тарелку», просто проигнорируйте это письмо.');
   await send(to, 'Код для входа в Умную тарелку', wrapService(body));
 }
 

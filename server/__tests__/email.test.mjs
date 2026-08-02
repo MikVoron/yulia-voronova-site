@@ -76,6 +76,7 @@ describe('email template escaping', () => {
 describe('email visual system', () => {
   it('uses the compact responsive wrapper across every notification type', async () => {
     await email.sendLoginCode('user@example.com', '123456');
+    expect(sendMail.mock.calls[0][0].html).toContain('Код действует 10 минут.');
     await email.sendWelcome('user@example.com', true);
     await email.sendWelcome('user@example.com', false);
     await email.sendTrialExpired('user@example.com');

@@ -97,9 +97,13 @@ describe('auth/send-code', () => {
   });
 
   it('returns 200 for valid email', async () => {
+    mockQuery.mockClear();
     const res = await app.inject({ method: 'POST', url: '/auth/send-code', payload: { email: 'test@example.com' } });
     expect(res.statusCode).toBe(200);
     expect(res.json().ok).toBe(true);
+    const insert = mockQuery.mock.calls.find(([sql]) => /INSERT INTO login_codes/.test(sql));
+    expect(insert[0]).toContain("$3 * interval '1 minute'");
+    expect(insert[1][2]).toBe(10);
   });
 
   it('returns 200 (silent deny) for admin context with non-admin email', async () => {

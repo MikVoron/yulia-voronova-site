@@ -14,6 +14,7 @@ const AUTH_VERIFY_RATE_LIMIT = { max: 20, timeWindow: '15 minutes' };
 const AUTH_REFRESH_RATE_LIMIT = { max: 60, timeWindow: '15 minutes' };
 const AUTH_LOGOUT_RATE_LIMIT = { max: 60, timeWindow: '15 minutes' };
 const AUTH_PROFILE_RATE_LIMIT = { max: 20, timeWindow: '1 hour' };
+const LOGIN_CODE_TTL_MINUTES = 10;
 
 async function authRoutes(fastify) {
   // POST /auth/send-code
@@ -40,8 +41,8 @@ async function authRoutes(fastify) {
     if (Number(recent.rows[0].count) >= 3) return reply.status(429).send({ error: 'Слишком много попыток. Подождите 15 минут' });
     const code = generateLoginCode();
     const codeHash = await bcrypt.hash(code, 10);
-    await db.query("INSERT INTO login_codes (email, code_hash, expires_at, ip) VALUES ($1, $2, now() + interval '5 minutes', $3)", [lower, codeHash, ip]);
-    try { await sendLoginCode(lower, code); } catch (e) { fastify.log.error(e, 'SMTP error'); return reply.status(500).send({ error: 'Не удалось отправить письмо' }); }
+    await db.query("INSERT INTO login_codes (email, code_hash, expires_at, ip) VALUES ($1, $2, now() + ($3 * interval '1 minute'), $4)", [lower, codeHash, LOGIN_CODE_TTL_MINUTES, ip]);
+    try { await sendLoginCode(lower, code, LOGIN_CODE_TTL_MINUTES); } catch (e) { fastify.log.error(e, 'SMTP error'); return reply.status(500).send({ error: 'Не удалось отправить письмо' }); }
     return { ok: true, message: 'Код отправлен на ' + lower };
   });
 
