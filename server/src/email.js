@@ -590,6 +590,22 @@ async function sendFeedbackReply(to, category, originalText, replyText, displayN
   await send(to, 'Ответ на ваше обращение', wrapService(body));
 }
 
+// ── 11. Уведомление пользователю об ответе Юлии на отзыв ───────────────────
+async function sendReviewReply(to, recipeName, recipeId, originalText, replyText, displayName) {
+  const safeName = escHtml(String(displayName || '').trim());
+  const greeting = safeName ? 'Здравствуйте, ' + safeName + '!' : 'Здравствуйте!';
+  const reviewUrl = PLATFORM_URL + '/recipe.html?id=' + encodeURIComponent(recipeId || '') + '#reviews-section';
+  const body =
+    heading(greeting, 'Ответ на ваш отзыв')
+    + paragraph('Юлия ответила на ваш отзыв к рецепту <strong>' + escHtml(recipeName) + '</strong>.')
+    + smallText('Ваш отзыв', '0 0 7px', '#7c756d')
+    + callout('<div style="white-space:pre-wrap">' + escHtml(originalText) + '</div>')
+    + paragraph('<strong style="color:#171717">Юлия:</strong>', '0 0 6px')
+    + paragraph(escHtml(replyText), '0 0 16px', '#4a4642', 'white-space:pre-wrap;')
+    + btn('Посмотреть ответ', reviewUrl);
+  await send(to, 'Юлия ответила на ваш отзыв', wrapService(body));
+}
+
 module.exports = {
   sendLoginCode,
   sendWelcome,
@@ -602,6 +618,7 @@ module.exports = {
   sendNewUserNotification,
   sendFeedback,
   sendFeedbackReply,
+  sendReviewReply,
   sendReviewNotification,
   sendVideoRequestThresholdNotification,
   sendNewsletter,

@@ -443,8 +443,18 @@ async function contentRoutes(fastify) {
       return reply.status(400).send({ error: 'Максимум 1000 символов' });
     }
 
-    const exists = await db.query('SELECT id FROM reviews WHERE id=$1', [reviewId]);
-    if (!exists.rows.length) return reply.status(404).send({ error: 'Отзыв не найден' });
+    const review = await db.query(
+      `SELECT r.id, r.recipe_id, r.text AS review_text,
+              u.email, u.display_name, recipe.name AS recipe_name,
+              EXISTS(SELECT 1 FROM review_replies rr WHERE rr.review_id = r.id) AS has_reply
+       FROM reviews r
+       JOIN users u ON u.id = r.user_id
+       JOIN recipes recipe ON recipe.id = r.recipe_id
+       WHERE r.id=$1`,
+      [reviewId]
+    );
+    if (!review.rows.length) return reply.status(404).send({ error: 'Отзыв не найден' });
+    const reviewHead = review.rows[0];
 
     const result = await db.query(
       `INSERT INTO review_replies (review_id, admin_id, text)
@@ -456,6 +466,16 @@ async function contentRoutes(fastify) {
     );
     await audit.log('review_reply', { userId: req.user.sub, detail: 'review#' + reviewId, ip: req.ip });
     const row = result.rows[0];
+    if (!reviewHead.has_reply) {
+      email.sendReviewReply(
+        reviewHead.email,
+        reviewHead.recipe_name || reviewHead.recipe_id,
+        reviewHead.recipe_id,
+        reviewHead.review_text || '',
+        text,
+        reviewHead.display_name
+      ).catch(e => fastify.log.error(e, 'Review reply email error'));
+    }
     return { reply: { text: row.text, createdAt: row.created_at, updatedAt: row.updated_at } };
   });
 

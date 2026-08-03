@@ -71,6 +71,28 @@ describe('email template escaping', () => {
     expect(message.html).toContain('&lt;img src=x onerror=alert(1)&gt;');
     expect(message.html).toContain('reply &lt;b&gt;bold&lt;/b&gt; &amp; &quot;quote&quot;');
   });
+
+  it('uses the branded service template and escapes fields in review reply emails', async () => {
+    await email.sendReviewReply(
+      'user@example.com',
+      'Уха <script>',
+      'salmon-ukha',
+      '<img src=x onerror=alert(1)>',
+      'Спасибо <b>за вопрос</b>',
+      'Анна <Admin>'
+    );
+
+    const message = sendMail.mock.calls[0][0];
+    expect(message.to).toBe('user@example.com');
+    expect(message.subject).toBe('Юлия ответила на ваш отзыв');
+    expect(message.html).toContain('width="560"');
+    expect(message.html).toContain('/cabinet.html?tab=feedback');
+    expect(message.html).toContain('/recipe.html?id=salmon-ukha#reviews-section');
+    expect(message.html).toContain('Анна &lt;Admin&gt;');
+    expect(message.html).toContain('Уха &lt;script&gt;');
+    expect(message.html).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    expect(message.html).toContain('Спасибо &lt;b&gt;за вопрос&lt;/b&gt;');
+  });
 });
 
 describe('email visual system', () => {
@@ -103,8 +125,9 @@ describe('email visual system', () => {
       sender: 'hello', subject: 'Личное сообщение', text: 'Здравствуйте!', displayName: 'Анна'
     });
     await email.sendFeedbackReply('user@example.com', 'wish', 'Моё обращение', 'Спасибо за идею', 'Анна');
+    await email.sendReviewReply('user@example.com', 'Омлет', 'omelet', 'Мой отзыв', 'Спасибо!', 'Анна');
 
-    expect(sendMail).toHaveBeenCalledTimes(17);
+    expect(sendMail).toHaveBeenCalledTimes(18);
     for (const [message] of sendMail.mock.calls) {
       expect(message.html).toContain('width="560"');
       expect(message.html).toContain('class="em-content"');

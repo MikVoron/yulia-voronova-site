@@ -8,6 +8,8 @@ let userState = { is_blocked: false, role: 'user' };
 let subState = null; // null = no subscription row; or { status, trial_ends_at, active_until }
 let dietaryPreferences = null;
 let reviewRows = [];
+let reviewAlreadyAnswered = false;
+const sendReviewReply = vi.fn().mockResolvedValue(true);
 
 const FREE_RECIPE = {
   id: 'free-1', cat: 'breakfasts', name: 'Free recipe',
@@ -60,11 +62,19 @@ const mockQuery = vi.fn(async (sql /*, params */) => {
   if (/SELECT id, name, emoji, color, description, sort_order, auto_addons FROM categories ORDER BY sort_order/.test(sql)) {
     return { rows: CATEGORIES.map(c => ({ ...c })) };
   }
-  if (/FROM reviews r JOIN users u ON u.id = r.user_id/.test(sql)) {
+  if (/LEFT JOIN review_replies rr ON rr.review_id = r.id/.test(sql)) {
     return { rows: reviewRows.map(r => ({ ...r })) };
   }
-  if (/SELECT id FROM reviews WHERE id/.test(sql)) {
-    return { rows: [{ id: 17 }] };
+  if (/SELECT r.id, r.recipe_id, r.text AS review_text/.test(sql)) {
+    return { rows: [{
+      id: 17,
+      recipe_id: 'salmon-ukha',
+      review_text: 'Подскажите, можно ли заменить рыбу?',
+      email: 'galina@example.com',
+      display_name: 'Галина',
+      recipe_name: 'Уха',
+      has_reply: reviewAlreadyAnswered,
+    }] };
   }
   if (/INSERT INTO review_replies/.test(sql)) {
     return { rows: [{ text: 'Спасибо за вопрос!', created_at: '2026-08-03T10:00:00.000Z', updated_at: '2026-08-03T10:00:00.000Z' }] };
@@ -101,6 +111,7 @@ registerMock(path.join(srcDir, 'email.js'), {
   sendLoginCode: vi.fn().mockResolvedValue(true),
   sendWelcome: vi.fn().mockResolvedValue(true),
   sendNewUserNotification: vi.fn().mockResolvedValue(true),
+  sendReviewReply,
 });
 registerMock(path.join(srcDir, 'audit.js'), { log: vi.fn() });
 
@@ -125,7 +136,9 @@ beforeEach(() => {
   subState = null;
   dietaryPreferences = null;
   reviewRows = [];
+  reviewAlreadyAnswered = false;
   mockQuery.mockClear();
+  sendReviewReply.mockClear();
 });
 
 describe('GET /content/recipes dietary filtering', () => {
@@ -258,6 +271,23 @@ describe('recipe reviews', () => {
     expect(res.statusCode).toBe(200);
     expect(res.json().reply.text).toBe('Спасибо за вопрос!');
     expect(mockQuery.mock.calls.some(([sql]) => /INSERT INTO review_replies/.test(sql))).toBe(true);
+    expect(sendReviewReply).toHaveBeenCalledWith(
+      'galina@example.com', 'Уха', 'salmon-ukha',
+      'Подскажите, можно ли заменить рыбу?', 'Спасибо за вопрос!', 'Галина'
+    );
+  });
+
+  it('does not email again when an admin edits an existing review reply', async () => {
+    reviewAlreadyAnswered = true;
+    userState = { is_blocked: false, role: 'admin' };
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/reviews/17/reply',
+      headers: { authorization: 'Bearer ' + makeToken('admin-1') },
+      payload: { text: 'Уточнённый ответ' },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(sendReviewReply).not.toHaveBeenCalled();
   });
 });
 
