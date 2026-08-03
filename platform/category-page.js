@@ -433,6 +433,8 @@
         const action = actionTarget.dataset.categoryAction;
         if (action === 'delete-review') {
             deleteCatReview(Number(actionTarget.dataset.reviewId), actionTarget.dataset.isAdmin === 'true');
+        } else if (action === 'submit-review-reply') {
+            submitReviewReply(Number(actionTarget.dataset.reviewId));
         } else if (action === 'select-star') {
             selectStar(Number(actionTarget.dataset.n));
         } else if (action === 'remove-plate-item') {
@@ -789,6 +791,18 @@
                     ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0" data-review-avatar-fallback>`
                       + `<span class="review-avatar-fallback" style="display:none;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
                     : `<span style="width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
+                const authorReplyHtml = rv.reply
+                    ? `<div style="margin-top:10px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--bg-2);font-size:13px;line-height:1.5">
+                        <div style="margin-bottom:3px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)">Ответ Юлии</div>
+                        <div>${escHtml(rv.reply.text)}</div>
+                    </div>`
+                    : '';
+                const replyFormHtml = isAdmin
+                    ? `<div style="margin-top:10px">
+                        <textarea class="c-input" id="review-reply-${Number(rv.id)}" placeholder="Публичный ответ от имени Юлии" rows="3" style="margin:0 0 7px">${escHtml(rv.reply ? rv.reply.text : '')}</textarea>
+                        <button class="btn btn-orange" type="button" data-category-action="submit-review-reply" data-review-id="${Number(rv.id)}" style="padding:8px 12px;font-size:12px">${rv.reply ? 'Обновить ответ' : 'Ответить как Юлия'}</button>
+                    </div>`
+                    : '';
                 return `<div class="comment-item" style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)">
                     <div style="flex-shrink:0">${avatarHtml}</div>
                     <div style="flex:1;min-width:0">
@@ -801,6 +815,8 @@
                         </div>
                         <div style="margin-bottom:4px">${starsHtml(rv.stars)}</div>
                         ${rv.text ? `<div style="font-size:13px;color:var(--text);line-height:1.5">${escHtml(rv.text)}</div>` : ''}
+                        ${authorReplyHtml}
+                        ${replyFormHtml}
                     </div>
                 </div>`;
             }).join('')}</div>`
@@ -842,10 +858,36 @@
             const endpoint = isAdmin ? '/admin/reviews/' : '/content/reviews/';
             const res = await Auth.api(endpoint + id, { method: 'DELETE' });
             if (!res.ok) { showToast('Не удалось удалить'); return; }
-            showToast('Отзыв удалён');
-            loadCommentsFromAPI(commentsRecipeId);
+            await loadCommentsFromAPI(commentsRecipeId);
+            showToast('Отзыв удалён. Можно оставить новый.');
         } catch (e) { showToast('Ошибка сети'); }
     };
+
+    async function submitReviewReply(id) {
+        const input = document.getElementById('review-reply-' + id);
+        const text = (input?.value || '').trim();
+        if (!text) { showToast('Напишите ответ'); return; }
+
+        const btn = document.querySelector('[data-category-action="submit-review-reply"][data-review-id="' + id + '"]');
+        const originalLabel = btn ? btn.textContent : '';
+        if (btn) { btn.disabled = true; btn.textContent = '...'; }
+        try {
+            const res = await Auth.api('/admin/reviews/' + id + '/reply', {
+                method: 'POST',
+                body: JSON.stringify({ text: text })
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                showToast(err.error || 'Не удалось сохранить ответ');
+                return;
+            }
+            await loadCommentsFromAPI(commentsRecipeId);
+            showToast('Ответ опубликован');
+        } catch (e) { showToast('Ошибка сети');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = originalLabel; }
+        }
+    }
 
     async function submitComment() {
         if (!_commentStars) { showToast('Выберите оценку'); return; }

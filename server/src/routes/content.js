@@ -335,8 +335,11 @@ async function contentRoutes(fastify) {
     if (!recipeId) return reply.status(400).send({ error: 'Некорректный recipeId' });
     const result = await db.query(
       `SELECT r.id, r.stars, r.text, r.created_at, r.user_id,
-              u.display_name, u.avatar, u.early_access_member
+              u.display_name, u.avatar, u.early_access_member,
+              rr.text AS reply_text, rr.created_at AS reply_created_at,
+              rr.updated_at AS reply_updated_at
        FROM reviews r JOIN users u ON u.id = r.user_id
+       LEFT JOIN review_replies rr ON rr.review_id = r.id
        WHERE r.recipe_id = $1 ORDER BY r.created_at DESC LIMIT $2`,
       [recipeId, REVIEW_LIST_LIMIT]
     );
@@ -348,7 +351,12 @@ async function contentRoutes(fastify) {
       userId: row.user_id,
       author: row.display_name || 'Аноним',
       avatar: row.avatar || null,
-      isEarlyBird: row.early_access_member === true
+      isEarlyBird: row.early_access_member === true,
+      reply: row.reply_text ? {
+        text: row.reply_text,
+        createdAt: row.reply_created_at,
+        updatedAt: row.reply_updated_at
+      } : null
     }));
   });
 
@@ -415,6 +423,40 @@ async function contentRoutes(fastify) {
     if (!result.rows.length) return reply.status(404).send({ error: 'Отзыв не найден' });
     await audit.log('review_delete', { userId: req.user.sub, detail: 'review#' + req.params.id, ip: req.ip });
     return { ok: true };
+  });
+
+  // POST /admin/reviews/:id/reply — public reply by the platform author
+  fastify.post('/admin/reviews/:id/reply', {
+    preHandler: [authenticate, requireAdmin],
+    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+  }, async (req, reply) => {
+    const reviewId = Number(req.params.id);
+    if (!Number.isInteger(reviewId) || reviewId < 1) {
+      return reply.status(400).send({ error: 'Некорректный отзыв' });
+    }
+    if (typeof req.body?.text !== 'string') {
+      return reply.status(400).send({ error: 'Текст ответа обязателен' });
+    }
+    const text = req.body.text.trim();
+    if (!text) return reply.status(400).send({ error: 'Текст ответа обязателен' });
+    if (text.length > 1000) {
+      return reply.status(400).send({ error: 'Максимум 1000 символов' });
+    }
+
+    const exists = await db.query('SELECT id FROM reviews WHERE id=$1', [reviewId]);
+    if (!exists.rows.length) return reply.status(404).send({ error: 'Отзыв не найден' });
+
+    const result = await db.query(
+      `INSERT INTO review_replies (review_id, admin_id, text)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (review_id)
+       DO UPDATE SET admin_id = EXCLUDED.admin_id, text = EXCLUDED.text, updated_at = now()
+       RETURNING text, created_at, updated_at`,
+      [reviewId, req.user.sub, text]
+    );
+    await audit.log('review_reply', { userId: req.user.sub, detail: 'review#' + reviewId, ip: req.ip });
+    const row = result.rows[0];
+    return { reply: { text: row.text, createdAt: row.created_at, updatedAt: row.updated_at } };
   });
 
   // ═══════════════════════════════════════════════════════════════════════════

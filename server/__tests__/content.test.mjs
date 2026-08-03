@@ -7,6 +7,7 @@ const require = createRequire(import.meta.url);
 let userState = { is_blocked: false, role: 'user' };
 let subState = null; // null = no subscription row; or { status, trial_ends_at, active_until }
 let dietaryPreferences = null;
+let reviewRows = [];
 
 const FREE_RECIPE = {
   id: 'free-1', cat: 'breakfasts', name: 'Free recipe',
@@ -58,6 +59,15 @@ const mockQuery = vi.fn(async (sql /*, params */) => {
   }
   if (/SELECT id, name, emoji, color, description, sort_order, auto_addons FROM categories ORDER BY sort_order/.test(sql)) {
     return { rows: CATEGORIES.map(c => ({ ...c })) };
+  }
+  if (/FROM reviews r JOIN users u ON u.id = r.user_id/.test(sql)) {
+    return { rows: reviewRows.map(r => ({ ...r })) };
+  }
+  if (/SELECT id FROM reviews WHERE id/.test(sql)) {
+    return { rows: [{ id: 17 }] };
+  }
+  if (/INSERT INTO review_replies/.test(sql)) {
+    return { rows: [{ text: 'Спасибо за вопрос!', created_at: '2026-08-03T10:00:00.000Z', updated_at: '2026-08-03T10:00:00.000Z' }] };
   }
   if (/FROM recipe_categories rc\s+JOIN recipes r ON r\.id = rc\.recipe_id\s+WHERE r\.is_published = true/.test(sql)) {
     return {
@@ -114,6 +124,7 @@ beforeEach(() => {
   userState = { is_blocked: false, role: 'user' };
   subState = null;
   dietaryPreferences = null;
+  reviewRows = [];
   mockQuery.mockClear();
 });
 
@@ -216,6 +227,39 @@ function expectFull(recipe) {
   expect(recipe.steps).toBeDefined();
   expect(recipe.note).toBeDefined();
 }
+
+describe('recipe reviews', () => {
+  it('returns the platform author reply in the public review list', async () => {
+    reviewRows = [{
+      id: 17, stars: 5, text: 'Подскажите, можно ли заменить рыбу?',
+      created_at: '2026-08-03T09:00:00.000Z', user_id: 'u-7',
+      display_name: 'Галина', avatar: null, early_access_member: false,
+      reply_text: 'Да, подойдёт любая белая рыба.',
+      reply_created_at: '2026-08-03T10:00:00.000Z',
+      reply_updated_at: '2026-08-03T10:00:00.000Z',
+    }];
+    const res = await app.inject({ method: 'GET', url: '/content/reviews/salmon-ukha' });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()[0].reply).toEqual({
+      text: 'Да, подойдёт любая белая рыба.',
+      createdAt: '2026-08-03T10:00:00.000Z',
+      updatedAt: '2026-08-03T10:00:00.000Z',
+    });
+  });
+
+  it('lets an admin publish a reply to an existing review', async () => {
+    userState = { is_blocked: false, role: 'admin' };
+    const res = await app.inject({
+      method: 'POST',
+      url: '/admin/reviews/17/reply',
+      headers: { authorization: 'Bearer ' + makeToken('admin-1') },
+      payload: { text: 'Спасибо за вопрос!' },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().reply.text).toBe('Спасибо за вопрос!');
+    expect(mockQuery.mock.calls.some(([sql]) => /INSERT INTO review_replies/.test(sql))).toBe(true);
+  });
+});
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
