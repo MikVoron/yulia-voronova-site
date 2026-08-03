@@ -3236,6 +3236,7 @@
 
 		// ── REVIEWS ──────────────────────────────────────────────────────────
 		let _reviewStars = 0;
+		let _reviewFormMarkup = null;
 
 		function setReviewStars(n) {
 			_reviewStars = n;
@@ -3264,6 +3265,16 @@
 				const hasOwnReview = reviews.some(rv => curUserId && rv.userId === curUserId);
 				const reviewActionLabel = document.getElementById('review-action-label');
 				if (reviewActionLabel) reviewActionLabel.textContent = Auth.isLoggedIn() && !hasOwnReview ? 'Оставить отзыв' : 'Отзывы';
+				const formWrap = document.getElementById('review-form-wrap');
+				if (formWrap && _reviewFormMarkup === null && formWrap.querySelector('.review-form')) {
+					_reviewFormMarkup = formWrap.innerHTML;
+				}
+				if (formWrap && hasOwnReview) {
+					closeReviewForm();
+					formWrap.innerHTML = '<div style="font-size:13px;color:var(--text-3);padding:12px 16px;text-align:center">Вы уже оставили отзыв. Удалите его, чтобы написать новый.</div>';
+				} else if (formWrap && _reviewFormMarkup !== null && !formWrap.querySelector('.review-form')) {
+					formWrap.innerHTML = _reviewFormMarkup;
+				}
 				if (reviews.length) {
 					const apiAvg = reviews.reduce((s, rv) => s + rv.stars, 0) / reviews.length;
 					document.querySelectorAll('#recipe-stars-row .r-star').forEach((s, i) =>
@@ -3279,10 +3290,6 @@
 					return;
 				}
 
-				const formWrap = document.getElementById('review-form-wrap');
-				if (formWrap && hasOwnReview) {
-					formWrap.innerHTML = '<div style="font-size:13px;color:var(--text-3);padding:12px 16px;text-align:center">Вы уже оставили отзыв. Удалите его, чтобы написать новый.</div>';
-				}
 				list.innerHTML = reviews.map(rv => {
 					const d = new Date(rv.createdAt);
 					const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -3294,6 +3301,18 @@
 					const canDelete = isAdmin || (curUserId && rv.userId === curUserId);
 					const deleteBtn = canDelete
 						? `<button class="review-delete-btn" data-recipe-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? 'true' : 'false'}" aria-label="Удалить отзыв" title="Удалить отзыв"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>`
+						: '';
+					const authorReply = rv.reply
+						? `<div style="margin-top:12px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--bg-2);font-size:13px;line-height:1.5">
+							<div style="margin-bottom:3px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)">Ответ Юлии</div>
+							<div>${escHtml(rv.reply.text)}</div>
+						</div>`
+						: '';
+					const replyForm = isAdmin
+						? `<div style="margin-top:12px">
+							<textarea class="review-textarea" id="review-reply-${Number(rv.id)}" placeholder="Публичный ответ от имени Юлии" maxlength="1000" rows="3">${escHtml(rv.reply ? rv.reply.text : '')}</textarea>
+							<button class="btn btn-orange" type="button" data-recipe-action="submit-review-reply" data-review-id="${Number(rv.id)}" style="margin-top:7px;padding:8px 12px;font-size:12px">${rv.reply ? 'Обновить ответ' : 'Ответить как Юлия'}</button>
+						</div>`
 						: '';
 					return `<div class="review-item">
                     <div class="review-header">
@@ -3308,6 +3327,8 @@
                     </div>
                     <div class="review-stars-row">${starsHtml}</div>
                     <div class="review-text">${escHtml(rv.text)}</div>
+                    ${authorReply}
+                    ${replyForm}
                 </div>`;
 				}).join('');
 			} catch (e) {
@@ -3366,10 +3387,36 @@
 				const endpoint = isAdmin ? '/admin/reviews/' : '/content/reviews/';
 				const res = await Auth.api(endpoint + id, { method: 'DELETE' });
 				if (!res.ok) { showToast('Не удалось удалить'); return; }
-				showToast('Отзыв удалён');
-				loadReviews();
+				await loadReviews();
+				showToast('Отзыв удалён. Можно оставить новый.');
 			} catch (e) { showToast('Ошибка сети'); }
 		};
+
+		async function submitReviewReply(id) {
+			const input = document.getElementById('review-reply-' + id);
+			const text = (input?.value || '').trim();
+			if (!text) { showToast('Напишите ответ'); return; }
+
+			const btn = document.querySelector('[data-recipe-action="submit-review-reply"][data-review-id="' + id + '"]');
+			const originalLabel = btn ? btn.textContent : '';
+			if (btn) { btn.disabled = true; btn.textContent = '...'; }
+			try {
+				const res = await Auth.api('/admin/reviews/' + id + '/reply', {
+					method: 'POST',
+					body: JSON.stringify({ text: text })
+				});
+				if (!res.ok) {
+					const err = await res.json().catch(() => ({}));
+					showToast(err.error || 'Не удалось сохранить ответ');
+					return;
+				}
+				await loadReviews();
+				showToast('Ответ опубликован');
+			} catch (e) { showToast('Ошибка сети');
+			} finally {
+				if (btn) { btn.disabled = false; btn.textContent = originalLabel; }
+			}
+		}
 
 		// Char counter
 		document.addEventListener('input', function (e) {
@@ -3398,6 +3445,7 @@
 				else if (action === 'toggle-grocery') toggleRecipeGroceryChecked(index);
 				else if (action === 'remove-grocery') removeRecipeGroceryItem(index);
 				else if (action === 'delete-review') deleteReview(Number(actionTarget.dataset.reviewId), actionTarget.dataset.isAdmin === 'true');
+				else if (action === 'submit-review-reply') submitReviewReply(Number(actionTarget.dataset.reviewId));
 				else if (action === 'history-back') history.back();
 				else if (action === 'step-photo-move') stepPhotoCarouselMove(actionTarget, Number(actionTarget.dataset.direction));
 				else if (action === 'balance-wizard') balWizardGo(Number(actionTarget.dataset.delta));
