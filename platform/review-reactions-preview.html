@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Реакции на ответы — Умная тарелка</title>
+  <link rel="stylesheet" href="style-v4.css?v=20260714-nav-filter-polish">
+  <style>
+    :root { --preview-ink: #111827; --preview-muted: #687385; --preview-line: #e2e6eb; --preview-paper: #fff; --preview-warm: #fbf7f1; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--preview-warm); color: var(--preview-ink); font-family: var(--font-body, Arial, sans-serif); }
+    .reaction-preview { width: min(100% - 32px, 920px); margin: 0 auto; padding: 42px 0 64px; }
+    .reaction-preview__eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+    .reaction-preview h1 { margin: 0; font-family: var(--font-heading, Georgia, serif); font-size: clamp(30px, 5vw, 46px); line-height: 1.05; }
+    .reaction-preview__intro { max-width: 620px; margin: 14px 0 28px; color: var(--preview-muted); font-size: 15px; line-height: 1.55; }
+    .reaction-preview__grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px; align-items: start; }
+    .preview-note { margin: 0 0 10px; color: var(--preview-muted); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    .review-card { padding: 16px; border: 1px solid var(--preview-line); border-radius: 9px; background: var(--preview-paper); box-shadow: 0 1px 0 rgba(17, 24, 39, .02); }
+    .review-card + .review-card { margin-top: 16px; }
+    .review-head, .author-head { display: flex; align-items: center; gap: 9px; }
+    .review-avatar { width: 34px; height: 34px; flex: 0 0 34px; border-radius: 50%; object-fit: cover; background: #ddd; }
+    .review-name { color: var(--preview-ink); font-size: 15px; font-weight: 800; }
+    .review-date { margin-left: auto; color: var(--preview-muted); font-size: 12px; white-space: nowrap; }
+    .review-stars { margin: 12px 0 8px; color: #111827; font-size: 14px; letter-spacing: .08em; }
+    .review-text { margin: 0; font-size: 15px; line-height: 1.5; }
+    .author-reply { margin-top: 15px; padding-top: 12px; border-top: 1px solid var(--preview-line); }
+    .author-meta { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .author-badge { display: inline-flex; align-items: center; min-height: 18px; padding: 0 6px; border: 1px solid var(--accent); color: var(--accent); font-size: 9px; font-weight: 800; letter-spacing: .06em; line-height: 1; text-transform: uppercase; white-space: nowrap; }
+    .author-badge-short { display: none; }
+    .author-text { margin: 8px 0 0 43px; padding-left: 12px; border-left: 3px solid var(--accent); font-size: 14px; line-height: 1.6; }
+    .review-reaction { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; margin: 12px 0 0 43px; padding: 6px 10px 6px 8px; border: 1px solid #ead8ca; border-radius: 999px; background: #fffaf5; color: #5e3a22; font-size: 13px; font-weight: 750; line-height: 1; }
+    .review-reaction__mark { display: inline-grid; width: 20px; height: 20px; place-items: center; border-radius: 50%; background: #fbe7d6; color: var(--accent); font-size: 12px; }
+    .review-reaction__count { display: inline-grid; min-width: 20px; height: 20px; place-items: center; padding: 0 5px; border-radius: 10px; background: #f2e8df; color: #7a4b2c; font-size: 11px; font-variant-numeric: tabular-nums; }
+    .review-reaction--active { border-color: var(--accent); background: #fff1e7; color: #7c2f0d; }
+    .review-reaction--active .review-reaction__mark { background: var(--accent); color: #fff; }
+    .reaction-caption { margin: 9px 0 0 43px; color: var(--preview-muted); font-size: 12px; line-height: 1.45; }
+    .mobile-frame { padding: 14px; border: 7px solid #20242d; border-radius: 30px; background: #20242d; box-shadow: 0 16px 36px rgba(17, 24, 39, .14); }
+    .mobile-frame__screen { overflow: hidden; border-radius: 19px; background: var(--preview-paper); }
+    .mobile-frame .review-card { border: 0; border-radius: 0; box-shadow: none; }
+    .mobile-frame .review-date { display: none; }
+    .mobile-frame .review-text { font-size: 14px; }
+    .mobile-frame .author-badge-full { display: none; }
+    .mobile-frame .author-badge-short { display: inline; }
+    .mobile-frame .author-text { margin-left: 0; }
+    .mobile-frame .review-reaction, .mobile-frame .reaction-caption { margin-left: 0; }
+    .mobile-frame .review-reaction { width: fit-content; }
+    @media (max-width: 720px) { .reaction-preview__grid { grid-template-columns: 1fr; } .mobile-preview { display: none; } }
+    @media (max-width: 520px) { .reaction-preview { width: min(100% - 24px, 920px); padding-top: 28px; } .review-card { padding: 14px; } .review-date { display: none; } .author-badge-full { display: none; } .author-badge-short { display: inline; } .author-text { margin-left: 0; } .review-reaction, .reaction-caption { margin-left: 0; } }
+  </style>
+</head>
+<body>
+  <main class="reaction-preview">
+    <p class="reaction-preview__eyebrow">Предпросмотр компонента</p>
+    <h1>Реакция на полезный ответ</h1>
+    <p class="reaction-preview__intro">Спокойная, кулинарная реакция вместо обычного лайка. Она располагается внутри ответа Юлии и не конкурирует с отзывом.</p>
+    <div class="reaction-preview__grid">
+      <section aria-label="Вид на широком экране">
+        <p class="preview-note">Широкий экран</p>
+        <article class="review-card">
+          <div class="review-head">
+            <img class="review-avatar" src="images/YV-blog.webp" alt="Жанна">
+            <span class="review-name">Жанна</span>
+            <span class="review-date">3 августа 2026 г.</span>
+          </div>
+          <div class="review-stars" aria-label="5 из 5 звёзд">★★★★★</div>
+          <p class="review-text">Очень хороший рецепт мне понравилось! А можно использовать копчёный тофу?</p>
+          <div class="author-reply">
+            <div class="author-head">
+              <img class="review-avatar" src="images/YV-blog.webp" alt="Юлия Воронова">
+              <div class="author-meta"><span class="review-name">Юлия Воронова</span><span class="author-badge"><span class="author-badge-full">Автор Умной Тарелки</span><span class="author-badge-short">Автор</span></span></div>
+            </div>
+            <p class="author-text">Здравствуйте, Жанна! Да, можно делать и с копчёным тофу, вкус будет немного иной. В моей семье он не прижился в скрембле, мы делаем его с обычным 🙏</p>
+            <div class="review-reaction" aria-label="Полезный ответ: 4 реакции"><span class="review-reaction__mark" aria-hidden="true">🍴</span><span>Полезный ответ</span><span class="review-reaction__count">4</span></div>
+            <p class="reaction-caption">Обычное состояние</p>
+          </div>
+        </article>
+        <article class="review-card">
+          <div class="author-head">
+            <img class="review-avatar" src="images/YV-blog.webp" alt="Юлия Воронова">
+            <div class="author-meta"><span class="review-name">Юлия Воронова</span><span class="author-badge"><span class="author-badge-full">Автор Умной Тарелки</span><span class="author-badge-short">Автор</span></span></div>
+          </div>
+          <p class="author-text">Так будет выглядеть реакция после нажатия пользователем.</p>
+          <div class="review-reaction review-reaction--active" aria-label="Полезный ответ: 5 реакций"><span class="review-reaction__mark" aria-hidden="true">✓</span><span>Полезный ответ</span><span class="review-reaction__count">5</span></div>
+          <p class="reaction-caption">Выбранное состояние</p>
+        </article>
+      </section>
+      <section class="mobile-preview" aria-label="Вид на телефоне">
+        <p class="preview-note">Телефон</p>
+        <div class="mobile-frame">
+          <div class="mobile-frame__screen">
+            <article class="review-card">
+              <div class="review-head"><img class="review-avatar" src="images/YV-blog.webp" alt="Жанна"><span class="review-name">Жанна</span></div>
+              <div class="review-stars" aria-label="5 из 5 звёзд">★★★★★</div>
+              <p class="review-text">Можно использовать копчёный тофу?</p>
+              <div class="author-reply">
+                <div class="author-head"><img class="review-avatar" src="images/YV-blog.webp" alt="Юлия Воронова"><div class="author-meta"><span class="review-name">Юлия Воронова</span><span class="author-badge"><span class="author-badge-full">Автор Умной Тарелки</span><span class="author-badge-short">Автор</span></span></div></div>
+                <p class="author-text">Да, можно — вкус будет немного иной.</p>
+                <div class="review-reaction review-reaction--active"><span class="review-reaction__mark" aria-hidden="true">✓</span><span>Полезный ответ</span><span class="review-reaction__count">5</span></div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
