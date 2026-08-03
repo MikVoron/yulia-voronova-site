@@ -205,7 +205,19 @@
 					body: JSON.stringify({ email: currentEmail, code: code, fingerprint: _fingerprint, context: _isAdminLogin ? 'admin' : undefined, mfaCode: _isAdminLogin ? mfaCode : undefined })
 				});
 				var data = await res.json();
-				if (!res.ok) { showError('code-error', data.error || 'Ошибка'); setLoading('verify-btn', false); return; }
+				if (!res.ok) {
+					// An admin account can arrive here from an ordinary page (for example, a recipe).
+					// The server asks for MFA only after the email code was verified.
+					if (data.mfaRequired) {
+						_isAdminLogin = true;
+						document.getElementById('mfa-field').classList.remove('is-hidden');
+						showError('code-error', 'Введите код из приложения-аутентификатора');
+						document.getElementById('mfa-code-input').focus();
+						setLoading('verify-btn', false);
+						return;
+					}
+					showError('code-error', data.error || 'Ошибка'); setLoading('verify-btn', false); return;
+				}
 				Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription, data.user.avatar, data.user.role, data.user.createdAt, data.user.id, data.user.weight);
 				document.getElementById('step-code').classList.add('is-hidden');
 				var success = document.getElementById('step-success');

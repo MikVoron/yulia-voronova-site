@@ -89,7 +89,9 @@ async function authRoutes(fastify) {
       }
       if (context !== 'admin' || !verifyTotp(mfaCode, mfaSecret)) {
         audit.log('admin_mfa_failed', { userId: existingUser.id, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
-        return reply.status(403).send({ error: 'Неверный код приложения-аутентификатора' });
+        // The email code remains valid, so the login page can ask for MFA and retry.
+        // This does not disclose the admin role before the email code is verified.
+        return reply.status(403).send({ error: 'Неверный код приложения-аутентификатора', mfaRequired: true });
       }
     }
     const consumed = await db.query(

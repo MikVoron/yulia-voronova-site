@@ -167,6 +167,7 @@ describe('auth/verify', () => {
         payload: { email: 'admin@example.com', code: '123456', context: 'admin', mfaCode: '000000' }
       });
       expect(res.statusCode).toBe(403);
+      expect(res.json().mfaRequired).toBe(true);
       expect(mockQuery.mock.calls.some(([sql]) => /RETURNING id/.test(sql))).toBe(false);
       expect(mockQuery.mock.calls.some(([sql]) => /INSERT INTO refresh_sessions/.test(sql))).toBe(false);
     } finally {
