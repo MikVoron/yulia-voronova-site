@@ -66,20 +66,4 @@ describe('client plate uniqueness', () => {
       options: { method: 'DELETE', body: JSON.stringify({ date }) }
     }]);
   });
-
-  it('updates a journal entry locally after the API confirms the change', async () => {
-    const { plate, values, apiCalls } = loadPlate(true);
-    const date = '2026-08-03T19:14:00.000Z';
-    const items = [{ name: 'Updated dish', recipeId: 'updated-dish', kcal: 320 }];
-    const totals = { kcal: 320 };
-    values.set('plate_history', JSON.stringify([{ date, items: [{ name: 'Old dish' }], totals: {} }]));
-
-    await plate.updateHistory(date, items, totals);
-
-    expect(plate.getHistory()).toMatchObject([{ date, items, totals }]);
-    expect(apiCalls).toEqual([{
-      url: '/plate/history',
-      options: { method: 'PUT', body: JSON.stringify({ date, items, totals }) }
-    }]);
-  });
 });

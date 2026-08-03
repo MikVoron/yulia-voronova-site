@@ -788,25 +788,6 @@ const Plate = {
             removeLocal();
         });
     },
-    updateHistory(date, items, totals) {
-        const replaceLocal = () => {
-            const h = this.getHistory().map(function(entry) {
-                return entry.date === date ? { ...entry, items, totals } : entry;
-            });
-            localStorage.setItem(this._hkey(), JSON.stringify(h));
-        };
-        if (!Auth.getToken()) {
-            replaceLocal();
-            return Promise.resolve();
-        }
-        return Auth.api('/plate/history', {
-            method: 'PUT',
-            body: JSON.stringify({ date, items, totals })
-        }).then(function(response) {
-            if (!response || !response.ok) throw new Error('Не удалось обновить запись журнала');
-            replaceLocal();
-        });
-    },
     /** Sync current plate to server (fire-and-forget) */
     _syncToServer() {
         if (!Auth.getToken()) return;

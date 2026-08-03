@@ -1022,45 +1022,8 @@
 			font: 800 10px var(--sans); letter-spacing: .09em; text-transform: uppercase;
 		}
 		.hist-delete:hover, .hist-delete:focus-visible { color: var(--accent); text-decoration: underline; }
-		.hist-edit {
-			padding: 0; border: 0; background: transparent; color: var(--text-2); cursor: pointer;
-			font: 800 10px var(--sans); letter-spacing: .09em; text-transform: uppercase;
-		}
-		.hist-edit:hover, .hist-edit:focus-visible { color: var(--text); text-decoration: underline; }
 		.hist-card .meal-body { padding: 0 19px 17px 179px; }
 		.hist-card.open .meal-body { display: block; }
-		.history-editor-overlay { display: none; position: fixed; inset: 0; z-index: 2200; padding: 20px; background: rgba(24, 21, 18, .48); align-items: center; justify-content: center; }
-		.history-editor-overlay.open { display: flex; }
-		.history-editor { width: min(560px, 100%); max-height: min(720px, calc(100vh - 40px)); overflow: auto; padding: 22px; background: #fff; border: 1px solid var(--border); box-shadow: 0 20px 55px rgba(24, 21, 18, .22); }
-		.history-editor-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
-		.history-editor-head h2 { margin: 0; font: 700 26px/1.05 var(--serif); }
-		.history-editor-head p { margin: 5px 0 0; color: var(--text-2); font-size: 12px; line-height: 1.45; }
-		.history-editor-close, .history-editor-item button { border: 0; background: transparent; color: var(--text-3); cursor: pointer; }
-		.history-editor-close { padding: 0; font-size: 25px; line-height: 1; }
-		.history-editor-items { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
-		.history-editor-item { display: grid; grid-template-columns: 38px 1fr auto; gap: 10px; align-items: center; padding: 8px; border: 1px solid var(--border); }
-		.history-editor-item-photo { display: grid; width: 38px; height: 38px; place-items: center; overflow: hidden; background: var(--bg); font-size: 20px; }
-		.history-editor-item-photo img { width: 100%; height: 100%; object-fit: cover; }
-		.history-editor-item b, .history-editor-item small { display: block; }
-		.history-editor-item b { font-size: 13px; }
-		.history-editor-item small { margin-top: 3px; color: var(--text-2); font-size: 11px; }
-		.history-editor-item button { padding: 4px 7px; font-size: 22px; line-height: 1; }
-		.history-editor-empty { padding: 12px; color: var(--text-2); border: 1px dashed var(--border); font-size: 12px; }
-		.history-editor-total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 14px 0 20px; padding-top: 14px; border-top: 1px solid var(--border); }
-		.history-editor-total b { color: var(--accent); font-size: 18px; }
-		.history-editor-total span { color: var(--text-2); font-size: 11px; }
-		.history-editor-search-label { display: block; margin-bottom: 7px; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
-		.history-editor-search { width: 100%; height: 42px; padding: 0 11px; border: 1px solid var(--border); font: 13px var(--sans); }
-		.history-editor-results { display: grid; gap: 5px; min-height: 35px; margin-top: 8px; }
-		.history-editor-results > span { padding: 8px 0; color: var(--text-3); font-size: 12px; }
-		.history-editor-results button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 9px 10px; border: 1px solid var(--border); background: #fff; color: var(--text); cursor: pointer; font: 600 12px var(--sans); text-align: left; }
-		.history-editor-results button:not(:disabled):hover { border-color: var(--text); }
-		.history-editor-results button:disabled { color: var(--text-3); cursor: default; }
-		.history-editor-results small { color: var(--text-2); font-size: 10px; white-space: nowrap; }
-		.history-editor-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 20px; }
-		.history-editor-actions button { padding: 10px 14px; border: 1px solid var(--border); background: #fff; color: var(--text); cursor: pointer; font: 800 10px var(--sans); letter-spacing: .08em; text-transform: uppercase; }
-		.history-editor-actions .history-editor-save { border-color: var(--accent); background: var(--accent); color: #fff; }
-		.history-editor-actions button:disabled { opacity: .55; cursor: default; }
 
 		/* ── ЗАМЕТКИ — двухколоночный layout ─────────────────────────── */
 		.cab-notes-layout {
@@ -1673,8 +1636,6 @@
 				grid-column: 1 / -1;
 			}
 			.hist-export-btn { width: 100%; }
-			.history-editor { padding: 18px; }
-			.history-editor-head h2 { font-size: 23px; }
 			.hist-info { min-width: 0; }
 			.meal-macros { gap: 3px; flex-wrap: nowrap; }
 			.macro-chip { flex: 0 0 auto; font-size: 9px; padding: 3px 5px; letter-spacing: 0; gap: 3px; }
@@ -1915,20 +1876,6 @@
 					</div>
 				</div>
 			</section>
-
-			<div class="history-editor-overlay" id="history-editor-overlay" aria-hidden="true">
-				<section class="history-editor" role="dialog" aria-modal="true" aria-labelledby="history-editor-title">
-					<div class="history-editor-head">
-						<div><h2 id="history-editor-title">Изменить запись</h2><p>Изменяйте блюда — КБЖУ пересчитается автоматически.</p></div>
-						<button class="history-editor-close" type="button" data-cabinet-action="close-history-editor" aria-label="Закрыть">×</button>
-					</div>
-					<div id="history-editor-body"></div>
-					<div class="history-editor-actions">
-						<button type="button" data-cabinet-action="close-history-editor">Отмена</button>
-						<button class="history-editor-save" id="history-editor-save" type="button" data-cabinet-action="save-history-editor">Сохранить</button>
-					</div>
-				</section>
-			</div>
 		</div>
 
 		<!-- TABS -->
@@ -2322,7 +2269,7 @@
 	<script src="data-v2.js?v=20260803-unique-plate-items"></script>
 <script src="ingredients.js?v=20260711-oats-seabass"></script>
 <script src="header-nav.js?v=20260714-category-nav"></script>
-	<script src="cabinet.js?v=20260803-history-editor"></script>
+	<script src="cabinet.js?v=20260803-history-delete"></script>
 	<script src="tawk-chat-modal.js?v=20260803-tawk-singleton"></script>
 </body>
 

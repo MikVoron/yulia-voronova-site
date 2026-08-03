@@ -97,19 +97,21 @@ describe('SmartPlate CSP script migration', () => {
     consumers.forEach(fileName => {
       const html = fs.readFileSync(path.join(platformDir, fileName), 'utf8');
       expect(html, fileName).toContain('tawk-chat-modal.css?v=20260713-csp-styles');
-      expect(html, fileName).toContain('tawk-chat-modal.js?v=20260713-csp-styles');
+      expect(html, fileName).toContain('tawk-chat-modal.js?v=20260803-tawk-singleton');
     });
   });
 
   it('keeps static admin controls free of inline event handlers', () => {
     const html = fs.readFileSync(path.join(platformDir, 'admin.html'), 'utf8');
     const script = fs.readFileSync(path.join(platformDir, 'admin.js'), 'utf8');
-    const bindings = [...script.matchAll(/bindStaticAdminHandler\("(?:click|input|change)", "([a-f0-9]{12})"/g)];
+    const htmlBindings = [...html.matchAll(/\sdata-admin-(?:click|input|change)="([a-f0-9]{12})"/g)].map(match => match[1]);
+    const bindings = [...script.matchAll(/bindStaticAdminHandler\("(?:click|input|change)", "([a-f0-9]{12})"/g)].map(match => match[1]);
 
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
-    expect(html.match(/\sdata-admin-(?:click|input|change)="[a-f0-9]{12}"/g)).toHaveLength(51);
-    expect(bindings).toHaveLength(44);
-    expect(new Set(bindings.map(match => match[1])).size).toBe(44);
+    expect(htmlBindings).toHaveLength(58);
+    expect(new Set(htmlBindings).size).toBe(51);
+    expect(bindings).toHaveLength(51);
+    expect(new Set(bindings)).toEqual(new Set(htmlBindings));
   });
 
   it('keeps popup preview controls free of inline event handlers', () => {
@@ -231,8 +233,8 @@ describe('SmartPlate CSP script migration', () => {
     const script = fs.readFileSync(path.join(platformDir, 'cabinet.js'), 'utf8');
 
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
-    expect(html).toContain('cabinet.js?v=20260803-history-editor');
-    expect(html.match(/\sdata-cabinet-action=/g)).toHaveLength(22);
+    expect(html).toContain('cabinet.js?v=20260803-history-delete');
+    expect(html.match(/\sdata-cabinet-action=/g)).toHaveLength(19);
     expect(html.match(/\sdata-cabinet-change=/g)).toHaveLength(4);
     expect(script).toContain("else if (action === 'open-avatar-picker') openAvatarPicker()");
     expect(script).toContain("document.querySelectorAll('[data-cabinet-change]')");
@@ -244,7 +246,6 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain('data-cabinet-action="toggle-plate-shop-mode"');
     expect(script).toContain("else if (action === 'save-plate') savePlateCabinet()");
     expect(script).toContain("else if (action === 'delete-history') deleteHistoryEntry(actionTarget.dataset.entryDate || '')");
-    expect(script).toContain("else if (action === 'open-history-editor') openHistoryEditor(actionTarget.dataset.entryDate || '')");
   });
 
   it('keeps category JavaScript templates free of inline event handlers', () => {
