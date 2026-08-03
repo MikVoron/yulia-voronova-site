@@ -1,6 +1,11 @@
 (function (window, document) {
 	'use strict';
 
+	// A duplicate script evaluation registers another document-level click handler.
+	// Its private overlay then stacks above the first one, so keep this modal singleton.
+	if (window.__smartplateTawkModalInitialized) return;
+	window.__smartplateTawkModalInitialized = true;
+
 	var CHAT_URL = 'https://tawk.to/chat/699610c27418241c38dd96b3/1js4rtjr9';
 	var SUPPORT_EMAIL = 'hello@voronova.online';
 	var overlay = null;

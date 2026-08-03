@@ -56,4 +56,9 @@ describe('SmartPlate feedback plan 8 regression contracts', () => {
     expect(data).toContain('await this._sleep(500);');
     expect(data).toContain('// Не делаем logout — пусть checkAccess решит что показать');
   });
+
+  it('initializes the shared Tawk modal only once', () => {
+    expect(chat).toContain('if (window.__smartplateTawkModalInitialized) return;');
+    expect(chat).toContain('window.__smartplateTawkModalInitialized = true;');
+  });
 });
