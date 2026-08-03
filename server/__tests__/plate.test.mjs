@@ -83,6 +83,44 @@ describe('plate history metadata', () => {
     expect(mockQuery.mock.calls[0][1][4]).toBe('dinner');
   });
 
+  it('deletes only the current user history entry by its saved date', async () => {
+    const date = '2026-08-03T19:14:00.000Z';
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 });
+
+    const res = await app.inject({
+      method: 'DELETE',
+      url: '/plate/history',
+      payload: { date }
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ ok: true, deleted: true });
+    expect(mockQuery.mock.calls[0][0]).toContain('DELETE FROM plate_history WHERE user_id = $1 AND saved_at = $2');
+    expect(mockQuery.mock.calls[0][1][0]).toBe('user-1');
+    expect(mockQuery.mock.calls[0][1][1].toISOString()).toBe(date);
+  });
+
+  it('updates only the current user history entry and keeps its saved date', async () => {
+    const date = '2026-08-03T19:14:00.000Z';
+    const items = [{ name: 'Updated dish', recipeId: 'updated-dish', kcal: 320 }];
+    const totals = { kcal: 320, protein: 20, fat: 10, carbs: 35, fiber: 5 };
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 });
+
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/plate/history',
+      payload: { date, items, totals }
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ ok: true });
+    expect(mockQuery.mock.calls[0][0]).toContain('UPDATE plate_history SET items = $3, totals = $4 WHERE user_id = $1 AND saved_at = $2');
+    expect(mockQuery.mock.calls[0][1][0]).toBe('user-1');
+    expect(mockQuery.mock.calls[0][1][1].toISOString()).toBe(date);
+    expect(JSON.parse(mockQuery.mock.calls[0][1][2])).toEqual(items);
+    expect(JSON.parse(mockQuery.mock.calls[0][1][3])).toEqual(totals);
+  });
+
   it('rejects too many current plate items instead of silently truncating', async () => {
     const res = await app.inject({
       method: 'PUT',

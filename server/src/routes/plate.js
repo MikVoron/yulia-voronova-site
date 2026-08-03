@@ -203,6 +203,49 @@ async function plateRoutes(fastify) {
     return { ok: true };
   });
 
+  // DELETE /plate/history — remove one saved plate for the current user.
+  fastify.delete('/plate/history', {
+    preHandler: authenticate,
+    config: { rateLimit: { max: 30, timeWindow: '1 minute' } }
+  }, async (req, reply) => {
+    const { date } = req.body || {};
+    const safeDate = parsePlateDate(date);
+    if (!safeDate) return reply.status(400).send({ error: 'date обязателен' });
+
+    const result = await db.query(
+      'DELETE FROM plate_history WHERE user_id = $1 AND saved_at = $2',
+      [req.user.sub, safeDate]
+    );
+    return { ok: true, deleted: result.rowCount > 0 };
+  });
+
+  // PUT /plate/history — update dishes and nutrition for one saved plate.
+  fastify.put('/plate/history', {
+    preHandler: authenticate,
+    config: { rateLimit: { max: 30, timeWindow: '1 minute' } }
+  }, async (req, reply) => {
+    const { date, items, totals } = req.body || {};
+    const safeDate = parsePlateDate(date);
+    if (!safeDate) return reply.status(400).send({ error: 'date обязателен' });
+    if (!Array.isArray(items) || !items.length) {
+      return reply.status(400).send({ error: 'items обязателен и не может быть пустым' });
+    }
+    let safeItems, safeTotals;
+    try {
+      safeItems = validatePlateItems(items);
+      safeTotals = validateTotals(totals);
+    } catch (e) {
+      return reply.status(400).send({ error: e.message, field: e.field });
+    }
+
+    const result = await db.query(
+      'UPDATE plate_history SET items = $3, totals = $4 WHERE user_id = $1 AND saved_at = $2',
+      [req.user.sub, safeDate, JSON.stringify(safeItems), JSON.stringify(safeTotals)]
+    );
+    if (!result.rowCount) return reply.status(404).send({ error: 'Запись журнала не найдена' });
+    return { ok: true };
+  });
+
   // PUT /plate/history/meal-type - set optional user-defined meal label.
   fastify.put('/plate/history/meal-type', {
     preHandler: authenticate,

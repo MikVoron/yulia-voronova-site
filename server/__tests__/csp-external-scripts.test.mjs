@@ -231,8 +231,8 @@ describe('SmartPlate CSP script migration', () => {
     const script = fs.readFileSync(path.join(platformDir, 'cabinet.js'), 'utf8');
 
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
-    expect(html).toContain('cabinet.js?v=20260713-csp-template-actions');
-    expect(html.match(/\sdata-cabinet-action=/g)).toHaveLength(19);
+    expect(html).toContain('cabinet.js?v=20260803-history-editor');
+    expect(html.match(/\sdata-cabinet-action=/g)).toHaveLength(22);
     expect(html.match(/\sdata-cabinet-change=/g)).toHaveLength(4);
     expect(script).toContain("else if (action === 'open-avatar-picker') openAvatarPicker()");
     expect(script).toContain("document.querySelectorAll('[data-cabinet-change]')");
@@ -243,6 +243,8 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain('data-cabinet-action="browse-recipes"');
     expect(script).toContain('data-cabinet-action="toggle-plate-shop-mode"');
     expect(script).toContain("else if (action === 'save-plate') savePlateCabinet()");
+    expect(script).toContain("else if (action === 'delete-history') deleteHistoryEntry(actionTarget.dataset.entryDate || '')");
+    expect(script).toContain("else if (action === 'open-history-editor') openHistoryEditor(actionTarget.dataset.entryDate || '')");
   });
 
   it('keeps category JavaScript templates free of inline event handlers', () => {

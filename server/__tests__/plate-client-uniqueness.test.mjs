@@ -10,8 +10,9 @@ const recipePage = fs.readFileSync(path.resolve(import.meta.dirname, '..', '..',
 const plateStart = dataModule.indexOf('const Plate = {');
 const plateEnd = dataModule.indexOf('\nfunction plateMealTypePickerHtml', plateStart);
 
-function loadPlate() {
+function loadPlate(withToken = false) {
   const values = new Map();
+  const apiCalls = [];
   const context = {
     Set,
     JSON,
@@ -25,18 +26,21 @@ function loadPlate() {
     },
     Auth: {
       _userKey: (key) => key,
-      getToken: () => '',
-      api: () => Promise.resolve()
+      getToken: () => withToken ? 'token' : '',
+      api: (url, options) => {
+        apiCalls.push({ url, options });
+        return Promise.resolve({ ok: true });
+      }
     },
     updatePlateIcon: () => {}
   };
   vm.runInNewContext(dataModule.slice(plateStart, plateEnd) + '\nglobalThis.Plate = Plate;', context);
-  return context.Plate;
+  return { plate: context.Plate, values, apiCalls };
 }
 
 describe('client plate uniqueness', () => {
   it('does not add a recipe to the current plate twice', () => {
-    const plate = loadPlate();
+    const { plate } = loadPlate();
 
     expect(plate.add({ name: 'Dish', recipeId: 'dish' })).toBe(true);
     expect(plate.add({ name: 'Dish again', recipeId: 'dish' })).toBe(false);
@@ -47,5 +51,35 @@ describe('client plate uniqueness', () => {
   it('explains why a repeat add was ignored', () => {
     expect(recipePage).toContain("showToast(r.emoji + ' Это блюдо уже в тарелке')");
     expect(recipePage).toContain("showToast((item.emoji || '🍴') + ' Это блюдо уже в тарелке')");
+  });
+
+  it('removes a journal entry locally only after the API confirms deletion', async () => {
+    const { plate, values, apiCalls } = loadPlate(true);
+    const date = '2026-08-03T19:14:00.000Z';
+    values.set('plate_history', JSON.stringify([{ date, items: [{ name: 'Dish' }], totals: {} }]));
+
+    await plate.removeHistory(date);
+
+    expect(plate.getHistory()).toEqual([]);
+    expect(apiCalls).toEqual([{
+      url: '/plate/history',
+      options: { method: 'DELETE', body: JSON.stringify({ date }) }
+    }]);
+  });
+
+  it('updates a journal entry locally after the API confirms the change', async () => {
+    const { plate, values, apiCalls } = loadPlate(true);
+    const date = '2026-08-03T19:14:00.000Z';
+    const items = [{ name: 'Updated dish', recipeId: 'updated-dish', kcal: 320 }];
+    const totals = { kcal: 320 };
+    values.set('plate_history', JSON.stringify([{ date, items: [{ name: 'Old dish' }], totals: {} }]));
+
+    await plate.updateHistory(date, items, totals);
+
+    expect(plate.getHistory()).toMatchObject([{ date, items, totals }]);
+    expect(apiCalls).toEqual([{
+      url: '/plate/history',
+      options: { method: 'PUT', body: JSON.stringify({ date, items, totals }) }
+    }]);
   });
 });

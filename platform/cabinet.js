@@ -1320,6 +1320,8 @@
 							<div class="hist-side">
 								<span class="meal-kcal">${Number(t.kcal) || 0}<small>ккал</small></span>
 								${items.length > 1 ? `<button class="hist-details" type="button" data-cabinet-action="toggle-history" data-index="${Number(idx)}">Детали <span>⌄</span></button>` : ''}
+								<button class="hist-edit" type="button" data-cabinet-action="open-history-editor" data-entry-date="${escHtml(encodeURIComponent(String(entry.date || '')))}">Изменить</button>
+								<button class="hist-delete" type="button" data-cabinet-action="delete-history" data-entry-date="${escHtml(encodeURIComponent(String(entry.date || '')))}">Удалить</button>
 							</div>
 						</div>
 						${items.length > 1 ? `<div class="meal-body">
@@ -1430,6 +1432,145 @@
 		function chooseHistoryMealType(encodedDate, mealType) {
 			closeHistoryMealMenus();
 			setHistoryMealType(encodedDate, mealType);
+		}
+
+		function deleteHistoryEntry(encodedDate) {
+			const date = decodeURIComponent(encodedDate);
+			if (!Plate.getHistory().some(function(entry) { return entry.date === date; })) return;
+			if (!window.confirm('Удалить эту запись из журнала?')) return;
+			Plate.removeHistory(date).then(function() {
+				renderHistory();
+				showToast('Запись удалена из журнала');
+			}).catch(function() {
+				showToast('Не удалось удалить запись. Попробуйте ещё раз.');
+			});
+		}
+
+		let historyEditorDate = '';
+		let historyEditorItems = [];
+
+		function historyEditorTotals(items) {
+			const totals = items.reduce(function(sum, item) {
+				sum.kcal += Number(item.kcal) || 0;
+				sum.protein += Number(item.protein) || 0;
+				sum.fat += Number(item.fat) || 0;
+				sum.carbs += Number(item.carbs) || 0;
+				sum.fiber += Number(item.fiber) || 0;
+				return sum;
+			}, { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 });
+			Object.keys(totals).forEach(function(key) { totals[key] = Math.round(totals[key] * 10) / 10; });
+			return totals;
+		}
+
+		function historyEditorRecipeItem(recipe) {
+			return {
+				name: recipe.name,
+				emoji: recipe.emoji || '🍴',
+				photo: recipe.photo || '',
+				kcal: Number(recipe.kcal) || 0,
+				protein: Number(recipe.protein) || 0,
+				fat: Number(recipe.fat) || 0,
+				carbs: Number(recipe.carbs) || 0,
+				fiber: Number(recipe.fiber) || 0,
+				recipeId: recipe.id,
+				ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : []
+			};
+		}
+
+		function openHistoryEditor(encodedDate) {
+			const date = decodeURIComponent(encodedDate);
+			const entry = Plate.getHistory().find(function(item) { return item.date === date; });
+			if (!entry) return;
+			historyEditorDate = date;
+			historyEditorItems = (entry.items || []).map(function(item) { return { ...item }; });
+			renderHistoryEditor();
+			const overlay = document.getElementById('history-editor-overlay');
+			overlay.classList.add('open');
+			overlay.setAttribute('aria-hidden', 'false');
+			setTimeout(function() { document.getElementById('history-editor-search')?.focus(); }, 0);
+		}
+
+		function closeHistoryEditor() {
+			const overlay = document.getElementById('history-editor-overlay');
+			overlay.classList.remove('open');
+			overlay.setAttribute('aria-hidden', 'true');
+			historyEditorDate = '';
+			historyEditorItems = [];
+		}
+
+		function renderHistoryEditor() {
+			const body = document.getElementById('history-editor-body');
+			if (!body) return;
+			const totals = historyEditorTotals(historyEditorItems);
+			const itemRows = historyEditorItems.map(function(item, index) {
+				const photo = firstHistoryPhoto(item.photo);
+				const visual = photo
+					? `<img src="${escHtml(photo)}" alt="" loading="lazy">`
+					: `<span>${escHtml(item.emoji || '🍴')}</span>`;
+				return `<li class="history-editor-item">
+					<div class="history-editor-item-photo">${visual}</div>
+					<div><b>${escHtml(item.name || 'Блюдо')}</b><small>${Number(item.kcal) || 0} ккал</small></div>
+					<button type="button" data-cabinet-action="remove-history-editor-item" data-index="${Number(index)}" aria-label="Убрать блюдо">×</button>
+				</li>`;
+			}).join('') || '<li class="history-editor-empty">Добавьте хотя бы одно блюдо или отмените редактирование.</li>';
+			body.innerHTML = `<ul class="history-editor-items">${itemRows}</ul>
+				<div class="history-editor-total"><b>${totals.kcal} ккал</b><span>Б ${totals.protein} · Ж ${totals.fat} · У ${totals.carbs}${totals.fiber ? ' · Кл ' + totals.fiber : ''}</span></div>
+				<label class="history-editor-search-label" for="history-editor-search">Добавить блюдо</label>
+				<input class="history-editor-search" id="history-editor-search" type="search" placeholder="Начните вводить название рецепта" autocomplete="off">
+				<div class="history-editor-results" id="history-editor-results"></div>`;
+			const search = document.getElementById('history-editor-search');
+			search.addEventListener('input', renderHistoryEditorSearch);
+			renderHistoryEditorSearch();
+		}
+
+		function renderHistoryEditorSearch() {
+			const input = document.getElementById('history-editor-search');
+			const results = document.getElementById('history-editor-results');
+			if (!input || !results) return;
+			const query = input.value.trim().toLocaleLowerCase('ru-RU');
+			if (!query) {
+				results.innerHTML = '<span>Ищите рецепт по названию.</span>';
+				return;
+			}
+			const usedRecipeIds = new Set(historyEditorItems.map(function(item) { return item.recipeId; }).filter(Boolean));
+			const matches = Object.values(RECIPES || {}).filter(function(recipe) {
+				return recipe && recipe.name && recipe.name.toLocaleLowerCase('ru-RU').includes(query);
+			}).slice(0, 6);
+			results.innerHTML = matches.length ? matches.map(function(recipe) {
+				const used = usedRecipeIds.has(recipe.id);
+				return `<button type="button" data-cabinet-action="add-history-editor-recipe" data-recipe-id="${escHtml(recipe.id)}" ${used ? 'disabled' : ''}>
+					<span>${escHtml(recipe.emoji || '🍴')} ${escHtml(recipe.name)}</span><small>${used ? 'Уже в записи' : (Number(recipe.kcal) || 0) + ' ккал'}</small>
+				</button>`;
+			}).join('') : '<span>Рецепты не найдены.</span>';
+		}
+
+		function removeHistoryEditorItem(index) {
+			historyEditorItems.splice(index, 1);
+			renderHistoryEditor();
+		}
+
+		function addHistoryEditorRecipe(recipeId) {
+			const recipe = RECIPES && RECIPES[recipeId];
+			if (!recipe || historyEditorItems.some(function(item) { return item.recipeId === recipeId; })) return;
+			historyEditorItems.push(historyEditorRecipeItem(recipe));
+			renderHistoryEditor();
+		}
+
+		function saveHistoryEditor() {
+			if (!historyEditorItems.length) {
+				showToast('Добавьте хотя бы одно блюдо или удалите запись целиком.');
+				return;
+			}
+			const button = document.getElementById('history-editor-save');
+			if (button) button.disabled = true;
+			Plate.updateHistory(historyEditorDate, historyEditorItems, historyEditorTotals(historyEditorItems)).then(function() {
+				closeHistoryEditor();
+				renderHistory();
+				showToast('Запись журнала обновлена');
+			}).catch(function() {
+				if (button) button.disabled = false;
+				showToast('Не удалось сохранить изменения. Попробуйте ещё раз.');
+			});
 		}
 
 		function openHistoryExport() {
@@ -1861,6 +2002,12 @@
 				if (action === 'choose-meal-type') chooseHistoryMealType(actionTarget.dataset.entryDate || '', actionTarget.dataset.mealType || '');
 				else if (action === 'toggle-meal-menu') toggleHistoryMealMenu(actionTarget);
 				else if (action === 'toggle-history') toggleHist(Number(actionTarget.dataset.index));
+				else if (action === 'open-history-editor') openHistoryEditor(actionTarget.dataset.entryDate || '');
+				else if (action === 'delete-history') deleteHistoryEntry(actionTarget.dataset.entryDate || '');
+				else if (action === 'close-history-editor') closeHistoryEditor();
+				else if (action === 'remove-history-editor-item') removeHistoryEditorItem(Number(actionTarget.dataset.index));
+				else if (action === 'add-history-editor-recipe') addHistoryEditorRecipe(actionTarget.dataset.recipeId || '');
+				else if (action === 'save-history-editor') saveHistoryEditor();
 				else if (action === 'edit-note') editNote(Number(actionTarget.dataset.noteId));
 				else if (action === 'delete-note') deleteNote(Number(actionTarget.dataset.noteId));
 				else if (action === 'remove-plate-item') removePlateItem(Number(actionTarget.dataset.index));
