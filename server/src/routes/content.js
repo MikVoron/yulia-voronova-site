@@ -329,19 +329,27 @@ async function contentRoutes(fastify) {
   // REVIEWS — public read, auth write
   // ═══════════════════════════════════════════════════════════════════════════
 
-  // GET /content/reviews/:recipeId — all reviews for a recipe (public)
-  fastify.get('/content/reviews/:recipeId', async (req, reply) => {
+  // GET /content/reviews/:recipeId — all reviews for a recipe (public).
+  // When a user is signed in, also return whether they marked an author reply helpful.
+  fastify.get('/content/reviews/:recipeId', { preHandler: [optionalAuthenticate] }, async (req, reply) => {
     const recipeId = validateReviewRecipeId(req.params.recipeId);
     if (!recipeId) return reply.status(400).send({ error: 'Некорректный recipeId' });
+    const userId = req.user?.sub || null;
     const result = await db.query(
       `SELECT r.id, r.stars, r.text, r.created_at, r.user_id,
               u.display_name, u.avatar, u.early_access_member,
               rr.text AS reply_text, rr.created_at AS reply_created_at,
-              rr.updated_at AS reply_updated_at
+              rr.updated_at AS reply_updated_at,
+              COALESCE((SELECT COUNT(*)::int
+                        FROM review_reply_reactions rrr
+                        WHERE rrr.review_id = r.id), 0) AS reply_helpful_count,
+              EXISTS(SELECT 1
+                     FROM review_reply_reactions rrr
+                     WHERE rrr.review_id = r.id AND rrr.user_id = $2::uuid) AS reply_helpful_by_user
        FROM reviews r JOIN users u ON u.id = r.user_id
        LEFT JOIN review_replies rr ON rr.review_id = r.id
-       WHERE r.recipe_id = $1 ORDER BY r.created_at DESC LIMIT $2`,
-      [recipeId, REVIEW_LIST_LIMIT]
+       WHERE r.recipe_id = $1 ORDER BY r.created_at DESC LIMIT $3`,
+      [recipeId, userId, REVIEW_LIST_LIMIT]
     );
     return result.rows.map(row => ({
       id: row.id,
@@ -355,7 +363,9 @@ async function contentRoutes(fastify) {
       reply: row.reply_text ? {
         text: row.reply_text,
         createdAt: row.reply_created_at,
-        updatedAt: row.reply_updated_at
+        updatedAt: row.reply_updated_at,
+        helpfulCount: Number(row.reply_helpful_count) || 0,
+        helpfulByCurrentUser: row.reply_helpful_by_user === true
       } : null
     }));
   });
@@ -423,6 +433,47 @@ async function contentRoutes(fastify) {
     if (!result.rows.length) return reply.status(404).send({ error: 'Отзыв не найден' });
     await audit.log('review_delete', { userId: req.user.sub, detail: 'review#' + req.params.id, ip: req.ip });
     return { ok: true };
+  });
+
+  // POST /content/reviews/:id/reply-helpful — toggle one helpful reaction per user.
+  fastify.post('/content/reviews/:id/reply-helpful', {
+    preHandler: [authenticate],
+    config: { rateLimit: { max: 60, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
+    const reviewId = Number(req.params.id);
+    if (!Number.isInteger(reviewId) || reviewId < 1) {
+      return reply.status(400).send({ error: 'Некорректный отзыв' });
+    }
+    const hasReply = await db.query(
+      'SELECT review_id FROM review_replies WHERE review_id=$1',
+      [reviewId]
+    );
+    if (!hasReply.rows.length) {
+      return reply.status(404).send({ error: 'Ответ Юлии не найден' });
+    }
+
+    const removed = await db.query(
+      'DELETE FROM review_reply_reactions WHERE review_id=$1 AND user_id=$2 RETURNING review_id',
+      [reviewId, req.user.sub]
+    );
+    let active = false;
+    if (!removed.rows.length) {
+      await db.query(
+        `INSERT INTO review_reply_reactions (review_id, user_id)
+         VALUES ($1, $2)
+         ON CONFLICT (review_id, user_id) DO NOTHING
+         RETURNING review_id`,
+        [reviewId, req.user.sub]
+      );
+      // A simultaneous double click can hit the unique constraint after another
+      // request has already added the reaction; in both cases it is active.
+      active = true;
+    }
+    const total = await db.query(
+      'SELECT COUNT(*)::int AS helpful_count FROM review_reply_reactions WHERE review_id=$1',
+      [reviewId]
+    );
+    return { active, helpfulCount: Number(total.rows[0]?.helpful_count) || 0 };
   });
 
   // POST /admin/reviews/:id/reply — public reply by the platform author

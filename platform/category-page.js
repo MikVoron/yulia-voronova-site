@@ -435,6 +435,8 @@
             deleteCatReview(Number(actionTarget.dataset.reviewId), actionTarget.dataset.isAdmin === 'true');
         } else if (action === 'submit-review-reply') {
             submitReviewReply(Number(actionTarget.dataset.reviewId));
+        } else if (action === 'toggle-review-reply-helpful') {
+            toggleReviewReplyHelpful(Number(actionTarget.dataset.reviewId));
         } else if (action === 'select-star') {
             selectStar(Number(actionTarget.dataset.n));
         } else if (action === 'remove-plate-item') {
@@ -756,7 +758,7 @@
 
     async function loadCommentsFromAPI(recipeId) {
         try {
-            const res = await fetch(API_BASE + '/content/reviews/' + encodeURIComponent(recipeId));
+            const res = await Auth.api('/content/reviews/' + encodeURIComponent(recipeId));
             if (!res.ok) throw new Error('API error');
             const reviews = await res.json();
             _reviewsCache[recipeId] = reviews;
@@ -791,10 +793,16 @@
                     ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0" data-review-avatar-fallback>`
                       + `<span class="review-avatar-fallback" style="display:none;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
                     : `<span style="width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
+                const helpfulCount = Math.max(0, Number(rv.reply?.helpfulCount) || 0);
+                const helpfulActive = rv.reply?.helpfulByCurrentUser === true;
+                const helpfulReactionHtml = rv.reply
+                    ? `<button type="button" data-category-action="toggle-review-reply-helpful" data-review-id="${Number(rv.id)}" aria-pressed="${helpfulActive}" aria-label="${Auth.isLoggedIn() ? (helpfulActive ? 'Убрать реакцию «Полезный ответ»' : 'Отметить ответ как полезный') : 'Войти, чтобы отметить ответ как полезный'}" style="display:inline-flex;align-items:center;gap:7px;max-width:100%;min-height:34px;margin-top:10px;padding:6px 10px 6px 8px;border:1px solid ${helpfulActive ? 'var(--accent)' : '#ead8ca'};border-radius:999px;background:${helpfulActive ? '#fff1e7' : '#fffaf5'};color:${helpfulActive ? '#7c2f0d' : '#5e3a22'};cursor:pointer;font:inherit;font-size:13px;font-weight:700;line-height:1"><span aria-hidden="true" style="display:inline-grid;width:20px;height:20px;place-items:center;flex:0 0 20px;border-radius:50%;background:${helpfulActive ? 'var(--accent)' : '#fbe7d6'};color:${helpfulActive ? '#fff' : 'var(--accent)'};font-size:12px">${helpfulActive ? '✓' : '🍴'}</span><span>Полезный ответ</span>${helpfulCount ? `<span style="display:inline-grid;min-width:20px;height:20px;place-items:center;padding:0 5px;border-radius:10px;background:#f2e8df;color:#7a4b2c;font-size:11px;font-variant-numeric:tabular-nums">${helpfulCount}</span>` : ''}</button>`
+                    : '';
                 const authorReplyHtml = rv.reply
                     ? `<div style="margin-top:10px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--bg-2);font-size:13px;line-height:1.5">
                         <div style="margin-bottom:3px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)">Ответ Юлии</div>
                         <div>${escHtml(rv.reply.text)}</div>
+                        ${helpfulReactionHtml}
                     </div>`
                     : '';
                 const replyFormHtml = isAdmin
@@ -886,6 +894,25 @@
         } catch (e) { showToast('Ошибка сети');
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = originalLabel; }
+        }
+    }
+
+    async function toggleReviewReplyHelpful(id) {
+        if (!Auth.isLoggedIn()) { location.href = Auth._loginUrl(); return; }
+        const btn = document.querySelector('[data-category-action="toggle-review-reply-helpful"][data-review-id="' + id + '"]');
+        if (btn?.disabled) return;
+        if (btn) btn.disabled = true;
+        try {
+            const res = await Auth.api('/content/reviews/' + id + '/reply-helpful', { method: 'POST' });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                showToast(err.error || 'Не удалось сохранить реакцию');
+                return;
+            }
+            await loadCommentsFromAPI(commentsRecipeId);
+        } catch (e) { showToast('Ошибка сети');
+        } finally {
+            if (btn?.isConnected) btn.disabled = false;
         }
     }
 

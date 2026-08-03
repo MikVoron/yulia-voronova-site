@@ -36,4 +36,13 @@ describe('recipe review reply UI', () => {
     expect(recipePage).toContain('Сохранить ответ');
     expect(recipePage).toContain('_editingReviewReplyId = null;\n\t\t\t\tawait loadReviews();');
   });
+
+  it('shows and toggles the helpful author-reply reaction in both review views', () => {
+    expect(recipePage).toContain('Полезный ответ');
+    expect(recipePage).toContain('data-recipe-action="toggle-review-reply-helpful"');
+    expect(recipePage).toContain("Auth.api('/content/reviews/' + id + '/reply-helpful'");
+    expect(categoryPage).toContain('Полезный ответ');
+    expect(categoryPage).toContain('data-category-action="toggle-review-reply-helpful"');
+    expect(categoryPage).toContain("Auth.api('/content/reviews/' + id + '/reply-helpful'");
+  });
 });

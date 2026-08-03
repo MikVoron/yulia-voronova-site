@@ -9,6 +9,7 @@ let subState = null; // null = no subscription row; or { status, trial_ends_at, 
 let dietaryPreferences = null;
 let reviewRows = [];
 let reviewAlreadyAnswered = false;
+let reviewReactionActive = false;
 const sendReviewReply = vi.fn().mockResolvedValue(true);
 
 const FREE_RECIPE = {
@@ -64,6 +65,21 @@ const mockQuery = vi.fn(async (sql /*, params */) => {
   }
   if (/LEFT JOIN review_replies rr ON rr.review_id = r.id/.test(sql)) {
     return { rows: reviewRows.map(r => ({ ...r })) };
+  }
+  if (/SELECT review_id FROM review_replies WHERE review_id/.test(sql)) {
+    return { rows: [{ review_id: 17 }] };
+  }
+  if (/DELETE FROM review_reply_reactions/.test(sql)) {
+    if (!reviewReactionActive) return { rows: [] };
+    reviewReactionActive = false;
+    return { rows: [{ review_id: 17 }] };
+  }
+  if (/INSERT INTO review_reply_reactions/.test(sql)) {
+    reviewReactionActive = true;
+    return { rows: [{ review_id: 17 }] };
+  }
+  if (/SELECT COUNT\(\*\)::int AS helpful_count FROM review_reply_reactions/.test(sql)) {
+    return { rows: [{ helpful_count: reviewReactionActive ? 1 : 0 }] };
   }
   if (/SELECT r.id, r.recipe_id, r.text AS review_text/.test(sql)) {
     return { rows: [{
@@ -137,6 +153,7 @@ beforeEach(() => {
   dietaryPreferences = null;
   reviewRows = [];
   reviewAlreadyAnswered = false;
+  reviewReactionActive = false;
   mockQuery.mockClear();
   sendReviewReply.mockClear();
 });
@@ -250,6 +267,8 @@ describe('recipe reviews', () => {
       reply_text: 'Да, подойдёт любая белая рыба.',
       reply_created_at: '2026-08-03T10:00:00.000Z',
       reply_updated_at: '2026-08-03T10:00:00.000Z',
+      reply_helpful_count: 3,
+      reply_helpful_by_user: true,
     }];
     const res = await app.inject({ method: 'GET', url: '/content/reviews/salmon-ukha' });
     expect(res.statusCode).toBe(200);
@@ -257,7 +276,24 @@ describe('recipe reviews', () => {
       text: 'Да, подойдёт любая белая рыба.',
       createdAt: '2026-08-03T10:00:00.000Z',
       updatedAt: '2026-08-03T10:00:00.000Z',
+      helpfulCount: 3,
+      helpfulByCurrentUser: true,
     });
+  });
+
+  it('toggles one helpful reaction for a published author reply', async () => {
+    const headers = { authorization: 'Bearer ' + makeToken('user-1') };
+    const added = await app.inject({
+      method: 'POST', url: '/content/reviews/17/reply-helpful', headers,
+    });
+    expect(added.statusCode).toBe(200);
+    expect(added.json()).toEqual({ active: true, helpfulCount: 1 });
+
+    const removed = await app.inject({
+      method: 'POST', url: '/content/reviews/17/reply-helpful', headers,
+    });
+    expect(removed.statusCode).toBe(200);
+    expect(removed.json()).toEqual({ active: false, helpfulCount: 0 });
   });
 
   it('lets an admin publish a reply to an existing review', async () => {

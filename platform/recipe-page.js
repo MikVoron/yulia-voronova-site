@@ -3261,7 +3261,7 @@
 		async function loadReviews() {
 			if (!r) return;
 			try {
-				const res = await fetch(API_BASE + '/content/reviews/' + encodeURIComponent(r.id));
+				const res = await Auth.api('/content/reviews/' + encodeURIComponent(r.id));
 				if (!res.ok) return;
 				const reviews = await res.json();
 				const list = document.getElementById('reviews-list');
@@ -3274,6 +3274,7 @@
 				const curUser = Auth.getUser();
 				const curUserId = curUser && curUser.id;
 				const isAdmin = curUser && curUser.role === 'admin';
+				const canReactToReply = Auth.isLoggedIn();
 				const hasOwnReview = reviews.some(rv => curUserId && rv.userId === curUserId);
 				const reviewActionLabel = document.getElementById('review-action-label');
 				if (reviewActionLabel) reviewActionLabel.textContent = Auth.isLoggedIn() && !hasOwnReview ? 'Оставить отзыв' : 'Отзывы';
@@ -3314,6 +3315,11 @@
 					const deleteBtn = canDelete
 						? `<button class="review-delete-btn" data-recipe-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? 'true' : 'false'}" aria-label="Удалить отзыв" title="Удалить отзыв"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>`
 						: '';
+					const helpfulCount = Math.max(0, Number(rv.reply?.helpfulCount) || 0);
+					const helpfulActive = rv.reply?.helpfulByCurrentUser === true;
+					const helpfulReaction = rv.reply
+						? `<button class="review-reply-helpful${helpfulActive ? ' is-active' : ''}" type="button" data-recipe-action="toggle-review-reply-helpful" data-review-id="${Number(rv.id)}" aria-pressed="${helpfulActive}" aria-label="${canReactToReply ? (helpfulActive ? 'Убрать реакцию «Полезный ответ»' : 'Отметить ответ как полезный') : 'Войти, чтобы отметить ответ как полезный'}"><span class="review-reply-helpful-mark" aria-hidden="true">${helpfulActive ? '✓' : '🍴'}</span><span>Полезный ответ</span>${helpfulCount ? `<span class="review-reply-helpful-count">${helpfulCount}</span>` : ''}</button>`
+						: '';
 					const authorReply = rv.reply
 						? `<div class="review-author-reply">
 							<div class="review-author-wrap">
@@ -3325,6 +3331,7 @@
 								</div>
 							</div>
 							<div class="review-author-reply-text">${escHtml(rv.reply.text)}</div>
+							${helpfulReaction}
 						</div>`
 						: '';
 					const replyEditor = isAdmin && _editingReviewReplyId === Number(rv.id)
@@ -3455,6 +3462,25 @@
 			loadReviews();
 		}
 
+		async function toggleReviewReplyHelpful(id) {
+			if (!Auth.isLoggedIn()) { location.href = Auth._loginUrl(); return; }
+			const btn = document.querySelector('[data-recipe-action="toggle-review-reply-helpful"][data-review-id="' + id + '"]');
+			if (btn?.disabled) return;
+			if (btn) btn.disabled = true;
+			try {
+				const res = await Auth.api('/content/reviews/' + id + '/reply-helpful', { method: 'POST' });
+				if (!res.ok) {
+					const err = await res.json().catch(() => ({}));
+					showToast(err.error || 'Не удалось сохранить реакцию');
+					return;
+				}
+				await loadReviews();
+			} catch (e) { showToast('Ошибка сети');
+			} finally {
+				if (btn?.isConnected) btn.disabled = false;
+			}
+		}
+
 		// Char counter
 		document.addEventListener('input', function (e) {
 			if (e.target.id === 'review-text') {
@@ -3485,6 +3511,7 @@
 				else if (action === 'submit-review-reply') submitReviewReply(Number(actionTarget.dataset.reviewId));
 				else if (action === 'open-review-reply-editor') openReviewReplyEditor(Number(actionTarget.dataset.reviewId));
 				else if (action === 'cancel-review-reply-editor') cancelReviewReplyEditor();
+				else if (action === 'toggle-review-reply-helpful') toggleReviewReplyHelpful(Number(actionTarget.dataset.reviewId));
 				else if (action === 'history-back') history.back();
 				else if (action === 'step-photo-move') stepPhotoCarouselMove(actionTarget, Number(actionTarget.dataset.direction));
 				else if (action === 'balance-wizard') balWizardGo(Number(actionTarget.dataset.delta));
