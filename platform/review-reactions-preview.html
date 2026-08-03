@@ -19,6 +19,7 @@
     .review-card + .review-card { margin-top: 16px; }
     .review-head, .author-head { display: flex; align-items: center; gap: 9px; }
     .review-avatar { width: 34px; height: 34px; flex: 0 0 34px; border-radius: 50%; object-fit: cover; background: #ddd; }
+    .review-avatar--letter { display: inline-grid; place-items: center; background: #f3d8d0; color: #8d4a40; font-size: 14px; font-weight: 800; }
     .review-name { color: var(--preview-ink); font-size: 15px; font-weight: 800; }
     .review-date { margin-left: auto; color: var(--preview-muted); font-size: 12px; white-space: nowrap; }
     .review-stars { margin: 12px 0 8px; color: #111827; font-size: 14px; letter-spacing: .08em; }
@@ -58,7 +59,7 @@
         <p class="preview-note">Широкий экран</p>
         <article class="review-card">
           <div class="review-head">
-            <img class="review-avatar" src="images/YV-blog.webp" alt="Жанна">
+            <span class="review-avatar review-avatar--letter" aria-hidden="true">Ж</span>
             <span class="review-name">Жанна</span>
             <span class="review-date">3 августа 2026 г.</span>
           </div>
@@ -89,7 +90,7 @@
         <div class="mobile-frame">
           <div class="mobile-frame__screen">
             <article class="review-card">
-              <div class="review-head"><img class="review-avatar" src="images/YV-blog.webp" alt="Жанна"><span class="review-name">Жанна</span></div>
+              <div class="review-head"><span class="review-avatar review-avatar--letter" aria-hidden="true">Ж</span><span class="review-name">Жанна</span></div>
               <div class="review-stars" aria-label="5 из 5 звёзд">★★★★★</div>
               <p class="review-text">Можно использовать копчёный тофу?</p>
               <div class="author-reply">
