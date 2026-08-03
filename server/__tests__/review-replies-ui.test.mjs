@@ -24,4 +24,13 @@ describe('recipe review reply UI', () => {
     expect(recipePage).toContain('data-recipe-action="submit-review-reply"');
     expect(recipePage).toContain("Auth.api('/admin/reviews/' + id + '/reply'");
   });
+
+  it('keeps the recipe reply editor collapsed until an admin asks to edit', () => {
+    expect(recipePage).toContain('let _editingReviewReplyId = null;');
+    expect(recipePage).toContain('data-recipe-action="open-review-reply-editor"');
+    expect(recipePage).toContain("rv.reply ? 'Редактировать ответ' : 'Ответить как Юлия'");
+    expect(recipePage).toContain('data-recipe-action="cancel-review-reply-editor"');
+    expect(recipePage).toContain('Сохранить ответ');
+    expect(recipePage).toContain('_editingReviewReplyId = null;\n\t\t\t\tawait loadReviews();');
+  });
 });

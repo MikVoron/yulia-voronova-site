@@ -3237,6 +3237,7 @@
 		// ── REVIEWS ──────────────────────────────────────────────────────────
 		let _reviewStars = 0;
 		let _reviewFormMarkup = null;
+		let _editingReviewReplyId = null;
 
 		function setReviewStars(n) {
 			_reviewStars = n;
@@ -3308,11 +3309,17 @@
 							<div>${escHtml(rv.reply.text)}</div>
 						</div>`
 						: '';
-					const replyForm = isAdmin
+					const replyEditor = isAdmin && _editingReviewReplyId === Number(rv.id)
 						? `<div style="margin-top:12px">
 							<textarea class="review-textarea" id="review-reply-${Number(rv.id)}" placeholder="Публичный ответ от имени Юлии" maxlength="1000" rows="3">${escHtml(rv.reply ? rv.reply.text : '')}</textarea>
-							<button class="btn btn-orange" type="button" data-recipe-action="submit-review-reply" data-review-id="${Number(rv.id)}" style="margin-top:7px;padding:8px 12px;font-size:12px">${rv.reply ? 'Обновить ответ' : 'Ответить как Юлия'}</button>
+							<div style="display:flex;gap:8px;margin-top:7px">
+								<button class="btn btn-orange" type="button" data-recipe-action="submit-review-reply" data-review-id="${Number(rv.id)}" style="padding:8px 12px;font-size:12px">Сохранить ответ</button>
+								<button class="btn" type="button" data-recipe-action="cancel-review-reply-editor" data-review-id="${Number(rv.id)}" style="padding:8px 12px;font-size:12px">Отмена</button>
+							</div>
 						</div>`
+						: '';
+					const replyAction = isAdmin && !replyEditor
+						? `<button class="btn" type="button" data-recipe-action="open-review-reply-editor" data-review-id="${Number(rv.id)}" style="margin-top:12px;padding:8px 12px;font-size:12px">${rv.reply ? 'Редактировать ответ' : 'Ответить как Юлия'}</button>`
 						: '';
 					return `<div class="review-item">
                     <div class="review-header">
@@ -3328,7 +3335,8 @@
                     <div class="review-stars-row">${starsHtml}</div>
                     <div class="review-text">${escHtml(rv.text)}</div>
                     ${authorReply}
-                    ${replyForm}
+                    ${replyAction}
+                    ${replyEditor}
                 </div>`;
 				}).join('');
 			} catch (e) {
@@ -3410,12 +3418,23 @@
 					showToast(err.error || 'Не удалось сохранить ответ');
 					return;
 				}
+				_editingReviewReplyId = null;
 				await loadReviews();
 				showToast('Ответ опубликован');
 			} catch (e) { showToast('Ошибка сети');
 			} finally {
 				if (btn) { btn.disabled = false; btn.textContent = originalLabel; }
 			}
+		}
+
+		function openReviewReplyEditor(id) {
+			_editingReviewReplyId = id;
+			loadReviews();
+		}
+
+		function cancelReviewReplyEditor() {
+			_editingReviewReplyId = null;
+			loadReviews();
 		}
 
 		// Char counter
@@ -3446,6 +3465,8 @@
 				else if (action === 'remove-grocery') removeRecipeGroceryItem(index);
 				else if (action === 'delete-review') deleteReview(Number(actionTarget.dataset.reviewId), actionTarget.dataset.isAdmin === 'true');
 				else if (action === 'submit-review-reply') submitReviewReply(Number(actionTarget.dataset.reviewId));
+				else if (action === 'open-review-reply-editor') openReviewReplyEditor(Number(actionTarget.dataset.reviewId));
+				else if (action === 'cancel-review-reply-editor') cancelReviewReplyEditor();
 				else if (action === 'history-back') history.back();
 				else if (action === 'step-photo-move') stepPhotoCarouselMove(actionTarget, Number(actionTarget.dataset.direction));
 				else if (action === 'balance-wizard') balWizardGo(Number(actionTarget.dataset.delta));
