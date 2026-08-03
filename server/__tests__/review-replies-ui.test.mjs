@@ -20,7 +20,9 @@ describe('recipe review reply UI', () => {
     expect(categoryPage).toContain('Ответ Юлии');
     expect(categoryPage).toContain('data-category-action="submit-review-reply"');
     expect(categoryPage).toContain("Auth.api('/admin/reviews/' + id + '/reply'");
-    expect(recipePage).toContain('Ответ Юлии');
+    expect(recipePage).toContain('Юлия Воронова');
+    expect(recipePage).toContain('Автор Умной Тарелки');
+    expect(recipePage).toContain('review-author-badge-short');
     expect(recipePage).toContain('data-recipe-action="submit-review-reply"');
     expect(recipePage).toContain("Auth.api('/admin/reviews/' + id + '/reply'");
   });

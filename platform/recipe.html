@@ -24,6 +24,18 @@
     <link rel="stylesheet" href="style-v4.css?v=20260714-nav-filter-polish" id="vcss">
 	<link rel="stylesheet" href="tawk-chat-modal.css?v=20260713-csp-styles">
 	<style>
+		.review-author-reply { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+		.review-author-reply .review-author-wrap { margin-bottom: 8px; }
+		.review-author-reply-meta { display: flex; align-items: center; gap: 6px; min-width: 0; }
+		.review-author-badge { display: inline-flex; align-items: center; min-height: 18px; padding: 0 6px; border: 1px solid var(--accent); color: var(--accent); font-size: 9px; font-weight: 800; line-height: 1; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+		.review-author-badge-short { display: none; }
+		.review-author-reply-text { margin-left: 40px; padding-left: 12px; border-left: 3px solid var(--accent); font-size: 14px; line-height: 1.6; color: var(--text); }
+		@media (max-width: 520px) {
+			.review-author-badge-full { display: none; }
+			.review-author-badge-short { display: inline; }
+		}
+	</style>
+	<style>
 		.recipe-guest-helper {
 			position: relative;
 			display: grid;
@@ -1376,7 +1388,7 @@
 	<script src="data-v2.js?v=20260713-csp-static-styles"></script>
 	<script src="ingredients.js?v=20260711-oats-seabass"></script>
 <script src="header-nav.js?v=20260714-category-nav"></script>
-	<script src="recipe-page.js?v=20260803-review-reply-editor"></script>
+	<script src="recipe-page.js?v=20260803-review-author-card"></script>
 	<script src="tawk-chat-modal.js?v=20260713-csp-styles"></script>
 </body>
 

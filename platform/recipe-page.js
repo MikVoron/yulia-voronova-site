@@ -3304,9 +3304,16 @@
 						? `<button class="review-delete-btn" data-recipe-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? 'true' : 'false'}" aria-label="Удалить отзыв" title="Удалить отзыв"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>`
 						: '';
 					const authorReply = rv.reply
-						? `<div style="margin-top:12px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--bg-2);font-size:13px;line-height:1.5">
-							<div style="margin-bottom:3px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)">Ответ Юлии</div>
-							<div>${escHtml(rv.reply.text)}</div>
+						? `<div class="review-author-reply">
+							<div class="review-author-wrap">
+								<img class="review-avatar" src="https://voronova.online/images/YV-small.webp" alt="Юлия Воронова" data-review-avatar-fallback>
+								<span class="review-avatar-fallback" style="display:none">Ю</span>
+								<div class="review-author-reply-meta">
+									<span class="review-author">Юлия Воронова</span>
+									<span class="review-author-badge"><span class="review-author-badge-full">Автор Умной Тарелки</span><span class="review-author-badge-short">Автор</span></span>
+								</div>
+							</div>
+							<div class="review-author-reply-text">${escHtml(rv.reply.text)}</div>
 						</div>`
 						: '';
 					const replyEditor = isAdmin && _editingReviewReplyId === Number(rv.id)
