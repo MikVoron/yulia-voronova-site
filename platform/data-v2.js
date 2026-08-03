@@ -669,6 +669,16 @@ const Plate = {
         const t = entry.totals || {};
         return JSON.stringify([items, Number(t.kcal) || 0, Number(t.protein) || 0, Number(t.fat) || 0, Number(t.carbs) || 0, Number(t.fiber) || 0]);
     },
+    _dedupeItems(items) {
+        const seenRecipeIds = new Set();
+        return (Array.isArray(items) ? items : []).filter(function(item) {
+            const recipeId = item && typeof item.recipeId === 'string' ? item.recipeId.trim() : '';
+            if (!recipeId) return true;
+            if (seenRecipeIds.has(recipeId)) return false;
+            seenRecipeIds.add(recipeId);
+            return true;
+        });
+    },
     _dedupeHistory(history) {
         const sorted = (Array.isArray(history) ? history : []).filter(function(entry) {
             return entry && Array.isArray(entry.items) && entry.items.length;
@@ -687,13 +697,18 @@ const Plate = {
         });
         return kept.slice(0, 30).map(function(saved) { return saved.entry; });
     },
-    get()  { try { return JSON.parse(localStorage.getItem(this._key()) || '[]'); } catch { return []; } },
-    set(v) { localStorage.setItem(this._key(), JSON.stringify(v)); updatePlateIcon(); },
+    get()  { try { return this._dedupeItems(JSON.parse(localStorage.getItem(this._key()) || '[]')); } catch { return []; } },
+    set(v) { localStorage.setItem(this._key(), JSON.stringify(this._dedupeItems(v))); updatePlateIcon(); },
     add(item) {
         const p = this.get();
+        const recipeId = item && typeof item.recipeId === 'string' ? item.recipeId.trim() : '';
+        if (recipeId && p.some(function(existing) {
+            return existing && typeof existing.recipeId === 'string' && existing.recipeId.trim() === recipeId;
+        })) return false;
         p.push({ ...item, addedAt: Date.now() });
         this.set(p);
         this._syncToServer();
+        return true;
     },
     remove(idx) {
         const p = this.get();

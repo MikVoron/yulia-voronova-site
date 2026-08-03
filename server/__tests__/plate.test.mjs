@@ -106,6 +106,26 @@ describe('plate history metadata', () => {
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
+  it('keeps only one current plate item for each recipe', async () => {
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/plate',
+      payload: {
+        items: [
+          { name: 'Dish', recipeId: 'dish' },
+          { name: 'Dish again', recipeId: 'dish' },
+          { name: 'Custom side' }
+        ]
+      }
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(JSON.parse(mockQuery.mock.calls[0][1][1])).toEqual([
+      { name: 'Dish', recipeId: 'dish' },
+      { name: 'Custom side' }
+    ]);
+  });
+
   it('rejects non-object totals before writing history', async () => {
     const res = await app.inject({
       method: 'POST',

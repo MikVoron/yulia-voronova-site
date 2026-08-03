@@ -1958,7 +1958,7 @@
 			const item = subItemRegistry[key];
 			if (!item) return;
 			const linked = (item.recipeId && typeof RECIPES !== 'undefined') ? RECIPES[item.recipeId] : null;
-			Plate.add({
+			const added = Plate.add({
 				name: item.name,
 				emoji: item.emoji || '🍴',
 				photo: item.photo || (linked && linked.photo) || '',
@@ -1970,6 +1970,10 @@
 				recipeId: item.recipeId,
 				ingredients: []
 			});
+			if (!added) {
+				showToast((item.emoji || '🍴') + ' Это блюдо уже в тарелке');
+				return;
+			}
 			if (btn) {
 				btn.textContent = '✓ В тарелке';
 				btn.disabled = true;
@@ -2724,7 +2728,7 @@
 			plateTotals.fat = Math.round(plateTotals.fat * 10) / 10;
 			plateTotals.carbs = Math.round(plateTotals.carbs * 10) / 10;
 			plateTotals.fiber = Math.round(plateTotals.fiber * 10) / 10;
-			Plate.add({
+			const added = Plate.add({
 				name: r.name,
 				emoji: r.emoji,
 				photo: r.photo || '',
@@ -2737,6 +2741,13 @@
 				ingredients: _plateIngredients,
 				additions: []
 			});
+			if (!added) {
+				updatePlateIcon();
+				refreshAddButtonStateByPlate();
+				showToast(r.emoji + ' Это блюдо уже в тарелке');
+				openPlate();
+				return;
+			}
 
 			// Deferred addons → separate Plate entries; dedup by recipeId when present.
 			Object.values(checkedItems).forEach(v => {

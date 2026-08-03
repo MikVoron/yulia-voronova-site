@@ -38,8 +38,16 @@ function validatePlateItems(items) {
       throw err;
     }
   }
-  assertJsonSize(items, PLATE_ITEMS_JSON_MAX, 'items');
-  return items;
+  const seenRecipeIds = new Set();
+  const uniqueItems = items.filter((item) => {
+    const recipeId = typeof item.recipeId === 'string' ? item.recipeId.trim() : '';
+    if (!recipeId) return true;
+    if (seenRecipeIds.has(recipeId)) return false;
+    seenRecipeIds.add(recipeId);
+    return true;
+  });
+  assertJsonSize(uniqueItems, PLATE_ITEMS_JSON_MAX, 'items');
+  return uniqueItems;
 }
 
 function validateTotals(totals) {
