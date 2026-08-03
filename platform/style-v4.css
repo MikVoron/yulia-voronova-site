@@ -2387,6 +2387,10 @@ img { display: block; max-width: 100%; }
 }
 .plate-modal-v1 .shop-btn-ghost:hover { background: var(--text); color: #fff; }
 .plate-modal-v1 .shop-btn.is-active { background: var(--text); color: #fff; }
+@media (max-width: 480px) {
+    .plate-modal-v1 .shop-actions { flex-direction: column; }
+    .plate-modal-v1 .shop-btn { min-height: 44px; }
+}
 .plate-modal-v1 .plate-shop-list {
     margin-top: 14px;
     padding-top: 12px;

@@ -826,6 +826,7 @@
             </div>`;
         } else {
             const t = Plate.totals();
+            const ingCount = items.reduce((n, item) => n + (Array.isArray(item.ingredients) ? item.ingredients.length : 0), 0);
             const list = items.map((item, i) => {
                 const safeName = escHtml(String(item.name || ''));
                 const nameHtml = item.recipeId
@@ -853,14 +854,26 @@
                         <div class="pv1-tot"><div class="pv1-tot-num">${Number(t.fiber) || 0}</div><div class="pv1-tot-key">Клетч., г</div></div>
                     </div>
                 </div>
+                <div class="shop" id="ingredient-plate-shop-block">
+                    <div class="shop-head">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
+                        Список покупок${ingCount ? ` · ${ingCount} шт` : ''}
+                    </div>
+                    <div class="shop-actions">
+                        <button class="shop-btn shop-btn-primary" id="ingredient-plate-shop-mode-btn" type="button" data-ingredient-action="toggle-plate-shop-mode" aria-pressed="false">В магазине</button>
+                        <button class="shop-btn shop-btn-ghost" type="button" data-ingredient-action="copy-plate-shopping-list">Скопировать</button>
+                    </div>
+                    <div class="plate-shop-list" id="ingredient-plate-shop-list" hidden></div>
+                </div>
                 ${plateMealTypePickerHtml()}
                 <div class="pv1-actions">
                     <div class="pv1-actions-row">
                         <button class="pv1-btn" data-ingredient-action="go-home">← На главную</button>
-                        <button class="pv1-btn" data-ingredient-action="share-shopping-list">Список продуктов</button>
+                        <button class="pv1-btn" data-ingredient-action="share-shopping-list">Поделиться</button>
                     </div>
                     <button class="pv1-btn pv1-btn-primary pv1-btn-full" data-ingredient-action="save-plate">Сохранить в журнал</button>
                 </div>`;
+			renderIngredientPlateShopMode();
         }
         document.getElementById('plate-overlay').classList.add('open');
         document.body.style.overflow = 'hidden';
@@ -871,9 +884,57 @@
     }
     function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
     function removeItemCat(i) { Plate.remove(i); updatePlateIcon(); openPlate(); }
+    let ingredientPlateShopMode = false;
+    let ingredientPlateShopChecked = new Set();
+    function ingredientPlateShopItems() {
+        const out = [];
+        Plate.get().forEach((item, itemIndex) => {
+            const ingredients = Array.isArray(item.ingredients) ? item.ingredients : [];
+            ingredients.forEach((ing, ingIndex) => {
+                const name = typeof ing === 'string' ? ing : (ing && (ing.name || ing.title || ing.text)) || '';
+                const label = String(name || '').trim();
+                if (label) out.push({ key: itemIndex + '-' + ingIndex + '-' + label, dish: String(item.name || 'Блюдо'), label });
+            });
+        });
+        return out;
+    }
+    function toggleIngredientPlateShopMode() { ingredientPlateShopMode = !ingredientPlateShopMode; renderIngredientPlateShopMode(); }
+    function toggleIngredientPlateShopItem(index) {
+        if (!ingredientPlateShopMode) return;
+        const item = ingredientPlateShopItems()[Number(index)];
+        if (!item) return;
+        if (ingredientPlateShopChecked.has(item.key)) ingredientPlateShopChecked.delete(item.key);
+        else ingredientPlateShopChecked.add(item.key);
+        renderIngredientPlateShopMode();
+    }
+    function renderIngredientPlateShopMode() {
+        const listEl = document.getElementById('ingredient-plate-shop-list');
+        const btn = document.getElementById('ingredient-plate-shop-mode-btn');
+        if (!listEl || !btn) return;
+        const items = ingredientPlateShopItems();
+        const validKeys = new Set(items.map(item => item.key));
+        ingredientPlateShopChecked = new Set(Array.from(ingredientPlateShopChecked).filter(key => validKeys.has(key)));
+        btn.setAttribute('aria-pressed', String(ingredientPlateShopMode));
+        btn.classList.toggle('is-active', ingredientPlateShopMode);
+        listEl.hidden = !ingredientPlateShopMode;
+        if (!ingredientPlateShopMode) { listEl.innerHTML = ''; return; }
+        if (!items.length) { listEl.innerHTML = '<div class="plate-shop-empty">В выбранных блюдах нет ингредиентов.</div>'; return; }
+        let currentDish = ''; let html = '';
+        items.forEach((item, index) => {
+            if (item.dish !== currentDish) { currentDish = item.dish; html += '<div class="plate-shop-dish">' + escHtml(currentDish) + '</div>'; }
+            const checked = ingredientPlateShopChecked.has(item.key);
+            html += '<button class="plate-shop-check' + (checked ? ' is-checked' : '') + '" type="button" data-ingredient-action="toggle-plate-shop-item" data-index="' + Number(index) + '" aria-pressed="' + checked + '"><span class="plate-shop-box" aria-hidden="true"></span><span class="plate-shop-label">' + escHtml(item.label) + '</span></button>';
+        });
+        listEl.innerHTML = html;
+    }
+    function copyIngredientPlateShoppingList() {
+        navigator.clipboard.writeText(buildShoppingList()).then(() => showToast('📋 Список скопирован!')).catch(() => showToast('Не удалось скопировать'));
+    }
     function savePlateCat() {
         if (!Plate.count()) return;
         Plate.saveHistory(getSelectedPlateMealType());
+        ingredientPlateShopMode = false;
+        ingredientPlateShopChecked.clear();
         updatePlateIcon();
         closePlate();
         showToast('Тарелка сохранена в журнал 🎉');
@@ -900,6 +961,9 @@ document.addEventListener('click', function (event) {
         }
         else if (action === 'remove-plate-item') removeItemCat(Number(actionTarget.dataset.index));
         else if (action === 'go-home') location.href = 'index.html';
+        else if (action === 'toggle-plate-shop-mode') toggleIngredientPlateShopMode();
+        else if (action === 'toggle-plate-shop-item') toggleIngredientPlateShopItem(Number(actionTarget.dataset.index));
+        else if (action === 'copy-plate-shopping-list') copyIngredientPlateShoppingList();
         else if (action === 'share-shopping-list') shareShoppingList();
         else if (action === 'save-plate') savePlateCat();
         return;
