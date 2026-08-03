@@ -3317,7 +3317,7 @@
 					const authorReply = rv.reply
 						? `<div class="review-author-reply">
 							<div class="review-author-wrap">
-								<img class="review-avatar" src="https://voronova.online/images/YV-small.webp" alt="Юлия Воронова" data-review-avatar-fallback>
+								<img class="review-avatar" src="images/YV-blog.webp" alt="Юлия Воронова" data-review-avatar-fallback>
 								<span class="review-avatar-fallback" style="display:none">Ю</span>
 								<div class="review-author-reply-meta">
 									<span class="review-author">Юлия Воронова</span>

@@ -23,6 +23,7 @@ describe('recipe review reply UI', () => {
     expect(recipePage).toContain('Юлия Воронова');
     expect(recipePage).toContain('Автор Умной Тарелки');
     expect(recipePage).toContain('review-author-badge-short');
+    expect(recipePage).toContain('src="images/YV-blog.webp"');
     expect(recipePage).toContain('data-recipe-action="submit-review-reply"');
     expect(recipePage).toContain("Auth.api('/admin/reviews/' + id + '/reply'");
   });
