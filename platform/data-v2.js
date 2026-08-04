@@ -1483,17 +1483,30 @@ function showLockedMsg(recipeId) {
 }
 
 // ─── SHOPPING LIST ────────────────────────────────────────────────────────────
+function formatShoppingListItem(ingredient) {
+    const raw = typeof ingredient === 'string'
+        ? ingredient
+        : (ingredient && (ingredient.name || ingredient.title || ingredient.text)) || '';
+    return String(raw)
+        .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 function buildShoppingList() {
     const items = Plate.get();
     if (!items.length) return '';
-    let txt = `🛒 Список покупок\n${new Date().toLocaleDateString('ru-RU')}\n\n`;
+    const date = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+    let txt = `◐ SMARTPLATE\nСписок покупок • ${date}\n\n`;
     items.forEach(item => {
-        txt += `📌 ${item.name}\n`;
-        if (item.ingredients) item.ingredients.forEach(ing => { txt += `  • ${ing.name || ing}\n`; });
+        txt += `${formatShoppingListItem(item.name || 'Блюдо').toLocaleUpperCase('ru-RU')}\n`;
+        if (item.ingredients) item.ingredients.forEach(ing => {
+            const label = formatShoppingListItem(ing);
+            if (label) txt += `□ ${label}\n`;
+        });
         txt += '\n';
     });
-    const t = Plate.totals();
-    txt += `────────\nИтого: ${t.kcal} ккал | Б: ${t.protein}г | Ж: ${t.fat}г | У: ${t.carbs}г`;
+    txt += '────────────\nСобрано в SmartPlate';
     return txt;
 }
 
