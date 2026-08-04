@@ -16,7 +16,7 @@ describe('optional protein add-on for soups', () => {
   it('shows optional protein but excludes it from balance gating', () => {
     const recipePage = read('platform/recipe-page.js');
     expect(recipePage).toContain('_balRequired = _balCats.filter(c => !c.optional);');
-    expect(recipePage).toContain("title = optional ? ((group.label || meta.shortLabel || '') + ' · по желанию')");
+    expect(recipePage).toContain('title = optional ? (group.label || meta.shortLabel || meta.title) : meta.title;');
     expect(recipePage).toContain("cat.optional ? 'Добавьте, если хотите больше сытости.'");
     expect(recipePage).toContain('const hasAdds = _balRequired.length > 0;');
   });

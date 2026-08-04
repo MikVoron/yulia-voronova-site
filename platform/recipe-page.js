@@ -1827,7 +1827,7 @@
 			const meta = GROUP_META[prefix] || {};
 			const group = _balGroups.find(c => c.prefix === prefix) || {};
 			const optional = !!group.optional;
-			const title = optional ? ((group.label || meta.shortLabel || '') + ' · по желанию') : meta.title;
+			const title = optional ? (group.label || meta.shortLabel || meta.title) : meta.title;
 			_groupConfig[prefix] = { items, stepIndex, icon: meta.icon, title, optional };
 			const shouldCollapse = items.length > GROUP_COLLAPSE_LIMIT;
 			const expanded = !!expandedGroups[prefix];
