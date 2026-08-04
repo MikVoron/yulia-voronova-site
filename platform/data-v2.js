@@ -1496,8 +1496,7 @@ function formatShoppingListItem(ingredient) {
 function buildShoppingList() {
     const items = Plate.get();
     if (!items.length) return '';
-    const date = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-    let txt = `◐ SMARTPLATE\nСписок покупок • ${date}\n\n`;
+    let txt = 'УМНАЯ ТАРЕЛКА\nСписок покупок\n\n';
     items.forEach(item => {
         txt += `${formatShoppingListItem(item.name || 'Блюдо').toLocaleUpperCase('ru-RU')}\n`;
         if (item.ingredients) item.ingredients.forEach(ing => {
@@ -1506,7 +1505,7 @@ function buildShoppingList() {
         });
         txt += '\n';
     });
-    txt += '────────────\nСобрано в SmartPlate';
+    txt += '────────────\nЮлия Воронова · нутрициолог\n@voronova_nutrition\napp.voronova.online';
     return txt;
 }
 
