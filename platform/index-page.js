@@ -194,7 +194,7 @@
 
 			const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 			const mobileText = window.matchMedia('(max-width: 767px)').matches;
-			const searchText = mobileText ? 'Плов' : 'Плов с чечевицей и грибами';
+			const searchText = mobileText ? 'Плов' : 'Плов с чечевицей';
 			const messageText = 'Добавьте рецепт шакшуки';
 
 			function typeDemoText(element, text, delay, speed) {
@@ -218,7 +218,7 @@
 				return;
 			}
 
-			const durations = { search: 4200, balance: 2500, save: 2200, shopping: 2200, message: 3500 };
+			const durations = { search: 4200, balance: 2500, save: 2200, shopping: 2200, message: 4200 };
 			const queue = [];
 			let demoRunning = false;
 
@@ -237,7 +237,7 @@
 				if (demo === 'search') {
 					typeDemoText(card.querySelector('[data-how-type="search"]'), searchText, 280, mobileText ? 115 : 64);
 				} else if (demo === 'message') {
-					typeDemoText(card.querySelector('[data-how-type="message"]'), messageText, 500, 62);
+					typeDemoText(card.querySelector('[data-how-type="message"]'), messageText, 1500, 62);
 				}
 
 				setTimeout(() => {
