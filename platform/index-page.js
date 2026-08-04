@@ -188,20 +188,86 @@
 			if (weekdayEl) weekdayEl.textContent = today.toLocaleDateString('ru-RU', { weekday: 'long' });
 		}
 
-		(function initHowScrollAnimations() {
-			const cards = Array.from(document.querySelectorAll('.sp-how-card')).slice(0, 2);
-			if (!cards.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-			if (!('IntersectionObserver' in window)) {
-				cards.forEach(card => card.classList.add('is-scroll-animated'));
+		(function initHowDemos() {
+			const cards = Array.from(document.querySelectorAll('.sp-how-card'));
+			if (!cards.length) return;
+
+			const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			const mobileText = window.matchMedia('(max-width: 767px)').matches;
+			const searchText = mobileText ? 'Плов' : 'Плов с чечевицей и грибами';
+			const messageText = 'Добавьте рецепт шакшуки';
+
+			function typeDemoText(element, text, delay, speed) {
+				if (!element) return;
+				element.textContent = '';
+				let index = 0;
+				setTimeout(function tick() {
+					element.textContent = text.slice(0, index + 1);
+					index += 1;
+					if (index < text.length) setTimeout(tick, speed);
+				}, delay);
+			}
+
+			if (reduceMotion) {
+				cards.forEach(card => {
+					card.classList.add('is-demo-static');
+					const demo = card.dataset.howDemo;
+					const typed = card.querySelector('[data-how-type]');
+					if (typed) typed.textContent = demo === 'search' ? searchText : messageText;
+				});
 				return;
 			}
+
+			const durations = { search: 4200, balance: 2500, save: 2200, shopping: 2200, message: 3500 };
+			const queue = [];
+			let demoRunning = false;
+
+			function runNextDemo() {
+				if (demoRunning || !queue.length) return;
+				const card = queue.shift();
+				if (!card || card.dataset.howDemoPlayed === '1') {
+					runNextDemo();
+					return;
+				}
+
+				demoRunning = true;
+				card.dataset.howDemoPlayed = '1';
+				card.classList.add('is-demo-active');
+				const demo = card.dataset.howDemo;
+				if (demo === 'search') {
+					typeDemoText(card.querySelector('[data-how-type="search"]'), searchText, 280, mobileText ? 115 : 64);
+				} else if (demo === 'message') {
+					typeDemoText(card.querySelector('[data-how-type="message"]'), messageText, 500, 62);
+				}
+
+				setTimeout(() => {
+					card.classList.add('is-demo-complete');
+					demoRunning = false;
+					runNextDemo();
+				}, durations[demo] || 2400);
+			}
+
+			function enqueueCard(card) {
+				if (!card || card.dataset.howDemoQueued === '1' || card.dataset.howDemoPlayed === '1') return;
+				card.dataset.howDemoQueued = '1';
+				queue.push(card);
+				runNextDemo();
+			}
+
+			if (!('IntersectionObserver' in window)) {
+				cards.forEach(enqueueCard);
+				return;
+			}
+
 			const observer = new IntersectionObserver(entries => {
-				entries.forEach(entry => {
-					if (!entry.isIntersecting) return;
-					entry.target.classList.add('is-scroll-animated');
-					observer.unobserve(entry.target);
-				});
-			}, { threshold: .45 });
+				entries
+					.filter(entry => entry.isIntersecting)
+					.sort((a, b) => cards.indexOf(a.target) - cards.indexOf(b.target))
+					.forEach(entry => {
+						enqueueCard(entry.target);
+						observer.unobserve(entry.target);
+					});
+			}, { threshold: .5, rootMargin: '0px 0px -6% 0px' });
 			cards.forEach(card => observer.observe(card));
 		})();
 

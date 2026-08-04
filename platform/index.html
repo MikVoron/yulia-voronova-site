@@ -34,7 +34,7 @@
 	<link rel="stylesheet" href="index-critical.css?v=20260713-csp-static">
 	<link rel="stylesheet" href="style-v4.css?v=20260714-nav-filter-polish" id="vcss">
 	<link rel="stylesheet" href="tawk-chat-modal.css?v=20260713-csp-styles">
-	<link rel="stylesheet" href="index.css?v=20260727-filter-status-combine">
+	<link rel="stylesheet" href="index.css?v=20260804-onboarding-demo">
 </head>
 
 <body class="v-page sp-home">
@@ -185,16 +185,18 @@
 					</div>
 
 					<div class="sp-how-grid">
-						<article class="sp-how-card">
+						<article class="sp-how-card" data-how-demo="search">
 							<div class="sp-how-visual" aria-hidden="true">
+								<span class="sp-how-demo-label">Демонстрация</span>
 								<div class="sp-how-search">
 									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 										<circle cx="11" cy="11" r="8"></circle>
 										<path d="m21 21-4.3-4.3"></path>
 									</svg>
-									<span>Найти рецепт</span>
+									<span class="sp-how-typed" data-how-type="search">Найти рецепт</span>
 								</div>
-								<div class="sp-how-chip">Ингредиенты</div>
+								<div class="sp-how-nav-demo"><span>Рецепты</span><span class="sp-how-nav-link">Ингредиенты</span></div>
+								<span class="sp-how-demo-pointer" aria-hidden="true"></span>
 							</div>
 							<div class="sp-how-body">
 								<span class="sp-how-step">1</span>
@@ -202,13 +204,15 @@
 								<p>Начните с поиска, каталога рецептов или выбора конкретного ингредиента.</p>
 							</div>
 						</article>
-						<article class="sp-how-card">
+						<article class="sp-how-card" data-how-demo="balance">
 							<div class="sp-how-visual" aria-hidden="true">
+								<span class="sp-how-demo-label">Демонстрация</span>
 								<div class="sp-how-balance">
 									<div class="sp-how-bar"><span></span></div>
 									<div class="sp-how-check"><i></i><span>Белок</span></div>
 									<div class="sp-how-check"><i></i><span>Углеводы</span></div>
-									<div class="sp-how-check"><i></i><span>Клетчатка</span></div>
+									<div class="sp-how-check sp-how-check--missing"><i></i><span>Клетчатка</span></div>
+									<span class="sp-how-balance-hint">+ добавьте овощи</span>
 								</div>
 							</div>
 							<div class="sp-how-body">
@@ -217,8 +221,9 @@
 								<p>Система покажет, чем дополнить можно рецепт, и пересчитает КБЖУ.</p>
 							</div>
 						</article>
-						<article class="sp-how-card">
+						<article class="sp-how-card" data-how-demo="save">
 							<div class="sp-how-visual" aria-hidden="true">
+								<span class="sp-how-demo-label">Демонстрация</span>
 								<div class="sp-how-plate">
 									<svg class="sp-how-plate-svg" viewBox="0 0 22 22" aria-hidden="true" focusable="false">
 										<circle cx="11" cy="11" r="10" fill="#fff" stroke="var(--text)" stroke-width=".85" />
@@ -228,6 +233,7 @@
 										<line x1="11" y1="11" x2="21" y2="11" stroke="#fff" stroke-width=".75" />
 									</svg>
 								</div>
+								<div class="sp-how-save-status"><span>✓</span> Сохранено в журнал</div>
 							</div>
 							<div class="sp-how-body">
 								<span class="sp-how-step">3</span>
@@ -235,12 +241,14 @@
 								<p>Готовую сбалансированную тарелку можно сохранить в журнал в личном кабинете.</p>
 							</div>
 						</article>
-						<article class="sp-how-card">
+						<article class="sp-how-card" data-how-demo="shopping">
 							<div class="sp-how-visual" aria-hidden="true">
+								<span class="sp-how-demo-label">Демонстрация</span>
 								<div class="sp-how-list">
 									<div class="sp-how-item"><i></i><span>Нут: 400 г</span></div>
 									<div class="sp-how-item"><i></i><span>Морковь: 2 шт.</span></div>
 									<div class="sp-how-item"><i></i><span>Укроп: 20-30 г</span></div>
+									<div class="sp-how-list-status">1 из 3 куплено</div>
 								</div>
 							</div>
 							<div class="sp-how-body">
@@ -249,11 +257,13 @@
 								<p>Скопируйте список продуктов или отмечайте в нем купленное прямо на сайте, пока будете в магазине.</p>
 							</div>
 						</article>
-						<article class="sp-how-card">
+						<article class="sp-how-card" data-how-demo="message">
 							<div class="sp-how-visual" aria-hidden="true">
+								<span class="sp-how-demo-label">Демонстрация</span>
 								<div class="sp-how-message">
 									<div class="sp-how-tabs"><span>Пожелание</span><span>Идея</span></div>
-									<div class="sp-how-field"></div>
+									<div class="sp-how-field"><span class="sp-how-typed" data-how-type="message"></span></div>
+									<div class="sp-how-message-status">Юля получила сообщение ✓</div>
 								</div>
 							</div>
 							<div class="sp-how-body">
@@ -493,7 +503,7 @@
 	<script src="data-v2.js?v=20260804-shopping-signature"></script>
 	<script src="ingredients.js?v=20260711-oats-seabass"></script>
 <script src="header-nav.js?v=20260714-category-nav"></script>
-	<script src="index-page.js?v=20260727-filter-status-combine"></script>
+	<script src="index-page.js?v=20260804-onboarding-demo"></script>
 	<script src="tawk-chat-modal.js?v=20260803-tawk-singleton"></script>
 </body>
 

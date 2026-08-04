@@ -938,6 +938,18 @@ main {
 	overflow: hidden;
 }
 
+.sp-how-demo-label {
+	position: absolute;
+	top: 7px;
+	right: 10px;
+	z-index: 4;
+	color: var(--text-3);
+	font-size: 8px;
+	font-weight: 800;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+}
+
 .sp-how-body {
 	padding: 18px;
 }
@@ -1013,6 +1025,23 @@ main {
 	overflow: hidden;
 }
 
+.sp-how-search .sp-how-typed::after,
+.sp-how-field .sp-how-typed::after {
+	content: '';
+	display: inline-block;
+	width: 1px;
+	height: 1em;
+	margin-left: 2px;
+	vertical-align: -.12em;
+	background: currentColor;
+	opacity: 0;
+}
+
+.sp-how-card.is-demo-active .sp-how-search .sp-how-typed::after,
+.sp-how-card.is-demo-active .sp-how-field .sp-how-typed::after {
+	animation: spHowCaret .72s steps(1, end) 4;
+}
+
 .sp-how-search svg {
 	position: absolute;
 	left: 14px;
@@ -1022,17 +1051,71 @@ main {
 	color: var(--text-3);
 }
 
-.sp-how-chip {
+.sp-how-nav-demo {
 	position: absolute;
 	left: 18px;
 	bottom: 18px;
-	padding: 8px 12px;
-	background: #fff;
-	border: 1px solid var(--text);
-	font-size: 10px;
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	font-size: 9px;
 	font-weight: 800;
-	letter-spacing: .12em;
+	letter-spacing: .1em;
 	text-transform: uppercase;
+}
+
+.sp-how-nav-demo>span:first-child {
+	color: var(--text-3);
+}
+
+.sp-how-nav-link {
+	position: relative;
+	padding: 4px 0;
+}
+
+.sp-how-nav-link::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 2px;
+	background: var(--accent);
+	transform: scaleX(0);
+	transform-origin: left;
+}
+
+.sp-how-demo-pointer {
+	position: absolute;
+	left: 92px;
+	bottom: 4px;
+	z-index: 3;
+	width: 13px;
+	height: 18px;
+	opacity: 0;
+	filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .18));
+}
+
+.sp-how-demo-pointer::before {
+	content: '';
+	display: block;
+	width: 0;
+	height: 0;
+	border-top: 15px solid var(--text);
+	border-right: 8px solid transparent;
+	transform: rotate(-18deg);
+}
+
+.sp-how-demo-pointer::after {
+	content: '';
+	position: absolute;
+	left: -7px;
+	top: -5px;
+	width: 22px;
+	height: 22px;
+	border: 1px solid var(--accent);
+	border-radius: 50%;
+	opacity: 0;
 }
 
 .sp-how-balance {
@@ -1053,7 +1136,7 @@ main {
 .sp-how-bar span {
 	display: block;
 	height: 100%;
-	width: 74%;
+	width: 46%;
 	background: var(--accent);
 }
 
@@ -1070,10 +1153,28 @@ main {
 }
 
 .sp-how-check i {
+	position: relative;
 	width: 8px;
 	height: 8px;
 	border-radius: 50%;
 	background: var(--accent);
+}
+
+.sp-how-check--missing i {
+	background: transparent;
+	border: 1px solid var(--accent);
+}
+
+.sp-how-balance-hint {
+	position: absolute;
+	right: 12px;
+	bottom: 9px;
+	color: var(--accent);
+	font-size: 8px;
+	font-weight: 800;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	opacity: 0;
 }
 
 .sp-how-plate {
@@ -1091,12 +1192,34 @@ main {
 	display: block;
 }
 
+.sp-how-save-status {
+	position: absolute;
+	left: 50%;
+	bottom: 13px;
+	width: max-content;
+	max-width: calc(100% - 24px);
+	padding: 7px 10px;
+	transform: translate(-50%, 8px);
+	background: #fff;
+	border: 1px solid var(--border);
+	color: var(--text);
+	font-size: 9px;
+	font-weight: 800;
+	letter-spacing: .05em;
+	text-transform: uppercase;
+	opacity: 0;
+}
+
+.sp-how-save-status span {
+	color: var(--accent);
+}
+
 .sp-how-list {
 	position: absolute;
 	inset: 18px;
 	background: #fff;
 	border: 1px solid var(--border);
-	padding: 16px;
+	padding: 10px 12px;
 }
 
 .sp-how-item {
@@ -1104,21 +1227,39 @@ main {
 	grid-template-columns: 17px 1fr;
 	gap: 9px;
 	align-items: center;
-	min-height: 30px;
+	min-height: 24px;
 	border-bottom: 1px solid var(--border);
 	color: var(--text-2);
-	font-size: 13px;
+	font-size: 11px;
 }
 
 .sp-how-item i {
+	position: relative;
 	width: 15px;
 	height: 15px;
 	border: 1px solid var(--text);
 }
 
-.sp-how-item:nth-child(2) i {
-	background: var(--accent);
-	box-shadow: inset 0 0 0 3px #fff;
+.sp-how-item i::after {
+	content: '✓';
+	position: absolute;
+	left: 2px;
+	top: -2px;
+	color: #fff;
+	font-size: 11px;
+	font-weight: 800;
+	opacity: 0;
+}
+
+.sp-how-list-status {
+	margin-top: 4px;
+	color: var(--accent);
+	font-size: 8px;
+	font-weight: 800;
+	letter-spacing: .08em;
+	text-align: right;
+	text-transform: uppercase;
+	opacity: 0;
 }
 
 .sp-how-message {
@@ -1126,18 +1267,18 @@ main {
 	inset: 18px;
 	background: #fff;
 	border: 1px solid var(--border);
-	padding: 16px;
+	padding: 10px 12px;
 }
 
 .sp-how-tabs {
 	display: flex;
-	margin-bottom: 14px;
+	margin-bottom: 8px;
 	border: 1px solid var(--text);
 }
 
 .sp-how-tabs span {
 	flex: 1;
-	padding: 8px 6px;
+	padding: 6px 5px;
 	text-align: center;
 	font-size: 9px;
 	font-weight: 800;
@@ -1151,59 +1292,157 @@ main {
 }
 
 .sp-how-field {
-	height: 58px;
+	position: relative;
+	height: 45px;
 	border: 1px solid var(--border);
 	background: linear-gradient(#f7f4ef, #f7f4ef) 14px 16px / 72% 6px no-repeat,
 		linear-gradient(#f7f4ef, #f7f4ef) 14px 32px / 52% 6px no-repeat;
 }
 
-@keyframes spHowFloat {
-
-	0%,
-	100% {
-		transform: translateY(0);
-	}
-
-	50% {
-		transform: translateY(-7px);
+@media (min-width: 1181px) {
+	.sp-how-search .sp-how-typed {
+		font-size: 8px;
+		letter-spacing: -.025em;
 	}
 }
 
-@keyframes spHowGrow {
-
-	0%,
-	100% {
-		width: 48%;
-	}
-
-	50% {
-		width: 88%;
-	}
+.sp-how-field .sp-how-typed {
+	display: block;
+	padding: 10px 9px;
+	color: var(--text-2);
+	font-size: 9px;
+	line-height: 1.35;
 }
 
-@keyframes spHowPlate {
-
-	0%,
-	100% {
-		transform: translate(-50%, -50%) scale(1);
-	}
-
-	50% {
-		transform: translate(-50%, -50%) scale(1.06);
-	}
+.sp-how-message-status {
+	position: absolute;
+	right: 10px;
+	bottom: 5px;
+	color: var(--accent);
+	font-size: 7px;
+	font-weight: 800;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	opacity: 0;
 }
 
-@keyframes spHowTick {
+@keyframes spHowCaret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes spHowArrowPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(.86); background: var(--accent); } }
+@keyframes spHowPointerMove { 0% { opacity: 0; transform: translate(-18px, 13px); } 25%, 70% { opacity: 1; transform: translate(0, 0); } 80% { opacity: 1; transform: translate(0, 2px) scale(.9); } 100% { opacity: 0; transform: translate(0, 2px) scale(.9); } }
+@keyframes spHowClickRing { 0%, 52% { opacity: 0; transform: scale(.35); } 68% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(1.35); } }
+@keyframes spHowUnderline { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes spHowBalanceGrow { from { width: 46%; } to { width: 88%; } }
+@keyframes spHowHint { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spHowCompleteDot { from { background: transparent; transform: scale(.6); } to { background: var(--accent); transform: scale(1); } }
+@keyframes spHowPlateSave { 0% { transform: translate(-50%, -50%) scale(.92); } 45% { transform: translate(-50%, -50%) scale(1.05); } 100% { transform: translate(-50%, -68%) scale(.76); } }
+@keyframes spHowStatusIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes spHowCheckItem { from { background: transparent; box-shadow: none; } to { background: var(--accent); box-shadow: inset 0 0 0 2px #fff; } }
+@keyframes spHowStrikeItem { from { color: var(--text-2); } to { color: var(--text-3); text-decoration: line-through; } }
+@keyframes spHowSimpleIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-	0%,
-	45%,
-	100% {
-		transform: scale(1);
+.sp-how-card.is-demo-active[data-how-demo="search"] .sp-how-search::after {
+	animation: spHowArrowPulse .55s ease 1.9s 2;
+}
+
+.sp-how-card.is-demo-active .sp-how-demo-pointer {
+	animation: spHowPointerMove 1.35s ease 2.35s both;
+}
+
+.sp-how-card.is-demo-active .sp-how-demo-pointer::after {
+	animation: spHowClickRing 1.35s ease 2.35s both;
+}
+
+.sp-how-card.is-demo-active .sp-how-nav-link::after,
+.sp-how-card.is-demo-static .sp-how-nav-link::after {
+	animation: spHowUnderline .35s ease 3s both;
+}
+
+.sp-how-card.is-demo-active[data-how-demo="balance"] .sp-how-bar span,
+.sp-how-card.is-demo-static[data-how-demo="balance"] .sp-how-bar span {
+	animation: spHowBalanceGrow 1.15s ease .65s both;
+}
+
+.sp-how-card.is-demo-active .sp-how-balance-hint,
+.sp-how-card.is-demo-static .sp-how-balance-hint {
+	animation: spHowHint .45s ease .35s both;
+}
+
+.sp-how-card.is-demo-active .sp-how-check--missing i,
+.sp-how-card.is-demo-static .sp-how-check--missing i {
+	animation: spHowCompleteDot .35s ease 1.65s both;
+}
+
+.sp-how-card.is-demo-active[data-how-demo="save"] .sp-how-plate,
+.sp-how-card.is-demo-static[data-how-demo="save"] .sp-how-plate {
+	animation: spHowPlateSave 1.35s cubic-bezier(.2, .75, .25, 1) both;
+}
+
+.sp-how-card.is-demo-active .sp-how-save-status,
+.sp-how-card.is-demo-static .sp-how-save-status {
+	animation: spHowStatusIn .45s ease 1.05s both;
+}
+
+.sp-how-card.is-demo-active .sp-how-item:first-child i,
+.sp-how-card.is-demo-static .sp-how-item:first-child i {
+	animation: spHowCheckItem .32s ease .75s both;
+}
+
+.sp-how-card.is-demo-active .sp-how-item:first-child i::after,
+.sp-how-card.is-demo-static .sp-how-item:first-child i::after,
+.sp-how-card.is-demo-active .sp-how-list-status,
+.sp-how-card.is-demo-static .sp-how-list-status {
+	animation: spHowSimpleIn .35s ease .9s both;
+}
+
+.sp-how-card.is-demo-active .sp-how-item:first-child span,
+.sp-how-card.is-demo-static .sp-how-item:first-child span {
+	animation: spHowStrikeItem .35s ease .8s both;
+}
+
+.sp-how-card.is-demo-active[data-how-demo="message"] .sp-how-tabs span:first-child,
+.sp-how-card.is-demo-static[data-how-demo="message"] .sp-how-tabs span:first-child {
+	background: #fff;
+	color: var(--text);
+}
+
+.sp-how-card.is-demo-active[data-how-demo="message"] .sp-how-tabs span:last-child,
+.sp-how-card.is-demo-static[data-how-demo="message"] .sp-how-tabs span:last-child {
+	background: var(--text);
+	color: #fff;
+}
+
+.sp-how-card.is-demo-active .sp-how-message-status,
+.sp-how-card.is-demo-static .sp-how-message-status {
+	animation: spHowSimpleIn .4s ease 2.75s both;
+}
+
+.sp-how-card.is-demo-active .sp-how-field,
+.sp-how-card.is-demo-static .sp-how-field {
+	background: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sp-how-card [class^="sp-how-"],
+	.sp-how-card [class*=" sp-how-"],
+	.sp-how-card [class^="sp-how-"]::before,
+	.sp-how-card [class^="sp-how-"]::after,
+	.sp-how-card [class*=" sp-how-"]::before,
+	.sp-how-card [class*=" sp-how-"]::after {
+		animation: none !important;
 	}
 
-	60% {
-		transform: scale(1.18);
-	}
+	.sp-how-card.is-demo-static .sp-how-nav-link::after { transform: scaleX(1); }
+	.sp-how-card.is-demo-static .sp-how-bar span { width: 88%; }
+	.sp-how-card.is-demo-static .sp-how-balance-hint,
+	.sp-how-card.is-demo-static .sp-how-save-status,
+	.sp-how-card.is-demo-static .sp-how-list-status,
+	.sp-how-card.is-demo-static .sp-how-message-status { opacity: 1; }
+	.sp-how-card.is-demo-static .sp-how-check--missing i { background: var(--accent); transform: scale(1); }
+	.sp-how-card.is-demo-static .sp-how-plate { transform: translate(-50%, -68%) scale(.76); }
+	.sp-how-card.is-demo-static .sp-how-save-status { transform: translate(-50%, 0); }
+	.sp-how-card.is-demo-static .sp-how-item:first-child i { background: var(--accent); box-shadow: inset 0 0 0 2px #fff; }
+	.sp-how-card.is-demo-static .sp-how-item:first-child i::after { opacity: 1; }
+	.sp-how-card.is-demo-static .sp-how-item:first-child span { color: var(--text-3); text-decoration: line-through; }
 }
 
 @media (max-width: 1180px) {
@@ -1447,24 +1686,6 @@ main {
 	font-weight: 700;
 	letter-spacing: .06em;
 	text-transform: uppercase;
-}
-
-.sp-how-card.is-scroll-animated .sp-how-chip {
-	animation: spHowChipOnce .65s cubic-bezier(.2, .75, .25, 1) both;
-}
-
-.sp-how-card.is-scroll-animated .sp-how-bar span {
-	animation: spHowBarOnce .9s cubic-bezier(.2, .75, .25, 1) both;
-}
-
-@keyframes spHowChipOnce {
-	from { opacity: 0; transform: translateY(12px); }
-	to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes spHowBarOnce {
-	from { transform: scaleX(0); transform-origin: left; }
-	to { transform: scaleX(1); transform-origin: left; }
 }
 
 .sp-home .filter-more-toggle {
