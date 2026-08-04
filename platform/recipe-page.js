@@ -569,7 +569,8 @@
 		let checkedItems = {};
 
 		// Balance state
-		let _balRequired = []; // filled during render: [{key,prefix,label}]
+		let _balGroups = []; // all shown groups, including optional ones
+		let _balRequired = []; // subset of _balGroups that affects balance
 		let _wasBalanced = false;
 		let _celebrationShown = false;
 		let _balBannerObserver = null;
@@ -579,7 +580,7 @@
 		const _groupConfig = {}; // { p: {label, items, icon, title, stepIndex}, ... }
 		const GROUP_COLLAPSE_LIMIT = 3;
 
-		// Balance wizard (mobile ≤1024) — current step index into _balRequired
+		// Balance wizard (mobile ≤1024) — current step index into _balGroups
 		let _wizardStep = 0;
 		// Desktop accordion — per-prefix open/closed. First group open by default.
 		let _accordionOpen = { p: true, f: false, c: false, fi: false };
@@ -1105,6 +1106,7 @@
 				const slots = ['protein', 'fat', 'carbs', 'fiber'];
 				const resolved = { protein: [], fat: [], carbs: [], fiber: [] };
 				const orderRules = { protein: [], fat: [], carbs: [], fiber: [] };
+				const optionalRules = { protein: false, fat: false, carbs: false, fiber: false };
 				const rules = {};
 				const recipeCats = recipe.categories || (recipe.cat ? [recipe.cat] : []);
 				function normalizeAddonOrder(order) {
@@ -1186,6 +1188,7 @@
 				// Recipe-level overrides
 				const rAA = recipe.autoAddons || {};
 				slots.forEach(s => { if (rAA[s]) rules[s] = rAA[s]; });
+				slots.forEach(s => { optionalRules[s] = !!(rules[s] && rules[s].optional); });
 				// Materialize: find published recipes in target category + static items
 				slots.forEach(s => {
 					const rule = rules[s];
@@ -1235,6 +1238,7 @@
 					}
 				}
 				resolved._order = orderRules;
+				resolved._optional = optionalRules;
 				return resolved;
 			}
 			function _normAddonName(s) {
@@ -1418,19 +1422,20 @@
 			_stepsHtmlArr = stepsArr;
 			const _stepsCount = stepsArr.length;
 
-			// Balance: determine required categories (with filtered step index)
+			// Balance: show every add-on group, but only non-optional groups are required.
 			const _balCats = [];
-			if (addProtein.length) _balCats.push({ key: 'p', label: 'Белок',    prefix: 'p' });
+			if (addProtein.length) _balCats.push({ key: 'p', label: 'Белок',    prefix: 'p', optional: !!(_autoAdd._optional && _autoAdd._optional.protein) });
 			if (addFat.length)     _balCats.push({ key: 'f', label: 'Жиры',     prefix: 'f' });
 			if (addCarbs.length)   _balCats.push({ key: 'c', label: 'Углеводы', prefix: 'c' });
 			if (addFiber.length)   _balCats.push({ key: 'fi', label: 'Клетчатка', prefix: 'fi' });
 			_balCats.forEach((c, i) => { c.stepIndex = i; });
-			_balRequired = _balCats;
+			_balGroups = _balCats;
+			_balRequired = _balCats.filter(c => !c.optional);
 			_wizardStep = 0;
 			_accordionOpen = { p: false, f: false, c: false, fi: false };
 			if (_balCats[0]) _accordionOpen[_balCats[0].prefix] = true;
 
-			const balProgressHtml = _balCats.map(c => {
+			const balProgressHtml = _balRequired.map(c => {
 				return `<div class="bal-progress-item" id="bal-pill-${c.key}">
                     <span class="bal-progress-check" id="bal-chk-${c.key}"></span>
                     <span class="bal-progress-label">${escHtml(c.label)}</span>
@@ -1442,13 +1447,19 @@
 			const stepOf = {};
 			_balCats.forEach(c => { stepOf[c.prefix] = c.stepIndex; });
 
+			const hasRequiredBalanceGroups = _balRequired.length > 0;
+			const balanceBannerHtml = hasRequiredBalanceGroups
+				? `<div class="bal-banner-label">Баланс блюда</div>
+					<div class="bal-banner-title">Сделайте приём пищи полноценным</div>
+					<div class="bal-banner-sub">Добавьте недостающие группы — КБЖУ пересчитается автоматически.</div>
+					<div class="bal-progress">${balProgressHtml}</div>`
+				: `<div class="bal-banner-label">Добавки к блюду</div>
+					<div class="bal-banner-title">Настройте блюдо под себя</div>
+					<div class="bal-banner-sub">Белок — по желанию: выберите его, если хотите больше сытости.</div>`;
 			const sidebarHtml = hasAdditions ? `
             <div class="bal-sidebar anim anim-d2" id="bal-sidebar" data-wizard-step="0">
                 <div id="bal-banner" class="bal-banner bal-banner-warn">
-                    <div class="bal-banner-label">Баланс блюда</div>
-                    <div class="bal-banner-title">Сделайте приём пищи полноценным</div>
-                    <div class="bal-banner-sub">Добавьте недостающие группы — КБЖУ пересчитается автоматически.</div>
-                    <div class="bal-progress">${balProgressHtml}</div>
+                    ${balanceBannerHtml}
                 </div>
                 <div class="bal-wizard-head" id="bal-wizard-head">
                     <div class="bal-wizard-step-row">
@@ -1739,7 +1750,7 @@
 			placeSidebarForViewport();
 
 			// Initial wizard UI (fills step counter, dots, icon, label, buttons)
-			if (_balRequired.length) updateWizardUI();
+			if (_balGroups.length) updateWizardUI();
 
 			// Sticky mini balance status: init observer + initial state
 			updateMiniBalanceStatus();
@@ -1814,7 +1825,10 @@
 		function buildGroup(prefix, items, stepIndex) {
 			if (!items || !items.length) return '';
 			const meta = GROUP_META[prefix] || {};
-			_groupConfig[prefix] = { items, stepIndex, icon: meta.icon, title: meta.title };
+			const group = _balGroups.find(c => c.prefix === prefix) || {};
+			const optional = !!group.optional;
+			const title = optional ? ((group.label || meta.shortLabel || '') + ' · по желанию') : meta.title;
+			_groupConfig[prefix] = { items, stepIndex, icon: meta.icon, title, optional };
 			const shouldCollapse = items.length > GROUP_COLLAPSE_LIMIT;
 			const expanded = !!expandedGroups[prefix];
 			const visible = (shouldCollapse && !expanded) ? items.slice(0, GROUP_COLLAPSE_LIMIT) : items;
@@ -1832,11 +1846,12 @@
 			return `<div class="bal-group${openCls}" id="bal-group-${prefix}" data-prefix="${prefix}" data-step="${stepIndex}">
             <button type="button" class="bal-group-head" data-recipe-action="toggle-accordion" data-prefix="${escHtml(prefix)}">
                 <span class="bal-group-num">${numStr}</span>
-                <span class="bal-group-label">${escHtml(meta.title || '')}</span>
-                <span class="bal-group-status"><span class="bal-group-status-todo">+ выбрать</span><span class="bal-group-status-done">✓ выбрано</span></span>
+                <span class="bal-group-label">${escHtml(title || '')}</span>
+                <span class="bal-group-status"><span class="bal-group-status-todo">${optional ? 'по желанию' : '+ выбрать'}</span><span class="bal-group-status-done">✓ выбрано</span></span>
                 <span class="bal-group-caret">▾</span>
             </button>
             <div class="bal-group-body">
+				${optional ? '<div class="bal-group-optional-note">Добавьте, если хотите больше сытости.</div>' : ''}
                 <div class="bal-group-items" id="bal-group-items-${prefix}">
                     ${visible.map((item, i) => _renderBalItem(item, prefix, i)).join('')}
                 </div>
@@ -1876,7 +1891,7 @@
 
 		// Mobile wizard: step navigation
 		function balWizardGo(delta) {
-			const total = _balRequired.length;
+			const total = _balGroups.length;
 			if (!total) return;
 			const next = _wizardStep + delta;
 			if (next < 0 || next >= total) return;
@@ -1884,7 +1899,7 @@
 			updateWizardUI();
 		}
 		function balWizardSetStep(i) {
-			const total = _balRequired.length;
+			const total = _balGroups.length;
 			if (!total || i < 0 || i >= total) return;
 			_wizardStep = i;
 			updateWizardUI();
@@ -1892,9 +1907,9 @@
 		function updateWizardUI() {
 			const root = document.getElementById('bal-sidebar');
 			if (!root) return;
-			const total = _balRequired.length;
+			const total = _balGroups.length;
 			if (!total) return;
-			const cat = _balRequired[_wizardStep];
+			const cat = _balGroups[_wizardStep];
 			if (!cat) return;
 			const meta = GROUP_META[cat.prefix] || {};
 			root.dataset.wizardStep = String(_wizardStep);
@@ -1912,15 +1927,15 @@
 			const iconEl = document.getElementById('bal-wizard-icon');
 			if (iconEl) iconEl.textContent = String(_wizardStep + 1).padStart(2, '0');
 			const labelEl = document.getElementById('bal-wizard-label');
-			if (labelEl) labelEl.textContent = meta.shortLabel || cat.label;
+			if (labelEl) labelEl.textContent = cat.optional ? ((meta.shortLabel || cat.label) + ' · по желанию') : (meta.shortLabel || cat.label);
 			const hintEl = document.getElementById('bal-wizard-hint');
-			if (hintEl) hintEl.textContent = meta.title || '';
+			if (hintEl) hintEl.textContent = cat.optional ? 'Добавьте, если хотите больше сытости.' : (meta.title || '');
 
 			// Dots — single accent palette (active/done = accent, idle = border)
 			const dotsEl = document.getElementById('bal-wizard-dots');
 			if (dotsEl) {
 				const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
-				dotsEl.innerHTML = _balRequired.map((c, i) => {
+				dotsEl.innerHTML = _balGroups.map((c, i) => {
 					const done = checkedPrefixes.has(c.prefix);
 					const cls = i === _wizardStep ? 'bal-wizard-dot active' : (done ? 'bal-wizard-dot done' : 'bal-wizard-dot');
 					return `<div class="${cls}" data-recipe-action="wizard-step" data-index="${Number(i)}"></div>`;
@@ -1942,7 +1957,7 @@
 				} else {
 					nextBtn.textContent = 'Далее →';
 					// Блокируем переход пока пользователь не выбрал добавку в текущей группе
-					nextBtn.disabled = !groupDone;
+					nextBtn.disabled = !cat.optional && !groupDone;
 				}
 				// Clear any inline colors from the colored era — CSS now drives styling.
 				nextBtn.style.removeProperty('background');
@@ -2034,23 +2049,24 @@
 		}
 
 		function checkBalance() {
-			if (!_balRequired.length) {
-				updateMiniBalanceStatus();
-				return true; // no sidebar = balanced
-			}
 			const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
 			let allDone = true;
-			_balRequired.forEach(cat => {
+			_balGroups.forEach(cat => {
 				const done = checkedPrefixes.has(cat.prefix);
 				const pill = document.getElementById('bal-pill-' + cat.key);
 				if (pill) pill.classList.toggle('done', done);
 				const pst = document.getElementById('bal-pst-' + cat.key);
-				if (pst) pst.textContent = done ? 'выбрано' : 'требуется';
+				if (pst) pst.textContent = done ? 'выбрано' : (cat.optional ? 'по желанию' : 'требуется');
 				// Paint the group head (desktop accordion) state
 				const groupEl = document.getElementById('bal-group-' + cat.prefix);
 				if (groupEl) groupEl.classList.toggle('done', done);
-				if (!done) allDone = false;
+				if (!cat.optional && !done) allDone = false;
 			});
+			if (!_balRequired.length) {
+				updateWizardUI();
+				updateMiniBalanceStatus();
+				return true;
+			}
 			// Toggle global "balanced" state on the sidebar root (lights up the ИТОГО block)
 			const sidebarRoot = document.getElementById('bal-sidebar');
 			if (sidebarRoot) sidebarRoot.classList.toggle('balanced', allDone);

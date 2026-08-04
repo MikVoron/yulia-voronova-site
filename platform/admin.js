@@ -940,10 +940,11 @@
             var aa = c.auto_addons || {};
             var rules = AA_SLOTS.map(function(s) {
                 var r = aa[s.key];
-                if (!r || (!r.fromCategory && !(Array.isArray(r.order) && r.order.length) && !(Array.isArray(r.items) && r.items.length))) return '';
+                if (!r || (!r.fromCategory && !(Array.isArray(r.order) && r.order.length) && !(Array.isArray(r.items) && r.items.length) && !r.optional)) return '';
                 var name = r.fromCategory ? (CAT_NAMES[r.fromCategory] || r.fromCategory) : 'точный список';
-                var suffix = r.fromCategory ? ' ← ' + esc(name) : ': ' + esc(name);
+                var suffix = (r.fromCategory || (Array.isArray(r.items) && r.items.length)) ? (r.fromCategory ? ' ← ' + esc(name) : ': ' + esc(name)) : '';
                 if (Array.isArray(r.items) && r.items.length && r.fromCategory) suffix += ' + точный список';
+				if (r.optional) suffix += ' · по желанию';
                 return '<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#f1f5f9;color:#475569;font-size:10px;font-weight:600;margin:2px 2px 0 0">' + s.label + suffix + '</span>';
             }).join('');
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:#fff">'
@@ -1256,6 +1257,7 @@
             var orderEl = document.getElementById(s.field + '-order');
             if (orderEl) orderEl.value = '';
             setExactItems(s.field, []);
+			if (s.key === 'protein') document.getElementById('cat-aa-protein-optional').checked = false;
         });
         document.getElementById('cat-delete-btn').style.display = 'none';
         document.getElementById('category-modal').classList.add('open');
@@ -1282,6 +1284,7 @@
             var orderEl = document.getElementById(s.field + '-order');
             if (orderEl) orderEl.value = formatAddonOrder(r.order);
             setExactItems(s.field, r.items || []);
+			if (s.key === 'protein') document.getElementById('cat-aa-protein-optional').checked = !!r.optional;
         });
         document.getElementById('cat-delete-btn').style.display = 'inline-block';
         document.getElementById('category-modal').classList.add('open');
@@ -1307,11 +1310,13 @@
             var orderEl = document.getElementById(s.field + '-order');
             var order = parseAddonOrder(orderEl ? orderEl.value : '');
             var exactItems = parseExactItems(s.field);
-            if (v || order.length || exactItems.length) {
+			var optional = s.key === 'protein' && document.getElementById('cat-aa-protein-optional').checked;
+            if (v || order.length || exactItems.length || optional) {
                 body.auto_addons[s.key] = {};
                 if (v) body.auto_addons[s.key].fromCategory = v;
                 if (order.length) body.auto_addons[s.key].order = order;
                 if (exactItems.length) body.auto_addons[s.key].items = exactItems;
+				if (optional) body.auto_addons[s.key].optional = true;
             }
         });
         if (!body.id || !body.name) { showToast('ID и название обязательны'); return; }
