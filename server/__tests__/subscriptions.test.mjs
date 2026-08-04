@@ -63,7 +63,7 @@ registerMock(path.join(srcDir, 'db.js'), { query: mockQuery, pool: { connect: mo
 registerMock(path.join(srcDir, 'email.js'), { sendPaymentNotification, sendFeedback });
 registerMock(path.join(srcDir, 'audit.js'), { log: auditLog });
 
-process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key-for-vitest';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key-for-vitest-at-least-32-bytes';
 
 let app;
 

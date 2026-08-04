@@ -1,4 +1,6 @@
 require('dotenv').config();
+const { validateJwtSecret } = require('./src/auth');
+validateJwtSecret();
 const { safeRequestPath, requestSerializer } = require('./src/request-logging');
 const fastify = require('fastify')({
   logger: { serializers: { req: requestSerializer } },

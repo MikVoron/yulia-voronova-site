@@ -24,7 +24,7 @@ npm install
 # Обязательные
 PORT=3000
 DATABASE_URL=postgresql://user:password@localhost:5432/smartplate_db
-JWT_SECRET=your-secret-key-here
+JWT_SECRET=<random secret of at least 32 bytes>
 ADMIN_TOTP_SECRET=base32-secret-from-your-authenticator
 NODE_ENV=development
 

@@ -60,7 +60,7 @@ registerMock(path.join(srcDir, 'trial-guard.js'), {
 // Middleware needs db mock too — it's already covered since it require('./db') which hits our cache
 
 // Set JWT_SECRET for tests
-process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key-for-vitest';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key-for-vitest-at-least-32-bytes';
 
 // ── Build app ──────────────────────────────────────────────────────────────
 

@@ -2,7 +2,23 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const { generateLoginCode } = require('../src/auth');
+process.env.JWT_SECRET = 'test-secret-key-for-vitest-at-least-32-bytes';
+const { generateLoginCode, validateJwtSecret } = require('../src/auth');
+
+describe('JWT secret validation', () => {
+  it('rejects missing, short, placeholder and low-diversity secrets', () => {
+    expect(() => validateJwtSecret('')).toThrow(/JWT_SECRET/);
+    expect(() => validateJwtSecret('too-short')).toThrow(/JWT_SECRET/);
+    expect(() => validateJwtSecret('your-secret-key-here')).toThrow(/JWT_SECRET/);
+    expect(() => validateJwtSecret('a'.repeat(64))).toThrow(/JWT_SECRET/);
+  });
+
+  it('accepts a sufficiently long and diverse secret', () => {
+    expect(validateJwtSecret('valid-jwt-secret-with-32-plus-bytes-123456')).toBe(
+      'valid-jwt-secret-with-32-plus-bytes-123456'
+    );
+  });
+});
 
 describe('login code generation', () => {
   it('uses a cryptographic source and always returns a six-digit code', () => {

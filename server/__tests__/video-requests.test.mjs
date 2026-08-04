@@ -84,7 +84,7 @@ registerMock(path.join(srcDir, 'db.js'), { query: mockQuery });
 registerMock(path.join(srcDir, 'email.js'), { sendVideoRequestThresholdNotification });
 registerMock(path.join(srcDir, 'audit.js'), { log: vi.fn() });
 
-process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key-for-vitest';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key-for-vitest-at-least-32-bytes';
 const jwt = require('jsonwebtoken');
 function token(userId = USER_ID) {
   return jwt.sign({ sub: userId, email: 'vote@test.com', role: 'user' }, process.env.JWT_SECRET, { expiresIn: '15m' });
