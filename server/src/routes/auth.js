@@ -15,6 +15,7 @@ const AUTH_REFRESH_RATE_LIMIT = { max: 60, timeWindow: '15 minutes' };
 const AUTH_LOGOUT_RATE_LIMIT = { max: 60, timeWindow: '15 minutes' };
 const AUTH_PROFILE_RATE_LIMIT = { max: 20, timeWindow: '1 hour' };
 const LOGIN_CODE_TTL_MINUTES = 10;
+const LOGIN_CODE_MAX_ATTEMPTS = 3;
 
 async function authRoutes(fastify) {
   // POST /auth/send-code
@@ -69,13 +70,16 @@ async function authRoutes(fastify) {
     const result = await db.query('SELECT * FROM login_codes WHERE email=$1 AND used=false AND expires_at > now() ORDER BY created_at DESC LIMIT 1', [lower]);
     if (!result.rows.length) return reply.status(400).send({ error: 'Код не найден или истёк' });
     const row = result.rows[0];
-    if (row.attempts >= 3) {
+    if (Number(row.attempts || 0) >= LOGIN_CODE_MAX_ATTEMPTS) {
       await db.query('UPDATE login_codes SET used=true WHERE id=$1 AND used=false', [row.id]);
       return reply.status(400).send({ error: 'Превышено число попыток' });
     }
     const valid = await bcrypt.compare(code, row.code_hash);
     if (!valid) {
-      await db.query('UPDATE login_codes SET attempts=attempts+1 WHERE id=$1 AND used=false AND attempts < 3', [row.id]);
+      await db.query(
+        'UPDATE login_codes SET attempts=COALESCE(attempts, 0)+1 WHERE id=$1 AND used=false AND COALESCE(attempts, 0) < $2',
+        [row.id, LOGIN_CODE_MAX_ATTEMPTS]
+      );
       return reply.status(400).send({ error: 'Неверный код' });
     }
     // Сначала определяем роль: для администратора email-код сам по себе недостаточен.
@@ -88,9 +92,30 @@ async function authRoutes(fastify) {
         return reply.status(503).send({ error: 'Вход администратора временно недоступен' });
       }
       if (context !== 'admin' || !verifyTotp(mfaCode, mfaSecret)) {
-        audit.log('admin_mfa_failed', { userId: existingUser.id, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
-        // The email code remains valid, so the login page can ask for MFA and retry.
-        // This does not disclose the admin role before the email code is verified.
+        const failedAttempt = await db.query(
+          `UPDATE login_codes
+              SET attempts=COALESCE(attempts, 0)+1,
+                  used=CASE WHEN COALESCE(attempts, 0) + 1 >= $2 THEN true ELSE used END
+            WHERE id=$1 AND used=false
+            RETURNING attempts, used`,
+          [row.id, LOGIN_CODE_MAX_ATTEMPTS]
+        );
+        const attemptState = failedAttempt.rows[0] || null;
+        await audit.log('admin_mfa_failed', {
+          userId: existingUser.id,
+          email: lower,
+          detail: attemptState ? 'attempts=' + attemptState.attempts + '; locked=' + attemptState.used : 'code_unavailable',
+          ip: req.ip,
+          ua: req.headers['user-agent']
+        });
+        if (!attemptState) {
+          return reply.status(400).send({ error: 'Код уже использован или истёк' });
+        }
+        if (attemptState.used) {
+          return reply.status(429).send({ error: 'Превышено число попыток MFA. Запросите новый email-код.' });
+        }
+        // До исчерпания лимита email-код остаётся действительным, чтобы можно
+        // было исправить случайную ошибку TOTP без повторной отправки письма.
         return reply.status(403).send({ error: 'Неверный код приложения-аутентификатора', mfaRequired: true });
       }
     }

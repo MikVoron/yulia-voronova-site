@@ -156,6 +156,9 @@ describe('auth/verify', () => {
       if (/SELECT \* FROM users WHERE email/.test(sql)) {
         return { rows: [{ id: 9, email: 'admin@example.com', role: 'admin', is_blocked: false }] };
       }
+      if (/SET attempts=COALESCE\(attempts, 0\)\+1[\s\S]*RETURNING attempts, used/.test(sql)) {
+        return { rows: [{ attempts: 1, used: false }] };
+      }
       return { rows: [] };
     });
     const previousSecret = process.env.ADMIN_TOTP_SECRET;
@@ -169,6 +172,59 @@ describe('auth/verify', () => {
       expect(res.statusCode).toBe(403);
       expect(res.json().mfaRequired).toBe(true);
       expect(mockQuery.mock.calls.some(([sql]) => /RETURNING id/.test(sql))).toBe(false);
+      expect(mockQuery.mock.calls.some(([sql]) => /INSERT INTO refresh_sessions/.test(sql))).toBe(false);
+    } finally {
+      if (previousSecret === undefined) delete process.env.ADMIN_TOTP_SECRET;
+      else process.env.ADMIN_TOTP_SECRET = previousSecret;
+      mockQuery.mockImplementation(defaultImplementation);
+    }
+  });
+
+  it('consumes the email code after three invalid admin MFA attempts', async () => {
+    const bcrypt = require('bcrypt');
+    const codeHash = await bcrypt.hash('123456', 4);
+    const defaultImplementation = mockQuery.getMockImplementation();
+    let attempts = 0;
+    let used = false;
+
+    mockQuery.mockImplementation(async (sql) => {
+      if (/COALESCE.*SUM.*attempts/.test(sql)) return { rows: [{ total: '0' }] };
+      if (/SELECT \* FROM login_codes WHERE email/.test(sql)) {
+        return { rows: used ? [] : [{ id: 78, code_hash: codeHash, attempts }] };
+      }
+      if (/SELECT \* FROM users WHERE email/.test(sql)) {
+        return { rows: [{ id: 9, email: 'admin@example.com', role: 'admin', is_blocked: false }] };
+      }
+      if (/SET attempts=COALESCE\(attempts, 0\)\+1[\s\S]*RETURNING attempts, used/.test(sql)) {
+        attempts += 1;
+        used = attempts >= 3;
+        return { rows: [{ attempts, used }] };
+      }
+      return { rows: [] };
+    });
+    const previousSecret = process.env.ADMIN_TOTP_SECRET;
+    process.env.ADMIN_TOTP_SECRET = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
+    mockQuery.mockClear();
+
+    try {
+      const request = () => app.inject({
+        method: 'POST', url: '/auth/verify',
+        payload: { email: 'admin@example.com', code: '123456', context: 'admin', mfaCode: '000000' }
+      });
+      const first = await request();
+      const second = await request();
+      const third = await request();
+      const fourth = await request();
+
+      expect(first.statusCode).toBe(403);
+      expect(first.json().mfaRequired).toBe(true);
+      expect(second.statusCode).toBe(403);
+      expect(second.json().mfaRequired).toBe(true);
+      expect(third.statusCode).toBe(429);
+      expect(third.json().mfaRequired).toBeUndefined();
+      expect(third.json().error).toContain('новый email-код');
+      expect(fourth.statusCode).toBe(400);
+      expect(mockQuery.mock.calls.filter(([sql]) => /SET attempts=COALESCE\(attempts, 0\)\+1/.test(sql))).toHaveLength(3);
       expect(mockQuery.mock.calls.some(([sql]) => /INSERT INTO refresh_sessions/.test(sql))).toBe(false);
     } finally {
       if (previousSecret === undefined) delete process.env.ADMIN_TOTP_SECRET;
