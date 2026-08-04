@@ -772,7 +772,7 @@ main {
 
 .sp-guest-copy {
 	margin: 0;
-	max-width: 68ch;
+	max-width: 60ch;
 	color: var(--text-2);
 	font-size: clamp(15px, 1.3vw, 17px);
 	line-height: 1.72;
