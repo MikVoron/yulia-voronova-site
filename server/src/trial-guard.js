@@ -77,31 +77,25 @@ async function tryGrantTrial(fingerprint, ip, userId) {
     };
     observation = { ...counts, level: classifyNetworkObservation(counts) };
 
-    // 1. Fingerprint — сильный сигнал, но не уникальный идентификатор устройства:
-    // одинаковые браузер/экран/язык могут совпасть у разных людей. Повтор с того же
-    // IP по-прежнему отклоняем, а повтор из другой сети только фиксируем в причине.
-    let fingerprintSeenOnAnotherNetwork = false;
+    // 1. Один fingerprint может получить автоматический триал только один раз.
+    // IP остаётся наблюдаемым сигналом, но смена сети/VPN не должна обходить
+    // ограничение. Спорные совпадения разбираются вручную через поддержку.
     if (fingerprint) {
       const fpResult = await client.query(
         'SELECT ip::text AS ip FROM trial_fingerprints WHERE fingerprint=$1 LIMIT 1',
         [fingerprint]
       );
       if (fpResult.rows.length > 0) {
-        if (fpResult.rows[0].ip === ip) {
-          // Тот же fingerprint в той же сети — оставляем защиту от повторного триала.
-          await client.query(
-            "INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip, registration_fingerprint) VALUES ($1, 'expired', now(), $2, $3) ON CONFLICT DO NOTHING",
-            [userId, ip, fingerprint]
-          );
-          await client.query('COMMIT');
-          return { grant: false, reason: 'fingerprint_used', observation };
-        }
-        fingerprintSeenOnAnotherNetwork = true;
+        await client.query(
+          "INSERT INTO subscriptions (user_id, status, trial_ends_at, registration_ip, registration_fingerprint) VALUES ($1, 'expired', now(), $2, $3) ON CONFLICT DO NOTHING",
+          [userId, ip, fingerprint]
+        );
+        await client.query('COMMIT');
+        return { grant: false, reason: 'fingerprint_used', observation };
       }
     }
 
-    // 2. Триал одобрен. Первый fingerprint остаётся владельцем уникальной записи;
-    // последующие совпадения из другой сети не должны ломать регистрацию.
+    // 2. Триал одобрен. Уникальная запись fingerprint фиксирует его первый триал.
     await client.query(
       'INSERT INTO trial_fingerprints (fingerprint, ip, user_id) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
       [fingerprint, ip, userId]
@@ -114,7 +108,7 @@ async function tryGrantTrial(fingerprint, ip, userId) {
     await client.query('COMMIT');
     return {
       grant: true,
-      reason: fingerprintSeenOnAnotherNetwork ? 'fingerprint_seen_other_network' : 'ok',
+      reason: 'ok',
       observation
     };
   } catch (e) {

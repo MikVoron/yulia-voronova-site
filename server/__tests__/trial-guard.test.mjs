@@ -105,17 +105,18 @@ describe('trial network observation', () => {
     );
   });
 
-  it('grants a trial for a repeated fingerprint seen from another IP', async () => {
+  it('denies a repeated fingerprint even when the IP changes', async () => {
     fingerprintUsed = true;
     fingerprintOwnerIp = '203.0.113.12';
 
     const result = await tryGrantTrial('c'.repeat(64), '203.0.113.13', 'user-3');
 
-    expect(result.grant).toBe(true);
-    expect(result.reason).toBe('fingerprint_seen_other_network');
+    expect(result.grant).toBe(false);
+    expect(result.reason).toBe('fingerprint_used');
     expect(mockClient.query).toHaveBeenCalledWith(
-      expect.stringContaining('ON CONFLICT DO NOTHING'),
-      ['c'.repeat(64), '203.0.113.13', 'user-3']
+      expect.stringContaining("'expired'"),
+      ['user-3', '203.0.113.13', 'c'.repeat(64)]
     );
+    expect(mockClient.query.mock.calls.some(([sql]) => /'trial'/.test(sql))).toBe(false);
   });
 });
