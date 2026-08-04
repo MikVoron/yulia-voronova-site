@@ -6,5 +6,5 @@ function generateAccessToken(user) {
 function generateRefreshToken() { return crypto.randomBytes(32).toString('hex'); }
 function hashToken(token) { return crypto.createHash('sha256').update(token).digest('hex'); }
 function verifyAccessToken(token) { return jwt.verify(token, process.env.JWT_SECRET); }
-function generateLoginCode() { return Math.floor(100000 + Math.random() * 900000).toString(); }
+function generateLoginCode() { return crypto.randomInt(100000, 1000000).toString(); }
 module.exports = { generateAccessToken, generateRefreshToken, hashToken, verifyAccessToken, generateLoginCode };
