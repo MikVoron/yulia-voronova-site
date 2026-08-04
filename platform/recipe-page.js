@@ -1428,6 +1428,12 @@
 			if (addFat.length)     _balCats.push({ key: 'f', label: 'Жиры',     prefix: 'f' });
 			if (addCarbs.length)   _balCats.push({ key: 'c', label: 'Углеводы', prefix: 'c' });
 			if (addFiber.length)   _balCats.push({ key: 'fi', label: 'Клетчатка', prefix: 'fi' });
+			// For soups the optional protein group follows the required carbohydrates.
+			// Other recipes keep the established protein → fat → carbs → fiber order.
+			const balanceGroupOrder = _balCats.some(c => c.prefix === 'p' && c.optional) && addCarbs.length
+				? { c: 0, p: 1, f: 2, fi: 3 }
+				: { p: 0, f: 1, c: 2, fi: 3 };
+			_balCats.sort((a, b) => balanceGroupOrder[a.prefix] - balanceGroupOrder[b.prefix]);
 			_balCats.forEach((c, i) => { c.stepIndex = i; });
 			_balGroups = _balCats;
 			_balRequired = _balCats.filter(c => !c.optional);
@@ -1446,6 +1452,7 @@
 			// Group lookups for stepIndex
 			const stepOf = {};
 			_balCats.forEach(c => { stepOf[c.prefix] = c.stepIndex; });
+			const addItemsByPrefix = { p: addProtein, f: addFat, c: addCarbs, fi: addFiber };
 
 			const hasRequiredBalanceGroups = _balRequired.length > 0;
 			const balanceBannerHtml = hasRequiredBalanceGroups
@@ -1474,10 +1481,7 @@
                         </div>
                     </div>
                 </div>
-                ${addProtein.length ? buildGroup('p',  addProtein, stepOf.p)  : ''}
-                ${addFat.length     ? buildGroup('f',  addFat,     stepOf.f)  : ''}
-                ${addCarbs.length   ? buildGroup('c',  addCarbs,   stepOf.c)  : ''}
-                ${addFiber.length   ? buildGroup('fi', addFiber,   stepOf.fi) : ''}
+				${_balCats.map(c => buildGroup(c.prefix, addItemsByPrefix[c.prefix], stepOf[c.prefix])).join('')}
                 <div class="bal-wizard-nav">
                     <button type="button" class="bal-wizard-prev" id="bal-wizard-prev" data-recipe-action="balance-wizard" data-delta="-1">← Назад</button>
                     <button type="button" class="bal-wizard-next" id="bal-wizard-next" data-recipe-action="balance-wizard" data-delta="1">Далее →</button>
