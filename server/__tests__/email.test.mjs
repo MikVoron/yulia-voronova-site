@@ -103,6 +103,10 @@ describe('email visual system', () => {
     await email.sendWelcome('user@example.com', false);
     await email.sendTrialExpired('user@example.com');
     await email.sendSubscriptionExpired('user@example.com');
+    await email.sendSubscriptionExpiryReminder('user@example.com', '2026-07-04T00:00:00.000Z');
+    const expiryReminder = sendMail.mock.calls.at(-1)[0];
+    expect(expiryReminder.subject).toBe('Подписка заканчивается через 3 дня');
+    expect(expiryReminder.html).toContain('04.07.2026');
     await email.sendSubscriptionExtended('user@example.com', 30, '2026-07-04T00:00:00.000Z');
     await email.sendPaymentConfirmed('user@example.com', 30, '2026-07-04T00:00:00.000Z', 'Спасибо');
     await email.sendPaymentRejected('user@example.com', 'Нужен более чёткий скриншот');
@@ -127,7 +131,7 @@ describe('email visual system', () => {
     await email.sendFeedbackReply('user@example.com', 'wish', 'Моё обращение', 'Спасибо за идею', 'Анна');
     await email.sendReviewReply('user@example.com', 'Омлет', 'omelet', 'Мой отзыв', 'Спасибо!', 'Анна');
 
-    expect(sendMail).toHaveBeenCalledTimes(18);
+    expect(sendMail).toHaveBeenCalledTimes(19);
     for (const [message] of sendMail.mock.calls) {
       expect(message.html).toContain('width="560"');
       expect(message.html).toContain('class="em-content"');

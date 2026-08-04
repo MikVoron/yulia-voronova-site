@@ -1,5 +1,5 @@
 const db = require('./db');
-const { sendTrialExpired, sendSubscriptionExpired } = require('./email');
+const { sendTrialExpired, sendSubscriptionExpired, sendSubscriptionExpiryReminder } = require('./email');
 const { sendTelegramAlert } = require('./telegram');
 
 async function expireTrials(fastify) {
@@ -45,6 +45,43 @@ async function expireSubscriptions(fastify) {
   }
 }
 
+async function sendSubscriptionExpiryReminders(fastify) {
+  const jobId = (await db.query("INSERT INTO cron_runs (job_name) VALUES ('subscription_expiry_reminders') RETURNING id")).rows[0].id;
+  try {
+    // One atomic update reserves each reminder before SMTP is called, so hourly
+    // cron runs and concurrent processes cannot send the same reminder twice.
+    const due = await db.query(`
+      WITH due AS (
+        SELECT s.user_id
+          FROM subscriptions s
+         WHERE s.status='active'
+           AND s.active_until > now()
+           AND s.active_until <= now() + interval '3 days'
+           AND s.expiry_reminder_sent_at IS NULL
+         FOR UPDATE SKIP LOCKED
+      ), marked AS (
+        UPDATE subscriptions s
+           SET expiry_reminder_sent_at=now(), updated_at=now()
+          FROM due
+         WHERE s.user_id=due.user_id
+         RETURNING s.user_id, s.active_until
+      )
+      SELECT u.email, marked.active_until
+        FROM marked
+        JOIN users u ON u.id=marked.user_id
+    `);
+    await Promise.all(due.rows.map(row =>
+      sendSubscriptionExpiryReminder(row.email, row.active_until)
+        .catch(e => fastify.log.error(e, 'Subscription expiry reminder email error: ' + row.email))
+    ));
+    await db.query("UPDATE cron_runs SET finished_at=now(), affected_rows=$2, status='success' WHERE id=$1", [jobId, due.rowCount]);
+    return due.rowCount;
+  } catch (e) {
+    await db.query("UPDATE cron_runs SET finished_at=now(), status='error', error_message=$2 WHERE id=$1", [jobId, e.message]);
+    throw e;
+  }
+}
+
 async function cleanExpiredCodes() {
   const jobId = (await db.query("INSERT INTO cron_runs (job_name) VALUES ('clean_codes') RETURNING id")).rows[0].id;
   try {
@@ -76,11 +113,12 @@ async function runCronJobs(fastify) {
   _running = true;
   try {
     const t = await expireTrials(fastify);
+    const m = await sendSubscriptionExpiryReminders(fastify);
     const s = await expireSubscriptions(fastify);
     const c = await cleanExpiredCodes();
     const r = await cleanExpiredRefreshSessions();
-    if (t || s || c || r) {
-      fastify.log.info({ expiredTrials: t, expiredSubs: s, cleanedCodes: c, cleanedRefreshSessions: r }, 'cron completed');
+    if (t || m || s || c || r) {
+      fastify.log.info({ expiredTrials: t, subscriptionReminders: m, expiredSubs: s, cleanedCodes: c, cleanedRefreshSessions: r }, 'cron completed');
     }
   } catch (e) {
     fastify.log.error(e, 'cron error');
@@ -102,4 +140,4 @@ function startCron(fastify) {
   fastify.log.info('Cron started (every 1h, with overlap guard)');
 }
 
-module.exports = { startCron, runCronJobs, cleanExpiredRefreshSessions };
+module.exports = { startCron, runCronJobs, cleanExpiredRefreshSessions, sendSubscriptionExpiryReminders };

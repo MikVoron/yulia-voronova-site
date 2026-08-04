@@ -297,7 +297,7 @@ async function adminRoutes(fastify) {
         const current = sub.rows[0];
         const baseDate = (current.status === 'active' && new Date(current.active_until) > new Date()) ? new Date(current.active_until) : new Date();
         newUntil = new Date(baseDate.getTime() + days * 86400000);
-        await client.query("UPDATE subscriptions SET status='active', active_until=$2, updated_at=now() WHERE user_id=$1", [p.user_id, newUntil]);
+        await client.query("UPDATE subscriptions SET status='active', active_until=$2, expiry_reminder_sent_at=NULL, updated_at=now() WHERE user_id=$1", [p.user_id, newUntil]);
       } else {
         newUntil = new Date(Date.now() + days * 86400000);
         await client.query(
@@ -488,7 +488,7 @@ async function adminRoutes(fastify) {
           ? new Date(current.active_until)
           : new Date();
         newUntil = new Date(baseDate.getTime() + days * 86400000);
-        await client.query("UPDATE subscriptions SET status='active', active_until=$2, updated_at=now() WHERE user_id=$1", [id, newUntil]);
+        await client.query("UPDATE subscriptions SET status='active', active_until=$2, expiry_reminder_sent_at=NULL, updated_at=now() WHERE user_id=$1", [id, newUntil]);
       } else {
         newUntil = new Date(Date.now() + days * 86400000);
         await client.query(

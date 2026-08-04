@@ -354,6 +354,22 @@ async function sendSubscriptionExpired(to) {
   await send(to, 'Подписка завершилась', wrapService(body));
 }
 
+// ── 4b. Подписка заканчивается через 3 дня ──
+async function sendSubscriptionExpiryReminder(to, activeUntil) {
+  const untilStr = activeUntil
+    ? new Date(activeUntil).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : '';
+  const body =
+    heading('Подписка заканчивается через 3 дня', 'Напоминание')
+    + paragraph('Ваша подписка на платформу <strong>«Умная тарелка»</strong> скоро завершится.')
+    + statusBlock('Подписка активна до', untilStr)
+    + paragraph('Продлите её заранее, чтобы сохранить непрерывный доступ ко всем рецептам и конструктору тарелки.')
+    + btn('Продлить подписку', '' + PLATFORM_URL + '/cabinet.html')
+    + smallText('Если вы уже оплатили, пожалуйста, дождитесь подтверждения администратором.', '0 0 7px')
+    + signature();
+  await send(to, 'Подписка заканчивается через 3 дня', wrapService(body));
+}
+
 // ── 5b. Подписка продлена админом вручную ──
 async function sendSubscriptionExtended(to, days, activeUntil) {
   const untilStr = activeUntil
@@ -611,6 +627,7 @@ module.exports = {
   sendWelcome,
   sendTrialExpired,
   sendSubscriptionExpired,
+  sendSubscriptionExpiryReminder,
   sendPaymentConfirmed,
   sendPaymentRejected,
   sendSubscriptionExtended,
