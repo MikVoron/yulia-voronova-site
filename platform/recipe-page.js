@@ -720,14 +720,13 @@
 			}
 		}
 
-		function acknowledgeRecipeAdded(recipeId) {
+		function acknowledgeRecipeAdded() {
 			const btn = document.getElementById('add-btn');
 			if (btn) {
 				btn.classList.remove('is-just-added');
 				void btn.offsetWidth;
 				btn.classList.add('is-just-added');
 			}
-			_justAddedPlateRecipeId = recipeId || '';
 		}
 
 		// Экранирование HTML — защита от XSS
@@ -2775,7 +2774,6 @@
 				updatePlateIcon();
 				refreshAddButtonStateByPlate();
 				showToast(r.emoji + ' Это блюдо уже в тарелке');
-				openPlate();
 				return;
 			}
 
@@ -2799,11 +2797,10 @@
 
 			updatePlateIcon();
 			refreshAddButtonStateByPlate();
-			acknowledgeRecipeAdded(r.id);
+			acknowledgeRecipeAdded();
 
 			showToast(r.emoji + (unbalanced ? ' Добавлено в текущую тарелку без балансировки' : ' Добавлено в текущую тарелку'));
-			// Показываем результат там, где он появился: без неочевидного history.back на мобильном.
-			openPlate();
+			// Остаёмся на рецепте: пользователь видит обновлённые кнопку, счётчик и toast.
 		}
 
 		// ── Balance warning modal (unbalanced add confirmation) ────────────
@@ -2932,14 +2929,10 @@
 			}
 		}
 
-		let _justAddedPlateRecipeId = '';
-
 		function openPlate() {
 			// Гость: тарелка — фича только для зарегистрированных, ведём на login.
 			if (Auth.isGuest()) { location.href = Auth._loginUrl(); return; }
 			const items = Plate.get();
-			const justAddedRecipeId = _justAddedPlateRecipeId;
-			_justAddedPlateRecipeId = '';
 			const body = document.getElementById('plate-body');
 			if (!items.length) {
 				body.innerHTML = `<div class="pv1-empty">
@@ -2965,8 +2958,7 @@
 					const nameHtml = item.recipeId
 						? `<a class="pv1-item-name is-link" href="recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1">${escHtml(String(item.name))}</a>`
 						: `<div class="pv1-item-name">${escHtml(String(item.name))}</div>`;
-					const isJustAdded = item.recipeId && item.recipeId === justAddedRecipeId;
-					return `<div class="pv1-item${isJustAdded ? ' is-just-added' : ''}">
+					return `<div class="pv1-item">
                         ${item.photo
 							? `<img class="pv1-item-photo" src="${escHtml(String(item.photo))}" alt="">`
 							: `<div class="pv1-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
