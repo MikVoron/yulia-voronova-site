@@ -1332,7 +1332,7 @@ main {
 }
 
 .sp-how-card.is-demo-active[data-how-demo="search"] .sp-how-nav-link--recipes {
-	animation: spHowNavActivate .2s ease 3s both, spHowNavDeactivate .2s ease 3.5s both;
+	animation: spHowNavActivate .2s ease 3s both, spHowNavDeactivate .2s ease 3.5s forwards;
 }
 
 .sp-how-card.is-demo-active[data-how-demo="search"] .sp-how-nav-link--ingredients {
@@ -1345,7 +1345,7 @@ main {
 }
 
 .sp-how-card.is-demo-active[data-how-demo="search"] .sp-how-nav-link--recipes::after {
-	animation: spHowUnderline .25s ease 2.65s both, spHowUnderlineOff .2s ease 3.5s both;
+	animation: spHowUnderline .25s ease 2.65s both, spHowUnderlineOff .2s ease 3.5s forwards;
 }
 
 .sp-how-card.is-demo-active[data-how-demo="search"] .sp-how-nav-link--ingredients::after,
