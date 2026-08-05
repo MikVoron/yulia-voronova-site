@@ -151,16 +151,18 @@
             else if (u.sub_status === 'active' && u.active_until) untilDate = fmtDate(u.active_until);
             var activity = formatUserActivity(u);
 
-            var messageAction = '<button class="adm-btn" data-admin-action="compose-message" data-admin-id="' + esc(u.id) + '" title="Написать пользователю">Написать</button>';
-            var actions = messageAction;
+            var primaryActions = '<button class="adm-btn" data-admin-action="compose-message" data-admin-id="' + esc(u.id) + '" title="Написать пользователю">Написать</button>';
+            var secondaryActions = '';
             if (u.is_blocked) {
-                actions += '<button class="adm-btn adm-btn-unblock" data-admin-action="unblock-user" data-admin-id="' + esc(u.id) + '">Разблокировать</button>' +
-                    '<button class="adm-btn adm-btn-delete" data-admin-action="delete-user" data-admin-id="' + esc(u.id) + '">Удалить</button>';
+                primaryActions += '<button class="adm-btn adm-btn-unblock" data-admin-action="unblock-user" data-admin-id="' + esc(u.id) + '">Разблокировать</button>';
+                secondaryActions = '<button class="adm-btn adm-btn-delete" data-admin-action="delete-user" data-admin-id="' + esc(u.id) + '">Удалить</button>';
             } else if (u.role !== 'admin') {
-                actions += '<button class="adm-btn adm-btn-extend" data-admin-action="extend-user" data-admin-id="' + esc(u.id) + '">Продлить</button>' +
-                    '<button class="adm-btn adm-btn-block" data-admin-action="block-user" data-admin-id="' + esc(u.id) + '">Блок</button>' +
+                primaryActions += '<button class="adm-btn adm-btn-extend" data-admin-action="extend-user" data-admin-id="' + esc(u.id) + '">Продлить</button>';
+                secondaryActions = '<button class="adm-btn adm-btn-block" data-admin-action="block-user" data-admin-id="' + esc(u.id) + '">Заблокировать</button>' +
                     '<button class="adm-btn adm-btn-delete" data-admin-action="delete-user" data-admin-id="' + esc(u.id) + '">Удалить</button>';
             }
+            var actions = '<div class="adm-user-actions"><div class="adm-user-actions-primary">' + primaryActions + '</div>' +
+                (secondaryActions ? '<div class="adm-user-actions-danger">' + secondaryActions + '</div>' : '') + '</div>';
 
             return '<tr>' +
                 '<td><strong>' + esc(u.email || '—') + '</strong></td>' +

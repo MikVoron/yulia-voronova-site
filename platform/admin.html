@@ -791,6 +791,32 @@
             color: var(--green);
         }
 
+        .adm-user-actions {
+            min-width: 208px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .adm-user-actions-primary,
+        .adm-user-actions-danger {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .adm-user-actions-danger {
+            padding-top: 8px;
+            border-top: 1px solid var(--border);
+        }
+
+        .adm-user-actions .adm-btn {
+            width: 100%;
+            min-height: 34px;
+            margin: 0;
+            padding: 7px 9px;
+            white-space: nowrap;
+        }
+
         .adm-search,
         .adm-modal-input,
         .adm-modal-select {
@@ -1586,6 +1612,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260805-activity-days"></script>
-<script src="admin.js?v=20260805-activity-days"></script>
+<script src="admin.js?v=20260805-user-actions"></script>
 </body>
 </html>
