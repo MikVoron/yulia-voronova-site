@@ -1306,7 +1306,9 @@ main {
 @keyframes spHowPointerVisitLinks { 0% { opacity: 0; transform: translate(-18px, 13px); } 18%, 32% { opacity: 1; transform: translate(0, 0); } 38% { opacity: 1; transform: translate(0, 2px) scale(.9); } 47% { opacity: 1; transform: translate(0, 0); } 65%, 79% { opacity: 1; transform: translate(74px, 0); } 85% { opacity: 1; transform: translate(74px, 2px) scale(.9); } 100% { opacity: 0; transform: translate(74px, 2px) scale(.9); } }
 @keyframes spHowClickRing { 0%, 52% { opacity: 0; transform: scale(.35); } 68% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(1.35); } }
 @keyframes spHowUnderline { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes spHowUnderlineOff { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 @keyframes spHowNavActivate { from { color: var(--text-3); font-weight: 600; } to { color: var(--text); font-weight: 800; } }
+@keyframes spHowNavDeactivate { from { color: var(--text); font-weight: 800; } to { color: var(--text-3); font-weight: 600; } }
 @keyframes spHowBalanceGrow { from { width: 46%; } to { width: 88%; } }
 @keyframes spHowDotIn { from { opacity: 0; transform: scale(.35); } to { opacity: 1; transform: scale(1); } }
 @keyframes spHowPlateSave { 0% { transform: translate(-50%, -50%) scale(.92); } 45% { transform: translate(-50%, -50%) scale(1.05); } 100% { transform: translate(-50%, -68%) scale(.76); } }
@@ -1330,25 +1332,29 @@ main {
 }
 
 .sp-how-card.is-demo-active[data-how-demo="search"] .sp-how-nav-link--recipes {
-	animation: spHowNavActivate .2s ease 2.95s both;
+	animation: spHowNavActivate .2s ease 2.95s both, spHowNavDeactivate .2s ease 3.5s both;
 }
 
 .sp-how-card.is-demo-active[data-how-demo="search"] .sp-how-nav-link--ingredients {
-	animation: spHowNavActivate .2s ease 3.85s both;
+	animation: spHowNavActivate .2s ease 3.5s both;
 }
 
-.sp-how-card.is-demo-static[data-how-demo="search"] .sp-how-nav-link {
+.sp-how-card.is-demo-static[data-how-demo="search"] .sp-how-nav-link--ingredients {
 	color: var(--text);
 	font-weight: 800;
 }
 
 .sp-how-card.is-demo-active[data-how-demo="search"] .sp-how-nav-link--recipes::after {
-	animation: spHowUnderline .35s ease 2.95s both;
+	animation: spHowUnderline .35s ease 2.95s both, spHowUnderlineOff .2s ease 3.5s both;
 }
 
 .sp-how-card.is-demo-active[data-how-demo="search"] .sp-how-nav-link--ingredients::after,
-.sp-how-card.is-demo-static[data-how-demo="search"] .sp-how-nav-link::after {
-	animation: spHowUnderline .35s ease 3.85s both;
+.sp-how-card.is-demo-static[data-how-demo="search"] .sp-how-nav-link--ingredients::after {
+	animation: spHowUnderline .35s ease 3.5s both;
+}
+
+.sp-how-card.is-demo-static[data-how-demo="search"] .sp-how-nav-link--recipes::after {
+	transform: scaleX(0);
 }
 
 .sp-how-card.is-demo-active[data-how-demo="balance"] .sp-how-bar span,
