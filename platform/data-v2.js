@@ -711,7 +711,7 @@ const Plate = {
         return kept.slice(0, 30).map(function(saved) { return saved.entry; });
     },
     get()  { try { return this._dedupeItems(JSON.parse(localStorage.getItem(this._key()) || '[]')); } catch { return []; } },
-    set(v) { localStorage.setItem(this._key(), JSON.stringify(this._dedupeItems(v))); updatePlateIcon(); },
+    set(v, options) { localStorage.setItem(this._key(), JSON.stringify(this._dedupeItems(v))); updatePlateIcon(options); },
     add(item) {
         const p = this.get();
         const recipeId = item && typeof item.recipeId === 'string' ? item.recipeId.trim() : '';
@@ -719,7 +719,7 @@ const Plate = {
             return existing && typeof existing.recipeId === 'string' && existing.recipeId.trim() === recipeId;
         })) return false;
         p.push({ ...item, addedAt: Date.now() });
-        this.set(p);
+        this.set(p, { emphasize: true });
         this._syncToServer();
         return true;
     },
@@ -899,11 +899,18 @@ function getSelectedPlateMealType() {
 }
 
 
-function updatePlateIcon() {
+function updatePlateIcon(options) {
     const n = Plate.count();
+    const emphasize = Boolean(options && options.emphasize && n > 0);
     document.querySelectorAll('.plate-count').forEach(el => {
         el.textContent = n;
         el.hidden = n <= 0;
+        if (emphasize) {
+            // Restart the short acknowledgement only after a successful Plate.add().
+            el.classList.remove('is-updated');
+            void el.offsetWidth;
+            el.classList.add('is-updated');
+        }
     });
 }
 

@@ -720,6 +720,16 @@
 			}
 		}
 
+		function acknowledgeRecipeAdded(recipeId) {
+			const btn = document.getElementById('add-btn');
+			if (btn) {
+				btn.classList.remove('is-just-added');
+				void btn.offsetWidth;
+				btn.classList.add('is-just-added');
+			}
+			_justAddedPlateRecipeId = recipeId || '';
+		}
+
 		// Экранирование HTML — защита от XSS
 		function escHtml(s) {
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -2789,6 +2799,7 @@
 
 			updatePlateIcon();
 			refreshAddButtonStateByPlate();
+			acknowledgeRecipeAdded(r.id);
 
 			showToast(r.emoji + (unbalanced ? ' Добавлено в текущую тарелку без балансировки' : ' Добавлено в текущую тарелку'));
 			// Показываем результат там, где он появился: без неочевидного history.back на мобильном.
@@ -2921,10 +2932,14 @@
 			}
 		}
 
+		let _justAddedPlateRecipeId = '';
+
 		function openPlate() {
 			// Гость: тарелка — фича только для зарегистрированных, ведём на login.
 			if (Auth.isGuest()) { location.href = Auth._loginUrl(); return; }
 			const items = Plate.get();
+			const justAddedRecipeId = _justAddedPlateRecipeId;
+			_justAddedPlateRecipeId = '';
 			const body = document.getElementById('plate-body');
 			if (!items.length) {
 				body.innerHTML = `<div class="pv1-empty">
@@ -2950,7 +2965,8 @@
 					const nameHtml = item.recipeId
 						? `<a class="pv1-item-name is-link" href="recipe.html?id=${encodeURIComponent(item.recipeId)}&from=plate&simple=1">${escHtml(String(item.name))}</a>`
 						: `<div class="pv1-item-name">${escHtml(String(item.name))}</div>`;
-					return `<div class="pv1-item">
+					const isJustAdded = item.recipeId && item.recipeId === justAddedRecipeId;
+					return `<div class="pv1-item${isJustAdded ? ' is-just-added' : ''}">
                         ${item.photo
 							? `<img class="pv1-item-photo" src="${escHtml(String(item.photo))}" alt="">`
 							: `<div class="pv1-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}

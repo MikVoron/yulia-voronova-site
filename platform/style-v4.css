@@ -269,6 +269,13 @@ img { display: block; max-width: 100%; }
     padding: 0 5px; border: 2px solid var(--white);
 }
 
+@keyframes plateCountAdded {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.16); }
+    100% { transform: scale(1); }
+}
+.plate-count.is-updated { animation: plateCountAdded .28s ease-out both; }
+
 /* Back button */
 .v-back {
     display: inline-flex; align-items: center; gap: 6px;
@@ -2159,6 +2166,12 @@ img { display: block; max-width: 100%; }
 }
 .pv1-item:first-child { padding-top: 4px; }
 .pv1-item:last-child { border-bottom: 1px solid var(--text); }
+@keyframes pv1ItemAdded {
+    0% { background-color: var(--accent-l); }
+    100% { background-color: transparent; }
+}
+.pv1-item.is-just-added { animation: pv1ItemAdded .45s ease-out both; }
+
 .pv1-item-photo,
 .pv1-item-emoji {
     width: 56px; height: 56px; flex-shrink: 0; background: #fff;
@@ -2500,6 +2513,13 @@ img { display: block; max-width: 100%; }
     box-shadow: none;
     transform: none;
 }
+
+@keyframes recipeAddedButton {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.018); }
+    100% { transform: scale(1); }
+}
+.recipe-add-btn.is-just-added { animation: recipeAddedButton .24s ease-out both; }
 
 .recipe-share-btn,
 .recipe-review-submit,
