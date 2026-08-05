@@ -555,7 +555,7 @@ img { display: block; max-width: 100%; }
     border-radius: 6px;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 24px rgba(26,26,26,.06);
-    transition: all .2s ease;
+    transition: color .2s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -1492,7 +1492,7 @@ img { display: block; max-width: 100%; }
 .bal-wizard-dot {
     width: 8px; height: 8px; border-radius: 4px;
     background: #ddd; cursor: pointer;
-    transition: all .3s ease;
+    transition: width .3s ease, background-color .3s ease;
 }
 .bal-wizard-dot.active { width: 24px; background: var(--g-color, #b85e00); }
 .bal-wizard-dot.done { background: var(--dot-color, var(--g-color, #b85e00)); }
@@ -1573,7 +1573,7 @@ img { display: block; max-width: 100%; }
     padding: 12px 14px; border-radius: 10px;
     background: #fafafa;
     border: 1.5px solid #eee;
-    cursor: pointer; transition: all .15s ease;
+    cursor: pointer; transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
     text-align: left; width: 100%;
     font-family: inherit; color: inherit;
 }
@@ -1587,7 +1587,7 @@ img { display: block; max-width: 100%; }
     width: 22px; height: 22px; border-radius: 5px;
     border: 2px solid #d0d0d0;
     display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: all .15s ease;
+    flex-shrink: 0; transition: background-color .15s ease, border-color .15s ease;
     background: transparent;
 }
 .bal-item.checked .bal-item-check {
@@ -1629,7 +1629,7 @@ img { display: block; max-width: 100%; }
 .bal-wizard-prev, .bal-wizard-next {
     padding: 11px; border-radius: 10px;
     font-family: inherit; font-size: 13px; font-weight: 700;
-    cursor: pointer; transition: all .2s ease;
+    cursor: pointer; transition: background-color .2s ease, border-color .2s ease, color .2s ease, opacity .2s ease;
 }
 .bal-wizard-prev {
     flex: 1; border: 1px solid #e0e0e0; background: transparent; color: #444;

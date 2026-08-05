@@ -117,7 +117,7 @@
             border: none;
             background: none;
             border-bottom: 2px solid transparent;
-            transition: all .15s;
+            transition: color .15s, border-color .15s;
         }
 
         .adm-tab:hover { color: var(--text); }
@@ -273,7 +273,7 @@
             font-weight: 600;
             cursor: pointer;
             border: none;
-            transition: all .15s;
+            transition: background-color .15s, color .15s, opacity .15s;
         }
 
         .adm-btn:disabled { opacity: .4; cursor: not-allowed; }
@@ -1075,6 +1075,22 @@
             .adm-tab { width: auto; padding: 9px 12px; }
             .adm-tab-badge { float: none; }
             .adm-main { margin: 0; padding: 24px 16px 48px; }
+        }
+
+        /* Системная настройка "уменьшить движение": интерфейс сохраняет
+           все состояния, но без вращения и перемещения элементов. */
+        @media (prefers-reduced-motion: reduce) {
+            html:focus-within { scroll-behavior: auto; }
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+                transition-delay: 0s !important;
+                scroll-behavior: auto !important;
+            }
         }
     </style>
 </head>

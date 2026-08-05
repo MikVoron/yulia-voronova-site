@@ -60,3 +60,16 @@ body {
 .is-hidden {
     display: none;
 }
+
+/* Системная настройка "уменьшить движение": финальное состояние остаётся
+   видимым, но загрузчик не вращается бесконечно. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        transition-delay: 0s !important;
+    }
+}

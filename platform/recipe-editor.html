@@ -74,7 +74,7 @@
             font-weight: 600;
             padding: 6px 12px;
             border-radius: 8px;
-            transition: all .15s;
+            transition: color .15s, background-color .15s;
         }
 
         .re-back:hover { color: var(--text); background: var(--bg); }
@@ -286,7 +286,7 @@
             border: 1px solid var(--border);
             background: var(--card);
             color: var(--text);
-            transition: all .15s;
+            transition: background-color .15s, border-color .15s, color .15s, opacity .15s;
         }
 
         .re-btn:hover { background: var(--bg); }
@@ -356,7 +356,7 @@
             font-size: 13px;
             font-weight: 600;
             opacity: 0;
-            transition: all .3s;
+            transition: opacity .3s, transform .3s, background-color .3s;
             z-index: 9999;
             pointer-events: none;
         }
@@ -1168,6 +1168,22 @@
             .re-list-item .re-item-row { flex-wrap: wrap; }
             .re-list-item .re-item-input.re-input-sm { max-width: 55px; }
             .re-ingredient-omit-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* Системная настройка "уменьшить движение": статусы и уведомления
+           остаются доступными, но интерфейс не анимирует перемещение. */
+        @media (prefers-reduced-motion: reduce) {
+            html:focus-within { scroll-behavior: auto; }
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+                transition-delay: 0s !important;
+                scroll-behavior: auto !important;
+            }
         }
     </style>
 </head>
