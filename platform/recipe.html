@@ -1052,6 +1052,8 @@
 			padding: 14px 18px !important;
 			min-height: 52px;
 		}
+		.bal-group.is-guided { background: #fff4eb !important; box-shadow: inset 3px 0 0 var(--accent); }
+		.bal-group.is-guided .bal-group-head { background: #fff4eb !important; box-shadow: inset 3px 0 0 var(--accent); }
 
 		.review-form-wrap.is-modal { position: fixed; inset: 0; z-index: 10020; display: grid; place-items: center; padding: 20px; background: rgba(17,17,17,.62); }
 		.review-form-wrap.is-modal .review-form { position: relative; width: min(520px,100%); max-height: calc(100vh - 40px); overflow: auto; padding: 28px; background: #fff; box-shadow: 0 24px 70px rgba(0,0,0,.3); }
@@ -1324,16 +1326,16 @@
 	<div class="bal-success-modal-overlay" id="bal-warn-modal" role="dialog" aria-modal="true"
 		aria-labelledby="bal-warn-title" aria-describedby="bal-warn-text">
 		<div class="bal-success-modal-box">
-			<div class="bal-success-modal-title" id="bal-warn-title" style="color:#b45309"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4 2.7 20h18.6L12 4z"/><line x1="12" y1="10" x2="12" y2="14"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Тарелка не сбалансирована</div>
+			<div class="bal-success-modal-title" id="bal-warn-title" style="color:#b45309"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4 2.7 20h18.6L12 4z"/><line x1="12" y1="10" x2="12" y2="14"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Добавьте недостающие группы</div>
 			<div class="bal-success-modal-text" id="bal-warn-text">
-				Чтобы блюдо стало полноценным приёмом пищи, выберите обязательные группы добавок в сайдбаре.
+				Так получится полноценный и более сбалансированный приём пищи.
 				<div id="bal-warn-missing" style="margin-top:8px;font-size:13px;color:var(--text-3)"></div>
 			</div>
 			<div class="bal-success-modal-actions">
 				<button class="bal-success-modal-primary" id="bal-warn-primary" type="button"
-					style="background:#b45309;border-color:#b45309" data-recipe-static-action="confirm-balance-warn-add">Добавить всё равно</button>
+					style="background:#b45309;border-color:#b45309" data-recipe-static-action="guide-to-balance-additions">Выбрать добавки</button>
 				<button class="bal-success-modal-secondary" id="bal-warn-secondary" type="button"
-					data-recipe-static-action="hide-balance-warn">Вернуться и сбалансировать</button>
+					data-recipe-static-action="confirm-balance-warn-add">Добавить без добавок</button>
 			</div>
 		</div>
 	</div>
@@ -1398,7 +1400,7 @@
 	<script src="data-v2.js?v=20260805-plate-feedback"></script>
 	<script src="ingredients.js?v=20260711-oats-seabass"></script>
 <script src="header-nav.js?v=20260714-category-nav"></script>
-	<script src="recipe-page.js?v=20260805-plate-feedback-visible"></script>
+	<script src="recipe-page.js?v=20260805-balance-guidance"></script>
 	<script src="tawk-chat-modal.js?v=20260803-tawk-singleton"></script>
 </body>
 

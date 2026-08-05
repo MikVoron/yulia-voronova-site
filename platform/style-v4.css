@@ -1552,6 +1552,10 @@ img { display: block; max-width: 100%; }
     flex: 1; min-width: 0; font-size: 13px; font-weight: 700; color: #333;
 }
 .bal-group.done .bal-group-label { color: var(--g-color); }
+.bal-group.is-guided .bal-group-head {
+    background: var(--g-bg);
+    box-shadow: inset 3px 0 0 var(--g-color);
+}
 .bal-group-done-badge {
     display: none; font-size: 11px; font-weight: 700;
     color: var(--g-color); background: var(--g-bg);
@@ -3619,6 +3623,40 @@ img { display: block; max-width: 100%; }
 }
 /* Hover: упругий зум (variant «pop») + чуть более тёмная рамка. */
 .sp-plate:hover { transform: scale(1.1); border-color: #c9c9c9; }
+.sp-plate.is-first-add-hint { border-color: var(--accent); }
+.sp-plate.is-first-add-hint::after {
+    content: '';
+    position: absolute;
+    inset: -7px;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: plateFirstAddPulse .58s ease-out 2;
+}
+.plate-first-add-hint {
+    position: fixed;
+    z-index: 10010;
+    padding: 14px 16px;
+    border: 1px solid #f1b078;
+    border-left: 4px solid var(--accent);
+    background: #fffaf6;
+    box-shadow: 0 12px 30px rgba(58, 35, 20, .16);
+    color: var(--text);
+}
+.plate-first-add-hint-title {
+    margin-bottom: 5px;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.25;
+}
+.plate-first-add-hint-text { font-size: 12px; line-height: 1.45; color: var(--text-2); }
+@keyframes plateFirstAddPulse {
+    0% { opacity: .9; transform: scale(.82); }
+    100% { opacity: 0; transform: scale(1.36); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .sp-plate.is-first-add-hint::after { animation: none; }
+}
 /* Унифицированная inline-SVG иконка тарелки (см. Plate Icon Final, Variant 1).
    Используется и в кнопке #plate-btn (.sp-plate / .vh-plate-btn), и в заголовках модалок. */
 .sp-plate-svg { display: block; flex-shrink: 0; }

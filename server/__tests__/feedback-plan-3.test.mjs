@@ -63,11 +63,22 @@ describe('SmartPlate feedback plan 3 contracts', () => {
     expect(recipe).toContain('Добавлено в текущую тарелку');
   });
 
-  it('shows the filled plate instead of navigating back after the main add action', () => {
-    const recipe = read('recipe.html');
-    const addResult = recipe.slice(recipe.indexOf("showToast(r.emoji + (unbalanced"), recipe.indexOf('// ── Balance warning modal'));
-    expect(addResult).toContain('openPlate();');
+  it('keeps add feedback visible on the recipe instead of opening the plate', () => {
+    const recipe = read('recipe-page.js');
+    const addResult = recipe.slice(recipe.indexOf('function _executePlateAdd'), recipe.indexOf('// ── Balance warning modal'));
+    expect(addResult).toContain('acknowledgeRecipeAdded();');
+    expect(addResult).not.toContain('openPlate();');
     expect(addResult).not.toContain('history.back()');
+  });
+
+  it('guides an unbalanced plate to missing additions while keeping an opt-out', () => {
+    const html = read('recipe.html');
+    const js = read('recipe-page.js');
+    expect(html).toContain('data-recipe-static-action="guide-to-balance-additions"');
+    expect(html).toContain('Добавить без добавок');
+    expect(js).toContain('function guideToBalanceAdditions()');
+    expect(js).toContain('balWizardSetStep(firstStep);');
+    expect(js).toContain("classList.add('is-guided')");
   });
 
   it('asks guests before sending them to login from the add-to-plate action', () => {

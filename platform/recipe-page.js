@@ -729,6 +729,63 @@
 			}
 		}
 
+		const FIRST_PLATE_HINT_KEY = 'plate_first_add_hint_seen_v1';
+
+		function getFirstPlateHintStorageKey() {
+			try {
+				return (typeof Auth !== 'undefined' && typeof Auth._userKey === 'function')
+					? Auth._userKey(FIRST_PLATE_HINT_KEY)
+					: FIRST_PLATE_HINT_KEY;
+			} catch (e) {
+				return FIRST_PLATE_HINT_KEY;
+			}
+		}
+
+		function showFirstPlateHint() {
+			const plateButton = document.getElementById('plate-btn');
+			if (!plateButton || document.getElementById('plate-first-add-hint')) return;
+
+			const storageKey = getFirstPlateHintStorageKey();
+			try {
+				if (localStorage.getItem(storageKey) === '1') return;
+			} catch (e) {}
+
+			const hint = document.createElement('div');
+			hint.id = 'plate-first-add-hint';
+			hint.className = 'plate-first-add-hint';
+			hint.setAttribute('role', 'status');
+			hint.setAttribute('aria-live', 'polite');
+
+			const title = document.createElement('div');
+			title.className = 'plate-first-add-hint-title';
+			title.textContent = 'Блюдо добавлено в тарелку';
+			const text = document.createElement('div');
+			text.className = 'plate-first-add-hint-text';
+			text.textContent = 'Нажмите на иконку, чтобы посмотреть свой приём пищи.';
+			hint.append(title, text);
+			document.body.appendChild(hint);
+			plateButton.classList.add('is-first-add-hint');
+
+			const positionHint = function () {
+				const rect = plateButton.getBoundingClientRect();
+				const width = Math.min(300, window.innerWidth - 24);
+				hint.style.width = width + 'px';
+				const left = Math.max(12, Math.min(window.innerWidth - width - 12, rect.left));
+				hint.style.left = left + 'px';
+				hint.style.top = (rect.bottom + 12) + 'px';
+			};
+			positionHint();
+
+			const dismissHint = function () {
+				try { localStorage.setItem(storageKey, '1'); } catch (e) {}
+				plateButton.classList.remove('is-first-add-hint');
+				hint.remove();
+				window.removeEventListener('resize', positionHint);
+			};
+			plateButton.addEventListener('click', dismissHint, { once: true });
+			window.addEventListener('resize', positionHint, { passive: true });
+		}
+
 		// Экранирование HTML — защита от XSS
 		function escHtml(s) {
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -2798,6 +2855,7 @@
 			updatePlateIcon();
 			refreshAddButtonStateByPlate();
 			acknowledgeRecipeAdded();
+			showFirstPlateHint();
 
 			showToast(r.emoji + (unbalanced ? ' Добавлено в текущую тарелку без балансировки' : ' Добавлено в текущую тарелку'));
 			// Остаёмся на рецепте: пользователь видит обновлённые кнопку, счётчик и toast.
@@ -2806,24 +2864,28 @@
 		// ── Balance warning modal (unbalanced add confirmation) ────────────
 		let _balWarnPrevFocus = null;
 
+		function getMissingBalanceGroups() {
+			const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
+			return _balRequired.filter(c => !checkedPrefixes.has(c.prefix));
+		}
+
 		function showBalanceWarnModal() {
 			const overlay = document.getElementById('bal-warn-modal');
 			if (!overlay) return;
 			// Build dynamic missing-groups list from _balRequired vs checkedItems
-			const checkedPrefixes = new Set(Object.keys(checkedItems).map(k => k.replace(/-\d+$/, '')));
-			const missing = _balRequired.filter(c => !checkedPrefixes.has(c.prefix));
+			const missing = getMissingBalanceGroups();
 			const listEl = document.getElementById('bal-warn-missing');
 			if (listEl) {
 				listEl.innerHTML = missing.length
-					? 'Не выбраны группы: ' + missing.map(c => '<b>' + escHtml(c.label) + '</b>').join(', ') + '.'
+					? 'Не хватает ' + missing.length + ' ' + (missing.length === 1 ? 'группы' : 'групп') + ': ' + missing.map(c => '<b>' + escHtml(c.label) + '</b>').join(', ') + '.'
 					: '';
 			}
 			_balWarnPrevFocus = document.activeElement;
 			overlay.classList.add('show');
 			overlay.addEventListener('click', _balWarnBackdropHandler);
 			document.addEventListener('keydown', _balWarnKeyHandler);
-			const secondary = document.getElementById('bal-warn-secondary');
-			if (secondary) setTimeout(() => { try { secondary.focus(); } catch (e) {} }, 50);
+			const primary = document.getElementById('bal-warn-primary');
+			if (primary) setTimeout(() => { try { primary.focus(); } catch (e) {} }, 50);
 		}
 
 		function hideBalanceWarnModal() {
@@ -2867,6 +2929,33 @@
 		function confirmBalanceWarnAdd() {
 			hideBalanceWarnModal();
 			_executePlateAdd(true);
+		}
+
+		function guideToBalanceAdditions() {
+			const missing = getMissingBalanceGroups();
+			hideBalanceWarnModal();
+			if (!missing.length) return;
+
+			const first = missing[0];
+			const firstStep = _balGroups.findIndex(group => group.prefix === first.prefix);
+			if (window.innerWidth <= 1024 && firstStep >= 0) {
+				balWizardSetStep(firstStep);
+			} else {
+				_accordionOpen[first.prefix] = true;
+				document.getElementById('bal-group-' + first.prefix)?.classList.add('open');
+			}
+
+			const groups = missing.map(group => document.getElementById('bal-group-' + group.prefix)).filter(Boolean);
+			groups.forEach(group => group.classList.add('is-guided'));
+			setTimeout(() => groups.forEach(group => group.classList.remove('is-guided')), 2200);
+
+			const target = document.getElementById('bal-group-' + first.prefix) || document.getElementById('bal-sidebar');
+			if (!target) return;
+			target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+			setTimeout(() => {
+				const control = target.querySelector('.bal-item-select, button.bal-item, .bal-group-head');
+				if (control && typeof control.focus === 'function') control.focus({ preventScroll: true });
+			}, 350);
 		}
 
 		// ── MY PLATE MODAL ────────────────────────────────────────────────────
@@ -3714,6 +3803,7 @@ document.querySelectorAll('[data-recipe-static-action]').forEach(function (contr
         else if (action === 'confirm-balance-success-add') confirmBalanceSuccessAdd();
         else if (action === 'hide-balance-success') hideBalanceSuccessModal('secondary');
         else if (action === 'confirm-balance-warn-add') confirmBalanceWarnAdd();
+		else if (action === 'guide-to-balance-additions') guideToBalanceAdditions();
         else if (action === 'hide-balance-warn') hideBalanceWarnModal();
         else if (action === 'go-to-guest-login') goToGuestLogin();
         else if (action === 'hide-guest-login') hideGuestLoginModal();
