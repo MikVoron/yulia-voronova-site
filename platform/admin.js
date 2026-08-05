@@ -102,6 +102,8 @@
                 statCard('Всего', data.totalUsers, 'accent') +
                 statCard('Trial', data.trials, 'blue-l') +
                 statCard('Активных', data.active, 'green') +
+                statCard('Заходили за 7 дней', data.visitors7d || 0, 'blue-l') +
+                statCard('Заходили за 30 дней', data.visitors30d || 0, 'blue-l') +
                 statCard('Истекших', data.expired, 'yellow') +
                 statCard('Заблокированных', data.blocked || 0, 'red') +
                 statCard('Ожидают оплату', data.pendingPayments, 'red');
@@ -136,7 +138,7 @@
     function renderUsers(users) {
         var tbody = document.getElementById('users-tbody');
         if (!users.length) {
-            tbody.innerHTML = '<tr><td colspan="6" class="adm-empty">Нет пользователей</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="adm-empty">Нет пользователей</td></tr>';
             return;
         }
         tbody.innerHTML = users.map(function(u) {
@@ -147,6 +149,7 @@
             if (isAdmin) untilDate = '∞';
             else if (u.sub_status === 'trial' && u.trial_ends_at) untilDate = fmtDate(u.trial_ends_at);
             else if (u.sub_status === 'active' && u.active_until) untilDate = fmtDate(u.active_until);
+            var activity = formatUserActivity(u);
 
             var messageAction = '<button class="adm-btn" data-admin-action="compose-message" data-admin-id="' + esc(u.id) + '" title="Написать пользователю">Написать</button>';
             var actions = messageAction;
@@ -165,6 +168,7 @@
                 '<td><span class="st-badge ' + statusClass + '">' + esc(status) + '</span></td>' +
                 '<td class="adm-date">' + esc(untilDate) + '</td>' +
                 '<td class="adm-date">' + fmtDate(u.created_at) + '</td>' +
+                '<td>' + activity + '</td>' +
                 '<td>' + actions + '</td>' +
                 '</tr>';
         }).join('');
@@ -497,6 +501,17 @@
         var tSrc = timeSource ? new Date(timeSource) : date;
         var timeStr = tSrc.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
         return dateStr + ' ' + timeStr;
+    }
+    function formatUserActivity(user) {
+        var lastLogin = user.last_login_at
+            ? 'Последний вход: ' + fmtDateTime(user.last_login_at)
+            : 'Ещё не заходил';
+        var logins7d = Number(user.logins_7d || 0);
+        var logins30d = Number(user.logins_30d || 0);
+        return '<div style="font-size:12px;line-height:1.45">' +
+            '<div>' + esc(lastLogin) + '</div>' +
+            '<div style="color:var(--text-3)">Входов: ' + logins7d + ' за 7 дней · ' + logins30d + ' за 30 дней</div>' +
+            '</div>';
     }
 
     function esc(s) {
@@ -1486,22 +1501,82 @@
     var auditPage = 1;
     var auditHasMore = false;
     var EVENT_LABELS = {
-        login: '🔑 Вход',
-        register: '📝 Регистрация',
-        trial_granted: '✅ Триал выдан',
-        trial_denied: '🚫 Триал отказан',
-        trial_fingerprint_invalid: '⚠️ Fingerprint отклонён',
-        trial_fingerprint_missing: '👁 Fingerprint отсутствует',
-        trial_network_watch: '👁 Сеть: наблюдение',
-        trial_network_alert: '🚨 Сеть: сигнал',
-        login_blocked: '⛔ Вход заблок.',
-        payment_confirm: '💰 Платёж подтв.',
-        payment_reject: '❌ Платёж откл.',
-        user_block: '🔒 Блокировка',
-        user_unblock: '🔓 Разблокировка',
-        testing_invitation_send: '✉ Приглашение тестеру',
-        personal_message_send: '✉ Личное письмо'
+        login: '🔑 Вход на платформу',
+        register: '📝 Создан аккаунт',
+        trial_granted: '✅ Пробный доступ включён',
+        trial_denied: '🚫 Пробный доступ не выдан',
+        trial_fingerprint_invalid: '⚠️ Не удалось проверить устройство',
+        trial_fingerprint_missing: '👁 Устройство не подтверждено',
+        trial_network_watch: '👁 Регистрации из одной сети',
+        trial_network_alert: '🚨 Подозрительная серия регистраций',
+        login_blocked: '⛔ Вход отклонён: аккаунт заблокирован',
+        payment_submit: '💳 Отправлена заявка на оплату',
+        payment_confirm: '💰 Оплата подтверждена',
+        payment_reject: '❌ Оплата отклонена',
+        early_access_adjust: '👥 Изменён резерв мест',
+        user_block: '🔒 Пользователь заблокирован',
+        user_unblock: '🔓 Пользователь разблокирован',
+        user_delete: '🗑 Пользователь удалён',
+        subscription_extend: '📅 Подписка продлена',
+        feedback_reply: '💬 Администратор ответил на обращение',
+        review_delete: '🗑 Отзыв удалён',
+        review_reply: '💬 Администратор ответил на отзыв',
+        video_request_status: '🎬 Обновлён запрос на видео',
+        news_create: '📰 Новость создана',
+        news_update: '📰 Новость изменена',
+        news_delete: '🗑 Новость удалена',
+        recipe_create: '🍽 Рецепт создан',
+        recipe_update: '🍽 Рецепт изменён',
+        recipe_delete: '🗑 Рецепт удалён',
+        recipe_seasonal_set: '🌿 Выбран сезонный рецепт',
+        recipe_seasonal_clear: '🌿 Сезонный рецепт снят',
+        ingredient_catalog_upsert: '🥕 Обновлён ингредиент',
+        category_create: '📁 Категория создана',
+        category_update: '📁 Категория изменена',
+        category_delete: '🗑 Категория удалена',
+        testing_invitation_send: '✉ Отправлено приглашение тестеру',
+        personal_message_send: '✉ Отправлено личное письмо',
+        admin_mfa_failed: '🔐 Не пройдена проверка входа администратора',
+        admin_oauth_denied: '🔐 Администратору запрещён вход через соцсеть'
     };
+
+    function formatAuditDetail(event, detail) {
+        var value = String(detail || '').trim();
+        var trialReason = {
+            fingerprint_used: 'На этом устройстве пробный период уже использовали.',
+            fingerprint_missing: 'Не удалось подтвердить устройство для выдачи пробного доступа.',
+            fingerprint_seen_other_network: 'Устройство уже встречалось в другой сети; пробный доступ всё равно включён.'
+        };
+        if (event === 'register') return value ? 'Способ регистрации: ' + value + '.' : 'Пользователь зарегистрировался.';
+        if (event === 'login') return value === 'oauth' ? 'Пользователь вошёл через соцсеть.' : 'Пользователь вошёл по email.';
+        if (event === 'trial_granted') return trialReason[value] || 'Пробный доступ успешно включён.';
+        if (event === 'trial_denied') return trialReason[value.replace(/ \([^)]*\)$/, '')] || 'Пробный доступ не был включён.';
+        if (event === 'trial_fingerprint_invalid') return 'Данные устройства в запросе оказались некорректными.';
+        if (event === 'trial_fingerprint_missing') return 'Регистрация прошла без подтверждения устройства.';
+        if (event === 'trial_network_watch' || event === 'trial_network_alert') {
+            try {
+                var network = JSON.parse(value);
+                return 'За последние 24 часа из этой сети: ' + Number(network.count24h || 0) +
+                    '; за 7 дней: ' + Number(network.count7d || 0) +
+                    '; за 90 дней: ' + Number(network.count90d || 0) + ' регистраций.';
+            } catch (ignore) {
+                return 'Зафиксирована необычная активность регистраций из одной сети.';
+            }
+        }
+        if (event === 'payment_submit') return value ? 'Сумма заявки: ' + value + '.' : 'Пользователь отправил заявку на оплату.';
+        if (event === 'payment_confirm') return 'Заявка на оплату подтверждена; подписка продлена.';
+        if (event === 'payment_reject') return 'Заявка на оплату отклонена.';
+        if (event === 'user_block') return 'Администратор заблокировал аккаунт.';
+        if (event === 'user_unblock') return 'Администратор разблокировал аккаунт.';
+        if (event === 'user_delete') return 'Администратор удалил тестовый аккаунт.';
+        if (event === 'subscription_extend') return 'Администратор продлил подписку пользователя.';
+        if (event === 'feedback_reply') return 'Администратор ответил пользователю на обращение.';
+        if (event === 'review_delete') return 'Администратор удалил отзыв.';
+        if (event === 'review_reply') return 'Администратор ответил на отзыв.';
+        if (event === 'testing_invitation_send') return 'Приглашение тестеру отправлено.';
+        if (event === 'personal_message_send') return 'Личное письмо пользователю отправлено.';
+        return value || 'Дополнительных деталей нет.';
+    }
 
     window.loadAudit = function(append) {
         if (!append) {
@@ -1539,7 +1614,7 @@
                 '<td class="adm-date">' + fmtDateTime(e.created_at) + '</td>' +
                 '<td><span class="st-badge ' + badgeClass + '">' + esc(label) + '</span></td>' +
                 '<td>' + esc(e.email) + '</td>' +
-                '<td style="font-size:12px;color:var(--text-3)">' + esc(e.detail) + '</td>' +
+                '<td style="font-size:12px;color:var(--text-3)">' + esc(formatAuditDetail(e.event, e.detail)) + '</td>' +
                 '<td style="font-size:12px;color:var(--text-3)">' + esc(e.ip) + '</td>' +
                 '</tr>';
         }).join('');

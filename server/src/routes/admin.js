@@ -13,6 +13,12 @@ const AUDIT_EVENTS = new Set([
   'register',
   'trial_granted',
   'trial_denied',
+  'trial_fingerprint_invalid',
+  'trial_fingerprint_missing',
+  'trial_network_watch',
+  'trial_network_alert',
+  'admin_mfa_failed',
+  'admin_oauth_denied',
   'payment_submit',
   'payment_confirm',
   'payment_reject',
@@ -23,6 +29,8 @@ const AUDIT_EVENTS = new Set([
   'subscription_extend',
   'feedback_reply',
   'review_delete',
+  'review_reply',
+  'video_request_status',
   'news_create',
   'news_update',
   'news_delete',
@@ -173,7 +181,19 @@ async function adminRoutes(fastify) {
   }, async (req) => {
     const { limit, offset } = parseListWindow(req.query || {}, 200);
     const result = await db.query(
-      'SELECT u.id, u.email, u.display_name, u.role, u.is_blocked, u.created_at, s.status as sub_status, s.trial_ends_at, s.active_until FROM users u LEFT JOIN subscriptions s ON s.user_id=u.id ORDER BY u.created_at DESC LIMIT $1 OFFSET $2',
+      `SELECT u.id, u.email, u.display_name, u.role, u.is_blocked, u.created_at,
+              s.status as sub_status, s.trial_ends_at, s.active_until,
+              activity.last_login_at, activity.logins_7d, activity.logins_30d
+       FROM users u
+       LEFT JOIN subscriptions s ON s.user_id=u.id
+       LEFT JOIN LATERAL (
+         SELECT MAX(created_at) AS last_login_at,
+                COUNT(*) FILTER (WHERE created_at >= now() - interval '7 days')::int AS logins_7d,
+                COUNT(*) FILTER (WHERE created_at >= now() - interval '30 days')::int AS logins_30d
+         FROM audit_log
+         WHERE user_id=u.id AND event='login'
+       ) activity ON TRUE
+       ORDER BY u.created_at DESC LIMIT $1 OFFSET $2`,
       [limit, offset]
     );
     return result.rows;
@@ -700,13 +720,24 @@ async function adminRoutes(fastify) {
     const expired = await db.query("SELECT COUNT(*) FROM subscriptions s JOIN users u ON u.id=s.user_id WHERE s.status='expired' AND u.role != 'admin'");
     const blocked = await db.query("SELECT COUNT(*) FROM users WHERE is_blocked = true AND role != 'admin'");
     const pendingPayments = await db.query("SELECT COUNT(*) FROM payments WHERE status='pending'");
+    const visitors = await db.query(
+      `SELECT
+         COUNT(DISTINCT a.user_id) FILTER (WHERE a.created_at >= now() - interval '7 days')::int AS visitors_7d,
+         COUNT(DISTINCT a.user_id) FILTER (WHERE a.created_at >= now() - interval '30 days')::int AS visitors_30d
+       FROM audit_log a
+       JOIN users u ON u.id=a.user_id
+       WHERE a.event='login' AND u.role != 'admin'`
+    );
+    const visitorCounts = visitors.rows[0] || {};
     return {
       totalUsers: Number(users.rows[0].count),
       trials: Number(trials.rows[0].count),
       active: Number(active.rows[0].count),
       expired: Number(expired.rows[0].count),
       blocked: Number(blocked.rows[0].count),
-      pendingPayments: Number(pendingPayments.rows[0].count)
+      pendingPayments: Number(pendingPayments.rows[0].count),
+      visitors7d: Number(visitorCounts.visitors_7d || 0),
+      visitors30d: Number(visitorCounts.visitors_30d || 0)
     };
   });
 }

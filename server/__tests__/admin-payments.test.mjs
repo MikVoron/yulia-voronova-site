@@ -134,7 +134,7 @@ describe('admin list hardening', () => {
 
     expect(res.statusCode).toBe(200);
     expect(mockQuery).toHaveBeenCalledWith(
-      expect.stringContaining('FROM users u LEFT JOIN subscriptions'),
+      expect.stringContaining('LEFT JOIN LATERAL'),
       [200, 99800]
     );
   });

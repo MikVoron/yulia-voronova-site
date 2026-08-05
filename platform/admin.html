@@ -1116,11 +1116,12 @@
                         <th>Подписка</th>
                         <th>До</th>
                         <th>Регистрация</th>
+                        <th>Активность</th>
                         <th>Действия</th>
                     </tr>
                 </thead>
                 <tbody id="users-tbody">
-                    <tr><td colspan="6" class="adm-loading"><div class="adm-spinner"></div></td></tr>
+                    <tr><td colspan="7" class="adm-loading"><div class="adm-spinner"></div></td></tr>
                 </tbody>
             </table>
         </div>
@@ -1378,23 +1379,23 @@
             Аудит-лог
             <select class="adm-modal-select" id="audit-filter" data-admin-change="4a89cbc6b5fc" style="width:auto;padding:6px 10px;font-size:13px">
                 <option value="">Все события</option>
-                <option value="login">Вход</option>
-                <option value="register">Регистрация</option>
-                <option value="trial_granted">Триал выдан</option>
-                <option value="trial_denied">Триал отказан</option>
-                <option value="trial_fingerprint_invalid">Fingerprint отклонён</option>
-                <option value="trial_fingerprint_missing">Fingerprint отсутствует</option>
-                <option value="trial_network_watch">Сеть: наблюдение</option>
-                <option value="trial_network_alert">Сеть: сигнал</option>
-                <option value="login_blocked">Вход заблок.</option>
-                <option value="payment_confirm">Платёж подтв.</option>
-                <option value="payment_reject">Платёж откл.</option>
+                <option value="login">Вход на платформу</option>
+                <option value="register">Создан аккаунт</option>
+                <option value="trial_granted">Пробный доступ включён</option>
+                <option value="trial_denied">Пробный доступ не выдан</option>
+                <option value="trial_fingerprint_invalid">Не удалось проверить устройство</option>
+                <option value="trial_fingerprint_missing">Устройство не подтверждено</option>
+                <option value="trial_network_watch">Регистрации из одной сети</option>
+                <option value="trial_network_alert">Подозрительная серия регистраций</option>
+                <option value="login_blocked">Вход отклонён: аккаунт заблокирован</option>
+                <option value="payment_confirm">Оплата подтверждена</option>
+                <option value="payment_reject">Оплата отклонена</option>
                 <option value="user_block">Блокировка</option>
                 <option value="user_unblock">Разблокировка</option>
-                <option value="payment_submit">Платёж отправлен</option>
-                <option value="feedback_reply">Ответ на обращ.</option>
-                <option value="testing_invitation_send">Приглашение тестеру</option>
-                <option value="personal_message_send">Личное письмо</option>
+                <option value="payment_submit">Отправлена заявка на оплату</option>
+                <option value="feedback_reply">Администратор ответил на обращение</option>
+                <option value="testing_invitation_send">Отправлено приглашение тестеру</option>
+                <option value="personal_message_send">Отправлено личное письмо</option>
                 <option value="news_create">Новость создана</option>
                 <option value="news_update">Новость изменена</option>
                 <option value="news_delete">Новость удалена</option>
@@ -1409,7 +1410,7 @@
                     <th>Время</th>
                     <th>Событие</th>
                     <th>Email</th>
-                    <th>Детали</th>
+                    <th>Что произошло</th>
                     <th>IP</th>
                 </tr></thead>
                 <tbody id="audit-tbody">
@@ -1584,6 +1585,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260804-shopping-signature"></script>
-<script src="admin.js?v=20260804-soup-protein-optional"></script>
+<script src="admin.js?v=20260805-admin-activity"></script>
 </body>
 </html>
