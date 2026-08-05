@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vites
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
+const VALID_PNG_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
 
 let duplicatePendingOnInsert = true;
 let confirmedEarlyMembers = 0;
@@ -69,7 +70,7 @@ let app;
 
 async function buildApp() {
   const Fastify = require('fastify');
-  const f = Fastify({ logger: false, trustProxy: true });
+  const f = Fastify({ logger: false, trustProxy: true, bodyLimit: 8 * 1024 * 1024 });
   const subscriptionRoutes = require('../src/routes/subscriptions');
   await f.register(subscriptionRoutes);
   await f.ready();
@@ -194,9 +195,65 @@ describe('subscription/payment', () => {
     expect(auditLog).not.toHaveBeenCalled();
   });
 
+  it('rejects non-image bytes disguised as a supported screenshot', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/subscription/payment',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: {
+        amount: 1000,
+        paymentDate: '2026-06-26T10:00',
+        screenshot: 'data:image/png;base64,aGVsbG8='
+      }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('скриншота');
+    expect(sendPaymentNotification).not.toHaveBeenCalled();
+    expect(auditLog).not.toHaveBeenCalled();
+  });
+
+  it('rejects a screenshot whose declared MIME does not match its signature', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/subscription/payment',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: {
+        amount: 1000,
+        paymentDate: '2026-06-26T10:00',
+        screenshot: VALID_PNG_DATA_URL.replace('image/png', 'image/jpeg')
+      }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('скриншота');
+    expect(sendPaymentNotification).not.toHaveBeenCalled();
+    expect(auditLog).not.toHaveBeenCalled();
+  });
+
+  it('rejects a decoded screenshot larger than five MiB', async () => {
+    const oversized = Buffer.alloc(5 * 1024 * 1024 + 1);
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).copy(oversized);
+    const res = await app.inject({
+      method: 'POST',
+      url: '/subscription/payment',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: {
+        amount: 1000,
+        paymentDate: '2026-06-26T10:00',
+        screenshot: 'data:image/png;base64,' + oversized.toString('base64')
+      }
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toContain('большой');
+    expect(sendPaymentNotification).not.toHaveBeenCalled();
+    expect(auditLog).not.toHaveBeenCalled();
+  });
+
   it('accepts a normal browser payment payload and stores normalized values', async () => {
     duplicatePendingOnInsert = false;
-    const screenshot = 'data:image/png;base64,aGVsbG8=';
+    const screenshot = VALID_PNG_DATA_URL;
     const res = await app.inject({
       method: 'POST',
       url: '/subscription/payment',

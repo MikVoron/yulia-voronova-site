@@ -6,8 +6,9 @@ const { normalizeDietaryPreferences } = require('../dietary');
 const { getEarlyAccessState } = require('../early-access');
 
 const PAYMENT_SCREENSHOT_MAX_LENGTH = 7 * 1024 * 1024;
+const PAYMENT_SCREENSHOT_MAX_BYTES = 5 * 1024 * 1024;
 const PAYMENT_COMMENT_MAX_LENGTH = 1000;
-const PAYMENT_SCREENSHOT_RE = /^data:image\/(?:png|jpe?g|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
+const PAYMENT_SCREENSHOT_RE = /^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/]+={0,2})$/;
 const PAYMENT_HISTORY_LIMIT = 200;
 const FEEDBACK_THREAD_LIST_LIMIT = 100;
 const FEEDBACK_TEXT_LIMIT = 2000;
@@ -15,6 +16,22 @@ const FEEDBACK_CATEGORIES = new Set(['wish', 'recipe', 'problem']);
 const USER_SETTINGS_RATE_LIMIT = { max: 30, timeWindow: '1 minute' };
 const FEEDBACK_STATE_RATE_LIMIT = { max: 30, timeWindow: '1 minute' };
 const FEEDBACK_READ_RATE_LIMIT = { max: 60, timeWindow: '1 minute' };
+
+function hasExpectedImageSignature(type, bytes) {
+  if (type === 'png') {
+    const pngSignature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+    return bytes.length >= 24 && pngSignature.every((value, index) => bytes[index] === value) &&
+      bytes.subarray(12, 16).toString('ascii') === 'IHDR';
+  }
+  if (type === 'jpg' || type === 'jpeg') {
+    return bytes.length >= 4 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  }
+  if (type === 'webp') {
+    return bytes.length >= 12 && bytes.subarray(0, 4).toString('ascii') === 'RIFF' &&
+      bytes.subarray(8, 12).toString('ascii') === 'WEBP';
+  }
+  return false;
+}
 
 function normalizePaymentRequest(body) {
   const amount = Number(body && body.amount);
@@ -38,7 +55,15 @@ function normalizePaymentRequest(body) {
     if (screenshot.length > PAYMENT_SCREENSHOT_MAX_LENGTH) {
       return { error: 'Скриншот слишком большой' };
     }
-    if (!PAYMENT_SCREENSHOT_RE.test(screenshot)) {
+    const screenshotMatch = PAYMENT_SCREENSHOT_RE.exec(screenshot);
+    if (!screenshotMatch) {
+      return { error: 'Некорректный формат скриншота' };
+    }
+    const screenshotBytes = Buffer.from(screenshotMatch[2], 'base64');
+    if (screenshotBytes.length > PAYMENT_SCREENSHOT_MAX_BYTES) {
+      return { error: 'Скриншот слишком большой' };
+    }
+    if (!hasExpectedImageSignature(screenshotMatch[1].toLowerCase(), screenshotBytes)) {
       return { error: 'Некорректный формат скриншота' };
     }
   }
