@@ -1081,6 +1081,10 @@ main {
 	filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .18));
 }
 
+.sp-how-demo-pointer--recipes {
+	left: 24px;
+}
+
 .sp-how-demo-pointer svg {
 	display: block;
 	width: 100%;
