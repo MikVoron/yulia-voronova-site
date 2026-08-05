@@ -833,58 +833,38 @@ main {
 	line-height: 1.55;
 }
 
-.sp-how-cta {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-height: 46px;
-	padding: 0 20px;
-	background: var(--text);
-	color: #fff;
-	border: 1px solid var(--text);
-	text-decoration: none;
-	font-size: 11px;
-	font-weight: 800;
-	letter-spacing: .12em;
-	text-transform: uppercase;
-	white-space: nowrap;
-}
-
 .sp-how-foot {
 	display: flex;
-	flex-direction: column;
 	align-items: center;
-	gap: 10px;
 	justify-content: center;
 	margin: 22px 0 34px;
 }
 
-.sp-how-foot .sp-how-cta {
-	min-width: min(360px, 100%);
-}
-
 .sp-how-dismiss {
-	padding: 3px 6px;
-	border: 0;
-	background: transparent;
-	color: var(--text-2);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: min(360px, 100%);
+	min-height: 52px;
+	padding: 0 20px;
+	border: 1px solid var(--text);
+	background: var(--text);
+	color: #fff;
 	font: inherit;
 	font-size: 12px;
-	font-weight: 600;
-	text-decoration: underline;
-	text-decoration-color: transparent;
-	text-underline-offset: 3px;
+	font-weight: 800;
+	letter-spacing: .12em;
+	text-transform: uppercase;
 	cursor: pointer;
-	transition: color .2s ease, text-decoration-color .2s ease;
+	transition: background .2s ease, border-color .2s ease;
 }
 
 .sp-how-dismiss:hover {
-	color: var(--text);
-	text-decoration-color: currentColor;
+	border-color: var(--accent);
+	background: var(--accent);
 }
 
-.sp-how-dismiss:focus-visible,
-.sp-guest-tour-reopen:focus-visible {
+.sp-how-dismiss:focus-visible {
 	outline: 2px solid var(--accent);
 	outline-offset: 3px;
 }
@@ -912,6 +892,11 @@ main {
 .sp-guest-tour-reopen:hover {
 	color: var(--accent);
 	text-decoration-color: var(--accent);
+}
+
+.sp-guest-tour-reopen:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 3px;
 }
 
 .sp-how-grid {
@@ -1481,12 +1466,12 @@ main {
 		width: min(320px, 100%);
 	}
 
-	.sp-how-cta {
-		width: 100%;
-	}
-
 	.sp-how-foot {
 		margin: 18px 0 30px;
+	}
+
+	.sp-how-dismiss {
+		width: 100%;
 	}
 
 	.sp-how-grid {
