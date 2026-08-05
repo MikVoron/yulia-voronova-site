@@ -306,7 +306,7 @@ async function authRoutes(fastify) {
        SELECT u.id, u.email, 'platform_visit', NULL, $2, $3
        FROM users u
        CROSS JOIN visit_lock
-       WHERE u.id=$1
+       WHERE u.id=$1::uuid
          AND NOT EXISTS (
            SELECT 1
            FROM audit_log a

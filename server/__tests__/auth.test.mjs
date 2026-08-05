@@ -329,7 +329,7 @@ describe('auth/activity', () => {
   it('records an authenticated platform visit through the daily deduplication query', async () => {
     const jwt = require('jsonwebtoken');
     const token = jwt.sign(
-      { sub: 1, email: 'test@test.com', role: 'user' },
+      { sub: '00000000-0000-4000-8000-000000000001', email: 'test@test.com', role: 'user' },
       process.env.JWT_SECRET,
       { expiresIn: '15m' }
     );
@@ -343,8 +343,8 @@ describe('auth/activity', () => {
 
     expect(res.statusCode).toBe(204);
     expect(mockQuery).toHaveBeenCalledWith(
-      expect.stringContaining("'platform_visit'"),
-      expect.arrayContaining([1, '127.0.0.1'])
+      expect.stringContaining('WHERE u.id=$1::uuid'),
+      expect.arrayContaining(['00000000-0000-4000-8000-000000000001', '127.0.0.1'])
     );
   });
 });
