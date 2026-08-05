@@ -325,6 +325,30 @@ describe('auth/refresh', () => {
   });
 });
 
+describe('auth/activity', () => {
+  it('records an authenticated platform visit through the daily deduplication query', async () => {
+    const jwt = require('jsonwebtoken');
+    const token = jwt.sign(
+      { sub: 1, email: 'test@test.com', role: 'user' },
+      process.env.JWT_SECRET,
+      { expiresIn: '15m' }
+    );
+    mockQuery.mockClear();
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/auth/activity',
+      headers: { authorization: 'Bearer ' + token }
+    });
+
+    expect(res.statusCode).toBe(204);
+    expect(mockQuery).toHaveBeenCalledWith(
+      expect.stringContaining("'platform_visit'"),
+      expect.arrayContaining([1, '127.0.0.1'])
+    );
+  });
+});
+
 describe('auth/profile — avatar validation', () => {
   const jwt = require('jsonwebtoken');
   function makeToken(userId = 1) {

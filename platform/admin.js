@@ -102,8 +102,8 @@
                 statCard('Всего', data.totalUsers, 'accent') +
                 statCard('Trial', data.trials, 'blue-l') +
                 statCard('Активных', data.active, 'green') +
-                statCard('Заходили за 7 дней', data.visitors7d || 0, 'blue-l') +
-                statCard('Заходили за 30 дней', data.visitors30d || 0, 'blue-l') +
+                statCard('Активны за 7 дней', data.activeUsers7d || 0, 'blue-l') +
+                statCard('Активны за 30 дней', data.activeUsers30d || 0, 'blue-l') +
                 statCard('Истекших', data.expired, 'yellow') +
                 statCard('Заблокированных', data.blocked || 0, 'red') +
                 statCard('Ожидают оплату', data.pendingPayments, 'red');
@@ -503,14 +503,14 @@
         return dateStr + ' ' + timeStr;
     }
     function formatUserActivity(user) {
-        var lastLogin = user.last_login_at
-            ? 'Последний вход: ' + fmtDateTime(user.last_login_at)
-            : 'Ещё не заходил';
-        var logins7d = Number(user.logins_7d || 0);
-        var logins30d = Number(user.logins_30d || 0);
+        var lastActivity = user.last_activity_at
+            ? 'Последняя активность: ' + fmtDateTime(user.last_activity_at)
+            : 'Активности пока нет';
+        var activeDays7d = Number(user.active_days_7d || 0);
+        var activeDays30d = Number(user.active_days_30d || 0);
         return '<div style="font-size:12px;line-height:1.45">' +
-            '<div>' + esc(lastLogin) + '</div>' +
-            '<div style="color:var(--text-3)">Входов: ' + logins7d + ' за 7 дней · ' + logins30d + ' за 30 дней</div>' +
+            '<div>' + esc(lastActivity) + '</div>' +
+            '<div style="color:var(--text-3)">Активных дней: ' + activeDays7d + ' за 7 дней · ' + activeDays30d + ' за 30 дней</div>' +
             '</div>';
     }
 
@@ -1502,6 +1502,7 @@
     var auditHasMore = false;
     var EVENT_LABELS = {
         login: '🔑 Вход на платформу',
+        platform_visit: '👋 Пользователь открыл платформу',
         register: '📝 Создан аккаунт',
         trial_granted: '✅ Пробный доступ включён',
         trial_denied: '🚫 Пробный доступ не выдан',
@@ -1549,6 +1550,7 @@
         };
         if (event === 'register') return value ? 'Способ регистрации: ' + value + '.' : 'Пользователь зарегистрировался.';
         if (event === 'login') return value === 'oauth' ? 'Пользователь вошёл через соцсеть.' : 'Пользователь вошёл по email.';
+        if (event === 'platform_visit') return 'Пользователь открыл платформу. Запись создаётся не чаще одного раза в день.';
         if (event === 'trial_granted') return trialReason[value] || 'Пробный доступ успешно включён.';
         if (event === 'trial_denied') return trialReason[value.replace(/ \([^)]*\)$/, '')] || 'Пробный доступ не был включён.';
         if (event === 'trial_fingerprint_invalid') return 'Данные устройства в запросе оказались некорректными.';

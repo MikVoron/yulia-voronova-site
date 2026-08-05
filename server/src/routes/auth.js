@@ -14,6 +14,7 @@ const AUTH_VERIFY_RATE_LIMIT = { max: 20, timeWindow: '15 minutes' };
 const AUTH_REFRESH_RATE_LIMIT = { max: 60, timeWindow: '15 minutes' };
 const AUTH_LOGOUT_RATE_LIMIT = { max: 60, timeWindow: '15 minutes' };
 const AUTH_PROFILE_RATE_LIMIT = { max: 20, timeWindow: '1 hour' };
+const AUTH_ACTIVITY_RATE_LIMIT = { max: 120, timeWindow: '15 minutes' };
 const LOGIN_CODE_TTL_MINUTES = 10;
 const LOGIN_CODE_MAX_ATTEMPTS = 3;
 
@@ -288,6 +289,34 @@ async function authRoutes(fastify) {
     } catch (e) {
       return reply.status(401).send({ error: 'Токен невалиден' });
     }
+  });
+
+  // POST /auth/activity — один факт посещения в календарный день по Москве.
+  // Не считаем автоматическое обновление токена: клиент вызывает этот endpoint
+  // только после успешной проверки доступа при открытии платформы.
+  fastify.post('/auth/activity', {
+    preHandler: authenticate,
+    config: { rateLimit: AUTH_ACTIVITY_RATE_LIMIT }
+  }, async (req, reply) => {
+    await db.query(
+      `WITH visit_lock AS (
+         SELECT pg_advisory_xact_lock(hashtext($1::text || ':platform_visit:' || (now() AT TIME ZONE 'Europe/Moscow')::date::text))
+       )
+       INSERT INTO audit_log (user_id, email, event, detail, ip, ua)
+       SELECT u.id, u.email, 'platform_visit', NULL, $2, $3
+       FROM users u
+       CROSS JOIN visit_lock
+       WHERE u.id=$1
+         AND NOT EXISTS (
+           SELECT 1
+           FROM audit_log a
+           WHERE a.user_id=u.id
+             AND a.event='platform_visit'
+             AND a.created_at >= (date_trunc('day', now() AT TIME ZONE 'Europe/Moscow') AT TIME ZONE 'Europe/Moscow')
+         )`,
+      [req.user.sub, req.ip, req.headers['user-agent'] || '']
+    );
+    return reply.code(204).send();
   });
 
   // PUT /auth/profile — обновить display_name, avatar и/или weight

@@ -9,6 +9,7 @@ const PAYMENT_STATUSES = new Set(['pending', 'confirmed', 'rejected']);
 const FEEDBACK_STATUSES = new Set(['waiting_admin', 'waiting_user', 'closed', 'new']);
 const AUDIT_EVENTS = new Set([
   'login',
+  'platform_visit',
   'login_blocked',
   'register',
   'trial_granted',
@@ -183,15 +184,25 @@ async function adminRoutes(fastify) {
     const result = await db.query(
       `SELECT u.id, u.email, u.display_name, u.role, u.is_blocked, u.created_at,
               s.status as sub_status, s.trial_ends_at, s.active_until,
-              activity.last_login_at, activity.logins_7d, activity.logins_30d
+              activity.last_activity_at, activity.active_days_7d, activity.active_days_30d
        FROM users u
        LEFT JOIN subscriptions s ON s.user_id=u.id
        LEFT JOIN LATERAL (
-         SELECT MAX(created_at) AS last_login_at,
-                COUNT(*) FILTER (WHERE created_at >= now() - interval '7 days')::int AS logins_7d,
-                COUNT(*) FILTER (WHERE created_at >= now() - interval '30 days')::int AS logins_30d
-         FROM audit_log
-         WHERE user_id=u.id AND event='login'
+         SELECT MAX(event_at) AS last_activity_at,
+                COUNT(DISTINCT (event_at AT TIME ZONE 'Europe/Moscow')::date)
+                  FILTER (WHERE event_at >= now() - interval '7 days')::int AS active_days_7d,
+                COUNT(DISTINCT (event_at AT TIME ZONE 'Europe/Moscow')::date)
+                  FILTER (WHERE event_at >= now() - interval '30 days')::int AS active_days_30d
+         FROM (
+           SELECT a.created_at AS event_at
+           FROM audit_log a
+           WHERE a.user_id=u.id AND a.event IN ('platform_visit', 'login')
+           UNION ALL
+           SELECT m.created_at AS event_at
+           FROM feedback_messages f
+           JOIN feedback_thread_messages m ON m.feedback_id=f.id
+           WHERE f.user_id=u.id AND m.sender_type='user'
+         ) AS activity_events
        ) activity ON TRUE
        ORDER BY u.created_at DESC LIMIT $1 OFFSET $2`,
       [limit, offset]
@@ -720,15 +731,25 @@ async function adminRoutes(fastify) {
     const expired = await db.query("SELECT COUNT(*) FROM subscriptions s JOIN users u ON u.id=s.user_id WHERE s.status='expired' AND u.role != 'admin'");
     const blocked = await db.query("SELECT COUNT(*) FROM users WHERE is_blocked = true AND role != 'admin'");
     const pendingPayments = await db.query("SELECT COUNT(*) FROM payments WHERE status='pending'");
-    const visitors = await db.query(
-      `SELECT
-         COUNT(DISTINCT a.user_id) FILTER (WHERE a.created_at >= now() - interval '7 days')::int AS visitors_7d,
-         COUNT(DISTINCT a.user_id) FILTER (WHERE a.created_at >= now() - interval '30 days')::int AS visitors_30d
-       FROM audit_log a
+    const activity = await db.query(
+      `WITH activity_events AS (
+         SELECT user_id, created_at AS event_at
+         FROM audit_log
+         WHERE event IN ('platform_visit', 'login')
+         UNION
+         SELECT f.user_id, m.created_at AS event_at
+         FROM feedback_messages f
+         JOIN feedback_thread_messages m ON m.feedback_id=f.id
+         WHERE m.sender_type='user'
+       )
+       SELECT
+         COUNT(DISTINCT a.user_id) FILTER (WHERE a.event_at >= now() - interval '7 days')::int AS active_users_7d,
+         COUNT(DISTINCT a.user_id) FILTER (WHERE a.event_at >= now() - interval '30 days')::int AS active_users_30d
+       FROM activity_events a
        JOIN users u ON u.id=a.user_id
-       WHERE a.event='login' AND u.role != 'admin'`
+       WHERE u.role != 'admin'`
     );
-    const visitorCounts = visitors.rows[0] || {};
+    const activityCounts = activity.rows[0] || {};
     return {
       totalUsers: Number(users.rows[0].count),
       trials: Number(trials.rows[0].count),
@@ -736,8 +757,8 @@ async function adminRoutes(fastify) {
       expired: Number(expired.rows[0].count),
       blocked: Number(blocked.rows[0].count),
       pendingPayments: Number(pendingPayments.rows[0].count),
-      visitors7d: Number(visitorCounts.visitors_7d || 0),
-      visitors30d: Number(visitorCounts.visitors_30d || 0)
+      activeUsers7d: Number(activityCounts.active_users_7d || 0),
+      activeUsers30d: Number(activityCounts.active_users_30d || 0)
     };
   });
 }

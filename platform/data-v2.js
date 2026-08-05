@@ -182,6 +182,18 @@ const Auth = {
         const user = this.getUser();
         if (user) { user.role = role; localStorage.setItem(this.KEY, JSON.stringify(user)); }
     },
+    _activityReported: false,
+    _reportPlatformActivity() {
+        if (this._activityReported || !this.getToken()) return;
+        this._activityReported = true;
+        fetch(API_BASE + '/auth/activity', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + this.getToken() },
+            credentials: 'include'
+        }).catch(function() {
+            // Метрика не должна влиять на доступ пользователя к платформе.
+        });
+    },
     async checkAccess(opts) {
         const allowGuest = !!(opts && opts.allowGuest);
         if (!this.isLoggedIn()) {
@@ -227,6 +239,7 @@ const Auth = {
                 this.setAvatar(data.avatar);
             }
             this._syncProfile(data);
+            if (data.role !== 'admin') this._reportPlatformActivity();
             if (data.role === 'admin') { this._subStatus = 'active'; this.startAutoRefresh(); return true; }
             const sub = data.subscription;
             if (!sub || !sub.status) { this._subStatus = 'none'; this._showPaywall('no_sub'); return false; }
