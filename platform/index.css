@@ -323,60 +323,6 @@ main {
 	background: var(--accent);
 }
 
-/* Stagger reveal: пункты «вытекают» сверху вниз при открытии drawer.
-   Keyframe (не transition) — чтобы delay не мешал hover-переходам. */
-.sp-drawer-nav a {
-	opacity: 0;
-}
-
-.sp-drawer.open .sp-drawer-nav a {
-	animation: drawerItemIn .32s cubic-bezier(.2, .8, .2, 1) forwards;
-}
-
-.sp-drawer.open .sp-drawer-nav a:nth-child(1) {
-	animation-delay: 100ms;
-}
-
-.sp-drawer.open .sp-drawer-nav a:nth-child(2) {
-	animation-delay: 140ms;
-}
-
-.sp-drawer.open .sp-drawer-nav a:nth-child(3) {
-	animation-delay: 180ms;
-}
-
-.sp-drawer.open .sp-drawer-nav a:nth-child(4) {
-	animation-delay: 220ms;
-}
-
-.sp-drawer.open .sp-drawer-nav a:nth-child(5) {
-	animation-delay: 260ms;
-}
-
-.sp-drawer.open .sp-drawer-nav a:nth-child(6) {
-	animation-delay: 300ms;
-}
-
-.sp-drawer.open .sp-drawer-nav a:nth-child(7) {
-	animation-delay: 340ms;
-}
-
-.sp-drawer.open .sp-drawer-nav a:nth-child(n+8) {
-	animation-delay: 380ms;
-}
-
-@keyframes drawerItemIn {
-	from {
-		opacity: 0;
-		transform: translateX(-8px);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateX(0);
-	}
-}
-
 @media (prefers-reduced-motion: reduce) {
 
 	.sp-drawer-back,
@@ -384,10 +330,6 @@ main {
 		transition-duration: .01ms !important;
 	}
 
-	.sp-drawer.open .sp-drawer-nav a {
-		animation: none !important;
-		opacity: 1 !important;
-	}
 }
 
 /* CTA close-крестик — spec §3.5 */
