@@ -2877,7 +2877,7 @@
 			const listEl = document.getElementById('bal-warn-missing');
 			if (listEl) {
 				listEl.innerHTML = missing.length
-					? 'Не хватает ' + missing.length + ' ' + (missing.length === 1 ? 'группы' : 'групп') + ': ' + missing.map(c => '<b>' + escHtml(c.label) + '</b>').join(', ') + '.'
+					? 'Добавить: ' + missing.map(c => '<b>' + escHtml(c.label) + '</b>').join(', ') + '.'
 					: '';
 			}
 			_balWarnPrevFocus = document.activeElement;

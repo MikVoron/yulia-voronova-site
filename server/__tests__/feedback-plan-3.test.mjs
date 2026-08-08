@@ -75,7 +75,7 @@ describe('SmartPlate feedback plan 3 contracts', () => {
     const html = read('recipe.html');
     const js = read('recipe-page.js');
     expect(html).toContain('data-recipe-static-action="guide-to-balance-additions"');
-    expect(html).toContain('Добавить без добавок');
+    expect(html).toContain('Без добавок');
     expect(js).toContain('function guideToBalanceAdditions()');
     expect(js).toContain('balWizardSetStep(firstStep);');
     expect(js).toContain("classList.add('is-guided')");
