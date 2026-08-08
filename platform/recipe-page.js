@@ -765,6 +765,9 @@
 			hint.append(title, text);
 			document.body.appendChild(hint);
 			plateButton.classList.add('is-first-add-hint');
+			const hintPulseTimer = window.setTimeout(function () {
+				plateButton.classList.remove('is-first-add-hint');
+			}, 1200);
 
 			const positionHint = function () {
 				const rect = plateButton.getBoundingClientRect();
@@ -778,6 +781,7 @@
 
 			const dismissHint = function () {
 				try { localStorage.setItem(storageKey, '1'); } catch (e) {}
+				window.clearTimeout(hintPulseTimer);
 				plateButton.classList.remove('is-first-add-hint');
 				hint.remove();
 				window.removeEventListener('resize', positionHint);
