@@ -28,13 +28,22 @@ describe('SmartPlate CSP script migration', () => {
     }
   });
 
-  it('enforces external first-party scripts and blocks event attributes', () => {
+  it('allows only the approved Metrica origin in addition to first-party scripts and blocks event attributes', () => {
     const enforced = nginxConfig.match(/add_header Content-Security-Policy "([^"]+)"/)?.[1] || '';
-    expect(enforced).toContain("script-src 'self';");
+    expect(enforced).toContain("script-src 'self' https://mc.yandex.ru https://yastatic.net;");
     expect(enforced).not.toContain("script-src 'self' 'unsafe-inline'");
-    expect(enforced).toContain("script-src-elem 'self'");
+    expect(enforced).toContain("script-src-elem 'self' https://mc.yandex.ru https://yastatic.net;");
     expect(enforced).toContain("script-src-attr 'none'");
+    expect(enforced).toContain("connect-src 'self' https://api.voronova.online https://mc.yandex.ru;");
     expect(nginxConfig).toContain('Content-Security-Policy-Report-Only');
+  });
+
+  it('boots the SmartPlate Metrica counter without e-commerce or personal data parameters', () => {
+    const metrika = fs.readFileSync(path.join(platformDir, 'metrika.js'), 'utf8');
+    expect(metrika).toContain('var counterId = 111434385;');
+    expect(metrika).toContain("window.ym(counterId, 'init'");
+    expect(metrika).toContain('webvisor: true');
+    expect(metrika).not.toContain('ecommerce');
   });
 
   it('keeps the OAuth callback independent of inline styles', () => {
