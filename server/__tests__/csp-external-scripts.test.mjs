@@ -34,7 +34,7 @@ describe('SmartPlate CSP script migration', () => {
     expect(enforced).not.toContain("script-src 'self' 'unsafe-inline'");
     expect(enforced).toContain("script-src-elem 'self' https://mc.yandex.ru https://yastatic.net https://www.googletagmanager.com;");
     expect(enforced).toContain("script-src-attr 'none'");
-    expect(enforced).toContain("connect-src 'self' https://api.voronova.online https://mc.yandex.ru https://www.google-analytics.com https://region1.google-analytics.com;");
+    expect(enforced).toContain("connect-src 'self' https://api.voronova.online https://mc.yandex.ru https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://www.google.com;");
     expect(nginxConfig).toContain('Content-Security-Policy-Report-Only');
   });
 
@@ -49,7 +49,8 @@ describe('SmartPlate CSP script migration', () => {
   it('boots the SmartPlate GA4 tag without personal data parameters', () => {
     const analytics = fs.readFileSync(path.join(platformDir, 'google-analytics.js'), 'utf8');
     expect(analytics).toContain("var measurementId = 'G-L6V1GTCEHS';");
-    expect(analytics).toContain("window.gtag('config', measurementId);");
+    expect(analytics).toContain("window.gtag('config', measurementId, {");
+    expect(analytics).toContain('allow_google_signals: false');
     expect(analytics).toContain("script.src = 'https://www.googletagmanager.com/gtag/js?id=' + measurementId;");
     expect(analytics).not.toContain('user_id');
     expect(analytics).not.toContain('setUserProperties');

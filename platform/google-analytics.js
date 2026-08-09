@@ -11,7 +11,9 @@
         window.dataLayer.push(arguments);
     };
     window.gtag('js', new Date());
-    window.gtag('config', measurementId);
+    window.gtag('config', measurementId, {
+        allow_google_signals: false
+    });
 
     window.SmartPlateGoogleAnalytics = {
         event: function (eventName) {
