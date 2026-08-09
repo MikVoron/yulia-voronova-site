@@ -219,6 +219,7 @@
 					showError('code-error', data.error || 'Ошибка'); setLoading('verify-btn', false); return;
 				}
 				if (data.isNew && window.SmartPlateMetrika) window.SmartPlateMetrika.goal('registration_completed');
+				if (data.isNew && window.SmartPlateGoogleAnalytics) window.SmartPlateGoogleAnalytics.event('sign_up');
 				Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription, data.user.avatar, data.user.role, data.user.createdAt, data.user.id, data.user.weight);
 				document.getElementById('step-code').classList.add('is-hidden');
 				var success = document.getElementById('step-success');

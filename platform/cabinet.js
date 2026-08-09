@@ -869,6 +869,7 @@
 					return;
 				}
 				if (window.SmartPlateMetrika) window.SmartPlateMetrika.goal('payment_submitted');
+				if (window.SmartPlateGoogleAnalytics) window.SmartPlateGoogleAnalytics.event('payment_submitted');
 				// Hide all wizard steps, show success
 				for (var i = 1; i <= 3; i++) document.getElementById('pay-step-' + i).style.display = 'none';
 				document.querySelector('.pay-steps').style.display = 'none';
@@ -1075,6 +1076,7 @@
 					var confirmedKey = 'metrika_payment_confirmed_' + confirmed.id;
 					if (!localStorage.getItem(confirmedKey)) {
 						window.SmartPlateMetrika.goal('payment_confirmed');
+						if (window.SmartPlateGoogleAnalytics) window.SmartPlateGoogleAnalytics.event('payment_confirmed');
 						localStorage.setItem(confirmedKey, '1');
 					}
 				}

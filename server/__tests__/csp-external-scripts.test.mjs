@@ -28,13 +28,13 @@ describe('SmartPlate CSP script migration', () => {
     }
   });
 
-  it('allows only the approved Metrica origin in addition to first-party scripts and blocks event attributes', () => {
+  it('allows approved analytics origins in addition to first-party scripts and blocks event attributes', () => {
     const enforced = nginxConfig.match(/add_header Content-Security-Policy "([^"]+)"/)?.[1] || '';
-    expect(enforced).toContain("script-src 'self' https://mc.yandex.ru https://yastatic.net;");
+    expect(enforced).toContain("script-src 'self' https://mc.yandex.ru https://yastatic.net https://www.googletagmanager.com;");
     expect(enforced).not.toContain("script-src 'self' 'unsafe-inline'");
-    expect(enforced).toContain("script-src-elem 'self' https://mc.yandex.ru https://yastatic.net;");
+    expect(enforced).toContain("script-src-elem 'self' https://mc.yandex.ru https://yastatic.net https://www.googletagmanager.com;");
     expect(enforced).toContain("script-src-attr 'none'");
-    expect(enforced).toContain("connect-src 'self' https://api.voronova.online https://mc.yandex.ru;");
+    expect(enforced).toContain("connect-src 'self' https://api.voronova.online https://mc.yandex.ru https://www.google-analytics.com https://region1.google-analytics.com;");
     expect(nginxConfig).toContain('Content-Security-Policy-Report-Only');
   });
 
@@ -46,10 +46,19 @@ describe('SmartPlate CSP script migration', () => {
     expect(metrika).not.toContain('ecommerce');
   });
 
+  it('boots the SmartPlate GA4 tag without personal data parameters', () => {
+    const analytics = fs.readFileSync(path.join(platformDir, 'google-analytics.js'), 'utf8');
+    expect(analytics).toContain("var measurementId = 'G-L6V1GTCEHS';");
+    expect(analytics).toContain("window.gtag('config', measurementId);");
+    expect(analytics).toContain("script.src = 'https://www.googletagmanager.com/gtag/js?id=' + measurementId;");
+    expect(analytics).not.toContain('user_id');
+    expect(analytics).not.toContain('setUserProperties');
+  });
+
   it('keeps the OAuth callback independent of inline styles', () => {
     const html = fs.readFileSync(path.join(platformDir, 'auth-callback.html'), 'utf8');
     const script = fs.readFileSync(path.join(platformDir, 'auth-callback.js'), 'utf8');
-    expect(html).toContain('auth-callback.css?v=20260713-csp-styles');
+    expect(html).toContain('auth-callback.css?v=20260805-motion-accessibility');
     expect(html).not.toMatch(/<style\b|\sstyle\s*=/i);
     expect(script).not.toMatch(/\.style\.|\sstyle\s*=/i);
     expect(script).toContain("err.classList.add('is-visible')");
@@ -64,7 +73,7 @@ describe('SmartPlate CSP script migration', () => {
   it('keeps the login flow independent of inline styles', () => {
     const html = fs.readFileSync(path.join(platformDir, 'login.html'), 'utf8');
     const script = fs.readFileSync(path.join(platformDir, 'login.js'), 'utf8');
-    expect(html).toContain('login.css?v=20260713-csp-styles');
+    expect(html).toContain('login.css?v=20260805-motion-accessibility');
     expect(html).not.toMatch(/<style\b|\sstyle\s*=/i);
     expect(script).not.toMatch(/\.style\.|\sstyle\s*=/i);
     expect(script).toContain("step2.classList.remove('is-hidden')");
@@ -242,7 +251,7 @@ describe('SmartPlate CSP script migration', () => {
     const script = fs.readFileSync(path.join(platformDir, 'cabinet.js'), 'utf8');
 
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
-    expect(html).toContain('cabinet.js?v=20260803-history-delete');
+    expect(html).toContain('cabinet.js?v=20260809-metrika-goals');
     expect(html.match(/\sdata-cabinet-action=/g)).toHaveLength(19);
     expect(html.match(/\sdata-cabinet-change=/g)).toHaveLength(4);
     expect(script).toContain("else if (action === 'open-avatar-picker') openAvatarPicker()");
