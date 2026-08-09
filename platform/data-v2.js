@@ -755,6 +755,7 @@ const Plate = {
         h.unshift({ date, items, totals, mealType: safeMealType });
         localStorage.setItem(this._hkey(), JSON.stringify(this._dedupeHistory(h)));
         this.clear();
+        if (window.SmartPlateMetrika) window.SmartPlateMetrika.goal('plate_saved');
         // Sync save to server
         if (Auth.getToken()) {
             Auth.api('/plate/history', {

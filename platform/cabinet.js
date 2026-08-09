@@ -868,6 +868,7 @@
 					if (res.status === 409) loadPaymentHistory();
 					return;
 				}
+				if (window.SmartPlateMetrika) window.SmartPlateMetrika.goal('payment_submitted');
 				// Hide all wizard steps, show success
 				for (var i = 1; i <= 3; i++) document.getElementById('pay-step-' + i).style.display = 'none';
 				document.querySelector('.pay-steps').style.display = 'none';
@@ -1069,6 +1070,14 @@
 				var payments = await res.json();
 				var pending = payments.find(function(p) { return p.status === 'pending'; });
 				var latest = payments[0] || null;
+				var confirmed = payments.find(function(p) { return p.status === 'confirmed'; });
+				if (confirmed && window.SmartPlateMetrika) {
+					var confirmedKey = 'metrika_payment_confirmed_' + confirmed.id;
+					if (!localStorage.getItem(confirmedKey)) {
+						window.SmartPlateMetrika.goal('payment_confirmed');
+						localStorage.setItem(confirmedKey, '1');
+					}
+				}
 				// Auto-start polling if there are pending payments
 				if (pending && !_payPollTimer) startPaymentPolling();
 				// Pending-блокировка wizard (либо снятие блокировки)

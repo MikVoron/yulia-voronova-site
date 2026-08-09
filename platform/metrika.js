@@ -10,6 +10,12 @@
         (window.ym.a = window.ym.a || []).push(arguments);
     };
     window.ym.l = window.ym.l || (new Date()).getTime();
+    window.SmartPlateMetrika = {
+        goal: function (goalId) {
+            if (typeof goalId !== 'string' || !/^[a-z_]+$/.test(goalId)) return;
+            window.ym(counterId, 'reachGoal', goalId);
+        }
+    };
     window.ym(counterId, 'init', {
         accurateTrackBounce: true,
         clickmap: true,

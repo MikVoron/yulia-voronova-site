@@ -9,6 +9,9 @@
         const data = await res.json();
 
         Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription, data.user.avatar, data.user.role, data.user.createdAt, data.user.id, data.user.weight);
+        if (new URLSearchParams(location.search).get('welcome') === '1' && window.SmartPlateMetrika) {
+            window.SmartPlateMetrika.goal('registration_completed');
+        }
 
         document.getElementById('title').textContent = 'Добро пожаловать!';
         document.getElementById('sub').textContent = 'Загружаем платформу...';
