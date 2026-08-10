@@ -1461,7 +1461,7 @@
 				} else if (typeof photo === 'string' && photo) {
 					photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i + 1}" loading="lazy" decoding="async" data-recipe-image-fallback="step">`;
 				}
-				return `<div class="step-item">
+				return `<div class="step-item" id="recipe-step-${i + 1}">
                 <div class="step-num">${i + 1}</div>
                 <div class="step-body">
                     <div class="step-text">${text}</div>
@@ -3472,6 +3472,9 @@
 				}
 				if (reviews.length) {
 					const apiAvg = reviews.reduce((s, rv) => s + rv.stars, 0) / reviews.length;
+					if (window.SmartPlateSEO) {
+						SmartPlateSEO.setRecipeRating(r.id, { value: apiAvg, count: reviews.length });
+					}
 					document.querySelectorAll('#recipe-stars-row .r-star').forEach((s, i) =>
 						s.classList.toggle('filled', i < Math.round(apiAvg)));
 					if (ratingVal) ratingVal.textContent = apiAvg.toFixed(1);
@@ -3481,6 +3484,7 @@
 				}
 
 				if (!reviews.length) {
+					if (window.SmartPlateSEO) SmartPlateSEO.setRecipeRating(r.id, null);
 					list.innerHTML = '<div style="font-size:13px;color:var(--text-3)">Отзывов ещё нет. Поделитесь своим впечатлением.</div>';
 					return;
 				}

@@ -20,7 +20,8 @@ for (const file of ['recipe.html', 'category.html', 'ingredient.html']) {
     const html = read(file);
     assert.match(html, /meta name="description"/, `${file} description is missing`);
     assert.match(html, /meta name="robots" content="index, follow, max-image-preview:large"/, `${file} index rule is missing`);
-    assert.match(html, /src="seo\.js\?v=20260731-seo"/, `${file} SEO runtime is missing`);
+    const seoVersion = file === 'recipe.html' ? '20260810-recipe-rich-results' : '20260731-seo';
+    assert.match(html, new RegExp('src="seo\\.js\\?v=' + seoVersion + '"'), `${file} SEO runtime is missing`);
 }
 
 const technicalPages = [
@@ -89,6 +90,7 @@ sandbox.window.SmartPlateSEO.setRecipe({
     id: 'test-free-recipe', name: 'Тестовый рецепт', accessLevel: 'free',
     quote: 'Полезный тестовый рецепт', photo: 'images/recipes/test/cover.webp',
     servings: 2, time: 25, kcal: 320, protein: 18, fat: 10, carbs: 40, fiber: 6,
+    cat: 'soups', tags: ['растительное', 'без глютена'],
     ingredients: [{ name: '[Нут](hummus): 200 г' }], steps: [{ text: 'Смешать ингредиенты.' }]
 });
 assert.strictEqual(document.title, 'Тестовый рецепт — рецепт | Умная тарелка');
@@ -97,6 +99,16 @@ const freeSchema = JSON.parse(document.getElementById('smartplate-page-schema').
 assert.strictEqual(freeSchema['@type'], 'Recipe');
 assert.deepStrictEqual(Array.from(freeSchema.recipeIngredient), ['Нут: 200 г']);
 assert.strictEqual(freeSchema.recipeInstructions[0].text, 'Смешать ингредиенты.');
+assert.strictEqual(freeSchema.recipeInstructions[0].name, 'Смешать ингредиенты.');
+assert.strictEqual(freeSchema.recipeInstructions[0].url, 'https://app.voronova.online/recipe.html?id=test-free-recipe#recipe-step-1');
+assert.strictEqual(freeSchema.recipeCategory, 'Супы');
+assert.strictEqual(freeSchema.keywords, 'растительное, без глютена');
+
+sandbox.window.SmartPlateSEO.setRecipeRating('test-free-recipe', { value: 4.7, count: 3 });
+const ratedSchema = JSON.parse(document.getElementById('smartplate-page-schema').textContent);
+assert.deepStrictEqual(ratedSchema.aggregateRating, {
+    '@type': 'AggregateRating', ratingValue: 4.7, ratingCount: 3, bestRating: 5, worstRating: 1
+});
 
 sandbox.window.SmartPlateSEO.setRecipe({
     id: 'test-pro-recipe', name: 'Платный рецепт', accessLevel: 'pro', photo: null

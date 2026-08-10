@@ -3,6 +3,21 @@
 
     const ORIGIN = 'https://app.voronova.online';
     const SHARE_IMAGE = 'https://voronova.online/images/smartplate-share-telegram-1200x630.jpg';
+    const RECIPE_CATEGORY_NAMES = {
+        breakfasts: 'Завтраки',
+        soups: 'Супы',
+        mains: 'Горячее',
+        cutlets: 'Котлеты',
+        salads: 'Салаты',
+        sides: 'Гарниры',
+        pancakes: 'Блины и оладьи',
+        spreads: 'Намазки',
+        sauces: 'Соусы',
+        bases: 'Основа',
+        breads: 'Хлеб и крекеры',
+        drinks: 'Напитки'
+    };
+    let activeRecipeSchema = null;
 
     function upsertMeta(attribute, key, content) {
         if (!content) return;
@@ -91,6 +106,18 @@
         return clean(typeof step === 'string' ? step : step && step.text);
     }
 
+    function stepName(text, index) {
+        const firstSentence = clean(text).match(/^.*?[.!?](?:\s|$)/);
+        return summary(firstSentence ? firstSentence[0] : text, 90) || ('Шаг ' + (index + 1));
+    }
+
+    function recipeCategories(recipe) {
+        const ids = Array.isArray(recipe.categories) && recipe.categories.length
+            ? recipe.categories
+            : (recipe.cat ? [recipe.cat] : []);
+        return ids.map(function (id) { return RECIPE_CATEGORY_NAMES[id]; }).filter(Boolean).join(', ');
+    }
+
     function setRecipe(recipe) {
         if (!recipe || !recipe.id) return;
         const canonical = ORIGIN + '/recipe.html?id=' + encodeURIComponent(recipe.id);
@@ -110,13 +137,22 @@
 
         if (isFree) {
             const ingredients = (recipe.ingredients || []).map(ingredientText).filter(Boolean);
-            const instructions = (recipe.steps || []).map(stepText).filter(Boolean).map(function (text) {
-                return { '@type': 'HowToStep', text: text };
+            const instructions = (recipe.steps || []).map(stepText).filter(Boolean).map(function (text, index) {
+                return {
+                    '@type': 'HowToStep',
+                    name: stepName(text, index),
+                    text: text,
+                    url: canonical + '#recipe-step-' + (index + 1)
+                };
             });
+            const category = recipeCategories(recipe);
+            const keywords = (recipe.tags || []).map(clean).filter(Boolean);
             if (recipe.servings) schema.recipeYield = String(recipe.servings) + ' порций';
             if (Number(recipe.time) > 0) schema.totalTime = 'PT' + Number(recipe.time) + 'M';
             if (ingredients.length) schema.recipeIngredient = ingredients;
             if (instructions.length) schema.recipeInstructions = instructions;
+            if (category) schema.recipeCategory = category;
+            if (keywords.length) schema.keywords = keywords.join(', ');
             schema.nutrition = {
                 '@type': 'NutritionInformation',
                 calories: Number(recipe.kcal || 0) + ' ккал',
@@ -127,6 +163,8 @@
             };
         }
 
+        activeRecipeSchema = isFree ? { id: recipe.id, schema: schema } : null;
+
         setPage({
             title: recipe.name + ' — рецепт | Умная тарелка',
             description: description,
@@ -135,6 +173,24 @@
             type: isFree ? 'article' : 'website',
             schema: schema
         });
+    }
+
+    function setRecipeRating(recipeId, rating) {
+        if (!activeRecipeSchema || activeRecipeSchema.id !== recipeId) return;
+        const value = Number(rating && rating.value);
+        const count = Number(rating && rating.count);
+        if (!Number.isFinite(value) || value <= 0 || !Number.isFinite(count) || count < 1) {
+            delete activeRecipeSchema.schema.aggregateRating;
+        } else {
+            activeRecipeSchema.schema.aggregateRating = {
+                '@type': 'AggregateRating',
+                ratingValue: Number(value.toFixed(1)),
+                ratingCount: Math.floor(count),
+                bestRating: 5,
+                worstRating: 1
+            };
+        }
+        setJsonLd('smartplate-page-schema', activeRecipeSchema.schema);
     }
 
     function setCollection(options) {
@@ -170,6 +226,7 @@
         origin: ORIGIN,
         setPage: setPage,
         setRecipe: setRecipe,
+        setRecipeRating: setRecipeRating,
         setCollection: setCollection
     };
 })(window);
