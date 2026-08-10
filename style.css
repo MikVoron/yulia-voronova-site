@@ -637,6 +637,15 @@ body {
     }
 }
 
+/* Wider tablets have enough room for the full wordmark. */
+@media (min-width: 901px) and (max-width: 1100px) {
+    .header .logo span {
+        display: inline;
+        font-size: 15px;
+        white-space: nowrap;
+    }
+}
+
 @media (min-width: 769px) and (max-width: 900px) {
     .header .container {
         padding: 0 16px;
