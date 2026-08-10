@@ -20,7 +20,7 @@ for (const file of ['recipe.html', 'category.html', 'ingredient.html']) {
     const html = read(file);
     assert.match(html, /meta name="description"/, `${file} description is missing`);
     assert.match(html, /meta name="robots" content="index, follow, max-image-preview:large"/, `${file} index rule is missing`);
-    const seoVersion = file === 'recipe.html' ? '20260810-recipe-rich-results' : '20260731-seo';
+    const seoVersion = file === 'recipe.html' ? '20260810-step-images' : '20260731-seo';
     assert.match(html, new RegExp('src="seo\\.js\\?v=' + seoVersion + '"'), `${file} SEO runtime is missing`);
 }
 
@@ -91,7 +91,8 @@ sandbox.window.SmartPlateSEO.setRecipe({
     quote: 'Полезный тестовый рецепт', photo: 'images/recipes/test/cover.webp',
     servings: 2, time: 25, kcal: 320, protein: 18, fat: 10, carbs: 40, fiber: 6,
     cat: 'soups', tags: ['растительное', 'без глютена'],
-    ingredients: [{ name: '[Нут](hummus): 200 г' }], steps: [{ text: 'Смешать ингредиенты.' }]
+    ingredients: [{ name: '[Нут](hummus): 200 г' }],
+    steps: [{ text: 'Смешать ингредиенты.', photo: 'images/recipes/test/step-1.webp' }]
 });
 assert.strictEqual(document.title, 'Тестовый рецепт — рецепт | Умная тарелка');
 assert.strictEqual(document.head.querySelector('link[rel="canonical"]').attributes.href, 'https://app.voronova.online/recipe.html?id=test-free-recipe');
@@ -101,6 +102,7 @@ assert.deepStrictEqual(Array.from(freeSchema.recipeIngredient), ['Нут: 200 г
 assert.strictEqual(freeSchema.recipeInstructions[0].text, 'Смешать ингредиенты.');
 assert.strictEqual(freeSchema.recipeInstructions[0].name, 'Смешать ингредиенты.');
 assert.strictEqual(freeSchema.recipeInstructions[0].url, 'https://app.voronova.online/recipe.html?id=test-free-recipe#recipe-step-1');
+assert.strictEqual(freeSchema.recipeInstructions[0].image, 'https://app.voronova.online/images/recipes/test/step-1.webp');
 assert.strictEqual(freeSchema.recipeCategory, 'Супы');
 assert.strictEqual(freeSchema.keywords, 'растительное, без глютена');
 

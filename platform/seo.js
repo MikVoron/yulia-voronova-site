@@ -106,6 +106,14 @@
         return clean(typeof step === 'string' ? step : step && step.text);
     }
 
+    function stepImage(step) {
+        if (!step || typeof step !== 'object') return '';
+        const photo = Array.isArray(step.photo)
+            ? step.photo.find(function (item) { return typeof item === 'string' && item; })
+            : step.photo;
+        return typeof photo === 'string' && photo ? absoluteUrl(photo) : '';
+    }
+
     function stepName(text, index) {
         const firstSentence = clean(text).match(/^.*?[.!?](?:\s|$)/);
         return summary(firstSentence ? firstSentence[0] : text, 90) || ('Шаг ' + (index + 1));
@@ -137,14 +145,19 @@
 
         if (isFree) {
             const ingredients = (recipe.ingredients || []).map(ingredientText).filter(Boolean);
-            const instructions = (recipe.steps || []).map(stepText).filter(Boolean).map(function (text, index) {
-                return {
+            const instructions = (recipe.steps || []).map(function (step, index) {
+                const text = stepText(step);
+                if (!text) return null;
+                const instruction = {
                     '@type': 'HowToStep',
                     name: stepName(text, index),
                     text: text,
                     url: canonical + '#recipe-step-' + (index + 1)
                 };
-            });
+                const image = stepImage(step);
+                if (image) instruction.image = image;
+                return instruction;
+            }).filter(Boolean);
             const category = recipeCategories(recipe);
             const keywords = (recipe.tags || []).map(clean).filter(Boolean);
             if (recipe.servings) schema.recipeYield = String(recipe.servings) + ' порций';
