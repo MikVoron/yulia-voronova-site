@@ -913,6 +913,42 @@ body {
     filter: drop-shadow(0 4px 8px rgba(44, 44, 44, 0.2));
 }
 
+/* Public-site SmartPlate CTA: a visible name on wide screens, compact icon elsewhere. */
+.header-user-btn-label {
+    display: none;
+}
+
+@media (min-width: 1101px) {
+    .header .header-user-btn {
+        width: auto !important;
+        min-width: 0;
+        height: 40px;
+        gap: 8px;
+        margin-left: 4px;
+        padding: 4px 12px 4px 4px;
+        border-radius: 999px;
+        background: var(--white);
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.16);
+    }
+
+    .header .header-user-btn svg {
+        width: 32px !important;
+        height: 32px !important;
+    }
+
+    .header-user-btn-label {
+        display: inline;
+        color: var(--dark-sage);
+        font-family: 'Baskervville', serif;
+        font-size: 11px;
+        font-weight: 400;
+        letter-spacing: 0.7px;
+        line-height: 1;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+}
+
 /* РЈР±РёСЂР°РµРј РїРѕРґС‡РµСЂРєРёРІР°РЅРёРµ Сѓ Р»РѕРіРѕС‚РёРїР° (РєРѕРіРґР° РѕРЅ СЃСЃС‹Р»РєР°) */
 .header a.logo,
 .header a.logo:hover,
