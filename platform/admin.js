@@ -490,18 +490,25 @@
     };
 
     // ── Helpers ──
+    const ADMIN_TIME_ZONE = 'Europe/Moscow';
     function fmtDate(d) {
         if (!d) return '—';
         var date = new Date(d);
-        return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        return date.toLocaleDateString('ru-RU', {
+            day: '2-digit', month: '2-digit', year: 'numeric', timeZone: ADMIN_TIME_ZONE
+        });
     }
     function fmtDateTime(d, timeSource) {
         if (!d) return '—';
         var date = new Date(d);
-        var dateStr = date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        var dateStr = date.toLocaleDateString('ru-RU', {
+            day: '2-digit', month: '2-digit', year: 'numeric', timeZone: ADMIN_TIME_ZONE
+        });
         // Если payment_date — это просто дата без времени, берём время из created_at
         var tSrc = timeSource ? new Date(timeSource) : date;
-        var timeStr = tSrc.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        var timeStr = tSrc.toLocaleTimeString('ru-RU', {
+            hour: '2-digit', minute: '2-digit', timeZone: ADMIN_TIME_ZONE
+        });
         return dateStr + ' ' + timeStr;
     }
     function formatUserActivity(user) {
