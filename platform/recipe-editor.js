@@ -618,7 +618,7 @@
                     '<span class="re-item-label-inline">Замены для фильтра</span>' +
                     '<div class="re-swap-dietary-fields">' +
                         '<input class="re-item-input" data-field="swap_options" placeholder="Соус из кешью; Соус из фасоли" value="' + escAttr(initialSwapOptionNames) + '">' +
-                        '<div class="re-swap-dietary-options" data-role="swap-dietary-options"></div>' +
+                        '<div class="re-swap-dietary-options" data-role="swap-dietary-options">' + swapDietaryOptionsHtml(initialSwapOptions) + '</div>' +
                     '</div>' +
                 '</div>' +
                 '<div class="re-ingredient-omit-box" data-role="swap-nutrition-box">' +
@@ -994,6 +994,15 @@
         }).filter(Boolean);
     }
 
+    function swapDietaryOptionsHtml(options) {
+        return normalizeEditorDietarySwapOptions(options).map(function(option) {
+            return '<div class="re-swap-dietary-option" data-role="swap-dietary-option" data-option-name="' + escAttr(option.name) + '">' +
+                '<span class="re-swap-dietary-option-name">' + esc(option.name) + '</span>' +
+                '<div class="re-inline-dietary-checks">' + editorDietaryChecksHtml('swap', option.dietary_flags) + '</div>' +
+            '</div>';
+        }).join('');
+    }
+
     function renderSwapDietaryOptions(item, initialOptions) {
         if (!item) return;
         var input = item.querySelector('[data-field="swap_options"]');
@@ -1010,12 +1019,7 @@
             var previous = previousByName[option.name.toLowerCase()];
             if (previous && !option.dietary_flags.length) option.dietary_flags = previous;
         });
-        box.innerHTML = options.map(function(option) {
-            return '<div class="re-swap-dietary-option" data-role="swap-dietary-option" data-option-name="' + escAttr(option.name) + '">' +
-                '<span class="re-swap-dietary-option-name">' + esc(option.name) + '</span>' +
-                '<div class="re-inline-dietary-checks">' + editorDietaryChecksHtml('swap', option.dietary_flags) + '</div>' +
-            '</div>';
-        }).join('');
+        box.innerHTML = swapDietaryOptionsHtml(options);
     }
 
     function syncRecipeDietaryFlagsFromIngredients() {
