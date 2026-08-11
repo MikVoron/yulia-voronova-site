@@ -1959,8 +1959,13 @@
 
 		// Desktop accordion: toggle one group open/closed (multiple can be open at once)
 		function balToggleAccordion(prefix) {
-			// On mobile (wizard), clicking the head is a no-op — groups are controlled by step nav
-			if (window.innerWidth <= 1024) return;
+			// Mobile keeps group headings visible as a quick way to move through the
+			// wizard. Route their tap to that step instead of leaving a dead control.
+			if (window.innerWidth <= 1024) {
+				const step = _balGroups.findIndex(group => group.prefix === prefix);
+				if (step >= 0) balWizardSetStep(step);
+				return;
+			}
 			_accordionOpen[prefix] = !_accordionOpen[prefix];
 			const el = document.getElementById('bal-group-' + prefix);
 			if (el) el.classList.toggle('open', !!_accordionOpen[prefix]);
