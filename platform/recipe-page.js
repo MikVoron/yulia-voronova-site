@@ -363,6 +363,13 @@
 				return;
 			}
 			const frame = image.closest('.step-photo-wrap, .step-photo-carousel, .recipe-ingredients-photo');
+			// The ingredients photo is optional. A number of recipes have a cover/final
+			// shot but no separate `-start` frame, so do not leave an error card between
+			// the ingredients and the preparation steps.
+			if (frame && frame.classList.contains('recipe-ingredients-photo')) {
+				frame.remove();
+				return;
+			}
 			if (frame) frame.classList.add('is-image-error');
 		}
 
