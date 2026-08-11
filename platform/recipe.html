@@ -1111,16 +1111,22 @@
 		.bal-item-recipe-link:hover { background: transparent !important; color: var(--text) !important; }
 		.bal-item-linked { cursor: default !important; }
 		.bal-item-select {
-			width: 40px;
-			height: 40px;
-			padding: 12px;
+			/* Recipe-linked add-ons use a separate control. Keep its layout width
+			   equal to the regular checkbox so every add-on label starts in one column. */
+			width: 14px;
+			height: 14px;
+			padding: 0;
 			border: 0;
 			background: transparent;
 			color: inherit;
 			cursor: pointer;
-			flex: 0 0 auto;
-			transform: translateY(3px);
+			flex: 0 0 14px;
+			position: relative;
+			transform: none;
 		}
+		/* Preserve a comfortable touch target without giving the control extra
+		   flex width (which would push linked recipes to the right). */
+		.bal-item-select::before { content: ''; position: absolute; inset: -11px; }
 		.bal-item-select:focus-visible,
 		.bal-item-recipe-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
