@@ -757,8 +757,13 @@ const Plate = {
         this.clear();
         if (window.SmartPlateMetrika) window.SmartPlateMetrika.goal('plate_saved');
         if (window.SmartPlateGoogleAnalytics) window.SmartPlateGoogleAnalytics.event('plate_saved');
-        // Sync save to server
-        if (Auth.getToken()) {
+        // A separate analytics event for a plate saved by an authenticated user.
+        // Guest saves remain useful for the product funnel but are not account actions.
+        const token = Auth.getToken();
+        if (token) {
+            if (window.SmartPlateMetrika) window.SmartPlateMetrika.goal('plate_saved_registered');
+            if (window.SmartPlateGoogleAnalytics) window.SmartPlateGoogleAnalytics.event('plate_saved_registered');
+            // Sync save to server
             Auth.api('/plate/history', {
                 method: 'POST',
                 body: JSON.stringify({ date, items, totals, mealType: safeMealType })
