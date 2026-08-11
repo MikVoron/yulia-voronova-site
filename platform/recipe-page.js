@@ -1129,10 +1129,8 @@
 		}
 
 		function renderRecipe(r) {
-			const portionNote = (typeof r.note === 'string' && /^1\s*порция\s*=\s*.+$/i.test(r.note.trim()))
-				? r.note.trim()
-				: '';
-			const portionDetail = portionNote || (r.portionGrams ? ('1 порция ≈ ' + Number(r.portionGrams) + ' г') : '');
+			const portionDetail = r.portionGrams ? ('1 порция ≈ ' + Number(r.portionGrams) + ' г') : '';
+			const preparationNote = typeof r.note === 'string' ? r.note.trim() : '';
 			window.__currentRecipeId = r.id;
 			document.title = r.name + ' — рецепт | Умная тарелка';
 			const _asIngredient = new URLSearchParams(location.search).get('asIngredient') === '1';
@@ -1727,6 +1725,10 @@
                         const startPhoto = r.photo ? derivePhoto(r.photo, 'start') : (r.id ? `images/recipes/${r.id}/${r.id}-start.webp` : '');
 						return startPhoto ? `<div class="recipe-ingredients-photo"><img class="step-photo-img" src="${escHtml(photoUrl(startPhoto))}" alt="Ингредиенты" loading="lazy" decoding="async" data-recipe-image-fallback="step"></div>` : '';
                     })()}
+                    ${preparationNote ? `<section class="recipe-preparation-note" aria-labelledby="preparation-note-title">
+                        <h2 class="recipe-preparation-note-title" id="preparation-note-title">Важно при приготовлении</h2>
+                        <div class="recipe-preparation-note-text">${escHtml(preparationNote)}</div>
+                    </section>` : ''}
 
                     <div class="steps-head">
                         <div class="v-section-title">Приготовление</div>

@@ -1107,6 +1107,29 @@ img { display: block; max-width: 100%; }
 .recipe-main .steps-head .v-section-title { margin-top: 0 !important; margin-bottom: 0 !important; }
 .recipe-section-actions { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
 
+/* Important preparation nuance from the recipe editor. */
+.recipe-preparation-note {
+    margin: 20px 0;
+    padding: 16px 18px;
+    background: var(--bg-alt);
+    border-left: 3px solid var(--accent);
+}
+.recipe-preparation-note-title {
+    margin: 0 0 7px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+.recipe-preparation-note-text {
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
 /* Steps — vertical layout: number + text, photo below */
 .steps-mode-btn {
     display: none;
