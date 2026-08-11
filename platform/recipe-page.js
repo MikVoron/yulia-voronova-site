@@ -1498,12 +1498,14 @@
 			if (addFat.length)     _balCats.push({ key: 'f', label: 'Жиры',     prefix: 'f' });
 			if (addCarbs.length)   _balCats.push({ key: 'c', label: 'Углеводы', prefix: 'c' });
 			if (addFiber.length)   _balCats.push({ key: 'fi', label: 'Клетчатка', prefix: 'fi' });
-			// For soups the optional protein group follows the required carbohydrates.
-			// Other recipes keep the established protein → fat → carbs → fiber order.
-			const balanceGroupOrder = _balCats.some(c => c.prefix === 'p' && c.optional) && addCarbs.length
-				? { c: 0, p: 1, f: 2, fi: 3 }
-				: { p: 0, f: 1, c: 2, fi: 3 };
-			_balCats.sort((a, b) => balanceGroupOrder[a.prefix] - balanceGroupOrder[b.prefix]);
+			// Required groups are completed before any optional group. This keeps the
+			// balance flow clear for soups and recipes such as Grechotto: fiber first,
+			// then optional protein.
+			const balanceGroupOrder = { p: 0, f: 1, c: 2, fi: 3 };
+			_balCats.sort((a, b) =>
+				(Number(a.optional) - Number(b.optional)) ||
+				(balanceGroupOrder[a.prefix] - balanceGroupOrder[b.prefix])
+			);
 			_balCats.forEach((c, i) => { c.stepIndex = i; });
 			_balGroups = _balCats;
 			_balRequired = _balCats.filter(c => !c.optional);
