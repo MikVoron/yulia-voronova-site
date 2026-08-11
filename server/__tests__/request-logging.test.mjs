@@ -7,6 +7,7 @@ const { safeRequestPath, requestSerializer } = require('../src/request-logging')
 describe('request logging', () => {
   it('removes query parameters from error and request logs', () => {
     const request = {
+      id: 'req-123',
       method: 'GET',
       url: '/health?token=secret&email=user%40example.com',
       host: 'api.example.com',
@@ -16,6 +17,7 @@ describe('request logging', () => {
 
     expect(safeRequestPath(request)).toBe('/health');
     expect(requestSerializer(request)).toEqual({
+      requestId: 'req-123',
       method: 'GET',
       url: '/health',
       host: 'api.example.com',

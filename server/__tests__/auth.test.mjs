@@ -253,6 +253,7 @@ describe('auth/refresh', () => {
     let consumed = false;
     const session = {
       user_id: 42,
+      session_id: '00000000-0000-4000-8000-000000000042',
       email: 'parallel@example.com',
       role: 'user',
       display_name: 'Parallel User',
@@ -282,7 +283,13 @@ describe('auth/refresh', () => {
       const responses = await Promise.all([request(), request()]);
 
       expect(responses.map(res => res.statusCode).sort()).toEqual([200, 401]);
+      const successfulResponse = responses.find(res => res.statusCode === 200);
+      const jwt = require('jsonwebtoken');
+      expect(jwt.decode(successfulResponse.json().accessToken).sid).toBe(session.session_id);
       expect(mockQuery.mock.calls.filter(([sql]) => /DELETE FROM refresh_sessions rs\s+USING users u/.test(sql))).toHaveLength(2);
+      const rotationSql = mockQuery.mock.calls.find(([sql]) => /DELETE FROM refresh_sessions rs\s+USING users u/.test(sql))[0];
+      expect(rotationSql).toMatch(/rs\.session_id/);
+      expect(rotationSql).toMatch(/expires_at, session_id/);
     } finally {
       mockQuery.mockImplementation(defaultImplementation);
     }

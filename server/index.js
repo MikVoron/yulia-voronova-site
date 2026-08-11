@@ -1,9 +1,11 @@
 require('dotenv').config();
+const { randomUUID } = require('node:crypto');
 const { validateJwtSecret } = require('./src/auth');
 validateJwtSecret();
 const { safeRequestPath, requestSerializer } = require('./src/request-logging');
 const fastify = require('fastify')({
   logger: { serializers: { req: requestSerializer } },
+  genReqId: () => randomUUID(),
   trustProxy: '127.0.0.1,::1',
   bodyLimit: 8 * 1024 * 1024
 });
@@ -29,9 +31,14 @@ const isProd = process.env.NODE_ENV === 'production';
 const corsOrigins = ['https://voronova.online', 'https://www.voronova.online', 'https://app.voronova.online'];
 if (!isProd) corsOrigins.push('http://127.0.0.1:5500', 'http://localhost:5500');
 
+fastify.addHook('onRequest', async (req, reply) => {
+  reply.header('X-Request-Id', String(req.id));
+});
+
 fastify.register(cors, {
   origin: corsOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  exposedHeaders: ['X-Request-Id'],
   credentials: true
 });
 fastify.register(cookie);

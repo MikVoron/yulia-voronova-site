@@ -11,6 +11,10 @@ let reviewRows = [];
 let reviewAlreadyAnswered = false;
 let reviewReactionActive = false;
 const sendReviewReply = vi.fn().mockResolvedValue(true);
+const auditInsert = vi.fn().mockResolvedValue({ id: 99 });
+const mockClientQuery = vi.fn().mockResolvedValue({ rows: [] });
+const mockClient = { query: mockClientQuery, release: vi.fn() };
+const mockConnect = vi.fn().mockResolvedValue(mockClient);
 
 const FREE_RECIPE = {
   id: 'free-1', cat: 'breakfasts', name: 'Free recipe',
@@ -122,14 +126,14 @@ function registerMock(modulePath, exports) {
   require.cache[resolved] = m;
 }
 
-registerMock(path.join(srcDir, 'db.js'), { query: mockQuery });
+registerMock(path.join(srcDir, 'db.js'), { query: mockQuery, pool: { connect: mockConnect } });
 registerMock(path.join(srcDir, 'email.js'), {
   sendLoginCode: vi.fn().mockResolvedValue(true),
   sendWelcome: vi.fn().mockResolvedValue(true),
   sendNewUserNotification: vi.fn().mockResolvedValue(true),
   sendReviewReply,
 });
-registerMock(path.join(srcDir, 'audit.js'), { log: vi.fn() });
+registerMock(path.join(srcDir, 'audit.js'), { log: vi.fn(), insert: auditInsert });
 
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key-for-vitest-at-least-32-bytes';
 
@@ -155,6 +159,11 @@ beforeEach(() => {
   reviewAlreadyAnswered = false;
   reviewReactionActive = false;
   mockQuery.mockClear();
+  mockClientQuery.mockReset();
+  mockClientQuery.mockResolvedValue({ rows: [] });
+  mockClient.release.mockClear();
+  mockConnect.mockClear();
+  auditInsert.mockClear();
   sendReviewReply.mockClear();
 });
 
@@ -233,9 +242,11 @@ describe('GET /content/categories', () => {
 });
 
 const jwt = require('jsonwebtoken');
-function makeToken(userId = 'u-1') {
+function makeToken(userId = 'u-1', sessionId) {
+  const payload = { sub: userId, email: 'test@test.com', role: 'user' };
+  if (sessionId) payload.sid = sessionId;
   return jwt.sign(
-    { sub: userId, email: 'test@test.com', role: 'user' },
+    payload,
     process.env.JWT_SECRET,
     { expiresIn: '15m' }
   );
@@ -529,6 +540,84 @@ describe('GET /content/recipes — access_level matrix', () => {
 // Validation tests for admin write endpoints.
 // Любой невалидный access_level должен дать 400 ДО касания БД — никакого silent fallback.
 describe('admin /recipes: access_level validation', () => {
+  it('PUT /admin/recipes/:id stores recipe and audit history in one transaction', async () => {
+    userState = { is_blocked: false, role: 'admin' };
+    const recipeBefore = {
+      id: 'grechotto', cat: 'mains', name: 'Гречотто', ingredients: [{ name: 'сок', swap: 'водка' }],
+      updated_at: new Date('2026-06-16T10:00:00Z')
+    };
+    const recipeAfter = {
+      ...recipeBefore,
+      ingredients: [{ name: 'сок' }],
+      updated_at: new Date('2026-08-11T10:00:00Z')
+    };
+    mockClientQuery.mockImplementation(async sql => {
+      if (/SELECT \* FROM recipes WHERE id=\$1 FOR UPDATE/.test(sql)) return { rows: [recipeBefore] };
+      if (/SELECT category_id FROM recipe_categories/.test(sql)) return { rows: [{ category_id: 'mains' }] };
+      if (/UPDATE recipes SET/.test(sql)) return { rows: [recipeAfter] };
+      return { rows: [] };
+    });
+    const sessionId = '00000000-0000-4000-8000-000000000123';
+
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/admin/recipes/grechotto',
+      headers: {
+        authorization: 'Bearer ' + makeToken('00000000-0000-4000-8000-000000000001', sessionId),
+        'user-agent': 'Audit Browser/1.0'
+      },
+      payload: {
+        name: 'Гречотто',
+        categories: ['mains'],
+        access_level: 'pro',
+        ingredients: [{ name: 'сок' }]
+      }
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(mockClientQuery.mock.calls[0][0]).toBe('BEGIN');
+    expect(mockClientQuery.mock.calls.at(-1)[0]).toBe('COMMIT');
+    expect(mockClient.release).toHaveBeenCalledOnce();
+    expect(auditInsert).toHaveBeenCalledWith(
+      mockClient,
+      'recipe_update',
+      expect.objectContaining({
+        sessionId,
+        entityType: 'recipe',
+        entityId: 'grechotto',
+        changedFields: expect.arrayContaining(['ingredients'])
+      })
+    );
+    const revisionCall = mockClientQuery.mock.calls.find(([sql]) => /INSERT INTO recipe_revisions/.test(sql));
+    expect(revisionCall).toBeDefined();
+    expect(JSON.parse(revisionCall[1][2]).ingredients[0].swap).toBe('водка');
+    expect(JSON.parse(revisionCall[1][3]).ingredients[0].swap).toBeUndefined();
+  });
+
+  it('PUT /admin/recipes/:id rolls back the recipe when audit storage fails', async () => {
+    userState = { is_blocked: false, role: 'admin' };
+    const recipe = { id: 'grechotto', cat: 'mains', name: 'Гречотто', ingredients: [] };
+    mockClientQuery.mockImplementation(async sql => {
+      if (/SELECT \* FROM recipes WHERE id=\$1 FOR UPDATE/.test(sql)) return { rows: [recipe] };
+      if (/SELECT category_id FROM recipe_categories/.test(sql)) return { rows: [{ category_id: 'mains' }] };
+      if (/UPDATE recipes SET/.test(sql)) return { rows: [{ ...recipe, name: 'Гречотто 2' }] };
+      return { rows: [] };
+    });
+    auditInsert.mockRejectedValueOnce(new Error('audit unavailable'));
+
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/admin/recipes/grechotto',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { name: 'Гречотто 2', categories: ['mains'], access_level: 'pro' }
+    });
+
+    expect(res.statusCode).toBe(500);
+    expect(mockClientQuery.mock.calls.some(([sql]) => sql === 'ROLLBACK')).toBe(true);
+    expect(mockClientQuery.mock.calls.some(([sql]) => sql === 'COMMIT')).toBe(false);
+    expect(mockClient.release).toHaveBeenCalledOnce();
+  });
+
   it('POST /admin/recipes: invalid access_level returns 400', async () => {
     userState = { is_blocked: false, role: 'admin' };
     const res = await app.inject({

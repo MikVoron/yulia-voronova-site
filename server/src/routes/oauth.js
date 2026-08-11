@@ -115,9 +115,17 @@ async function issueTokens(user, req, reply, isNew, fastify) {
     audit.log('admin_oauth_denied', { userId: user.id, email: user.email, ip: req.ip, ua: req.headers['user-agent'] });
     return reply.redirect(PLATFORM_URL + '/login.html?error=admin_mfa_required');
   }
-  await audit.log('login', { userId: user.id, email: user.email, detail: 'oauth', ip: req.ip, ua: req.headers['user-agent'] });
   const refreshToken = generateRefreshToken();
-  await issueRefreshSession(user.id, refreshToken, req);
+  const sessionId = await issueRefreshSession(user.id, refreshToken, req);
+  await audit.log('login', {
+    userId: user.id,
+    email: user.email,
+    detail: 'oauth',
+    ip: req.ip,
+    ua: req.headers['user-agent'],
+    requestId: String(req.id),
+    sessionId
+  });
   return setCookieAndRedirect(reply, refreshToken, isNew);
 }
 

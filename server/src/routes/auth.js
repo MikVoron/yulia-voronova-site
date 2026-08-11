@@ -170,11 +170,18 @@ async function authRoutes(fastify) {
       audit.log('login_blocked', { userId: user.id, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
       return reply.status(403).send({ error: 'Аккаунт заблокирован' });
     }
-    await audit.log('login', { userId: user.id, email: lower, ip: req.ip, ua: req.headers['user-agent'] });
-    const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken();
     const isAdminSession = user.role === 'admin';
-    await issueRefreshSession(user.id, refreshToken, req, { admin: isAdminSession });
+    const sessionId = await issueRefreshSession(user.id, refreshToken, req, { admin: isAdminSession });
+    await audit.log('login', {
+      userId: user.id,
+      email: lower,
+      ip: req.ip,
+      ua: req.headers['user-agent'],
+      requestId: String(req.id),
+      sessionId
+    });
+    const accessToken = generateAccessToken(user, sessionId);
     reply.setCookie('refreshToken', refreshToken, {
       path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: isAdminSession ? 43200 : 2592000
     });
@@ -198,12 +205,13 @@ async function authRoutes(fastify) {
           WHERE rs.user_id=u.id
             AND rs.refresh_token_hash=$1
             AND rs.expires_at > now()
-          RETURNING rs.user_id, u.email, u.role, u.display_name, u.avatar, u.weight_kg,
+          RETURNING rs.user_id, rs.session_id, u.email, u.role, u.display_name, u.avatar, u.weight_kg,
                     u.is_blocked, u.created_at AS user_created_at
        ), inserted AS (
-         INSERT INTO refresh_sessions (user_id, refresh_token_hash, ua, ip, expires_at)
+         INSERT INTO refresh_sessions (user_id, refresh_token_hash, ua, ip, expires_at, session_id)
          SELECT user_id, $2, $3, $4,
-                now() + CASE WHEN role='admin' THEN interval '12 hours' ELSE interval '30 days' END
+                now() + CASE WHEN role='admin' THEN interval '12 hours' ELSE interval '30 days' END,
+                session_id
            FROM consumed
           WHERE is_blocked=false
          RETURNING user_id
@@ -226,7 +234,10 @@ async function authRoutes(fastify) {
         )`,
       [session.user_id]
     );
-    const accessToken = generateAccessToken({ id: session.user_id, email: session.email, role: session.role });
+    const accessToken = generateAccessToken(
+      { id: session.user_id, email: session.email, role: session.role },
+      session.session_id
+    );
     reply.setCookie('refreshToken', newRefresh, {
       path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: session.role === 'admin' ? 43200 : 2592000
     });

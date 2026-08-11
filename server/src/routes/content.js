@@ -3,6 +3,11 @@ const { authenticate, requireAdmin, optionalAuthenticate, getUserTier, userCanSe
 const email = require('../email');
 const audit = require('../audit');
 const {
+  buildRecipeSnapshot,
+  changedRecipeFields,
+  recordRecipeRevision,
+} = require('../recipe-history');
+const {
   normalizeDietaryFlags,
   validateVerifiedRecipeDietary,
   isRecipeCompatible,
@@ -883,11 +888,17 @@ async function contentRoutes(fastify) {
     catch (e) { return reply.status(e.statusCode || 400).send({ error: e.message, field: e.field || 'access_level' }); }
     const dietaryError = validateVerifiedRecipeDietary(r);
     if (dietaryError) return reply.status(400).send({ error: dietaryError, field: 'dietary_flags' });
-    // Check id uniqueness
-    const exists = await db.query('SELECT id FROM recipes WHERE id=$1', [r.id]);
-    if (exists.rows.length) return reply.status(409).send({ error: 'Рецепт с таким id уже существует' });
     const primaryCat = cats[0];
-    const result = await db.query(
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+      // Check id uniqueness under the same transaction as the write and audit.
+      const exists = await client.query('SELECT id FROM recipes WHERE id=$1', [r.id]);
+      if (exists.rows.length) {
+        await client.query('ROLLBACK');
+        return reply.status(409).send({ error: 'Рецепт с таким id уже существует' });
+      }
+      const result = await client.query(
       `INSERT INTO recipes (id, cat, name, emoji, time_min, time_label, difficulty, servings, is_free, access_level,
           kcal, protein, fat, carbs, fiber, tags, photo, img_position, quote,
           ingredients, steps, note, vk_video, yt_video, dzen_video, add_protein, add_fat, add_carbs, add_fiber,
@@ -912,13 +923,37 @@ async function contentRoutes(fastify) {
         r.dietary_verified === true
       ]
     );
-    // Write to recipe_categories
-    for (const catId of cats) {
-      await db.query('INSERT INTO recipe_categories (recipe_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [r.id, catId]);
+      // Write to recipe_categories
+      for (const catId of cats) {
+        await client.query(
+          'INSERT INTO recipe_categories (recipe_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+          [r.id, catId]
+        );
+      }
+      const afterData = buildRecipeSnapshot(result.rows[0], cats);
+      const changedFields = changedRecipeFields(null, afterData);
+      const requestId = String(req.id);
+      const sessionId = req.user.sid || null;
+      const ua = req.headers['user-agent'] || '';
+      const auditRow = await audit.insert(client, 'recipe_create', {
+        userId: req.user.sub, detail: 'recipe:' + r.id, ip: req.ip, ua,
+        requestId, sessionId, entityType: 'recipe', entityId: r.id, changedFields
+      });
+      await recordRecipeRevision(client, {
+        recipeId: r.id, action: 'create', beforeData: null, afterData, changedFields,
+        adminUserId: req.user.sub, auditLogId: auditRow.id, requestId, sessionId,
+        ip: req.ip, ua
+      });
+      await client.query('COMMIT');
+      result.rows[0].categories = cats;
+      return result.rows[0];
+    } catch (error) {
+      try { await client.query('ROLLBACK'); }
+      catch (rollbackError) { req.log.error(rollbackError, 'Recipe create rollback failed'); }
+      throw error;
+    } finally {
+      client.release();
     }
-    await audit.log('recipe_create', { userId: req.user.sub, detail: 'recipe:' + r.id, ip: req.ip });
-    result.rows[0].categories = cats;
-    return result.rows[0];
   });
 
   // PUT /admin/recipes/:id — update recipe
@@ -943,7 +978,26 @@ async function contentRoutes(fastify) {
     catch (e) { return reply.status(e.statusCode || 400).send({ error: e.message, field: e.field || 'access_level' }); }
     const dietaryError = validateVerifiedRecipeDietary(r);
     if (dietaryError) return reply.status(400).send({ error: dietaryError, field: 'dietary_flags' });
-    const result = await db.query(
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const beforeResult = await client.query(
+        'SELECT * FROM recipes WHERE id=$1 FOR UPDATE',
+        [req.params.id]
+      );
+      if (!beforeResult.rows.length) {
+        await client.query('ROLLBACK');
+        return reply.status(404).send({ error: 'Не найдено' });
+      }
+      const beforeCategoriesResult = await client.query(
+        'SELECT category_id FROM recipe_categories WHERE recipe_id=$1 ORDER BY category_id',
+        [req.params.id]
+      );
+      const beforeData = buildRecipeSnapshot(
+        beforeResult.rows[0],
+        beforeCategoriesResult.rows.map(row => row.category_id)
+      );
+      const result = await client.query(
       `UPDATE recipes SET cat=$1, name=$2, emoji=$3, time_min=$4, time_label=$5, difficulty=$6, servings=$7,
           is_free=$8, access_level=$9,
           kcal=$10, protein=$11, fat=$12, carbs=$13, fiber=$14, tags=$15,
@@ -976,28 +1030,67 @@ async function contentRoutes(fastify) {
         req.params.id
       ]
     );
-    if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
-    // Sync recipe_categories: full replace (no dangling rows, no orphan primary)
-    await db.query('DELETE FROM recipe_categories WHERE recipe_id = $1', [req.params.id]);
-    for (const catId of cats) {
-      await db.query('INSERT INTO recipe_categories (recipe_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [req.params.id, catId]);
+      // Sync recipe_categories: full replace (no dangling rows, no orphan primary)
+      await client.query('DELETE FROM recipe_categories WHERE recipe_id = $1', [req.params.id]);
+      for (const catId of cats) {
+        await client.query(
+          'INSERT INTO recipe_categories (recipe_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+          [req.params.id, catId]
+        );
+      }
+      const hasVideo = !!(r.vk_video || r.yt_video || r.dzen_video);
+      await client.query(
+        `UPDATE recipe_video_requests
+         SET status = CASE
+               WHEN $2::boolean THEN 'published'
+               WHEN status='published' AND reached_at IS NOT NULL THEN 'goal_reached'
+               WHEN status='published' THEN 'collecting'
+               ELSE status
+             END,
+             updated_at=now()
+         WHERE recipe_id=$1`,
+        [req.params.id, hasVideo]
+      );
+
+      const afterData = buildRecipeSnapshot(result.rows[0], cats);
+      const changedFields = changedRecipeFields(beforeData, afterData);
+      const requestId = String(req.id);
+      const sessionId = req.user.sid || null;
+      const ua = req.headers['user-agent'] || '';
+      const auditRow = await audit.insert(client, 'recipe_update', {
+        userId: req.user.sub,
+        detail: 'recipe:' + req.params.id,
+        ip: req.ip,
+        ua,
+        requestId,
+        sessionId,
+        entityType: 'recipe',
+        entityId: req.params.id,
+        changedFields
+      });
+      await recordRecipeRevision(client, {
+        recipeId: req.params.id,
+        action: 'update',
+        beforeData,
+        afterData,
+        changedFields,
+        adminUserId: req.user.sub,
+        auditLogId: auditRow.id,
+        requestId,
+        sessionId,
+        ip: req.ip,
+        ua
+      });
+      await client.query('COMMIT');
+      result.rows[0].categories = cats;
+      return result.rows[0];
+    } catch (error) {
+      try { await client.query('ROLLBACK'); }
+      catch (rollbackError) { req.log.error(rollbackError, 'Recipe update rollback failed'); }
+      throw error;
+    } finally {
+      client.release();
     }
-    const hasVideo = !!(r.vk_video || r.yt_video || r.dzen_video);
-    await db.query(
-      `UPDATE recipe_video_requests
-       SET status = CASE
-             WHEN $2::boolean THEN 'published'
-             WHEN status='published' AND reached_at IS NOT NULL THEN 'goal_reached'
-             WHEN status='published' THEN 'collecting'
-             ELSE status
-           END,
-           updated_at=now()
-       WHERE recipe_id=$1`,
-      [req.params.id, hasVideo]
-    );
-    await audit.log('recipe_update', { userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip });
-    result.rows[0].categories = cats;
-    return result.rows[0];
   });
 
   // DELETE /admin/recipes/:id
@@ -1005,10 +1098,64 @@ async function contentRoutes(fastify) {
     preHandler: [authenticate, requireAdmin],
     config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
   }, async (req, reply) => {
-    const result = await db.query('DELETE FROM recipes WHERE id=$1 RETURNING id', [req.params.id]);
-    if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
-    await audit.log('recipe_delete', { userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip });
-    return { ok: true };
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const beforeResult = await client.query(
+        'SELECT * FROM recipes WHERE id=$1 FOR UPDATE',
+        [req.params.id]
+      );
+      if (!beforeResult.rows.length) {
+        await client.query('ROLLBACK');
+        return reply.status(404).send({ error: 'Не найдено' });
+      }
+      const categoryResult = await client.query(
+        'SELECT category_id FROM recipe_categories WHERE recipe_id=$1 ORDER BY category_id',
+        [req.params.id]
+      );
+      const beforeData = buildRecipeSnapshot(
+        beforeResult.rows[0],
+        categoryResult.rows.map(row => row.category_id)
+      );
+      await client.query('DELETE FROM recipes WHERE id=$1', [req.params.id]);
+      const changedFields = changedRecipeFields(beforeData, null);
+      const requestId = String(req.id);
+      const sessionId = req.user.sid || null;
+      const ua = req.headers['user-agent'] || '';
+      const auditRow = await audit.insert(client, 'recipe_delete', {
+        userId: req.user.sub, detail: 'recipe:' + req.params.id, ip: req.ip, ua,
+        requestId, sessionId, entityType: 'recipe', entityId: req.params.id, changedFields
+      });
+      await recordRecipeRevision(client, {
+        recipeId: req.params.id, action: 'delete', beforeData, afterData: null, changedFields,
+        adminUserId: req.user.sub, auditLogId: auditRow.id, requestId, sessionId,
+        ip: req.ip, ua
+      });
+      await client.query('COMMIT');
+      return { ok: true };
+    } catch (error) {
+      try { await client.query('ROLLBACK'); }
+      catch (rollbackError) { req.log.error(rollbackError, 'Recipe delete rollback failed'); }
+      throw error;
+    } finally {
+      client.release();
+    }
+  });
+
+  // GET /admin/recipes/:id/history — investigation-ready change trail.
+  fastify.get('/admin/recipes/:id/history', { preHandler: [authenticate, requireAdmin] }, async (req) => {
+    const result = await db.query(
+      `SELECT rr.id, rr.recipe_id, rr.action, rr.before_data, rr.after_data,
+              rr.changed_fields, rr.admin_user_id, u.email AS admin_email,
+              rr.request_id, rr.session_id, rr.ip, rr.ua, rr.created_at
+         FROM recipe_revisions rr
+         LEFT JOIN users u ON u.id=rr.admin_user_id
+        WHERE rr.recipe_id=$1
+        ORDER BY rr.created_at DESC, rr.id DESC
+        LIMIT 100`,
+      [req.params.id]
+    );
+    return result.rows;
   });
 
   // POST /admin/recipes/:id/seasonal — пометить рецепт как «Сезонный».

@@ -5,6 +5,7 @@ function safeRequestPath(req) {
 
 function requestSerializer(request) {
   return {
+    requestId: request.id,
     method: request.method,
     url: safeRequestPath(request),
     host: request.host,
