@@ -25,19 +25,22 @@ function ok(cond, msg) {
 const NUTRITION_SEP_RE =
   /^(.+?)\s*[:—–-]\s*(\d+(?:[.,]\d+)?)\s*(г|гр|грамм|кг|мл|л|ст\.?\s*л\.?|ч\.?\s*л\.?|шт\.?)\s*\.?\s*$/i;
 
-// platform/recipe.html  applySwap() amount-suffix extraction
+// platform/recipe-page.js applySwap() amount-suffix extraction
 const SWAP_SEP_RE = /\s[—–\-]\s|:\s/;
+const SWAP_AMOUNT_SUFFIX_RE = /(?:\s[—–\-]\s|:\s)(\d+(?:[.,]\d+)?\s*(?:г|гр|грамм|кг|мл|л|ст\.?\s*л\.?|ч\.?\s*л\.?|шт\.?).*)$/i;
 
 // --- Drift guard: confirm the real sources still contain these patterns ---
 console.log('Drift guard (sources contain the real regexes):');
 const nutritionSrc = fs.readFileSync(
   path.join(__dirname, 'src', 'routes', 'nutrition.js'), 'utf8');
 const recipeSrc = fs.readFileSync(
-  path.join(__dirname, '..', 'platform', 'recipe.html'), 'utf8');
+	path.join(__dirname, '..', 'platform', 'recipe-page.js'), 'utf8');
 ok(nutritionSrc.includes('[:—–-]'),
    'nutrition.js uses the [:—–-] separator class');
-ok(recipeSrc.includes('/\\s[—–\\-]\\s|:\\s/'),
-   'recipe.html applySwap uses /\\s[—–\\-]\\s|:\\s/');
+ok(recipeSrc.includes('function swapAmountSuffix(part)'),
+	 'recipe-page.js keeps explicitly specified replacement amounts');
+ok(recipeSrc.includes('const replacementAmount = swapAmountSuffix(structuredSwapName) || swapAmountSuffix(partText);'),
+	 'applySwap gives a structured replacement amount priority over the original amount');
 
 // --- Functional: all four separators parse to the same (name, num, unit) ---
 const SEPARATORS = [
@@ -68,7 +71,7 @@ for (const c of CASES) {
   }
 }
 
-console.log('\nrecipe.html applySwap — amount suffix extracted for every separator:');
+console.log('\nrecipe-page.js applySwap — amount suffix extracted for every separator:');
 for (const c of CASES) {
   for (const sep of SEPARATORS) {
     const orig = c.name + sep.s + c.amount;
@@ -78,6 +81,16 @@ for (const c of CASES) {
        `${sep.label}: "${orig}" → amountPart="${amountPart}"`);
   }
 }
+
+console.log('\nreplacement amounts:');
+const linkedReplacement = '[Соус из кешью](cashew-sauce) — 50 г';
+const linkedReplacementAmount = linkedReplacement.match(SWAP_AMOUNT_SUFFIX_RE);
+ok(linkedReplacementAmount && linkedReplacementAmount[0] === ' — 50 г',
+	 'a linked replacement keeps its own 50 g instead of the original ingredient amount');
+const structuredReplacement = 'Соус из кешью: 50 г';
+const structuredReplacementAmount = structuredReplacement.match(SWAP_AMOUNT_SUFFIX_RE);
+ok(structuredReplacementAmount && structuredReplacementAmount[0] === ': 50 г',
+	 'a structured swap option can override an older textual replacement amount');
 
 // --- Negative: section header "— Тесто —" must NOT look like a name:amount line ---
 console.log('\nnegative cases:');

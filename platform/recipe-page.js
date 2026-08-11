@@ -964,12 +964,29 @@
 			return t.charAt(0).toUpperCase() + t.slice(1);
 		}
 
+		// Keep an explicitly specified amount from a replacement. This matters most
+		// for linked recipes: their card title replaces the raw swap text, but must
+		// not bring the original ingredient's amount along with it.
+		function swapAmountSuffix(part) {
+			if (!part) return '';
+			const separatedAmount = part.match(/(?:\s[—–\-]\s|:\s)(\d+(?:[.,]\d+)?\s*(?:г|гр|грамм|кг|мл|л|ст\.?\s*л\.?|ч\.?\s*л\.?|шт\.?).*)$/i);
+			if (separatedAmount) return separatedAmount[0];
+			const parenthesizedAmount = part.match(/\s*(\([^)]*\d+(?:[.,]\d+)?\s*(?:г|гр|грамм|кг|мл|л|ст\.?\s*л\.?|ч\.?\s*л\.?|шт\.?).*\))\s*$/i);
+			if (parenthesizedAmount) return ' ' + parenthesizedAmount[1];
+			const trailingAmount = part.match(/\s+(\d+(?:[.,]\d+)?\s*(?:г|гр|грамм|кг|мл|л|ст\.?\s*л\.?|ч\.?\s*л\.?|шт\.?)\.?)\s*$/i);
+			return trailingAmount ? ' — ' + trailingAmount[1] : '';
+		}
+
 		function renderSwapOptions(swapText, i, origName, ing) {
 			const parts = splitSwapAlternatives(swapText);
 			const origAmountG = parseAmountGrams(origName);
+			const structuredSwapNames = Array.isArray(ing && ing.swap_options)
+				? ing.swap_options.map(option => option && typeof option.name === 'string' ? option.name : '')
+				: [];
 			_swapInfo[i] = {
 				origName: origName,
 				parts: parts,
+				structuredSwapNames: structuredSwapNames,
 				origAmountG: origAmountG,
 				manualDelta: normalizeSwapNutritionDelta(ing && typeof ing === 'object' ? ing.swap_nutrition : null),
 				manualDeltas: normalizeSwapNutritionDeltas(ing && typeof ing === 'object' ? ing.swap_nutrition : null)
@@ -999,6 +1016,10 @@
 			const origText = info.origName || '';
 			const dashMatch = origText.match(/\s[—–\-]\s|:\s/);
 			const amountPart = dashMatch ? origText.substring(origText.indexOf(dashMatch[0])) : '';
+			// A replacement's explicit measure always takes precedence over the original
+			// one. For example, 100 g yogurt can become 50 g cashew sauce.
+			const structuredSwapName = info.structuredSwapNames && info.structuredSwapNames[j];
+			const replacementAmount = swapAmountSuffix(structuredSwapName) || swapAmountSuffix(partText);
 			// Skip appending amountPart if the replacement text already carries a measure
 			// (e.g. "Консервированная фасоль — 300 г", "Тамари: 1 ст. л.", "Тофу (50 г)", "Йогурт 100 г").
 			const displayPartHasAmount =
@@ -1006,7 +1027,7 @@
 				/:\s*\d/.test(displayPart) ||
 				/\([^)]*\d[^)]*\)/.test(displayPart) ||
 				/\d+\s*(г|мл|кг|ст\.?\s*л\.?|ч\.?\s*л\.?)\b/i.test(displayPart);
-			const effectiveAmount = displayPartHasAmount ? '' : amountPart;
+			const effectiveAmount = replacementAmount || (displayPartHasAmount ? '' : amountPart);
 			const newLabel = displayPart + effectiveAmount;
 
 			const nameEl = document.getElementById('ing-name-' + i);
@@ -1040,10 +1061,11 @@
 				// Source priority: RECIPES (linked recipe) → INGREDIENT_DB. If either side
 				// can't be resolved or the amount is unknown, skip delta (rename-only).
 				const origSrc = _resolveNutritionSource(info.origName || '');
-				const amountG = info.origAmountG || 0;
-				if (origSrc && replSrc && amountG > 0) {
-					const o = _contribution(origSrc, amountG);
-					const n = _contribution(replSrc, amountG);
+				const origAmountG = info.origAmountG || 0;
+				const replacementAmountG = parseAmountGrams(structuredSwapName) || parseAmountGrams(partText) || origAmountG;
+				if (origSrc && replSrc && origAmountG > 0 && replacementAmountG > 0) {
+					const o = _contribution(origSrc, origAmountG);
+					const n = _contribution(replSrc, replacementAmountG);
 					if (o && n) {
 						delta = {
 							kcal:    Math.round(n.kcal    - o.kcal),

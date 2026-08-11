@@ -29,7 +29,7 @@ INSERT INTO recipes (
     {"name": "Кабачок — 1 средний", "swap": null},
     {"name": "Чеснок — 1 зубчик", "swap": null},
     {"name": "Оливковое масло — 1 ч. л.", "swap": null},
-    {"name": "Йогурт — 100 г", "swap": "[Соус из кешью](cashew-sauce) — 2 ст. л."},
+    {"name": "Йогурт — 100 г", "swap": "[Соус из кешью](cashew-sauce) — 50 г"},
     {"name": "Вода от варки пасты — 5 ст. л.", "swap": null}
   ]'::jsonb,
   '[
