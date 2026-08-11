@@ -365,6 +365,7 @@
             if (typeof item === 'string') item = { name: item, swap: null };
             addIngredient(item.name || '', item.swap || '', item.omit_nutrition || nutritionDeltaToPositive(item.omit_delta) || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || [], item.swap_nutrition || null, item.omit || '');
         });
+        syncRecipeDietaryFlagsFromIngredients();
 
         // Steps
         var steps = r.steps || [];
@@ -1569,6 +1570,7 @@
                 if (typeof item === 'string') item = { name: item };
                 addIngredient(item.name || '', item.swap || '', item.omit_nutrition || nutritionDeltaToPositive(item.omit_delta) || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || [], item.swap_nutrition || null, item.omit || '');
             });
+            syncRecipeDietaryFlagsFromIngredients();
 
             // Steps
             (r.steps || []).forEach(function(s) {
@@ -1932,6 +1934,7 @@
                 if (typeof item === 'string') item = { name: item };
                 addIngredient(item.name || '', item.swap || '', item.omit_nutrition || nutritionDeltaToPositive(item.omit_delta) || null, item.omit_hint || '', item.dietary_flags || [], item.swap_options || [], item.swap_nutrition || null, item.omit || '');
             });
+            syncRecipeDietaryFlagsFromIngredients();
             filled.push('ingredients');
         }
 
