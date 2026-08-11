@@ -583,6 +583,7 @@
 
 		// Balance wizard (mobile ≤1024) — current step index into _balGroups
 		let _wizardStep = 0;
+		let _wizardCollapsed = false;
 		// Desktop accordion — per-prefix open/closed. First group open by default.
 		let _accordionOpen = { p: true, f: false, c: false, fi: false };
 		// Static metadata per group (icon, desktop/mobile title, colors)
@@ -1507,6 +1508,7 @@
 			_balGroups = _balCats;
 			_balRequired = _balCats.filter(c => !c.optional);
 			_wizardStep = 0;
+			_wizardCollapsed = false;
 			_accordionOpen = { p: false, f: false, c: false, fi: false };
 			if (_balCats[0]) _accordionOpen[_balCats[0].prefix] = true;
 
@@ -1960,10 +1962,16 @@
 		// Desktop accordion: toggle one group open/closed (multiple can be open at once)
 		function balToggleAccordion(prefix) {
 			// Mobile keeps group headings visible as a quick way to move through the
-			// wizard. Route their tap to that step instead of leaving a dead control.
+			// wizard. The active heading also works as an accordion toggle.
 			if (window.innerWidth <= 1024) {
 				const step = _balGroups.findIndex(group => group.prefix === prefix);
-				if (step >= 0) balWizardSetStep(step);
+				if (step < 0) return;
+				if (step === _wizardStep) {
+					_wizardCollapsed = !_wizardCollapsed;
+					updateWizardUI();
+				} else {
+					balWizardSetStep(step);
+				}
 				return;
 			}
 			_accordionOpen[prefix] = !_accordionOpen[prefix];
@@ -1977,13 +1985,13 @@
 			if (!total) return;
 			const next = _wizardStep + delta;
 			if (next < 0 || next >= total) return;
-			_wizardStep = next;
-			updateWizardUI();
+			balWizardSetStep(next);
 		}
 		function balWizardSetStep(i) {
 			const total = _balGroups.length;
 			if (!total || i < 0 || i >= total) return;
 			_wizardStep = i;
+			_wizardCollapsed = false;
 			updateWizardUI();
 		}
 		function updateWizardUI() {
@@ -1995,6 +2003,7 @@
 			if (!cat) return;
 			const meta = GROUP_META[cat.prefix] || {};
 			root.dataset.wizardStep = String(_wizardStep);
+			root.dataset.wizardCollapsed = String(_wizardCollapsed);
 
 			// Editorial: clear any legacy per-group color vars so the wizard head
 			// stays in the neutral palette (--accent / --text) regardless of step.

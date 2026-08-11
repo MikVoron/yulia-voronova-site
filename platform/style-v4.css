@@ -1756,6 +1756,9 @@ img { display: block; max-width: 100%; }
     .bal-sidebar[data-wizard-step="1"] .bal-group[data-step="1"] > .bal-group-body,
     .bal-sidebar[data-wizard-step="2"] .bal-group[data-step="2"] > .bal-group-body,
     .bal-sidebar[data-wizard-step="3"] .bal-group[data-step="3"] > .bal-group-body { display: block; padding: 12px; }
+    /* Group headers remain visible in the mobile wizard. A second tap on the
+       active header collapses its items, while a tap on another header opens it. */
+    .bal-sidebar[data-wizard-collapsed="true"] .bal-group > .bal-group-body { display: none !important; }
     /* Desktop-only progress pills hidden on mobile */
     .bal-sidebar .bal-progress { display: none; }
 }
