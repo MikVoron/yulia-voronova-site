@@ -504,6 +504,7 @@
 					'<div class="rp-meta rp-meta-sub">' +
 						'<span>⏱ ' + escHtml(timeMeta.short) + '</span>' +
 						'<span>· ' + escHtml(diffLabel) + '</span>' +
+						(timeMeta.note ? '<span style="flex-basis:100%;margin-top:-3px">↳ ' + escHtml(timeMeta.note) + '</span>' : '') +
 					'</div>' +
 					tagsHtml +
 					'<div class="rp-cta-block">' +
