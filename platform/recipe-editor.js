@@ -586,12 +586,9 @@
         omitNutrition = nutritionDeltaToPositive(omitNutrition);
         swapNutrition = normalizeSwapNutritionForEditor(swapNutrition);
         omitHint = (typeof omitHint === 'string' ? omitHint : '').trim();
-        dietaryFlags = Array.isArray(dietaryFlags) ? dietaryFlags.join(', ') : '';
-        swapOptions = Array.isArray(swapOptions) ? swapOptions.map(function(option) {
-            if (!option || !option.name) return '';
-            var flags = Array.isArray(option.dietary_flags) ? option.dietary_flags.join(',') : '';
-            return option.name + (flags ? '|' + flags : '');
-        }).filter(Boolean).join('; ') : '';
+        var initialDietaryFlags = normalizeEditorDietaryFlags(dietaryFlags);
+        var initialSwapOptions = normalizeEditorDietarySwapOptions(swapOptions);
+        var initialSwapOptionNames = initialSwapOptions.map(function(option) { return option.name; }).join('; ');
         var list = document.getElementById('re-ingredients-list');
         var item = document.createElement('div');
         item.className = 're-list-item';
@@ -612,11 +609,16 @@
                 '</div>' +
                 '<div class="re-item-row">' +
                     '<span class="re-item-label-inline">Диета</span>' +
-                    '<input class="re-item-input" data-field="dietary_flags" placeholder="Признаки ингредиента: milk, gluten" value="' + escAttr(dietaryFlags) + '">' +
+                    '<div class="re-inline-dietary-checks" data-role="ingredient-dietary-checks">' +
+                        editorDietaryChecksHtml('ingredient', initialDietaryFlags) +
+                    '</div>' +
                 '</div>' +
                 '<div class="re-item-row">' +
                     '<span class="re-item-label-inline">Замены для фильтра</span>' +
-                    '<input class="re-item-input" data-field="swap_options" placeholder="Соус из кешью|nuts; Соус из фасоли" value="' + escAttr(swapOptions) + '">' +
+                    '<div class="re-swap-dietary-fields">' +
+                        '<input class="re-item-input" data-field="swap_options" placeholder="Соус из кешью; Соус из фасоли" value="' + escAttr(initialSwapOptionNames) + '">' +
+                        '<div class="re-swap-dietary-options" data-role="swap-dietary-options"></div>' +
+                    '</div>' +
                 '</div>' +
                 '<div class="re-ingredient-omit-box" data-role="swap-nutrition-box">' +
                     '<label class="re-ingredient-omit-toggle">' +
@@ -682,6 +684,15 @@
             omitInput.addEventListener('input', function() { refreshIngredientOptionalUi(item); });
             omitInput.addEventListener('change', function() { refreshIngredientOptionalUi(item); });
         }
+        item.querySelectorAll('[data-ingredient-dietary-flag]').forEach(function(input) {
+            input.addEventListener('change', syncRecipeDietaryFlagsFromIngredients);
+        });
+        var swapOptionsInput = item.querySelector('[data-field="swap_options"]');
+        if (swapOptionsInput) {
+            swapOptionsInput.addEventListener('input', function() { renderSwapDietaryOptions(item); });
+            swapOptionsInput.addEventListener('change', function() { renderSwapDietaryOptions(item); });
+        }
+        renderSwapDietaryOptions(item, initialSwapOptions);
         initDrag(item, list);
         renderSwapReplacementNutritionRows(item, swapNutrition);
         refreshIngredientOptionalUi(item);
@@ -905,6 +916,16 @@
     }
 
     var DIETARY_FLAG_CODES = ['meat', 'fish', 'milk', 'eggs', 'gluten', 'peanuts', 'nuts', 'animal_products'];
+    var DIETARY_FLAG_LABELS = {
+        meat: 'мясо',
+        fish: 'рыба',
+        milk: 'молоко',
+        eggs: 'яйца',
+        gluten: 'глютен',
+        peanuts: 'арахис',
+        nuts: 'орехи',
+        animal_products: 'животные продукты'
+    };
 
     function parseDietaryFlags(raw) {
         var out = [];
@@ -913,6 +934,107 @@
             if (DIETARY_FLAG_CODES.indexOf(flag) !== -1 && out.indexOf(flag) === -1) out.push(flag);
         });
         return out;
+    }
+
+    function normalizeEditorDietaryFlags(value) {
+        return Array.isArray(value)
+            ? parseDietaryFlags(value.join(','))
+            : parseDietaryFlags(value);
+    }
+
+    function normalizeEditorDietarySwapOptions(value) {
+        if (Array.isArray(value)) {
+            return value.map(function(option) {
+                if (!option || typeof option.name !== 'string' || !option.name.trim()) return null;
+                return {
+                    name: option.name.trim(),
+                    dietary_flags: normalizeEditorDietaryFlags(option.dietary_flags)
+                };
+            }).filter(Boolean);
+        }
+        return String(value || '').split(';').map(function(entry) {
+            var bits = entry.trim().split('|');
+            var name = (bits.shift() || '').trim();
+            if (!name) return null;
+            return { name: name, dietary_flags: parseDietaryFlags(bits.join(',')) };
+        }).filter(Boolean);
+    }
+
+    function editorDietaryChecksHtml(kind, flags) {
+        var selected = normalizeEditorDietaryFlags(flags);
+        var attr = kind === 'ingredient' ? 'data-ingredient-dietary-flag' : 'data-swap-dietary-flag';
+        return DIETARY_FLAG_CODES.map(function(flag) {
+            return '<label class="re-inline-dietary-check">' +
+                '<input type="checkbox" ' + attr + '="' + flag + '"' + (selected.indexOf(flag) !== -1 ? ' checked' : '') + '>' +
+                '<span>' + DIETARY_FLAG_LABELS[flag] + '</span>' +
+            '</label>';
+        }).join('');
+    }
+
+    function selectedDietaryFlags(container, selector) {
+        if (!container) return [];
+        return Array.from(container.querySelectorAll(selector + ':checked')).map(function(input) {
+            return input.getAttribute(selector.slice(1, -1));
+        }).filter(function(flag, index, flags) {
+            return DIETARY_FLAG_CODES.indexOf(flag) !== -1 && flags.indexOf(flag) === index;
+        });
+    }
+
+    function ingredientDietaryFlags(item) {
+        return selectedDietaryFlags(item, '[data-ingredient-dietary-flag]');
+    }
+
+    function readSwapDietaryOptions(item) {
+        if (!item) return [];
+        return Array.from(item.querySelectorAll('[data-role="swap-dietary-option"]')).map(function(row) {
+            var name = (row.getAttribute('data-option-name') || '').trim();
+            if (!name) return null;
+            return { name: name, dietary_flags: selectedDietaryFlags(row, '[data-swap-dietary-flag]') };
+        }).filter(Boolean);
+    }
+
+    function renderSwapDietaryOptions(item, initialOptions) {
+        if (!item) return;
+        var input = item.querySelector('[data-field="swap_options"]');
+        var box = item.querySelector('[data-role="swap-dietary-options"]');
+        if (!input || !box) return;
+        var previousByName = {};
+        readSwapDietaryOptions(item).forEach(function(option) {
+            previousByName[option.name.toLowerCase()] = option.dietary_flags;
+        });
+        var options = Array.isArray(initialOptions)
+            ? normalizeEditorDietarySwapOptions(initialOptions)
+            : normalizeEditorDietarySwapOptions(input.value);
+        options.forEach(function(option) {
+            var previous = previousByName[option.name.toLowerCase()];
+            if (previous && !option.dietary_flags.length) option.dietary_flags = previous;
+        });
+        box.innerHTML = options.map(function(option) {
+            return '<div class="re-swap-dietary-option" data-role="swap-dietary-option" data-option-name="' + escAttr(option.name) + '">' +
+                '<span class="re-swap-dietary-option-name">' + esc(option.name) + '</span>' +
+                '<div class="re-inline-dietary-checks">' + editorDietaryChecksHtml('swap', option.dietary_flags) + '</div>' +
+            '</div>';
+        }).join('');
+    }
+
+    function syncRecipeDietaryFlagsFromIngredients() {
+        var ingredientFlags = [];
+        document.querySelectorAll('#re-ingredients-list .re-list-item').forEach(function(item) {
+            ingredientDietaryFlags(item).forEach(function(flag) {
+                if (ingredientFlags.indexOf(flag) === -1) ingredientFlags.push(flag);
+            });
+        });
+        document.querySelectorAll('[data-recipe-dietary-flag]').forEach(function(input) {
+            var flag = input.getAttribute('data-recipe-dietary-flag');
+            if (ingredientFlags.indexOf(flag) !== -1 && !input.checked) {
+                input.checked = true;
+                input.dataset.autoDerived = 'true';
+            } else if (ingredientFlags.indexOf(flag) === -1 && input.dataset.autoDerived === 'true') {
+                input.checked = false;
+                delete input.dataset.autoDerived;
+            }
+        });
+        getRecipeDietaryFlags();
     }
 
     function setRecipeDietaryFlags(flags) {
@@ -936,16 +1058,7 @@
     }
 
     function parseDietarySwapOptions(raw) {
-        var out = [];
-        String(raw || '').split(';').forEach(function(value) {
-            var part = value.trim();
-            if (!part) return;
-            var bits = part.split('|');
-            var name = bits.shift().trim();
-            if (!name) return;
-            out.push({ name: name, dietary_flags: parseDietaryFlags(bits.join(',')) });
-        });
-        return out;
+        return normalizeEditorDietarySwapOptions(raw);
     }
 
     function readIngredientNutrition(item, prefix) {
@@ -986,11 +1099,9 @@
             }
             var ingredient = { name: name, swap: swap || null };
             if (omitText) ingredient.omit = omitText;
-            var dietaryFlagsInput = ingrItems[i].querySelector('[data-field="dietary_flags"]');
-            var ingredientDietaryFlags = parseDietaryFlags(dietaryFlagsInput ? dietaryFlagsInput.value : '');
-            if (ingredientDietaryFlags.length) ingredient.dietary_flags = ingredientDietaryFlags;
-            var swapOptionsInput = ingrItems[i].querySelector('[data-field="swap_options"]');
-            var dietarySwapOptions = parseDietarySwapOptions(swapOptionsInput ? swapOptionsInput.value : '');
+            var currentIngredientDietaryFlags = ingredientDietaryFlags(ingrItems[i]);
+            if (currentIngredientDietaryFlags.length) ingredient.dietary_flags = currentIngredientDietaryFlags;
+            var dietarySwapOptions = readSwapDietaryOptions(ingrItems[i]);
             if (dietarySwapOptions.length) ingredient.swap_options = dietarySwapOptions;
             var isOptional = !!omitText || (swap && isOptionalSwapText(swap));
             var swapNutritionToggle = ingrItems[i].querySelector('[data-role="swap-nutrition-toggle"]');
@@ -1055,6 +1166,7 @@
             return result;
         }
 
+        syncRecipeDietaryFlagsFromIngredients();
         var tags = document.getElementById('re-tags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
         var categories = getCategories();
 
@@ -1512,6 +1624,10 @@
     }
     document.getElementById('editor-content').addEventListener('input', schedulePreviewRefresh);
     document.getElementById('editor-content').addEventListener('change', schedulePreviewRefresh);
+    document.getElementById('re-dietary-checks').addEventListener('change', function(event) {
+        var input = event.target;
+        if (input && input.hasAttribute('data-recipe-dietary-flag')) delete input.dataset.autoDerived;
+    });
 
     // ══════════════════════════════════════════════════════════════════════
     // UNSAVED CHANGES WARNING

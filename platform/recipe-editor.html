@@ -275,6 +275,52 @@
         }
         .re-dietary-code-field { display: none; }
 
+        .re-inline-dietary-checks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+            flex: 1;
+            min-width: 0;
+        }
+        .re-inline-dietary-check {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            line-height: 1.2;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .re-inline-dietary-check input {
+            width: 14px;
+            height: 14px;
+            margin: 0;
+            accent-color: var(--accent);
+        }
+        .re-swap-dietary-fields { flex: 1; min-width: 0; }
+        .re-swap-dietary-fields > .re-item-input { width: 100%; }
+        .re-swap-dietary-options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 7px;
+        }
+        .re-swap-dietary-option {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+            align-items: center;
+            padding: 7px 9px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #fffaf7;
+        }
+        .re-swap-dietary-option-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-2);
+        }
+
         /* ── Buttons ── */
         .re-btn {
             padding: 10px 20px;
@@ -1662,6 +1708,6 @@
 
 <script src="data-v2.js?v=20260805-plate-feedback"></script>
 <script src="ingredients.js?v=20260711-oats-seabass"></script>
-<script src="recipe-editor.js?v=20260713-csp-template-actions"></script>
+<script src="recipe-editor.js?v=20260811-dietary-checkboxes"></script>
 </body>
 </html>

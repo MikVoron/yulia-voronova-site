@@ -237,7 +237,7 @@ describe('SmartPlate CSP script migration', () => {
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
     expect(html.match(/\sdata-editor-static-action=/g)).toHaveLength(19);
     expect(html.match(/\sdata-addon-group=/g)).toHaveLength(4);
-    expect(html).toContain('recipe-editor.js?v=20260713-csp-template-actions');
+    expect(html).toContain('recipe-editor.js?v=20260811-dietary-checkboxes');
     expect(script).toContain("document.querySelectorAll('[data-editor-static-action]')");
     expect(script).toContain("addAddItem(control.dataset.addonGroup || '')");
     expect(script).not.toMatch(/\son[a-z]+\s*=/i);
