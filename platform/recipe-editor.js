@@ -1889,7 +1889,7 @@
         difficulty: 'Сложность', servings: 'Порции', portion_grams: 'Грамм/порц.',
         kcal: 'Ккал', protein: 'Белки', fat: 'Жиры', carbs: 'Углеводы', fiber: 'Клетчатка',
         ingredients: 'Ингредиенты', steps: 'Шаги', tags: 'Теги',
-        quote: 'Цитата', note: 'Примечание', photo: 'Фото',
+        quote: 'Цитата', note: 'Важно', photo: 'Фото',
         yt_video: 'YouTube', vk_video: 'VK Video', dzen_video: 'Дзен'
     };
 
