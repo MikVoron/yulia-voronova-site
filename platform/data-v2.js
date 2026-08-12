@@ -1127,7 +1127,7 @@ let _contentErrorDetails = null;
 let _contentIsStale = false;
 let _contentRefreshInFlight = null;
 const LEGACY_CONTENT_CACHE_PREFIX = 'sp_content_cache_v1:';
-const CONTENT_CACHE_PREFIX = 'sp_content_cache_v2:';
+const CONTENT_CACHE_PREFIX = 'sp_content_cache_v3:';
 const CONTENT_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
 const CONTENT_STALE_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
 
@@ -1434,6 +1434,11 @@ function getCategoryDishes(catId, filters = {}) {
     const cat = CATEGORIES[catId];
     if (!cat) return [];
     let dishes = cat.dishes.map(id => RECIPES[id]).filter(Boolean);
+    // Выбранная обложка — и главное блюдо категории. Сортировку остальных
+    // рецептов не меняем; этот приоритет действует только внутри категории.
+    if (cat.coverRecipeId) {
+        dishes.sort((a, b) => (b.id === cat.coverRecipeId) - (a.id === cat.coverRecipeId));
+    }
     if (filters.time) {
         if (filters.time === 'over60') dishes = dishes.filter(d => d.time > 60);
         else dishes = dishes.filter(d => d.time <= filters.time);
