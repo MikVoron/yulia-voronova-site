@@ -83,7 +83,6 @@ ON CONFLICT (id) DO UPDATE SET
   add_fiber = EXCLUDED.add_fiber,
   main_ingredients = EXCLUDED.main_ingredients,
   portion_grams = EXCLUDED.portion_grams,
-  is_published = EXCLUDED.is_published,
   updated_at = now();
 
 INSERT INTO recipe_categories (recipe_id, category_id)
