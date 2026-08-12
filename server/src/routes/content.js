@@ -226,6 +226,55 @@ async function contentRoutes(fastify) {
       .map(({ recipe_ingredients, recipe_dietary_flags, recipe_dietary_verified, ...row }) => row);
   });
 
+  // GET /content/updates — unread published news for the signed-in user.
+  // Recipe announcements retain their exact target and cover; regular news
+  // renders as a platform update. Guests do not receive a notification badge.
+  fastify.get('/content/updates', { preHandler: [authenticate] }, async (req) => {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 20);
+    const result = await db.query(
+      `SELECT n.id, n.type, n.text, n.recipe_id, n.badge, n.label, n.created_at,
+              r.name AS recipe_name, r.photo AS recipe_photo,
+              r.time_min AS recipe_time_min, r.difficulty AS recipe_difficulty,
+              r.servings AS recipe_servings, r.kcal AS recipe_kcal
+       FROM news n
+       JOIN users u ON u.id = $1
+       LEFT JOIN user_content_updates_seen seen
+         ON seen.user_id = u.id AND seen.news_id = n.id
+       LEFT JOIN recipes r ON r.id = n.recipe_id AND r.is_published = true
+       WHERE n.is_published = true
+         AND n.created_at >= u.created_at
+         AND seen.news_id IS NULL
+       ORDER BY n.created_at DESC
+       LIMIT $2`,
+      [req.user.sub, limit]
+    );
+    return result.rows;
+  });
+
+  // POST /content/updates/:id/read — records read state only when the user
+  // opens an update. It never changes the source news item or sends email.
+  fastify.post('/content/updates/:id/read', {
+    preHandler: [authenticate],
+    config: { rateLimit: { max: 60, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
+    const newsId = Number(req.params.id);
+    if (!Number.isInteger(newsId) || newsId <= 0) {
+      return reply.status(400).send({ error: 'Некорректный идентификатор обновления' });
+    }
+    const result = await db.query(
+      `INSERT INTO user_content_updates_seen (user_id, news_id)
+       SELECT u.id, n.id
+       FROM users u
+       JOIN news n ON n.id = $2 AND n.is_published = true
+       WHERE u.id = $1 AND n.created_at >= u.created_at
+       ON CONFLICT (user_id, news_id) DO UPDATE SET seen_at = now()
+       RETURNING news_id`,
+      [req.user.sub, newsId]
+    );
+    if (!result.rows.length) return reply.status(404).send({ error: 'Обновление не найдено' });
+    return { ok: true };
+  });
+
   // GET /content/recipes — all published recipes
   // Stripping (ingredients, steps, note) применяется по матрице:
   //   guest        → full только для access_level='free'

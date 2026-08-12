@@ -580,11 +580,12 @@
 
     window.openNewsModal = function(newsItem) {
         var m = document.getElementById('news-modal');
+        var recipeId = newsItem ? (newsItem.recipe_id || '') : '';
         document.getElementById('news-modal-title').textContent = newsItem ? 'Редактировать' : 'Новая новость';
         document.getElementById('news-edit-id').value = newsItem ? newsItem.id : '';
         document.getElementById('news-type').value = newsItem ? newsItem.type : 'news';
         document.getElementById('news-text').value = newsItem ? newsItem.text : '';
-        document.getElementById('news-recipe-id').value = newsItem ? (newsItem.recipe_id || '') : '';
+        populateNewsRecipeSelect(recipeId);
         document.getElementById('news-badge').value = newsItem ? (newsItem.badge || '') : '';
         document.getElementById('news-label').value = newsItem ? (newsItem.label || '') : '';
         document.getElementById('news-published').checked = newsItem ? newsItem.is_published : true;
@@ -593,11 +594,39 @@
     };
 
     document.getElementById('news-type').addEventListener('change', toggleNewsRecipeFields);
+    document.getElementById('news-recipe-id').addEventListener('change', syncNewsSaveState);
+    function populateNewsRecipeSelect(selectedId) {
+        var select = document.getElementById('news-recipe-id');
+        select.innerHTML = '<option value="">Загрузка рецептов…</option>';
+        ensureAdminRecipesLoaded().then(function(recipes) {
+            var published = recipes.filter(function(recipe) {
+                return recipe && recipe.id && (recipe.is_published || recipe.id === selectedId);
+            }).sort(function(a, b) {
+                return String(a.name || '').localeCompare(String(b.name || ''), 'ru');
+            });
+            select.innerHTML = '<option value="">Выберите рецепт</option>' + published.map(function(recipe) {
+                return '<option value="' + esc(recipe.id) + '">' + esc(recipe.name || recipe.id) + '</option>';
+            }).join('');
+            select.value = selectedId || '';
+            syncNewsSaveState();
+        });
+    }
+
     function toggleNewsRecipeFields() {
         var isRecipe = document.getElementById('news-type').value === 'recipe';
         document.getElementById('news-recipe-field').style.display = isRecipe ? '' : 'none';
         document.getElementById('news-badge-field').style.display = isRecipe ? '' : 'none';
         document.getElementById('news-label-field').style.display = isRecipe ? '' : 'none';
+        syncNewsSaveState();
+    }
+
+    function syncNewsSaveState() {
+        var isRecipe = document.getElementById('news-type').value === 'recipe';
+        var selectedRecipe = document.getElementById('news-recipe-id').value;
+        var saveButton = document.getElementById('news-save');
+        var disabled = isRecipe && !selectedRecipe;
+        saveButton.disabled = disabled;
+        saveButton.title = disabled ? 'Сначала выберите рецепт' : '';
     }
 
     window.closeNewsModal = function() { document.getElementById('news-modal').classList.remove('open'); };
@@ -617,10 +646,17 @@
 
     window.saveNews = function() {
         var editId = document.getElementById('news-edit-id').value;
+        var type = document.getElementById('news-type').value;
+        var recipeId = document.getElementById('news-recipe-id').value;
+        if (type === 'recipe' && !recipeId) {
+            showToast('Выберите рецепт для анонса');
+            document.getElementById('news-recipe-id').focus();
+            return;
+        }
         var body = {
-            type: document.getElementById('news-type').value,
+            type: type,
             text: document.getElementById('news-text').value,
-            recipe_id: document.getElementById('news-recipe-id').value || null,
+            recipe_id: recipeId || null,
             badge: document.getElementById('news-badge').value || null,
             label: document.getElementById('news-label').value || null,
             is_published: document.getElementById('news-published').checked

@@ -543,6 +543,126 @@ document.addEventListener('DOMContentLoaded', function () {
     Feedback.refresh();
 });
 
+// ─── CONTENT UPDATES ────────────────────────────────────────────────────────
+// Новые рецепты и важные текстовые новости живут в одной ленте. Бейдж
+// появляется только у авторизованных пользователей и исчезает после открытия
+// конкретного обновления, а не просто после раскрытия панели.
+const ContentUpdates = {
+    _wired: false,
+    _escape(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    },
+    _date(value) {
+        try { return new Date(value).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }); }
+        catch (e) { return ''; }
+    },
+    _ensureUi() {
+        const host = document.getElementById('user-wrap');
+        const profile = document.getElementById('user-badge');
+        if (!host || !profile) return null;
+        let wrap = document.getElementById('sp-updates');
+        if (wrap) return wrap;
+        wrap = document.createElement('div');
+        wrap.className = 'sp-updates';
+        wrap.id = 'sp-updates';
+        wrap.hidden = true;
+        wrap.innerHTML = '<button class="sp-updates-btn" id="sp-updates-btn" type="button" aria-expanded="false" aria-controls="sp-updates-panel">'
+            + '<span class="sp-updates-label">Новое</span><span class="sp-updates-count" id="sp-updates-count">0</span>'
+            + '</button><aside class="sp-updates-panel" id="sp-updates-panel" aria-label="Новые обновления"></aside>';
+        host.insertBefore(wrap, profile);
+        const button = document.getElementById('sp-updates-btn');
+        const panel = document.getElementById('sp-updates-panel');
+        button.addEventListener('click', function(event) {
+            event.stopPropagation();
+            const open = panel.classList.toggle('open');
+            button.setAttribute('aria-expanded', String(open));
+        });
+        panel.addEventListener('click', async function(event) {
+            const link = event.target.closest('[data-content-update-id]');
+            if (!link) return;
+            event.preventDefault();
+            const href = link.getAttribute('href');
+            try { await ContentUpdates.markRead(link.dataset.contentUpdateId); } catch (e) {}
+            location.href = href;
+        });
+        if (!this._wired) {
+            this._wired = true;
+            document.addEventListener('click', function(event) {
+                if (event.target.closest('#sp-updates')) return;
+                const activePanel = document.getElementById('sp-updates-panel');
+                const activeButton = document.getElementById('sp-updates-btn');
+                if (activePanel) activePanel.classList.remove('open');
+                if (activeButton) activeButton.setAttribute('aria-expanded', 'false');
+            });
+            document.addEventListener('keydown', function(event) {
+                if (event.key !== 'Escape') return;
+                const activePanel = document.getElementById('sp-updates-panel');
+                const activeButton = document.getElementById('sp-updates-btn');
+                if (activePanel) activePanel.classList.remove('open');
+                if (activeButton) activeButton.setAttribute('aria-expanded', 'false');
+            });
+        }
+        return wrap;
+    },
+    _render(items) {
+        const panel = document.getElementById('sp-updates-panel');
+        if (!panel) return;
+        const countLabel = items.length === 1 ? '1 обновление' : items.length + ' обновления';
+        panel.innerHTML = '<div class="sp-updates-panel-head"><strong>Новое</strong><span>' + countLabel + '</span></div>'
+            + items.map(function(item) {
+                const isRecipe = item.type === 'recipe' && item.recipe_id && item.recipe_name;
+                const title = isRecipe ? item.recipe_name : 'Обновление в Умной тарелке';
+                const href = isRecipe ? 'recipe.html?id=' + encodeURIComponent(item.recipe_id) : 'index.html#new-block';
+                const image = isRecipe && item.recipe_photo
+                    ? '<img src="' + ContentUpdates._escape(item.recipe_photo) + '" alt="' + ContentUpdates._escape(title) + '">'
+                    : '<span class="sp-update-icon" aria-hidden="true">✦</span>';
+                return '<a class="sp-update-item' + (isRecipe ? ' is-recipe' : '') + '" href="' + href + '" data-content-update-id="' + Number(item.id) + '">'
+                    + image + '<span class="sp-update-copy"><span class="sp-update-eyebrow">'
+                    + ContentUpdates._escape(isRecipe ? 'Новый рецепт · ' : 'Обновление · ')
+                    + ContentUpdates._escape(ContentUpdates._date(item.created_at)) + '</span>'
+                    + '<strong>' + ContentUpdates._escape(title) + '</strong>'
+                    + '<span class="sp-update-text">' + ContentUpdates._escape(item.text || '') + '</span>'
+                    + '<span class="sp-update-cta">' + (isRecipe ? 'Открыть рецепт' : 'Посмотреть') + ' →</span></span></a>';
+            }).join('') + '<div class="sp-updates-panel-foot">Отметка исчезнет после открытия обновления.</div>';
+    },
+    _apply(items) {
+        const updates = Array.isArray(items) ? items : [];
+        const wrap = this._ensureUi();
+        if (!wrap) return;
+        wrap.hidden = updates.length === 0;
+        if (!updates.length) return;
+        const badge = document.getElementById('sp-updates-count');
+        if (badge) badge.textContent = updates.length > 9 ? '9+' : String(updates.length);
+        this._render(updates);
+    },
+    async refresh() {
+        if (!Auth.getToken()) return [];
+        try {
+            const res = await Auth.api('/content/updates?limit=5');
+            if (!res.ok) return [];
+            const items = await res.json();
+            this._apply(items);
+            return items;
+        } catch (e) { return []; }
+    },
+    async markRead(id) {
+        const res = await Auth.api('/content/updates/' + encodeURIComponent(id) + '/read', { method: 'POST' });
+        if (!res.ok) throw new Error('Update could not be marked read');
+        return res.json();
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    if (!Auth.isLoggedIn()) return;
+    if (!document.getElementById('user-wrap')) return;
+    ContentUpdates.refresh();
+});
+
 // ─── ACTIVE NAV LINK ─────────────────────────────────────────────────────────
 // Подсвечивает текущую ссылку в .sp-nav по URL текущей страницы.
 // index.html  → «Главная»

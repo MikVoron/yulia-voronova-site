@@ -1543,8 +1543,11 @@
             <textarea class="adm-modal-input" id="news-text" rows="4" style="resize:vertical" placeholder="Этот текст появится в новости на платформе и в email-рассылке"></textarea>
         </div>
         <div class="adm-modal-field" id="news-recipe-field" style="display:none">
-            <label class="adm-modal-label">ID рецепта</label>
-            <input type="text" class="adm-modal-input" id="news-recipe-id" placeholder="lentil-mushroom-pilaf">
+            <label class="adm-modal-label" for="news-recipe-id">Рецепт *</label>
+            <select class="adm-modal-select" id="news-recipe-id" aria-describedby="news-recipe-hint">
+                <option value="">Загрузка рецептов…</option>
+            </select>
+            <div class="adm-modal-hint" id="news-recipe-hint">Выберите опубликованный рецепт. Тогда письмо получит тему и кнопку «Посмотреть рецепт».</div>
         </div>
         <div class="adm-modal-field" id="news-badge-field" style="display:none">
             <label class="adm-modal-label">Бейдж</label>
@@ -1560,7 +1563,7 @@
         </div>
         <div class="adm-modal-actions">
             <button class="adm-btn adm-btn-reject" data-admin-click="fdf0249d21c5">Отмена</button>
-            <button class="adm-btn adm-btn-confirm" data-admin-click="23ad11339792">Сохранить</button>
+            <button class="adm-btn adm-btn-confirm" id="news-save" data-admin-click="23ad11339792">Сохранить</button>
         </div>
     </div>
 </div>
@@ -1628,6 +1631,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260805-plate-feedback"></script>
-<script src="admin.js?v=20260811-moscow-time"></script>
+<script src="admin.js?v=20260812-recipe-news-picker"></script>
 </body>
 </html>
