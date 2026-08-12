@@ -2828,7 +2828,6 @@ img { display: block; max-width: 100%; }
     .recipe-card__meta-wrap .recipe-card-time-note { justify-content: flex-start; text-align: left; }
     /* Long ingredient actions must wrap inside the recipe column instead of
        increasing the page's minimum width and creating horizontal scrolling. */
-    .ing-item { align-items: flex-start; }
     .ing-name { overflow-wrap: anywhere; }
     .ing-optout-btn,
     .ing-swap-btn {
