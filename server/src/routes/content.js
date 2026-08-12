@@ -348,7 +348,7 @@ async function contentRoutes(fastify) {
   fastify.get('/content/categories', async (req) => {
     await optionalAuthenticate(req);
     const dietaryPreferences = await getUserDietaryPreferences(db, req.user?.sub);
-    const cats = await db.query('SELECT id, name, emoji, color, description, sort_order, auto_addons FROM categories ORDER BY sort_order');
+    const cats = await db.query('SELECT id, name, emoji, color, description, sort_order, auto_addons, cover_recipe_id FROM categories ORDER BY sort_order');
     const recipes = await db.query(
       `SELECT rc.category_id, r.id, r.ingredients, r.dietary_flags, r.dietary_verified
        FROM recipe_categories rc
@@ -979,6 +979,12 @@ async function contentRoutes(fastify) {
           [r.id, catId]
         );
       }
+      if (r.category_cover === true) {
+        await client.query(
+          'UPDATE categories SET cover_recipe_id=$1 WHERE id = ANY($2::text[])',
+          [r.id, cats]
+        );
+      }
       const afterData = buildRecipeSnapshot(result.rows[0], cats);
       const changedFields = changedRecipeFields(null, afterData);
       const requestId = String(req.id);
@@ -1086,6 +1092,30 @@ async function contentRoutes(fastify) {
           'INSERT INTO recipe_categories (recipe_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
           [req.params.id, catId]
         );
+      }
+      const removedCategoryIds = beforeCategoriesResult.rows
+        .map(row => row.category_id)
+        .filter(categoryId => !cats.includes(categoryId));
+      if (removedCategoryIds.length) {
+        await client.query(
+          'UPDATE categories SET cover_recipe_id=NULL WHERE id = ANY($1::text[]) AND cover_recipe_id=$2',
+          [removedCategoryIds, req.params.id]
+        );
+      }
+      // Обложка принадлежит категории, поэтому рецепт может оставаться в
+      // нескольких категориях без конфликта их сортировки.
+      if ('category_cover' in r) {
+        if (r.category_cover === true) {
+          await client.query(
+            'UPDATE categories SET cover_recipe_id=$1 WHERE id = ANY($2::text[])',
+            [req.params.id, cats]
+          );
+        } else {
+          await client.query(
+            'UPDATE categories SET cover_recipe_id=NULL WHERE id = ANY($1::text[]) AND cover_recipe_id=$2',
+            [cats, req.params.id]
+          );
+        }
       }
       const hasVideo = !!(r.vk_video || r.yt_video || r.dzen_video);
       await client.query(

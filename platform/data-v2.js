@@ -1232,6 +1232,7 @@ function _applyContentPayload(payload) {
             id: c.id, name: c.name, emoji: c.emoji, color: c.color,
             desc: c.description || '',
             sort_order: c.sort_order,
+            coverRecipeId: c.cover_recipe_id || null,
             dishes: c.dishes || [],
             autoAddons: c.auto_addons || {}
         };
@@ -1464,6 +1465,11 @@ function getLatestCategoryRecipe(catId) {
 }
 
 function getCategoryPhoto(catId, fallback) {
+    const category = CATEGORIES[catId];
+    const cover = category && RECIPES[category.coverRecipeId];
+    if (cover && _categoryPhotoValue(cover.photo)) {
+        return _categoryPhotoValue(cover.photo);
+    }
     const latest = getLatestCategoryRecipe(catId);
     if (!latest) return fallback || '';
     return _categoryPhotoValue(latest.photo) || fallback || '';

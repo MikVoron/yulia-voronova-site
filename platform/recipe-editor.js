@@ -216,6 +216,23 @@
     }
 
     document.getElementById('re-published').addEventListener('change', updateStatusBadge);
+    document.getElementById('re-category-cover').addEventListener('change', function() {
+        this.indeterminate = false;
+        this.dataset.touched = 'true';
+    });
+
+    function setCategoryCoverState(recipe) {
+        var checkbox = document.getElementById('re-category-cover');
+        var categoryIds = recipe.categories || (recipe.cat ? [recipe.cat] : []);
+        var covered = categoryIds.filter(function(categoryId) {
+            return (allCategoriesEditor || []).some(function(category) {
+                return category.id === categoryId && category.cover_recipe_id === recipe.id;
+            });
+        }).length;
+        checkbox.checked = covered > 0 && covered === categoryIds.length;
+        checkbox.indeterminate = covered > 0 && covered < categoryIds.length;
+        delete checkbox.dataset.touched;
+    }
 
     // ══════════════════════════════════════════════════════════════════════
     // SECTION COUNTS
@@ -336,6 +353,7 @@
         document.getElementById('re-portion-grams').value = r.portion_grams || 300;
         document.getElementById('re-sort-order').value = r.sort_order || 0;
         document.getElementById('re-published').checked = r.is_published;
+        setCategoryCoverState(r);
         document.getElementById('re-free').checked = r.is_free;
         const _alSel = document.getElementById('re-access-level');
         if (_alSel) _alSel.value = r.access_level || (r.is_free ? 'free' : 'pro');
@@ -1175,7 +1193,7 @@
         var tags = document.getElementById('re-tags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
         var categories = getCategories();
 
-        return {
+        var payload = {
             id: document.getElementById('re-id').value.trim(),
             categories: categories,
             cat: categories[0] || '',
@@ -1218,6 +1236,11 @@
             // НЕ состав рецепта, не влияют на КБЖУ. Массив id из справочника ingredients.js.
             main_ingredients: collectMainIngredients()
         };
+        var categoryCover = document.getElementById('re-category-cover');
+        if (categoryCover.dataset.touched === 'true') {
+            payload.category_cover = categoryCover.checked;
+        }
+        return payload;
     }
 
     function populateMainIngredientGroupSelect() {
@@ -1547,6 +1570,7 @@
             document.getElementById('re-portion-grams').value = r.portion_grams || 300;
             document.getElementById('re-sort-order').value = r.sort_order || 0;
             document.getElementById('re-published').checked = !!r.is_published;
+            setCategoryCoverState(r);
             document.getElementById('re-free').checked = !!r.is_free;
             const _alSel2 = document.getElementById('re-access-level');
             if (_alSel2) _alSel2.value = r.access_level || (r.is_free ? 'free' : 'pro');

@@ -1368,10 +1368,14 @@
                 <label class="re-checkbox-label">
                     <input type="checkbox" id="re-published" checked> Опубликован
                 </label>
+                <label class="re-checkbox-label" title="Фото рецепта станет обложкой всех выбранных категорий.">
+                    <input type="checkbox" id="re-category-cover"> Обложка категории
+                </label>
                 <label class="re-checkbox-label" title="Legacy-флаг для старых данных. Для новых рецептов выберите категорию «Супы»: хлеб и сухарики добавятся автоматически.">
                     <input type="checkbox" id="re-is-soup"> Суп (legacy)
                 </label>
             </div>
+            <div class="re-hint">При выборе фото этого рецепта будет показано на карточке и странице выбранной категории.</div>
 
             <div class="re-field" style="margin-top:12px">
                 <label class="re-field-label" for="re-access-level">Уровень доступа</label>
@@ -1706,8 +1710,8 @@
 <!-- Toast -->
 <div class="re-toast" id="re-toast"></div>
 
-<script src="data-v2.js?v=20260805-plate-feedback"></script>
+<script src="data-v2.js?v=20260812-category-cover"></script>
 <script src="ingredients.js?v=20260711-oats-seabass"></script>
-<script src="recipe-editor.js?v=20260811-preparation-note-label"></script>
+<script src="recipe-editor.js?v=20260812-category-cover"></script>
 </body>
 </html>
