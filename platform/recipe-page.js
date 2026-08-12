@@ -826,6 +826,15 @@
 			});
 			return _autoLink(html, selfId);
 		}
+		// The stored "можно без него" wording describes the ingredient. The visible
+		// control describes the action, consistently across existing and new recipes.
+		function optionalIngredientActionLabel(omitText) {
+			const text = String(omitText || '').trim();
+			const contextMatch = text.match(/\(([^()]*)\)\s*$/);
+			const context = contextMatch && contextMatch[1].trim();
+			return '<span class="ing-optout-label">Не добавлять</span>'
+				+ (context ? '<span class="ing-optout-context">' + escHtml(context) + '</span>' : '');
+		}
 
 		// ── INGREDIENT KBZHU DATABASE ─────────────────────────────────────────
 		// Used when an ingredient is NOT a standalone recipe in RECIPES.
@@ -1435,7 +1444,7 @@
 					};
 				}
 				const actionBtn = [
-					optional ? `<button class="ing-optout-btn" id="ing-optout-btn-${i}" data-recipe-action="opt-out" data-index="${Number(i)}">${omitText}</button>` : '',
+					optional ? `<button class="ing-optout-btn" id="ing-optout-btn-${i}" data-recipe-action="opt-out" data-index="${Number(i)}">${optionalIngredientActionLabel(omitText)}</button>` : '',
 					swapText ? `<button class="ing-swap-btn" id="ing-swap-btn-${i}" data-recipe-action="toggle-swap" data-index="${Number(i)}">чем заменить?</button>` : ''
 				].join('');
 				const swapTip = swapText
