@@ -1897,6 +1897,7 @@
 			const isChecked = !!checkedItems[key];
 			const checkedCls = isChecked ? ' checked' : '';
 			const amountHtml = item.amount ? ` <span class="bal-item-amount">· ${escHtml(item.amount)}</span>` : '';
+			const linkedAmountHtml = item.amount ? `<span class="bal-item-amount bal-item-linked-amount">${escHtml(item.amount)}</span>` : '';
 			if (hasRecipe || hasCat) {
 				if (hasRecipe) subItemRegistry[key] = item;
 				const targetUrl = hasRecipe
@@ -1907,10 +1908,13 @@
 							<button class="bal-item-select" type="button" data-balance-key="${escHtml(key)}" data-item-name="${escHtml(item.name)}" data-kcal="${Number(item.kcal || 0)}" data-protein="${Number(item.protein || 0)}" data-fat="${Number(item.fat || 0)}" data-carbs="${Number(item.carbs || 0)}" data-fiber="${Number(item.fiber || 0)}" aria-pressed="${isChecked ? 'true' : 'false'}" aria-label="${isChecked ? 'Убрать' : 'Добавить'} ${escHtml(item.name)}">
 								<span class="bal-item-check" id="chk-${key}" aria-hidden="true"></span>
 							</button>
-							<a class="bal-item-recipe-link bal-item-text" href="${escHtml(targetUrl)}">
-								<span class="bal-item-link-title"><span class="bal-item-name">${escHtml(item.name)}${amountHtml}</span><svg class="bal-item-link-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 5h5v5"/><path d="m10 14 9-9"/><path d="M19 13v6H5V5h6"/></svg></span>
-								${targetLabel ? `<span class="bal-item-recipe-label">${targetLabel}</span>` : ''}
-							</a>
+							<div class="bal-item-linked-content">
+								<a class="bal-item-recipe-link bal-item-text" href="${escHtml(targetUrl)}">
+									<span class="bal-item-link-title"><span class="bal-item-name">${escHtml(item.name)}</span><svg class="bal-item-link-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 5h5v5"/><path d="m10 14 9-9"/><path d="M19 13v6H5V5h6"/></svg></span>
+									${targetLabel ? `<span class="bal-item-recipe-label">${targetLabel}</span>` : ''}
+								</a>
+								${linkedAmountHtml}
+							</div>
 							<div class="bal-item-kcal">+${Number(item.kcal)}</div>
 						</div>`;
 			} else {

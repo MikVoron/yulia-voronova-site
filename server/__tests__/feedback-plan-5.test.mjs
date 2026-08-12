@@ -44,6 +44,8 @@ describe('SmartPlate feedback plan 5 contracts', () => {
     expect(recipe).toContain('class="bal-item-recipe-link bal-item-text"');
     expect(recipe).toContain('class="bal-item-link-title"');
     expect(recipe).toContain('class="bal-item-link-icon"');
+		expect(recipe).toContain('class="bal-item-linked-content"');
+		expect(recipe).toContain('class="bal-item-amount bal-item-linked-amount"');
     expect(recipe).not.toContain("hasRecipe ? 'Открыть рецепт'");
     expect(recipe).not.toMatch(/<button class="bal-item[^`]*<a class="bal-item-recipe-link"/);
     expect(recipe).not.toMatch(/bal-item-recipe-link[^>]*target="_blank"/);
