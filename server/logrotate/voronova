@@ -1,0 +1,13 @@
+# SmartPlate application and operations logs.
+# Install as /etc/logrotate.d/voronova (root:root, mode 0644).
+/root/.pm2/logs/*.log /var/log/voronova-monitor.log /var/log/voronova-backup.log {
+    daily
+    rotate 14
+    maxsize 25M
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    create 0640 root root
+}
