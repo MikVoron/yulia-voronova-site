@@ -376,3 +376,57 @@ describe('admin personal messages', () => {
     expect(sendPersonalMessage).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('admin recipe category order', () => {
+  it('returns recipes in the independent order for one category', async () => {
+    mockQuery.mockImplementation(async (sql) => {
+      if (/SELECT id, name FROM categories WHERE id=\$1/.test(sql)) {
+        return { rows: [{ id: 'breakfasts', name: 'Завтраки' }] };
+      }
+      if (/FROM recipe_category_order rco/.test(sql)) {
+        return { rows: [
+          { id: 'omelet', name: 'Омлет', emoji: '🍳', sort_order: 10, is_published: true, is_free: true },
+          { id: 'porridge', name: 'Каша', emoji: '🥣', sort_order: 20, is_published: false, is_free: false }
+        ] };
+      }
+      return { rows: [] };
+    });
+
+    const res = await app.inject({ method: 'GET', url: '/admin/recipe-category-order/breakfasts' });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({
+      category: { id: 'breakfasts', name: 'Завтраки' },
+      recipes: [{ id: 'omelet', sort_order: 10 }, { id: 'porridge', sort_order: 20 }]
+    });
+  });
+
+  it('rejects incomplete order before opening a DB transaction', async () => {
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/admin/recipe-category-order/breakfasts',
+      payload: { recipe_ids: ['omelet', 'omelet'] }
+    });
+    expect(res.statusCode).toBe(400);
+    expect(mockConnect).not.toHaveBeenCalled();
+  });
+
+  it('atomically saves a complete category order and writes an audit event', async () => {
+    mockClientQuery.mockImplementation(async (sql) => {
+      if (sql === 'SELECT id FROM categories WHERE id=$1 FOR KEY SHARE') return { rows: [{ id: 'breakfasts' }] };
+      if (/SELECT recipe_id FROM recipe_category_order/.test(sql)) return { rows: [{ recipe_id: 'omelet' }, { recipe_id: 'porridge' }] };
+      return { rows: [] };
+    });
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/admin/recipe-category-order/breakfasts',
+      payload: { recipe_ids: ['porridge', 'omelet'] }
+    });
+    expect(res.statusCode).toBe(200);
+    expect(mockClientQuery.mock.calls.map(call => call[0])).toContain('BEGIN');
+    expect(mockClientQuery.mock.calls.some(([sql]) => /UPDATE recipe_category_order AS rco/.test(sql))).toBe(true);
+    expect(mockClientQuery.mock.calls.map(call => call[0])).toContain('COMMIT');
+    expect(auditLog).toHaveBeenCalledWith('recipe_category_order_update', expect.objectContaining({
+      detail: 'category:breakfasts; recipes=2'
+    }));
+  });
+});

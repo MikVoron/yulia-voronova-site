@@ -64,7 +64,7 @@ const mockQuery = vi.fn(async (sql /*, params */) => {
   if (/FROM recipes r WHERE r\.is_published = true/.test(sql)) {
     return { rows: RECIPES.map(r => ({ ...r })) };
   }
-  if (/SELECT id, name, emoji, color, description, sort_order, auto_addons FROM categories ORDER BY sort_order/.test(sql)) {
+  if (/SELECT id, name, emoji, color, description, sort_order, auto_addons, cover_recipe_id FROM categories ORDER BY sort_order/.test(sql)) {
     return { rows: CATEGORIES.map(c => ({ ...c })) };
   }
   if (/LEFT JOIN review_replies rr ON rr.review_id = r.id/.test(sql)) {
@@ -99,7 +99,7 @@ const mockQuery = vi.fn(async (sql /*, params */) => {
   if (/INSERT INTO review_replies/.test(sql)) {
     return { rows: [{ text: 'Спасибо за вопрос!', created_at: '2026-08-03T10:00:00.000Z', updated_at: '2026-08-03T10:00:00.000Z' }] };
   }
-  if (/FROM recipe_categories rc\s+JOIN recipes r ON r\.id = rc\.recipe_id\s+WHERE r\.is_published = true/.test(sql)) {
+  if (/FROM recipe_categories rc\s+JOIN recipes r ON r\.id = rc\.recipe_id\s+LEFT JOIN recipe_category_order rco\s+ON rco\.recipe_id = rc\.recipe_id AND rco\.category_id = rc\.category_id\s+WHERE r\.is_published = true/.test(sql)) {
     return {
       rows: RECIPES.flatMap(r => (r.categories || [r.cat]).map(category_id => ({
         category_id,

@@ -353,6 +353,27 @@
             font-size: 14px;
         }
 
+        /* ── Recipe order inside a category ─────────────────────────────── */
+        .recipe-order-panel {
+            margin: 0 0 18px;
+            padding: 16px;
+            border: 1px solid rgba(232,64,10,.24);
+            border-radius: 12px;
+            background: #fffaf7;
+        }
+        .recipe-order-panel[hidden] { display: none; }
+        .recipe-order-heading { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:8px; }
+        .recipe-order-help { margin:0 0 12px; color:var(--text-2); font-size:12px; line-height:1.5; }
+        .recipe-order-list { display:grid; gap:6px; }
+        .recipe-order-row { display:flex; align-items:center; gap:10px; min-height:52px; padding:8px 10px; border:1px solid var(--border); border-radius:9px; background:#fff; }
+        .recipe-order-row.is-dragging { opacity:.5; }
+        .recipe-order-row.is-drag-over { border-color:var(--accent); box-shadow:0 0 0 3px rgba(232,64,10,.1); }
+        .recipe-order-grip { cursor:grab; color:var(--text-3); font-size:18px; letter-spacing:-3px; user-select:none; }
+        .recipe-order-num { width:24px; color:var(--text-3); font-size:12px; font-weight:700; text-align:right; }
+        .recipe-order-name { flex:1; min-width:0; font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .recipe-order-actions { display:flex; gap:4px; }
+        .recipe-order-actions .adm-btn { min-width:30px; min-height:30px; padding:4px 8px; }
+
         /* ── Loading ── */
         .adm-loading {
             text-align: center;
@@ -1221,7 +1242,25 @@
     <div class="adm-section" id="sec-recipes">
         <div class="adm-section-title" style="display:flex;justify-content:space-between;align-items:center">
             Рецепты
-            <button class="adm-btn" style="background:var(--accent);color:#fff" data-admin-click="53bdeb78bea9">+ Новый рецепт</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+                <button class="adm-btn" data-admin-action="open-recipe-category-order">↕ Порядок в категории</button>
+                <button class="adm-btn" style="background:var(--accent);color:#fff" data-admin-click="53bdeb78bea9">+ Новый рецепт</button>
+            </div>
+        </div>
+        <div class="recipe-order-panel" id="recipe-order-panel" hidden>
+            <div class="recipe-order-heading">
+                <strong>Порядок рецептов</strong>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <select class="adm-modal-select" id="recipe-order-category" style="width:auto;padding:7px 10px;font-size:13px"></select>
+                    <button class="adm-btn" data-admin-action="close-recipe-category-order">Закрыть</button>
+                </div>
+            </div>
+            <p class="recipe-order-help">Перетаскивайте блюда или используйте стрелки. Порядок сохранится только в выбранной категории.</p>
+            <div id="recipe-order-list" class="recipe-order-list"></div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                <button class="adm-btn" data-admin-action="reset-recipe-category-order">Сбросить</button>
+                <button class="adm-btn adm-btn-confirm" data-admin-action="save-recipe-category-order">Сохранить порядок</button>
+            </div>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="recipe-cat-filters"></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
@@ -1631,6 +1670,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260812-category-cover-order"></script>
-<script src="admin.js?v=20260812-recipe-news-picker"></script>
+<script src="admin.js?v=20260812-recipe-category-order"></script>
 </body>
 </html>

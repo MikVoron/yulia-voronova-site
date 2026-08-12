@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1050" viewBox="0 0 1200 1050" role="img" aria-labelledby="title desc">
+  <title id="title">Варианты иконок добавок SmartPlate</title>
+  <desc id="desc">Три набора иконок для белка, жиров, углеводов и клетчатки в редакционном стиле SmartPlate.</desc>
+  <rect width="1200" height="1050" fill="#faf8f5"/>
+  <style>
+    .title{font-family:Georgia,'Times New Roman',serif;font-size:40px;font-weight:700;fill:#111}
+    .subtitle,.label{font-family:Arial,sans-serif;fill:#444}.subtitle{font-size:17px}.label{font-size:15px;font-weight:700}
+    .kicker{font-family:Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;fill:#e8400a}
+    .note{font-family:Arial,sans-serif;font-size:14px;fill:#777}.line{stroke:#111;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .thin{stroke:#111;stroke-width:2.3;fill:none;stroke-linecap:round;stroke-linejoin:round}.orange{stroke:#e8400a;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+  <text x="72" y="75" class="kicker">SMARTPLATE · ДОБАВКИ К БЛЮДУ</text>
+  <text x="72" y="125" class="title">Варианты иконок</text>
+  <text x="72" y="158" class="subtitle">Белок · жиры · углеводы · клетчатка</text>
+
+  <!-- Variant 1 -->
+  <text x="72" y="230" class="kicker">ВАРИАНТ 01</text><text x="72" y="267" class="title" style="font-size:28px">Тонкий контур</text>
+  <text x="72" y="294" class="note">Самый спокойный: иконка работает как редакционная пометка рядом с заголовком.</text>
+  <g transform="translate(72 325)">
+    <g><rect width="246" height="164" rx="10" fill="#fff" stroke="#e5e5e5"/><circle cx="42" cy="42" r="22" fill="#fff2ed"/><g transform="translate(20 20)"><ellipse cx="22" cy="25" rx="14" ry="18" class="line"/><path d="M8 25c4-5 9-7 14-7s10 2 14 7M8 30c5 5 10 7 14 7s9-2 14-7" class="thin"/></g><text x="28" y="116" class="label">Белок</text><line x1="28" y1="132" x2="60" y2="132" class="orange"/></g>
+    <g transform="translate(270)"><rect width="246" height="164" rx="10" fill="#fff" stroke="#e5e5e5"/><circle cx="42" cy="42" r="22" fill="#fff2ed"/><g transform="translate(20 18)"><path d="M22 5C14 17 9 23 9 31a13 13 0 0 0 26 0c0-8-5-14-13-26Z" class="line"/><path d="M15 31c3 3 8 4 12 1" class="thin"/></g><text x="28" y="116" class="label">Жиры</text><line x1="28" y1="132" x2="60" y2="132" class="orange"/></g>
+    <g transform="translate(540)"><rect width="246" height="164" rx="10" fill="#fff" stroke="#e5e5e5"/><circle cx="42" cy="42" r="22" fill="#fff2ed"/><g transform="translate(20 19)"><path d="M22 42V3M22 13c-7 0-12-4-14-9M22 20c7 0 12-4 14-9M22 27c-7 0-12-4-14-9M22 34c7 0 12-4 14-9" class="line"/></g><text x="28" y="116" class="label">Углеводы</text><line x1="28" y1="132" x2="60" y2="132" class="orange"/></g>
+    <g transform="translate(810)"><rect width="246" height="164" rx="10" fill="#fff" stroke="#e5e5e5"/><circle cx="42" cy="42" r="22" fill="#fff2ed"/><g transform="translate(18 18)"><path d="M8 35C10 16 22 7 39 6c-1 18-11 31-31 29Z" class="line"/><path d="M10 33 34 11M19 25l2-8M26 19l8 1" class="thin"/></g><text x="28" y="116" class="label">Клетчатка</text><line x1="28" y1="132" x2="60" y2="132" class="orange"/></g>
+  </g>
+
+  <!-- Variant 2 -->
+  <text x="72" y="570" class="kicker">ВАРИАНТ 02</text><text x="72" y="607" class="title" style="font-size:28px">Знак в квадрате</text>
+  <text x="72" y="634" class="note">Чётче считывается в карточках и в мастере выбора добавок.</text>
+  <g transform="translate(72 665)">
+    <g><rect width="246" height="164" rx="10" fill="#fff" stroke="#e5e5e5"/><rect x="28" y="24" width="52" height="52" fill="#111"/><g transform="translate(34 29)"><ellipse cx="20" cy="21" rx="13" ry="17" fill="none" stroke="#fff" stroke-width="2.5"/><path d="M8 21h24M10 27c7 4 14 4 20 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></g><text x="28" y="116" class="label">Белок</text><text x="28" y="139" class="note">для сытости</text></g>
+    <g transform="translate(270)"><rect width="246" height="164" rx="10" fill="#fff" stroke="#e5e5e5"/><rect x="28" y="24" width="52" height="52" fill="#111"/><path d="M54 34c-7 11-11 16-11 23a11 11 0 0 0 22 0c0-7-4-12-11-23Z" fill="none" stroke="#fff" stroke-width="2.5"/><text x="28" y="116" class="label">Жиры</text><text x="28" y="139" class="note">для баланса</text></g>
+    <g transform="translate(540)"><rect width="246" height="164" rx="10" fill="#fff" stroke="#e5e5e5"/><rect x="28" y="24" width="52" height="52" fill="#111"/><path d="M54 67V33M54 40c-6 0-10-3-12-7M54 47c6 0 10-3 12-7M54 54c-6 0-10-3-12-7M54 61c6 0 10-3 12-7" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/><text x="28" y="116" class="label">Углеводы</text><text x="28" y="139" class="note">для энергии</text></g>
+    <g transform="translate(810)"><rect width="246" height="164" rx="10" fill="#fff" stroke="#e5e5e5"/><rect x="28" y="24" width="52" height="52" fill="#111"/><path d="M42 65c2-15 11-25 26-27-1 15-10 27-26 27Z" fill="none" stroke="#fff" stroke-width="2.3" stroke-linejoin="round"/><path d="m44 63 20-20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><text x="28" y="116" class="label">Клетчатка</text><text x="28" y="139" class="note">для лёгкости</text></g>
+  </g>
+
+  <!-- Variant 3 -->
+  <text x="72" y="900" class="kicker">ВАРИАНТ 03</text><text x="72" y="937" class="title" style="font-size:28px">Апельсиновый акцент</text>
+  <text x="72" y="964" class="note">Самый заметный: оранжевый служит маркером действия, а не декоративным цветом.</text>
+  <g transform="translate(72 985)">
+    <g><circle cx="31" cy="0" r="19" fill="#e8400a"/><ellipse cx="31" cy="0" rx="10" ry="13" fill="none" stroke="#fff" stroke-width="2.3"/></g><text x="64" y="5" class="label">Белок</text>
+    <g transform="translate(270)"><circle cx="31" cy="0" r="19" fill="#e8400a"/><path d="M31-11C25-2 22 2 22 7a9 9 0 0 0 18 0c0-5-3-9-9-18Z" fill="none" stroke="#fff" stroke-width="2.3"/></g><text x="334" y="5" class="label">Жиры</text>
+    <g transform="translate(468)"><circle cx="31" cy="0" r="19" fill="#e8400a"/><path d="M31 12v-24M31-7c-5 0-8-3-10-6M31-2c5 0 8-3 10-6M31 3c-5 0-8-3-10-6M31 8c5 0 8-3 10-6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></g><text x="532" y="5" class="label">Углеводы</text>
+    <g transform="translate(705)"><circle cx="31" cy="0" r="19" fill="#e8400a"/><path d="M21 10c2-13 9-20 20-21-1 13-8 21-20 21Z" fill="none" stroke="#fff" stroke-width="2"/><path d="m23 8 15-15" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></g><text x="769" y="5" class="label">Клетчатка</text>
+  </g>
+</svg>

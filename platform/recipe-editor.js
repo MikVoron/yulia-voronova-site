@@ -1399,10 +1399,14 @@
             if (typeof clearContentCache === 'function') clearContentCache();
 
             showSaveSuccess(body, wasCreate);
-        }).catch(function() {
+        }).catch(function(error) {
             btn.disabled = false;
             btn.textContent = 'Сохранить';
-            showToast('Ошибка сохранения', true);
+            // api() already explains authorization and rate-limit failures.
+            // Do not replace that useful message with a generic one.
+            if (!error || error.message !== '403' && error.message !== '429') {
+                showToast('Ошибка сохранения', true);
+            }
         });
     };
 

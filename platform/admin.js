@@ -10,6 +10,7 @@
 
     var allUsers = [];
     var confirmPaymentId = null;
+    var recipeCategoryOrder = { categoryId: '', recipes: [], draggingId: '' };
 
     // ── API helper ──
     function api(path, opts) {
@@ -1586,6 +1587,126 @@
         admin_oauth_denied: '🔐 Администратору запрещён вход через соцсеть'
     };
 
+    function populateRecipeOrderCategories(selectedId) {
+        var select = document.getElementById('recipe-order-category');
+        if (!select) return;
+        select.innerHTML = allCategories.map(function(category) {
+            return '<option value="' + esc(category.id) + '"' + (category.id === selectedId ? ' selected' : '') + '>' + esc(category.name) + '</option>';
+        }).join('');
+    }
+
+    function recipeOrderBadge(recipe) {
+        if (!recipe.is_published) return '<span class="rbadge rbadge-draft">Черновик</span>';
+        var level = getRecipeAccessLevel(recipe);
+        return '<span class="rbadge rbadge-' + (level === 'pro' ? 'pro' : level) + '">' + esc(level) + '</span>';
+    }
+
+    function renderRecipeCategoryOrder() {
+        var list = document.getElementById('recipe-order-list');
+        if (!list) return;
+        if (!recipeCategoryOrder.recipes.length) {
+            list.innerHTML = '<div class="adm-empty">В этой категории пока нет рецептов</div>';
+            return;
+        }
+        list.innerHTML = recipeCategoryOrder.recipes.map(function(recipe, index) {
+            var disabledUp = index === 0 ? ' disabled' : '';
+            var disabledDown = index === recipeCategoryOrder.recipes.length - 1 ? ' disabled' : '';
+            return '<div class="recipe-order-row" draggable="true" data-recipe-order-id="' + esc(recipe.id) + '">'
+                + '<span class="recipe-order-grip" aria-hidden="true">⠿</span>'
+                + '<span class="recipe-order-num">' + (index + 1) + '</span>'
+                + '<span class="recipe-order-name">' + esc(recipe.emoji || '🍴') + ' ' + esc(recipe.name) + '</span>'
+                + recipeOrderBadge(recipe)
+                + '<span class="recipe-order-actions">'
+                + '<button class="adm-btn" data-admin-action="move-recipe-category-order" data-admin-id="' + esc(recipe.id) + '" data-admin-direction="-1" title="Выше"' + disabledUp + '>↑</button>'
+                + '<button class="adm-btn" data-admin-action="move-recipe-category-order" data-admin-id="' + esc(recipe.id) + '" data-admin-direction="1" title="Ниже"' + disabledDown + '>↓</button>'
+                + '</span></div>';
+        }).join('');
+        list.querySelectorAll('[data-recipe-order-id]').forEach(function(row) {
+            row.addEventListener('dragstart', function(event) {
+                recipeCategoryOrder.draggingId = row.dataset.recipeOrderId;
+                row.classList.add('is-dragging');
+                event.dataTransfer.effectAllowed = 'move';
+            });
+            row.addEventListener('dragend', function() {
+                recipeCategoryOrder.draggingId = '';
+                list.querySelectorAll('.is-dragging,.is-drag-over').forEach(function(item) { item.classList.remove('is-dragging', 'is-drag-over'); });
+            });
+            row.addEventListener('dragover', function(event) {
+                if (!recipeCategoryOrder.draggingId || recipeCategoryOrder.draggingId === row.dataset.recipeOrderId) return;
+                event.preventDefault();
+                row.classList.add('is-drag-over');
+            });
+            row.addEventListener('dragleave', function() { row.classList.remove('is-drag-over'); });
+            row.addEventListener('drop', function(event) {
+                event.preventDefault();
+                var from = recipeCategoryOrder.recipes.findIndex(function(recipe) { return recipe.id === recipeCategoryOrder.draggingId; });
+                var to = recipeCategoryOrder.recipes.findIndex(function(recipe) { return recipe.id === row.dataset.recipeOrderId; });
+                if (from < 0 || to < 0 || from === to) return;
+                var moved = recipeCategoryOrder.recipes.splice(from, 1)[0];
+                recipeCategoryOrder.recipes.splice(to, 0, moved);
+                renderRecipeCategoryOrder();
+            });
+        });
+    }
+
+    function loadRecipeCategoryOrder(categoryId) {
+        var list = document.getElementById('recipe-order-list');
+        if (list) list.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div></div>';
+        return api('/admin/recipe-category-order/' + encodeURIComponent(categoryId)).then(function(data) {
+            recipeCategoryOrder.categoryId = categoryId;
+            recipeCategoryOrder.recipes = data.recipes || [];
+            populateRecipeOrderCategories(categoryId);
+            renderRecipeCategoryOrder();
+        }).catch(function(error) {
+            if (list) list.innerHTML = '<div class="adm-empty">' + esc(error.message || 'Не удалось загрузить порядок') + '</div>';
+        });
+    }
+
+    window.openRecipeCategoryOrder = function() {
+        var panel = document.getElementById('recipe-order-panel');
+        if (!panel) return;
+        var preferred = recipeCatFilter !== 'all' ? recipeCatFilter : (allCategories[0] && allCategories[0].id);
+        if (!preferred) { showToast('Сначала загрузите категории', true); return; }
+        panel.hidden = false;
+        loadRecipeCategoryOrder(preferred);
+    };
+
+    window.closeRecipeCategoryOrder = function() {
+        document.getElementById('recipe-order-panel').hidden = true;
+    };
+
+    window.moveRecipeCategoryOrder = function(id, direction) {
+        var index = recipeCategoryOrder.recipes.findIndex(function(recipe) { return recipe.id === id; });
+        var nextIndex = index + direction;
+        if (index < 0 || nextIndex < 0 || nextIndex >= recipeCategoryOrder.recipes.length) return;
+        var item = recipeCategoryOrder.recipes.splice(index, 1)[0];
+        recipeCategoryOrder.recipes.splice(nextIndex, 0, item);
+        renderRecipeCategoryOrder();
+    };
+
+    window.resetRecipeCategoryOrder = function() {
+        if (recipeCategoryOrder.categoryId) loadRecipeCategoryOrder(recipeCategoryOrder.categoryId);
+    };
+
+    window.saveRecipeCategoryOrder = function() {
+        var ids = recipeCategoryOrder.recipes.map(function(recipe) { return recipe.id; });
+        if (!recipeCategoryOrder.categoryId || !ids.length) return;
+        api('/admin/recipe-category-order/' + encodeURIComponent(recipeCategoryOrder.categoryId), {
+            method: 'PUT', body: { recipe_ids: ids }
+        }).then(function() {
+            showToast('Порядок сохранён');
+            loadRecipeCategoryOrder(recipeCategoryOrder.categoryId);
+        }).catch(function(error) {
+            showToast(error.message || 'Не удалось сохранить порядок', true);
+        });
+    };
+
+    document.addEventListener('change', function(event) {
+        if (event.target && event.target.id === 'recipe-order-category') {
+            loadRecipeCategoryOrder(event.target.value);
+        }
+    });
+
     function formatAuditDetail(event, detail) {
         var value = String(detail || '').trim();
         var trialReason = {
@@ -1689,6 +1810,11 @@
         else if (action === 'edit-news') window.editNews(Number(id));
         else if (action === 'delete-news') window.deleteNews(Number(id));
         else if (action === 'set-recipe-category') window.setRecipeCat(target.dataset.adminValue || 'all');
+        else if (action === 'open-recipe-category-order') window.openRecipeCategoryOrder();
+        else if (action === 'close-recipe-category-order') window.closeRecipeCategoryOrder();
+        else if (action === 'move-recipe-category-order') window.moveRecipeCategoryOrder(id, Number(target.dataset.adminDirection));
+        else if (action === 'reset-recipe-category-order') window.resetRecipeCategoryOrder();
+        else if (action === 'save-recipe-category-order') window.saveRecipeCategoryOrder();
         else if (action === 'clear-seasonal') window.clearSeasonal();
         else if (action === 'set-seasonal') window.setSeasonal(id);
         else if (action === 'edit-recipe') window.openRecipeEditor(id);

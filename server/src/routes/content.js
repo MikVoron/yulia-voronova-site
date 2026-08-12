@@ -16,6 +16,10 @@ const {
 
 const ACCESS_LEVELS = ['free', 'trial', 'pro'];
 const ADMIN_WRITE_RATE_LIMIT = { max: 30, timeWindow: '1 hour' };
+// Recipe editing can involve several deliberate saves while an admin checks
+// ingredients, photos, and nutrition. Keep the stricter shared write limit
+// for other admin mutations, but do not block normal editing mid-session.
+const ADMIN_RECIPE_WRITE_RATE_LIMIT = { max: 120, timeWindow: '1 hour' };
 const ADMIN_NEWS_TEXT_LIMIT = 5000;
 const ADMIN_RECIPE_JSON_LIMIT = 50000;
 const ADMIN_AUTO_ADDONS_LIMIT = 50000;
@@ -353,8 +357,10 @@ async function contentRoutes(fastify) {
       `SELECT rc.category_id, r.id, r.ingredients, r.dietary_flags, r.dietary_verified
        FROM recipe_categories rc
        JOIN recipes r ON r.id = rc.recipe_id
+       LEFT JOIN recipe_category_order rco
+         ON rco.recipe_id = rc.recipe_id AND rco.category_id = rc.category_id
        WHERE r.is_published = true
-       ORDER BY r.sort_order`
+       ORDER BY rc.category_id, COALESCE(rco.sort_order, r.sort_order), r.created_at, r.id`
     );
     const catMap = {};
     for (const c of cats.rows) {
@@ -920,7 +926,7 @@ async function contentRoutes(fastify) {
   // POST /admin/recipes — create recipe
   fastify.post('/admin/recipes', {
     preHandler: [authenticate, requireAdmin],
-    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+    config: { rateLimit: ADMIN_RECIPE_WRITE_RATE_LIMIT }
   }, async (req, reply) => {
     const r = req.body || {};
     try { validateRecipePayload(r, true); }
@@ -1014,7 +1020,7 @@ async function contentRoutes(fastify) {
   // PUT /admin/recipes/:id — update recipe
   fastify.put('/admin/recipes/:id', {
     preHandler: [authenticate, requireAdmin],
-    config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
+    config: { rateLimit: ADMIN_RECIPE_WRITE_RATE_LIMIT }
   }, async (req, reply) => {
     const r = req.body || {};
     try { validateRecipePayload(r, false); }

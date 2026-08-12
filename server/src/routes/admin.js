@@ -40,6 +40,7 @@ const AUDIT_EVENTS = new Set([
   'recipe_delete',
   'recipe_seasonal_set',
   'recipe_seasonal_clear',
+  'recipe_category_order_update',
   'ingredient_catalog_upsert',
   'category_create',
   'category_update',
@@ -101,6 +102,79 @@ function readPersonalMessagePayload(body) {
 }
 
 async function adminRoutes(fastify) {
+
+  // GET /admin/recipe-category-order/:categoryId — all category recipes in their independent order.
+  fastify.get('/admin/recipe-category-order/:categoryId', {
+    preHandler: requireAdmin,
+    config: { rateLimit: ADMIN_READ_RATE_LIMIT }
+  }, async (req, reply) => {
+    const categoryId = String(req.params.categoryId || '').trim();
+    const category = await db.query('SELECT id, name FROM categories WHERE id=$1', [categoryId]);
+    if (!category.rows.length) return reply.status(404).send({ error: 'Категория не найдена' });
+    const recipes = await db.query(
+      `SELECT r.id, r.name, r.emoji, r.photo, r.is_published, r.access_level, r.is_free,
+              rco.sort_order
+         FROM recipe_category_order rco
+         JOIN recipes r ON r.id = rco.recipe_id
+        WHERE rco.category_id=$1
+        ORDER BY rco.sort_order, r.created_at, r.id`,
+      [categoryId]
+    );
+    return { category: category.rows[0], recipes: recipes.rows };
+  });
+
+  // PUT /admin/recipe-category-order/:categoryId — replace one category's complete order atomically.
+  fastify.put('/admin/recipe-category-order/:categoryId', {
+    preHandler: requireAdmin,
+    config: { rateLimit: { max: 60, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
+    const categoryId = String(req.params.categoryId || '').trim();
+    const recipeIds = req.body?.recipe_ids;
+    if (!Array.isArray(recipeIds) || !recipeIds.length || recipeIds.length > 500 ||
+        recipeIds.some(id => typeof id !== 'string' || !id.trim()) ||
+        new Set(recipeIds).size !== recipeIds.length) {
+      return reply.status(400).send({ error: 'Передайте полный список уникальных ID рецептов категории' });
+    }
+
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const category = await client.query('SELECT id FROM categories WHERE id=$1 FOR KEY SHARE', [categoryId]);
+      if (!category.rows.length) {
+        await client.query('ROLLBACK');
+        return reply.status(404).send({ error: 'Категория не найдена' });
+      }
+      const current = await client.query(
+        'SELECT recipe_id FROM recipe_category_order WHERE category_id=$1 FOR UPDATE',
+        [categoryId]
+      );
+      const currentIds = current.rows.map(row => row.recipe_id);
+      if (currentIds.length !== recipeIds.length ||
+          currentIds.some(id => !recipeIds.includes(id))) {
+        await client.query('ROLLBACK');
+        return reply.status(409).send({ error: 'Состав категории изменился. Обновите список и повторите попытку.' });
+      }
+      await client.query(
+        `UPDATE recipe_category_order AS rco
+            SET sort_order = ordered.position * 10
+           FROM unnest($2::text[]) WITH ORDINALITY AS ordered(recipe_id, position)
+          WHERE rco.category_id=$1 AND rco.recipe_id=ordered.recipe_id`,
+        [categoryId, recipeIds]
+      );
+      await client.query('COMMIT');
+    } catch (error) {
+      try { await client.query('ROLLBACK'); } catch (_) {}
+      throw error;
+    } finally {
+      client.release();
+    }
+    await audit.log('recipe_category_order_update', {
+      userId: req.user.sub,
+      detail: 'category:' + categoryId + '; recipes=' + recipeIds.length,
+      ip: req.ip
+    });
+    return { ok: true, category_id: categoryId, recipe_ids: recipeIds };
+  });
 
   // POST /admin/testing-invitations — one addressed tester invitation, never a bulk send
   fastify.post('/admin/testing-invitations', {
