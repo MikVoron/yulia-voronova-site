@@ -413,7 +413,10 @@
 							date: _spFormatNewsDate(n.created_at)
 						};
 					});
-					var textNews = all.filter(function (n) { return n.type === 'news'; }).slice(0, 4);
+					// Правая колонка показывает все свежие обновления, включая анонс
+					// рецепта. Карточка слева остаётся главным визуальным анонсом,
+					// а строка справа подтверждает посетителю, что лента обновляется.
+					var rightNews = all.slice(0, 4);
 					// Последний добавленный рецепт — автоматически закрепляется в левой колонке.
 					// Селектор `_latestRecipeId()` тот же, что использует renderNewsFeedInitial(),
 					// чтобы featured не менялся после ответа /api/news.
@@ -426,7 +429,7 @@
 							date: _spFormatNewsDate(latestRecipe.added || latestRecipe.addedTs)
 						});
 					}
-					NEWS_FEED = NEWS_FEED.concat(textNews);
+					NEWS_FEED = NEWS_FEED.concat(rightNews);
 				} else {
 					// API недоступен — всё равно покажем хотя бы featured-рецепт.
 					NEWS_FEED = [];
@@ -574,7 +577,7 @@
 
 			// Skeleton-строки правой колонки (геометрия = .sp-news-item:
 			// date-полоска + 2 строки заголовка). 4 строки соответствуют
-			// финальному количеству textItems.slice(0, 4).
+			// финальному количеству rightItems.slice(0, 4).
 			const widths = [['86%', '62%'], ['92%', '58%'], ['80%', '70%'], ['88%', '50%']];
 			listEl.innerHTML = widths.map(function (w, i) {
 				return '<article class="sp-news-item" role="listitem" aria-hidden="true">'
@@ -588,7 +591,7 @@
 		}
 
 		// Editorial 2-column «Новое»: слева vertical-карточка последнего рецепта,
-		// справа — лента текстовых новостей. См. секцию #new-block в HTML.
+		// справа — лента свежих обновлений, включая новые рецепты. См. #new-block.
 		function renderNewsFeed() {
 			const block = document.getElementById('new-block');
 			const featureEl = document.getElementById('new-feature');
@@ -596,7 +599,9 @@
 			if (!block || !featureEl || !listEl) return;
 
 			const recipeItems = NEWS_FEED.filter(function (i) { return i.type === 'recipe'; });
-			const textItems = NEWS_FEED.filter(function (i) { return i.type === 'news'; });
+			// У синтетической featured-записи нет текста; она нужна только слева.
+			// Все реальные обновления API, включая новые рецепты, идут вправо.
+			const rightItems = NEWS_FEED.filter(function (i) { return i.type === 'news' || !!i.text; });
 
 			// display блока больше не трогаем — он показан с first paint,
 			// а инициализация прошла через renderNewsFeedInitial().
@@ -608,13 +613,13 @@
 				featureEl.innerHTML = '';
 			}
 
-			if (textItems.length) {
-				const visibleNews = textItems.slice(0, 4);
+			if (rightItems.length) {
+				const visibleNews = rightItems.slice(0, 4);
 				listEl.classList.remove('open');
 				listEl.innerHTML = visibleNews.map(renderNewsListItem).join('') + renderNewsListToggle(visibleNews.length);
 				block.classList.remove('sp-new-block--no-list');
 			} else {
-				// Текстовых новостей нет — single-column mode (фичер во всю ширину).
+				// Обновлений нет — single-column mode (фичер во всю ширину).
 				// Горизонтальный shift приемлем; vertical layout уже стабилен.
 				listEl.innerHTML = '';
 				listEl.classList.remove('open');
@@ -717,6 +722,7 @@
 				const m = text.match(/^(.{10,90}?[\.\!\?])\s+([А-ЯA-Z].*)$/s);
 				if (m) { title = m[1].trim(); desc = m[2].trim(); }
 			}
+			if (item.type === 'recipe') title = 'Новый рецепт: ' + title;
 			return `<article class="sp-news-item" role="listitem">
 				<div class="sp-news-item-date">${escHtml(item.date || '')}</div>
 				<h3 class="sp-news-item-title">${escHtml(title)}</h3>
