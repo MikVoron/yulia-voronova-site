@@ -64,6 +64,9 @@ const mockQuery = vi.fn(async (sql /*, params */) => {
   if (/FROM recipes r WHERE r\.is_published = true/.test(sql)) {
     return { rows: RECIPES.map(r => ({ ...r })) };
   }
+  if (/FROM recipes\s+WHERE id=\$1 AND is_published=true/.test(sql)) {
+    return { rows: [{ ...FREE_RECIPE, quote: 'Public recipe description', photo: 'images/free.webp', time_min: 20 }] };
+  }
   if (/SELECT id, name, emoji, color, description, sort_order, auto_addons, cover_recipe_id FROM categories ORDER BY sort_order/.test(sql)) {
     return { rows: CATEGORIES.map(c => ({ ...c })) };
   }
@@ -168,6 +171,14 @@ beforeEach(() => {
 });
 
 describe('GET /content/recipes dietary filtering', () => {
+  it('GET /_seo/recipe returns a server-rendered canonical recipe page', async () => {
+    const res = await app.inject({ method: 'GET', url: '/_seo/recipe?id=free-1' });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['content-type']).toContain('text/html');
+    expect(res.body).toContain('https://app.voronova.online/recipe.html?id=free-1');
+    expect(res.body).toContain('<h1>Free recipe</h1>');
+  });
+
   it('keeps unverified recipes visible when a user selects an exclusion', async () => {
     dietaryPreferences = { excluded_flags: ['milk'], allow_swaps: true };
     const recipe = {

@@ -530,6 +530,10 @@
 				return;
 			}
 			initRecipe();
+			// Server-rendered recipe metadata is visible before this JS app loads.
+			// Remove the temporary article only after the normal recipe UI rendered.
+			const seoRecipeContent = document.getElementById('seo-recipe-content');
+			if (seoRecipeContent) seoRecipeContent.remove();
 			// Editorial header parity: подставляем nav с подсветкой текущего раздела рецепта.
 			renderHeaderNav(r && r.cat);
 		}).catch(function (err) {

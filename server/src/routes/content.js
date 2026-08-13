@@ -3,6 +3,7 @@ const { authenticate, requireAdmin, optionalAuthenticate, getUserTier, userCanSe
 const email = require('../email');
 const audit = require('../audit');
 const { refreshSitemapSafely } = require('../sitemap');
+const { readRecipeTemplate, renderRecipeDocument } = require('../recipe-seo');
 const {
   buildRecipeSnapshot,
   changedRecipeFields,
@@ -189,6 +190,24 @@ function normalizeIngredientCatalogItem(body) {
 }
 
 async function contentRoutes(fastify) {
+  // Nginx serves this route for recipe.html?id=... so crawlers receive the
+  // same canonical URL with useful HTML before the regular JS app hydrates it.
+  fastify.get('/_seo/recipe', async (req, reply) => {
+    const id = typeof req.query?.id === 'string' ? req.query.id.trim() : '';
+    const template = await readRecipeTemplate();
+    if (!id) return reply.type('text/html; charset=utf-8').send(template);
+    if (!/^[a-z0-9_-]{1,100}$/.test(id)) return reply.status(404).type('text/html; charset=utf-8').send(template);
+    const result = await db.query(
+      `SELECT id, name, time_min, servings, is_free, access_level, kcal, protein, fat, carbs, fiber,
+              tags, photo, quote, ingredients, steps
+         FROM recipes
+        WHERE id=$1 AND is_published=true`,
+      [id]
+    );
+    if (!result.rows.length) return reply.status(404).type('text/html; charset=utf-8').send(template);
+    return reply.type('text/html; charset=utf-8').send(renderRecipeDocument(template, result.rows[0]));
+  });
+
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PUBLIC — news + recipes (no auth required)
