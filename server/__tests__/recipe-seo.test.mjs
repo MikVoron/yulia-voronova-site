@@ -14,6 +14,7 @@ describe('server recipe SEO document', () => {
     expect(html).toContain('<h1>Паста</h1>');
     expect(html).toContain('Паста: 200 г');
     expect(html).toContain('"@type":"Recipe"');
+    expect(html).toContain('body{visibility:visible!important}');
   });
 
   it('does not expose paid recipe instructions', () => {
