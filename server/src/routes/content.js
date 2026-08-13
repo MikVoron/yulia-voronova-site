@@ -2,6 +2,7 @@ const db = require('../db');
 const { authenticate, requireAdmin, optionalAuthenticate, getUserTier, userCanSeeRecipe } = require('../middleware');
 const email = require('../email');
 const audit = require('../audit');
+const { refreshSitemapSafely } = require('../sitemap');
 const {
   buildRecipeSnapshot,
   changedRecipeFields,
@@ -1007,6 +1008,7 @@ async function contentRoutes(fastify) {
       });
       await client.query('COMMIT');
       result.rows[0].categories = cats;
+      await refreshSitemapSafely(db, req.log);
       return result.rows[0];
     } catch (error) {
       try { await client.query('ROLLBACK'); }
@@ -1168,6 +1170,7 @@ async function contentRoutes(fastify) {
       });
       await client.query('COMMIT');
       result.rows[0].categories = cats;
+      await refreshSitemapSafely(db, req.log);
       return result.rows[0];
     } catch (error) {
       try { await client.query('ROLLBACK'); }
@@ -1217,6 +1220,7 @@ async function contentRoutes(fastify) {
         ip: req.ip, ua
       });
       await client.query('COMMIT');
+      await refreshSitemapSafely(db, req.log);
       return { ok: true };
     } catch (error) {
       try { await client.query('ROLLBACK'); }
@@ -1314,6 +1318,7 @@ async function contentRoutes(fastify) {
       [item.id, item.name, item.groupId, item.sortOrder]
     );
     await audit.log('ingredient_catalog_upsert', { userId: req.user.sub, detail: 'ingredient:' + item.id, ip: req.ip });
+    await refreshSitemapSafely(db, req.log);
     return result.rows[0];
   });
 
@@ -1343,6 +1348,7 @@ async function contentRoutes(fastify) {
       [id, name, emoji || '', color || '#999', description || '', sort_order || 0, JSON.stringify(auto_addons || {})]
     );
     await audit.log('category_create', { userId: req.user.sub, detail: 'category:' + id, ip: req.ip });
+    await refreshSitemapSafely(db, req.log);
     return result.rows[0];
   });
 
@@ -1359,6 +1365,7 @@ async function contentRoutes(fastify) {
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
     await audit.log('category_update', { userId: req.user.sub, detail: 'category:' + req.params.id, ip: req.ip });
+    await refreshSitemapSafely(db, req.log);
     return result.rows[0];
   });
 
@@ -1372,6 +1379,7 @@ async function contentRoutes(fastify) {
     const result = await db.query('DELETE FROM categories WHERE id=$1 RETURNING id', [req.params.id]);
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
     await audit.log('category_delete', { userId: req.user.sub, detail: 'category:' + req.params.id, ip: req.ip });
+    await refreshSitemapSafely(db, req.log);
     return { ok: true };
   });
 }
