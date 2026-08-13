@@ -1,8 +1,16 @@
 const fs = require('node:fs/promises');
+const fsSync = require('node:fs');
 const path = require('node:path');
 
 const ORIGIN = 'https://app.voronova.online';
-const DEFAULT_SITEMAP_PATH = path.resolve(__dirname, '..', '..', 'platform', 'sitemap.xml');
+const LOCAL_SITEMAP_PATH = path.resolve(__dirname, '..', '..', 'platform', 'sitemap.xml');
+const DEPLOYED_SITEMAP_PATH = path.resolve(__dirname, '..', '..', 'smartplate-platform', 'sitemap.xml');
+
+function defaultSitemapPath() {
+  return fsSync.existsSync(path.dirname(DEPLOYED_SITEMAP_PATH))
+    ? DEPLOYED_SITEMAP_PATH
+    : LOCAL_SITEMAP_PATH;
+}
 
 function xmlEscape(value) {
   return String(value)
@@ -46,7 +54,7 @@ async function refreshSitemap(db, options = {}) {
     db.query('SELECT id FROM categories ORDER BY sort_order, id'),
     db.query('SELECT id FROM ingredient_catalog ORDER BY group_id, sort_order, id'),
   ]);
-  const output = options.output || process.env.SMARTPLATE_SITEMAP_PATH || DEFAULT_SITEMAP_PATH;
+  const output = options.output || process.env.SMARTPLATE_SITEMAP_PATH || defaultSitemapPath();
   const xml = buildSitemap({
     recipes: recipesResult.rows,
     categories: categoriesResult.rows,
