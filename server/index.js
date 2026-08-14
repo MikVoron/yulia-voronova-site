@@ -24,6 +24,8 @@ const notesRoutes = require('./src/routes/notes');
 const plateRoutes = require('./src/routes/plate');
 const aiRoutes = require('./src/routes/ai');
 const nutritionRoutes = require('./src/routes/nutrition');
+const { requireAdmin } = require('./src/middleware');
+const { createAdminRouteGuard } = require('./src/admin-route-guard');
 const { startCron } = require('./src/cron');
 const { sendTelegramAlert, startTelegramBot } = require('./src/telegram');
 
@@ -34,6 +36,11 @@ if (!isProd) corsOrigins.push('http://127.0.0.1:5500', 'http://localhost:5500');
 fastify.addHook('onRequest', async (req, reply) => {
   reply.header('X-Request-Id', String(req.id));
 });
+
+// Fail closed at startup: every current and future /admin/* route must declare
+// the server-side administrator check. A missing guard prevents deployment
+// instead of silently exposing a new endpoint.
+fastify.addHook('onRoute', createAdminRouteGuard(requireAdmin));
 
 fastify.register(cors, {
   origin: corsOrigins,
