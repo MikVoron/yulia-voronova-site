@@ -30,11 +30,11 @@ describe('SmartPlate CSP script migration', () => {
 
   it('allows approved analytics origins in addition to first-party scripts and blocks event attributes', () => {
     const enforced = nginxConfig.match(/add_header Content-Security-Policy "([^"]+)"/)?.[1] || '';
-    expect(enforced).toContain("script-src 'self' https://mc.yandex.ru https://mc.yandex.com https://yastatic.net https://www.googletagmanager.com;");
+    expect(enforced).toContain("script-src 'self' https://mc.yandex.ru https://mc.yandex.com https://mc.yandex.md https://yastatic.net https://www.googletagmanager.com;");
     expect(enforced).not.toContain("script-src 'self' 'unsafe-inline'");
-    expect(enforced).toContain("script-src-elem 'self' https://mc.yandex.ru https://mc.yandex.com https://yastatic.net https://www.googletagmanager.com;");
+    expect(enforced).toContain("script-src-elem 'self' https://mc.yandex.ru https://mc.yandex.com https://mc.yandex.md https://yastatic.net https://www.googletagmanager.com;");
     expect(enforced).toContain("script-src-attr 'none'");
-    expect(enforced).toContain("connect-src 'self' https://api.voronova.online https://mc.yandex.ru https://mc.yandex.com https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://www.google.com;");
+    expect(enforced).toContain("connect-src 'self' https://api.voronova.online https://mc.yandex.ru https://mc.yandex.com https://mc.yandex.md wss://mc.yandex.com wss://mc.yandex.md https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://www.google.com;");
     expect(enforced).toContain('frame-ancestors https://metrika.yandex.ru https://metrica.yandex.ru https://metr.yandex.ru');
     expect(enforced).not.toContain("frame-ancestors 'none'");
     expect(nginxConfig).not.toContain('add_header X-Frame-Options DENY');
