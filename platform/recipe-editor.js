@@ -425,7 +425,7 @@
         if (!items || !items.length) return;
         items.forEach(function(it) {
             if (typeof it === 'string') it = { name: it };
-            addAddItem(type, it.name || '', it.kcal || 0, it.protein || 0, it.fat || 0, it.carbs || 0, it.fiber || 0, it.recipeId || '');
+            addAddItem(type, it.name || '', it.amount || '', it.kcal || 0, it.protein || 0, it.fat || 0, it.carbs || 0, it.fiber || 0, it.recipeId || '');
         });
     }
 
@@ -791,8 +791,9 @@
     // ADD-PANELS — repeatable rows with КБЖУ fields
     // ══════════════════════════════════════════════════════════════════════
 
-    window.addAddItem = function(type, name, kcal, protein, fat, carbs, fiber, recipeId) {
+    window.addAddItem = function(type, name, amount, kcal, protein, fat, carbs, fiber, recipeId) {
         name = name || '';
+        amount = amount || '';
         kcal = kcal || 0;
         protein = protein || 0;
         fat = fat || 0;
@@ -808,6 +809,7 @@
             '<div class="re-item-fields">' +
                 '<div class="re-item-row">' +
                     '<input class="re-item-input" data-field="name" placeholder="Название, напр. Нут отварной (3 ст.л.)" value="' + escAttr(name) + '">' +
+                    '<input class="re-item-input" data-field="amount" placeholder="Кол-во, напр. 100 г" value="' + escAttr(amount) + '" style="max-width:126px">' +
                 '</div>' +
                 '<div class="re-item-row">' +
                     '<input class="re-item-input re-input-sm" data-field="kcal" type="number" placeholder="ккал" value="' + kcal + '" title="Ккал">' +
@@ -1182,6 +1184,8 @@
                     carbs: parseFloat(items[i].querySelector('[data-field="carbs"]').value) || 0,
                     fiber: parseFloat(items[i].querySelector('[data-field="fiber"]').value) || 0
                 };
+                var amount = items[i].querySelector('[data-field="amount"]').value.trim();
+                if (amount) obj.amount = amount;
                 var rid = items[i].querySelector('[data-field="recipeId"]').value.trim();
                 if (rid) obj.recipeId = rid.replace(/^@/, '');
                 result.push(obj);

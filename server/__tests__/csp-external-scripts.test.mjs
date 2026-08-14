@@ -240,7 +240,7 @@ describe('SmartPlate CSP script migration', () => {
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
     expect(html.match(/\sdata-editor-static-action=/g)).toHaveLength(19);
     expect(html.match(/\sdata-addon-group=/g)).toHaveLength(4);
-    expect(html).toContain('recipe-editor.js?v=20260811-dietary-swap-options-v2');
+    expect(html).toContain('recipe-editor.js?v=20260814-preserve-addon-amount');
     expect(script).toContain("document.querySelectorAll('[data-editor-static-action]')");
     expect(script).toContain("addAddItem(control.dataset.addonGroup || '')");
     expect(script).not.toMatch(/\son[a-z]+\s*=/i);

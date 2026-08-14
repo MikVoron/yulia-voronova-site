@@ -161,6 +161,35 @@ function validateRecipePayload(r, requireBasics) {
   if (requireBasics && (!r.id || !r.name)) throw fieldError('id и name обязательны', !r.id ? 'id' : 'name');
 }
 
+function addonIdentity(item) {
+  if (!item || typeof item !== 'object') return '';
+  const recipeId = typeof item.recipeId === 'string' ? item.recipeId.trim() : '';
+  if (recipeId) return 'recipe:' + recipeId;
+  return [item.name, item.kcal, item.protein, item.fat, item.carbs, item.fiber]
+    .map(value => String(value ?? '').trim())
+    .join('|');
+}
+
+// Older cached recipe-editor builds did not submit `amount` at all and would
+// silently erase portions when saving an otherwise unrelated recipe change.
+// Preserve the stored value for the same add-on until a current editor sends it.
+function preserveAddonAmounts(incoming, stored) {
+  if (!Array.isArray(incoming) || !Array.isArray(stored)) return incoming;
+  const storedAmounts = new Map();
+  stored.forEach(item => {
+    const key = addonIdentity(item);
+    const amount = item && typeof item.amount === 'string' ? item.amount.trim() : '';
+    if (key && amount) storedAmounts.set(key, amount);
+  });
+  return incoming.map(item => {
+    if (!item || typeof item !== 'object') return item;
+    const amount = typeof item.amount === 'string' ? item.amount.trim() : '';
+    if (amount) return item;
+    const storedAmount = storedAmounts.get(addonIdentity(item));
+    return storedAmount ? { ...item, amount: storedAmount } : item;
+  });
+}
+
 const INGREDIENT_ID_RE = /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/;
 
 function normalizeIngredientCatalogItem(body) {
@@ -1079,6 +1108,9 @@ async function contentRoutes(fastify) {
         beforeResult.rows[0],
         beforeCategoriesResult.rows.map(row => row.category_id)
       );
+      ['add_protein', 'add_fat', 'add_carbs', 'add_fiber'].forEach(field => {
+        r[field] = preserveAddonAmounts(r[field], beforeResult.rows[0][field]);
+      });
       const result = await client.query(
       `UPDATE recipes SET cat=$1, name=$2, emoji=$3, time_min=$4, time_label=$5, difficulty=$6, servings=$7,
           is_free=$8, access_level=$9,
