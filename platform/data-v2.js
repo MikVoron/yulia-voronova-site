@@ -381,22 +381,81 @@ const Auth = {
             + '</div>';
         document.body.appendChild(overlay);
     },
-    // Single-flight refresh. Refresh-токены на сервере РОТИРУЮТСЯ (одноразовые:
-    // /auth/refresh удаляет старую refresh_session и выдаёт новую). Если на
-    // странице несколько запросов одновременно ловят 401 (кабинет: /subscription,
-    // /favorites, /feedback, /auth/me и т.д.), каждый звал бы свой /auth/refresh
-    // с одной и той же cookie → первый удаляет сессию, остальные получают 401
-    // «Сессия истекла» (+ clearCookie). Итог: часть запросов падает, ЛК
-    // показывает «Нет подписки»/пустые списки, хотя данные есть. Поэтому держим
-    // ОДИН общий in-flight refresh: все параллельные вызовы ждут его.
+    // Refresh-токены на сервере ротируются и одноразовые. Single-flight защищает
+    // параллельные запросы внутри одной вкладки, а Web Locks + BroadcastChannel
+    // — между вкладками. Иначе две вкладки могут одновременно отправить одну
+    // cookie: первая её ротирует, а вторая получает 401 и выбрасывает пользователя
+    // на страницу входа.
     _refreshInFlight: null,
+    _refreshChannel: null,
+    _lastCrossTabRefreshAt: 0,
+    _refreshTabId: null,
+    _getRefreshTabId() {
+        if (this._refreshTabId) return this._refreshTabId;
+        if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+            this._refreshTabId = crypto.randomUUID();
+        } else {
+            this._refreshTabId = String(Date.now()) + '-' + Math.random().toString(36).slice(2);
+        }
+        return this._refreshTabId;
+    },
+    _getRefreshChannel() {
+        if (this._refreshChannel || typeof BroadcastChannel === 'undefined') return this._refreshChannel;
+        try {
+            const channel = new BroadcastChannel('smartplate-auth-refresh');
+            channel.onmessage = (event) => {
+                const data = event && event.data;
+                if (!data || data.type !== 'refresh-complete' || data.sender === this._getRefreshTabId()) return;
+                if (!data.accessToken) return;
+                this._lastCrossTabRefreshAt = Date.now();
+                this._applyRefreshResponse({ accessToken: data.accessToken });
+            };
+            this._refreshChannel = channel;
+        } catch {
+            // The local single-flight/retry path remains available in older browsers.
+        }
+        return this._refreshChannel;
+    },
+    _announceRefresh(data) {
+        const channel = this._getRefreshChannel();
+        if (!channel || !data || !data.accessToken) return;
+        try {
+            channel.postMessage({
+                type: 'refresh-complete',
+                sender: this._getRefreshTabId(),
+                accessToken: data.accessToken
+            });
+        } catch {
+            // A failed notification must not invalidate a successful refresh.
+        }
+    },
     refreshToken() {
         if (this._refreshInFlight) return this._refreshInFlight;
-        this._refreshInFlight = this._doRefresh().finally(() => { this._refreshInFlight = null; });
+        this._refreshInFlight = this._refreshWithCrossTabLock().finally(() => { this._refreshInFlight = null; });
         return this._refreshInFlight;
     },
     _sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    },
+    async _refreshWithCrossTabLock() {
+        // Subscribe before waiting for the lock, otherwise a tab can miss the
+        // winner's token while it is queued behind that winner.
+        this._getRefreshChannel();
+        const refreshStartedAt = Date.now();
+        const refresh = async () => {
+            // A tab that just released the lock broadcasts the fresh short-lived
+            // token. Give that message one turn before rotating the cookie again.
+            await this._sleep(80);
+            if (this._lastCrossTabRefreshAt >= refreshStartedAt) return true;
+            return this._doRefresh();
+        };
+        const locks = typeof navigator !== 'undefined' && navigator.locks;
+        if (!locks || typeof locks.request !== 'function') return refresh();
+        try {
+            return await locks.request('smartplate-auth-refresh', { mode: 'exclusive' }, refresh);
+        } catch {
+            return refresh();
+        }
     },
     async _doRefresh() {
         try {
@@ -413,12 +472,17 @@ const Auth = {
                         API_BASE + '/auth/refresh', { method: 'POST', credentials: 'include' }, 8000
                     );
                     if (!retry.ok) return false;
-                    return this._applyRefreshResponse(await retry.json());
+                    const retryData = await retry.json();
+                    const retryApplied = this._applyRefreshResponse(retryData);
+                    if (retryApplied) this._announceRefresh(retryData);
+                    return retryApplied;
                 }
                 return false;
             }
             const data = await res.json();
-            return this._applyRefreshResponse(data);
+            const applied = this._applyRefreshResponse(data);
+            if (applied) this._announceRefresh(data);
+            return applied;
         } catch { return false; }
     },
     _applyRefreshResponse(data) {
