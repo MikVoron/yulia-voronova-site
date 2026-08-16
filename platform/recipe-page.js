@@ -1173,6 +1173,9 @@
 
 		function renderRecipe(r) {
 			const portionDetail = r.portionGrams ? ('1 порция ≈ ' + Number(r.portionGrams) + ' г') : '';
+			const quantityBadge = r.id === 'veggie-concentrate'
+				? '750 грамм'
+				: `🍽 ${Number(r.servings || 4)} ${(()=>{const n=Number(r.servings||4),m10=n%10,m100=n%100;if(m10===1&&m100!==11)return 'порция';if([2,3,4].includes(m10)&&![12,13,14].includes(m100))return 'порции';return 'порций';})()}${portionDetail ? ` <span style="font-weight:500;color:var(--text-2)">(${escHtml(portionDetail)})</span>` : ''}`;
 			const preparationNote = typeof r.note === 'string' ? r.note.trim() : '';
 			window.__currentRecipeId = r.id;
 			document.title = r.name + ' — рецепт | Умная тарелка';
@@ -1710,7 +1713,7 @@
                     <div class="recipe-badges">
                         <span class="recipe-badge">${typeof timeIcon === 'function' ? timeIcon() : ''}${r.timeLabel ? escHtml(r.timeLabel) : Number(r.time) + ' мин'}</span>
                         <span class="recipe-badge">${typeof diffIcon === 'function' ? diffIcon(r.diff) : ''}${escHtml(diff)}</span>
-                        <span class="recipe-badge">🍽 ${Number(r.servings || 4)} ${(()=>{const n=Number(r.servings||4),m10=n%10,m100=n%100;if(m10===1&&m100!==11)return 'порция';if([2,3,4].includes(m10)&&![12,13,14].includes(m100))return 'порции';return 'порций';})()}${portionDetail ? ` <span style="font-weight:500;color:var(--text-2)">(${escHtml(portionDetail)})</span>` : ''}</span>
+                        <span class="recipe-badge">${quantityBadge}</span>
                         ${dateStr ? `<span class="recipe-badge" style="color:var(--text-3);font-weight:500">Рецепт добавлен: ${escHtml(dateStr)}</span>` : ''}
                     </div>
 					<div class="recipe-hero-img">
