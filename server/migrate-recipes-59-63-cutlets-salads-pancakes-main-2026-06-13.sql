@@ -124,7 +124,7 @@ INSERT INTO recipes (
   5,
   NULL,
   'easy',
-  NULL,
+  1,
   false,
   0, 0, 0, 0, 3,
   ARRAY['растительное', 'без глютена', 'без сои'],
