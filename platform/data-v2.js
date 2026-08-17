@@ -1601,6 +1601,9 @@ function formatTimeMeta(time, timeLabel) {
         // чтобы длинная подпись не налезала на рейтинг.
         const commaNote = base.match(/^(.+?),\s*(без\s+.+)$/i);
         if (commaNote) { base = commaNote[1].trim(); note = commaNote[2].trim(); }
+        // Если в поле указано только уточнение («без учёта замачивания»),
+        // длительность берём из time_min, а подпись показываем второй строкой.
+        if (/^без\s+.+/i.test(base)) { note = base; base = ''; }
         const short = base.replace(/минут[ауы]?/gi, 'мин').replace(/\s+/g, ' ').trim();
         return { short: short || ((Number(time) || 0) + ' мин'), note: note };
     }
