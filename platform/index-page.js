@@ -644,6 +644,7 @@
 			const _timeMeta = formatTimeMeta(d.time, d.timeLabel);
 			const _timeStr = escHtml(_timeMeta.short);
 			const _servings = Number(d.servings) || 0;
+			const _yieldLabel = d.yieldLabel ? escHtml(d.yieldLabel) : '';
 			const _kcal = Number(d.kcal) || 0;
 			// Рейтинг из уже загруженного _apiRatings (без отдельного запроса).
 			const _rv = (_apiRatings && _apiRatings[d.id]) ? _apiRatings[d.id] : null;
@@ -699,7 +700,7 @@
 					<div class="sp-new-card-meta">
 						<span>${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
 						${_diff ? `<span>${typeof diffIcon === 'function' ? diffIcon(d.diff) : ''}${_diff}</span>` : ''}
-						${_servings ? `<span>${_servings} порц.</span>` : ''}
+						${_yieldLabel ? `<span>${_yieldLabel}</span>` : (_servings ? `<span>${_servings} порц.</span>` : '')}
 						<span class="kcal">${_kcal} ккал</span>
 					</div>
 					<a class="sp-new-card-cta" href="${_href}"${_lockAttr}>${access.actionLabel} →</a>
@@ -950,6 +951,7 @@
 			const _timeMeta = formatTimeMeta(r.time, r.timeLabel);
 			const _timeStr = escHtml(_timeMeta.short);
 			const _servings = Number(r.servings) || 0;
+			const _yieldLabel = r.yieldLabel ? escHtml(r.yieldLabel) : '';
 			const _kcal = Number(r.kcal) || 0;
 			const _protein = Number(r.protein) || 0;
 			const _fat = Number(r.fat) || 0;
@@ -974,7 +976,7 @@
 						<div class="sp-seasonal-meta">
 							<span>${typeof timeIcon === 'function' ? timeIcon() : ''}${_timeStr}</span>
 							${_diff ? `<span>${typeof diffIcon === 'function' ? diffIcon(r.diff) : ''}${_diff}</span>` : ''}
-							${_servings ? `<span>${_servings} порц.</span>` : ''}
+							${_yieldLabel ? `<span>${_yieldLabel}</span>` : (_servings ? `<span>${_servings} порц.</span>` : '')}
 							<span class="kcal">${_kcal} ккал</span>
 							<span>Б ${_protein} / Ж ${_fat} / У ${_carbs}</span>
 						</div>

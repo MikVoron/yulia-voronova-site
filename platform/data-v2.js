@@ -1153,7 +1153,11 @@ function _mapRecipe(r) {
     const accessLevel = r.access_level || (r.is_free ? 'free' : 'pro');
     return {
         id: r.id, cat: r.cat, categories: r.categories || (r.cat ? [r.cat] : []), name: r.name, emoji: r.emoji || '🍴',
-        time: r.time_min || 30, timeLabel: r.time_label || null, diff: r.difficulty || 'easy', servings: r.servings || 4, portionGrams: r.portion_grams == null ? null : Number(r.portion_grams),
+        time: r.time_min || 30, timeLabel: r.time_label || null, diff: r.difficulty || 'easy',
+        // Бульон готовят объёмом, а не порциями: не подставляем ему дефолтные 4 порции.
+        servings: r.id === 'light-vegetable-broth' ? null : (r.servings || 4),
+        portionGrams: r.id === 'light-vegetable-broth' ? null : (r.portion_grams == null ? null : Number(r.portion_grams)),
+        yieldLabel: r.id === 'light-vegetable-broth' ? '3 л' : null,
         accessLevel,
         free: accessLevel === 'free',
         isSeasonal: r.is_seasonal === true,

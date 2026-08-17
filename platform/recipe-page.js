@@ -1173,7 +1173,9 @@
 
 		function renderRecipe(r) {
 			const portionDetail = r.portionGrams ? ('1 порция ≈ ' + Number(r.portionGrams) + ' г') : '';
-			const quantityBadge = r.id === 'veggie-concentrate'
+			const quantityBadge = r.yieldLabel
+				? escHtml(r.yieldLabel)
+				: r.id === 'veggie-concentrate'
 				? '750 грамм'
 				: `🍽 ${Number(r.servings || 4)} ${(()=>{const n=Number(r.servings||4),m10=n%10,m100=n%100;if(m10===1&&m100!==11)return 'порция';if([2,3,4].includes(m10)&&![12,13,14].includes(m100))return 'порции';return 'порций';})()}${portionDetail ? ` <span style="font-weight:500;color:var(--text-2)">(${escHtml(portionDetail)})</span>` : ''}`;
 			const preparationNote = typeof r.note === 'string' ? r.note.trim() : '';
@@ -3344,6 +3346,7 @@
 		}
 
 		function recipeServingsLabel() {
+			if (r && r.yieldLabel) return r.yieldLabel;
 			const servings = Number(r && r.servings || 4);
 			const m10 = servings % 10, m100 = servings % 100;
 			let word = 'порций';

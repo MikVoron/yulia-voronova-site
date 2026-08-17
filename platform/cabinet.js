@@ -1726,7 +1726,7 @@
 			const metaParts = [
 				d.time   ? escHtml('⏱ ' + d.time + ' мин') : '',
 				_diffLabels[d.diff] ? escHtml(_diffLabels[d.diff]) : '',
-				d.servings ? escHtml(d.servings + ' порц.') : ''
+				d.yieldLabel ? escHtml(d.yieldLabel) : (d.servings ? escHtml(d.servings + ' порц.') : '')
 			].filter(Boolean);
 			const metaHtml = metaParts.length
 				? '<div class="fav-card-meta">' + metaParts.map((p, i) =>

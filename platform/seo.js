@@ -160,7 +160,8 @@
             }).filter(Boolean);
             const category = recipeCategories(recipe);
             const keywords = (recipe.tags || []).map(clean).filter(Boolean);
-            if (recipe.servings) schema.recipeYield = String(recipe.servings) + ' порций';
+            if (recipe.yieldLabel) schema.recipeYield = recipe.yieldLabel;
+            else if (recipe.servings) schema.recipeYield = String(recipe.servings) + ' порций';
             if (Number(recipe.time) > 0) schema.totalTime = 'PT' + Number(recipe.time) + 'M';
             if (ingredients.length) schema.recipeIngredient = ingredients;
             if (instructions.length) schema.recipeInstructions = instructions;
