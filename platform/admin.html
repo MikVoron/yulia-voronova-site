@@ -1435,6 +1435,39 @@
         .feedback-thread-text { white-space: pre-wrap; }
         .feedback-reply-context { margin-bottom: 12px; padding: 12px; background: var(--bg); color: var(--text-2); font-size: 13px; line-height: 1.5; }
         .feedback-reply-thread { max-height: 320px; margin-bottom: 12px; padding: 4px; overflow-y: auto; }
+
+        .video-request-summary {
+            margin-bottom: 12px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .video-request-summary-card { padding: 13px 14px; background: #fff; border: 1px solid var(--border); }
+        .video-request-summary-card strong { display: block; font-family: 'Playfair Display', Georgia, serif; font-size: 24px; line-height: 1; }
+        .video-request-summary-card span { display: block; margin-top: 5px; color: var(--text-3); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+        .video-request-summary-card.attention { border-top: 2px solid var(--accent); }
+
+        .video-request-filter-bar { margin-bottom: 10px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .video-request-filter-btn { min-height: 38px; background: #fff; }
+        .video-request-filter-btn.active { border-color: var(--accent); background: var(--accent); color: #fff; box-shadow: none; }
+        .video-request-filter-result { margin-left: auto; color: var(--text-3); font-size: 11px; white-space: nowrap; }
+
+        .adm-video-requests-table { min-width: 870px; }
+        .adm-video-request-priority { width: 42px; color: var(--text-3); font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 700; }
+        .adm-video-request-name { min-width: 210px; }
+        .adm-video-request-name strong { display: block; }
+        .adm-video-request-id { display: block; margin-top: 3px; color: var(--text-3); font-size: 10px; }
+        .adm-video-request-votes { min-width: 145px; }
+        .adm-video-request-vote-line { display: flex; align-items: baseline; gap: 4px; }
+        .adm-video-request-vote-line strong { font-size: 18px; }
+        .adm-video-request-vote-line span { color: var(--text-3); font-size: 11px; }
+        .adm-video-request-progress { width: 130px; max-width: 100%; height: 6px; margin-top: 7px; overflow: hidden; background: #eee6dc; }
+        .adm-video-request-progress span { display: block; height: 100%; background: var(--accent); }
+        .adm-video-request-date { color: var(--text-2); font-size: 12px; white-space: nowrap; }
+        .adm-video-request-actions { min-width: 200px; display: flex; gap: 6px; flex-wrap: wrap; }
+        .adm-video-request-actions .adm-btn { min-height: 34px; }
+        .adm-video-requests-table tr.video-needs-action td { background: #fffaf6; }
         .adm-section-title { font-family: 'Montserrat', system-ui, sans-serif; font-size: 22px; letter-spacing: -.03em; }
         .adm-table th { background: var(--bg); color: var(--text-3); }
         .adm-table tr:hover td { background: #fffaf6; }
@@ -1528,6 +1561,23 @@
             .adm-payments-table .adm-loading::before { display: none; }
             .feedback-card-head { grid-template-columns: 1fr; }
             .feedback-card-state { justify-content: flex-start; }
+            .video-request-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+            .adm-video-requests-table { min-width: 0; }
+            .adm-video-requests-table thead { display: none; }
+            .adm-video-requests-table,
+            .adm-video-requests-table tbody,
+            .adm-video-requests-table tr,
+            .adm-video-requests-table td { display: block; width: 100%; }
+            .adm-video-requests-table tbody { padding: 8px; }
+            .adm-video-requests-table tr { margin-bottom: 8px; padding: 13px; background: #fff; border: 1px solid var(--border); }
+            .adm-video-requests-table tr:last-child { margin-bottom: 0; }
+            .adm-video-requests-table td { padding: 8px 0; display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; border: 0; }
+            .adm-video-requests-table td::before { content: attr(data-label); color: var(--text-3); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+            .adm-video-requests-table .adm-empty,
+            .adm-video-requests-table .adm-loading { display: block; padding: 24px 12px; }
+            .adm-video-requests-table .adm-empty::before,
+            .adm-video-requests-table .adm-loading::before { display: none; }
         }
 
         /* Системная настройка "уменьшить движение": интерфейс сохраняет
@@ -1569,6 +1619,10 @@
             .feedback-card { padding: 14px; }
             .feedback-card-actions .adm-btn { width: 100%; }
             .feedback-thread-head { flex-direction: column; gap: 2px; }
+            .video-request-filter-btn { flex: 1 1 auto; }
+            .video-request-filter-result { width: 100%; margin-left: 0; }
+            .adm-video-requests-table td { grid-template-columns: 1fr; gap: 4px; }
+            .adm-video-request-actions .adm-btn { flex: 1 1 auto; }
         }
     </style>
 </head>
@@ -1841,10 +1895,25 @@
         <div style="font-size:13px;line-height:1.55;color:var(--text-2);margin:-4px 0 16px">
             После 10 голосов рецепт становится обязательным к съёмке. Голоса продолжают считаться и помогают расставлять приоритеты.
         </div>
+        <div class="video-request-summary">
+            <div class="video-request-summary-card attention"><strong id="video-summary-reached">—</strong><span>Нужно снять</span></div>
+            <div class="video-request-summary-card"><strong id="video-summary-planned">—</strong><span>В плане</span></div>
+            <div class="video-request-summary-card"><strong id="video-summary-filming">—</strong><span>Снимается</span></div>
+            <div class="video-request-summary-card"><strong id="video-summary-collecting">—</strong><span>Собирает голоса</span></div>
+        </div>
+        <div class="video-request-filter-bar" role="group" aria-label="Этап видеорецептов">
+            <button class="adm-btn video-request-filter-btn active" type="button" data-admin-action="filter-video-requests" data-admin-status="all" aria-pressed="true">Вся очередь</button>
+            <button class="adm-btn video-request-filter-btn" type="button" data-admin-action="filter-video-requests" data-admin-status="goal_reached" aria-pressed="false">Нужно снять</button>
+            <button class="adm-btn video-request-filter-btn" type="button" data-admin-action="filter-video-requests" data-admin-status="in_progress" aria-pressed="false">В работе</button>
+            <button class="adm-btn video-request-filter-btn" type="button" data-admin-action="filter-video-requests" data-admin-status="collecting" aria-pressed="false">Сбор голосов</button>
+            <button class="adm-btn video-request-filter-btn" type="button" data-admin-action="filter-video-requests" data-admin-status="published" aria-pressed="false">Опубликовано</button>
+            <span class="video-request-filter-result" id="video-request-filter-result">Загрузка…</span>
+        </div>
         <div class="adm-table-wrap">
-            <table class="adm-table">
+            <table class="adm-table adm-video-requests-table">
                 <thead>
                     <tr>
+                        <th>№</th>
                         <th>Рецепт</th>
                         <th>Голоса</th>
                         <th>Статус</th>
@@ -1853,7 +1922,7 @@
                     </tr>
                 </thead>
                 <tbody id="video-requests-tbody">
-                    <tr><td colspan="5" class="adm-loading"><div class="adm-spinner"></div></td></tr>
+                    <tr><td colspan="6" class="adm-loading"><div class="adm-spinner"></div></td></tr>
                 </tbody>
             </table>
         </div>
@@ -2196,6 +2265,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260816-cross-tab-refresh"></script>
-<script src="admin.js?v=20260818-admin-feedback"></script>
+<script src="admin.js?v=20260818-admin-video-requests"></script>
 </body>
 </html>

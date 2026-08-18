@@ -136,7 +136,7 @@ describe('SmartPlate CSP script migration', () => {
     expect(new Set(bindings)).toEqual(new Set(htmlBindings));
     expect(html.match(/\sdata-admin-action="dashboard-tab"/g)).toHaveLength(4);
     expect(html).toContain('data-admin-filter="drafts"');
-    expect(html).toContain('admin.js?v=20260818-admin-feedback');
+    expect(html).toContain('admin.js?v=20260818-admin-video-requests');
     expect(script).toContain("if (action === 'dashboard-tab')");
     expect(script).toContain("target.dataset.adminFilter === 'drafts'");
     expect(html).toContain('id="recipe-extra-filters" hidden');
@@ -152,6 +152,11 @@ describe('SmartPlate CSP script migration', () => {
     expect(html).toContain('id="fb-reply-composer"');
     expect(script).toContain('function feedbackPreview(message)');
     expect(script).toContain("isClosed ? 'Просмотр обращения'");
+    expect(html).toContain('class="adm-table adm-video-requests-table"');
+    expect(html).toContain('id="video-request-filter-result"');
+    expect(html).toContain('data-admin-action="filter-video-requests"');
+    expect(script).toContain('window.filterVideoRequests = function(status)');
+    expect(script).toContain("action === 'filter-video-requests'");
   });
 
   it('keeps popup preview controls free of inline event handlers', () => {

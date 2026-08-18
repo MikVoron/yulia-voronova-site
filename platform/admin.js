@@ -1066,9 +1066,45 @@
         return map[status] || map.collecting;
     }
 
+    var allVideoRequests = [];
+    var videoRequestFilter = 'all';
+
+    function updateVideoRequestSummary(items) {
+        var counts = { goal_reached: 0, planned: 0, filming: 0, collecting: 0 };
+        items.forEach(function(item) {
+            if (Object.prototype.hasOwnProperty.call(counts, item.status)) counts[item.status]++;
+        });
+        document.getElementById('video-summary-reached').textContent = counts.goal_reached;
+        document.getElementById('video-summary-planned').textContent = counts.planned;
+        document.getElementById('video-summary-filming').textContent = counts.filming;
+        document.getElementById('video-summary-collecting').textContent = counts.collecting;
+    }
+
+    function applyVideoRequestFilter() {
+        var filtered = allVideoRequests.filter(function(item) {
+            if (videoRequestFilter === 'all') return true;
+            if (videoRequestFilter === 'in_progress') return item.status === 'planned' || item.status === 'filming';
+            return item.status === videoRequestFilter;
+        });
+        document.querySelectorAll('[data-admin-action="filter-video-requests"]').forEach(function(button) {
+            var active = button.dataset.adminStatus === videoRequestFilter;
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        document.getElementById('video-request-filter-result').textContent = 'Показано: ' + filtered.length + ' из ' + allVideoRequests.length;
+        renderVideoRequests(filtered);
+    }
+
+    window.filterVideoRequests = function(status) {
+        videoRequestFilter = status || 'all';
+        applyVideoRequestFilter();
+    };
+
     function loadVideoRequests(badgeOnly) {
         api('/admin/video-requests').then(function(items) {
             items = Array.isArray(items) ? items : [];
+            allVideoRequests = items;
+            updateVideoRequestSummary(items);
             var waiting = items.filter(function(item) { return item.status === 'goal_reached'; }).length;
             var badge = document.getElementById('video-requests-badge');
             if (badge) {
@@ -1076,11 +1112,11 @@
                 badge.style.display = waiting > 0 ? 'inline-flex' : 'none';
             }
             setDashboardValue('dashboard-video-count', waiting);
-            if (!badgeOnly) renderVideoRequests(items);
+            if (!badgeOnly) applyVideoRequestFilter();
         }).catch(function(e) {
             if (!badgeOnly) {
                 var tbody = document.getElementById('video-requests-tbody');
-                if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="adm-empty">' + esc(e.message || 'Ошибка загрузки') + '</td></tr>';
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="adm-empty">' + esc(e.message || 'Ошибка загрузки') + '</td></tr>';
             }
         });
     }
@@ -1090,28 +1126,30 @@
         var tbody = document.getElementById('video-requests-tbody');
         if (!tbody) return;
         if (!items.length) {
-            tbody.innerHTML = '<tr><td colspan="5" class="adm-empty">Пока никто не голосовал за видеорецепты</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="adm-empty">В этом разделе очереди пока ничего нет</td></tr>';
             return;
         }
         tbody.innerHTML = items.map(function(item) {
             var meta = videoRequestStatusMeta(item.status);
             var percent = Math.min(100, Math.round((Number(item.votes) || 0) / Math.max(1, Number(item.goal) || 10) * 100));
+            var priority = allVideoRequests.indexOf(item) + 1;
             var actions = '';
             if (item.status === 'goal_reached') {
-                actions += '<button class="adm-btn" data-admin-action="set-video-request-status" data-admin-id="' + esc(item.recipeId) + '" data-admin-status="planned">В план</button>';
+                actions += '<button class="adm-btn adm-btn-confirm" data-admin-action="set-video-request-status" data-admin-id="' + esc(item.recipeId) + '" data-admin-status="planned">Добавить в план</button>';
             } else if (item.status === 'planned') {
-                actions += '<button class="adm-btn" data-admin-action="set-video-request-status" data-admin-id="' + esc(item.recipeId) + '" data-admin-status="filming">Начать съёмку</button>';
+                actions += '<button class="adm-btn adm-btn-confirm" data-admin-action="set-video-request-status" data-admin-id="' + esc(item.recipeId) + '" data-admin-status="filming">Начать съёмку</button>';
             } else if (item.status === 'filming') {
                 actions += '<button class="adm-btn" data-admin-action="set-video-request-status" data-admin-id="' + esc(item.recipeId) + '" data-admin-status="planned">Вернуть в план</button>';
             }
-            actions += '<button class="adm-btn" data-admin-action="edit-recipe" data-admin-id="' + esc(item.recipeId) + '" title="Добавить ссылки на видео">✏️ Рецепт</button>';
-            return '<tr>'
-                + '<td><strong>' + esc(item.name) + '</strong><div style="font-size:11px;color:var(--text-3);margin-top:3px">' + esc(item.recipeId) + '</div></td>'
-                + '<td><strong style="font-size:16px">' + Number(item.votes) + '</strong> / ' + Number(item.goal)
-                + '<div style="width:110px;max-width:100%;height:5px;background:#eee6dc;margin-top:6px"><span style="display:block;width:' + percent + '%;height:100%;background:var(--accent)"></span></div></td>'
-                + '<td><span class="st-badge" style="background:' + meta.bg + ';color:' + meta.color + '">' + esc(meta.label) + '</span></td>'
-                + '<td>' + fmtDate(item.reachedAt) + '</td>'
-                + '<td><div style="display:flex;gap:6px;flex-wrap:wrap">' + actions + '</div></td>'
+            actions += '<button class="adm-btn" data-admin-action="edit-recipe" data-admin-id="' + esc(item.recipeId) + '" title="Открыть рецепт и добавить ссылки на видео">Открыть рецепт</button>';
+            return '<tr class="' + (item.status === 'goal_reached' ? 'video-needs-action' : '') + '">'
+                + '<td data-label="Приоритет"><span class="adm-video-request-priority">' + priority + '</span></td>'
+                + '<td data-label="Рецепт"><div class="adm-video-request-name"><strong>' + esc(item.name) + '</strong><span class="adm-video-request-id">' + esc(item.recipeId) + '</span></div></td>'
+                + '<td data-label="Голоса"><div class="adm-video-request-votes"><div class="adm-video-request-vote-line"><strong>' + Number(item.votes) + '</strong><span>из ' + Number(item.goal) + '</span></div>'
+                + '<div class="adm-video-request-progress"><span style="width:' + percent + '%"></span></div></div></td>'
+                + '<td data-label="Статус"><span class="st-badge" style="background:' + meta.bg + ';color:' + meta.color + '">' + esc(meta.label) + '</span></td>'
+                + '<td data-label="Цель достигнута"><span class="adm-video-request-date">' + fmtDate(item.reachedAt) + '</span></td>'
+                + '<td data-label="Действия"><div class="adm-video-request-actions">' + actions + '</div></td>'
                 + '</tr>';
         }).join('');
     }
@@ -1992,6 +2030,7 @@
         else if (action === 'set-seasonal') window.setSeasonal(id);
         else if (action === 'edit-recipe') window.openRecipeEditor(id);
         else if (action === 'delete-recipe') window.deleteRecipe(id);
+        else if (action === 'filter-video-requests') window.filterVideoRequests(target.dataset.adminStatus || 'all');
         else if (action === 'set-video-request-status') window.updateVideoRequestStatus(id, target.dataset.adminStatus);
         else if (action === 'edit-category') window.editCategory(id);
         else if (action === 'move-addon') window.moveAddonOrder(field, index, Number(target.dataset.adminDirection));
