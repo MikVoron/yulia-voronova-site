@@ -1558,6 +1558,7 @@
     var fbFilter = 'waiting_admin';
     var fbPage = 1;
     var fbHasMore = false;
+    var fbTotal = 0;
     var FB_CAT_LABELS = { wish: 'Пожелание', recipe: 'Идея рецепта', problem: 'Проблема' };
 
     window.loadFeedback = function(filter, append) {
@@ -1567,18 +1568,25 @@
             allFeedback = [];
         }
         document.querySelectorAll('[id^="fb-filter-"]').forEach(function(b) {
-            b.style.background = b.id === 'fb-filter-' + fbFilter ? 'var(--accent)' : '';
-            b.style.color = b.id === 'fb-filter-' + fbFilter ? '#fff' : '';
+            var active = b.id === 'fb-filter-' + fbFilter;
+            b.classList.toggle('active', active);
+            b.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
+        if (!append) {
+            document.getElementById('feedback-list').innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div></div>';
+            document.getElementById('feedback-filter-result').textContent = 'Загрузка…';
+        }
         var statusParam = fbFilter === 'all' ? '' : '&status=' + encodeURIComponent(fbFilter);
         api('/admin/feedback?page=' + fbPage + '&limit=20' + statusParam).then(function(data) {
             allFeedback = allFeedback.concat(data.rows);
             fbHasMore = data.hasMore;
+            fbTotal = Number(data.total || allFeedback.length);
             // badge
             var badge = document.getElementById('feedback-badge');
             if (data.totalNew > 0) { badge.textContent = data.totalNew; badge.style.display = 'inline'; }
             else { badge.style.display = 'none'; }
             setDashboardValue('dashboard-feedback-count', data.totalNew || 0);
+            document.getElementById('feedback-filter-result').textContent = 'Показано: ' + allFeedback.length + ' из ' + fbTotal;
             renderFeedback(allFeedback);
         });
     };
@@ -1591,9 +1599,9 @@
     var FB_STATUS_BADGE = {
         waiting_admin: { cls: 'st-trial', label: 'Ждёт ответа' },
         new:           { cls: 'st-trial', label: 'Новое' },
-        waiting_user:  { cls: 'st-confirmed', label: 'Юлия ответила' },
+        waiting_user:  { cls: 'st-confirmed', label: 'Ждём пользователя' },
         answered:      { cls: 'st-confirmed', label: 'Отвечено' },
-        closed:        { cls: '', label: 'Решено' }
+        closed:        { cls: 'st-none', label: 'Закрыто' }
     };
 
     function renderFeedbackThreadHtml(messages) {
@@ -1601,16 +1609,24 @@
         return messages.map(function(m) {
             var isUser = m.sender_type === 'user';
             var who = isUser ? 'Пользователь' : 'Юлия';
-            var bg = isUser ? '#faf9f6' : '#edf6ee';
-            var fg = isUser ? '#6b6b6b' : '#476b4c';
-            return '<div style="margin-bottom:8px;padding:10px;background:' + bg + ';border-radius:8px;font-size:13px;color:#333;line-height:1.5">'
-                + '<div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:4px">'
-                + '<strong style="font-size:11px;color:' + fg + ';text-transform:uppercase;letter-spacing:.05em">' + who + '</strong>'
-                + '<span style="font-size:11px;color:#777">' + fmtDateTime(m.created_at) + '</span>'
+            return '<div class="feedback-thread-message' + (isUser ? '' : ' admin') + '">'
+                + '<div class="feedback-thread-head">'
+                + '<strong class="feedback-thread-author">' + who + '</strong>'
+                + '<span class="feedback-thread-date">' + fmtDateTime(m.created_at) + '</span>'
                 + '</div>'
-                + '<div style="white-space:pre-wrap">' + esc(m.text) + '</div>'
+                + '<div class="feedback-thread-text">' + esc(m.text) + '</div>'
                 + '</div>';
         }).join('');
+    }
+
+    function feedbackPreview(message) {
+        if (!message) return { author: 'Нет сообщений', text: 'Переписка пока пуста' };
+        var text = String(message.text || '').trim();
+        if (text.length > 220) text = text.slice(0, 217) + '…';
+        return {
+            author: message.sender_type === 'user' ? 'Последнее сообщение пользователя' : 'Последний ответ Юлии',
+            text: text || 'Сообщение без текста'
+        };
     }
 
     function renderFeedback(items) {
@@ -1621,32 +1637,26 @@
             var st = FB_STATUS_BADGE[f.status] || { cls: '', label: f.status };
             var statusBadge = '<span class="st-badge ' + cssToken(st.cls) + '">' + esc(st.label) + '</span>';
             var hiddenBadge = f.user_deleted_at
-                ? '<span class="st-badge" style="background:#e8e6e0;color:#6b6b6b" title="Пользователь скрыл обращение из своего ЛК. В базе оно сохранено.">Скрыто пользователем</span>'
+                ? '<span class="st-badge st-none" title="Пользователь скрыл обращение из своего ЛК. В базе оно сохранено.">Скрыто пользователем</span>'
                 : '';
-            var threadHtml = renderFeedbackThreadHtml(f.messages);
             var needsReply = (f.status === 'waiting_admin' || f.status === 'new');
             var isClosed = f.status === 'closed';
-            var actions = '';
-            if (!isClosed) {
-                var actionLabel = needsReply ? 'Ответить' : 'Дописать';
-                var actionCls = needsReply ? 'adm-btn adm-btn-confirm' : 'adm-btn';
-                actions = '<button class="' + actionCls + '" data-admin-action="open-feedback" data-admin-id="' + Number(f.id) + '" style="font-size:12px;padding:6px 12px">' + actionLabel + '</button>';
-            }
+            var actionLabel = needsReply ? 'Ответить' : (isClosed ? 'Открыть' : 'Открыть переписку');
+            var actionCls = needsReply ? 'adm-btn adm-btn-confirm' : 'adm-btn';
+            var actions = '<button class="' + actionCls + '" data-admin-action="open-feedback" data-admin-id="' + Number(f.id) + '">' + actionLabel + '</button>';
             var msgCount = (f.msg_count != null ? f.msg_count : (f.messages ? f.messages.length : 0));
-            var msgCountLabel = msgCount > 1 ? ' · ' + msgCount + ' сообщ.' : '';
-            var rowStyle = f.user_deleted_at
-                ? 'padding:14px;border:1px dashed var(--border);border-radius:10px;margin-bottom:8px;background:#faf9f6;opacity:.85'
-                : 'padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:#fff';
-            if (needsReply) rowStyle += ';border-left:3px solid var(--accent)';
             var lastUpdate = f.updated_at || f.created_at;
-            return '<div style="' + rowStyle + '">'
-                + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap">'
-                + '<div><strong style="font-size:13px">' + esc(f.display_name || f.email) + '</strong>' + (f.display_name ? '<br><span style="font-size:11px;color:var(--text-3)">' + esc(f.email) + '</span>' : '') + ' · <span style="font-size:12px;color:var(--text-3)">' + catLabel + msgCountLabel + '</span></div>'
-                + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + statusBadge + hiddenBadge + '<span style="font-size:11px;color:var(--text-3)">' + fmtDateTime(lastUpdate) + '</span></div>'
+            var messages = f.messages || [];
+            var preview = feedbackPreview(messages[messages.length - 1]);
+            return '<article class="feedback-card' + (needsReply ? ' needs-reply' : '') + (f.user_deleted_at ? ' user-hidden' : '') + '">'
+                + '<div class="feedback-card-head">'
+                + '<div><span class="feedback-card-name">' + esc(f.display_name || f.email) + '</span>' + (f.display_name ? '<span class="feedback-card-email">' + esc(f.email) + '</span>' : '') + '</div>'
+                + '<div class="feedback-card-state">' + statusBadge + hiddenBadge + '<span class="feedback-card-date">' + fmtDateTime(lastUpdate) + '</span></div>'
                 + '</div>'
-                + threadHtml
-                + '<div style="margin-top:10px">' + actions + '</div>'
-                + '</div>';
+                + '<div class="feedback-card-meta"><span class="feedback-card-category">' + catLabel + '</span><span>·</span><span>' + msgCount + ' сообщ.</span></div>'
+                + '<div class="feedback-card-preview"><strong>' + esc(preview.author) + '</strong>' + esc(preview.text) + '</div>'
+                + '<div class="feedback-card-actions">' + actions + '</div>'
+                + '</article>';
         }).join('');
         if (fbHasMore) {
             html += '<div style="text-align:center;margin:16px 0"><button class="adm-btn" data-admin-action="load-more-feedback" style="padding:8px 24px">Загрузить ещё</button></div>';
@@ -1657,15 +1667,16 @@
     window.openFbReply = function(id) {
         var f = allFeedback.find(function(x) { return x.id === id; });
         if (!f) return;
-        if (f.status === 'closed') {
-            showToast('Обращение закрыто пользователем — ответить нельзя');
-            return;
-        }
+        var isClosed = f.status === 'closed';
         document.getElementById('fb-reply-id').value = id;
+        document.getElementById('fb-reply-modal-title').textContent = isClosed ? 'Просмотр обращения' : 'Ответить на обращение';
         document.getElementById('fb-reply-original').innerHTML =
             '<strong>' + esc(f.display_name || f.email) + '</strong>' + (f.display_name ? '<br><span style="font-size:11px;color:var(--text-3)">' + esc(f.email) + '</span>' : '') + ' · ' + esc(FB_CAT_LABELS[f.category] || f.category);
         document.getElementById('fb-reply-thread').innerHTML = renderFeedbackThreadHtml(f.messages);
         document.getElementById('fb-reply-text').value = '';
+        document.getElementById('fb-reply-composer').hidden = isClosed;
+        document.getElementById('fb-reply-submit').hidden = isClosed;
+        document.getElementById('fb-reply-close').textContent = isClosed ? 'Закрыть' : 'Отмена';
         document.getElementById('fb-reply-modal').classList.add('open');
     };
 

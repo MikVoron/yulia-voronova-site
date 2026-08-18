@@ -1405,6 +1405,36 @@
         .adm-payment-comment { display: block; max-width: 220px; margin-top: 5px; color: var(--text-3); font-size: 11px; line-height: 1.4; }
         .adm-payment-actions { min-width: 210px; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
         .adm-payment-actions .adm-btn { min-height: 36px; padding-inline: 11px; }
+
+        .feedback-filter-bar { margin-bottom: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .feedback-filter-btn { min-height: 38px; background: #fff; }
+        .feedback-filter-btn.active { border-color: var(--accent); background: var(--accent); color: #fff; box-shadow: none; }
+        .feedback-filter-result { margin-left: auto; color: var(--text-3); font-size: 11px; white-space: nowrap; }
+
+        .feedback-card { margin-bottom: 8px; padding: 16px; background: #fff; border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(64,45,28,.035); }
+        .feedback-card.needs-reply { border-left: 3px solid var(--accent); background: #fffdfb; }
+        .feedback-card.user-hidden { border-style: dashed; background: #faf9f6; opacity: .88; }
+        .feedback-card-head { display: grid; grid-template-columns: minmax(190px, 1fr) auto; gap: 14px; align-items: start; }
+        .feedback-card-name { display: block; font-size: 13px; font-weight: 800; }
+        .feedback-card-email { display: block; margin-top: 3px; color: var(--text-3); font-size: 11px; word-break: break-word; }
+        .feedback-card-state { display: flex; align-items: center; justify-content: flex-end; gap: 7px; flex-wrap: wrap; }
+        .feedback-card-date { color: var(--text-3); font-size: 11px; white-space: nowrap; }
+        .feedback-card-meta { margin-top: 11px; display: flex; gap: 7px; align-items: center; flex-wrap: wrap; color: var(--text-3); font-size: 11px; }
+        .feedback-card-category { color: var(--text-2); font-weight: 700; }
+        .feedback-card-preview { margin-top: 11px; padding: 12px 13px; background: var(--bg); color: var(--text-2); font-size: 12px; line-height: 1.55; }
+        .feedback-card-preview strong { display: block; margin-bottom: 3px; color: var(--text-3); font-size: 10px; letter-spacing: .07em; text-transform: uppercase; }
+        .feedback-card-actions { margin-top: 11px; display: flex; justify-content: flex-end; }
+        .feedback-card-actions .adm-btn { min-width: 120px; }
+
+        .feedback-thread-message { margin-bottom: 8px; padding: 11px 12px; background: var(--bg); font-size: 13px; color: var(--text); line-height: 1.55; }
+        .feedback-thread-message.admin { background: var(--green-l); }
+        .feedback-thread-head { margin-bottom: 5px; display: flex; justify-content: space-between; gap: 8px; }
+        .feedback-thread-author { color: var(--text-3); font-size: 10px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+        .feedback-thread-message.admin .feedback-thread-author { color: var(--green); }
+        .feedback-thread-date { color: var(--text-3); font-size: 11px; white-space: nowrap; }
+        .feedback-thread-text { white-space: pre-wrap; }
+        .feedback-reply-context { margin-bottom: 12px; padding: 12px; background: var(--bg); color: var(--text-2); font-size: 13px; line-height: 1.5; }
+        .feedback-reply-thread { max-height: 320px; margin-bottom: 12px; padding: 4px; overflow-y: auto; }
         .adm-section-title { font-family: 'Montserrat', system-ui, sans-serif; font-size: 22px; letter-spacing: -.03em; }
         .adm-table th { background: var(--bg); color: var(--text-3); }
         .adm-table tr:hover td { background: #fffaf6; }
@@ -1496,6 +1526,8 @@
             .adm-payments-table .adm-loading { display: block; padding: 24px 12px; }
             .adm-payments-table .adm-empty::before,
             .adm-payments-table .adm-loading::before { display: none; }
+            .feedback-card-head { grid-template-columns: 1fr; }
+            .feedback-card-state { justify-content: flex-start; }
         }
 
         /* Системная настройка "уменьшить движение": интерфейс сохраняет
@@ -1532,6 +1564,11 @@
             .payment-filter-btn { flex: 1 1 auto; }
             .payment-filter-result { width: 100%; margin-left: 0; }
             .adm-payments-table td { grid-template-columns: 1fr; gap: 4px; }
+            .feedback-filter-btn { flex: 1 1 auto; }
+            .feedback-filter-result { width: 100%; margin-left: 0; }
+            .feedback-card { padding: 14px; }
+            .feedback-card-actions .adm-btn { width: 100%; }
+            .feedback-thread-head { flex-direction: column; gap: 2px; }
         }
     </style>
 </head>
@@ -1913,11 +1950,12 @@
     <!-- Feedback -->
     <div class="adm-section" id="sec-feedback">
         <div class="adm-section-title">Обращения пользователей</div>
-        <div style="margin-bottom:16px">
-            <button class="adm-btn" style="margin-right:4px" data-admin-click="3119f882a5cf" id="fb-filter-waiting_admin">Ждут ответа</button>
-            <button class="adm-btn" data-admin-click="c970900869a0" id="fb-filter-waiting_user">Юлия ответила</button>
-            <button class="adm-btn" data-admin-click="be1cdb16d86f" id="fb-filter-closed">Решённые</button>
-            <button class="adm-btn" data-admin-click="9d429658dc34" id="fb-filter-all">Все</button>
+        <div class="feedback-filter-bar" role="group" aria-label="Статус обращений">
+            <button class="adm-btn feedback-filter-btn" data-admin-click="3119f882a5cf" id="fb-filter-waiting_admin" aria-pressed="false">Ждут моего ответа</button>
+            <button class="adm-btn feedback-filter-btn" data-admin-click="c970900869a0" id="fb-filter-waiting_user" aria-pressed="false">Ждут пользователя</button>
+            <button class="adm-btn feedback-filter-btn" data-admin-click="be1cdb16d86f" id="fb-filter-closed" aria-pressed="false">Закрытые</button>
+            <button class="adm-btn feedback-filter-btn" data-admin-click="9d429658dc34" id="fb-filter-all" aria-pressed="false">Все</button>
+            <span class="feedback-filter-result" id="feedback-filter-result">Загрузка…</span>
         </div>
         <div id="feedback-list">
             <div class="adm-empty">Нажмите на вкладку для загрузки</div>
@@ -1927,17 +1965,17 @@
     <!-- Feedback reply modal -->
     <div class="adm-modal-bg" id="fb-reply-modal">
         <div class="adm-modal" style="max-width:600px">
-            <div class="adm-modal-title">Ответить на обращение</div>
+            <div class="adm-modal-title" id="fb-reply-modal-title">Ответить на обращение</div>
             <input type="hidden" id="fb-reply-id">
-            <div style="padding:12px;background:var(--bg);border-radius:8px;margin-bottom:12px;font-size:13px;color:var(--text-2);line-height:1.5" id="fb-reply-original"></div>
-            <div style="max-height:280px;overflow-y:auto;margin-bottom:12px;padding:4px" id="fb-reply-thread"></div>
-            <div class="adm-modal-field">
+            <div class="feedback-reply-context" id="fb-reply-original"></div>
+            <div class="feedback-reply-thread" id="fb-reply-thread"></div>
+            <div class="adm-modal-field" id="fb-reply-composer">
                 <label class="adm-modal-label">Новое сообщение</label>
                 <textarea class="adm-modal-input" id="fb-reply-text" rows="4" style="resize:vertical" placeholder="Ваш ответ пользователю..."></textarea>
             </div>
             <div class="adm-modal-actions">
-                <button class="adm-btn adm-btn-reject" data-admin-click="b8da07356966">Отмена</button>
-                <button class="adm-btn adm-btn-confirm" id="fb-reply-submit" data-admin-click="870fb8fc606b">Отправить</button>
+                <button class="adm-btn adm-btn-reject" id="fb-reply-close" data-admin-click="b8da07356966">Отмена</button>
+                <button class="adm-btn adm-btn-confirm" id="fb-reply-submit" data-admin-click="870fb8fc606b">Отправить ответ</button>
             </div>
         </div>
     </div>
@@ -2158,6 +2196,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260816-cross-tab-refresh"></script>
-<script src="admin.js?v=20260818-admin-payments"></script>
+<script src="admin.js?v=20260818-admin-feedback"></script>
 </body>
 </html>
