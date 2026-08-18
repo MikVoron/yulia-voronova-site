@@ -150,25 +150,35 @@
     function loadUsers() {
         api('/admin/users').then(function(data) {
             allUsers = data;
-            renderUsers(data);
+            window.filterUsers();
         });
     }
     window.loadUsers = loadUsers;
 
     function renderUsers(users) {
         var tbody = document.getElementById('users-tbody');
+        updateUserFilterSummary(users.length);
         if (!users.length) {
-            tbody.innerHTML = '<tr><td colspan="7" class="adm-empty">Нет пользователей</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="adm-empty">По выбранным условиям пользователей нет</td></tr>';
             return;
         }
         tbody.innerHTML = users.map(function(u) {
             var isAdmin = u.role === 'admin';
-            var status = isAdmin ? 'admin' : (u.sub_status || 'нет');
-            var statusClass = isAdmin ? 'st-active' : ('st-' + cssToken(status));
+            var status = u.is_blocked ? 'blocked' : (isAdmin ? 'admin' : (u.sub_status || 'none'));
+            var statusClass = status === 'admin' ? 'st-active' : ('st-' + cssToken(status));
+            var statusLabels = {
+                admin: 'Администратор',
+                trial: 'Пробный период',
+                active: 'Активна',
+                expired: 'Истекла',
+                blocked: 'Заблокирован',
+                none: 'Нет доступа'
+            };
             var untilDate = '';
             if (isAdmin) untilDate = '∞';
             else if (u.sub_status === 'trial' && u.trial_ends_at) untilDate = fmtDate(u.trial_ends_at);
             else if (u.sub_status === 'active' && u.active_until) untilDate = fmtDate(u.active_until);
+            var untilText = isAdmin ? 'Бессрочно' : (untilDate ? 'до ' + untilDate : 'Без даты окончания');
             var activity = formatUserActivity(u);
 
             var primaryActions = '<button class="adm-btn" data-admin-action="compose-message" data-admin-id="' + esc(u.id) + '" title="Написать пользователю">Написать</button>';
@@ -182,32 +192,69 @@
                     '<button class="adm-btn adm-btn-delete" data-admin-action="delete-user" data-admin-id="' + esc(u.id) + '">Удалить</button>';
             }
             var actions = '<div class="adm-user-actions"><div class="adm-user-actions-primary">' + primaryActions + '</div>' +
-                (secondaryActions ? '<div class="adm-user-actions-danger">' + secondaryActions + '</div>' : '') + '</div>';
+                (secondaryActions ? '<details class="adm-user-more"><summary>Ещё</summary><div class="adm-user-actions-danger">' + secondaryActions + '</div></details>' : '') + '</div>';
 
             return '<tr>' +
-                '<td><strong>' + esc(u.email || '—') + '</strong></td>' +
-                '<td>' + esc(u.display_name || '—') + '</td>' +
-                '<td><span class="st-badge ' + statusClass + '">' + esc(status) + '</span></td>' +
-                '<td class="adm-date">' + esc(untilDate) + '</td>' +
-                '<td class="adm-date">' + fmtDate(u.created_at) + '</td>' +
-                '<td>' + activity + '</td>' +
-                '<td>' + actions + '</td>' +
+                '<td data-label="Пользователь"><div class="adm-user-identity"><span class="adm-user-name">' + esc(u.display_name || 'Без имени') + '</span><span class="adm-user-email">' + esc(u.email || '—') + '</span></div></td>' +
+                '<td data-label="Доступ"><div class="adm-user-access"><span class="st-badge ' + statusClass + '">' + esc(statusLabels[status] || status) + '</span><span class="adm-user-until">' + esc(untilText) + '</span></div></td>' +
+                '<td data-label="Регистрация" class="adm-date">' + fmtDate(u.created_at) + '</td>' +
+                '<td data-label="Активность">' + activity + '</td>' +
+                '<td data-label="Действия">' + actions + '</td>' +
                 '</tr>';
         }).join('');
     }
 
     window.filterUsers = function() {
-        var q = document.getElementById('user-search').value.toLowerCase();
+        var q = document.getElementById('user-search').value.trim().toLowerCase();
         var statusFilter = document.getElementById('user-status-filter').value;
+        var activityFilter = document.getElementById('user-activity-filter').value;
+        var sort = document.getElementById('user-sort').value;
         var filtered = allUsers.filter(function(u) {
             if (q && !(u.email && u.email.toLowerCase().includes(q)) && !(u.display_name && u.display_name.toLowerCase().includes(q))) return false;
-            if (statusFilter === 'admin') return u.role === 'admin';
-            if (statusFilter === 'blocked') return u.is_blocked;
-            if (statusFilter && u.role === 'admin') return false;
-            if (statusFilter && (u.sub_status || 'нет') !== statusFilter) return false;
+            if (statusFilter === 'admin' && u.role !== 'admin') return false;
+            if (statusFilter === 'blocked' && !u.is_blocked) return false;
+            if (statusFilter && statusFilter !== 'admin' && statusFilter !== 'blocked' && u.role === 'admin') return false;
+            if (statusFilter && statusFilter !== 'admin' && statusFilter !== 'blocked' && (u.sub_status || 'нет') !== statusFilter) return false;
+            if (activityFilter === '7d' && Number(u.active_days_7d || 0) < 1) return false;
+            if (activityFilter === '30d' && Number(u.active_days_30d || 0) < 1) return false;
+            if (activityFilter === 'never' && u.last_activity_at) return false;
             return true;
         });
+        filtered.sort(function(a, b) {
+            if (sort === 'email') return String(a.email || '').localeCompare(String(b.email || ''), 'ru');
+            if (sort === 'activity') return dateValue(b.last_activity_at) - dateValue(a.last_activity_at);
+            return dateValue(b.created_at) - dateValue(a.created_at);
+        });
         renderUsers(filtered);
+    };
+
+    function dateValue(value) {
+        var timestamp = value ? new Date(value).getTime() : 0;
+        return Number.isFinite(timestamp) ? timestamp : 0;
+    }
+
+    function updateUserFilterSummary(resultCount) {
+        var summary = document.getElementById('user-filter-summary');
+        if (!summary) return;
+        var q = document.getElementById('user-search').value.trim();
+        var status = document.getElementById('user-status-filter');
+        var activity = document.getElementById('user-activity-filter');
+        var chips = [];
+        if (q) chips.push('Поиск: ' + q);
+        if (status.value) chips.push(status.options[status.selectedIndex].text);
+        if (activity.value) chips.push(activity.options[activity.selectedIndex].text);
+        summary.innerHTML = chips.map(function(label) {
+            return '<span class="user-filter-chip">' + esc(label) + '</span>';
+        }).join('') + (chips.length ? '<button type="button" class="user-filter-reset" data-admin-action="reset-user-filters">Сбросить</button>' : '') +
+            '<span class="user-filter-result" id="user-filter-result">Найдено: ' + resultCount + ' из ' + allUsers.length + '</span>';
+    }
+
+    window.resetUserFilters = function() {
+        document.getElementById('user-search').value = '';
+        document.getElementById('user-status-filter').value = '';
+        document.getElementById('user-activity-filter').value = '';
+        document.getElementById('user-sort').value = 'newest';
+        filterUsers();
     };
 
     function findUserById(id) {
@@ -533,13 +580,13 @@
     }
     function formatUserActivity(user) {
         var lastActivity = user.last_activity_at
-            ? 'Последняя активность: ' + fmtDateTime(user.last_activity_at)
+            ? fmtDateTime(user.last_activity_at)
             : 'Активности пока нет';
         var activeDays7d = Number(user.active_days_7d || 0);
         var activeDays30d = Number(user.active_days_30d || 0);
-        return '<div style="font-size:12px;line-height:1.45">' +
+        return '<div class="adm-user-activity">' +
             '<div>' + esc(lastActivity) + '</div>' +
-            '<div style="color:var(--text-3)">Активных дней: ' + activeDays7d + ' за 7 дней · ' + activeDays30d + ' за 30 дней</div>' +
+            '<div class="adm-user-activity-note">' + activeDays7d + ' дн. за неделю · ' + activeDays30d + ' дн. за месяц</div>' +
             '</div>';
     }
 
@@ -1905,6 +1952,7 @@
         else if (action === 'edit-news') window.editNews(Number(id));
         else if (action === 'delete-news') window.deleteNews(Number(id));
         else if (action === 'set-recipe-category') window.setRecipeCat(target.dataset.adminValue || 'all');
+        else if (action === 'reset-user-filters') window.resetUserFilters();
         else if (action === 'toggle-recipe-filters') window.toggleRecipeFilters();
         else if (action === 'reset-recipe-filters') window.resetRecipeFilters();
         else if (action === 'open-recipe-category-order') window.openRecipeCategoryOrder();
@@ -1958,6 +2006,8 @@
     bindStaticAdminHandler("click", "c829355ef746", function(event) { switchTab('audit') });
     bindStaticAdminHandler("input", "af40a244cf7b", function(event) { filterUsers() });
     bindStaticAdminHandler("change", "2ae747887602", function(event) { filterUsers() });
+    bindStaticAdminHandler("change", "5bc2de401a8f", function(event) { filterUsers() });
+    bindStaticAdminHandler("change", "7d30b9ec42f1", function(event) { filterUsers() });
     bindStaticAdminHandler("click", "6509a16e5375", function(event) { loadPayments('pending') });
     bindStaticAdminHandler("click", "25cd91e1b230", function(event) { loadPayments('confirmed') });
     bindStaticAdminHandler("click", "7b81491b9670", function(event) { loadPayments('rejected') });
