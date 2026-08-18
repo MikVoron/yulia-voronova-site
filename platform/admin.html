@@ -1502,6 +1502,35 @@
 
         .news-publish-option { padding: 12px; display: flex; align-items: center; gap: 9px; background: var(--bg); border: 1px solid var(--border); }
         .news-publish-option label { cursor: pointer; font-size: 13px; font-weight: 700; }
+
+        .category-section-head { margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .category-section-head .adm-section-title { margin: 0; }
+        .category-section-head .primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+        .category-section-note { max-width: 760px; margin: 0 0 16px; color: var(--text-2); font-size: 12px; line-height: 1.55; }
+        .category-summary { margin-bottom: 12px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+        .category-summary-card { padding: 13px 14px; background: #fff; border: 1px solid var(--border); }
+        .category-summary-card strong { display: block; font-family: 'Playfair Display', Georgia, serif; font-size: 24px; line-height: 1; }
+        .category-summary-card span { display: block; margin-top: 5px; color: var(--text-3); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+        .category-filter-bar { margin-bottom: 10px; display: grid; grid-template-columns: minmax(220px, 1fr) minmax(210px, auto); gap: 8px; }
+        .category-filter-bar .adm-search,
+        .category-filter-bar .adm-modal-select { width: 100%; max-width: none; min-height: 42px; margin: 0; }
+        .category-filter-summary { min-height: 29px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .category-filter-chip { padding: 5px 8px; background: var(--accent-l); color: var(--accent); font-size: 11px; font-weight: 700; }
+        .category-filter-reset { padding: 5px 8px; background: transparent; border: 0; color: var(--text-3); cursor: pointer; font-size: 11px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+        .category-filter-result { margin-left: auto; color: var(--text-3); font-size: 11px; white-space: nowrap; }
+        .category-card { margin-bottom: 8px; padding: 15px 16px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: center; background: #fff; border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(64,45,28,.035); }
+        .category-card-main { min-width: 0; }
+        .category-card-title { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+        .category-card-emoji { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid var(--border); font-size: 17px; }
+        .category-card-title strong { font-size: 14px; }
+        .category-card-id { color: var(--text-3); font-size: 11px; }
+        .category-card-order { padding: 3px 6px; background: var(--bg); color: var(--text-3); font-size: 10px; font-weight: 700; }
+        .category-card-description { margin: 7px 0 0 43px; color: var(--text-3); font-size: 11px; }
+        .category-card-rules { margin: 8px 0 0 43px; display: flex; gap: 5px; flex-wrap: wrap; }
+        .category-rule { padding: 4px 7px; background: #f1f5f9; color: #475569; font-size: 10px; font-weight: 700; }
+        .category-no-rules { color: var(--text-3); font-size: 11px; }
+        .category-card-actions { min-width: 145px; }
+        .category-card-actions .adm-btn { width: 100%; min-height: 34px; }
         .adm-section-title { font-family: 'Montserrat', system-ui, sans-serif; font-size: 22px; letter-spacing: -.03em; }
         .adm-table th { background: var(--bg); color: var(--text-3); }
         .adm-table tr:hover td { background: #fffaf6; }
@@ -1615,6 +1644,7 @@
             .news-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .news-filter-bar { grid-template-columns: 1fr 1fr; }
             .news-filter-bar .adm-search { grid-column: 1 / -1; }
+            .category-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
         /* Системная настройка "уменьшить движение": интерфейс сохраняет
@@ -1667,6 +1697,13 @@
             .news-filter-result { width: 100%; margin-left: 0; }
             .news-card { grid-template-columns: 1fr; gap: 12px; padding: 14px; }
             .news-card-actions { min-width: 0; }
+            .category-section-head { align-items: flex-start; flex-direction: column; }
+            .category-filter-bar { grid-template-columns: 1fr; }
+            .category-filter-result { width: 100%; margin-left: 0; }
+            .category-card { grid-template-columns: 1fr; gap: 12px; padding: 14px; align-items: start; }
+            .category-card-description,
+            .category-card-rules { margin-left: 0; }
+            .category-card-actions { min-width: 0; }
         }
     </style>
 </head>
@@ -1994,14 +2031,26 @@
 
     <!-- Categories -->
     <div class="adm-section" id="sec-categories">
-        <div class="adm-section-title" style="display:flex;justify-content:space-between;align-items:center">
-            Категории
-            <button class="adm-btn" style="background:var(--accent);color:#fff" data-admin-click="9467f5428096">+ Новая категория</button>
+        <div class="category-section-head">
+            <div class="adm-section-title">Категории</div>
+            <button class="adm-btn primary" data-admin-click="9467f5428096">+ Новая категория</button>
         </div>
-        <div style="font-size:12px;color:var(--text-3);margin-bottom:12px">
-            Авто-добавки: правила автоматически подтягивают рецепты из указанной категории как добавки к текущему блюду.
-            Рецепт-уровень перекрывает категорию для одного слота.
+        <p class="category-section-note">Категории управляют навигацией рецептов и правилами авто-добавок. Настройка конкретного рецепта по-прежнему имеет приоритет над правилом категории.</p>
+        <div class="category-summary">
+            <div class="category-summary-card"><strong id="category-summary-total">—</strong><span>Всего</span></div>
+            <div class="category-summary-card"><strong id="category-summary-rules">—</strong><span>С авто-добавками</span></div>
+            <div class="category-summary-card"><strong id="category-summary-empty">—</strong><span>Без авто-добавок</span></div>
+            <div class="category-summary-card"><strong id="category-summary-slots">—</strong><span>Настроено слотов</span></div>
         </div>
+        <div class="category-filter-bar">
+            <input class="adm-search" id="category-search" type="search" placeholder="Поиск по названию или ID" aria-label="Поиск категорий">
+            <select class="adm-modal-select" id="category-rules-filter" aria-label="Наличие авто-добавок">
+                <option value="">Все категории</option>
+                <option value="configured">С авто-добавками</option>
+                <option value="empty">Без авто-добавок</option>
+            </select>
+        </div>
+        <div class="category-filter-summary" id="category-filter-summary"><span class="category-filter-result">Загрузка…</span></div>
         <div id="categories-list"></div>
     </div>
 
@@ -2329,6 +2378,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260816-cross-tab-refresh"></script>
-<script src="admin.js?v=20260818-admin-news"></script>
+<script src="admin.js?v=20260818-admin-categories"></script>
 </body>
 </html>

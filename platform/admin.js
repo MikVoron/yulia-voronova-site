@@ -1250,33 +1250,91 @@
             allCategories = cats || [];
             CAT_NAMES = {};
             allCategories.forEach(function(c) { CAT_NAMES[c.id] = c.name; });
-            renderCategoriesList();
+            updateCategorySummary();
+            filterCategories();
         });
     }
 
-    function renderCategoriesList() {
+    function categoryRuleActive(rule) {
+        return !!(rule && (rule.fromCategory
+            || (Array.isArray(rule.order) && rule.order.length)
+            || (Array.isArray(rule.items) && rule.items.length)
+            || rule.optional));
+    }
+
+    function categoryRuleCount(category) {
+        var autoAddons = category.auto_addons || {};
+        return AA_SLOTS.filter(function(slot) { return categoryRuleActive(autoAddons[slot.key]); }).length;
+    }
+
+    function updateCategorySummary() {
+        var configured = allCategories.filter(function(category) { return categoryRuleCount(category) > 0; }).length;
+        var slots = allCategories.reduce(function(total, category) { return total + categoryRuleCount(category); }, 0);
+        document.getElementById('category-summary-total').textContent = allCategories.length;
+        document.getElementById('category-summary-rules').textContent = configured;
+        document.getElementById('category-summary-empty').textContent = allCategories.length - configured;
+        document.getElementById('category-summary-slots').textContent = slots;
+    }
+
+    function updateCategoryFilterSummary(count) {
+        var query = document.getElementById('category-search').value.trim();
+        var rules = document.getElementById('category-rules-filter').value;
+        var chips = [];
+        if (query) chips.push('<span class="category-filter-chip">Поиск: ' + esc(query) + '</span>');
+        if (rules) chips.push('<span class="category-filter-chip">' + (rules === 'configured' ? 'С авто-добавками' : 'Без авто-добавок') + '</span>');
+        if (chips.length) chips.push('<button class="category-filter-reset" data-admin-action="reset-category-filters">Сбросить</button>');
+        chips.push('<span class="category-filter-result">Найдено: ' + count + ' из ' + allCategories.length + '</span>');
+        document.getElementById('category-filter-summary').innerHTML = chips.join('');
+    }
+
+    function filterCategories() {
+        var query = document.getElementById('category-search').value.trim().toLowerCase();
+        var rules = document.getElementById('category-rules-filter').value;
+        var filtered = allCategories.filter(function(category) {
+            var searchable = [category.name, category.id, category.description].filter(Boolean).join(' ').toLowerCase();
+            var configured = categoryRuleCount(category) > 0;
+            if (query && searchable.indexOf(query) === -1) return false;
+            if (rules === 'configured' && !configured) return false;
+            if (rules === 'empty' && configured) return false;
+            return true;
+        });
+        renderCategoriesList(filtered);
+        updateCategoryFilterSummary(filtered.length);
+    }
+
+    window.resetCategoryFilters = function() {
+        document.getElementById('category-search').value = '';
+        document.getElementById('category-rules-filter').value = '';
+        filterCategories();
+    };
+
+    document.getElementById('category-search').addEventListener('input', filterCategories);
+    document.getElementById('category-rules-filter').addEventListener('change', filterCategories);
+
+    function renderCategoriesList(items) {
         var el = document.getElementById('categories-list');
-        if (!allCategories.length) { el.innerHTML = '<div class="adm-empty">Нет категорий</div>'; return; }
-        el.innerHTML = allCategories.map(function(c) {
+        if (!items.length) { el.innerHTML = '<div class="adm-empty">По выбранным условиям категорий нет</div>'; return; }
+        el.innerHTML = items.map(function(c) {
             var aa = c.auto_addons || {};
             var rules = AA_SLOTS.map(function(s) {
                 var r = aa[s.key];
-                if (!r || (!r.fromCategory && !(Array.isArray(r.order) && r.order.length) && !(Array.isArray(r.items) && r.items.length) && !r.optional)) return '';
+                if (!categoryRuleActive(r)) return '';
                 var name = r.fromCategory ? (CAT_NAMES[r.fromCategory] || r.fromCategory) : 'точный список';
                 var suffix = (r.fromCategory || (Array.isArray(r.items) && r.items.length)) ? (r.fromCategory ? ' ← ' + esc(name) : ': ' + esc(name)) : '';
                 if (Array.isArray(r.items) && r.items.length && r.fromCategory) suffix += ' + точный список';
 				if (r.optional) suffix += ' · по желанию';
-                return '<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#f1f5f9;color:#475569;font-size:10px;font-weight:600;margin:2px 2px 0 0">' + s.label + suffix + '</span>';
+                return '<span class="category-rule">' + s.label + suffix + '</span>';
             }).join('');
-            return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:#fff">'
-                + '<div style="flex:1;min-width:0">'
-                + '<div style="font-size:14px;font-weight:600">' + esc(c.emoji || '') + ' ' + esc(c.name) + ' <span style="font-size:11px;color:var(--text-3);font-weight:400">(' + esc(c.id) + ')</span></div>'
-                + (c.description ? '<div style="font-size:11px;color:var(--text-3);margin-top:2px">' + esc(c.description) + '</div>' : '')
-                + (rules ? '<div style="margin-top:6px">' + rules + '</div>' : '')
+            return '<article class="category-card">'
+                + '<div class="category-card-main">'
+                + '<div class="category-card-title"><span class="category-card-emoji">' + esc(c.emoji || '•') + '</span>'
+                + '<strong>' + esc(c.name) + '</strong><span class="category-card-id">' + esc(c.id) + '</span>'
+                + '<span class="category-card-order">Порядок: ' + Number(c.sort_order || 0) + '</span></div>'
+                + (c.description ? '<div class="category-card-description">' + esc(c.description) + '</div>' : '')
+                + '<div class="category-card-rules">' + (rules || '<span class="category-no-rules">Авто-добавки не настроены</span>') + '</div>'
                 + '</div>'
-                + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">'
-                + '<button class="adm-btn" data-admin-action="edit-category" data-admin-id="' + esc(c.id) + '" style="font-size:12px;padding:6px 10px">✏️</button>'
-                + '</div></div>';
+                + '<div class="category-card-actions"><button class="adm-btn" data-admin-action="edit-category" data-admin-id="' + esc(c.id) + '">Редактировать</button></div>'
+                + '</article>';
         }).join('');
     }
 
@@ -2105,6 +2163,7 @@
         else if (action === 'filter-video-requests') window.filterVideoRequests(target.dataset.adminStatus || 'all');
         else if (action === 'set-video-request-status') window.updateVideoRequestStatus(id, target.dataset.adminStatus);
         else if (action === 'edit-category') window.editCategory(id);
+        else if (action === 'reset-category-filters') window.resetCategoryFilters();
         else if (action === 'move-addon') window.moveAddonOrder(field, index, Number(target.dataset.adminDirection));
         else if (action === 'reset-addon') window.resetAddonOrder(field);
         else if (action === 'move-exact') window.moveExactItem(field, index, Number(target.dataset.adminDirection));
