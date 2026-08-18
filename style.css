@@ -927,7 +927,9 @@ body {
     display: none;
 }
 
-@media (min-width: 1101px) {
+/* The compact icon is the safer header variant through MacBook-sized viewports.
+   The text CTA only has enough visual room on genuinely wide screens. */
+@media (min-width: 1400px) {
     .header .header-user-btn {
         width: auto !important;
         min-width: 0;
@@ -947,6 +949,7 @@ body {
 
     .header-user-btn-label {
         display: inline;
+        flex: 0 0 auto;
         color: var(--dark-sage);
         font-family: 'Baskervville', serif;
         font-size: 11px;
