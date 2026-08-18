@@ -1336,6 +1336,75 @@
         .adm-user-more summary::after { content: '\2304'; margin-left: 5px; font-size: 13px; }
         .adm-user-more[open] summary::after { transform: rotate(180deg); }
         .adm-user-more .adm-user-actions-danger { margin-top: 2px; }
+
+        .payment-early-access {
+            margin-bottom: 14px;
+            background: #fff;
+            border: 1px solid var(--border);
+        }
+
+        .payment-early-access summary {
+            padding: 14px 16px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 12px;
+            align-items: center;
+            cursor: pointer;
+            list-style: none;
+        }
+
+        .payment-early-access summary::-webkit-details-marker { display: none; }
+        .payment-early-access-title { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+        .payment-early-access-state { color: var(--text-2); font-size: 12px; line-height: 1.45; }
+        .payment-early-access-toggle { color: var(--accent); font-size: 11px; font-weight: 700; }
+        .payment-early-access-toggle::after { content: 'Настроить  +'; }
+        .payment-early-access[open] .payment-early-access-toggle::after { content: 'Свернуть  −'; }
+
+        .payment-early-access-form {
+            padding: 14px 16px 16px;
+            display: grid;
+            grid-template-columns: 160px minmax(220px, 1fr) auto;
+            gap: 8px;
+            border-top: 1px solid var(--border);
+            background: #fffaf6;
+        }
+
+        .payment-early-access-form .adm-modal-input { width: 100%; min-height: 40px; }
+
+        .payment-filter-bar {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .payment-filter-btn { min-height: 38px; background: #fff; }
+        .payment-filter-btn.active {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: #fff;
+            box-shadow: none;
+        }
+
+        .payment-filter-result {
+            margin-left: auto;
+            color: var(--text-3);
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .adm-payments-table { min-width: 820px; }
+        .adm-payment-person { min-width: 220px; }
+        .adm-payment-email { display: block; font-weight: 750; word-break: break-word; }
+        .adm-payment-date { display: block; margin-top: 4px; color: var(--text-3); font-size: 11px; }
+        .adm-payment-amount { font-size: 15px; font-weight: 800; white-space: nowrap; }
+        .adm-payment-proof { color: var(--blue); font-size: 12px; font-weight: 700; text-decoration: none; }
+        .adm-payment-proof:hover { text-decoration: underline; text-underline-offset: 3px; }
+        .adm-payment-status { min-width: 150px; }
+        .adm-payment-comment { display: block; max-width: 220px; margin-top: 5px; color: var(--text-3); font-size: 11px; line-height: 1.4; }
+        .adm-payment-actions { min-width: 210px; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+        .adm-payment-actions .adm-btn { min-height: 36px; padding-inline: 11px; }
         .adm-section-title { font-family: 'Montserrat', system-ui, sans-serif; font-size: 22px; letter-spacing: -.03em; }
         .adm-table th { background: var(--bg); color: var(--text-3); }
         .adm-table tr:hover td { background: #fffaf6; }
@@ -1404,6 +1473,29 @@
             .adm-users-table .adm-empty::before,
             .adm-users-table .adm-loading::before { display: none; }
             .adm-users-table .adm-user-actions { min-width: 0; }
+
+            .payment-early-access summary { grid-template-columns: 1fr auto; }
+            .payment-early-access-state { grid-column: 1 / -1; grid-row: 2; }
+            .payment-early-access-toggle { grid-column: 2; grid-row: 1; }
+            .payment-early-access-form { grid-template-columns: 1fr 1fr; }
+            .payment-early-access-form input:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+            .payment-early-access-form .adm-btn { grid-column: 2; grid-row: 1; }
+
+            .adm-payments-table { min-width: 0; }
+            .adm-payments-table thead { display: none; }
+            .adm-payments-table,
+            .adm-payments-table tbody,
+            .adm-payments-table tr,
+            .adm-payments-table td { display: block; width: 100%; }
+            .adm-payments-table tbody { padding: 8px; }
+            .adm-payments-table tr { margin-bottom: 8px; padding: 13px; background: #fff; border: 1px solid var(--border); }
+            .adm-payments-table tr:last-child { margin-bottom: 0; }
+            .adm-payments-table td { padding: 8px 0; display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; border: 0; }
+            .adm-payments-table td::before { content: attr(data-label); color: var(--text-3); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+            .adm-payments-table .adm-empty,
+            .adm-payments-table .adm-loading { display: block; padding: 24px 12px; }
+            .adm-payments-table .adm-empty::before,
+            .adm-payments-table .adm-loading::before { display: none; }
         }
 
         /* Системная настройка "уменьшить движение": интерфейс сохраняет
@@ -1431,6 +1523,15 @@
             .user-filter-bar .adm-search { grid-column: auto; }
             .user-filter-result { width: 100%; margin-left: 0; }
             .adm-users-table td { grid-template-columns: 1fr; gap: 4px; }
+            .payment-early-access summary { grid-template-columns: 1fr; }
+            .payment-early-access-state,
+            .payment-early-access-toggle { grid-column: 1; grid-row: auto; }
+            .payment-early-access-form { grid-template-columns: 1fr; }
+            .payment-early-access-form input:nth-child(2),
+            .payment-early-access-form .adm-btn { grid-column: 1; grid-row: auto; }
+            .payment-filter-btn { flex: 1 1 auto; }
+            .payment-filter-result { width: 100%; margin-left: 0; }
+            .adm-payments-table td { grid-template-columns: 1fr; gap: 4px; }
         }
     </style>
 </head>
@@ -1567,34 +1668,37 @@
     <!-- Payments -->
     <div class="adm-section" id="sec-payments">
         <div class="adm-section-title">Платежи</div>
-        <div style="margin:0 0 16px;padding:14px 16px;border:1px solid var(--border);background:#fff8f3">
-            <div style="font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase">Ранний доступ</div>
-            <div id="early-access-admin-state" style="margin:7px 0 11px;font-size:13px;color:var(--text-2)">Загрузка…</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <input id="early-access-delta" class="adm-modal-input" type="number" min="-30" max="30" placeholder="Резерв: +1 / -1" style="max-width:150px">
-                <input id="early-access-comment" class="adm-modal-input" type="text" maxlength="500" placeholder="Причина корректировки" style="flex:1;min-width:220px">
+        <details class="payment-early-access">
+            <summary>
+                <span class="payment-early-access-title">Ранний доступ</span>
+                <span class="payment-early-access-state" id="early-access-admin-state">Загрузка…</span>
+                <span class="payment-early-access-toggle" aria-hidden="true"></span>
+            </summary>
+            <div class="payment-early-access-form">
+                <input id="early-access-delta" class="adm-modal-input" type="number" min="-30" max="30" placeholder="Резерв: +1 / −1" aria-label="Изменение резерва мест">
+                <input id="early-access-comment" class="adm-modal-input" type="text" maxlength="500" placeholder="Причина корректировки" aria-label="Причина корректировки">
                 <button class="adm-btn" data-admin-click="a4f41ea9f9b7" type="button">Сохранить</button>
             </div>
-        </div>
-        <div style="margin-bottom:16px">
-            <button class="adm-btn" style="margin-right:4px" data-admin-click="6509a16e5375" id="pay-filter-pending">Ожидающие</button>
-            <button class="adm-btn" data-admin-click="25cd91e1b230" id="pay-filter-confirmed">Подтверждённые</button>
-            <button class="adm-btn" data-admin-click="7b81491b9670" id="pay-filter-rejected">Отклонённые</button>
+        </details>
+        <div class="payment-filter-bar" role="group" aria-label="Статус платежей">
+            <button class="adm-btn payment-filter-btn" data-admin-click="6509a16e5375" id="pay-filter-pending" aria-pressed="false">Ожидают проверки</button>
+            <button class="adm-btn payment-filter-btn" data-admin-click="25cd91e1b230" id="pay-filter-confirmed" aria-pressed="false">Подтверждённые</button>
+            <button class="adm-btn payment-filter-btn" data-admin-click="7b81491b9670" id="pay-filter-rejected" aria-pressed="false">Отклонённые</button>
+            <span class="payment-filter-result" id="payment-filter-result">Загрузка…</span>
         </div>
         <div class="adm-table-wrap">
-            <table class="adm-table">
+            <table class="adm-table adm-payments-table">
                 <thead>
                     <tr>
-                        <th>Email</th>
+                        <th>Пользователь и дата</th>
                         <th>Сумма</th>
-                        <th>Дата и время перевода</th>
-                        <th>Скрин</th>
+                        <th>Подтверждение</th>
                         <th>Статус</th>
                         <th>Действия</th>
                     </tr>
                 </thead>
                 <tbody id="payments-tbody">
-                    <tr><td colspan="6" class="adm-empty">Нет платежей</td></tr>
+                    <tr><td colspan="5" class="adm-empty">Нет платежей</td></tr>
                 </tbody>
             </table>
         </div>
@@ -2054,6 +2158,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260816-cross-tab-refresh"></script>
-<script src="admin.js?v=20260818-admin-users"></script>
+<script src="admin.js?v=20260818-admin-payments"></script>
 </body>
 </html>

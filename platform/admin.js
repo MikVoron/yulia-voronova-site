@@ -427,38 +427,55 @@
     };
     window.loadPayments = function(status) {
         document.querySelectorAll('[id^="pay-filter-"]').forEach(function(b) {
-            b.style.background = b.id === 'pay-filter-' + status ? 'var(--accent)' : '';
-            b.style.color = b.id === 'pay-filter-' + status ? '#fff' : '';
+            var active = b.id === 'pay-filter-' + status;
+            b.classList.toggle('active', active);
+            b.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
 
+        var tbody = document.getElementById('payments-tbody');
+        tbody.innerHTML = '<tr><td colspan="5" class="adm-loading"><div class="adm-spinner"></div></td></tr>';
+        document.getElementById('payment-filter-result').textContent = 'Загрузка…';
+
         api('/admin/payments?status=' + encodeURIComponent(status)).then(function(data) {
-            var tbody = document.getElementById('payments-tbody');
-            if (!data.length) {
-                tbody.innerHTML = '<tr><td colspan="6" class="adm-empty">Нет платежей со статусом "' + esc(status) + '"</td></tr>';
+            var statusLabels = {
+                pending: 'Ожидает проверки',
+                confirmed: 'Подтверждён',
+                rejected: 'Отклонён'
+            };
+            var payments = data.slice().sort(function(a, b) {
+                return dateValue(b.created_at || b.payment_date) - dateValue(a.created_at || a.payment_date);
+            });
+            document.getElementById('payment-filter-result').textContent = 'Найдено: ' + payments.length;
+            if (!payments.length) {
+                tbody.innerHTML = '<tr><td colspan="5" class="adm-empty">В этом разделе платежей пока нет</td></tr>';
                 return;
             }
-            tbody.innerHTML = data.map(function(p) {
-                var statusBadge = '<span class="st-badge st-' + cssToken(p.status) + '">' + esc(p.status) + '</span>';
+            tbody.innerHTML = payments.map(function(p) {
+                var statusBadge = '<span class="st-badge st-' + cssToken(p.status) + '">' + esc(statusLabels[p.status] || p.status) + '</span>';
                 var actions = '';
                 if (p.status === 'pending') {
-                    actions =
-                        '<button class="adm-btn adm-btn-confirm" data-admin-action="confirm-payment" data-admin-id="' + esc(p.id) + '">OK</button>' +
-                        '<button class="adm-btn adm-btn-reject" data-admin-action="reject-payment" data-admin-id="' + esc(p.id) + '">X</button>';
-                } else if (p.admin_comment) {
-                    actions = '<span style="font-size:11px;color:var(--text-3)">' + esc(p.admin_comment) + '</span>';
+                    actions = '<div class="adm-payment-actions">' +
+                        '<button class="adm-btn adm-btn-confirm" data-admin-action="confirm-payment" data-admin-id="' + esc(p.id) + '">Подтвердить</button>' +
+                        '<button class="adm-btn adm-btn-reject" data-admin-action="reject-payment" data-admin-id="' + esc(p.id) + '">Отклонить</button></div>';
+                } else {
+                    actions = '<span class="adm-payment-comment">Действий не требуется</span>';
                 }
 
+                var statusCol = '<div class="adm-payment-status">' + statusBadge +
+                    (p.admin_comment ? '<span class="adm-payment-comment">' + esc(p.admin_comment) + '</span>' : '') + '</div>';
+
                 var screenCol = p.has_screenshot
-                    ? '<a href="#" data-admin-action="show-screenshot" data-admin-id="' + esc(p.id) + '" style="color:var(--blue);font-size:12px">📎 Открыть</a>'
-                    : '<span style="color:var(--text-3);font-size:12px">—</span>';
+                    ? '<a href="#" class="adm-payment-proof" data-admin-action="show-screenshot" data-admin-id="' + esc(p.id) + '">Открыть скриншот</a>'
+                    : '<span class="adm-payment-comment">Не приложено</span>';
+
+                var paymentDate = p.payment_date ? fmtDateTime(p.payment_date, p.created_at) : fmtDateTime(p.created_at);
 
                 return '<tr>' +
-                    '<td><strong>' + esc(p.email) + '</strong></td>' +
-                    '<td>' + esc(p.amount) + ' &#8381;</td>' +
-                    '<td class="adm-date">' + (p.payment_date ? fmtDateTime(p.payment_date, p.created_at) : fmtDateTime(p.created_at)) + '</td>' +
-                    '<td>' + screenCol + '</td>' +
-                    '<td>' + statusBadge + '</td>' +
-                    '<td>' + actions + '</td>' +
+                    '<td data-label="Пользователь"><div class="adm-payment-person"><span class="adm-payment-email">' + esc(p.email) + '</span><span class="adm-payment-date">' + paymentDate + '</span></div></td>' +
+                    '<td data-label="Сумма"><span class="adm-payment-amount">' + esc(p.amount) + ' &#8381;</span></td>' +
+                    '<td data-label="Подтверждение">' + screenCol + '</td>' +
+                    '<td data-label="Статус">' + statusCol + '</td>' +
+                    '<td data-label="Действия">' + actions + '</td>' +
                     '</tr>';
             }).join('');
         });

@@ -136,7 +136,7 @@ describe('SmartPlate CSP script migration', () => {
     expect(new Set(bindings)).toEqual(new Set(htmlBindings));
     expect(html.match(/\sdata-admin-action="dashboard-tab"/g)).toHaveLength(4);
     expect(html).toContain('data-admin-filter="drafts"');
-    expect(html).toContain('admin.js?v=20260818-admin-users');
+    expect(html).toContain('admin.js?v=20260818-admin-payments');
     expect(script).toContain("if (action === 'dashboard-tab')");
     expect(script).toContain("target.dataset.adminFilter === 'drafts'");
     expect(html).toContain('id="recipe-extra-filters" hidden');
@@ -144,6 +144,10 @@ describe('SmartPlate CSP script migration', () => {
     expect(script).toContain('data-admin-action="reset-recipe-filters"');
     expect(script).toContain('window.toggleRecipeFilters = function()');
     expect(script).toContain('window.resetRecipeFilters = function()');
+    expect(html).toContain('class="adm-table adm-payments-table"');
+    expect(html).toContain('id="payment-filter-result"');
+    expect(script).toContain("Подтвердить</button>");
+    expect(script).toContain("Отклонить</button>");
   });
 
   it('keeps popup preview controls free of inline event handlers', () => {
