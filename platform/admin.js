@@ -638,27 +638,85 @@
 
     function loadNews() {
         api('/admin/news').then(function(data) {
-            allNews = data;
-            renderNews(data);
+            allNews = Array.isArray(data) ? data : [];
+            updateNewsSummary();
+            filterNews();
         });
     }
 
+    function updateNewsSummary() {
+        document.getElementById('news-summary-total').textContent = allNews.length;
+        document.getElementById('news-summary-published').textContent = allNews.filter(function(n) { return n.is_published; }).length;
+        document.getElementById('news-summary-drafts').textContent = allNews.filter(function(n) { return !n.is_published; }).length;
+        document.getElementById('news-summary-recipes').textContent = allNews.filter(function(n) { return n.type === 'recipe'; }).length;
+    }
+
+    function updateNewsFilterSummary(count) {
+        var query = document.getElementById('news-search').value.trim();
+        var status = document.getElementById('news-status-filter').value;
+        var type = document.getElementById('news-type-filter').value;
+        var labels = {
+            published: 'Опубликованные',
+            draft: 'Черновики',
+            news: 'Текстовые новости',
+            recipe: 'Анонсы рецептов'
+        };
+        var chips = [];
+        if (query) chips.push('<span class="news-filter-chip">Поиск: ' + esc(query) + '</span>');
+        if (status) chips.push('<span class="news-filter-chip">' + labels[status] + '</span>');
+        if (type) chips.push('<span class="news-filter-chip">' + labels[type] + '</span>');
+        if (chips.length) chips.push('<button class="news-filter-reset" data-admin-action="reset-news-filters">Сбросить</button>');
+        chips.push('<span class="news-filter-result">Найдено: ' + count + ' из ' + allNews.length + '</span>');
+        document.getElementById('news-filter-summary').innerHTML = chips.join('');
+    }
+
+    function filterNews() {
+        var query = document.getElementById('news-search').value.trim().toLowerCase();
+        var status = document.getElementById('news-status-filter').value;
+        var type = document.getElementById('news-type-filter').value;
+        var filtered = allNews.filter(function(n) {
+            var searchable = [n.text, n.recipe_id, n.badge, n.label].filter(Boolean).join(' ').toLowerCase();
+            if (query && searchable.indexOf(query) === -1) return false;
+            if (status === 'published' && !n.is_published) return false;
+            if (status === 'draft' && n.is_published) return false;
+            if (type && n.type !== type) return false;
+            return true;
+        });
+        renderNews(filtered);
+        updateNewsFilterSummary(filtered.length);
+    }
+
+    window.resetNewsFilters = function() {
+        document.getElementById('news-search').value = '';
+        document.getElementById('news-status-filter').value = '';
+        document.getElementById('news-type-filter').value = '';
+        filterNews();
+    };
+
     function renderNews(items) {
         var el = document.getElementById('news-list');
-        if (!items.length) { el.innerHTML = '<div class="adm-empty">Нет новостей</div>'; return; }
+        if (!items.length) { el.innerHTML = '<div class="adm-empty">По выбранным условиям новостей нет</div>'; return; }
         el.innerHTML = items.map(function(n) {
-            var status = n.is_published ? '<span style="color:var(--green);font-weight:700">●</span>' : '<span style="color:var(--text-3)">Черновик</span>';
+            var status = n.is_published
+                ? '<span class="st-badge st-confirmed">Опубликовано</span>'
+                : '<span class="rbadge rbadge-draft">Черновик</span>';
             var d = fmtDate(n.created_at);
-            var kind = n.type === 'recipe' ? 'Рецепт: ' + esc(n.recipe_id || '') : 'Текст';
-            return '<div style="display:flex;justify-content:space-between;align-items:center;padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:#fff">'
-                + '<div style="flex:1;min-width:0">'
-                + '<div style="font-size:13px;color:var(--text);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(n.text) + '</div>'
-                + '<div style="font-size:11px;color:var(--text-3);margin-top:4px">' + esc(d) + ' · ' + kind + ' · ' + status + '</div>'
+            var kind = n.type === 'recipe' ? 'Анонс рецепта' : 'Текстовая новость';
+            var extra = [];
+            if (n.recipe_id) extra.push('Рецепт: ' + esc(n.recipe_id));
+            if (n.badge) extra.push('Бейдж: ' + esc(n.badge));
+            if (n.label) extra.push('Подпись: ' + esc(n.label));
+            return '<article class="news-card' + (n.is_published ? '' : ' draft') + '">'
+                + '<div class="news-card-main">'
+                + '<div class="news-card-meta">' + status + '<span class="rbadge">' + kind + '</span><span class="news-card-date">' + esc(d) + '</span></div>'
+                + '<div class="news-card-text">' + esc(n.text) + '</div>'
+                + (extra.length ? '<div class="news-card-extra">' + extra.join(' · ') + '</div>' : '')
                 + '</div>'
-                + '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">'
-                + '<button class="adm-btn" data-admin-action="edit-news" data-admin-id="' + Number(n.id) + '" style="font-size:12px;padding:6px 10px">✏️</button>'
-                + '<button class="adm-btn adm-btn-reject" data-admin-action="delete-news" data-admin-id="' + Number(n.id) + '" style="font-size:12px;padding:6px 10px"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>'
-                + '</div></div>';
+                + '<div class="news-card-actions">'
+                + '<button class="adm-btn" data-admin-action="edit-news" data-admin-id="' + Number(n.id) + '">Редактировать</button>'
+                + '<details class="news-card-more"><summary>Ещё</summary>'
+                + '<button class="adm-btn adm-btn-reject" data-admin-action="delete-news" data-admin-id="' + Number(n.id) + '">Удалить</button>'
+                + '</details></div></article>';
         }).join('');
     }
 
@@ -674,11 +732,16 @@
         document.getElementById('news-label').value = newsItem ? (newsItem.label || '') : '';
         document.getElementById('news-published').checked = newsItem ? newsItem.is_published : true;
         toggleNewsRecipeFields();
+        syncNewsSaveLabel();
         m.classList.add('open');
     };
 
     document.getElementById('news-type').addEventListener('change', toggleNewsRecipeFields);
     document.getElementById('news-recipe-id').addEventListener('change', syncNewsSaveState);
+    document.getElementById('news-published').addEventListener('change', syncNewsSaveLabel);
+    document.getElementById('news-search').addEventListener('input', filterNews);
+    document.getElementById('news-status-filter').addEventListener('change', filterNews);
+    document.getElementById('news-type-filter').addEventListener('change', filterNews);
     function populateNewsRecipeSelect(selectedId) {
         var select = document.getElementById('news-recipe-id');
         select.innerHTML = '<option value="">Загрузка рецептов…</option>';
@@ -711,6 +774,14 @@
         var disabled = isRecipe && !selectedRecipe;
         saveButton.disabled = disabled;
         saveButton.title = disabled ? 'Сначала выберите рецепт' : '';
+    }
+
+    function syncNewsSaveLabel() {
+        var editId = document.getElementById('news-edit-id').value;
+        var published = document.getElementById('news-published').checked;
+        document.getElementById('news-save').textContent = editId
+            ? 'Сохранить изменения'
+            : (published ? 'Опубликовать' : 'Сохранить черновик');
     }
 
     window.closeNewsModal = function() { document.getElementById('news-modal').classList.remove('open'); };
@@ -2017,6 +2088,7 @@
         else if (action === 'show-screenshot') { event.preventDefault(); window.showScreenshot(id); }
         else if (action === 'edit-news') window.editNews(Number(id));
         else if (action === 'delete-news') window.deleteNews(Number(id));
+        else if (action === 'reset-news-filters') window.resetNewsFilters();
         else if (action === 'set-recipe-category') window.setRecipeCat(target.dataset.adminValue || 'all');
         else if (action === 'reset-user-filters') window.resetUserFilters();
         else if (action === 'toggle-recipe-filters') window.toggleRecipeFilters();

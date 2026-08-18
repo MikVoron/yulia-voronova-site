@@ -1468,6 +1468,40 @@
         .adm-video-request-actions { min-width: 200px; display: flex; gap: 6px; flex-wrap: wrap; }
         .adm-video-request-actions .adm-btn { min-height: 34px; }
         .adm-video-requests-table tr.video-needs-action td { background: #fffaf6; }
+
+        .news-section-head { margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .news-section-head .adm-section-title { margin: 0; }
+        .news-section-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .news-section-actions .primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+
+        .news-summary { margin-bottom: 12px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+        .news-summary-card { padding: 13px 14px; background: #fff; border: 1px solid var(--border); }
+        .news-summary-card strong { display: block; font-family: 'Playfair Display', Georgia, serif; font-size: 24px; line-height: 1; }
+        .news-summary-card span { display: block; margin-top: 5px; color: var(--text-3); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+
+        .news-filter-bar { margin-bottom: 10px; display: grid; grid-template-columns: minmax(220px, 1fr) minmax(160px, auto) minmax(160px, auto); gap: 8px; }
+        .news-filter-bar .adm-search,
+        .news-filter-bar .adm-modal-select { width: 100%; max-width: none; min-height: 42px; margin: 0; }
+        .news-filter-summary { min-height: 29px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .news-filter-chip { padding: 5px 8px; background: var(--accent-l); color: var(--accent); font-size: 11px; font-weight: 700; }
+        .news-filter-reset { padding: 5px 8px; background: transparent; border: 0; color: var(--text-3); cursor: pointer; font-size: 11px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+        .news-filter-result { margin-left: auto; color: var(--text-3); font-size: 11px; white-space: nowrap; }
+
+        .news-card { margin-bottom: 8px; padding: 16px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: start; background: #fff; border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(64,45,28,.035); }
+        .news-card.draft { border-left: 3px solid var(--text-3); }
+        .news-card-meta { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+        .news-card-date { color: var(--text-3); font-size: 11px; }
+        .news-card-text { margin-top: 10px; display: -webkit-box; overflow: hidden; color: var(--text); font-size: 13px; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+        .news-card-extra { margin-top: 8px; color: var(--text-3); font-size: 11px; }
+        .news-card-actions { min-width: 145px; display: grid; gap: 6px; }
+        .news-card-actions .adm-btn { width: 100%; min-height: 34px; }
+        .news-card-more summary { min-height: 30px; display: flex; align-items: center; justify-content: center; color: var(--text-3); cursor: pointer; font-size: 11px; font-weight: 700; list-style: none; }
+        .news-card-more summary::-webkit-details-marker { display: none; }
+        .news-card-more summary::after { content: '⌄'; margin-left: 5px; }
+        .news-card-more .adm-btn { margin-top: 5px; }
+
+        .news-publish-option { padding: 12px; display: flex; align-items: center; gap: 9px; background: var(--bg); border: 1px solid var(--border); }
+        .news-publish-option label { cursor: pointer; font-size: 13px; font-weight: 700; }
         .adm-section-title { font-family: 'Montserrat', system-ui, sans-serif; font-size: 22px; letter-spacing: -.03em; }
         .adm-table th { background: var(--bg); color: var(--text-3); }
         .adm-table tr:hover td { background: #fffaf6; }
@@ -1578,6 +1612,9 @@
             .adm-video-requests-table .adm-loading { display: block; padding: 24px 12px; }
             .adm-video-requests-table .adm-empty::before,
             .adm-video-requests-table .adm-loading::before { display: none; }
+            .news-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .news-filter-bar { grid-template-columns: 1fr 1fr; }
+            .news-filter-bar .adm-search { grid-column: 1 / -1; }
         }
 
         /* Системная настройка "уменьшить движение": интерфейс сохраняет
@@ -1623,6 +1660,13 @@
             .video-request-filter-result { width: 100%; margin-left: 0; }
             .adm-video-requests-table td { grid-template-columns: 1fr; gap: 4px; }
             .adm-video-request-actions .adm-btn { flex: 1 1 auto; }
+            .news-section-head { align-items: flex-start; flex-direction: column; }
+            .news-section-actions { width: 100%; justify-content: flex-start; }
+            .news-filter-bar { grid-template-columns: 1fr; }
+            .news-filter-bar .adm-search { grid-column: auto; }
+            .news-filter-result { width: 100%; margin-left: 0; }
+            .news-card { grid-template-columns: 1fr; gap: 12px; padding: 14px; }
+            .news-card-actions { min-width: 0; }
         }
     </style>
 </head>
@@ -1797,13 +1841,33 @@
 
     <!-- News -->
     <div class="adm-section" id="sec-news">
-        <div class="adm-section-title" style="display:flex;justify-content:space-between;align-items:center">
-            <span>Новости</span>
-            <div style="display:flex;gap:8px">
+        <div class="news-section-head">
+            <div class="adm-section-title">Новости</div>
+            <div class="news-section-actions">
                 <button class="adm-btn" data-admin-click="6e20c755b43a">Пригласить тестера</button>
-                <button class="adm-btn" style="background:var(--accent);color:#fff" data-admin-click="f087ddda46f6">+ Добавить</button>
+                <button class="adm-btn primary" data-admin-click="f087ddda46f6">+ Новая новость</button>
             </div>
         </div>
+        <div class="news-summary">
+            <div class="news-summary-card"><strong id="news-summary-total">—</strong><span>Всего</span></div>
+            <div class="news-summary-card"><strong id="news-summary-published">—</strong><span>Опубликовано</span></div>
+            <div class="news-summary-card"><strong id="news-summary-drafts">—</strong><span>Черновики</span></div>
+            <div class="news-summary-card"><strong id="news-summary-recipes">—</strong><span>Анонсы рецептов</span></div>
+        </div>
+        <div class="news-filter-bar">
+            <input class="adm-search" id="news-search" type="search" placeholder="Поиск по тексту" aria-label="Поиск новостей">
+            <select class="adm-modal-select" id="news-status-filter" aria-label="Статус новости">
+                <option value="">Все статусы</option>
+                <option value="published">Опубликованные</option>
+                <option value="draft">Черновики</option>
+            </select>
+            <select class="adm-modal-select" id="news-type-filter" aria-label="Тип новости">
+                <option value="">Все типы</option>
+                <option value="news">Текстовые новости</option>
+                <option value="recipe">Анонсы рецептов</option>
+            </select>
+        </div>
+        <div class="news-filter-summary" id="news-filter-summary"><span class="news-filter-result">Загрузка…</span></div>
         <div id="news-list"></div>
     </div>
 
@@ -2191,7 +2255,7 @@
             <label class="adm-modal-label">Подпись</label>
             <input type="text" class="adm-modal-input" id="news-label" placeholder="Сезонный рецепт">
         </div>
-        <div class="adm-modal-field" style="display:flex;align-items:center;gap:8px">
+        <div class="adm-modal-field news-publish-option">
             <input type="checkbox" id="news-published" checked>
             <label for="news-published" style="font-size:13px;cursor:pointer">Опубликовать сразу</label>
         </div>
@@ -2265,6 +2329,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260816-cross-tab-refresh"></script>
-<script src="admin.js?v=20260818-admin-video-requests"></script>
+<script src="admin.js?v=20260818-admin-news"></script>
 </body>
 </html>
