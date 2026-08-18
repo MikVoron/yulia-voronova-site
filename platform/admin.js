@@ -12,6 +12,11 @@
     var confirmPaymentId = null;
     var recipeCategoryOrder = { categoryId: '', recipes: [], draggingId: '' };
 
+    function setDashboardValue(id, value) {
+        var element = document.getElementById(id);
+        if (element) element.textContent = value;
+    }
+
     // ── API helper ──
     function api(path, opts) {
         opts = opts || {};
@@ -91,23 +96,35 @@
         var newCount = data.totalNew || 0;
         var badge = document.getElementById('feedback-badge');
         if (newCount > 0) { badge.textContent = newCount; badge.style.display = 'inline'; }
+        setDashboardValue('dashboard-feedback-count', newCount);
     }).catch(function() {});
 
     // Badge: recipes that have reached the goal and still need scheduling.
     loadVideoRequests(true);
 
+    // Existing recipe endpoint: dashboard only needs a draft count.
+    api('/admin/recipes').then(function(data) {
+        var recipes = Array.isArray(data) ? data : [];
+        var drafts = recipes.filter(function(recipe) { return !recipe.is_published; }).length;
+        setDashboardValue('dashboard-drafts-count', drafts);
+    }).catch(function() {
+        setDashboardValue('dashboard-drafts-count', '—');
+    });
+
     function loadStats() {
         api('/admin/stats').then(function(data) {
             var grid = document.getElementById('stats-grid');
             grid.innerHTML =
-                statCard('Всего', data.totalUsers, 'accent') +
-                statCard('Trial', data.trials, 'blue-l') +
-                statCard('Активных', data.active, 'green') +
-                statCard('Активны за 7 дней', data.activeUsers7d || 0, 'blue-l') +
-                statCard('Активны за 30 дней', data.activeUsers30d || 0, 'blue-l') +
-                statCard('Истекших', data.expired, 'yellow') +
-                statCard('Заблокированных', data.blocked || 0, 'red') +
-                statCard('Ожидают оплату', data.pendingPayments, 'red');
+                statCard('Всего пользователей', data.totalUsers, 'accent', 'Все зарегистрированные аккаунты') +
+                statCard('Активная подписка', data.active, 'green', 'Пользователи с активным доступом') +
+                statCard('Активны за 7 дней', data.activeUsers7d || 0, '', 'Заходили на платформу') +
+                statCard('Пробный период', data.trials, '', 'Сейчас знакомятся с сервисом');
+
+            setDashboardValue('dashboard-payments-count', data.pendingPayments || 0);
+            setDashboardValue('dashboard-active-30', data.activeUsers30d || 0);
+            setDashboardValue('dashboard-expired', data.expired || 0);
+            setDashboardValue('dashboard-blocked', data.blocked || 0);
+            setDashboardValue('dashboard-api-state', 'Доступен');
 
             var badge = document.getElementById('pending-badge');
             if (data.pendingPayments > 0) {
@@ -118,13 +135,15 @@
             }
         }).catch(function() {
             document.getElementById('stats-grid').innerHTML = '<div class="adm-empty">Ошибка загрузки. Проверьте, что у вас роль admin.</div>';
+            setDashboardValue('dashboard-api-state', 'Ошибка');
         });
     }
 
-    function statCard(label, num, colorClass) {
+    function statCard(label, num, colorClass, note) {
         return '<div class="adm-stat-card ' + colorClass + '">' +
             '<div class="adm-stat-label">' + label + '</div>' +
-            '<div class="adm-stat-num">' + num + '</div></div>';
+            '<div class="adm-stat-num">' + num + '</div>' +
+            '<div class="adm-stat-note">' + note + '</div></div>';
     }
 
     // ── Users ──
@@ -781,13 +800,18 @@
             var rc = r.categories || (r.cat ? [r.cat] : []);
             rc.forEach(function(c) { cats[c] = (cats[c] || 0) + 1; });
         });
-        var el = document.getElementById('recipe-cat-filters');
-        var html = '<button class="adm-btn' + (recipeCatFilter === 'all' ? '' : '') + '" style="font-size:12px;padding:6px 12px;' + (recipeCatFilter === 'all' ? 'background:var(--accent);color:#fff;border-color:var(--accent)' : '') + '" data-admin-action="set-recipe-category" data-admin-value="all">Все (' + allRecipes.length + ')</button>';
-        Object.keys(cats).forEach(function(cat) {
-            var active = recipeCatFilter === cat;
-            html += '<button class="adm-btn" style="font-size:12px;padding:6px 12px;' + (active ? 'background:var(--accent);color:#fff;border-color:var(--accent)' : '') + '" data-admin-action="set-recipe-category" data-admin-value="' + esc(cat) + '">' + esc(CAT_NAMES[cat] || cat) + ' (' + Number(cats[cat]) + ')</button>';
+        var select = document.getElementById('recipe-category-filter');
+        if (!select) return;
+        var categoryIds = Object.keys(cats).sort(function(a, b) {
+            return (CAT_NAMES[a] || a).localeCompare(CAT_NAMES[b] || b, 'ru');
         });
-        el.innerHTML = html;
+        var html = '<option value="all">Все категории (' + allRecipes.length + ')</option>';
+        categoryIds.forEach(function(cat) {
+            html += '<option value="' + esc(cat) + '">' + esc(CAT_NAMES[cat] || cat) + ' (' + Number(cats[cat]) + ')</option>';
+        });
+        select.innerHTML = html;
+        if (!cats[recipeCatFilter] && recipeCatFilter !== 'all') recipeCatFilter = 'all';
+        select.value = recipeCatFilter;
     }
 
     window.setRecipeCat = function(cat) {
@@ -827,8 +851,68 @@
             if (q && !r.name.toLowerCase().includes(q) && !r.id.includes(q)) return false;
             return true;
         });
+        renderRecipeFilterSummary(filtered.length);
         renderRecipesList(filtered);
     }
+
+    function renderRecipeFilterSummary(resultCount) {
+        var conditions = [];
+        var q = document.getElementById('recipe-search').value.trim();
+        var category = document.getElementById('recipe-category-filter');
+        var status = document.getElementById('recipe-status-filter');
+        var extraIds = [
+            'recipe-access-filter', 'recipe-seasonal-filter', 'recipe-video-filter',
+            'recipe-photo-filter', 'recipe-nutrition-filter', 'recipe-addons-filter',
+            'recipe-soup-filter'
+        ];
+
+        if (q) conditions.push('Поиск: «' + q + '»');
+        if (recipeCatFilter !== 'all' && category.selectedOptions[0]) conditions.push(category.selectedOptions[0].textContent);
+        if (status.value !== 'all') conditions.push(status.selectedOptions[0].textContent);
+
+        var extraCount = 0;
+        extraIds.forEach(function(id) {
+            var select = document.getElementById(id);
+            if (select.value !== 'all') {
+                extraCount++;
+                conditions.push(select.selectedOptions[0].textContent);
+            }
+        });
+
+        var countBadge = document.getElementById('recipe-extra-filter-count');
+        countBadge.textContent = extraCount;
+        countBadge.hidden = extraCount === 0;
+
+        var summary = document.getElementById('recipe-filter-summary');
+        var html = conditions.map(function(label) {
+            return '<span class="recipe-filter-chip">' + esc(label) + '</span>';
+        }).join('');
+        if (conditions.length) {
+            html += '<button class="recipe-filter-reset" type="button" data-admin-action="reset-recipe-filters">Сбросить всё</button>';
+        }
+        html += '<span class="recipe-filter-result" id="recipe-filter-result">Найдено: ' + Number(resultCount) + '</span>';
+        summary.innerHTML = html;
+    }
+
+    window.toggleRecipeFilters = function() {
+        var panel = document.getElementById('recipe-extra-filters');
+        var button = document.getElementById('recipe-filter-more');
+        panel.hidden = !panel.hidden;
+        button.setAttribute('aria-expanded', panel.hidden ? 'false' : 'true');
+    };
+
+    window.resetRecipeFilters = function() {
+        document.getElementById('recipe-search').value = '';
+        recipeCatFilter = 'all';
+        [
+            'recipe-category-filter', 'recipe-status-filter', 'recipe-access-filter',
+            'recipe-seasonal-filter', 'recipe-video-filter', 'recipe-photo-filter',
+            'recipe-nutrition-filter', 'recipe-addons-filter', 'recipe-soup-filter'
+        ].forEach(function(id) {
+            document.getElementById(id).value = 'all';
+        });
+        applyRecipeFilters();
+    };
 
     function renderRecipesList(items) {
         var el = document.getElementById('recipes-list');
@@ -889,6 +973,8 @@
     };
 
     window.filterRecipes = function() {
+        var category = document.getElementById('recipe-category-filter');
+        if (category) recipeCatFilter = category.value;
         applyRecipeFilters();
     };
 
@@ -925,6 +1011,7 @@
                 badge.textContent = waiting;
                 badge.style.display = waiting > 0 ? 'inline-flex' : 'none';
             }
+            setDashboardValue('dashboard-video-count', waiting);
             if (!badgeOnly) renderVideoRequests(items);
         }).catch(function(e) {
             if (!badgeOnly) {
@@ -1427,6 +1514,7 @@
             var badge = document.getElementById('feedback-badge');
             if (data.totalNew > 0) { badge.textContent = data.totalNew; badge.style.display = 'inline'; }
             else { badge.style.display = 'none'; }
+            setDashboardValue('dashboard-feedback-count', data.totalNew || 0);
             renderFeedback(allFeedback);
         });
     };
@@ -1799,7 +1887,14 @@
         var id = target.dataset.adminId || '';
         var field = target.dataset.adminField || '';
         var index = Number(target.dataset.adminIndex);
-        if (action === 'unblock-user') window.unblockUser(id);
+        if (action === 'dashboard-tab') {
+            var dashboardTab = target.dataset.adminTab || 'dashboard';
+            if (dashboardTab === 'recipes' && target.dataset.adminFilter === 'drafts') {
+                document.getElementById('recipe-status-filter').value = 'unpublished';
+            }
+            switchTab(dashboardTab);
+        }
+        else if (action === 'unblock-user') window.unblockUser(id);
         else if (action === 'delete-user') window.deleteUserById(id);
         else if (action === 'extend-user') window.openExtendModalById(id);
         else if (action === 'compose-message') window.openPersonalMessageModalById(id);
@@ -1810,6 +1905,8 @@
         else if (action === 'edit-news') window.editNews(Number(id));
         else if (action === 'delete-news') window.deleteNews(Number(id));
         else if (action === 'set-recipe-category') window.setRecipeCat(target.dataset.adminValue || 'all');
+        else if (action === 'toggle-recipe-filters') window.toggleRecipeFilters();
+        else if (action === 'reset-recipe-filters') window.resetRecipeFilters();
         else if (action === 'open-recipe-category-order') window.openRecipeCategoryOrder();
         else if (action === 'close-recipe-category-order') window.closeRecipeCategoryOrder();
         else if (action === 'move-recipe-category-order') window.moveRecipeCategoryOrder(id, Number(target.dataset.adminDirection));

@@ -130,10 +130,20 @@ describe('SmartPlate CSP script migration', () => {
     const bindings = [...script.matchAll(/bindStaticAdminHandler\("(?:click|input|change)", "([a-f0-9]{12})"/g)].map(match => match[1]);
 
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
-    expect(htmlBindings).toHaveLength(58);
+    expect(htmlBindings).toHaveLength(59);
     expect(new Set(htmlBindings).size).toBe(51);
     expect(bindings).toHaveLength(51);
     expect(new Set(bindings)).toEqual(new Set(htmlBindings));
+    expect(html.match(/\sdata-admin-action="dashboard-tab"/g)).toHaveLength(4);
+    expect(html).toContain('data-admin-filter="drafts"');
+    expect(html).toContain('admin.js?v=20260818-admin-workspace');
+    expect(script).toContain("if (action === 'dashboard-tab')");
+    expect(script).toContain("target.dataset.adminFilter === 'drafts'");
+    expect(html).toContain('id="recipe-extra-filters" hidden');
+    expect(html).toContain('data-admin-action="toggle-recipe-filters"');
+    expect(script).toContain('data-admin-action="reset-recipe-filters"');
+    expect(script).toContain('window.toggleRecipeFilters = function()');
+    expect(script).toContain('window.resetRecipeFilters = function()');
   });
 
   it('keeps popup preview controls free of inline event handlers', () => {

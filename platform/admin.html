@@ -979,8 +979,8 @@
 
         /* Strict admin workspace: navigation and layout only, no API changes. */
         :root {
-            --accent: #d94b19;
-            --accent-l: #fff1eb;
+            --accent: #e8400a;
+            --accent-l: #fff2ed;
             --green: #217a52;
             --green-l: #eaf6ef;
             --yellow: #9a6700;
@@ -989,13 +989,13 @@
             --red-l: #fff0ef;
             --blue: #2867a6;
             --blue-l: #edf5ff;
-            --text: #171b22;
-            --text-2: #535c68;
-            --text-3: #7b8490;
-            --border: #dfe3e8;
-            --bg: #f4f6f8;
+            --text: #111111;
+            --text-2: #444444;
+            --text-3: #777777;
+            --border: #e5e5e5;
+            --bg: #faf8f5;
             --card: #ffffff;
-            --shadow-soft: 0 10px 24px rgba(20, 31, 45, .05);
+            --shadow-soft: 0 8px 24px rgba(64, 45, 28, .06);
             --shadow-tight: none;
         }
 
@@ -1003,23 +1003,19 @@
 
         .adm-topbar {
             min-height: 68px;
-            background: #fff;
+            background: rgba(255, 255, 255, .96);
             box-shadow: none;
             backdrop-filter: none;
         }
 
         .adm-topbar-left::before {
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
-            background: var(--text);
-            box-shadow: none;
+            display: none;
         }
 
-        .adm-topbar-logo { display: none; }
-        .adm-topbar-title { font-family: 'Montserrat', system-ui, sans-serif; font-size: 16px; letter-spacing: -.02em; }
-        .adm-topbar-title span { color: var(--text); }
-        .adm-badge { background: #eef0f3; color: #5c6570; border-radius: 4px; font-size: 9px; }
+        .adm-topbar-logo { display: block; width: 34px; height: 34px; }
+        .adm-topbar-title { font-family: 'Playfair Display', Georgia, serif; font-size: 19px; letter-spacing: 0; }
+        .adm-topbar-title span { color: var(--accent); }
+        .adm-badge { background: var(--accent-l); color: var(--accent); border-radius: 4px; font-size: 9px; }
         .adm-topbar-user, .adm-topbar-logout { border-radius: 5px; }
 
         .adm-tabs {
@@ -1032,7 +1028,7 @@
             align-items: stretch;
             gap: 3px;
             padding: 16px 12px;
-            background: #fff;
+            background: #fffdf8;
             border: 0;
             border-right: 1px solid var(--border);
             box-shadow: none;
@@ -1054,9 +1050,21 @@
             box-shadow: none;
         }
 
-        .adm-tab:hover { background: #f3f5f7; border-color: transparent; }
-        .adm-tab.active { background: #20262f; color: #fff; border-color: #20262f; box-shadow: none; }
+        .adm-tab:hover { background: var(--bg); border-color: transparent; }
+        .adm-tab.active { background: var(--accent-l); color: var(--accent); border-color: transparent; box-shadow: inset 3px 0 0 var(--accent); }
         .adm-tab-badge { float: right; background: var(--accent); }
+
+        .adm-nav-group {
+            margin: 15px 12px 5px;
+            color: var(--text-3);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .12em;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
+        .adm-nav-group:first-child { margin-top: 3px; }
 
         .adm-main {
             width: auto;
@@ -1074,9 +1082,183 @@
 
         .adm-stat-card { padding: 18px; }
         .adm-stat-card::after { height: 2px; }
+        .adm-stat-note {
+            margin-top: 8px;
+            color: var(--text-3);
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        .adm-dashboard-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.5fr) minmax(280px, .7fr);
+            gap: 18px;
+        }
+
+        .adm-dashboard-panel {
+            overflow: hidden;
+            background: var(--card);
+            border: 1px solid var(--border);
+        }
+
+        .adm-dashboard-panel-head {
+            padding: 20px 22px 17px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .adm-dashboard-panel-title {
+            margin: 0;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 23px;
+            line-height: 1.2;
+        }
+
+        .adm-dashboard-panel-meta { color: var(--text-3); font-size: 11px; }
+
+        .adm-dashboard-task {
+            width: 100%;
+            padding: 16px 20px;
+            display: grid;
+            grid-template-columns: 34px 1fr auto auto;
+            gap: 13px;
+            align-items: center;
+            background: #fff;
+            border: 0;
+            border-bottom: 1px solid #f0ede8;
+            color: var(--text);
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .adm-dashboard-task:last-child { border-bottom: 0; }
+        .adm-dashboard-task:hover { background: #fffaf6; }
+        .adm-dashboard-task:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+
+        .adm-dashboard-task-icon {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            background: var(--accent-l);
+            color: var(--accent);
+            font-weight: 800;
+        }
+
+        .adm-dashboard-task-icon.green { background: var(--green-l); color: var(--green); }
+        .adm-dashboard-task-icon.yellow { background: var(--yellow-l); color: var(--yellow); }
+        .adm-dashboard-task-name { display: block; font-size: 13px; font-weight: 700; }
+        .adm-dashboard-task-note { display: block; margin-top: 3px; color: var(--text-3); font-size: 11px; }
+        .adm-dashboard-task-count { font-family: 'Playfair Display', Georgia, serif; font-size: 23px; font-weight: 700; }
+        .adm-dashboard-task-arrow { color: var(--accent); font-size: 18px; }
+
+        .adm-dashboard-health { padding: 8px 20px 12px; }
+
+        .adm-dashboard-health-row {
+            padding: 14px 0;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            border-bottom: 1px solid #f0ede8;
+            font-size: 12px;
+        }
+
+        .adm-dashboard-health-row:last-child { border-bottom: 0; }
+        .adm-dashboard-health-row span { color: var(--text-3); }
+        .adm-dashboard-health-row strong { font-size: 13px; }
+        .adm-dashboard-health-row strong.good { color: var(--green); }
+
+        .recipe-filter-bar {
+            margin-bottom: 10px;
+            display: grid;
+            grid-template-columns: minmax(220px, 1fr) auto auto auto;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .recipe-filter-bar .adm-search,
+        .recipe-filter-bar .adm-modal-select {
+            width: 100%;
+            max-width: none;
+            min-height: 42px;
+            margin: 0;
+        }
+
+        .recipe-filter-more {
+            min-height: 42px;
+            padding-inline: 14px;
+            white-space: nowrap;
+        }
+
+        .recipe-filter-count {
+            min-width: 19px;
+            margin-left: 5px;
+            padding: 1px 5px;
+            display: inline-flex;
+            justify-content: center;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .recipe-filter-count[hidden] { display: none; }
+
+        .recipe-extra-filters {
+            margin-bottom: 10px;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(150px, 1fr));
+            gap: 8px;
+            background: #fff;
+            border: 1px solid var(--border);
+        }
+
+        .recipe-extra-filters[hidden] { display: none; }
+        .recipe-extra-filters .adm-modal-select { width: 100%; min-height: 40px; }
+
+        .recipe-filter-summary {
+            min-height: 29px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .recipe-filter-chip {
+            padding: 5px 8px;
+            background: var(--accent-l);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .recipe-filter-reset {
+            padding: 5px 8px;
+            background: transparent;
+            border: 0;
+            color: var(--text-3);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .recipe-filter-result {
+            margin-left: auto;
+            color: var(--text-3);
+            font-size: 11px;
+            white-space: nowrap;
+        }
         .adm-section-title { font-family: 'Montserrat', system-ui, sans-serif; font-size: 22px; letter-spacing: -.03em; }
-        .adm-table th { background: #f7f8fa; color: #68727e; }
-        .adm-table tr:hover td { background: #f8fafb; }
+        .adm-table th { background: var(--bg); color: var(--text-3); }
+        .adm-table tr:hover td { background: #fffaf6; }
         .adm-btn, .st-badge, .rbadge, .adm-search, .adm-modal-input, .adm-modal-select { border-radius: 5px; }
 
         @media (max-width: 768px) {
@@ -1095,7 +1277,14 @@
 
             .adm-tab { width: auto; padding: 9px 12px; }
             .adm-tab-badge { float: none; }
+            .adm-nav-group { display: none; }
             .adm-main { margin: 0; padding: 24px 16px 48px; }
+            .adm-dashboard-grid { grid-template-columns: 1fr; }
+            .adm-dashboard-task { grid-template-columns: 34px 1fr auto; }
+            .adm-dashboard-task-arrow { display: none; }
+            .recipe-filter-bar { grid-template-columns: 1fr 1fr; }
+            .recipe-filter-bar .adm-search { grid-column: 1 / -1; }
+            .recipe-extra-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
         /* Системная настройка "уменьшить движение": интерфейс сохраняет
@@ -1112,6 +1301,13 @@
                 transition-delay: 0s !important;
                 scroll-behavior: auto !important;
             }
+        }
+
+        @media (max-width: 480px) {
+            .recipe-filter-bar { grid-template-columns: 1fr; }
+            .recipe-filter-bar .adm-search { grid-column: auto; }
+            .recipe-extra-filters { grid-template-columns: 1fr; }
+            .recipe-filter-result { width: 100%; margin-left: 0; }
         }
     </style>
 </head>
@@ -1130,21 +1326,24 @@
 </div>
 
 <div class="adm-tabs">
+    <div class="adm-nav-group" aria-hidden="true">Работа</div>
     <button class="adm-tab active" data-tab="dashboard" data-admin-click="48095b44bae8">Дашборд</button>
     <button class="adm-tab" data-tab="users" data-admin-click="695f4a379b55">Пользователи</button>
     <button class="adm-tab" data-tab="payments" data-admin-click="f594c8aaab75">
         Платежи <span class="adm-tab-badge" id="pending-badge" style="display:none">0</span>
     </button>
+    <button class="adm-tab" data-tab="feedback" data-admin-click="b0a333bacfb0">
+        Обращения <span class="adm-tab-badge" id="feedback-badge" style="display:none">0</span>
+    </button>
+    <div class="adm-nav-group" aria-hidden="true">Контент</div>
     <button class="adm-tab" data-tab="news" data-admin-click="ff4a35111351">Новости</button>
     <button class="adm-tab" data-tab="recipes" data-admin-click="7c5d2f2d56d3">Рецепты</button>
     <button class="adm-tab" data-tab="video-requests" data-admin-click="08960e2bb8be">
         Видеозапросы <span class="adm-tab-badge" id="video-requests-badge" style="display:none">0</span>
     </button>
     <button class="adm-tab" data-tab="categories" data-admin-click="9ddbe8a190e7">Категории</button>
-    <button class="adm-tab" data-tab="feedback" data-admin-click="b0a333bacfb0">
-        Обращения <span class="adm-tab-badge" id="feedback-badge" style="display:none">0</span>
-    </button>
-    <button class="adm-tab" data-tab="audit" data-admin-click="c829355ef746">Аудит</button>
+    <div class="adm-nav-group" aria-hidden="true">Система</div>
+    <button class="adm-tab" data-tab="audit" data-admin-click="c829355ef746">Журнал действий</button>
 </div>
 
 <div class="adm-main">
@@ -1153,6 +1352,46 @@
     <div class="adm-section active" id="sec-dashboard">
         <div class="adm-stats" id="stats-grid">
             <div class="adm-loading"><div class="adm-spinner"></div><br>Загрузка...</div>
+        </div>
+        <div class="adm-dashboard-grid">
+            <section class="adm-dashboard-panel" aria-labelledby="dashboard-attention-title">
+                <div class="adm-dashboard-panel-head">
+                    <h2 class="adm-dashboard-panel-title" id="dashboard-attention-title">Требует внимания</h2>
+                    <span class="adm-dashboard-panel-meta">Рабочие очереди</span>
+                </div>
+                <button class="adm-dashboard-task" type="button" data-admin-action="dashboard-tab" data-admin-tab="payments">
+                    <span class="adm-dashboard-task-icon">₽</span>
+                    <span><span class="adm-dashboard-task-name">Платежи на проверке</span><span class="adm-dashboard-task-note">Нужно подтвердить или отклонить</span></span>
+                    <span class="adm-dashboard-task-count" id="dashboard-payments-count">—</span><span class="adm-dashboard-task-arrow">→</span>
+                </button>
+                <button class="adm-dashboard-task" type="button" data-admin-action="dashboard-tab" data-admin-tab="feedback">
+                    <span class="adm-dashboard-task-icon green">✉</span>
+                    <span><span class="adm-dashboard-task-name">Обращения без ответа</span><span class="adm-dashboard-task-note">Пользователи ждут ответа администратора</span></span>
+                    <span class="adm-dashboard-task-count" id="dashboard-feedback-count">—</span><span class="adm-dashboard-task-arrow">→</span>
+                </button>
+                <button class="adm-dashboard-task" type="button" data-admin-action="dashboard-tab" data-admin-tab="video-requests">
+                    <span class="adm-dashboard-task-icon yellow">▶</span>
+                    <span><span class="adm-dashboard-task-name">Видео пора запланировать</span><span class="adm-dashboard-task-note">Рецепты достигли необходимого числа голосов</span></span>
+                    <span class="adm-dashboard-task-count" id="dashboard-video-count">—</span><span class="adm-dashboard-task-arrow">→</span>
+                </button>
+                <button class="adm-dashboard-task" type="button" data-admin-action="dashboard-tab" data-admin-tab="recipes" data-admin-filter="drafts">
+                    <span class="adm-dashboard-task-icon">Р</span>
+                    <span><span class="adm-dashboard-task-name">Неопубликованные рецепты</span><span class="adm-dashboard-task-note">Черновики, которые можно проверить</span></span>
+                    <span class="adm-dashboard-task-count" id="dashboard-drafts-count">—</span><span class="adm-dashboard-task-arrow">→</span>
+                </button>
+            </section>
+            <section class="adm-dashboard-panel" aria-labelledby="dashboard-health-title">
+                <div class="adm-dashboard-panel-head">
+                    <h2 class="adm-dashboard-panel-title" id="dashboard-health-title">Состояние</h2>
+                    <span class="adm-dashboard-panel-meta">Сейчас</span>
+                </div>
+                <div class="adm-dashboard-health">
+                    <div class="adm-dashboard-health-row"><span>Активны за 30 дней</span><strong id="dashboard-active-30">—</strong></div>
+                    <div class="adm-dashboard-health-row"><span>Истекшие подписки</span><strong id="dashboard-expired">—</strong></div>
+                    <div class="adm-dashboard-health-row"><span>Заблокированы</span><strong id="dashboard-blocked">—</strong></div>
+                    <div class="adm-dashboard-health-row"><span>Админ API</span><strong class="good" id="dashboard-api-state">Загрузка…</strong></div>
+                </div>
+            </section>
         </div>
     </div>
 
@@ -1262,51 +1501,61 @@
                 <button class="adm-btn adm-btn-confirm" data-admin-action="save-recipe-category-order">Сохранить порядок</button>
             </div>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="recipe-cat-filters"></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
-            <select class="adm-modal-select" id="recipe-status-filter" data-admin-change="2fc16510c28d" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+        <div class="recipe-filter-bar">
+            <input type="text" class="adm-search" id="recipe-search" placeholder="Поиск по названию..." data-admin-input="8978f80bc9b7">
+            <select class="adm-modal-select" id="recipe-category-filter" data-admin-change="2fc16510c28d" aria-label="Категория рецепта">
+                <option value="all">Все категории</option>
+            </select>
+            <select class="adm-modal-select" id="recipe-status-filter" data-admin-change="2fc16510c28d">
                 <option value="all">Все статусы</option>
                 <option value="published">Опубликованные</option>
                 <option value="unpublished">Неопубликованные</option>
             </select>
-            <select class="adm-modal-select" id="recipe-access-filter" data-admin-change="2fc16510c28d" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+            <button class="adm-btn recipe-filter-more" id="recipe-filter-more" type="button" data-admin-action="toggle-recipe-filters" aria-expanded="false" aria-controls="recipe-extra-filters">
+                Ещё фильтры <span class="recipe-filter-count" id="recipe-extra-filter-count" hidden>0</span>
+            </button>
+        </div>
+        <div class="recipe-extra-filters" id="recipe-extra-filters" hidden>
+            <select class="adm-modal-select" id="recipe-access-filter" data-admin-change="2fc16510c28d">
                 <option value="all">Все уровни</option>
                 <option value="free">Free</option>
                 <option value="trial">Trial</option>
                 <option value="pro">Pro</option>
             </select>
-            <select class="adm-modal-select" id="recipe-seasonal-filter" data-admin-change="2fc16510c28d" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+            <select class="adm-modal-select" id="recipe-seasonal-filter" data-admin-change="2fc16510c28d">
                 <option value="all">Любая сезонность</option>
                 <option value="seasonal">Сезонные</option>
                 <option value="not-seasonal">Не сезонные</option>
             </select>
-            <select class="adm-modal-select" id="recipe-video-filter" data-admin-change="2fc16510c28d" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+            <select class="adm-modal-select" id="recipe-video-filter" data-admin-change="2fc16510c28d">
                 <option value="all">Любые видео</option>
                 <option value="with-video">С видео</option>
                 <option value="without-video">Без видео</option>
             </select>
-            <select class="adm-modal-select" id="recipe-photo-filter" data-admin-change="2fc16510c28d" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+            <select class="adm-modal-select" id="recipe-photo-filter" data-admin-change="2fc16510c28d">
                 <option value="all">Любые фото</option>
                 <option value="with-photo">С фото</option>
                 <option value="without-photo">Без фото</option>
             </select>
-            <select class="adm-modal-select" id="recipe-nutrition-filter" data-admin-change="2fc16510c28d" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+            <select class="adm-modal-select" id="recipe-nutrition-filter" data-admin-change="2fc16510c28d">
                 <option value="all">Любые КБЖУ</option>
                 <option value="nutrition-filled">КБЖУ заполнены</option>
                 <option value="nutrition-missing">КБЖУ не заполнены</option>
             </select>
-            <select class="adm-modal-select" id="recipe-addons-filter" data-admin-change="2fc16510c28d" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+            <select class="adm-modal-select" id="recipe-addons-filter" data-admin-change="2fc16510c28d">
                 <option value="all">Любые автодобавки</option>
                 <option value="with-addons">Есть автодобавки</option>
                 <option value="without-addons">Нет автодобавок</option>
             </select>
-            <select class="adm-modal-select" id="recipe-soup-filter" data-admin-change="2fc16510c28d" style="width:auto;padding:8px 12px;font-size:13px;border-radius:8px">
+            <select class="adm-modal-select" id="recipe-soup-filter" data-admin-change="2fc16510c28d">
                 <option value="all">Все типы</option>
                 <option value="soups">Супы</option>
                 <option value="not-soups">Не супы</option>
             </select>
         </div>
-        <input type="text" class="adm-search" id="recipe-search" placeholder="Поиск по названию..." data-admin-input="8978f80bc9b7">
+        <div class="recipe-filter-summary" id="recipe-filter-summary">
+            <span class="recipe-filter-result" id="recipe-filter-result"></span>
+        </div>
         <div id="recipes-list"></div>
     </div>
 
@@ -1457,7 +1706,7 @@
     <!-- Audit log -->
     <div class="adm-section" id="sec-audit">
         <div class="adm-section-title" style="display:flex;justify-content:space-between;align-items:center">
-            Аудит-лог
+            Журнал действий
             <select class="adm-modal-select" id="audit-filter" data-admin-change="4a89cbc6b5fc" style="width:auto;padding:6px 10px;font-size:13px">
                 <option value="">Все события</option>
                 <option value="login">Вход на платформу</option>
@@ -1670,6 +1919,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260816-cross-tab-refresh"></script>
-<script src="admin.js?v=20260812-recipe-category-order"></script>
+<script src="admin.js?v=20260818-admin-workspace"></script>
 </body>
 </html>
