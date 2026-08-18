@@ -1876,6 +1876,7 @@
     var auditRows = [];
     var auditPage = 1;
     var auditHasMore = false;
+    var auditTotal = 0;
     var EVENT_LABELS = {
         login: '🔑 Вход на платформу',
         platform_visit: '👋 Пользователь открыл платформу',
@@ -1907,6 +1908,7 @@
         recipe_delete: '🗑 Рецепт удалён',
         recipe_seasonal_set: '🌿 Выбран сезонный рецепт',
         recipe_seasonal_clear: '🌿 Сезонный рецепт снят',
+        recipe_category_order_update: '↕ Изменён порядок рецептов',
         ingredient_catalog_upsert: '🥕 Обновлён ингредиент',
         category_create: '📁 Категория создана',
         category_update: '📁 Категория изменена',
@@ -2080,13 +2082,17 @@
         if (!append) {
             auditPage = 1;
             auditRows = [];
+            document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="5" class="adm-loading"><div class="adm-spinner"></div></td></tr>';
+            document.getElementById('audit-filter-summary').innerHTML = '<span class="audit-filter-result">Загрузка…</span>';
         }
         var filter = document.getElementById('audit-filter').value;
         var url = '/admin/audit?page=' + auditPage + '&limit=50' + (filter ? '&event=' + encodeURIComponent(filter) : '');
         api(url).then(function(data) {
             auditRows = auditRows.concat(data.rows);
             auditHasMore = data.hasMore;
-            renderAudit(auditRows);
+            auditTotal = Number(data.total || auditRows.length);
+            updateAuditSummary();
+            filterAuditRows();
         });
     };
 
@@ -2095,29 +2101,77 @@
         loadAudit(true);
     };
 
+    function isAuditAttention(eventName) {
+        var value = String(eventName || '');
+        return value.includes('denied') || value.includes('blocked') || value.includes('reject')
+            || value.includes('alert') || value.includes('invalid') || value === 'admin_mfa_failed'
+            || value === 'admin_oauth_denied';
+    }
+
+    function updateAuditSummary() {
+        var users = new Set(auditRows.map(function(row) { return row.user_id || row.email; }).filter(Boolean));
+        document.getElementById('audit-summary-total').textContent = auditTotal;
+        document.getElementById('audit-summary-loaded').textContent = auditRows.length;
+        document.getElementById('audit-summary-users').textContent = users.size;
+        document.getElementById('audit-summary-attention').textContent = auditRows.filter(function(row) { return isAuditAttention(row.event); }).length;
+    }
+
+    function updateAuditFilterSummary(count) {
+        var query = document.getElementById('audit-search').value.trim();
+        var eventName = document.getElementById('audit-filter').value;
+        var chips = [];
+        if (query) chips.push('<span class="audit-filter-chip">Поиск: ' + esc(query) + '</span>');
+        if (eventName) chips.push('<span class="audit-filter-chip">' + esc(EVENT_LABELS[eventName] || eventName) + '</span>');
+        if (query || eventName) chips.push('<button class="audit-filter-reset" data-admin-action="reset-audit-filters">Сбросить</button>');
+        chips.push('<span class="audit-filter-result">Показано: ' + count + ' из ' + auditRows.length + ' загруженных · всего ' + auditTotal + '</span>');
+        document.getElementById('audit-filter-summary').innerHTML = chips.join('');
+    }
+
+    function filterAuditRows() {
+        var query = document.getElementById('audit-search').value.trim().toLowerCase();
+        var rows = auditRows.filter(function(row) {
+            if (!query) return true;
+            var searchable = [row.email, row.ip, row.event, EVENT_LABELS[row.event], row.detail, formatAuditDetail(row.event, row.detail)]
+                .filter(Boolean).join(' ').toLowerCase();
+            return searchable.indexOf(query) !== -1;
+        });
+        renderAudit(rows);
+        updateAuditFilterSummary(rows.length);
+    }
+
+    window.resetAuditFilters = function() {
+        var hadServerFilter = !!document.getElementById('audit-filter').value;
+        document.getElementById('audit-search').value = '';
+        document.getElementById('audit-filter').value = '';
+        if (hadServerFilter) loadAudit();
+        else filterAuditRows();
+    };
+
+    document.getElementById('audit-search').addEventListener('input', filterAuditRows);
+
     function renderAudit(rows) {
         var tbody = document.getElementById('audit-tbody');
         if (!rows.length) {
-            tbody.innerHTML = '<tr><td colspan="5" class="adm-empty">Нет событий</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="adm-empty">По выбранным условиям событий нет</td></tr>';
             return;
         }
         var html = rows.map(function(e) {
             var label = EVENT_LABELS[e.event] || e.event;
             var eventName = String(e.event || '');
             var badgeClass = 'st-active';
-            if (eventName.includes('denied') || eventName.includes('blocked') || eventName.includes('reject') || eventName.includes('block') || eventName.includes('alert') || eventName.includes('invalid')) badgeClass = 'st-rejected';
+            if (isAuditAttention(eventName) || eventName.includes('block')) badgeClass = 'st-rejected';
             else if (eventName === 'register' || eventName === 'trial_granted' || eventName.includes('watch') || eventName.includes('missing')) badgeClass = 'st-trial';
             else if (eventName.includes('confirm') || eventName.includes('unblock')) badgeClass = 'st-confirmed';
             return '<tr>' +
-                '<td class="adm-date">' + fmtDateTime(e.created_at) + '</td>' +
-                '<td><span class="st-badge ' + badgeClass + '">' + esc(label) + '</span></td>' +
-                '<td>' + esc(e.email) + '</td>' +
-                '<td style="font-size:12px;color:var(--text-3)">' + esc(formatAuditDetail(e.event, e.detail)) + '</td>' +
-                '<td style="font-size:12px;color:var(--text-3)">' + esc(e.ip) + '</td>' +
+                '<td class="adm-date" data-label="Время">' + fmtDateTime(e.created_at) + '</td>' +
+                '<td data-label="Событие"><span class="st-badge audit-event-badge ' + badgeClass + '">' + esc(label) + '</span></td>' +
+                '<td class="audit-email" data-label="Email">' + esc(e.email || 'Системное событие') + '</td>' +
+                '<td class="audit-detail" data-label="Что произошло">' + esc(formatAuditDetail(e.event, e.detail)) + '</td>' +
+                '<td class="audit-ip" data-label="IP">' + esc(e.ip || '—') + '</td>' +
                 '</tr>';
         }).join('');
         if (auditHasMore) {
-            html += '<tr><td colspan="5" style="text-align:center;padding:12px"><button class="adm-btn" data-admin-action="load-more-audit" style="padding:8px 24px">Загрузить ещё</button></td></tr>';
+            html += '<tr><td colspan="5" class="audit-load-more"><button class="adm-btn" data-admin-action="load-more-audit">Загрузить ещё</button></td></tr>';
         }
         tbody.innerHTML = html;
     }
@@ -2173,6 +2227,7 @@
         else if (action === 'open-feedback') window.openFbReply(Number(id));
         else if (action === 'load-more-feedback') window.loadMoreFeedback();
         else if (action === 'load-more-audit') window.loadMoreAudit();
+        else if (action === 'reset-audit-filters') window.resetAuditFilters();
     });
 
     // ── Init ──

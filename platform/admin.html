@@ -1531,6 +1531,27 @@
         .category-no-rules { color: var(--text-3); font-size: 11px; }
         .category-card-actions { min-width: 145px; }
         .category-card-actions .adm-btn { width: 100%; min-height: 34px; }
+
+        .audit-section-head { margin-bottom: 12px; }
+        .audit-section-head .adm-section-title { margin: 0; }
+        .audit-section-note { max-width: 760px; margin: 6px 0 16px; color: var(--text-2); font-size: 12px; line-height: 1.55; }
+        .audit-summary { margin-bottom: 12px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+        .audit-summary-card { padding: 13px 14px; background: #fff; border: 1px solid var(--border); }
+        .audit-summary-card strong { display: block; font-family: 'Playfair Display', Georgia, serif; font-size: 24px; line-height: 1; }
+        .audit-summary-card span { display: block; margin-top: 5px; color: var(--text-3); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+        .audit-filter-bar { margin-bottom: 10px; display: grid; grid-template-columns: minmax(220px, 1fr) minmax(280px, auto); gap: 8px; }
+        .audit-filter-bar .adm-search,
+        .audit-filter-bar .adm-modal-select { width: 100%; max-width: none; min-height: 42px; margin: 0; }
+        .audit-filter-summary { min-height: 29px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .audit-filter-chip { padding: 5px 8px; background: var(--accent-l); color: var(--accent); font-size: 11px; font-weight: 700; }
+        .audit-filter-reset { padding: 5px 8px; background: transparent; border: 0; color: var(--text-3); cursor: pointer; font-size: 11px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+        .audit-filter-result { margin-left: auto; color: var(--text-3); font-size: 11px; white-space: nowrap; }
+        .adm-audit-table .audit-event-badge { max-width: 240px; white-space: normal; line-height: 1.35; }
+        .adm-audit-table .audit-email { font-weight: 600; overflow-wrap: anywhere; }
+        .adm-audit-table .audit-detail { max-width: 420px; color: var(--text-3); font-size: 12px; line-height: 1.5; }
+        .adm-audit-table .audit-ip { color: var(--text-3); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11px; }
+        .audit-load-more { text-align: center; padding: 14px !important; }
+        .audit-load-more .adm-btn { min-width: 180px; }
         .adm-section-title { font-family: 'Montserrat', system-ui, sans-serif; font-size: 22px; letter-spacing: -.03em; }
         .adm-table th { background: var(--bg); color: var(--text-3); }
         .adm-table tr:hover td { background: #fffaf6; }
@@ -1645,6 +1666,7 @@
             .news-filter-bar { grid-template-columns: 1fr 1fr; }
             .news-filter-bar .adm-search { grid-column: 1 / -1; }
             .category-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .audit-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
         /* Системная настройка "уменьшить движение": интерфейс сохраняет
@@ -1704,6 +1726,20 @@
             .category-card-description,
             .category-card-rules { margin-left: 0; }
             .category-card-actions { min-width: 0; }
+            .audit-filter-bar { grid-template-columns: 1fr; }
+            .audit-filter-result { width: 100%; margin-left: 0; }
+            .adm-audit-table,
+            .adm-audit-table tbody,
+            .adm-audit-table tr,
+            .adm-audit-table td { display: block; width: 100%; }
+            .adm-audit-table thead { display: none; }
+            .adm-audit-table tr { margin-bottom: 9px; padding: 13px 14px; background: #fff; border: 1px solid var(--border); }
+            .adm-audit-table td { padding: 5px 0; display: grid; grid-template-columns: 105px minmax(0, 1fr); gap: 10px; border: 0; }
+            .adm-audit-table td::before { content: attr(data-label); color: var(--text-3); font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+            .adm-audit-table td.audit-load-more { display: block; }
+            .adm-audit-table td.audit-load-more::before,
+            .adm-audit-table .adm-empty::before { display: none; }
+            .adm-audit-table .audit-detail { max-width: none; }
         }
     </style>
 </head>
@@ -2164,9 +2200,19 @@
 
     <!-- Audit log -->
     <div class="adm-section" id="sec-audit">
-        <div class="adm-section-title" style="display:flex;justify-content:space-between;align-items:center">
-            Журнал действий
-            <select class="adm-modal-select" id="audit-filter" data-admin-change="4a89cbc6b5fc" style="width:auto;padding:6px 10px;font-size:13px">
+        <div class="audit-section-head">
+            <div class="adm-section-title">Журнал действий</div>
+            <p class="audit-section-note">События показываются от новых к старым. Поиск работает среди уже загруженных записей; выбор события запрашивает точные данные с сервера.</p>
+        </div>
+        <div class="audit-summary">
+            <div class="audit-summary-card"><strong id="audit-summary-total">—</strong><span>Всего по фильтру</span></div>
+            <div class="audit-summary-card"><strong id="audit-summary-loaded">—</strong><span>Загружено записей</span></div>
+            <div class="audit-summary-card"><strong id="audit-summary-users">—</strong><span>Пользователей в выборке</span></div>
+            <div class="audit-summary-card"><strong id="audit-summary-attention">—</strong><span>Внимание в выборке</span></div>
+        </div>
+        <div class="audit-filter-bar">
+            <input class="adm-search" id="audit-search" type="search" placeholder="Поиск по email, IP или деталям" aria-label="Поиск в журнале">
+            <select class="adm-modal-select" id="audit-filter" data-admin-change="4a89cbc6b5fc" aria-label="Тип события">
                 <option value="">Все события</option>
                 <option value="login">Вход на платформу</option>
                 <option value="platform_visit">Пользователь открыл платформу</option>
@@ -2180,10 +2226,16 @@
                 <option value="login_blocked">Вход отклонён: аккаунт заблокирован</option>
                 <option value="payment_confirm">Оплата подтверждена</option>
                 <option value="payment_reject">Оплата отклонена</option>
+                <option value="early_access_adjust">Изменён резерв мест</option>
                 <option value="user_block">Блокировка</option>
                 <option value="user_unblock">Разблокировка</option>
+                <option value="user_delete">Пользователь удалён</option>
+                <option value="subscription_extend">Подписка продлена</option>
                 <option value="payment_submit">Отправлена заявка на оплату</option>
                 <option value="feedback_reply">Администратор ответил на обращение</option>
+                <option value="review_delete">Отзыв удалён</option>
+                <option value="review_reply">Администратор ответил на отзыв</option>
+                <option value="video_request_status">Обновлён запрос на видео</option>
                 <option value="testing_invitation_send">Отправлено приглашение тестеру</option>
                 <option value="personal_message_send">Отправлено личное письмо</option>
                 <option value="news_create">Новость создана</option>
@@ -2192,10 +2244,20 @@
                 <option value="recipe_create">Рецепт создан</option>
                 <option value="recipe_update">Рецепт изменён</option>
                 <option value="recipe_delete">Рецепт удалён</option>
+                <option value="recipe_seasonal_set">Выбран сезонный рецепт</option>
+                <option value="recipe_seasonal_clear">Сезонный рецепт снят</option>
+                <option value="recipe_category_order_update">Изменён порядок рецептов</option>
+                <option value="ingredient_catalog_upsert">Обновлён ингредиент</option>
+                <option value="category_create">Категория создана</option>
+                <option value="category_update">Категория изменена</option>
+                <option value="category_delete">Категория удалена</option>
+                <option value="admin_mfa_failed">Не пройдена проверка входа администратора</option>
+                <option value="admin_oauth_denied">Администратору запрещён вход через соцсеть</option>
             </select>
         </div>
+        <div class="audit-filter-summary" id="audit-filter-summary"><span class="audit-filter-result">Загрузка…</span></div>
         <div class="adm-table-wrap">
-            <table class="adm-table">
+            <table class="adm-table adm-audit-table">
                 <thead><tr>
                     <th>Время</th>
                     <th>Событие</th>
@@ -2378,6 +2440,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260816-cross-tab-refresh"></script>
-<script src="admin.js?v=20260818-admin-categories"></script>
+<script src="admin.js?v=20260818-admin-audit"></script>
 </body>
 </html>
