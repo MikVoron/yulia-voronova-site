@@ -404,7 +404,7 @@
             const recipeId = actionEl.dataset.recipeId || '';
             const action = actionEl.dataset.cardAction;
             if (action === 'open') goToRecipe(recipeId);
-            else if (action === 'locked') showLockedMsg(recipeId);
+            else if (action === 'locked') openLockedRecipe(recipeId);
             else if (action === 'favorite') toggleFav(recipeId);
             else if (action === 'rating') openRatingPopup(recipeId, actionEl);
             else if (action === 'comments') openComments(recipeId);
@@ -414,7 +414,7 @@
             const card = event.target.closest('article[data-card-action]');
             if (!card || event.target !== card || (event.key !== 'Enter' && event.key !== ' ')) return;
             event.preventDefault();
-            if (card.dataset.cardAction === 'locked') showLockedMsg(card.dataset.recipeId || '');
+            if (card.dataset.cardAction === 'locked') openLockedRecipe(card.dataset.recipeId || '');
             else goToRecipe(card.dataset.recipeId || '');
         });
         dishListEl.addEventListener('mouseover', function(event) {
@@ -662,6 +662,12 @@
         } else {
             location.href = `recipe.html?id=${encodeURIComponent(id)}&from=${encodeURIComponent(catId)}`;
         }
+    }
+
+    function openLockedRecipe(id) {
+        // Гость получает страницу-превью с метаданными и CTA, а не popup на карточке.
+        if (Auth.isGuest()) { goToRecipe(id); return; }
+        showLockedMsg(id);
     }
 
     // showLockedMsg() централизован в data-v2.js (общий для index/category/ingredient)

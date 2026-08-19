@@ -511,6 +511,12 @@
         location.href = `recipe.html?id=${encodeURIComponent(id)}&from=${encodeURIComponent('ingredient:' + ING_ID)}`;
     }
 
+    function openLockedRecipe(id) {
+        // Гость получает страницу-превью с метаданными и CTA, а не popup на карточке.
+        if (Auth.isGuest()) { goToRecipe(id); return; }
+        showLockedMsg(id);
+    }
+
     // showLockedMsg() централизован в data-v2.js (общий для index/category/ingredient)
 
     function toggleFav(id) {
@@ -971,7 +977,7 @@ document.addEventListener('click', function (event) {
     var card = event.target.closest('[data-ingredient-card-action]');
     if (!card) return;
     var cardRecipeId = card.dataset.recipeId || '';
-    if (card.dataset.ingredientCardAction === 'locked') showLockedMsg(cardRecipeId);
+    if (card.dataset.ingredientCardAction === 'locked') openLockedRecipe(cardRecipeId);
     else goToRecipe(cardRecipeId);
 });
 

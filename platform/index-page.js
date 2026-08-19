@@ -520,7 +520,7 @@
 					? '<div class="free-badge">Бесплатно</div>'
 					: '';
 				const accessHint = locked ? `. ${access.label}. ${access.actionLabel}` : '';
-				html = `<button class="featured-card${locked ? ' locked' : ''}" aria-label="${_name}${accessHint}" ${locked ? `data-locked-recipe-id="${_id}"` : `data-recipe-href="recipe.html?id=${_id}&from=${_cat}"`}>
+				html = `<button class="featured-card${locked ? ' locked' : ''}" aria-label="${_name}${accessHint}" ${locked ? `data-locked-recipe-id="${_id}" data-locked-recipe-href="recipe.html?id=${_id}&from=${_cat}"` : `data-recipe-href="recipe.html?id=${_id}&from=${_cat}"`}>
                     <div class="featured-card-photo" style="position:relative">
                         ${photoHtml}
                         <div class="card-badge-stack">
@@ -677,8 +677,8 @@
 				: '';
 
 			const _href = 'recipe.html?id=' + _id + '&from=' + _cat;
-			// locked: ссылки не навигируют, а открывают paywall-сообщение.
-			const _lockAttr = locked ? ' data-locked-recipe-id="' + _id + '"' : '';
+			// Гость открывает безопасное превью; авторизованный без доступа видит paywall-подсказку.
+			const _lockAttr = locked ? ' data-locked-recipe-id="' + _id + '" data-locked-recipe-href="' + _href + '"' : '';
 			// Без префикса «Новый рецепт» (повторяет название секции «Новое»).
 			// Год и «г.» обрезаем — на главной показываем только день+месяц.
 			const eyebrow = (item.date || '').replace(/\s*\d{4}\s*г\.?$/, '').trim();
@@ -915,7 +915,7 @@
 
 		function spActionAttrs(d, locked) {
 			return locked
-				? `data-locked-recipe-id="${escHtml(String(d.id || ''))}"`
+				? `data-locked-recipe-id="${escHtml(String(d.id || ''))}" data-locked-recipe-href="${escHtml(spRecipeHref(d))}"`
 				: `data-recipe-href="${escHtml(spRecipeHref(d))}"`;
 		}
 
@@ -1180,8 +1180,9 @@
 			aside.classList.toggle('locked', locked);
 			if (locked) {
 				aside.setAttribute('aria-label', _name + '. ' + access.label + '. ' + access.actionLabel);
-				aside.href = '#';
+				aside.href = 'recipe.html?id=' + encodeURIComponent(r.id) + '&from=' + encodeURIComponent(r.cat || '');
 				aside.onclick = function (e) {
+					if (Auth.isGuest()) return true;
 					e.preventDefault();
 					if (typeof showLockedMsg === 'function') showLockedMsg(r.id);
 					return false;
@@ -1766,6 +1767,10 @@
 			const lockedTarget = event.target.closest('[data-locked-recipe-id]');
 			if (lockedTarget) {
 				event.preventDefault();
+				if (Auth.isGuest()) {
+					location.href = lockedTarget.dataset.lockedRecipeHref || ('recipe.html?id=' + encodeURIComponent(lockedTarget.dataset.lockedRecipeId || ''));
+					return;
+				}
 				showLockedMsg(lockedTarget.dataset.lockedRecipeId || '');
 				return;
 			}
