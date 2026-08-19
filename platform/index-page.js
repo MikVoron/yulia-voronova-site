@@ -2,6 +2,20 @@
 			return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 		}
 
+		// The plate modal uses product contours rather than emoji for add-ons that
+		// do not have their own recipe photo.
+		const PLATE_ADDON_ICON_PATHS = {
+			yogurt: '<path d="M17 20h30l-3 31H20l-3-31Z"/><path d="M20 20c4-5 20-5 24 0M22 32c5 3 11 3 18 0"/>', cottage: '<path d="M15 34h34c-2 11-8 17-17 17s-15-6-17-17Z"/><circle cx="24" cy="29" r="4"/><circle cx="32" cy="27" r="5"/><circle cx="40" cy="30" r="4"/>', meat: '<path d="M19 41c0-13 10-22 23-22 9 0 15 6 15 14 0 11-10 20-23 20-8 0-15-4-15-12Z"/><path d="M25 44c8 3 17 1 24-7"/>', fish: '<path d="M16 35c9-11 23-12 33-3l8-7v20l-8-7c-10 9-24 8-33-3Z"/><circle cx="27" cy="34" r="1.8" fill="currentColor" stroke="none"/>', tuna: '<path d="M16 23h32v28H16z"/><ellipse cx="32" cy="23" rx="16" ry="5"/><path d="M22 36h20M27 29h10"/>', tofu: '<path d="m20 24 12-7 12 7v21l-12 7-12-7V24Z"/><path d="m20 24 12 7 12-7M32 31v21"/><circle cx="27" cy="38" r="1.5"/><circle cx="37" cy="42" r="1.5"/>', edamame: '<path d="M17 42c3-17 14-24 31-20-3 17-14 25-31 20Z"/><circle cx="26" cy="36" r="4"/><circle cx="36" cy="33" r="4"/>', hummus: '<path d="M15 36h34c-2 10-8 16-17 16s-15-6-17-16Z"/><path d="M22 33c3-8 17-8 20 0-2 4-7 6-10 3-3 3-8 1-10-3Z"/><path d="M32 24v-5"/>', beetHummus: '<path d="M16 36h32c-2 10-8 16-16 16s-14-6-16-16Z"/><circle cx="32" cy="30" r="7"/><path d="M32 23v-6m0 0 5-4m-5 4-5-4"/>', parmesan: '<path d="m19 47 9-28 24 20-33 8Z"/><circle cx="30" cy="34" r="1.7"/><circle cx="40" cy="39" r="1.7"/><path d="m28 19 24 20"/>', yeast: '<path d="M20 20h24v32H20z"/><path d="M24 20v-4h16v4M25 30h14"/><circle cx="27" cy="37" r="1.4" fill="currentColor" stroke="none"/><circle cx="32" cy="40" r="1.4" fill="currentColor" stroke="none"/><circle cx="37" cy="36" r="1.4" fill="currentColor" stroke="none"/>', bread: '<path d="M17 48V29c0-8 6-13 13-13 5 0 8 2 10 5 8-1 13 5 13 11v16H17Z"/><path d="M23 29c5-3 9-3 14 0"/>', berries: '<circle cx="25" cy="39" r="7"/><circle cx="37" cy="39" r="7"/><circle cx="31" cy="28" r="7"/><path d="M31 20v-5m0 1 6-3"/>', greens: '<path d="M32 50V18m0 13c-8-1-12-6-13-12 8 1 12 6 13 12Zm0 10c8-1 12-6 13-12-8 1-12 6-13 12Zm0 4c-7 0-12 4-14 10 8 0 13-4 14-10Z"/>', vegetables: '<circle cx="26" cy="34" r="10"/><path d="m26 24 3-6m-3 6-6-3m9-3 5 1M43 25c7 10 5 20-6 27-5-11-2-20 6-27ZM41 31l-3 13"/>', dish: '<path d="M15 38h34c-2 8-8 13-17 13s-15-5-17-13Z"/><path d="M20 35c1-10 23-10 24 0M32 18v8m-7-4 3 4m11-4-3 4"/>'
+		};
+		function plateAddonIconKey(name) {
+			const normalized = String(name || '').toLowerCase().replace(/ё/g, 'е');
+			if (normalized.includes('йогурт')) return 'yogurt'; if (normalized.includes('творог')) return 'cottage'; if (normalized.includes('тунец') || normalized.includes('рыбные консервы')) return 'tuna'; if (normalized.includes('тофу')) return 'tofu'; if (normalized.includes('эдамаме')) return 'edamame'; if (normalized.includes('свеколь') && normalized.includes('хумус')) return 'beetHummus'; if (normalized.includes('хумус')) return 'hummus'; if (normalized.includes('мясо')) return 'meat'; if (normalized.includes('рыб')) return 'fish'; if (normalized.includes('пармезан')) return 'parmesan'; if (normalized.includes('дрожжи')) return 'yeast'; if (normalized.includes('хлеб') || normalized.includes('сухарик')) return 'bread'; if (normalized.includes('ягод')) return 'berries'; if (normalized.includes('зелень')) return 'greens'; if (normalized.includes('овощ')) return 'vegetables'; return 'dish';
+		}
+		function plateAddonIcon(name) {
+			const paths = PLATE_ADDON_ICON_PATHS[plateAddonIconKey(name)] || PLATE_ADDON_ICON_PATHS.dish;
+			return `<svg class="pv1-item-product-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${paths}</svg>`;
+		}
+
 		// Объявляем здесь, а не внизу: _renderRecommendedSkeleton() использует
 		// _spRecCount синхронно, а let остаётся в TDZ до строки объявления.
 		let _spRecCount = 8;
@@ -1507,7 +1521,7 @@
 				return `<div class="pv1-item" id="pi-${Number(i)}">
 					${item.photo
 						? `<img class="pv1-item-photo" src="${escHtml(String(item.photo))}" alt="">`
-						: `<div class="pv1-item-emoji">${escHtml(String(item.emoji || '🍴'))}</div>`}
+						: plateAddonIcon(item.name)}
 					<div class="pv1-item-main">
 						${nameHtml}
 						<div class="pv1-item-meta">${Number(item.kcal) || 0} ккал · Б ${Number(item.protein) || 0} · Ж ${Number(item.fat) || 0} · У ${Number(item.carbs) || 0} · Кл ${Number(item.fiber) || 0}</div>
