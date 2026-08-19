@@ -60,6 +60,14 @@ describe('client plate uniqueness', () => {
     expect(recipePage).toContain('if (removed && r && removed.recipeId === r.id) resetRecipeAddonSidebar();');
   });
 
+  it('replaces the current recipe add-on in the saved plate when its checkbox changes', () => {
+    expect(recipePage).toContain('function syncCurrentRecipeAddons()');
+    expect(recipePage).toContain('parentRecipeId: r.id');
+    expect(recipePage).toContain('if (isInPlate()) syncCurrentRecipeAddons();');
+    expect(recipePage).toContain('legacyIndexes');
+    expect(recipePage).toContain("showToast('Добавка в тарелке обновлена')");
+  });
+
   it('removes a journal entry locally only after the API confirms deletion', async () => {
     const { plate, values, apiCalls } = loadPlate(true);
     const date = '2026-08-03T19:14:00.000Z';

@@ -2192,6 +2192,58 @@
 			showToast((item.emoji || '') + ' Добавлено в тарелку!');
 		}
 
+		function addonNameKey(name) {
+			return String(name || '').split('·')[0].toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
+		}
+
+		function plateItemFromSelectedAddon(addon) {
+			const linked = (addon.recipeId && typeof RECIPES !== 'undefined') ? RECIPES[addon.recipeId] : null;
+			return {
+				name: addon.name,
+				emoji: (linked && linked.emoji) || addon.emoji || '🥗',
+				photo: (linked && linked.photo) || '',
+				kcal: addon.kcal || 0,
+				protein: addon.protein || 0,
+				fat: addon.fat || 0,
+				carbs: addon.carbs || 0,
+				fiber: addon.fiber || 0,
+				recipeId: addon.recipeId || null,
+				ingredients: (linked && linked.ingredients) || [],
+				parentRecipeId: r.id
+			};
+		}
+
+		function syncCurrentRecipeAddons() {
+			if (!r || !isInPlate()) return;
+			const items = Plate.get();
+			const mainIndex = items.findIndex(item => item && item.recipeId === r.id);
+			if (mainIndex < 0) return;
+
+			// Entries created from now on carry parentRecipeId. For the old simple
+			// add-ons, recognise only the adjacent names supplied by this recipe;
+			// never touch a separate recipe already present in the plate.
+			const availableNames = new Set(Object.values(_groupConfig)
+				.flatMap(group => (group.items || []).map(item => addonNameKey(item.name))));
+			const legacyIndexes = new Set();
+			for (let i = mainIndex + 1; i < items.length; i++) {
+				const item = items[i] || {};
+				if (item.parentRecipeId || item.recipeId || !availableNames.has(addonNameKey(item.name))) break;
+				legacyIndexes.add(i);
+			}
+			const kept = items.filter((item, index) =>
+				!(item && item.parentRecipeId === r.id) && !legacyIndexes.has(index)
+			);
+			const occupiedRecipeIds = new Set(kept.map(item => item && item.recipeId).filter(Boolean));
+			const replacements = Object.values(checkedItems)
+				.map(plateItemFromSelectedAddon)
+				.filter(item => !item.recipeId || !occupiedRecipeIds.has(item.recipeId));
+			const insertAt = kept.findIndex(item => item && item.recipeId === r.id) + 1;
+			kept.splice(insertAt, 0, ...replacements);
+			Plate.set(kept);
+			if (typeof Plate._syncToServer === 'function') Plate._syncToServer();
+			showToast('Добавка в тарелке обновлена');
+		}
+
 		function toggleSwap(i) {
 			const el = document.getElementById('swap-' + i);
 			if (el) el.classList.toggle('open');
@@ -2237,6 +2289,7 @@
 				};
 				setSelected(btn, true);
 			}
+			if (isInPlate()) syncCurrentRecipeAddons();
 			updateAddTotal();
 		}
 
@@ -2981,22 +3034,11 @@
 				return;
 			}
 
-			// Deferred addons → separate Plate entries; dedup by recipeId when present.
+			// Deferred add-ons stay separate in the plate and retain their source recipe
+			// so a later checkbox change can replace only these entries.
 			Object.values(checkedItems).forEach(v => {
 				if (v.recipeId && Plate.get().some(p => p.recipeId === v.recipeId)) return;
-				const linked = (v.recipeId && typeof RECIPES !== 'undefined') ? RECIPES[v.recipeId] : null;
-				Plate.add({
-					name: v.name,
-					emoji: (linked && linked.emoji) || v.emoji || '🥗',
-					photo: (linked && linked.photo) || '',
-					kcal: v.kcal || 0,
-					protein: v.protein || 0,
-					fat: v.fat || 0,
-					carbs: v.carbs || 0,
-					fiber: v.fiber || 0,
-					recipeId: v.recipeId || null,
-					ingredients: (linked && linked.ingredients) || []
-				});
+				Plate.add(plateItemFromSelectedAddon(v));
 			});
 
 			updatePlateIcon();
