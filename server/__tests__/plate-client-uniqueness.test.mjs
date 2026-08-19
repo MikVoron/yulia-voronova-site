@@ -53,6 +53,13 @@ describe('client plate uniqueness', () => {
     expect(recipePage).toContain("showToast((item.emoji || '🍴') + ' Это блюдо уже в тарелке')");
   });
 
+  it('resets add-on choices when the open recipe is removed from the plate', () => {
+    expect(recipePage).toContain('function resetRecipeAddonSidebar()');
+    expect(recipePage).toContain('checkedItems = {};');
+    expect(recipePage).toContain('_wizardCollapsed = false;');
+    expect(recipePage).toContain('if (removed && r && removed.recipeId === r.id) resetRecipeAddonSidebar();');
+  });
+
   it('removes a journal entry locally only after the API confirms deletion', async () => {
     const { plate, values, apiCalls } = loadPlate(true);
     const date = '2026-08-03T19:14:00.000Z';

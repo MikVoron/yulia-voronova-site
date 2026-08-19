@@ -2590,6 +2590,31 @@
 			checkBalance();
 		}
 
+		function resetRecipeAddonSidebar() {
+			// Add-ons are a one-time choice for the current plate. Once the main
+			// recipe is removed, do not leave its previous choices in the card.
+			checkedItems = {};
+			expandedGroups = { p: false, f: false, c: false, fi: false };
+			_wizardStep = 0;
+			_wizardCollapsed = false;
+			_accordionOpen = { p: false, f: false, c: false, fi: false };
+			if (_balGroups[0]) _accordionOpen[_balGroups[0].prefix] = true;
+
+			// Rebuild groups so hidden options return to their default state too.
+			_balGroups.forEach(group => {
+				const cfg = _groupConfig[group.prefix];
+				const oldEl = document.getElementById('bal-group-' + group.prefix);
+				if (!cfg || !oldEl) return;
+				const wrap = document.createElement('div');
+				wrap.innerHTML = buildGroup(group.prefix, cfg.items, cfg.stepIndex).trim();
+				const newEl = wrap.firstChild;
+				if (newEl) oldEl.parentNode.replaceChild(newEl, oldEl);
+			});
+
+			updateAddTotal();
+			updateWizardUI();
+		}
+
 		// ── VIDEO PLATFORM SWITCH ────────────────────────────────────────────
 		function extractEmbedSrc(raw) {
 			if (!raw) return null;
@@ -3174,7 +3199,14 @@
 			document.body.style.overflow = '';
 		}
 		function closePlateIfOutside(e) { if (e.target === document.getElementById('plate-overlay')) closePlate(); }
-		function removeItemR(i) { Plate.remove(i); updatePlateIcon(); refreshAddButtonStateByPlate(); openPlate(); }
+		function removeItemR(i) {
+			const removed = Plate.get()[i];
+			Plate.remove(i);
+			if (removed && r && removed.recipeId === r.id) resetRecipeAddonSidebar();
+			updatePlateIcon();
+			refreshAddButtonStateByPlate();
+			openPlate();
+		}
 		let recipePlateShopMode = false;
 		let recipePlateShopChecked = new Set();
 		function recipePlateShopItems() {
