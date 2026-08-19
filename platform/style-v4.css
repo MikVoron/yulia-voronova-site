@@ -807,6 +807,10 @@ img { display: block; max-width: 100%; }
 .recipe-preview .rp-cta-btn:hover, .recipe-preview .rp-cta-btn:focus-visible {
     background: var(--text); border-color: var(--text); outline: none;
 }
+.recipe-preview .rp-cta-note {
+    max-width: 560px; margin: 14px auto 0; color: var(--text-2);
+    font-size: 13px; line-height: 1.45;
+}
 
 /* ── PHOTO OVERLAY (rating + comments) ──────────────── */
 .photo-overlay {

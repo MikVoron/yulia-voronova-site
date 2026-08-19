@@ -308,18 +308,22 @@ const Auth = {
         const level = this.recipeAccessLevel(recipe);
         const ret = this._currentReturnUrl();
         if (this.isGuest()) {
+            const isSubscriptionRecipe = level === 'pro';
             return {
-                title: level === 'pro'
-                    ? 'Этот рецепт открыт для подписчиков Pro'
+                title: isSubscriptionRecipe
+                    ? 'Этот рецепт доступен по Подписке'
                     : 'Этот рецепт открыт после регистрации',
-                btn: 'Войти и получить 7 дней бесплатно',
+                btn: isSubscriptionRecipe ? 'Войти или зарегистрироваться' : 'Войти и получить 7 дней бесплатно',
                 href: this._loginUrl(),
+                note: isSubscriptionRecipe
+                    ? 'После регистрации — 7 дней доступа к рецептам категории «Пробный». Для этого рецепта нужна Подписка.'
+                    : '',
             };
         }
         if (this.isTrial() && level === 'pro') {
             return {
-                title: 'Этот рецепт доступен по подписке Pro',
-                btn: 'Оформить Pro',
+                title: 'Этот рецепт доступен по Подписке',
+                btn: 'Оформить Подписку',
                 href: 'cabinet.html?tab=subscription' + (ret ? '&return=' + encodeURIComponent(ret) : ''),
             };
         }
