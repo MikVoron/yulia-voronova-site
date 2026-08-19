@@ -1055,13 +1055,30 @@
         .adm-tab-badge { float: right; background: var(--accent); }
 
         .adm-nav-group {
-            margin: 15px 12px 5px;
-            color: var(--text-3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 18px 8px 7px;
+            padding: 7px 8px;
+            color: #6e6254;
+            background: #f4eee5;
+            border: 1px solid #e7ddd0;
+            border-radius: 4px;
             font-size: 10px;
             font-weight: 800;
             letter-spacing: .12em;
             line-height: 1.2;
             text-transform: uppercase;
+        }
+
+        .adm-nav-group::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            flex: 0 0 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 3px rgba(232,64,10,.12);
         }
 
         .adm-nav-group:first-child { margin-top: 3px; }
