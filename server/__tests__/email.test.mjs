@@ -171,6 +171,19 @@ describe('email visual system', () => {
     expect(generic).not.toContain('Привет, !');
   });
 
+  it('highlights a new recipe announcement and separates its CTA from the signature', async () => {
+    await email.sendNewsletter(
+      'user@example.com',
+      { type: 'recipe', recipeId: 'omelet', recipeName: 'Омлет', text: 'Новый рецепт уже на платформе' },
+      'unsubscribe-token',
+      'Анна'
+    );
+    const recipeNewsletter = sendMail.mock.calls[0][0].html;
+    expect(recipeNewsletter).toContain('background-color:#fff4ef;border-left:3px solid #e8400a;');
+    expect(recipeNewsletter).toContain('Я добавила новый рецепт: <strong>Омлет</strong>.');
+    expect(recipeNewsletter).toContain('margin:18px 0 22px;');
+  });
+
   it('renders the testing invitation in the branded email system', async () => {
     await email.sendTestingInvitation('user@example.com', 'testing token', 'Анна <Иванова>');
     const message = sendMail.mock.calls[0][0];

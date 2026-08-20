@@ -116,8 +116,8 @@ function wrapService(body) {
   return wrap(body, null, true);
 }
 
-function btn(text, url) {
-  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate; margin:4px 0 22px;">
+function btn(text, url, margin = '4px 0 22px') {
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate; margin:${margin};">
 	<tr>
 		<td align="center" bgcolor="#e8400a" style="background-color:#e8400a; border-radius:3px;">
 			<a href="{{URL}}" target="_blank" style="display:inline-block; padding:13px 21px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:14px; font-weight:700; line-height:1.2; color:#ffffff; text-decoration:none; white-space:nowrap;">{{TEXT}}&nbsp;&nbsp;&rarr;</a>
@@ -191,8 +191,8 @@ function signature(text = 'Ваша Юля') {
   return paragraph(text, '0', '#171717', 'font-weight:600;');
 }
 
-function callout(html, accent = false) {
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:4px 0 20px;border-collapse:collapse;background-color:#faf7f2;${accent ? 'border-left:3px solid #e8400a;' : 'border:1px solid #ebe6df;'}">
+function callout(html, accent = false, backgroundColor = '#faf7f2') {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:4px 0 20px;border-collapse:collapse;background-color:${backgroundColor};${accent ? 'border-left:3px solid #e8400a;' : 'border:1px solid #ebe6df;'}">
 	<tr>
 		<td style="padding:15px 17px;font-family:'Montserrat',Arial,Helvetica,sans-serif;font-size:14px;line-height:1.65;font-weight:400;color:#4a4642;">${html}</td>
 	</tr>
@@ -535,12 +535,12 @@ async function sendNewsletter(to, news, unsubscribeToken, displayName) {
     : PLATFORM_URL + '/';
   const body =
     heading(greeting, isRecipe ? 'Новый рецепт' : 'Новости Умной тарелки')
-    + (title ? paragraph(title) : '')
+    + (title ? callout(title, true, '#fff4ef') : '')
     + (newsText
       ? paragraph(newsText, '0 0 16px', '#4a4642', 'white-space:pre-wrap;')
       : '')
     + signature()
-    + btn(buttonText, buttonUrl);
+    + btn(buttonText, buttonUrl, isRecipe ? '18px 0 22px' : undefined);
   await send(to, subject, wrap(body, unsubscribeToken, false, true));
 }
 
