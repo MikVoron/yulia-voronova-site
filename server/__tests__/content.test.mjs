@@ -7,6 +7,7 @@ const require = createRequire(import.meta.url);
 let userState = { is_blocked: false, role: 'user' };
 let subState = null; // null = no subscription row; or { status, trial_ends_at, active_until }
 let dietaryPreferences = null;
+let newsRows = [];
 let reviewRows = [];
 let reviewAlreadyAnswered = false;
 let reviewReactionActive = false;
@@ -60,6 +61,9 @@ const mockQuery = vi.fn(async (sql /*, params */) => {
   }
   if (/SELECT dietary_preferences FROM users WHERE id/.test(sql)) {
     return { rows: dietaryPreferences ? [{ dietary_preferences: dietaryPreferences }] : [] };
+  }
+  if (/FROM news n\s+LEFT JOIN recipes r ON r\.id = n\.recipe_id/.test(sql)) {
+    return { rows: newsRows.map(row => ({ ...row })) };
   }
   if (/FROM recipes r WHERE r\.is_published = true/.test(sql)) {
     return { rows: RECIPES.map(r => ({ ...r })) };
@@ -158,6 +162,7 @@ beforeEach(() => {
   userState = { is_blocked: false, role: 'user' };
   subState = null;
   dietaryPreferences = null;
+  newsRows = [];
   reviewRows = [];
   reviewAlreadyAnswered = false;
   reviewReactionActive = false;
@@ -168,6 +173,34 @@ beforeEach(() => {
   mockConnect.mockClear();
   auditInsert.mockClear();
   sendReviewReply.mockClear();
+});
+
+describe('GET /content/news', () => {
+  it('returns the selected recipe name for a recipe announcement', async () => {
+    newsRows = [{
+      id: 17,
+      type: 'recipe',
+      text: 'Простые, вкусные и сытные блины.',
+      recipe_id: 'wholegrain-wheat-pancakes',
+      recipe_name: 'Блины из цельнозерновой муки',
+      badge: 'Новый рецепт',
+      label: null,
+      created_at: '2026-08-19T10:06:48.675Z',
+      recipe_ingredients: [],
+      recipe_dietary_flags: [],
+      recipe_dietary_verified: true,
+    }];
+
+    const res = await app.inject({ method: 'GET', url: '/content/news?limit=20' });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual([expect.objectContaining({
+      type: 'recipe',
+      recipe_id: 'wholegrain-wheat-pancakes',
+      recipe_name: 'Блины из цельнозерновой муки',
+    })]);
+    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining('r.name AS recipe_name'), [20]);
+  });
 });
 
 describe('GET /content/recipes dietary filtering', () => {

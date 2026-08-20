@@ -422,7 +422,7 @@
 					const data = await res.json();
 					const all = data.map(function (n) {
 						return {
-							type: n.type, text: n.text, id: n.recipe_id,
+							type: n.type, text: n.text, id: n.recipe_id, recipeName: n.recipe_name,
 							badge: n.badge, label: n.label,
 							date: _spFormatNewsDate(n.created_at)
 						};
@@ -722,22 +722,27 @@
 			</article>`;
 		}
 
-		// Item в правой ленте новостей: дата → title → desc. Заголовок/описание
-		// эвристически отделяются от item.text (на API схема — общее поле text).
-		// Сплитим по « — » или первой точке-перед-заглавной — если совпало
-		// в первых 90 символах, иначе весь текст становится заголовком.
+		// Item в правой ленте новостей: дата → title → desc. У анонса рецепта
+		// заголовок берём из выбранного рецепта, а текст остаётся описанием.
+		// Обычные новости сохраняют прежнее эвристическое разделение текста.
 		function renderNewsListItem(item) {
 			const text = String(item.text || '').trim();
-			let title = text, desc = '';
-			const dashIdx = text.indexOf(' — ');
-			if (dashIdx > 0 && dashIdx < 90) {
-				title = text.slice(0, dashIdx).trim();
-				desc = text.slice(dashIdx + 3).trim();
+			let title = '', desc = '';
+			if (item.type === 'recipe' && item.recipeName) {
+				title = 'Новый рецепт: ' + item.recipeName;
+				desc = text;
 			} else {
-				const m = text.match(/^(.{10,90}?[\.\!\?])\s+([А-ЯA-Z].*)$/s);
-				if (m) { title = m[1].trim(); desc = m[2].trim(); }
+				title = text;
+				const dashIdx = text.indexOf(' — ');
+				if (dashIdx > 0 && dashIdx < 90) {
+					title = text.slice(0, dashIdx).trim();
+					desc = text.slice(dashIdx + 3).trim();
+				} else {
+					const m = text.match(/^(.{10,90}?[\.\!\?])\s+([А-ЯA-Z].*)$/s);
+					if (m) { title = m[1].trim(); desc = m[2].trim(); }
+				}
+				if (item.type === 'recipe') title = 'Новый рецепт: ' + title;
 			}
-			if (item.type === 'recipe') title = 'Новый рецепт: ' + title;
 			return `<article class="sp-news-item" role="listitem">
 				<div class="sp-news-item-date">${escHtml(item.date || '')}</div>
 				<h3 class="sp-news-item-title">${escHtml(title)}</h3>

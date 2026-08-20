@@ -260,6 +260,7 @@ async function contentRoutes(fastify) {
     const limit = Math.min(parseInt(req.query.limit) || 10, 50);
     const result = await db.query(
       `SELECT n.id, n.type, n.text, n.recipe_id, n.badge, n.label, n.created_at,
+              r.name AS recipe_name,
               r.ingredients AS recipe_ingredients,
               r.dietary_flags AS recipe_dietary_flags,
               r.dietary_verified AS recipe_dietary_verified

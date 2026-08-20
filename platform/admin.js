@@ -761,9 +761,15 @@
 
     function toggleNewsRecipeFields() {
         var isRecipe = document.getElementById('news-type').value === 'recipe';
+        var textLabel = document.getElementById('news-text-label');
+        var textInput = document.getElementById('news-text');
         document.getElementById('news-recipe-field').style.display = isRecipe ? '' : 'none';
         document.getElementById('news-badge-field').style.display = isRecipe ? '' : 'none';
         document.getElementById('news-label-field').style.display = isRecipe ? '' : 'none';
+        textLabel.textContent = isRecipe ? 'Описание анонса' : 'Текст новости';
+        textInput.placeholder = isRecipe
+            ? 'Коротко расскажите о рецепте. Название подставится автоматически.'
+            : 'Этот текст появится в новости на платформе и в email-рассылке';
         syncNewsSaveState();
     }
 
