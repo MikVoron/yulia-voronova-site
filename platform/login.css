@@ -195,6 +195,25 @@ body {
 	font-weight: 700;
 }
 
+.lp-delivery-help {
+	margin: -12px 0 22px;
+	padding: 11px 13px;
+	border: 1px solid #e8e2d9;
+	border-left: 3px solid var(--accent);
+	border-radius: 8px;
+	background: #faf8f5;
+	color: var(--text-2);
+	font-size: 12px;
+	line-height: 1.55;
+}
+
+
+.lp-support-email {
+	color: var(--text);
+	font-weight: 700;
+	white-space: nowrap;
+}
+
 .lp-trial-note {
 	margin: -8px 0 22px;
 	color: var(--text-2);
