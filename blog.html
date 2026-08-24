@@ -678,6 +678,37 @@
 	<script src="main.min.js" defer></script>
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
+			var mirrorSocialLinks = [
+				{ selector: 'a[aria-label="Читать во VK"]', label: 'Читать во VK', exactLinks: {
+					'341': 'https://vk.ru/im/channels/-232523704?cmid=236',
+					'340': 'https://vk.ru/im/channels/-232523704?cmid=235',
+					'338': 'https://vk.ru/im/channels/-232523704?cmid=233',
+					'337': 'https://vk.ru/im/channels/-232523704?cmid=230',
+					'336': 'https://vk.ru/im/channels/-232523704?cmid=230'
+				} },
+				{ selector: 'a[aria-label="Читать в Дзене"]', label: 'Читать в Дзене', exactLinks: {
+					'340': 'https://dzen.ru/a/aog_Yp8tKV69_BVe',
+					'338': 'https://dzen.ru/a/aoQW_3gNICuzu1Vo',
+					'337': 'https://dzen.ru/a/anr70OgF8gpkpc8C',
+					'336': 'https://dzen.ru/a/anMxyQum4S1iYiBt'
+				} }
+			];
+			var latestCardsWithoutMirrors = document.querySelectorAll('.blog-article-card[data-post="341"], .blog-article-card[data-post="340"], .blog-article-card[data-post="338"], .blog-article-card[data-post="337"], .blog-article-card[data-post="336"]');
+			latestCardsWithoutMirrors.forEach(function (card) {
+				var cta = card.querySelector('.blog-cta-row');
+				mirrorSocialLinks.forEach(function (link) {
+					if (!cta || cta.querySelector(link.selector)) return;
+					var exactHref = link.exactLinks && link.exactLinks[card.dataset.post];
+					if (!exactHref) return;
+					var iconTemplate = document.querySelector(link.selector);
+					if (!iconTemplate) return;
+					var icon = iconTemplate.cloneNode(true);
+					icon.href = exactHref;
+					icon.setAttribute('aria-label', link.label);
+					cta.appendChild(icon);
+				});
+			});
+
 			var cards = document.querySelectorAll('.blog-article-card');
 			var observer = new IntersectionObserver(function (entries) {
 				entries.forEach(function (entry, index) {
