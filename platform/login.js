@@ -113,6 +113,7 @@
 				showError('email-error', 'Введите корректный email'); return;
 			}
 			currentEmail = email;
+			if (!_isAdminLogin && window.SmartPlateMetrika) window.SmartPlateMetrika.goal('registration_started');
 			setLoading('send-code-btn', true);
 			try {
 				var res = await fetch(API_BASE + '/auth/send-code', {
@@ -122,6 +123,7 @@
 				});
 				var data = await res.json();
 				if (!res.ok) { showError('email-error', data.error || 'Ошибка'); setLoading('send-code-btn', false); return; }
+				if (!_isAdminLogin && window.SmartPlateMetrika) window.SmartPlateMetrika.goal('verification_code_sent');
 				showCodeStep();
 			} catch (e) {
 				showError('email-error', 'Ошибка сети');
