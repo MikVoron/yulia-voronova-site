@@ -808,8 +808,22 @@ img { display: block; max-width: 100%; }
     background: var(--text); border-color: var(--text); outline: none;
 }
 .recipe-preview .rp-cta-note {
-    max-width: 560px; margin: 14px auto 0; color: var(--text-2);
-    font-size: 13px; line-height: 1.45;
+    max-width: 560px; margin: 18px auto 0; padding: 14px 16px 13px;
+    border-left: 4px solid var(--accent); background: #fff; color: var(--text-2);
+    font-size: 13px; font-weight: 600; line-height: 1.5; text-align: left;
+}
+.recipe-preview .rp-cta-note p { margin: 0; }
+.recipe-preview .rp-cta-note p + p { margin-top: 6px; }
+.recipe-preview .rp-cta-tariffs {
+    display: inline-block; margin-top: 9px; color: var(--text-2);
+    font-size: 12px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px;
+}
+.recipe-preview .rp-cta-tariffs:hover,
+.recipe-preview .rp-cta-tariffs:focus-visible { color: var(--accent); outline: none; }
+@media (max-width: 480px) {
+    .recipe-preview .rp-cta-block { padding: 28px 16px; }
+    .recipe-preview .rp-cta-btn { display: block; width: 100%; padding-left: 12px; padding-right: 12px; }
+    .recipe-preview .rp-cta-note { padding: 13px 14px 12px; font-size: 12px; }
 }
 
 /* ── PHOTO OVERLAY (rating + comments) ──────────────── */
