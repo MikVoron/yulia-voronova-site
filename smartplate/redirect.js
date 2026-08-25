@@ -1,1 +1,1 @@
-window.location.replace('https://app.voronova.online/');
+window.location.replace('https://plate.voronova.online/');
