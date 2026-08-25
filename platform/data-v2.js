@@ -337,7 +337,7 @@ const Auth = {
                         'Регистрация по email, без привязки карты.',
                         'После пробного периода подписка — по желанию: 190 ₽ за месяц или 540 ₽ за 3 месяца.',
                     ],
-                tariffsHref: 'cabinet.html?tab=subscription',
+                tariffsHref: 'how-subscription-works.html',
             };
         }
         if (this.isTrial() && level === 'pro') {
