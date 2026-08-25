@@ -5,7 +5,7 @@
 Проект состоит из трёх частей:
 
 1. **Основной сайт** — voronova.online (GitHub Pages, статика)
-2. **Платформа «Умная тарелка»** — app.voronova.online (VPS, nginx, статика)
+2. **Платформа «Умная тарелка»** — plate.voronova.online (VPS, nginx, статика; app.voronova.online — legacy 301)
 3. **API** — api.voronova.online (VPS, Node.js Fastify + PostgreSQL)
 
 Всё в одном репозитории. Основная ветка — `main`, рабочая — `feature/harvard-plate`.
@@ -27,7 +27,7 @@
 ├── CNAME                 ← voronova.online
 │
 ├── platform/             ← фронтенд платформы (деплоится на VPS)
-│   ├── index.html        ← главная app.voronova.online
+│   ├── index.html        ← главная plate.voronova.online
 │   ├── login.html        ← авторизация
 │   ├── cabinet.html      ← личный кабинет
 │   ├── admin.html        ← админка
@@ -68,7 +68,8 @@
 | Домен | Что | Где |
 |-------|-----|-----|
 | `voronova.online` | Основной сайт | GitHub Pages (из ветки `main`) |
-| `app.voronova.online` | Фронтенд платформы | VPS nginx → `/var/www/smartplate-platform/` |
+| `plate.voronova.online` | Канонический фронтенд платформы | VPS nginx → `/var/www/smartplate-platform/` |
+| `app.voronova.online` | Старый адрес платформы | VPS nginx → 301 на `plate.voronova.online` |
 | `api.voronova.online` | API | VPS nginx → Node.js (PM2) |
 
 - **VPS IP:** 5.42.119.198
@@ -83,7 +84,7 @@
 ### Основной сайт (voronova.online)
 Деплоится автоматически через GitHub Pages из ветки `main`. Push в `main` = деплой.
 
-### Фронтенд платформы (app.voronova.online)
+### Фронтенд платформы (plate.voronova.online)
 ```bash
 # Локально:
 scp platform/*.html platform/*.js platform/*.css root@5.42.119.198:/var/www/smartplate-platform/
@@ -237,5 +238,6 @@ ssh root@5.42.119.198 "echo 'SELECT * FROM users LIMIT 5;' | sudo -u postgres ps
 Разрешены origins:
 - `https://voronova.online`
 - `https://www.voronova.online`
+- `https://plate.voronova.online`
 - `https://app.voronova.online`
 - В dev-режиме: `http://127.0.0.1:5500`, `http://localhost:5500`

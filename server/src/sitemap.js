@@ -2,7 +2,7 @@ const fs = require('node:fs/promises');
 const fsSync = require('node:fs');
 const path = require('node:path');
 
-const ORIGIN = 'https://app.voronova.online';
+const ORIGIN = 'https://plate.voronova.online';
 const LOCAL_SITEMAP_PATH = path.resolve(__dirname, '..', '..', 'platform', 'sitemap.xml');
 const DEPLOYED_SITEMAP_PATH = path.resolve(__dirname, '..', '..', 'smartplate-platform', 'sitemap.xml');
 

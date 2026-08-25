@@ -590,7 +590,7 @@ const Auth = {
 };
 
 // Запускается только на новом frontend-host и ничего не меняет для действующего
-// app.voronova.online. checkAccess/loadContent дождутся результата ниже.
+// legacy app.voronova.online. checkAccess/loadContent дождутся результата ниже.
 Auth._startDomainSessionMigration();
 
 // ─── FEEDBACK NOTIFICATIONS ──────────────────────────────────────────────────
@@ -1793,7 +1793,7 @@ function buildShoppingList() {
         });
         txt += '\n';
     });
-    txt += '────────────\nЮлия Воронова · нутрициолог\n@voronova_nutrition\napp.voronova.online';
+    txt += '────────────\nЮлия Воронова · нутрициолог\n@voronova_nutrition\nplate.voronova.online';
     return txt;
 }
 

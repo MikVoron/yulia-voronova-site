@@ -208,7 +208,7 @@ describe('GET /content/recipes dietary filtering', () => {
     const res = await app.inject({ method: 'GET', url: '/_seo/recipe?id=free-1' });
     expect(res.statusCode).toBe(200);
     expect(res.headers['content-type']).toContain('text/html');
-    expect(res.body).toContain('https://app.voronova.online/recipe.html?id=free-1');
+    expect(res.body).toContain('https://plate.voronova.online/recipe.html?id=free-1');
     expect(res.body).toContain('<h1>Free recipe</h1>');
   });
 

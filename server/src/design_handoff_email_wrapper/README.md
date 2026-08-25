@@ -56,7 +56,7 @@ wrap(body, unsubscribeToken, showSupportFooter):
 Показывать **только** для новостной рассылки (когда передан `unsubscribeToken`). Заменять на:
 
 ```html
-&nbsp;&nbsp;·&nbsp;&nbsp;<a href="https://app.voronova.online/unsubscribe?token={{TOKEN}}" style="color:#777777; text-decoration:underline;">Отписаться от рассылки</a>
+&nbsp;&nbsp;·&nbsp;&nbsp;<a href="https://plate.voronova.online/unsubscribe?token={{TOKEN}}" style="color:#777777; text-decoration:underline;">Отписаться от рассылки</a>
 ```
 
 Подставив реальный `unsubscribeToken` вместо `{{TOKEN}}`. Для сервисных и админ-писем — пустая строка.
@@ -82,7 +82,7 @@ function btn(text, url) {
 
 function wrap(body, unsubscribeToken, showSupportFooter) {
   const unsub = unsubscribeToken
-    ? `&nbsp;&nbsp;·&nbsp;&nbsp;<a href="https://app.voronova.online/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}" style="color:#777777; text-decoration:underline;">Отписаться от рассылки</a>`
+    ? `&nbsp;&nbsp;·&nbsp;&nbsp;<a href="https://plate.voronova.online/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}" style="color:#777777; text-decoration:underline;">Отписаться от рассылки</a>`
     : '';
   const footer = FOOTER.replace('{{UNSUBSCRIBE_LINK}}', unsub);
   return WRAPPER
@@ -163,8 +163,8 @@ function wrapService(body) {
 - [ ] Шапка: `Юлия Воронова` · `Нутрициолог`, бренд `Умная тарелка` («тарелка» оранжевая), подпись `Персональный помощник в питании`.
 - [ ] `{{BODY}}` подставляется как есть, обёртка не задаёт заголовок письма.
 - [ ] CTA `btn(text, url)` работает с подписями: «Открыть Умную тарелку», «Оформить подписку», «Продлить подписку», «Посмотреть рецепт», «Открыть личный кабинет», «Проверить оплату в админке».
-- [ ] Блок помощи — **точный текст** из ТЗ, ссылки `mailto:hello@voronova.online` и `https://app.voronova.online/cabinet.html?tab=feedback`, показывается только при `showSupportFooter`.
-- [ ] Подвал: бренд + ссылка на `https://app.voronova.online/` (подпись «Открыть платформу», **не** «voronova.online»); отписка — только для рассылки и не конкурирует с CTA.
+- [ ] Блок помощи — **точный текст** из ТЗ, ссылки `mailto:hello@voronova.online` и `https://plate.voronova.online/cabinet.html?tab=feedback`, показывается только при `showSupportFooter`.
+- [ ] Подвал: бренд + ссылка на `https://plate.voronova.online/` (подпись «Открыть платформу», **не** «voronova.online»); отписка — только для рассылки и не конкурирует с CTA.
 - [ ] Письмо читаемо без картинок и без веб-шрифтов; на мобильном нет горизонтальной прокрутки.
 
 ---

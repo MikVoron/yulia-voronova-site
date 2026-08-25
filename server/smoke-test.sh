@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Smoke tests for api.voronova.online and app.voronova.online
+# Smoke tests for api.voronova.online and plate.voronova.online
 # Run: bash smoke-test.sh [api_base_url]
 # Default API: https://api.voronova.online
-# Override platform URL with APP_BASE=https://app.voronova.online
+# Override platform URL with APP_BASE=https://plate.voronova.online
 
 BASE="${1:-https://api.voronova.online}"
-APP_BASE="${APP_BASE:-https://app.voronova.online}"
+APP_BASE="${APP_BASE:-https://plate.voronova.online}"
 PASS=0
 FAIL=0
 TOTAL=0

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://app.voronova.online/sitemap.xml
+Sitemap: https://plate.voronova.online/sitemap.xml

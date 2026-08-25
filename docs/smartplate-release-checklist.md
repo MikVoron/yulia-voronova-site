@@ -63,7 +63,7 @@ bash server/smoke-test.sh                # + headers, CORS, paywall stripping, 4
 Оба должны выйти с `0`. Если smoke-test падает на paywall — это **критично**, откатывайте.
 
 Ручная проверка золотого пути:
-- [ ] Открыть https://app.voronova.online → главная → рецепт → добавить в тарелку
+- [ ] Открыть https://plate.voronova.online → главная → рецепт → добавить в тарелку
 - [ ] Разлогиниться, открыть платный рецепт → должен быть paywall, ингредиенты не видны
 - [ ] Реальный admin → cabinet → admin (виден список платежей)
 

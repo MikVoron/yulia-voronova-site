@@ -19,7 +19,7 @@ const YANDEX_CLIENT_ID = process.env.YANDEX_CLIENT_ID;
 const YANDEX_CLIENT_SECRET = process.env.YANDEX_CLIENT_SECRET;
 const YANDEX_REDIRECT = process.env.YANDEX_REDIRECT || 'https://api.voronova.online/auth/oauth/yandex/callback';
 
-const PLATFORM_URL = process.env.PLATFORM_URL || 'https://app.voronova.online';
+const PLATFORM_URL = process.env.PLATFORM_URL || 'https://plate.voronova.online';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 

@@ -10,7 +10,7 @@ describe('server recipe SEO document', () => {
       access_level: 'free', time_min: 25, kcal: 320, protein: 12, fat: 8, carbs: 50,
       ingredients: [{ name: 'Паста: 200 г' }], steps: [{ text: 'Сварите пасту.' }], tags: ['растительное'],
     });
-    expect(html).toContain('<link rel="canonical" href="https://app.voronova.online/recipe.html?id=free-pasta">');
+    expect(html).toContain('<link rel="canonical" href="https://plate.voronova.online/recipe.html?id=free-pasta">');
     expect(html).toContain('<h1>Паста</h1>');
     expect(html).toContain('Паста: 200 г');
     expect(html).toContain('"@type":"Recipe"');

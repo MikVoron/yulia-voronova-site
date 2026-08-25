@@ -138,17 +138,17 @@
 Ссылки:
 
 - email: `mailto:hello@voronova.online`;
-- раздел «Связь»: `https://app.voronova.online/cabinet.html?tab=feedback`.
+- раздел «Связь»: `https://plate.voronova.online/cabinet.html?tab=feedback`.
 
 ### Нижний подвал
 
 Должен содержать:
 
 - бренд или название платформы;
-- ссылку на `https://app.voronova.online/`;
+- ссылку на `https://plate.voronova.online/`;
 - аккуратное место для ссылки `Отписаться от рассылки`, которая появляется только в новостных письмах.
 
-Не показывать текст `voronova.online`, если ссылка фактически ведёт на `app.voronova.online`.
+Не показывать текст `voronova.online`, если ссылка фактически ведёт на `plate.voronova.online`.
 
 ## Три направления
 
