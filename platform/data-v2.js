@@ -6,7 +6,9 @@
 
 // ─── CONFIG ─────────────────────────────────────────────────────────────────
 const API_BASE  = 'https://api.voronova.online';
-const CONTENT_API_BASE = (typeof location !== 'undefined' && location.hostname === 'app.voronova.online')
+const PLATFORM_HOSTS = ['app.voronova.online', 'plate.voronova.online'];
+const SESSION_MIGRATION_HOST = 'plate.voronova.online';
+const CONTENT_API_BASE = (typeof location !== 'undefined' && PLATFORM_HOSTS.includes(location.hostname))
     ? location.origin + '/api'
     : API_BASE;
 // Включить когда public-offer.html опубликован на voronova.online (после мержа feature → main + GitHub Pages).
@@ -81,7 +83,14 @@ const Auth = {
         var ret = this._currentReturnUrl();
         return ret ? 'login.html?return=' + encodeURIComponent(ret) : 'login.html';
     },
-    requireAuth() { if (!this.isLoggedIn()) location.href = this._loginUrl(); },
+    requireAuth() {
+        if (this.isLoggedIn()) return true;
+        // На новом домене сначала даём API-cookie восстановить профиль. Сам
+        // refresh живёт на api.voronova.online и сохраняется при смене frontend-host.
+        if (this._domainSessionReady) return false;
+        location.href = this._loginUrl();
+        return false;
+    },
     _userKey(key) {
         const u = this.getUser();
         if (!u || !u.email) return key;
@@ -195,6 +204,10 @@ const Auth = {
         });
     },
     async checkAccess(opts) {
+        const migrated = await this.waitForDomainSessionMigration();
+        // Успешная миграция сразу перезагружает страницу. Не запускаем параллельно
+        // гостевой/платный рендер в старом документе до начала навигации.
+        if (migrated) return false;
         const allowGuest = !!(opts && opts.allowGuest);
         if (!this.isLoggedIn()) {
             if (allowGuest) {
@@ -394,6 +407,28 @@ const Auth = {
     _refreshChannel: null,
     _lastCrossTabRefreshAt: 0,
     _refreshTabId: null,
+    _domainSessionReady: null,
+    _startDomainSessionMigration() {
+        if (typeof location === 'undefined' || location.hostname !== SESSION_MIGRATION_HOST) return null;
+        if (this.isLoggedIn()) return null;
+        try {
+            if (sessionStorage.getItem('hp_plate_domain_session_checked') === '1') return null;
+            sessionStorage.setItem('hp_plate_domain_session_checked', '1');
+        } catch {
+            // Private mode may block storage. A single in-memory attempt is safe.
+        }
+        this._domainSessionReady = this.refreshToken().then(ok => {
+            if (ok && this.isLoggedIn()) {
+                location.reload();
+                return true;
+            }
+            return false;
+        });
+        return this._domainSessionReady;
+    },
+    waitForDomainSessionMigration() {
+        return this._domainSessionReady || Promise.resolve(false);
+    },
     _getRefreshTabId() {
         if (this._refreshTabId) return this._refreshTabId;
         if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -493,7 +528,20 @@ const Auth = {
         if (!data || !data.accessToken) return false;
         this._token = data.accessToken;
         sessionStorage.setItem(this._ST, data.accessToken);
-        const user = this.getUser();
+        let user = this.getUser();
+        if (!user && data.user && data.user.email) {
+            user = this.login(
+                data.user.email,
+                data.user.displayName,
+                data.accessToken,
+                null,
+                data.user.avatar,
+                data.user.role,
+                data.user.createdAt,
+                data.user.id,
+                data.user.weight
+            );
+        }
         if (user && data.user) {
             if (data.user.id) user.id = data.user.id;
             user.name = data.user.displayName || user.name;
@@ -540,6 +588,10 @@ const Auth = {
         return res;
     }
 };
+
+// Запускается только на новом frontend-host и ничего не меняет для действующего
+// app.voronova.online. checkAccess/loadContent дождутся результата ниже.
+Auth._startDomainSessionMigration();
 
 // ─── FEEDBACK NOTIFICATIONS ──────────────────────────────────────────────────
 // Глобальный индикатор «есть новый ответ Юлии» в шапке всех страниц платформы.
@@ -1351,6 +1403,8 @@ async function _fetchWithRetry(url, options, timeouts) {
 }
 
 async function _fetchContentPayload() {
+    const migrated = await Auth.waitForDomainSessionMigration();
+    if (migrated) return { recipes: [], categories: [], ingredients: [] };
     // New tabs start with empty sessionStorage. If the user is logged in but token
     // is missing, refresh it first — otherwise the API strips paid fields.
     if (Auth.isLoggedIn() && !Auth.getToken()) await Auth.refreshToken();
