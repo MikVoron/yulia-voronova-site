@@ -5,6 +5,8 @@ import { describe, expect, it } from 'vitest';
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 const apiEntry = fs.readFileSync(path.join(repoRoot, 'server/index.js'), 'utf8');
 const platformData = fs.readFileSync(path.join(repoRoot, 'platform/data-v2.js'), 'utf8');
+const appNginx = fs.readFileSync(path.join(repoRoot, 'server/nginx/app.voronova.online'), 'utf8');
+const plateNginx = fs.readFileSync(path.join(repoRoot, 'server/nginx/plate.voronova.online'), 'utf8');
 
 describe('plate domain compatibility phase', () => {
   it('allows both frontend origins while app remains available', () => {
@@ -21,5 +23,15 @@ describe('plate domain compatibility phase', () => {
     expect(platformData).toContain("const SESSION_MIGRATION_HOST = 'plate.voronova.online';");
     expect(platformData).toContain("sessionStorage.getItem('hp_plate_domain_session_checked')");
     expect(platformData).toContain('Auth._startDomainSessionMigration();');
+  });
+
+  it('keeps plate isolated in its own TLS host without redirecting app', () => {
+    expect(plateNginx).toContain('server_name plate.voronova.online;');
+    expect(plateNginx).toContain('/etc/letsencrypt/live/plate.voronova.online/fullchain.pem');
+    expect(plateNginx).toContain('return 301 https://plate.voronova.online$request_uri;');
+    expect(plateNginx).toContain('/etc/nginx/snippets/smartplate-admin-basic-auth.conf');
+    expect(plateNginx).not.toContain('server_name app.voronova.online;');
+    expect(appNginx).toContain('server_name app.voronova.online;');
+    expect(appNginx).not.toContain('plate.voronova.online');
   });
 });
