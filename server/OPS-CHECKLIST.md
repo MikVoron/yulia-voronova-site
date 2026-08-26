@@ -131,6 +131,7 @@ X-DNS-Prefetch-Control: off
 
 ```bash
 curl -sI https://plate.voronova.online/ | grep -iE 'strict-transport|content-security|content-type-options|x-frame|referrer-policy|permissions-policy'
+# Старый адрес должен только переадресовывать на canonical-домен.
 curl -sI https://app.voronova.online/ | grep -iE 'HTTP/|location:'
 ```
 
@@ -160,6 +161,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' .
 ```
 /etc/nginx/sites-available/api.voronova.online
 /etc/nginx/sites-available/plate.voronova.online
+# Legacy 301 на plate.voronova.online:
 /etc/nginx/sites-available/app.voronova.online
 ```
 

@@ -27,7 +27,7 @@ function createHarness({ completed = false, forced = false, reducedMotion = fals
   const listeners = {};
   const values = new Map(completed ? [['smartplate_guest_tour_completed_v1', '1']] : []);
   const location = {
-    href: `https://app.voronova.online/${forced ? '?guestTour=1' : ''}`,
+    href: `https://plate.voronova.online/${forced ? '?guestTour=1' : ''}`,
     search: forced ? '?guestTour=1' : '',
   };
   const elements = {
@@ -162,12 +162,12 @@ describe('SmartPlate feedback plan 6 contracts', () => {
     const harness = createHarness({ completed: true, forced: true });
     expect(harness.classes.has('sp-guest-onboarding-active')).toBe(true);
 
-    harness.location.href = 'https://app.voronova.online/';
+    harness.location.href = 'https://plate.voronova.online/';
     harness.location.search = '';
     harness.listeners.popstate();
     expect(harness.classes.has('sp-guest-onboarding-active')).toBe(false);
 
-    harness.location.href = 'https://app.voronova.online/?guestTour=1';
+    harness.location.href = 'https://plate.voronova.online/?guestTour=1';
     harness.location.search = '?guestTour=1';
     harness.listeners.popstate();
     expect(harness.classes.has('sp-guest-onboarding-active')).toBe(true);

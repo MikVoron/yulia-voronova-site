@@ -230,7 +230,7 @@
 - push: `feature/harvard-plate` → `origin/feature/harvard-plate` подтверждён;
 - узкий deploy: основной выпуск — `index.html`, `category.html`, `ingredient.html`, `data-v2.js`, `style-v4.css`; mobile follow-up — только `index.html` и `category.html` → `/var/www/smartplate-platform/`;
 - серверные файлы содержат cache-bust `20260703-feedback-plan4` и общий `recipeCardAccess()`;
-- реальные URL: `https://app.voronova.online/`, `https://app.voronova.online/category.html?cat=mains`, `https://app.voronova.online/category.html?q=паста`, `https://app.voronova.online/ingredient.html?id=chicken`;
+- реальные URL: `https://plate.voronova.online/`, `https://plate.voronova.online/category.html?cat=mains`, `https://plate.voronova.online/category.html?q=паста`, `https://plate.voronova.online/ingredient.html?id=chicken`;
 - live Edge: guest / trial / active = 9 / 3 / 0 закрытых карточек в «Горячем»; поиск сохранил все 4 результата по слову «паста»; mobile-панель на главной и в категории раскрывается кнопкой, активирует «Сбросить» только после выбора; desktop 1280 px и mobile 375 px без горизонтального переполнения; ошибок Console нет.
 
 Доступ и публикация рецептов не менялись. `7.8` остаётся отложенным контентным решением владельца; на дату проверки live API содержит 4 бесплатных рецепта из 77 опубликованных.
@@ -267,7 +267,7 @@
 - push: коммиты опубликованы в `origin/feature/harvard-plate`;
 - deploy: основной набор frontend-файлов опубликован ранее; follow-up `platform/index.html` из `f6373ea` отдельно скопирован в `/var/www/smartplate-platform/index.html`;
 - server-side проверка подтвердила cache-bust, reduced-motion и loader Tawk;
-- live URL: `https://app.voronova.online/`, `https://app.voronova.online/recipe.html?id=grechotto`, `https://app.voronova.online/cabinet.html`;
+- live URL: `https://plate.voronova.online/`, `https://plate.voronova.online/recipe.html?id=grechotto`, `https://plate.voronova.online/cabinet.html`;
 - кабинет без сессии ожидаемо переводит на login; для `8.7` и `8.11` дополнительно выполнен изолированный auth-аудит именно опубликованных HTML/CSS/JS без записи в production API.
 
 Закрыты этим follow-up: кабинетные `8.7`, `8.11`.
@@ -297,7 +297,7 @@ Commit/push/deploy:
 - commit `96ee971` (`fix: finish SmartPlate feedback regression`);
 - pushed `origin/feature/harvard-plate` (`7314053..96ee971`);
 - deployed `index.html`, `cabinet.html`, `cabinet.js`, `recipe.html` в `/var/www/smartplate-platform/`;
-- live: `https://app.voronova.online/`, recipe, guest redirect кабинета и изолированный auth-аудит опубликованного frontend проверены.
+- live: `https://plate.voronova.online/`, recipe, guest redirect кабинета и изолированный auth-аудит опубликованного frontend проверены.
 
 Остались и не сделаны:
 

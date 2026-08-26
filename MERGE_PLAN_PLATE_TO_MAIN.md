@@ -86,7 +86,7 @@ git rev-parse <backup-feature>
 
 - текущий публичный SHA `main`;
 - HTTP-статус ключевых страниц `voronova.online`;
-- HTTP-статус `app.voronova.online` и health API;
+- HTTP-статус `plate.voronova.online` и health API;
 - статус PM2 и последние ошибки API;
 - время и идентификатор последнего успешного backup PostgreSQL.
 
@@ -340,7 +340,7 @@ git status --short --branch
 - загрузку CSS/JS и отсутствие 404;
 - актуальность последних публикаций блога;
 - ключевые CTA и ссылки на SmartPlate;
-- базовую доступность `app.voronova.online` и API health, чтобы подтвердить отсутствие побочного эффекта.
+- базовую доступность `plate.voronova.online` и API health, чтобы подтвердить отсутствие побочного эффекта.
 
 Проверки выполнять сначала технически по HTTP, затем визуально в браузере desktop/mobile. Зафиксировать время, URL и результат.
 
