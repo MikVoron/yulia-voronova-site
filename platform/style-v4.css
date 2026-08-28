@@ -3803,6 +3803,11 @@ img { display: block; max-width: 100%; }
     cursor: pointer; transition: border-color var(--tr), color var(--tr);
 }
 .sp-updates-btn:hover, .sp-updates-btn[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+.sp-updates-icon {
+    width: 19px; height: 19px; flex: 0 0 auto;
+    fill: none; stroke: currentColor; stroke-width: 1.8;
+    stroke-linecap: round; stroke-linejoin: round;
+}
 .sp-updates-count {
     display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px;
     border-radius: 999px; background: var(--accent); color: #fff;
@@ -4057,7 +4062,12 @@ img { display: block; max-width: 100%; }
         border-radius: 0; justify-content: center;
     }
     .sp-header .v-user-wrap { gap: 7px; }
-    .sp-updates-btn { width: 40px; min-height: 40px; padding: 0; justify-content: center; }
+    .sp-updates-btn {
+        width: 40px; min-height: 40px; padding: 0; justify-content: center;
+        border-color: transparent; background: transparent;
+    }
+    .sp-updates-btn:hover, .sp-updates-btn[aria-expanded="true"] { border-color: transparent; }
+    .sp-updates-icon { width: 21px; height: 21px; }
     .sp-updates-label { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     .sp-updates-count { position: absolute; top: -6px; right: -6px; }
     .sp-updates-panel { position: fixed; top: 88px; right: 16px; left: 16px; width: auto; }
