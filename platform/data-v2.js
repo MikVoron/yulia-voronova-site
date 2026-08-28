@@ -698,7 +698,8 @@ const ContentUpdates = {
         wrap.className = 'sp-updates';
         wrap.id = 'sp-updates';
         wrap.hidden = true;
-        wrap.innerHTML = '<button class="sp-updates-btn" id="sp-updates-btn" type="button" aria-expanded="false" aria-controls="sp-updates-panel">'
+        wrap.innerHTML = '<button class="sp-updates-btn" id="sp-updates-btn" type="button" aria-label="Обновления" aria-expanded="false" aria-controls="sp-updates-panel">'
+            + '<svg class="sp-updates-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 10a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 22h4"/></svg>'
             + '<span class="sp-updates-label">Новое</span><span class="sp-updates-count" id="sp-updates-count">0</span>'
             + '</button><aside class="sp-updates-panel" id="sp-updates-panel" aria-label="Новые обновления"></aside>';
         host.insertBefore(wrap, profile);
