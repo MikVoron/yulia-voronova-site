@@ -233,6 +233,31 @@ body {
 	margin-top: 4px;
 }
 
+.lp-no-card-note {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	margin: 9px 0 0;
+	color: var(--text-2);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+.lp-no-card-note span {
+	display: grid;
+	width: 16px;
+	height: 16px;
+	flex: 0 0 16px;
+	place-items: center;
+	border-radius: 50%;
+	background: var(--accent);
+	color: #fff;
+	font-size: 10px;
+	font-weight: 800;
+	line-height: 1;
+}
+
 .lp-pricing-link {
 	display: inline-block;
 	margin-top: 9px;
