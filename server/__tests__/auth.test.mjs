@@ -465,6 +465,23 @@ describe('auth/profile — avatar validation', () => {
 });
 
 describe('OAuth state validation', () => {
+  it('keeps OAuth providers hidden unless explicitly enabled and configured', async () => {
+    const res = await app.inject({ method: 'GET', url: '/auth/oauth/providers' });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ vk: false, yandex: false });
+  });
+
+  it('does not start disabled OAuth providers', async () => {
+    const [vk, yandex] = await Promise.all([
+      app.inject({ method: 'GET', url: '/auth/oauth/vk' }),
+      app.inject({ method: 'GET', url: '/auth/oauth/yandex' })
+    ]);
+    expect(vk.statusCode).toBe(404);
+    expect(yandex.statusCode).toBe(404);
+    expect(vk.headers['set-cookie']).toBeUndefined();
+    expect(yandex.headers['set-cookie']).toBeUndefined();
+  });
+
   it('VK callback rejects missing state', async () => {
     const res = await app.inject({ method: 'GET', url: '/auth/oauth/vk/callback?code=testcode' });
     expect(res.statusCode).toBe(302);
