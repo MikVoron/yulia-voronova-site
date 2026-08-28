@@ -1259,7 +1259,10 @@ let _contentErrorDetails = null;
 let _contentIsStale = false;
 let _contentRefreshInFlight = null;
 const LEGACY_CONTENT_CACHE_PREFIX = 'sp_content_cache_v1:';
-const CONTENT_CACHE_PREFIX = 'sp_content_cache_v3:';
+// v4 fixes a guest regression: free recipes retain their public instructions
+// (including step photos), while trial/pro recipe fields stay out of storage.
+const PREVIOUS_CONTENT_CACHE_PREFIX = 'sp_content_cache_v3:';
+const CONTENT_CACHE_PREFIX = 'sp_content_cache_v4:';
 const CONTENT_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
 const CONTENT_STALE_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
 
@@ -1280,7 +1283,11 @@ function clearContentCache() {
         try {
             for (let i = storage.length - 1; i >= 0; i--) {
                 const key = storage.key(i);
-                if (key && (key.indexOf(CONTENT_CACHE_PREFIX) === 0 || key.indexOf(LEGACY_CONTENT_CACHE_PREFIX) === 0)) {
+                if (key && (
+                    key.indexOf(CONTENT_CACHE_PREFIX) === 0 ||
+                    key.indexOf(PREVIOUS_CONTENT_CACHE_PREFIX) === 0 ||
+                    key.indexOf(LEGACY_CONTENT_CACHE_PREFIX) === 0
+                )) {
                     storage.removeItem(key);
                 }
             }
@@ -1310,10 +1317,13 @@ function _readContentCache(maxAge = CONTENT_CACHE_MAX_AGE) {
 
 function _writeContentCache(payload, savedAt = Date.now()) {
     if (Auth.isLoggedIn()) return;
-    // Защищённые поля никогда не переживают вкладку/сессию. Offline-кэш нужен
-    // только для каталога карточек; ingredients/steps/note повторно запрашиваются
-    // у API после серверной проверки доступа.
+    // API already grants guests the full content of free recipes and strips it
+    // from trial/pro recipes. Preserve only that public free content in storage:
+    // otherwise a guest who visits the catalogue before a free recipe loses its
+    // ingredients, steps and step photos on the recipe page.
     const publicRecipes = payload.recipes.map(recipe => {
+        const accessLevel = recipe && (recipe.access_level || (recipe.is_free ? 'free' : 'pro'));
+        if (accessLevel === 'free') return recipe;
         const { ingredients, steps, note, ...meta } = recipe || {};
         return meta;
     });
@@ -1334,13 +1344,16 @@ function _writeContentCache(payload, savedAt = Date.now()) {
     } catch (_) {}
 }
 
-// Одноразовая миграция: v1 мог содержать полный платный payload. Удаляем его
-// сразу при загрузке новой версии, до любого чтения каталога.
+// Remove old cache shapes before any read. v1 could hold paid content; v3
+// removed the public content of free recipes and broke their recipe pages.
 [sessionStorage, localStorage].forEach(storage => {
     try {
         for (let i = storage.length - 1; i >= 0; i--) {
             const key = storage.key(i);
-            if (key && key.indexOf(LEGACY_CONTENT_CACHE_PREFIX) === 0) storage.removeItem(key);
+            if (key && (
+                key.indexOf(LEGACY_CONTENT_CACHE_PREFIX) === 0 ||
+                key.indexOf(PREVIOUS_CONTENT_CACHE_PREFIX) === 0
+            )) storage.removeItem(key);
         }
     } catch (_) {}
 });
