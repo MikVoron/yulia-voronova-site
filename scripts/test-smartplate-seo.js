@@ -9,12 +9,15 @@ const read = file => fs.readFileSync(path.join(platform, file), 'utf8');
 
 const index = read('index.html');
 assert.match(index, /<link rel="canonical" href="https:\/\/plate\.voronova\.online\/">/);
-assert.match(index, /property="og:image" content="https:\/\/voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
+assert.match(index, /rel="image_src" href="https:\/\/plate\.voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
+assert.match(index, /property="og:image" content="https:\/\/plate\.voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
+assert.match(index, /property="og:image:url" content="https:\/\/plate\.voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
 assert.match(index, /property="og:image:type" content="image\/jpeg"/);
 assert.match(index, /name="twitter:card" content="summary_large_image"/);
 assert.match(index, /src="seo\.js\?v=20260817-broth-yield"/);
-assert.match(index, /src="index-seo\.js\?v=20260731-seo"/);
+assert.match(index, /src="index-seo\.js\?v=20260829-social-preview"/);
 assert.match(read('index-seo.js'), /'@type': 'WebSite'/);
+assert.match(read('index-seo.js'), /image: 'https:\/\/plate\.voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg'/);
 
 for (const file of ['recipe.html', 'category.html', 'ingredient.html']) {
     const html = read(file);
@@ -34,6 +37,9 @@ for (const file of technicalPages) {
 
 const robots = read('robots.txt');
 assert.match(robots, /User-agent: \*/);
+assert.match(robots, /User-agent: facebookexternalhit[\s\S]*?Allow: \//);
+assert.match(robots, /User-agent: Facebot[\s\S]*?Allow: \//);
+assert.match(robots, /User-agent: TelegramBot[\s\S]*?Allow: \//);
 assert.match(robots, /Sitemap: https:\/\/plate\.voronova\.online\/sitemap\.xml/);
 
 const sitemap = read('sitemap.xml');
