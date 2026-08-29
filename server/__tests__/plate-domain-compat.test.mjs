@@ -27,6 +27,7 @@ describe('plate domain migration', () => {
 
   it('serves plate as canonical and redirects every legacy app path', () => {
     expect(plateNginx).toContain('server_name plate.voronova.online;');
+    expect(plateNginx).toContain('listen 443 ssl http2 default_server;');
     expect(plateNginx).toContain('/etc/letsencrypt/live/plate.voronova.online/fullchain.pem');
     expect(plateNginx).toContain('return 301 https://plate.voronova.online$request_uri;');
     expect(plateNginx).toContain('/etc/nginx/snippets/smartplate-admin-basic-auth.conf');
