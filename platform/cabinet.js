@@ -1211,7 +1211,7 @@
 				if (summary && summaryCount) {
 					if (data.active && !data.isEarlyBird) {
 						summary.style.display = '';
-						summaryCount.textContent = data.remaining === data.limit ? 'Доступно ' + data.limit + ' мест по стартовой цене' : 'Осталось ' + data.remaining + ' из ' + data.limit + ' мест по стартовой цене';
+						summaryCount.textContent = 'По стартовой цене осталось ' + data.remaining + ' мест';
 					} else if (data.isEarlyBird) {
 						summary.style.display = '';
 						summary.querySelector('.pay-early-summary-title').textContent = 'Друг Умной тарелки';
