@@ -383,6 +383,36 @@
 		}
 		.pay-currency-note strong { color: var(--text); }
 		.pay-currency-note a { color: var(--accent); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+		.pay-country-intro { margin: 0 0 16px; font-size: 14px; line-height: 1.55; color: var(--text-2); }
+		.pay-country-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+		.pay-country-card {
+			position: relative; min-height: 214px; padding: 20px; border: 1px solid var(--border); background: #fff;
+			color: var(--text); cursor: pointer; text-align: left; transition: border-color .18s, box-shadow .18s, transform .18s;
+		}
+		.pay-country-card:hover { border-color: var(--text); box-shadow: 0 8px 18px rgba(34, 25, 18, .06); transform: translateY(-1px); }
+		.pay-country-card:focus-visible { outline: 3px solid rgba(232,64,10,.32); outline-offset: 2px; }
+		.pay-country-card.selected { padding: 19px; border: 2px solid var(--text); }
+		.pay-country-card.selected::after {
+			content: '✓'; position: absolute; top: 14px; right: 14px; display: flex; align-items: center; justify-content: center;
+			width: 23px; height: 23px; background: var(--accent); color: #fff; border-radius: 50%; font-size: 13px; font-weight: 800;
+		}
+		.pay-country-icon { display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; margin-bottom: 17px; border-radius: 50%; background: #f7f4f1; }
+		.pay-country-flag { display: block; width: 26px; height: 18px; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+		.pay-country-flag span { display: block; height: 6px; }
+		.pay-country-flag span:nth-child(1) { background: #fff; }
+		.pay-country-flag span:nth-child(2) { background: #2454a6; }
+		.pay-country-flag span:nth-child(3) { background: #d52b1e; }
+		.pay-country-globe { width: 24px; height: 24px; }
+		.pay-country-title { display: block; font-family: var(--serif); font-size: 23px; font-weight: 700; line-height: 1.1; }
+		.pay-country-subtitle { display: block; margin-top: 6px; font-size: 12px; color: var(--text-2); }
+		.pay-country-price { display: block; margin-top: 20px; font-family: var(--serif); font-size: 24px; font-weight: 700; line-height: 1; }
+		.pay-country-price small { font-family: var(--sans); font-size: 11px; font-weight: 700; color: var(--text-2); }
+		.pay-country-note { display: block; margin-top: 7px; font-size: 11px; line-height: 1.45; color: var(--text-3); }
+		.pay-country-message { display: none; margin-top: 16px; padding: 14px 16px; border-left: 3px solid var(--accent); background: #fff8f3; font-size: 13px; line-height: 1.55; color: var(--text-2); }
+		.pay-country-message strong { color: var(--text); }
+		.pay-country-message a { color: var(--accent); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+		.pay-country-contact { display: none; align-items: center; justify-content: center; width: 260px; padding: 14px 22px; border: 1px solid #111; background: #111; color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-decoration: none; text-transform: uppercase; }
+		.pay-country-contact:hover, .pay-country-contact:focus-visible { background: #fff; color: #111; }
 		.pay-early-note { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-2); line-height: 1.55; }
 		.pay-early-note strong { color: var(--text); }
 		.pay-early-link { display: inline-block; margin-top: 8px; color: var(--accent); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
@@ -430,6 +460,14 @@
 			border-color: #111111;
 		}
 		@media (max-width: 480px) {
+			.pay-step { font-size: 0; padding: 10px 4px; }
+			.pay-step-num { margin-right: 0; }
+			.pay-country-grid { grid-template-columns: 1fr; }
+			.pay-country-card { min-height: 0; padding: 18px; }
+			.pay-country-card.selected { padding: 17px; }
+			.pay-country-icon { margin-bottom: 13px; }
+			.pay-country-price { margin-top: 14px; }
+			.pay-country-contact { width: 100%; }
 			.pay-plan-grid { grid-template-columns: 1fr; }
 			.pay-plan-card { min-height: 0; }
 		}
@@ -1916,33 +1954,57 @@
 					<div id="pay-details" style="display:none;margin-top:24px">
 						<div class="cab-sec-title-row" style="margin-top:8px">
 							<h2 class="cab-sec-title" id="pay-details-title" tabindex="-1">Оформление подписки</h2>
-							<span class="cab-sec-title-meta">3 шага</span>
+							<span class="cab-sec-title-meta">4 шага</span>
 						</div>
 
 						<!-- Шаги -->
 						<div class="pay-steps">
-							<div class="pay-step active" data-step="1"><span class="pay-step-num">1</span> Выберите подписку</div>
-							<div class="pay-step" data-step="2"><span class="pay-step-num">2</span> Переведите оплату</div>
-							<div class="pay-step" data-step="3"><span class="pay-step-num">3</span> Подтвердите перевод</div>
+							<div class="pay-step active" data-step="0"><span class="pay-step-num">1</span> Страна оплаты</div>
+							<div class="pay-step" data-step="1"><span class="pay-step-num">2</span> Подписка</div>
+							<div class="pay-step" data-step="2"><span class="pay-step-num">3</span> Перевод</div>
+							<div class="pay-step" data-step="3"><span class="pay-step-num">4</span> Подтверждение</div>
 						</div>
 
-						<!-- Шаг 1: Выбор тарифа -->
-						<div class="pay-wizard-step" id="pay-step-1">
+						<!-- Шаг 1: страна оплаты -->
+						<div class="pay-wizard-step" id="pay-step-0">
+							<p class="pay-country-intro">Сначала выберите страну оплаты — так мы покажем подходящий способ и валюту.</p>
+							<div class="pay-country-grid" role="radiogroup" aria-label="Страна оплаты">
+								<button class="pay-country-card" data-cabinet-action="select-payment-country" data-country="ru" type="button" role="radio" aria-checked="false">
+									<span class="pay-country-icon"><span class="pay-country-flag" aria-hidden="true"><span></span><span></span><span></span></span></span>
+									<span class="pay-country-title">Россия</span>
+									<span class="pay-country-subtitle">Оплата в российских рублях</span>
+									<span class="pay-country-price" id="pay-country-price-ru">190&nbsp;₽ <small>за 1 месяц</small></span>
+									<span class="pay-country-note">Перевод на российскую карту<br>Без автоматических списаний</span>
+								</button>
+								<button class="pay-country-card" data-cabinet-action="select-payment-country" data-country="world" type="button" role="radio" aria-checked="false">
+									<span class="pay-country-icon"><svg class="pay-country-globe" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="12" stroke="currentColor" stroke-width="1.5"/><path d="M4 16h24M16 4c4 4.4 4 19.6 0 24M16 4c-4 4.4-4 19.6 0 24" stroke="currentColor" stroke-width="1.3"/></svg></span>
+									<span class="pay-country-title">Другая страна</span>
+									<span class="pay-country-subtitle">Оплата международной картой</span>
+									<span class="pay-country-price">€1,99 <small>за 1 месяц</small></span>
+									<span class="pay-country-note">В евро, без конвертации в рубли<br>Подключаем безопасный способ оплаты</span>
+								</button>
+							</div>
+							<div class="pay-country-message" id="pay-country-message" aria-live="polite"></div>
+							<div class="pay-actions pay-actions--single">
+								<button class="btn btn-orange pay-action-btn pay-action-primary pay-next-btn" id="pay-country-next" data-cabinet-action="go-pay-step" data-step="1" type="button" disabled>Выбрать подписку</button>
+								<a class="pay-country-contact" id="pay-country-contact" href="mailto:hello@voronova.online?subject=%D0%9E%D0%BF%D0%BB%D0%B0%D1%82%D0%B0%20%D0%A3%D0%BC%D0%BD%D0%BE%D0%B9%20%D1%82%D0%B0%D1%80%D0%B5%D0%BB%D0%BA%D0%B8%20%D0%B8%D0%B7%20%D0%B4%D1%80%D1%83%D0%B3%D0%BE%D0%B9%20%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%8B">Уточнить способ оплаты</a>
+							</div>
+						</div>
+
+						<!-- Шаг 2: Выбор тарифа -->
+						<div class="pay-wizard-step" id="pay-step-1" style="display:none">
 							<div class="pay-early-summary" id="pay-early-summary">
 								<div class="pay-early-summary-title">Ранний доступ</div>
 								<div class="pay-early-summary-copy">Оформите подписку по стартовой цене. После раннего доступа действуют актуальные тарифы.</div>
 								<div class="pay-early-summary-count" id="pay-early-summary-count">Проверяем доступные места…</div>
-							</div>
-							<div class="pay-currency-note">
-								<strong>Оплата сейчас доступна переводом на российскую карту в рублях.</strong><br>
-								Если вы находитесь в другой стране или хотите оплатить в иной валюте, напишите нам на <a href="mailto:hello@voronova.online">hello@voronova.online</a> до оплаты — уточним доступный вариант.
 							</div>
 							<div class="pay-plan-grid" id="pay-plan-grid"></div>
 							<div class="pay-early-note" id="pay-early-note">
 								<strong>Как сохраняется ранняя цена.</strong> Продлевайте подписку до окончания периода или в течение 7 календарных дней после него. Во время перерыва доступ к платным материалам приостанавливается.<br>
 								<a class="pay-early-link" href="how-subscription-works.html">Подробнее о том, как работает подписка</a>
 							</div>
-							<div class="pay-actions pay-actions--single">
+							<div class="pay-actions">
+								<button class="btn btn-ghost pay-action-btn pay-action-back" data-cabinet-action="go-pay-step" data-step="0" type="button">Назад</button>
 								<button class="btn btn-orange pay-action-btn pay-action-primary pay-next-btn" id="pay-next-1" data-cabinet-action="go-pay-step" data-step="2" type="button" disabled>Далее</button>
 							</div>
 						</div>
@@ -2282,7 +2344,7 @@
 <script src="data-v2.js?v=20260828-mobile-updates-bell"></script>
 <script src="ingredients.js?v=20260711-oats-seabass"></script>
 <script src="header-nav.js?v=20260714-category-nav"></script>
-	<script src="cabinet.js?v=20260817-broth-yield"></script>
+	<script src="cabinet.js?v=20260829-country-payment"></script>
 	<script src="tawk-chat-modal.js?v=20260803-tawk-singleton"></script>
 </body>
 

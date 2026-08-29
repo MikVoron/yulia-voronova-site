@@ -752,6 +752,7 @@
 
 		// ── Wizard navigation ──
 		var _selectedPlan = null;
+		var _selectedPaymentCountry = null;
 
 		function goPayStep(step) {
 			// Update step indicators
@@ -762,7 +763,7 @@
 				if (s === step) el.classList.add('active');
 			});
 			// Show/hide panels
-			for (var i = 1; i <= 3; i++) {
+			for (var i = 0; i <= 3; i++) {
 				document.getElementById('pay-step-' + i).style.display = (i === step) ? 'block' : 'none';
 			}
 			// Populate sender on step 3
@@ -779,6 +780,32 @@
 			document.querySelectorAll('.pay-plan-card').forEach(function(c) { c.classList.remove('selected'); });
 			el.classList.add('selected');
 			document.getElementById('pay-next-1').disabled = false;
+		}
+
+		function selectPaymentCountry(country, el) {
+			_selectedPaymentCountry = country;
+			document.querySelectorAll('.pay-country-card').forEach(function(card) {
+				card.classList.remove('selected');
+				card.setAttribute('aria-checked', 'false');
+			});
+			el.classList.add('selected');
+			el.setAttribute('aria-checked', 'true');
+
+			var message = document.getElementById('pay-country-message');
+			var next = document.getElementById('pay-country-next');
+			var contact = document.getElementById('pay-country-contact');
+			if (country === 'ru') {
+				message.innerHTML = '<strong>Оплата в рублях.</strong> На следующем шаге выберите период, затем получите реквизиты для перевода на российскую карту.';
+				message.style.display = 'block';
+				next.style.display = '';
+				next.disabled = false;
+				contact.style.display = 'none';
+			} else {
+				message.innerHTML = '<strong>Международную оплату подключаем.</strong> Сейчас напишите нам на <a href="mailto:hello@voronova.online">hello@voronova.online</a> — уточним доступный вариант для вашей страны.';
+				message.style.display = 'block';
+				next.style.display = 'none';
+				contact.style.display = 'inline-flex';
+			}
 		}
 
 		function renderPlanCards() {
@@ -815,6 +842,7 @@
 
 		function resetPayWizard() {
 			_selectedPlan = null;
+			_selectedPaymentCountry = null;
 			document.getElementById('pay-success').style.display = 'none';
 			// Гарантируем, что план-карточки отрисованы. loadEarlyBird() пропускается
 			// для active-подписки, поэтому при «Продлить» grid мог быть пустым.
@@ -822,6 +850,14 @@
 			if (planGrid && !planGrid.children.length) renderPlanCards();
 			document.querySelectorAll('.pay-plan-card').forEach(function(c) { c.classList.remove('selected'); });
 			document.getElementById('pay-next-1').disabled = true;
+			document.querySelectorAll('.pay-country-card').forEach(function(card) {
+				card.classList.remove('selected');
+				card.setAttribute('aria-checked', 'false');
+			});
+			document.getElementById('pay-country-message').style.display = 'none';
+			document.getElementById('pay-country-next').style.display = '';
+			document.getElementById('pay-country-next').disabled = true;
+			document.getElementById('pay-country-contact').style.display = 'none';
 			document.getElementById('pay-form').style.display = 'flex';
 			document.getElementById('pay-comment').value = '';
 			clearScreenshot();
@@ -829,7 +865,7 @@
 			var now = new Date();
 			now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
 			document.getElementById('pay-date').value = now.toISOString().slice(0, 16);
-			goPayStep(1);
+			goPayStep(0);
 		}
 
 		async function submitPayment() {
@@ -1168,6 +1204,8 @@
 				_regularPrices = data.regularPrices || _regularPrices;
 				_showFuturePrices = !!data.eligible;
 				_futurePriceLabel = 'Цена после раннего доступа';
+				var countryPrice = document.getElementById('pay-country-price-ru');
+				if (countryPrice) countryPrice.innerHTML = formatRubles(_currentPrices[1]) + ' <small>за 1 месяц</small>';
 				var summary = document.getElementById('pay-early-summary');
 				var summaryCount = document.getElementById('pay-early-summary-count');
 				if (summary && summaryCount) {
@@ -1891,6 +1929,7 @@
 				else if (action === 'remove-plate-item') removePlateItem(Number(actionTarget.dataset.index));
 				else if (action === 'toggle-shop-item') toggleCabinetPlateShopCheckedByIndex(Number(actionTarget.dataset.index));
 				else if (action === 'select-plan') selectPlan(Number(actionTarget.dataset.months), Number(actionTarget.dataset.amount), actionTarget);
+				else if (action === 'select-payment-country') selectPaymentCountry(actionTarget.dataset.country || '', actionTarget);
 				else if (action === 'open-feedback-reply') openFeedbackReply(actionTarget.dataset.threadId || '');
 				else if (action === 'close-feedback-thread') closeFeedbackThread(actionTarget.dataset.threadId || '', actionTarget);
 				else if (action === 'close-feedback-reply') closeFeedbackReplyForm(actionTarget.dataset.threadId || '');
