@@ -15,7 +15,7 @@ assert.match(index, /property="og:image:url" content="https:\/\/plate\.voronova\
 assert.match(index, /property="og:image:type" content="image\/jpeg"/);
 assert.match(index, /name="twitter:card" content="summary_large_image"/);
 assert.match(index, /src="seo\.js\?v=20260817-broth-yield"/);
-assert.match(index, /src="index-seo\.js\?v=20260830-clean-social-preview"/);
+assert.match(index, /src="index-seo\.js\?v=20260830-nutritionist-snippet"/);
 assert.match(read('index-seo.js'), /'@type': 'WebSite'/);
 assert.match(read('index-seo.js'), /image: 'https:\/\/plate\.voronova\.online\/images\/smartplate-share\.jpg'/);
 
