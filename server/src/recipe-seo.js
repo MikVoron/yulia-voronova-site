@@ -33,7 +33,21 @@ function summary(value, maxLength = 180) {
 function absoluteImage(value) {
   if (!value) return `${SITE_ORIGIN}/images/smartplate-share-telegram-1200x630.jpg`;
   if (/^https?:\/\//i.test(value)) return value;
-  return `${SITE_ORIGIN}/${String(value).replace(/^\/+/, '')}`;
+  return `${ORIGIN}/${String(value).replace(/^\/+/, '')}`;
+}
+
+function upsertMeta(document, attribute, key, content) {
+  const tag = `<meta ${attribute}="${escapeHtml(key)}" content="${escapeHtml(content)}">`;
+  const pattern = new RegExp(`<meta\\s+${attribute}=["']${key.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}["'][^>]*>`, 'i');
+  if (pattern.test(document)) return document.replace(pattern, tag);
+  return document.replace(/<\/head>/i, `${tag}\n</head>`);
+}
+
+function upsertCanonical(document, canonical) {
+  const tag = `<link rel="canonical" href="${escapeHtml(canonical)}">`;
+  const pattern = /<link\s+rel=["']canonical["'][^>]*>/i;
+  if (pattern.test(document)) return document.replace(pattern, tag);
+  return document.replace(/<\/head>/i, `${tag}\n</head>`);
 }
 
 function recipeUrl(id) {
@@ -115,18 +129,30 @@ function renderRecipeDocument(template, recipe) {
   const canonical = recipeUrl(recipe.id);
   const description = recipeDescription(recipe);
   const image = absoluteImage(recipe.photo);
+  const title = `${recipe.name} — рецепт | Умная тарелка`;
+  const imageType = /\.jpe?g(?:$|\?)/i.test(image) ? 'image/jpeg' : (/\.png(?:$|\?)/i.test(image) ? 'image/png' : 'image/webp');
   const schema = JSON.stringify(buildSchema(recipe)).replace(/</g, '\\u003c');
   const head = `
-<link rel="canonical" href="${escapeHtml(canonical)}">
-<meta property="og:title" content="${escapeHtml(recipe.name)} — рецепт | Умная тарелка">
-<meta property="og:description" content="${escapeHtml(description)}">
-<meta property="og:url" content="${escapeHtml(canonical)}">
-<meta property="og:image" content="${escapeHtml(image)}">
-<script id="smartplate-server-recipe-schema" type="application/ld+json">${schema}</script>
+<script id="smartplate-page-schema" type="application/ld+json">${schema}</script>
 <style>body{visibility:visible!important}.seo-recipe-content{max-width:1040px;margin:0 auto;padding:112px 24px 64px;background:#fff;color:#1f2720;font:16px/1.6 Montserrat,Arial,sans-serif}.seo-recipe-inner{max-width:760px}.seo-recipe-kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8a481f}.seo-recipe-content h1,.seo-recipe-content h2{font-family:"Cormorant Garamond",Georgia,serif;line-height:1.05}.seo-recipe-content h1{font-size:clamp(42px,7vw,70px);margin:0 0 24px}.seo-recipe-content h2{font-size:32px;margin:36px 0 12px}.seo-recipe-content img{display:block;width:100%;height:auto;max-height:500px;object-fit:cover;margin:24px 0}.seo-recipe-description{font-size:19px}.seo-recipe-nutrition{display:flex;flex-wrap:wrap;gap:8px 24px;margin:24px 0}.seo-recipe-nutrition div{display:flex;gap:6px}.seo-recipe-nutrition dt{font-weight:700}.seo-recipe-nutrition dd{margin:0}.seo-recipe-tags{display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none}.seo-recipe-tags li{padding:3px 8px;border:1px solid #d9c9bc;font-size:13px}.seo-recipe-content a{color:#7c3b1c;font-weight:700}</style>`;
-  return template
-    .replace(/<title>[^<]*<\/title>/i, `<title>${escapeHtml(recipe.name)} — рецепт | Умная тарелка</title>`)
-    .replace(/(<meta\s+name=["']description["']\s+content=["'])[^"']*(["'][^>]*>)/i, `$1${escapeHtml(description)}$2`)
+  let document = template
+    .replace(/<title>[^<]*<\/title>/i, `<title>${escapeHtml(title)}</title>`);
+  document = upsertMeta(document, 'name', 'description', description);
+  document = upsertCanonical(document, canonical);
+  document = upsertMeta(document, 'property', 'og:title', title);
+  document = upsertMeta(document, 'property', 'og:description', description);
+  document = upsertMeta(document, 'property', 'og:url', canonical);
+  document = upsertMeta(document, 'property', 'og:type', recipe.access_level === 'free' || recipe.is_free === true ? 'article' : 'website');
+  document = upsertMeta(document, 'property', 'og:image', image);
+  document = upsertMeta(document, 'property', 'og:image:url', image);
+  document = upsertMeta(document, 'property', 'og:image:secure_url', image);
+  document = upsertMeta(document, 'property', 'og:image:type', imageType);
+  document = upsertMeta(document, 'property', 'og:image:alt', recipe.name);
+  document = upsertMeta(document, 'name', 'twitter:title', title);
+  document = upsertMeta(document, 'name', 'twitter:description', description);
+  document = upsertMeta(document, 'name', 'twitter:image', image);
+  document = upsertMeta(document, 'name', 'twitter:image:alt', recipe.name);
+  return document
     .replace(/<\/head>/i, `${head}\n</head>`)
     .replace(/<body([^>]*)>/i, `<body$1>${buildArticle(recipe)}`);
 }

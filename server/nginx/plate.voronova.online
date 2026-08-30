@@ -26,6 +26,15 @@ server {
         include /etc/nginx/snippets/smartplate-api-proxy.conf;
     }
 
+    # Keep the public recipe URL unchanged while supplying canonical metadata,
+    # Open Graph fields and Recipe JSON-LD in the initial HTML response. The
+    # regular client application hydrates the same document after it loads.
+    location = /recipe.html {
+        limit_except GET { deny all; }
+        rewrite ^ /_seo/recipe break;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
     # Keep administrative HTML and JavaScript behind a second, independent
     # authentication layer. Query strings do not affect location matching.
     location ~ ^/(?:admin|recipe-editor)(?:[./_-]|$) {

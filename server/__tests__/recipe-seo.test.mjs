@@ -1,7 +1,10 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import recipeSeo from '../src/recipe-seo.js';
 
-const template = '<!doctype html><html><head><title>Recipe</title><meta name="description" content="old"></head><body><main id="page-content"></main></body></html>';
+const template = '<!doctype html><html><head><title>Recipe</title><meta name="description" content="old"><meta property="og:title" content="old title"><meta property="og:description" content="old description"><meta property="og:image" content="old.webp"><meta name="twitter:title" content="old title"></head><body><main id="page-content"></main></body></html>';
+const productionTemplate = fs.readFileSync(path.resolve(import.meta.dirname, '../../platform/recipe.html'), 'utf8');
 
 describe('server recipe SEO document', () => {
   it('renders canonical metadata and public recipe content', () => {
@@ -11,10 +14,17 @@ describe('server recipe SEO document', () => {
       ingredients: [{ name: 'Паста: 200 г' }], steps: [{ text: 'Сварите пасту.' }], tags: ['растительное'],
     });
     expect(html).toContain('<link rel="canonical" href="https://plate.voronova.online/recipe.html?id=free-pasta">');
+    expect(html).toContain('<meta property="og:url" content="https://plate.voronova.online/recipe.html?id=free-pasta">');
+    expect(html).toContain('<meta property="og:title" content="Паста — рецепт | Умная тарелка">');
+    expect(html).toContain('<meta property="og:image" content="https://plate.voronova.online/images/pasta.webp">');
+    expect(html).toContain('<script id="smartplate-page-schema" type="application/ld+json">');
     expect(html).toContain('<h1>Паста</h1>');
     expect(html).toContain('Паста: 200 г');
     expect(html).toContain('"@type":"Recipe"');
     expect(html).toContain('body{visibility:visible!important}');
+    expect(html.match(/property="og:title"/g)).toHaveLength(1);
+    expect(html.match(/property="og:description"/g)).toHaveLength(1);
+    expect(html.match(/property="og:image"/g)).toHaveLength(1);
   });
 
   it('does not expose paid recipe instructions', () => {
@@ -25,5 +35,20 @@ describe('server recipe SEO document', () => {
     expect(html).not.toContain('Секретный ингредиент');
     expect(html).not.toContain('Секретный шаг');
     expect(html).toContain('"@type":"WebPage"');
+  });
+
+  it('replaces generic metadata in the production template without duplicates', () => {
+    const html = recipeSeo.renderRecipeDocument(productionTemplate, {
+      id: 'free-pasta', name: 'Паста', quote: 'Описание рецепта', photo: 'images/pasta.webp',
+      access_level: 'free', ingredients: [{ name: 'Паста: 200 г' }], steps: [{ text: 'Сварите пасту.' }],
+    });
+    expect(html).toContain('<title>Паста — рецепт | Умная тарелка</title>');
+    expect(html).toContain('<meta property="og:url" content="https://plate.voronova.online/recipe.html?id=free-pasta">');
+    expect(html.match(/rel="canonical"/g)).toHaveLength(1);
+    expect(html.match(/property="og:title"/g)).toHaveLength(1);
+    expect(html.match(/property="og:description"/g)).toHaveLength(1);
+    expect(html.match(/property="og:url"/g)).toHaveLength(1);
+    expect(html.match(/id="smartplate-page-schema"/g)).toHaveLength(1);
+    expect(html).not.toContain('Умная тарелка — рецепты с КБЖУ и пошаговым приготовлением</title>');
   });
 });
