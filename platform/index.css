@@ -679,6 +679,13 @@ main {
 	box-shadow: 0 18px 42px rgba(0, 0, 0, .08);
 }
 
+/* On wide screens keep Julia's head within the portrait crop. */
+@media (min-width: 768px) {
+	.sp-guest-photo {
+		object-position: center top;
+	}
+}
+
 .sp-guest-kicker {
 	margin: 0 0 12px;
 	color: var(--accent);
