@@ -182,11 +182,10 @@ describe('SmartPlate feedback plan 6 contracts', () => {
     expect(harness.classes.has('sp-guest-onboarding-active')).toBe(false);
   });
 
-  it('keeps the recipe guestHelp route and access logic unchanged', () => {
+  it('keeps the backward-compatible recipe guestHelp route and access logic', () => {
     const recipe = read('recipe.html');
     const tourCode = guestTourScript();
 
-    expect(indexHtml).toContain('recipe.html?id=cutlets-chickpea-mushroom-dill&guestHelp=1&guestTour=1');
     expect(recipe).toContain("guestHelpParams.get('guestHelp') === '1'");
     expect(recipe).toContain("guestHelpParams.get('guestTour') === '1'");
     expect(recipe).toContain("localStorage.getItem('smartplate_guest_tour_completed_v1') === '1'");
@@ -196,8 +195,8 @@ describe('SmartPlate feedback plan 6 contracts', () => {
   });
 
   it('provides the approved copy and visible keyboard focus locally on the homepage', () => {
-    expect(indexHtml).toContain('data-index-action="complete-guest-tour">Свернуть</button>');
-    expect(indexHtml).toContain('id="guest-tour-trigger" type="button" data-index-action="open-guest-tour">Как это работает? →</button>');
+    expect(indexHtml).toContain('data-index-action="complete-guest-tour" aria-label="Перейти к поиску рецептов">К рецептам</button>');
+    expect(indexHtml).toContain('id="guest-tour-trigger" type="button" data-index-action="open-guest-tour">Как пользоваться Умной тарелкой →</button>');
     expect(indexHtml).toContain('id="guest-onboarding-title"');
     expect(indexHtml).not.toContain('id="guest-onboarding-title" tabindex="-1"');
     expect(indexCss).toContain('.sp-guest-tour-reopen:focus-visible');

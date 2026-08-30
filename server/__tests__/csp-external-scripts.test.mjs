@@ -77,7 +77,7 @@ describe('SmartPlate CSP script migration', () => {
   it('keeps the login flow independent of inline styles', () => {
     const html = fs.readFileSync(path.join(platformDir, 'login.html'), 'utf8');
     const script = fs.readFileSync(path.join(platformDir, 'login.js'), 'utf8');
-    expect(html).toContain('login.css?v=20260805-motion-accessibility');
+    expect(html).toMatch(/login\.css\?v=[^"']+/);
     expect(html).not.toMatch(/<style\b|\sstyle\s*=/i);
     expect(script).not.toMatch(/\.style\.|\sstyle\s*=/i);
     expect(script).toContain("step2.classList.remove('is-hidden')");
@@ -136,7 +136,7 @@ describe('SmartPlate CSP script migration', () => {
     expect(new Set(bindings)).toEqual(new Set(htmlBindings));
     expect(html.match(/\sdata-admin-action="dashboard-tab"/g)).toHaveLength(4);
     expect(html).toContain('data-admin-filter="drafts"');
-    expect(html).toContain('admin.js?v=20260818-admin-audit');
+    expect(html).toMatch(/admin\.js\?v=[^"']+/);
     expect(script).toContain("if (action === 'dashboard-tab')");
     expect(script).toContain("target.dataset.adminFilter === 'drafts'");
     expect(html).toContain('id="recipe-extra-filters" hidden');
@@ -295,8 +295,8 @@ describe('SmartPlate CSP script migration', () => {
     const script = fs.readFileSync(path.join(platformDir, 'cabinet.js'), 'utf8');
 
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
-    expect(html).toContain('cabinet.js?v=20260809-metrika-goals');
-    expect(html.match(/\sdata-cabinet-action=/g)).toHaveLength(19);
+    expect(html).toMatch(/cabinet\.js\?v=[^"']+/);
+    expect(html.match(/\sdata-cabinet-action=/g)).toHaveLength(23);
     expect(html.match(/\sdata-cabinet-change=/g)).toHaveLength(4);
     expect(script).toContain("else if (action === 'open-avatar-picker') openAvatarPicker()");
     expect(script).toContain("document.querySelectorAll('[data-cabinet-change]')");

@@ -9,15 +9,15 @@ const read = file => fs.readFileSync(path.join(platform, file), 'utf8');
 
 const index = read('index.html');
 assert.match(index, /<link rel="canonical" href="https:\/\/plate\.voronova\.online\/">/);
-assert.match(index, /rel="image_src" href="https:\/\/plate\.voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
-assert.match(index, /property="og:image" content="https:\/\/plate\.voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
-assert.match(index, /property="og:image:url" content="https:\/\/plate\.voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
+assert.match(index, /rel="image_src" href="https:\/\/plate\.voronova\.online\/images\/smartplate-share\.jpg"/);
+assert.match(index, /property="og:image" content="https:\/\/plate\.voronova\.online\/images\/smartplate-share\.jpg"/);
+assert.match(index, /property="og:image:url" content="https:\/\/plate\.voronova\.online\/images\/smartplate-share\.jpg"/);
 assert.match(index, /property="og:image:type" content="image\/jpeg"/);
 assert.match(index, /name="twitter:card" content="summary_large_image"/);
 assert.match(index, /src="seo\.js\?v=20260817-broth-yield"/);
-assert.match(index, /src="index-seo\.js\?v=20260829-social-preview"/);
+assert.match(index, /src="index-seo\.js\?v=20260830-clean-social-preview"/);
 assert.match(read('index-seo.js'), /'@type': 'WebSite'/);
-assert.match(read('index-seo.js'), /image: 'https:\/\/plate\.voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg'/);
+assert.match(read('index-seo.js'), /image: 'https:\/\/plate\.voronova\.online\/images\/smartplate-share\.jpg'/);
 
 for (const file of ['recipe.html', 'category.html', 'ingredient.html']) {
     const html = read(file);
@@ -54,7 +54,7 @@ for (const file of technicalPages) {
     assert(!locations.some(url => url.includes('/' + file)), `${file} must not be in sitemap`);
 }
 
-assert(fs.statSync(path.join(platform, 'images', 'smartplate-share-telegram-1200x630.jpg')).size > 0);
+assert(fs.statSync(path.join(platform, 'images', 'smartplate-share.jpg')).size > 0);
 assert(fs.statSync(path.join(root, 'images', 'smartplate-share-telegram-1200x630.jpg')).size > 0);
 
 const sharePage = fs.readFileSync(path.join(root, 'smartplate', 'index.html'), 'utf8');

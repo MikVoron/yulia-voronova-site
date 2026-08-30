@@ -36,7 +36,7 @@ describe('SmartPlate feedback plan 7 contracts', () => {
   });
 
   it('optically aligns balance checkboxes with linked item labels', () => {
-    expect(recipe).toMatch(/\.bal-item-select\s*\{[\s\S]*?transform:\s*translateY\(3px\);/);
+    expect(recipe).toMatch(/\.bal-item-select\s*\{[\s\S]*?transform:\s*none;/);
   });
 
   it('opens one desktop navigation panel by hover or explicit click', () => {
@@ -49,8 +49,9 @@ describe('SmartPlate feedback plan 7 contracts', () => {
   });
 
   it('removes perpetual decorative motion and automatic content entrances', () => {
-    expect(indexCss).toContain('animation: spHowChipOnce');
-    expect(indexCss).toContain('animation: spHowBarOnce');
+    expect(indexCss).toContain('.sp-how-card.is-demo-active[data-how-demo="balance"] .sp-how-bar span');
+    expect(indexCss).toContain('animation: spHowBalanceGrow 1.15s ease .65s both');
+    expect(indexCss).toContain('animation: spHowPointerMove 1.25s ease .3s both');
     expect(indexHtml).toContain('observer.unobserve(entry.target)');
     expect(style).not.toContain('animation: fabPulse');
     expect(style).not.toContain('starHint');
@@ -99,7 +100,8 @@ describe('SmartPlate feedback plan 7 contracts', () => {
   it('aligns balance choices and gives their controls a usable touch target', () => {
     expect(recipe).toMatch(/\.bal-group-toggle-wrap\s*\{\s*padding:\s*12px 0 0;/);
     expect(recipe).toMatch(/\.bal-group-body\s*\{\s*padding:\s*0 18px 14px !important;/);
-    expect(recipe).toMatch(/\.bal-item-select\s*\{[\s\S]*?width:\s*40px;[\s\S]*?height:\s*40px;/);
+    expect(recipe).toMatch(/\.bal-item-select\s*\{[\s\S]*?width:\s*14px;[\s\S]*?height:\s*14px;/);
+    expect(recipe).toContain(".bal-item-select::before { content: ''; position: absolute; inset: -11px; }");
   });
 
   it('falls back to initials when a saved avatar cannot load', () => {

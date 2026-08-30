@@ -107,7 +107,7 @@ describe('SmartPlate feedback plan 3 contracts', () => {
     expect(ingredientBlock).toContain('class="recipe-card__meta-item recipe-card__meta-diff"');
     expect(style).toMatch(/\.recipe-card__rating \{\s*display:\s*flex;\s*align-items:\s*center;\s*gap:\s*6px;\s*min-height:\s*16px;/);
     expect(style).toMatch(/\.recipe-card__meta-item \{\s*display:\s*inline-flex;\s*align-items:\s*center;\s*gap:\s*4px;\s*white-space:\s*nowrap;\s*\}/);
-    expect(style).toMatch(/\.recipe-card__title \{\s*font-family:[\s\S]*?min-height:\s*calc\(1\.15em \* 4\);/);
+    expect(style).toMatch(/\.recipe-card__title \{\s*font-family:[\s\S]*?min-height:\s*calc\(1\.15em \* 5\);/);
   });
 
   it('keeps the payment action responsive at the mobile breakpoint', () => {

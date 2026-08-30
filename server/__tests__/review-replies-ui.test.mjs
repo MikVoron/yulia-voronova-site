@@ -34,7 +34,7 @@ describe('recipe review reply UI', () => {
     expect(recipePage).toContain("rv.reply ? 'Редактировать ответ' : 'Ответить как Юлия'");
     expect(recipePage).toContain('data-recipe-action="cancel-review-reply-editor"');
     expect(recipePage).toContain('Сохранить ответ');
-    expect(recipePage).toContain('_editingReviewReplyId = null;\n\t\t\t\tawait loadReviews();');
+    expect(recipePage).toMatch(/_editingReviewReplyId = null;\r?\n\s*await loadReviews\(\);/);
   });
 
   it('shows and toggles the helpful author-reply reaction in both review views', () => {
