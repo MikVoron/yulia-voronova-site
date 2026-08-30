@@ -8,7 +8,7 @@
 
 - Репозиторий: `C:\Users\MSI\yulia-voronova-site`.
 - Ветка SmartPlate: `feature/harvard-plate`.
-- Публичное приложение: `https://app.voronova.online`.
+- Публичное приложение: `https://plate.voronova.online`.
 - API: `https://api.voronova.online`.
 - PDF с исходными замечаниями хранится локально как `platform/тарелка.pdf` и не должен попадать в Git.
 - Сообщения с зелёным фоном в Telegram принадлежат Юлии, с белым — тестировщику-фронтендеру.
@@ -110,7 +110,7 @@
 - commit: `7a34685` (`Fix cabinet tab navigation`);
 - push: `feature/harvard-plate` обновлён на GitHub;
 - deploy: `cabinet.html`, `cabinet.js`, `cabinet-tabs.js` скопированы в `/var/www/smartplate-platform/`;
-- живая проверка: `https://app.voronova.online/cabinet.html?tab=feedback` отдаёт `200 OK`, а live HTML содержит `cabinet-tabs.js` и новый URL-контракт вкладок.
+- живая проверка: `https://plate.voronova.online/cabinet.html?tab=feedback` отдаёт `200 OK`, а live HTML содержит `cabinet-tabs.js` и новый URL-контракт вкладок.
 
 ### 3. P0 — тарелка, сохранение, дневник и оплата — ОПУБЛИКОВАНО, ПРОВЕРЕНО
 
@@ -175,7 +175,7 @@
 - commit: `62a2027` (`Clarify plate journal and payment flows`);
 - push: `feature/harvard-plate` обновлён на GitHub;
 - deploy: `cabinet.html`, `cabinet.js`, `category.html`, `data-v2.js`, `index.html`, `recipe.html` скопированы в `/var/www/smartplate-platform/`;
-- живая проверка: `https://app.voronova.online/cabinet.html?tab=subscription` отдаёт `200 OK`, live HTML содержит cache-bust `20260703-feedback-plan3` и новые элементы статуса;
+- живая проверка: `https://plate.voronova.online/cabinet.html?tab=subscription` отдаёт `200 OK`, live HTML содержит cache-bust `20260703-feedback-plan3` и новые элементы статуса;
 - live Edge с изолированными тестовыми данными подтвердил видимость выгрузки, два блюда в журнале, состояния pending/confirmed, отсутствие устаревшего текста, переполнение `0 px` при ширине 375 px и отсутствие ошибок Console.
 
 ### 4. P1 — бесплатные и закрытые рецепты — НЕ НАЧАТО
@@ -244,7 +244,7 @@
 - commit: `65a51fe` (`feat: smooth-scroll onboarding on reopen`);
 - push: `feature/harvard-plate` обновлён на GitHub;
 - deploy: `platform/index.html` скопирован в `/var/www/smartplate-platform/index.html`;
-- live check: `https://app.voronova.online/?guestTour=1` показывает onboarding, а ручное повторное открытие прокручивает к началу блока.
+- live check: `https://plate.voronova.online/?guestTour=1` показывает onboarding, а ручное повторное открытие прокручивает к началу блока.
 
 Критерий закрытия: выполнен.
 
@@ -293,7 +293,7 @@
 - commits: `5ba8a62`, follow-up `24ba286`, updates-feed follow-up `f6373ea`;
 - push: `origin/feature/harvard-plate` обновлён;
 - deploy: изменённые frontend-файлы скопированы в `/var/www/smartplate-platform/`; follow-up `index.html` из `f6373ea` опубликован отдельно;
-- live: `https://app.voronova.online/`, `https://app.voronova.online/recipe.html?id=grechotto`, redirect кабинета без сессии на login проверены.
+- live: `https://plate.voronova.online/`, `https://plate.voronova.online/recipe.html?id=grechotto`, redirect кабинета без сессии на login проверены.
 
 Закрыты основные замечания по motion, reduced-motion, типографике, footer/email, навигации, выравниванию рецепта и mobile-overflow.
 
@@ -352,7 +352,7 @@ Commit и выпуск:
 - кабинет при загрузке и переключении видимой вкладки не вызывает автоподскролл; невидимая цель прокручивается один раз, reduced-motion использует `behavior:auto`;
 - mobile + reduced-motion: работающий статичный loading-state hero и чата, timeout/fallback Tawk, mobile layout не ломается;
 - анимации не скрывают медленную загрузку: у hero есть текстовый статус, у чата — loader и отдельный timeout/fallback;
-- live `https://app.voronova.online/` и `https://api.voronova.online/content/categories` вернули `200`; PM2 `smartplate-api` online, nginx и PostgreSQL active.
+- live `https://plate.voronova.online/` и `https://api.voronova.online/content/categories` вернули `200`; PM2 `smartplate-api` online, nginx и PostgreSQL active.
 
 Остались и не объявлены закрытыми:
 

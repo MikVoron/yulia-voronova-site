@@ -1,6 +1,6 @@
 const db = require('./db');
 
-const EARLY_ACCESS_LIMIT = 30;
+const EARLY_ACCESS_LIMIT = 10;
 const EARLY_ACCESS_PRICES = { 1: 190, 3: 540, 12: 1900 };
 const REGULAR_PRICES = { 1: 250, 3: 690, 12: 2500 };
 const EARLY_ACCESS_GRACE_MS = 7 * 24 * 60 * 60 * 1000;

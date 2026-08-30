@@ -1,4 +1,16 @@
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Facebot
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
 User-agent: *
 Allow: /
 
-Sitemap: https://app.voronova.online/sitemap.xml
+Sitemap: https://plate.voronova.online/sitemap.xml

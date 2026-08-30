@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const FROM = '"Умная тарелка" <' + (process.env.SMTP_FROM || 'noreply@voronova.online') + '>';
-const PLATFORM_URL = process.env.PLATFORM_URL || 'https://app.voronova.online';
+const PLATFORM_URL = process.env.PLATFORM_URL || 'https://plate.voronova.online';
 const PERSONAL_SENDERS = {
   yulia: {
     address: process.env.SMTP_JULIA_FROM || 'yulia@voronova.online',

@@ -1,6 +1,6 @@
 # SmartPlate API — Backend
 
-API-сервер для платформы «Умная тарелка» (app.voronova.online).
+API-сервер для платформы «Умная тарелка» (plate.voronova.online; app.voronova.online перенаправляет на него).
 
 ## Стек
 
@@ -68,7 +68,7 @@ YANDEX_REDIRECT=https://api.voronova.online/auth/oauth/yandex/callback
 ANTHROPIC_API_KEY=             # AI-генерация (если используется)
 UNISENDER_API_KEY=             # Unisender (альтернативный email)
 USDA_API_KEY=                  # USDA FoodData Central
-PLATFORM_URL=https://app.voronova.online
+PLATFORM_URL=https://plate.voronova.online
 ```
 
 ## Запуск (dev)
@@ -158,7 +158,7 @@ server/
 Проверьте `DATABASE_URL` в `.env` и что PostgreSQL запущен: `pg_isready`.
 
 **CORS-ошибки в браузере**
-Разрешённые origins: `voronova.online`, `www.voronova.online`, `app.voronova.online`.
+Разрешённые origins: `voronova.online`, `www.voronova.online`, `plate.voronova.online`; `app.voronova.online` временно сохранён для совместимости и отката.
 В dev: `127.0.0.1:5500`, `localhost:5500`. Проверьте, что фронтенд работает на одном из них.
 
 **Rate-limit блокирует запросы**

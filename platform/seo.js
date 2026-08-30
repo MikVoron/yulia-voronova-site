@@ -1,7 +1,7 @@
 (function (global) {
     'use strict';
 
-    const ORIGIN = 'https://app.voronova.online';
+    const ORIGIN = 'https://plate.voronova.online';
     const SHARE_IMAGE = 'https://voronova.online/images/smartplate-share-telegram-1200x630.jpg';
     const RECIPE_CATEGORY_NAMES = {
         breakfasts: 'Завтраки',

@@ -39,10 +39,13 @@ function runtime({ loggedIn = false, initial = {} } = {}) {
   return { context, sessionStorage, localStorage };
 }
 
-describe('paid content browser cache', () => {
-  it('purges every legacy v1 cache before it can be read', () => {
+describe('guest content browser cache', () => {
+  it('purges legacy and v3 cache entries before they can be read', () => {
     const state = runtime({
-      initial: { 'sp_content_cache_v1:user%3A1%3Auser': JSON.stringify({ recipes: [{ steps: ['secret'] }] }) }
+      initial: {
+        'sp_content_cache_v1:user%3A1%3Auser': JSON.stringify({ recipes: [{ steps: ['secret'] }] }),
+        'sp_content_cache_v3:guest': JSON.stringify({ recipes: [{ id: 'free', steps: [] }] })
+      }
     });
     expect(state.sessionStorage.dump()).toEqual({});
     expect(state.localStorage.dump()).toEqual({});
@@ -55,11 +58,18 @@ describe('paid content browser cache', () => {
     expect(state.localStorage.dump()).toEqual({});
   });
 
-  it('stores only guest card metadata and strips protected fields', () => {
+  it('keeps the public recipe content of free recipes, including step photos', () => {
     const state = runtime();
-    vm.runInContext("_writeContentCache({ recipes: [{ id: 'free', name: 'Card', ingredients: ['x'], steps: ['y'], note: 'z' }], categories: [], ingredients: [{ id: 'x' }] })", state.context);
+    vm.runInContext("_writeContentCache({ recipes: [{ id: 'free', access_level: 'free', name: 'Card', ingredients: ['x'], steps: [{ text: 'y', photo: 'images/step.webp' }], note: 'z' }], categories: [], ingredients: [{ id: 'x' }] })", state.context);
     const cached = JSON.parse(Object.values(state.localStorage.dump())[0]);
-    expect(cached.recipes).toEqual([{ id: 'free', name: 'Card' }]);
+    expect(cached.recipes).toEqual([{ id: 'free', access_level: 'free', name: 'Card', ingredients: ['x'], steps: [{ text: 'y', photo: 'images/step.webp' }], note: 'z' }]);
     expect(cached.ingredients).toEqual([]);
+  });
+
+  it('strips protected content from trial and pro recipes', () => {
+    const state = runtime();
+    vm.runInContext("_writeContentCache({ recipes: [{ id: 'trial', access_level: 'trial', ingredients: ['x'], steps: ['y'], note: 'z' }, { id: 'pro', access_level: 'pro', ingredients: ['x'], steps: ['y'], note: 'z' }], categories: [], ingredients: [] })", state.context);
+    const cached = JSON.parse(Object.values(state.localStorage.dump())[0]);
+    expect(cached.recipes).toEqual([{ id: 'trial', access_level: 'trial' }, { id: 'pro', access_level: 'pro' }]);
   });
 });

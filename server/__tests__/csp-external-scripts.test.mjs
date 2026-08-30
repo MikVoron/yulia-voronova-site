@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import { describe, expect, it } from 'vitest';
 
 const platformDir = path.resolve(import.meta.dirname, '../../platform');
-const nginxConfig = fs.readFileSync(path.resolve(import.meta.dirname, '../nginx/app.voronova.online'), 'utf8');
+const nginxConfig = fs.readFileSync(path.resolve(import.meta.dirname, '../nginx/plate.voronova.online'), 'utf8');
 const htmlFiles = fs.readdirSync(platformDir).filter(name => name.endsWith('.html'));
 
 describe('SmartPlate CSP script migration', () => {

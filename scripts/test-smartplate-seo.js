@@ -8,19 +8,22 @@ const platform = path.join(root, 'platform');
 const read = file => fs.readFileSync(path.join(platform, file), 'utf8');
 
 const index = read('index.html');
-assert.match(index, /<link rel="canonical" href="https:\/\/app\.voronova\.online\/">/);
-assert.match(index, /property="og:image" content="https:\/\/voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
+assert.match(index, /<link rel="canonical" href="https:\/\/plate\.voronova\.online\/">/);
+assert.match(index, /rel="image_src" href="https:\/\/plate\.voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
+assert.match(index, /property="og:image" content="https:\/\/plate\.voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
+assert.match(index, /property="og:image:url" content="https:\/\/plate\.voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
 assert.match(index, /property="og:image:type" content="image\/jpeg"/);
 assert.match(index, /name="twitter:card" content="summary_large_image"/);
-assert.match(index, /src="seo\.js\?v=20260731-seo"/);
-assert.match(index, /src="index-seo\.js\?v=20260731-seo"/);
+assert.match(index, /src="seo\.js\?v=20260817-broth-yield"/);
+assert.match(index, /src="index-seo\.js\?v=20260829-social-preview"/);
 assert.match(read('index-seo.js'), /'@type': 'WebSite'/);
+assert.match(read('index-seo.js'), /image: 'https:\/\/plate\.voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg'/);
 
 for (const file of ['recipe.html', 'category.html', 'ingredient.html']) {
     const html = read(file);
     assert.match(html, /meta name="description"/, `${file} description is missing`);
     assert.match(html, /meta name="robots" content="index, follow, max-image-preview:large"/, `${file} index rule is missing`);
-    const seoVersion = file === 'recipe.html' ? '20260810-step-images' : '20260731-seo';
+    const seoVersion = file === 'recipe.html' ? '20260817-broth-yield' : '20260731-seo';
     assert.match(html, new RegExp('src="seo\\.js\\?v=' + seoVersion + '"'), `${file} SEO runtime is missing`);
 }
 
@@ -34,13 +37,16 @@ for (const file of technicalPages) {
 
 const robots = read('robots.txt');
 assert.match(robots, /User-agent: \*/);
-assert.match(robots, /Sitemap: https:\/\/app\.voronova\.online\/sitemap\.xml/);
+assert.match(robots, /User-agent: facebookexternalhit[\s\S]*?Allow: \//);
+assert.match(robots, /User-agent: Facebot[\s\S]*?Allow: \//);
+assert.match(robots, /User-agent: TelegramBot[\s\S]*?Allow: \//);
+assert.match(robots, /Sitemap: https:\/\/plate\.voronova\.online\/sitemap\.xml/);
 
 const sitemap = read('sitemap.xml');
 const locations = Array.from(sitemap.matchAll(/<loc>(.*?)<\/loc>/g), match => match[1]);
 assert(locations.length >= 20, 'Sitemap unexpectedly contains too few URLs');
 assert.strictEqual(new Set(locations).size, locations.length, 'Sitemap contains duplicate URLs');
-assert(locations.includes('https://app.voronova.online/'));
+assert(locations.includes('https://plate.voronova.online/'));
 assert(locations.some(url => url.includes('/category.html?cat=')));
 assert(locations.some(url => url.includes('/ingredient.html?id=')));
 assert(locations.some(url => url.includes('/recipe.html?id=')));
@@ -53,10 +59,10 @@ assert(fs.statSync(path.join(root, 'images', 'smartplate-share-telegram-1200x630
 
 const sharePage = fs.readFileSync(path.join(root, 'smartplate', 'index.html'), 'utf8');
 assert.match(sharePage, /meta name="robots" content="noindex, follow"/);
-assert.match(sharePage, /rel="canonical" href="https:\/\/app\.voronova\.online\/"/);
+assert.match(sharePage, /rel="canonical" href="https:\/\/plate\.voronova\.online\/"/);
 assert.match(sharePage, /property="og:url" content="https:\/\/voronova\.online\/smartplate\/"/);
 assert.match(sharePage, /property="og:image" content="https:\/\/voronova\.online\/images\/smartplate-share-telegram-1200x630\.jpg"/);
-assert.match(fs.readFileSync(path.join(root, 'smartplate', 'redirect.js'), 'utf8'), /location\.replace\('https:\/\/app\.voronova\.online\/'\)/);
+assert.match(fs.readFileSync(path.join(root, 'smartplate', 'redirect.js'), 'utf8'), /location\.replace\('https:\/\/plate\.voronova\.online\/'\)/);
 
 function createSeoDom() {
     const nodes = [];
@@ -95,14 +101,14 @@ sandbox.window.SmartPlateSEO.setRecipe({
     steps: [{ text: 'Смешать ингредиенты.', photo: 'images/recipes/test/step-1.webp' }]
 });
 assert.strictEqual(document.title, 'Тестовый рецепт — рецепт | Умная тарелка');
-assert.strictEqual(document.head.querySelector('link[rel="canonical"]').attributes.href, 'https://app.voronova.online/recipe.html?id=test-free-recipe');
+assert.strictEqual(document.head.querySelector('link[rel="canonical"]').attributes.href, 'https://plate.voronova.online/recipe.html?id=test-free-recipe');
 const freeSchema = JSON.parse(document.getElementById('smartplate-page-schema').textContent);
 assert.strictEqual(freeSchema['@type'], 'Recipe');
 assert.deepStrictEqual(Array.from(freeSchema.recipeIngredient), ['Нут: 200 г']);
 assert.strictEqual(freeSchema.recipeInstructions[0].text, 'Смешать ингредиенты.');
 assert.strictEqual(freeSchema.recipeInstructions[0].name, 'Смешать ингредиенты.');
-assert.strictEqual(freeSchema.recipeInstructions[0].url, 'https://app.voronova.online/recipe.html?id=test-free-recipe#recipe-step-1');
-assert.strictEqual(freeSchema.recipeInstructions[0].image, 'https://app.voronova.online/images/recipes/test/step-1.webp');
+assert.strictEqual(freeSchema.recipeInstructions[0].url, 'https://plate.voronova.online/recipe.html?id=test-free-recipe#recipe-step-1');
+assert.strictEqual(freeSchema.recipeInstructions[0].image, 'https://plate.voronova.online/images/recipes/test/step-1.webp');
 assert.strictEqual(freeSchema.recipeCategory, 'Супы');
 assert.strictEqual(freeSchema.keywords, 'растительное, без глютена');
 

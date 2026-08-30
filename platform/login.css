@@ -214,21 +214,63 @@ body {
 	white-space: nowrap;
 }
 
-.lp-trial-note {
-	margin: -8px 0 22px;
+.lp-pricing-note {
+	margin: -4px 0 22px;
+	padding: 14px 16px 13px;
+	border-left: 4px solid var(--accent);
+	background: #faf8f5;
+}
+
+.lp-pricing-line {
+	margin: 0;
+	color: var(--text);
+	font-size: 13px;
+	font-weight: 700;
+	line-height: 1.38;
+}
+
+.lp-pricing-line + .lp-pricing-line {
+	margin-top: 4px;
+}
+
+.lp-no-card-note {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	margin: 9px 0 0;
 	color: var(--text-2);
 	font-size: 12px;
 	font-weight: 600;
 	line-height: 1.4;
 }
 
-.lp-trial-note::before {
-	content: '';
-	display: inline-block;
-	width: 5px;
-	height: 5px;
-	margin: 0 8px 2px 0;
+.lp-no-card-note span {
+	display: grid;
+	width: 16px;
+	height: 16px;
+	flex: 0 0 16px;
+	place-items: center;
+	border-radius: 50%;
 	background: var(--accent);
+	color: #fff;
+	font-size: 10px;
+	font-weight: 800;
+	line-height: 1;
+}
+
+.lp-pricing-link {
+	display: inline-block;
+	margin-top: 9px;
+	color: var(--text-2);
+	font-size: 12px;
+	font-weight: 700;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.lp-pricing-link:hover,
+.lp-pricing-link:focus-visible {
+	color: var(--accent);
 }
 
 .form-label {

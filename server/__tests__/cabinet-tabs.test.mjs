@@ -20,12 +20,12 @@ describe('cabinet tab navigation', () => {
   });
 
   it('preserves unrelated query parameters while changing tabs', () => {
-    expect(tabs.urlFor('https://app.voronova.online/cabinet.html?tab=subscription&return=recipe.html%3Fid%3Done', 'favorites'))
+    expect(tabs.urlFor('https://plate.voronova.online/cabinet.html?tab=subscription&return=recipe.html%3Fid%3Done', 'favorites'))
       .toBe('cabinet.html?tab=favorites&return=recipe.html%3Fid%3Done');
   });
 
   it('converts a legacy tab hash to the query contract', () => {
-    expect(tabs.urlFor('https://app.voronova.online/cabinet.html#subscription', 'subscription'))
+    expect(tabs.urlFor('https://plate.voronova.online/cabinet.html#subscription', 'subscription'))
       .toBe('cabinet.html?tab=subscription');
   });
 });

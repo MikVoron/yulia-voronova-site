@@ -6,7 +6,9 @@
 
 // ─── CONFIG ─────────────────────────────────────────────────────────────────
 const API_BASE  = 'https://api.voronova.online';
-const CONTENT_API_BASE = (typeof location !== 'undefined' && location.hostname === 'app.voronova.online')
+const PLATFORM_HOSTS = ['app.voronova.online', 'plate.voronova.online'];
+const SESSION_MIGRATION_HOST = 'plate.voronova.online';
+const CONTENT_API_BASE = (typeof location !== 'undefined' && PLATFORM_HOSTS.includes(location.hostname))
     ? location.origin + '/api'
     : API_BASE;
 // Включить когда public-offer.html опубликован на voronova.online (после мержа feature → main + GitHub Pages).
@@ -81,7 +83,14 @@ const Auth = {
         var ret = this._currentReturnUrl();
         return ret ? 'login.html?return=' + encodeURIComponent(ret) : 'login.html';
     },
-    requireAuth() { if (!this.isLoggedIn()) location.href = this._loginUrl(); },
+    requireAuth() {
+        if (this.isLoggedIn()) return true;
+        // На новом домене сначала даём API-cookie восстановить профиль. Сам
+        // refresh живёт на api.voronova.online и сохраняется при смене frontend-host.
+        if (this._domainSessionReady) return false;
+        location.href = this._loginUrl();
+        return false;
+    },
     _userKey(key) {
         const u = this.getUser();
         if (!u || !u.email) return key;
@@ -195,6 +204,10 @@ const Auth = {
         });
     },
     async checkAccess(opts) {
+        const migrated = await this.waitForDomainSessionMigration();
+        // Успешная миграция сразу перезагружает страницу. Не запускаем параллельно
+        // гостевой/платный рендер в старом документе до начала навигации.
+        if (migrated) return false;
         const allowGuest = !!(opts && opts.allowGuest);
         if (!this.isLoggedIn()) {
             if (allowGuest) {
@@ -315,9 +328,16 @@ const Auth = {
                     : 'Этот рецепт открыт после регистрации',
                 btn: isSubscriptionRecipe ? 'Войти или зарегистрироваться' : 'Войти и получить 7 дней бесплатно',
                 href: this._loginUrl(),
-                note: isSubscriptionRecipe
-                    ? 'После регистрации — 7 дней доступа к рецептам категории «Пробный». Для этого рецепта нужна Подписка.'
-                    : '',
+                noteLines: isSubscriptionRecipe
+                    ? [
+                        'Подписка: 190 ₽ за месяц или 540 ₽ за 3 месяца.',
+                        'После регистрации — 7 дней бесплатного доступа к рецептам категории «Пробный». Карту привязывать не нужно.',
+                    ]
+                    : [
+                        'Регистрация по email, без привязки карты.',
+                        'После пробного периода подписка — по желанию: 190 ₽ за месяц или 540 ₽ за 3 месяца.',
+                    ],
+                tariffsHref: 'how-subscription-works.html',
             };
         }
         if (this.isTrial() && level === 'pro') {
@@ -394,6 +414,28 @@ const Auth = {
     _refreshChannel: null,
     _lastCrossTabRefreshAt: 0,
     _refreshTabId: null,
+    _domainSessionReady: null,
+    _startDomainSessionMigration() {
+        if (typeof location === 'undefined' || location.hostname !== SESSION_MIGRATION_HOST) return null;
+        if (this.isLoggedIn()) return null;
+        try {
+            if (sessionStorage.getItem('hp_plate_domain_session_checked') === '1') return null;
+            sessionStorage.setItem('hp_plate_domain_session_checked', '1');
+        } catch {
+            // Private mode may block storage. A single in-memory attempt is safe.
+        }
+        this._domainSessionReady = this.refreshToken().then(ok => {
+            if (ok && this.isLoggedIn()) {
+                location.reload();
+                return true;
+            }
+            return false;
+        });
+        return this._domainSessionReady;
+    },
+    waitForDomainSessionMigration() {
+        return this._domainSessionReady || Promise.resolve(false);
+    },
     _getRefreshTabId() {
         if (this._refreshTabId) return this._refreshTabId;
         if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -493,7 +535,20 @@ const Auth = {
         if (!data || !data.accessToken) return false;
         this._token = data.accessToken;
         sessionStorage.setItem(this._ST, data.accessToken);
-        const user = this.getUser();
+        let user = this.getUser();
+        if (!user && data.user && data.user.email) {
+            user = this.login(
+                data.user.email,
+                data.user.displayName,
+                data.accessToken,
+                null,
+                data.user.avatar,
+                data.user.role,
+                data.user.createdAt,
+                data.user.id,
+                data.user.weight
+            );
+        }
         if (user && data.user) {
             if (data.user.id) user.id = data.user.id;
             user.name = data.user.displayName || user.name;
@@ -540,6 +595,10 @@ const Auth = {
         return res;
     }
 };
+
+// Запускается только на новом frontend-host и ничего не меняет для действующего
+// legacy app.voronova.online. checkAccess/loadContent дождутся результата ниже.
+Auth._startDomainSessionMigration();
 
 // ─── FEEDBACK NOTIFICATIONS ──────────────────────────────────────────────────
 // Глобальный индикатор «есть новый ответ Юлии» в шапке всех страниц платформы.
@@ -639,7 +698,8 @@ const ContentUpdates = {
         wrap.className = 'sp-updates';
         wrap.id = 'sp-updates';
         wrap.hidden = true;
-        wrap.innerHTML = '<button class="sp-updates-btn" id="sp-updates-btn" type="button" aria-expanded="false" aria-controls="sp-updates-panel">'
+        wrap.innerHTML = '<button class="sp-updates-btn" id="sp-updates-btn" type="button" aria-label="Обновления" aria-expanded="false" aria-controls="sp-updates-panel">'
+            + '<svg class="sp-updates-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 10a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 22h4"/></svg>'
             + '<span class="sp-updates-label">Новое</span><span class="sp-updates-count" id="sp-updates-count">0</span>'
             + '</button><aside class="sp-updates-panel" id="sp-updates-panel" aria-label="Новые обновления"></aside>';
         host.insertBefore(wrap, profile);
@@ -1200,7 +1260,10 @@ let _contentErrorDetails = null;
 let _contentIsStale = false;
 let _contentRefreshInFlight = null;
 const LEGACY_CONTENT_CACHE_PREFIX = 'sp_content_cache_v1:';
-const CONTENT_CACHE_PREFIX = 'sp_content_cache_v3:';
+// v4 fixes a guest regression: free recipes retain their public instructions
+// (including step photos), while trial/pro recipe fields stay out of storage.
+const PREVIOUS_CONTENT_CACHE_PREFIX = 'sp_content_cache_v3:';
+const CONTENT_CACHE_PREFIX = 'sp_content_cache_v4:';
 const CONTENT_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
 const CONTENT_STALE_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
 
@@ -1221,7 +1284,11 @@ function clearContentCache() {
         try {
             for (let i = storage.length - 1; i >= 0; i--) {
                 const key = storage.key(i);
-                if (key && (key.indexOf(CONTENT_CACHE_PREFIX) === 0 || key.indexOf(LEGACY_CONTENT_CACHE_PREFIX) === 0)) {
+                if (key && (
+                    key.indexOf(CONTENT_CACHE_PREFIX) === 0 ||
+                    key.indexOf(PREVIOUS_CONTENT_CACHE_PREFIX) === 0 ||
+                    key.indexOf(LEGACY_CONTENT_CACHE_PREFIX) === 0
+                )) {
                     storage.removeItem(key);
                 }
             }
@@ -1251,10 +1318,13 @@ function _readContentCache(maxAge = CONTENT_CACHE_MAX_AGE) {
 
 function _writeContentCache(payload, savedAt = Date.now()) {
     if (Auth.isLoggedIn()) return;
-    // Защищённые поля никогда не переживают вкладку/сессию. Offline-кэш нужен
-    // только для каталога карточек; ingredients/steps/note повторно запрашиваются
-    // у API после серверной проверки доступа.
+    // API already grants guests the full content of free recipes and strips it
+    // from trial/pro recipes. Preserve only that public free content in storage:
+    // otherwise a guest who visits the catalogue before a free recipe loses its
+    // ingredients, steps and step photos on the recipe page.
     const publicRecipes = payload.recipes.map(recipe => {
+        const accessLevel = recipe && (recipe.access_level || (recipe.is_free ? 'free' : 'pro'));
+        if (accessLevel === 'free') return recipe;
         const { ingredients, steps, note, ...meta } = recipe || {};
         return meta;
     });
@@ -1275,13 +1345,16 @@ function _writeContentCache(payload, savedAt = Date.now()) {
     } catch (_) {}
 }
 
-// Одноразовая миграция: v1 мог содержать полный платный payload. Удаляем его
-// сразу при загрузке новой версии, до любого чтения каталога.
+// Remove old cache shapes before any read. v1 could hold paid content; v3
+// removed the public content of free recipes and broke their recipe pages.
 [sessionStorage, localStorage].forEach(storage => {
     try {
         for (let i = storage.length - 1; i >= 0; i--) {
             const key = storage.key(i);
-            if (key && key.indexOf(LEGACY_CONTENT_CACHE_PREFIX) === 0) storage.removeItem(key);
+            if (key && (
+                key.indexOf(LEGACY_CONTENT_CACHE_PREFIX) === 0 ||
+                key.indexOf(PREVIOUS_CONTENT_CACHE_PREFIX) === 0
+            )) storage.removeItem(key);
         }
     } catch (_) {}
 });
@@ -1351,6 +1424,8 @@ async function _fetchWithRetry(url, options, timeouts) {
 }
 
 async function _fetchContentPayload() {
+    const migrated = await Auth.waitForDomainSessionMigration();
+    if (migrated) return { recipes: [], categories: [], ingredients: [] };
     // New tabs start with empty sessionStorage. If the user is logged in but token
     // is missing, refresh it first — otherwise the API strips paid fields.
     if (Auth.isLoggedIn() && !Auth.getToken()) await Auth.refreshToken();
@@ -1739,7 +1814,7 @@ function buildShoppingList() {
         });
         txt += '\n';
     });
-    txt += '────────────\nЮлия Воронова · нутрициолог\n@voronova_nutrition\napp.voronova.online';
+    txt += '────────────\nЮлия Воронова · нутрициолог\n@voronova_nutrition\nplate.voronova.online';
     return txt;
 }
 

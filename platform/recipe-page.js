@@ -518,7 +518,12 @@
 						'<div class="rp-cta-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>' +
 						'<div class="rp-cta-title">' + escHtml(cta.title) + '</div>' +
 						'<a class="rp-cta-btn" href="' + escHtml(cta.href) + '">' + escHtml(cta.btn) + '</a>' +
-						(cta.note ? '<div class="rp-cta-note">' + escHtml(cta.note) + '</div>' : '') +
+						(cta.noteLines && cta.noteLines.length
+							? '<div class="rp-cta-note">'
+								+ cta.noteLines.map(function(line) { return '<p>' + escHtml(line) + '</p>'; }).join('')
+								+ (cta.tariffsHref ? '<a class="rp-cta-tariffs" href="' + escHtml(cta.tariffsHref) + '">Посмотреть все тарифы</a>' : '')
+								+ '</div>'
+							: '') +
 					'</div>' +
 				'</div>';
 		}

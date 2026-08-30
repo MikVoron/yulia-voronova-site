@@ -19,9 +19,27 @@ const YANDEX_CLIENT_ID = process.env.YANDEX_CLIENT_ID;
 const YANDEX_CLIENT_SECRET = process.env.YANDEX_CLIENT_SECRET;
 const YANDEX_REDIRECT = process.env.YANDEX_REDIRECT || 'https://api.voronova.online/auth/oauth/yandex/callback';
 
-const PLATFORM_URL = process.env.PLATFORM_URL || 'https://app.voronova.online';
+const PLATFORM_URL = process.env.PLATFORM_URL || 'https://plate.voronova.online';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
+
+function envFlagEnabled(value) {
+  return /^(1|true|yes|on)$/i.test(String(value || '').trim());
+}
+
+function providerReady(provider) {
+  if (provider === 'vk') {
+    return envFlagEnabled(process.env.VK_OAUTH_ENABLED) && Boolean(VK_APP_ID && VK_APP_SECRET);
+  }
+  if (provider === 'yandex') {
+    return envFlagEnabled(process.env.YANDEX_OAUTH_ENABLED) && Boolean(YANDEX_CLIENT_ID && YANDEX_CLIENT_SECRET);
+  }
+  return false;
+}
+
+function disabledProviderReply(reply) {
+  return reply.status(404).send({ error: 'Способ входа недоступен' });
+}
 
 function setCookieAndRedirect(reply, refreshToken, isNew) {
   reply.setCookie('refreshToken', refreshToken, {
@@ -133,9 +151,16 @@ async function issueTokens(user, req, reply, isNew, fastify) {
 
 async function oauthRoutes(fastify) {
 
+  // Public capability endpoint for the login page. A provider is exposed only
+  // when both its explicit kill switch and all required credentials are set.
+  fastify.get('/auth/oauth/providers', async () => ({
+    vk: providerReady('vk'),
+    yandex: providerReady('yandex')
+  }));
+
   // ── VK: redirect ──
   fastify.get('/auth/oauth/vk', async (req, reply) => {
-    if (!VK_APP_ID) return reply.status(500).send({ error: 'VK OAuth не настроен' });
+    if (!providerReady('vk')) return disabledProviderReply(reply);
     const state = crypto.randomBytes(24).toString('hex');
     reply.setCookie('oauth_state_vk', state, { path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 600 });
     const url = 'https://id.vk.com/authorize'
@@ -205,7 +230,7 @@ async function oauthRoutes(fastify) {
 
   // ── Yandex: redirect ──
   fastify.get('/auth/oauth/yandex', async (req, reply) => {
-    if (!YANDEX_CLIENT_ID) return reply.status(500).send({ error: 'Yandex OAuth не настроен' });
+    if (!providerReady('yandex')) return disabledProviderReply(reply);
     const state = crypto.randomBytes(24).toString('hex');
     reply.setCookie('oauth_state_yandex', state, { path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 600 });
     const url = 'https://oauth.yandex.ru/authorize'

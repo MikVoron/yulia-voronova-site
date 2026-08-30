@@ -111,7 +111,7 @@ describe('subscription/early-bird', () => {
   }
 
   it('keeps the early price for an early member who renews in time', async () => {
-    confirmedEarlyMembers = 18;
+    confirmedEarlyMembers = 10;
     earlyAccessMember = true;
     earlyAccessUntil = '2099-06-30T10:00:00.000Z';
 
@@ -125,7 +125,7 @@ describe('subscription/early-bird', () => {
     expect(res.json()).toMatchObject({
       eligible: true,
       eligibility: 'renewal',
-      remaining: 12,
+      remaining: 0,
       isEarlyBird: true,
       prices: { 1: 190, 3: 540, 12: 1900 }
     });

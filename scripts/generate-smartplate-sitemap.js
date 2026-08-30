@@ -3,7 +3,7 @@ const path = require('path');
 const https = require('https');
 const { execFileSync } = require('child_process');
 
-const ORIGIN = 'https://app.voronova.online';
+const ORIGIN = 'https://plate.voronova.online';
 const API_ORIGIN = 'https://api.voronova.online';
 const OUTPUT = path.join(__dirname, '..', 'platform', 'sitemap.xml');
 

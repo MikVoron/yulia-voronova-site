@@ -208,7 +208,7 @@
 
 			const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 			const mobileText = window.matchMedia('(max-width: 767px)').matches;
-			const searchText = mobileText ? 'Плов' : 'Плов с чечевицей';
+			const searchText = mobileText ? 'Плов из чечевицы' : 'Плов с чечевицей';
 			const messageText = 'Юля, добавьте рецепт шакшуки!';
 
 			function typeDemoText(element, text, delay, speed) {
