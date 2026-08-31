@@ -1582,11 +1582,6 @@ function getCategoryDishes(catId, filters = {}) {
     const cat = CATEGORIES[catId];
     if (!cat) return [];
     let dishes = cat.dishes.map(id => RECIPES[id]).filter(Boolean);
-    // Выбранная обложка — и главное блюдо категории. Сортировку остальных
-    // рецептов не меняем; этот приоритет действует только внутри категории.
-    if (cat.coverRecipeId) {
-        dishes.sort((a, b) => (b.id === cat.coverRecipeId) - (a.id === cat.coverRecipeId));
-    }
     if (filters.time) {
         if (filters.time === 'over60') dishes = dishes.filter(d => d.time > 60);
         else dishes = dishes.filter(d => d.time <= filters.time);
