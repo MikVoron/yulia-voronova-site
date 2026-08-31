@@ -103,13 +103,15 @@ function createHarness({ completed = false, forced = false, reducedMotion = fals
 }
 
 describe('SmartPlate feedback plan 6 contracts', () => {
-  it('shows onboarding on the first visit before async content loading', () => {
+  it('shows the regular homepage on the first visit and keeps onboarding optional', () => {
     const harness = createHarness();
 
-    expect(harness.classes.has('sp-guest-onboarding-active')).toBe(true);
+    expect(harness.classes.has('sp-guest-onboarding-active')).toBe(false);
     expect(harness.scrollCalls).toHaveLength(0);
     expect(indexHtml).toContain('function primeGuestTourVisibility()');
     expect(indexHtml.indexOf('primeGuestTourVisibility')).toBeLessThan(indexHtml.indexOf('href="style-v4.css'));
+    expect(indexHtml).toContain("const showGuestTour = new URLSearchParams(location.search).get('guestTour') === '1';");
+    expect(indexHtml).not.toContain("showGuestTour = localStorage.getItem('smartplate_guest_tour_completed_v1') !== '1';");
     expect(indexHtml).toContain("document.documentElement.classList.add('sp-guest-tour-preview')");
     expect(indexHtml).toContain("document.documentElement.classList.remove('sp-guest-tour-preview')");
     expect(indexHtml.indexOf('updateGuestOnboardingVisibility();')).toBeLessThan(indexHtml.indexOf('loadContent().then'));
@@ -176,7 +178,7 @@ describe('SmartPlate feedback plan 6 contracts', () => {
 
   it('keeps the page usable when localStorage is unavailable', () => {
     const harness = createHarness({ storageThrows: true });
-    expect(harness.classes.has('sp-guest-onboarding-active')).toBe(true);
+    expect(harness.classes.has('sp-guest-onboarding-active')).toBe(false);
 
     expect(() => vm.runInContext('completeGuestTour(); updateGuestOnboardingVisibility();', harness.context)).not.toThrow();
     expect(harness.classes.has('sp-guest-onboarding-active')).toBe(false);

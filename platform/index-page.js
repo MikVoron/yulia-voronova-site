@@ -21,16 +21,7 @@
 		let _spRecCount = 8;
 		const GUEST_TOUR_COMPLETED_KEY = 'smartplate_guest_tour_completed_v1';
 		let _guestTourPreview = new URLSearchParams(location.search).get('guestTour') === '1';
-		let _guestTourDismissedInMemory = false;
 		if (_guestTourPreview) document.body.classList.add('sp-guest-tour-preview');
-		function isGuestTourCompleted() {
-			if (_guestTourDismissedInMemory) return true;
-			try {
-				return localStorage.getItem(GUEST_TOUR_COMPLETED_KEY) === '1';
-			} catch (_) {
-				return false;
-			}
-		}
 		function replaceGuestTourUrl(isOpen) {
 			const url = new URL(location.href);
 			if (isOpen) url.searchParams.set('guestTour', '1');
@@ -64,7 +55,6 @@
 			try {
 				localStorage.setItem(GUEST_TOUR_COMPLETED_KEY, '1');
 			} catch (_) {}
-			_guestTourDismissedInMemory = true;
 			_guestTourPreview = false;
 			document.body.classList.remove('sp-guest-tour-preview', 'sp-guest-onboarding-active');
 			replaceGuestTourUrl(false);
@@ -73,16 +63,15 @@
 			scrollToPageTop();
 		}
 		function updateGuestOnboardingVisibility() {
-			document.body.classList.toggle('sp-guest-onboarding-active', _guestTourPreview || !isGuestTourCompleted());
+			document.body.classList.toggle('sp-guest-onboarding-active', _guestTourPreview);
 		}
 		window.addEventListener('popstate', function () {
 			_guestTourPreview = new URLSearchParams(location.search).get('guestTour') === '1';
 			document.body.classList.remove('sp-guest-tour-preview');
 			updateGuestOnboardingVisibility();
 		});
-		// Условие зависит только от localStorage/URL, поэтому применяем его до
-		// сетевых запросов. Иначе сначала мелькает hero, а после loadContent()
-		// страница резко заменяет его вводным блоком.
+		// Прямой режим ?guestTour=1 применяем до сетевых запросов, чтобы инструкция
+		// открывалась без промежуточного показа обычной главной.
 		updateGuestOnboardingVisibility();
 		document.documentElement.classList.remove('sp-guest-tour-preview');
 
