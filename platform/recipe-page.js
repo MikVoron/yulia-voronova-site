@@ -2816,23 +2816,15 @@
 			var iframe = document.createElement('iframe');
 			iframe.src = embed;
 			iframe.title = 'Видеорецепт' + (frame.dataset.label ? ': ' + frame.dataset.label : '');
-			iframe.loading = 'lazy';
+			// loadVideoFrame() вызывается только для активной вкладки. Загружаем её
+			// сразу: lazy iframe находится ниже первого экрана и может не начать
+			// загрузку до прокрутки, из-за чего VK ошибочно выглядел недоступным.
+			iframe.loading = 'eager';
 			iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
 			iframe.setAttribute('allow', 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen');
 			iframe.allowFullscreen = true;
 			iframe.onerror = function () { showVideoFallback(frame, url); };
 			frame.appendChild(iframe);
-			// Timeout fallback: if iframe doesn't load within 5 seconds, show link
-			var fallbackTimer = setTimeout(function () {
-				try {
-					// Check if iframe loaded something (will throw on cross-origin block)
-					var doc = iframe.contentDocument || iframe.contentWindow.document;
-					if (!doc || !doc.body || doc.body.innerHTML === '') showVideoFallback(frame, url);
-				} catch (e) {
-					// Cross-origin = loaded OK (YouTube/VK serve cross-origin content)
-				}
-			}, 5000);
-			iframe.onload = function () { clearTimeout(fallbackTimer); };
 		}
 		window.switchVideo = function (key) {
 			document.querySelectorAll('.video-tab').forEach(t => t.classList.toggle('active', t.dataset.key === key));

@@ -110,7 +110,9 @@ describe('SmartPlate feedback plan 5 contracts', () => {
 
     expect(recipe).toContain("if (parsed.protocol !== 'https:') return null;");
     expect(recipe).toContain('iframe.title = \'Видеорецепт\'');
-    expect(recipe).toContain("iframe.loading = 'lazy'");
+    expect(recipe).toContain("iframe.loading = 'eager'");
+    expect(recipe).not.toContain('var fallbackTimer = setTimeout');
+    expect(recipe).not.toContain("if (!doc || !doc.body || doc.body.innerHTML === '') showVideoFallback(frame, url);");
     expect(recipe).toContain('function showVideoFallback(frame, url)');
     expect(recipe).toContain('rel="noopener noreferrer"');
     expect(recipe).toContain('external-link-icon');
