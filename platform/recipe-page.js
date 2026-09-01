@@ -1744,6 +1744,26 @@
 				</section>`
 				: '';
 
+			const guestFreeRecipeCtaHtml = (() => {
+				if (_asIngredient || !Auth.isGuest() || !Auth.isFreeRecipe(r)) return '';
+				const trialRecipeCount = Object.values(RECIPES).filter(recipe =>
+					Auth.recipeAccessLevel(recipe) === 'trial'
+				).length;
+				if (!trialRecipeCount) return '';
+				const recipeWord = trialRecipeCount === 1 ? 'рецепту' : 'рецептам';
+				return `<section class="recipe-preview free-recipe-cta" aria-label="Пробный доступ">
+					<div class="rp-cta-block">
+						<div class="rp-cta-icon" aria-hidden="true">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+						</div>
+						<div class="rp-cta-title">Хотите больше рецептов?</div>
+						<div class="free-recipe-cta-copy">Получите 7 дней доступа ещё к ${trialRecipeCount} ${recipeWord} — бесплатно и без привязки карты.</div>
+						<a class="rp-cta-btn" href="${escHtml(Auth._loginUrl())}" data-recipe-action="track-registration-cta">Получить доступ на 7 дней</a>
+						<div class="rp-cta-note"><p>Регистрация по email. После пробного периода подписка — только по вашему желанию.</p></div>
+					</div>
+				</section>`;
+			})();
+
 			document.getElementById('page-content').innerHTML = `
             ${guestHelpHtml}
             <div class="recipe-layout">
@@ -1895,8 +1915,9 @@
 					</div>` : ''}
 
 					${tipHtml}
+					${guestFreeRecipeCtaHtml}
 
-                    <!-- On mobile: sidebar appears here, after recipe content, before reviews -->
+					<!-- On mobile: sidebar appears here, after recipe content, before reviews -->
                     <div id="sidebar-mobile" style="margin-top:20px;display:none"></div>
 
                     <!-- Reviews section -->
@@ -3897,6 +3918,11 @@
 				else if (action === 'share-recipe') shareRecipe();
 				else if (action === 'toggle-favorite') toggleRecipeFav();
 				else if (action === 'scroll-to-review-form') scrollToReviewForm();
+				else if (action === 'track-registration-cta') {
+					if (window.SmartPlateMetrika && typeof SmartPlateMetrika.goal === 'function') {
+						SmartPlateMetrika.goal('registration_cta_clicked');
+					}
+				}
 				else if (action === 'open-grocery-list') openRecipeGroceryList();
 				else if (action === 'toggle-stepper-mode') toggleStepperMode();
 				else if (action === 'dismiss-steps-hint') dismissStepsHint();

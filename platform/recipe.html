@@ -1023,6 +1023,21 @@
 			line-height: 1.6 !important;
 		}
 
+		/* Guest-only continuation after a complete free recipe. Reuses the
+		   current locked-recipe CTA visual system instead of introducing a new card. */
+		.recipe-main .free-recipe-cta.recipe-preview {
+			max-width: none; margin: 28px 0 38px; padding: 0;
+		}
+		.recipe-main .free-recipe-cta .rp-cta-block {
+			margin-top: 0; padding: 30px 24px;
+		}
+		.recipe-main .free-recipe-cta .rp-cta-title { margin-bottom: 8px; }
+		.recipe-main .free-recipe-cta-copy {
+			max-width: 540px; margin: 0 auto 20px;
+			color: var(--text-2); font-size: 13px; line-height: 1.6;
+		}
+		.recipe-main .free-recipe-cta .rp-cta-note { max-width: 460px; }
+
 		/* ── SIDEBAR (editorial redesign) ───────────────────────────────
 		   Neutralises the legacy 4-colour group palette in style-v4.css and
 		   restyles banner / progress / groups / items / total to match the
@@ -1425,7 +1440,7 @@
 	<script src="data-v2.js?v=20260828-mobile-updates-bell"></script>
 	<script src="ingredients.js?v=20260711-oats-seabass"></script>
 <script src="header-nav.js?v=20260714-category-nav"></script>
-<script src="recipe-page.js?v=20260831-vk-eager-load"></script>
+<script src="recipe-page.js?v=20260901-free-recipe-cta"></script>
 	<script src="tawk-chat-modal.js?v=20260803-tawk-singleton"></script>
 </body>
 
