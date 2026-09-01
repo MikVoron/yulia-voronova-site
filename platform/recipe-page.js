@@ -1915,12 +1915,12 @@
 					</div>` : ''}
 
 					${tipHtml}
-					${guestFreeRecipeCtaHtml}
 
 					<!-- On mobile: sidebar appears here, after recipe content, before reviews -->
-                    <div id="sidebar-mobile" style="margin-top:20px;display:none"></div>
+					<div id="sidebar-mobile" style="margin-top:20px;display:none"></div>
+					${guestFreeRecipeCtaHtml}
 
-                    <!-- Reviews section -->
+					<!-- Reviews section -->
 					<section class="reviews-section" id="reviews-section" aria-labelledby="reviews-title">
 						<h2 class="reviews-title" id="reviews-title" tabindex="-1">Отзывы</h2>
                         <div id="reviews-list" style="margin-bottom:16px"></div>
