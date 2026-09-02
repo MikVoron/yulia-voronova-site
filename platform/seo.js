@@ -2,7 +2,7 @@
     'use strict';
 
     const ORIGIN = 'https://plate.voronova.online';
-    const SHARE_IMAGE = 'https://voronova.online/images/smartplate-share-telegram-1200x630.jpg';
+    const SHARE_IMAGE = 'https://plate.voronova.online/images/smartplate-share-v2.jpg';
     const RECIPE_CATEGORY_NAMES = {
         breakfasts: 'Завтраки',
         soups: 'Супы',

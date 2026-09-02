@@ -4,7 +4,7 @@ const path = require('node:path');
 
 const ORIGIN = 'https://plate.voronova.online';
 const SITE_ORIGIN = 'https://voronova.online';
-const SOCIAL_IMAGE = `${ORIGIN}/images/smartplate-share.jpg`;
+const SOCIAL_IMAGE = `${ORIGIN}/images/smartplate-share-v2.jpg`;
 const RECIPE_CATEGORY_NAMES = {
   breakfasts: 'Завтраки',
   soups: 'Супы',
@@ -46,7 +46,7 @@ function summary(value, maxLength = 180) {
 }
 
 function absoluteImage(value) {
-  if (!value) return `${SITE_ORIGIN}/images/smartplate-share-telegram-1200x630.jpg`;
+  if (!value) return SOCIAL_IMAGE;
   if (/^https?:\/\//i.test(value)) return value;
   return `${ORIGIN}/${String(value).replace(/^\/+/, '')}`;
 }
