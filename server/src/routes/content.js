@@ -227,10 +227,16 @@ async function contentRoutes(fastify) {
     if (!id) return reply.type('text/html; charset=utf-8').send(template);
     if (!/^[a-z0-9_-]{1,100}$/.test(id)) return reply.status(404).type('text/html; charset=utf-8').send(template);
     const result = await db.query(
-      `SELECT id, name, time_min, servings, is_free, access_level, kcal, protein, fat, carbs, fiber,
-              tags, photo, quote, ingredients, steps
-         FROM recipes
-        WHERE id=$1 AND is_published=true`,
+      `SELECT r.id, r.cat, r.name, r.time_min, r.servings, r.is_free, r.access_level,
+              r.kcal, r.protein, r.fat, r.carbs, r.fiber,
+              r.tags, r.photo, r.quote, r.ingredients, r.steps,
+              COALESCE(
+                (SELECT array_agg(rc.category_id ORDER BY (rc.category_id = r.cat) DESC, rc.category_id)
+                   FROM recipe_categories rc WHERE rc.recipe_id = r.id),
+                ARRAY[r.cat]
+              ) AS categories
+         FROM recipes r
+        WHERE r.id=$1 AND r.is_published=true`,
       [id]
     );
     if (!result.rows.length) return reply.status(404).type('text/html; charset=utf-8').send(template);

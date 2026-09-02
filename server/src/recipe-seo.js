@@ -4,6 +4,20 @@ const path = require('node:path');
 
 const ORIGIN = 'https://plate.voronova.online';
 const SITE_ORIGIN = 'https://voronova.online';
+const RECIPE_CATEGORY_NAMES = {
+  breakfasts: 'Завтраки',
+  soups: 'Супы',
+  mains: 'Горячее',
+  cutlets: 'Котлеты',
+  salads: 'Салаты',
+  sides: 'Гарниры',
+  pancakes: 'Блины и оладьи',
+  spreads: 'Намазки',
+  sauces: 'Соусы',
+  bases: 'Основа',
+  breads: 'Хлеб и крекеры',
+  drinks: 'Напитки',
+};
 const DEPLOYED_PLATFORM_DIR = path.resolve(__dirname, '..', '..', 'smartplate-platform');
 const LOCAL_PLATFORM_DIR = path.resolve(__dirname, '..', '..', 'platform');
 
@@ -66,6 +80,26 @@ function stepText(step) {
   return cleanText(typeof step === 'string' ? step : step && step.text);
 }
 
+function stepImage(step) {
+  if (!step || typeof step !== 'object') return '';
+  const photo = Array.isArray(step.photo)
+    ? step.photo.find(item => typeof item === 'string' && item)
+    : step.photo;
+  return typeof photo === 'string' && photo ? absoluteImage(photo) : '';
+}
+
+function stepName(text, index) {
+  const firstSentence = cleanText(text).match(/^.*?[.!?](?:\s|$)/);
+  return summary(firstSentence ? firstSentence[0] : text, 90) || `Шаг ${index + 1}`;
+}
+
+function recipeCategories(recipe) {
+  const ids = Array.isArray(recipe.categories) && recipe.categories.length
+    ? recipe.categories
+    : (recipe.cat ? [recipe.cat] : []);
+  return ids.map(id => RECIPE_CATEGORY_NAMES[id]).filter(Boolean).join(', ');
+}
+
 function buildSchema(recipe) {
   const isFree = recipe.access_level === 'free' || recipe.is_free === true;
   const schema = {
@@ -81,13 +115,27 @@ function buildSchema(recipe) {
   if (!isFree) return schema;
 
   const ingredients = (recipe.ingredients || []).map(ingredientName).filter(Boolean);
-  const steps = (recipe.steps || []).map(stepText).filter(Boolean);
+  const instructions = (recipe.steps || []).map((step, index) => {
+    const text = stepText(step);
+    if (!text) return null;
+    const instruction = {
+      '@type': 'HowToStep',
+      name: stepName(text, index),
+      text,
+      url: `${recipeUrl(recipe.id)}#recipe-step-${index + 1}`,
+    };
+    const image = stepImage(step);
+    if (image) instruction.image = image;
+    return instruction;
+  }).filter(Boolean);
+  const category = recipeCategories(recipe);
+  const keywords = (recipe.tags || []).map(cleanText).filter(Boolean);
   if (recipe.servings) schema.recipeYield = `${recipe.servings} порций`;
   if (Number(recipe.time_min) > 0) schema.totalTime = `PT${Number(recipe.time_min)}M`;
   if (ingredients.length) schema.recipeIngredient = ingredients;
-  if (steps.length) schema.recipeInstructions = steps.map((text, index) => ({
-    '@type': 'HowToStep', name: `Шаг ${index + 1}`, text,
-  }));
+  if (instructions.length) schema.recipeInstructions = instructions;
+  if (category) schema.recipeCategory = category;
+  if (keywords.length) schema.keywords = keywords.join(', ');
   schema.nutrition = {
     '@type': 'NutritionInformation',
     calories: `${Number(recipe.kcal || 0)} ккал`,
@@ -106,7 +154,7 @@ function buildArticle(recipe) {
     ? (recipe.ingredients || []).map(ingredientName).filter(Boolean).map(item => `<li>${escapeHtml(item)}</li>`).join('')
     : '';
   const steps = isFree
-    ? (recipe.steps || []).map(stepText).filter(Boolean).map(item => `<li>${escapeHtml(item)}</li>`).join('')
+    ? (recipe.steps || []).map(stepText).map((item, index) => item ? `<li id="recipe-step-${index + 1}">${escapeHtml(item)}</li>` : '').join('')
     : '';
   return `
 <article id="seo-recipe-content" class="seo-recipe-content">

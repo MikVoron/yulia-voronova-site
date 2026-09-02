@@ -68,7 +68,7 @@ const mockQuery = vi.fn(async (sql /*, params */) => {
   if (/FROM recipes r WHERE r\.is_published = true/.test(sql)) {
     return { rows: RECIPES.map(r => ({ ...r })) };
   }
-  if (/FROM recipes\s+WHERE id=\$1 AND is_published=true/.test(sql)) {
+  if (/FROM recipes(?: r)?\s+WHERE (?:r\.)?id=\$1 AND (?:r\.)?is_published=true/.test(sql)) {
     return { rows: [{ ...FREE_RECIPE, quote: 'Public recipe description', photo: 'images/free.webp', time_min: 20 }] };
   }
   if (/SELECT id, name, emoji, color, description, sort_order, auto_addons, cover_recipe_id FROM categories ORDER BY sort_order/.test(sql)) {
