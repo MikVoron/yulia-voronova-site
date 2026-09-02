@@ -18,9 +18,13 @@ describe('server recipe SEO document', () => {
     expect(html).toContain('<link rel="canonical" href="https://plate.voronova.online/recipe.html?id=free-pasta">');
     expect(html).toContain('<meta property="og:url" content="https://plate.voronova.online/recipe.html?id=free-pasta">');
     expect(html).toContain('<meta property="og:title" content="Паста — рецепт | Умная тарелка">');
-    expect(html).toContain('<meta property="og:image" content="https://plate.voronova.online/images/pasta.webp">');
+    expect(html).toContain('<meta property="og:image" content="https://plate.voronova.online/images/smartplate-share.jpg">');
+    expect(html).toContain('<meta property="og:image:type" content="image/jpeg">');
+    expect(html).toContain('<meta name="twitter:image" content="https://plate.voronova.online/images/smartplate-share.jpg">');
     expect(html).toContain('<script id="smartplate-page-schema" type="application/ld+json">');
     expect(html).toContain('<h1>Паста</h1>');
+    expect(html).toContain('<img src="https://plate.voronova.online/images/pasta.webp"');
+    expect(html).toContain('"image":["https://plate.voronova.online/images/pasta.webp"]');
     expect(html).toContain('Паста: 200 г');
     expect(html).toContain('"@type":"Recipe"');
     expect(html).toContain('"url":"https://plate.voronova.online/recipe.html?id=free-pasta#recipe-step-1"');

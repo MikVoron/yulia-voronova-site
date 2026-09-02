@@ -4,6 +4,7 @@ const path = require('node:path');
 
 const ORIGIN = 'https://plate.voronova.online';
 const SITE_ORIGIN = 'https://voronova.online';
+const SOCIAL_IMAGE = `${ORIGIN}/images/smartplate-share.jpg`;
 const RECIPE_CATEGORY_NAMES = {
   breakfasts: 'Завтраки',
   soups: 'Супы',
@@ -176,9 +177,7 @@ function buildArticle(recipe) {
 function renderRecipeDocument(template, recipe) {
   const canonical = recipeUrl(recipe.id);
   const description = recipeDescription(recipe);
-  const image = absoluteImage(recipe.photo);
   const title = `${recipe.name} — рецепт | Умная тарелка`;
-  const imageType = /\.jpe?g(?:$|\?)/i.test(image) ? 'image/jpeg' : (/\.png(?:$|\?)/i.test(image) ? 'image/png' : 'image/webp');
   const schema = JSON.stringify(buildSchema(recipe)).replace(/</g, '\\u003c');
   const head = `
 <script id="smartplate-page-schema" type="application/ld+json">${schema}</script>
@@ -191,14 +190,14 @@ function renderRecipeDocument(template, recipe) {
   document = upsertMeta(document, 'property', 'og:description', description);
   document = upsertMeta(document, 'property', 'og:url', canonical);
   document = upsertMeta(document, 'property', 'og:type', recipe.access_level === 'free' || recipe.is_free === true ? 'article' : 'website');
-  document = upsertMeta(document, 'property', 'og:image', image);
-  document = upsertMeta(document, 'property', 'og:image:url', image);
-  document = upsertMeta(document, 'property', 'og:image:secure_url', image);
-  document = upsertMeta(document, 'property', 'og:image:type', imageType);
+  document = upsertMeta(document, 'property', 'og:image', SOCIAL_IMAGE);
+  document = upsertMeta(document, 'property', 'og:image:url', SOCIAL_IMAGE);
+  document = upsertMeta(document, 'property', 'og:image:secure_url', SOCIAL_IMAGE);
+  document = upsertMeta(document, 'property', 'og:image:type', 'image/jpeg');
   document = upsertMeta(document, 'property', 'og:image:alt', recipe.name);
   document = upsertMeta(document, 'name', 'twitter:title', title);
   document = upsertMeta(document, 'name', 'twitter:description', description);
-  document = upsertMeta(document, 'name', 'twitter:image', image);
+  document = upsertMeta(document, 'name', 'twitter:image', SOCIAL_IMAGE);
   document = upsertMeta(document, 'name', 'twitter:image:alt', recipe.name);
   return document
     .replace(/<\/head>/i, `${head}\n</head>`)
