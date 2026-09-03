@@ -35,22 +35,23 @@ function wrap(body, unsubscribeToken, showSupportFooter = false, newsletterFoote
 	<td class="em-help" bgcolor="#faf8f5" style="background-color:#faf8f5; border-top:1px solid #e5e1db; padding:18px 36px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:12px; line-height:1.65; font-weight:400; color:#625d57;">Нужна помощь? Напишите на <a href="mailto:hello@voronova.online" style="color:#c73208; text-decoration:underline; font-weight:600;">hello@voronova.online</a> или в разделе <a href="${PLATFORM_URL}/cabinet.html?tab=feedback" target="_blank" style="color:#c73208; text-decoration:underline; font-weight:600;">«Связь»</a>.</td>
 </tr>`
     : '';
-  const standardFooter = `<tr>
+	const standardFooter = `<tr>
 	<td class="em-footer" align="center" style="border-top:1px solid #e5e1db; padding:19px 28px 21px;">
 		<div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif; font-size:14px; line-height:1.3; font-weight:700; color:#171717;">Умная&nbsp;<span style="color:#e8400a;">тарелка</span></div>
-		<div style="margin-top:7px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;"><a href="${PLATFORM_URL}/" target="_blank" style="color:#77716a; text-decoration:underline;">Открыть платформу</a>{{UNSUBSCRIBE_LINK}}&nbsp;&nbsp;·&nbsp;&nbsp;© 2026 Юлия Воронова</div>
+		<div class="em-footer-links" style="margin-top:7px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;"><a href="${PLATFORM_URL}/" target="_blank" style="color:#77716a; text-decoration:underline;">Открыть платформу</a>{{UNSUBSCRIBE_LINK}}</div>
+		<div class="em-footer-copy" style="margin-top:3px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;">© 2026 Юлия Воронова</div>
 	</td>
 </tr>`.replace('{{UNSUBSCRIBE_LINK}}', () => unsubLink ? '&nbsp;&nbsp;·&nbsp;&nbsp;' + unsubLink : '');
   const mailingFooter = `<tr>
 	<td class="em-footer" align="center" style="border-top:1px solid #e5e1db; padding:19px 28px 21px;">
 		<div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif; font-size:14px; line-height:1.3; font-weight:700; color:#171717;">Умная&nbsp;<span style="color:#e8400a;">тарелка</span></div>
-		<div style="margin-top:7px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;">{{FOOTER_NOTE}}</div>
-		<div style="margin-top:3px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;">{{UNSUBSCRIBE_LINK}}{{COPYRIGHT_SEPARATOR}}© 2026 Юлия Воронова</div>
+		<div class="em-footer-note" style="margin-top:7px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;">{{FOOTER_NOTE}}</div>
+		<div class="em-footer-links" style="margin-top:3px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;">{{UNSUBSCRIBE_LINK}}</div>
+		<div class="em-footer-copy" style="margin-top:3px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:11px; line-height:1.55; color:#8a847d;">© 2026 Юлия Воронова</div>
 	</td>
 </tr>`
     .replace('{{FOOTER_NOTE}}', () => escHtml(newsletterFooterText || 'Вы получили это письмо, потому что подписались на новости проекта.'))
-    .replace('{{UNSUBSCRIBE_LINK}}', () => unsubLink)
-    .replace('{{COPYRIGHT_SEPARATOR}}', () => unsubLink ? '&nbsp;&nbsp;·&nbsp;&nbsp;' : '');
+    .replace('{{UNSUBSCRIBE_LINK}}', () => unsubLink);
   const footer = newsletterFooter ? mailingFooter : standardFooter;
   return `<!DOCTYPE html>
 <html lang="ru" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -67,14 +68,20 @@ function wrap(body, unsubscribeToken, showSupportFooter = false, newsletterFoote
 		table { border-collapse:collapse; }
 		a { color:#c73208; }
 		@media only screen and (max-width:600px){
-			.em-outer{ padding:14px 10px !important; }
-			.em-author{ padding:10px 16px !important; font-size:9px !important; letter-spacing:1.5px !important; }
-			.em-mast{ padding:22px 20px 20px !important; }
+			.em-outer{ padding:16px 12px !important; }
+			.em-shell{ width:100% !important; }
+			.em-author{ padding:10px 12px !important; font-size:9px !important; letter-spacing:1.35px !important; }
+			.em-mast{ padding:20px 20px 19px !important; }
 			.em-brand{ font-size:26px !important; }
-			.em-content{ padding:28px 22px 30px !important; }
-			.em-h1{ font-size:23px !important; }
-			.em-help{ padding:18px 22px !important; }
-			.em-footer{ padding:18px 22px 20px !important; }
+			.em-content{ padding:26px 20px 28px !important; }
+			.em-h1{ font-size:23px !important; line-height:1.18 !important; }
+			.em-callout td{ padding:15px 16px !important; }
+			.em-help{ padding:17px 20px !important; }
+			.em-footer{ padding:18px 20px 20px !important; }
+			.em-footer-links a{ display:inline-block !important; margin:0 6px 5px !important; }
+			.em-button{ width:100% !important; }
+			.em-button-cell{ width:100% !important; }
+			.em-button-link{ display:block !important; padding:14px 18px !important; text-align:center !important; }
 		}
 	</style>
 </head>
@@ -83,7 +90,7 @@ function wrap(body, unsubscribeToken, showSupportFooter = false, newsletterFoote
 	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f0ede7; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;">
 		<tr>
 			<td class="em-outer" align="center" style="padding:24px 16px;">
-				<table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px; max-width:100%; background-color:#ffffff; border:1px solid #dedad3;">
+				<table class="em-shell" role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:560px; background-color:#ffffff; border:1px solid #dedad3;">
 					<!-- чёрная авторская полоса -->
 					<tr>
 						<td class="em-author" align="center" bgcolor="#171717" style="background-color:#171717; padding:11px 20px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:9px; line-height:1.4; font-weight:700; letter-spacing:1.9px; color:#ffffff; text-transform:uppercase;">Юлия Воронова&nbsp;&nbsp;<span style="color:#e8400a;">●</span>&nbsp;&nbsp;Нутрициолог</td>
@@ -117,10 +124,10 @@ function wrapService(body) {
 }
 
 function btn(text, url, margin = '4px 0 22px') {
-  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate; margin:${margin};">
+  return `<table class="em-button" role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate; margin:${margin};">
 	<tr>
-		<td align="center" bgcolor="#e8400a" style="background-color:#e8400a; border-radius:3px;">
-			<a href="{{URL}}" target="_blank" style="display:inline-block; padding:13px 21px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:14px; font-weight:700; line-height:1.2; color:#ffffff; text-decoration:none; white-space:nowrap;">{{TEXT}}&nbsp;&nbsp;&rarr;</a>
+		<td class="em-button-cell" align="center" bgcolor="#e8400a" style="background-color:#e8400a; border-radius:3px;">
+			<a class="em-button-link" href="{{URL}}" target="_blank" style="display:inline-block; padding:13px 21px; font-family:'Montserrat',Arial,Helvetica,sans-serif; font-size:14px; font-weight:700; line-height:1.2; color:#ffffff; text-decoration:none; white-space:nowrap;">{{TEXT}}&nbsp;&nbsp;&rarr;</a>
 		</td>
 	</tr>
 </table>`
@@ -192,7 +199,7 @@ function signature(text = 'Ваша Юля') {
 }
 
 function callout(html, accent = false, backgroundColor = '#faf7f2') {
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:4px 0 20px;border-collapse:collapse;background-color:${backgroundColor};${accent ? 'border-left:3px solid #e8400a;' : 'border:1px solid #ebe6df;'}">
+  return `<table class="em-callout" role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:4px 0 20px;border-collapse:collapse;background-color:${backgroundColor};${accent ? 'border-left:3px solid #e8400a;' : 'border:1px solid #ebe6df;'}">
 	<tr>
 		<td style="padding:15px 17px;font-family:'Montserrat',Arial,Helvetica,sans-serif;font-size:14px;line-height:1.65;font-weight:400;color:#4a4642;">${html}</td>
 	</tr>

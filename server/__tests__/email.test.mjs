@@ -85,7 +85,8 @@ describe('email template escaping', () => {
     const message = sendMail.mock.calls[0][0];
     expect(message.to).toBe('user@example.com');
     expect(message.subject).toBe('Юлия ответила на ваш отзыв');
-    expect(message.html).toContain('width="560"');
+    expect(message.html).toContain('class="em-shell"');
+    expect(message.html).toContain('width="100%"');
     expect(message.html).toContain('/cabinet.html?tab=feedback');
     expect(message.html).toContain('/recipe.html?id=salmon-ukha#reviews-section');
     expect(message.html).toContain('Анна &lt;Admin&gt;');
@@ -133,7 +134,9 @@ describe('email visual system', () => {
 
     expect(sendMail).toHaveBeenCalledTimes(19);
     for (const [message] of sendMail.mock.calls) {
-      expect(message.html).toContain('width="560"');
+      expect(message.html).toContain('class="em-shell"');
+      expect(message.html).toContain('width="100%"');
+      expect(message.html).toContain('max-width:560px');
       expect(message.html).toContain('class="em-content"');
       expect(message.html).toContain('-webkit-text-size-adjust:100%');
       expect(message.html).toContain('font-size:25px');
@@ -147,6 +150,12 @@ describe('email visual system', () => {
     const serviceMessage = sendMail.mock.calls[0][0];
     expect(serviceMessage.html).toContain('padding:13px 21px');
     expect(serviceMessage.html).toContain('background-color:#e8400a');
+    expect(serviceMessage.html).toContain('class="em-button"');
+    expect(serviceMessage.html).toContain('class="em-shell"');
+    expect(serviceMessage.html).toContain('style="width:100%; max-width:560px;');
+    expect(serviceMessage.html).toContain('.em-shell{ width:100% !important; }');
+    expect(serviceMessage.html).toContain('.em-button{ width:100% !important; }');
+    expect(serviceMessage.html).toContain('.em-button-link{ display:block !important; padding:14px 18px !important; text-align:center !important; }');
     expect(serviceMessage.html).toContain('/cabinet.html?tab=feedback');
 
     await email.sendNewsletter('user@example.com', 'Новости платформы', 'token with spaces');
@@ -162,6 +171,8 @@ describe('email visual system', () => {
     expect(personalized.indexOf('Ваша Юля')).toBeLessThan(personalized.indexOf('Открыть Умную тарелку'));
     expect(personalized).toContain('Вы получили это письмо, потому что подписались на новости проекта.');
     expect(personalized).toContain('Отписаться от рассылки');
+    expect(personalized).toContain('class="em-footer-note"');
+    expect(personalized).toContain('class="em-footer-copy"');
     expect(personalized).toContain('© 2026 Юлия Воронова');
     expect(personalized).not.toContain('Открыть платформу');
 
