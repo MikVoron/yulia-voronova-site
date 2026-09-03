@@ -8,6 +8,7 @@ const { tryGrantTrial } = require('../trial-guard');
 const { inspectFingerprint, reportTrialSignals } = require('../trial-monitor');
 const audit = require('../audit');
 const { verifyTotp } = require('../totp');
+const { queueMetrikaGoal, dispatchMetrikaGoals } = require('../metrika-conversions');
 
 const AUTH_SEND_CODE_RATE_LIMIT = { max: 10, timeWindow: '15 minutes' };
 const AUTH_VERIFY_RATE_LIMIT = { max: 20, timeWindow: '15 minutes' };
@@ -23,7 +24,7 @@ async function authRoutes(fastify) {
   fastify.post('/auth/send-code', {
     config: { rateLimit: AUTH_SEND_CODE_RATE_LIMIT }
   }, async (req, reply) => {
-    const { email, context } = req.body || {};
+    const { email, context, metrikaClientId } = req.body || {};
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply.status(400).send({ error: 'Некорректный email' });
     const lower = email.toLowerCase().trim();
     // Если вход через админку — проверяем что email принадлежит админу
@@ -45,14 +46,22 @@ async function authRoutes(fastify) {
     const codeHash = await bcrypt.hash(code, 10);
     await db.query("INSERT INTO login_codes (email, code_hash, expires_at, ip) VALUES ($1, $2, now() + ($3 * interval '1 minute'), $4)", [lower, codeHash, LOGIN_CODE_TTL_MINUTES, ip]);
     try { await sendLoginCode(lower, code, LOGIN_CODE_TTL_MINUTES); } catch (e) { fastify.log.error(e, 'SMTP error'); return reply.status(500).send({ error: 'Не удалось отправить письмо' }); }
-    return { ok: true, message: 'Код отправлен на ' + lower };
+    const metrikaGoals = {};
+    if (context !== 'admin') {
+      for (const goalId of ['registration_started', 'verification_code_sent']) {
+        try { metrikaGoals[goalId] = await queueMetrikaGoal({ goalId, clientId: metrikaClientId }); }
+        catch (e) { metrikaGoals[goalId] = false; fastify.log.error(e, 'Metrika goal queue error'); }
+      }
+      if (Object.values(metrikaGoals).some(Boolean)) dispatchMetrikaGoals(fastify);
+    }
+    return { ok: true, message: 'Код отправлен на ' + lower, metrikaGoals };
   });
 
   // POST /auth/verify
   fastify.post('/auth/verify', {
     config: { rateLimit: AUTH_VERIFY_RATE_LIMIT }
   }, async (req, reply) => {
-    const { email, code, fingerprint: rawFingerprint, context, mfaCode } = req.body || {};
+    const { email, code, fingerprint: rawFingerprint, context, mfaCode, metrikaClientId } = req.body || {};
     if (!email || !code) return reply.status(400).send({ error: 'email и code обязательны' });
     const lower = email.toLowerCase().trim();
     const fingerprintCheck = inspectFingerprint(rawFingerprint);
@@ -128,12 +137,20 @@ async function authRoutes(fastify) {
 
     // найти или создать пользователя
     let isNew = false;
+    let registrationGoalQueued = false;
     if (!userRes.rows.length) {
       isNew = true;
       const fingerprint = fingerprintCheck.value;
       userRes = await db.query('INSERT INTO users (email) VALUES ($1) RETURNING *', [lower]);
       const userId = userRes.rows[0].id;
       await db.query('INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)', [userId, 'email', lower]);
+      try {
+        registrationGoalQueued = await queueMetrikaGoal({
+          goalId: 'registration_completed', userId, clientId: metrikaClientId
+        });
+      } catch (e) {
+        fastify.log.error(e, 'Metrika registration goal queue error');
+      }
       // Keep the audit trail in the same order as the account lifecycle.
       await audit.log('register', { userId, email: lower, detail: 'email', ip: req.ip, ua: req.headers['user-agent'] });
       // Атомарная проверка + fingerprint + subscription — всё в одной транзакции
@@ -185,7 +202,8 @@ async function authRoutes(fastify) {
     reply.setCookie('refreshToken', refreshToken, {
       path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: isAdminSession ? 43200 : 2592000
     });
-    return { accessToken, user: { id: user.id, email: user.email, displayName: user.display_name, avatar: user.avatar || null, weight: user.weight_kg == null ? null : Number(user.weight_kg), role: user.role, createdAt: user.created_at }, isNew };
+    if (registrationGoalQueued) dispatchMetrikaGoals(fastify);
+    return { accessToken, user: { id: user.id, email: user.email, displayName: user.display_name, avatar: user.avatar || null, weight: user.weight_kg == null ? null : Number(user.weight_kg), role: user.role, createdAt: user.created_at }, isNew, metrikaGoals: { registration_completed: registrationGoalQueued } };
   });
 
   // POST /auth/refresh

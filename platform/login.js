@@ -47,6 +47,14 @@
 		var currentEmail = '';
 		var timerInterval = null;
 		var _fingerprint = null;
+		var _metrikaClientId = null;
+		function refreshMetrikaClientId() {
+			if (!window.SmartPlateMetrika || typeof window.SmartPlateMetrika.getClientId !== 'function') return;
+			window.SmartPlateMetrika.getClientId().then(function (clientId) {
+				if (clientId) _metrikaClientId = clientId;
+			});
+		}
+		refreshMetrikaClientId();
 
 		// Dynamic recipe count: use the same marketing threshold as the main page.
 		fetch(API_BASE + '/content/stats')
@@ -113,17 +121,20 @@
 				showError('email-error', 'Введите корректный email'); return;
 			}
 			currentEmail = email;
-			if (!_isAdminLogin && window.SmartPlateMetrika) window.SmartPlateMetrika.goal('registration_started');
+			refreshMetrikaClientId();
 			setLoading('send-code-btn', true);
 			try {
 				var res = await fetch(API_BASE + '/auth/send-code', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ email: email, context: _isAdminLogin ? 'admin' : undefined })
+					body: JSON.stringify({ email: email, context: _isAdminLogin ? 'admin' : undefined, metrikaClientId: _metrikaClientId })
 				});
 				var data = await res.json();
 				if (!res.ok) { showError('email-error', data.error || 'Ошибка'); setLoading('send-code-btn', false); return; }
-				if (!_isAdminLogin && window.SmartPlateMetrika) window.SmartPlateMetrika.goal('verification_code_sent');
+				if (!_isAdminLogin && window.SmartPlateMetrika) {
+					if (!data.metrikaGoals || !data.metrikaGoals.registration_started) window.SmartPlateMetrika.goal('registration_started');
+					if (!data.metrikaGoals || !data.metrikaGoals.verification_code_sent) window.SmartPlateMetrika.goal('verification_code_sent');
+				}
 				showCodeStep();
 			} catch (e) {
 				showError('email-error', 'Ошибка сети');
@@ -204,7 +215,7 @@
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					credentials: 'include',
-					body: JSON.stringify({ email: currentEmail, code: code, fingerprint: _fingerprint, context: _isAdminLogin ? 'admin' : undefined, mfaCode: _isAdminLogin ? mfaCode : undefined })
+					body: JSON.stringify({ email: currentEmail, code: code, fingerprint: _fingerprint, context: _isAdminLogin ? 'admin' : undefined, mfaCode: _isAdminLogin ? mfaCode : undefined, metrikaClientId: _metrikaClientId })
 				});
 				var data = await res.json();
 				if (!res.ok) {
@@ -220,7 +231,7 @@
 					}
 					showError('code-error', data.error || 'Ошибка'); setLoading('verify-btn', false); return;
 				}
-				if (data.isNew && window.SmartPlateMetrika) window.SmartPlateMetrika.goal('registration_completed');
+				if (data.isNew && window.SmartPlateMetrika && (!data.metrikaGoals || !data.metrikaGoals.registration_completed)) window.SmartPlateMetrika.goal('registration_completed');
 				if (data.isNew && window.SmartPlateGoogleAnalytics) window.SmartPlateGoogleAnalytics.event('sign_up');
 				Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription, data.user.avatar, data.user.role, data.user.createdAt, data.user.id, data.user.weight);
 				document.getElementById('step-code').classList.add('is-hidden');

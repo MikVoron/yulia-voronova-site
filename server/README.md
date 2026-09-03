@@ -63,6 +63,7 @@ VK_REDIRECT=https://api.voronova.online/auth/oauth/vk/callback
 YANDEX_CLIENT_ID=
 YANDEX_CLIENT_SECRET=
 YANDEX_REDIRECT=https://api.voronova.online/auth/oauth/yandex/callback
+METRIKA_MEASUREMENT_PROTOCOL_TOKEN= # server-side delivery of critical Metrika goals
 
 # Опциональные — внешние сервисы
 ANTHROPIC_API_KEY=             # AI-генерация (если используется)

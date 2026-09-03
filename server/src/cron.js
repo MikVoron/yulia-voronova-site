@@ -1,6 +1,7 @@
 const db = require('./db');
 const { sendTrialExpired, sendSubscriptionExpired, sendSubscriptionExpiryReminder } = require('./email');
 const { sendTelegramAlert } = require('./telegram');
+const { flushMetrikaGoals } = require('./metrika-conversions');
 
 async function expireTrials(fastify) {
   const jobId = (await db.query("INSERT INTO cron_runs (job_name) VALUES ('expire_trials') RETURNING id")).rows[0].id;
@@ -117,8 +118,9 @@ async function runCronJobs(fastify) {
     const s = await expireSubscriptions(fastify);
     const c = await cleanExpiredCodes();
     const r = await cleanExpiredRefreshSessions();
-    if (t || m || s || c || r) {
-      fastify.log.info({ expiredTrials: t, subscriptionReminders: m, expiredSubs: s, cleanedCodes: c, cleanedRefreshSessions: r }, 'cron completed');
+    const metrika = await flushMetrikaGoals(fastify);
+    if (t || m || s || c || r || metrika.sent || metrika.failed) {
+      fastify.log.info({ expiredTrials: t, subscriptionReminders: m, expiredSubs: s, cleanedCodes: c, cleanedRefreshSessions: r, metrikaGoals: metrika }, 'cron completed');
     }
   } catch (e) {
     fastify.log.error(e, 'cron error');
