@@ -4,6 +4,7 @@ const email = require('../email');
 const audit = require('../audit');
 const { refreshSitemapSafely } = require('../sitemap');
 const { readRecipeTemplate, renderRecipeDocument } = require('../recipe-seo');
+const { getStaticIngredient, readIngredientTemplate, renderIngredientDocument } = require('../ingredient-seo');
 const {
   buildRecipeSnapshot,
   changedRecipeFields,
@@ -241,6 +242,34 @@ async function contentRoutes(fastify) {
     );
     if (!result.rows.length) return reply.status(404).type('text/html; charset=utf-8').send(template);
     return reply.type('text/html; charset=utf-8').send(renderRecipeDocument(template, result.rows[0]));
+  });
+
+  // Like recipe pages, ingredient collections need their unique metadata in
+  // the initial response: a static file cannot vary its <head> by ?id=.
+  fastify.get('/_seo/ingredient', async (req, reply) => {
+    const id = typeof req.query?.id === 'string' ? req.query.id.trim().toLowerCase() : '';
+    const template = await readIngredientTemplate();
+    if (!INGREDIENT_ID_RE.test(id)) return reply.status(404).type('text/html; charset=utf-8').send(template);
+
+    let ingredient = await getStaticIngredient(id);
+    if (!ingredient) {
+      const catalogResult = await db.query(
+        `SELECT id, name FROM ingredient_catalog WHERE id=$1 LIMIT 1`,
+        [id]
+      );
+      ingredient = catalogResult.rows[0] || null;
+    }
+    if (!ingredient) return reply.status(404).type('text/html; charset=utf-8').send(template);
+
+    const recipesResult = await db.query(
+      `SELECT id, name
+         FROM recipes
+        WHERE is_published=true AND $1 = ANY(main_ingredients)
+        ORDER BY name
+        LIMIT 100`,
+      [id]
+    );
+    return reply.type('text/html; charset=utf-8').send(renderIngredientDocument(template, ingredient, recipesResult.rows));
   });
 
 

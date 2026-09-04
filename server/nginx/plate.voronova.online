@@ -35,6 +35,14 @@ server {
         include /etc/nginx/snippets/smartplate-api-proxy.conf;
     }
 
+    # Ingredient collection URLs also differ only by ?id=, so supply their
+    # canonical title and description before a crawler executes JavaScript.
+    location = /ingredient.html {
+        limit_except GET { deny all; }
+        rewrite ^ /_seo/ingredient break;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
     # Keep administrative HTML and JavaScript behind a second, independent
     # authentication layer. Query strings do not affect location matching.
     location ~ ^/(?:admin|recipe-editor)(?:[./_-]|$) {
