@@ -3012,6 +3012,23 @@ img { display: block; max-width: 100%; }
     color: rgba(255,255,255,.52); font-size: 10px; font-weight: 600;
     line-height: 1.35; letter-spacing: .08em; text-transform: uppercase;
 }
+.v-footer-to-top {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    min-height: 44px; padding: 7px 12px 7px 16px;
+    border: 1px solid rgba(255,255,255,.24); border-radius: 999px;
+    background: transparent; color: rgba(255,255,255,.9);
+    font: inherit; font-size: 13px; font-weight: 700; line-height: 1;
+    cursor: pointer; transition: border-color var(--tr), color var(--tr), background var(--tr), transform var(--tr);
+    -webkit-tap-highlight-color: transparent;
+}
+.v-footer-to-top svg {
+    width: 26px; height: 26px; padding: 5px;
+    border-radius: 50%; background: var(--accent); color: #fff;
+    fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.v-footer-to-top:hover { border-color: var(--accent); background: rgba(232,64,10,.1); color: #fff; transform: translateY(-1px); }
+.v-footer-to-top:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.v-footer-to-top:active { transform: translateY(1px); }
 .v-footer-links {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center;
 }

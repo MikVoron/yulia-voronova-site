@@ -1842,6 +1842,7 @@ document.querySelectorAll('[data-index-action]').forEach(function (control) {
     control.addEventListener('click', function () {
         if (control.dataset.indexAction === 'complete-guest-tour') completeGuestTour();
         else if (control.dataset.indexAction === 'open-guest-tour') openGuestTour();
+        else if (control.dataset.indexAction === 'scroll-top') scrollToPageTop();
     });
 });
 var heroSearchForm = document.querySelector('[data-index-submit="hero-search"]');
