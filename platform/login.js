@@ -70,6 +70,19 @@
 			})
 			.catch(function () { });
 
+		// Keep the offer on the entry form in sync with the subscription API.
+		// If pricing is temporarily unavailable, the copy remains truthful without guessing.
+		fetch(API_BASE + '/subscription/early-bird', { credentials: 'include' })
+			.then(function (r) { return r.ok ? r.json() : null; })
+			.then(function (d) {
+				var price = Number(d && d.prices && d.prices['1']);
+				var priceEl = document.getElementById('lp-monthly-price');
+				if (priceEl && Number.isFinite(price) && price > 0) {
+					priceEl.textContent = Math.round(price) + ' ₽/мес';
+				}
+			})
+			.catch(function () { });
+
 		// Генерация browser fingerprint (canvas + screen + timezone + UA)
 		(async function () {
 			try {
