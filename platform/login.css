@@ -588,15 +588,18 @@ body {
 	.lp-media-overlay {
 		padding: 16px 24px;
 		justify-content: flex-start;
-		background: linear-gradient(90deg, rgba(0, 0, 0, .58) 0%, rgba(0, 0, 0, .22) 52%, rgba(0, 0, 0, .06) 100%);
+		background: linear-gradient(180deg, rgba(16, 12, 10, .82) 0%, rgba(16, 12, 10, .58) 42%, rgba(16, 12, 10, .14) 78%, rgba(16, 12, 10, 0) 100%);
 	}
 
 	.lp-brand {
 		font-size: 22px;
+		text-shadow: 0 2px 8px rgba(0, 0, 0, .9);
 	}
 
 	.lp-brand-sub {
 		margin-top: 5px;
+		color: rgba(255, 255, 255, .94);
+		text-shadow: 0 2px 7px rgba(0, 0, 0, .95);
 	}
 
 	.lp-quote {
