@@ -739,6 +739,42 @@ img { display: block; max-width: 100%; }
 /* Подписка (pro) — тёмный editorial-чёрный. */
 .locked-badge { background: rgba(17, 17, 17, .92); color: #fff; }
 .locked-badge svg { fill: #fff; }
+.locked-badge--priced {
+    height: 24px;
+    padding: 0 7px;
+    gap: 3px;
+    font-size: 9px;
+    letter-spacing: .05em;
+}
+.locked-badge--priced .locked-badge__price {
+    margin-left: 2px;
+    padding-left: 6px;
+    border-left: 1px solid rgba(255,255,255,.48);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+}
+@container (max-width: 150px) {
+    .locked-badge--priced {
+        min-height: 37px;
+        height: auto;
+        display: grid;
+        grid-template-columns: 10px minmax(0,1fr);
+        grid-template-rows: auto auto;
+        column-gap: 4px;
+        row-gap: 0;
+        padding: 4px 7px;
+        line-height: 1.2;
+    }
+    .locked-badge--priced svg { grid-row: 1 / 3; }
+    .locked-badge--priced .locked-badge__price {
+        grid-column: 2;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+}
 /* Пробный (trial) — белый с бордером, тёмная иконка. */
 .trial-badge {
     background: rgba(255, 255, 255, .95); color: var(--text);

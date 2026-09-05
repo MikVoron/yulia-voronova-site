@@ -1,3 +1,20 @@
+    // Current one-month subscription price for locked Pro recipe cards.
+    // Do not guess on API failure: keep the regular access badge without a price.
+    let subscriptionMonthlyPrice = null;
+    (function loadSubscriptionMonthlyPrice() {
+        Auth.api('/subscription/early-bird')
+            .then(function(res) { return res.ok ? res.json() : null; })
+            .then(function(data) {
+                const price = Number(data && data.prices && data.prices['1']);
+                if (!Number.isFinite(price) || price <= 0) return;
+                subscriptionMonthlyPrice = Math.round(price);
+                if (document.querySelector('#dish-list .recipe-card') && typeof renderDishes === 'function') {
+                    renderDishes();
+                }
+            })
+            .catch(function() {});
+    })();
+
     // ── SYNC FALLBACK HERO + CRUMBS ─────────────────────────────────────────
     // Заполняем верх страницы (название категории и крошки) синхронно, до того
     // как loadContent() сходит в API. Юзер сразу видит «Завтраки», а не пустоту.
@@ -348,10 +365,14 @@
             : `<div class="recipe-card-emoji">${_emoji}</div>`;
         const canShowFav = Auth.isLoggedIn();
         const isFav = canShowFav && Favorites.has(d.id);
-        const lockBadgeClass = lockLevel === 'pro' ? 'locked-badge' : 'trial-badge';
+        const hasSubscriptionPrice = lockLevel === 'pro' && Number.isFinite(subscriptionMonthlyPrice);
+        const lockBadgeClass = (lockLevel === 'pro' ? 'locked-badge' : 'trial-badge')
+            + (hasSubscriptionPrice ? ' locked-badge--priced' : '');
         const lockBadge = locked
             ? '<div class="' + lockBadgeClass + '"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>'
-              + access.label + '</div>'
+              + '<span class="locked-badge__label">' + access.label + '</span>'
+              + (hasSubscriptionPrice ? '<span class="locked-badge__price">' + subscriptionMonthlyPrice + ' ₽/мес</span>' : '')
+              + '</div>'
             : '';
         // Бейдж «Бесплатно» — показываем только тем, у кого нет полного доступа.
         const freeBadge = !locked && access.isFree && !Auth.hasFullAccess()
@@ -360,7 +381,9 @@
         const _emptyStars = Array.from({length: 5}, () =>
             '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#e8400a" stroke-width="2"><polygon points="12 2 15 9 22 10 17 15 18 22 12 18 6 22 7 15 2 10 9 9 12 2"/></svg>'
         ).join('');
-        const accessHint = locked ? '. ' + access.label + '. ' + access.actionLabel : '';
+        const accessHint = locked
+            ? '. ' + access.label + (hasSubscriptionPrice ? ', ' + subscriptionMonthlyPrice + ' рублей в месяц' : '') + '. ' + access.actionLabel
+            : '';
         return `<article class="recipe-card${locked ? ' locked' : ''}" role="button" tabindex="0" aria-label="${_name}${escHtml(accessHint)}" data-card-action="${locked ? 'locked' : 'open'}" data-recipe-id="${escHtml(_id)}">
             <div class="recipe-card__media">
                 ${photoHtml}
