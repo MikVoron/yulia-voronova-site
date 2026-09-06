@@ -96,6 +96,7 @@
 			}
 			Auth.checkAccess({ allowGuest: true }).finally(function () {
 				updateGuestOnboardingVisibility();
+				updateHeroTrialCta();
 				// Сначала заполняем #new-block синхронно (featured из RECIPES + skeleton
 				// новостей справа), чтобы он занял место ДО renderCats() — иначе
 				// категории прыгают вниз после loadNewsFeed().
@@ -112,6 +113,17 @@
 			});
 		});
 		const user = Auth.getUser();
+		function updateHeroTrialCta() {
+			const trialCta = document.getElementById('hero-trial-cta');
+			if (!trialCta) return;
+			const isGuest = Auth.isGuest();
+			trialCta.hidden = !isGuest;
+			if (isGuest) {
+				const trialLink = document.getElementById('hero-trial-link');
+				if (trialLink) trialLink.href = Auth._loginUrl();
+			}
+		}
+		updateHeroTrialCta();
 
 		// Quote bank — rotates without repeating
 		(function () {

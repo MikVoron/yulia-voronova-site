@@ -638,6 +638,48 @@ main {
 	border-radius: 0;
 }
 
+.sp-hero-trial {
+	margin-top: 14px;
+}
+
+.sp-hero-trial-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 48px;
+	padding: 0 22px;
+	border: 1px solid #a63624;
+	border-radius: 3px;
+	background: #a63624;
+	color: #fff;
+	font-size: 13px;
+	font-weight: 600;
+	text-align: center;
+	text-decoration: none;
+	transition: background .2s ease, border-color .2s ease;
+}
+
+.sp-hero-trial-btn:hover {
+	border-color: #852c1e;
+	background: #852c1e;
+}
+
+.sp-hero-trial-btn:focus-visible {
+	outline: 2px solid var(--text);
+	outline-offset: 3px;
+}
+
+.sp-hero-trial-note {
+	margin: 8px 0 0;
+	color: var(--text-3);
+	font-size: 11px;
+	line-height: 1.65;
+}
+
+.sp-hero-trial-note span {
+	display: block;
+}
+
 .sp-guest-onboarding {
 	display: none;
 	margin: 0 0 42px;
@@ -1745,6 +1787,12 @@ main {
 		font-weight: 500;
 		color: var(--text);
 		margin-bottom: 20px;
+	}
+
+	.sp-hero-trial-btn {
+		display: flex;
+		width: 100%;
+		box-sizing: border-box;
 	}
 
 	.sp-home .sp-cats-section {
