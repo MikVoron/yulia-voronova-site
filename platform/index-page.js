@@ -147,7 +147,7 @@
 			const count = Object.keys(RECIPES).length;
 			if (!countEl || !count) return;
 			const rounded = _roundDownMarketing(count);
-			countEl.textContent = (count > rounded ? 'Более ' : '') + rounded + ' сбалансированных рецептов';
+			countEl.textContent = (count > rounded ? 'Более ' : '') + rounded + ' рецептов';
 		}
 		updateHeroTrialCta();
 
