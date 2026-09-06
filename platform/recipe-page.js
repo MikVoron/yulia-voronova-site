@@ -493,12 +493,14 @@
 			const tagsHtml = Array.isArray(r.tags) && r.tags.length
 				? '<div class="rp-tags">' + r.tags.map(t => '<span class="rp-tag">' + escHtml(tagLabels[t] || t) + '</span>').join('') + '</div>'
 				: '';
-			const isGuestTrialPreview = Auth.isGuest()
-				&& Auth.recipeAccessLevel(r) === 'trial'
+			const previewAccessLevel = Auth.recipeAccessLevel(r);
+			const isGuestDetailedPreview = Auth.isGuest()
+				&& (previewAccessLevel === 'trial' || previewAccessLevel === 'pro')
 				&& Array.isArray(r.previewIngredients)
 				&& r.previewIngredients.length;
+			const isSubscriptionPreview = previewAccessLevel === 'pro';
 
-			if (isGuestTrialPreview) {
+			if (isGuestDetailedPreview) {
 				const ingredientParts = function(raw) {
 					const value = String(raw && typeof raw === 'object' ? raw.name : raw || '').trim();
 					const match = value.match(/^(.*?)(?:\s*:\s*|\s+[—–-]\s+)(.+)$/);
@@ -541,13 +543,33 @@
 					: '';
 				const stepsText = stepTotal + ' ' + wordForm(stepTotal, 'шаг', 'шага', 'шагов');
 				const description = quote ? '<p class="rp-preview-description">' + escHtml(quote) + '</p>' : '';
-				const offerCopy = 'После регистрации станут доступны все ингредиенты, ' + (stepTotal === 1 ? 'весь ' : 'все ')
-					+ stepsText + ', замены продуктов, список покупок и добавление блюда в тарелку.';
+				const offerCopy = isSubscriptionPreview
+					? (cta.description || 'По подписке откроются полный состав, все шаги, замены продуктов, список покупок и добавление блюда в тарелку.')
+					: 'После регистрации станут доступны все ингредиенты, ' + (stepTotal === 1 ? 'весь ' : 'все ')
+						+ stepsText + ', замены продуктов, список покупок и добавление блюда в тарелку.';
+				const detailedPriceHtml = isSubscriptionPreview && cta.price
+					? '<div class="rp-cta-price"><strong data-recipe-subscription-price>' + escHtml(cta.price) + '</strong>'
+						+ (cta.priceNote ? '<span>' + escHtml(cta.priceNote) + '</span>' : '') + '</div>'
+					: '';
+				const detailedTrialHtml = isSubscriptionPreview && cta.trialTitle
+					? '<div class="rp-cta-trial"><strong>' + escHtml(cta.trialTitle) + '</strong>'
+						+ (cta.trialText ? '<p>' + escHtml(cta.trialText) + '</p>' : '')
+						+ (cta.trialBtn ? '<a href="' + escHtml(cta.trialHref || cta.href) + '">' + escHtml(cta.trialBtn) + '</a>' : '')
+						+ '</div>'
+					: '';
+				const detailedTrialNotesHtml = isSubscriptionPreview
+					? ''
+					: '<strong class="rp-preview-trial">7 дней доступа бесплатно</strong>'
+						+ '<span class="rp-preview-no-card">Карту привязывать не нужно</span>'
+						+ '<a class="rp-preview-login" href="' + escHtml(cta.href) + '">Уже есть аккаунт? Войти</a>';
+				const detailedTariffsHtml = isSubscriptionPreview && cta.tariffsHref
+					? '<a class="rp-cta-tariffs" href="' + escHtml(cta.tariffsHref) + '">Посмотреть тарифы</a>'
+					: '';
 
 				document.getElementById('page-content').innerHTML =
-					'<div class="recipe-preview recipe-preview--guest-trial">'
+					'<div class="recipe-preview recipe-preview--guest-trial' + (isSubscriptionPreview ? ' recipe-preview--guest-pro' : '') + '">'
 						+ '<article class="rp-preview-main">'
-							+ '<div class="rp-preview-kicker">Рецепт с доступом на 7 дней</div>'
+							+ '<div class="rp-preview-kicker">' + (isSubscriptionPreview ? 'Рецепт по подписке' : 'Рецепт с доступом на 7 дней') + '</div>'
 							+ '<h1 class="rp-title">' + escHtml(r.name) + '</h1>'
 							+ description
 							+ previewPhoto
@@ -565,16 +587,24 @@
 								+ lockedStepsHtml + '</section>'
 						+ '</article>'
 						+ '<aside class="rp-preview-offer"><div class="rp-preview-offer-inner">'
-							+ '<div class="rp-cta-eyebrow">Продолжить приготовление</div>'
+							+ '<div class="rp-cta-eyebrow">' + escHtml(isSubscriptionPreview ? (cta.eyebrow || 'Рецепт по подписке') : 'Продолжить приготовление') + '</div>'
 							+ '<div class="rp-cta-title">' + escHtml(cta.title) + '</div>'
+							+ detailedPriceHtml
 							+ '<p class="rp-cta-copy">' + escHtml(offerCopy) + '</p>'
 							+ '<div class="rp-preview-unlocks"><p>Полный состав и точные количества</p><p>Все шаги приготовления</p><p>Баланс блюда и список покупок</p></div>'
 							+ '<a class="rp-cta-btn" href="' + escHtml(cta.href) + '" data-recipe-action="track-registration-cta">' + escHtml(cta.btn) + '</a>'
-							+ '<strong class="rp-preview-trial">7 дней доступа бесплатно</strong>'
-							+ '<span class="rp-preview-no-card">Карту привязывать не нужно</span>'
-							+ '<a class="rp-preview-login" href="' + escHtml(cta.href) + '">Уже есть аккаунт? Войти</a>'
+							+ detailedTrialNotesHtml
+							+ detailedTrialHtml
+							+ detailedTariffsHtml
 						+ '</div></aside>'
 					+ '</div>';
+				if (isSubscriptionPreview && cta.price && typeof Auth.api === 'function') {
+					Auth.api('/subscription/early-bird').then(function(data) {
+						const price = Number(data && data.prices && data.prices['1']);
+						const priceEl = document.querySelector('[data-recipe-subscription-price]');
+						if (priceEl && Number.isFinite(price) && price > 0) priceEl.textContent = Math.round(price) + ' ₽/мес';
+					}).catch(function() {});
+				}
 				return;
 			}
 			const photoBlock = photoSrc

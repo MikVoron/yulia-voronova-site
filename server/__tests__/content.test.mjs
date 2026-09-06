@@ -44,7 +44,12 @@ const TRIAL_RECIPE = {
 const PRO_RECIPE = {
   id: 'pro-1', cat: 'mains', name: 'Pro recipe',
   is_free: false, access_level: 'pro',
-  ingredients: [{ name: 'd' }], steps: [{ text: 'v' }], note: 'pro-note',
+  ingredients: [
+    { name: 'd1: 50 g' }, { name: 'd2' }, { name: 'd3' },
+    { name: 'd4' }, { name: 'd5' },
+  ],
+  steps: [{ text: 'v1', photo: 'pro-secret-1.webp' }, { text: 'v2' }],
+  note: 'pro-note',
   categories: ['mains'],
 };
 const RECIPES = [FREE_RECIPE, PAID_RECIPE, TRIAL_RECIPE, PRO_RECIPE];
@@ -73,17 +78,18 @@ const mockQuery = vi.fn(async (sql, params = []) => {
   if (/FROM recipes r WHERE r\.is_published = true/.test(sql)) {
     const tier = params[0];
     return { rows: RECIPES.map(r => {
-      const guestTrialPreview = tier === 'guest' && r.access_level === 'trial';
+      const level = r.access_level || (r.is_free ? 'free' : 'pro');
+      const guestLockedPreview = tier === 'guest' && (level === 'trial' || level === 'pro');
       return {
         ...r,
-        preview_ingredients: guestTrialPreview
+        preview_ingredients: guestLockedPreview
           ? r.ingredients.slice(0, 4).map(item => ({ name: item.name }))
           : null,
-        preview_steps: guestTrialPreview
+        preview_steps: guestLockedPreview
           ? r.steps.slice(0, 1).map(step => ({ text: step.text }))
           : null,
-        ingredient_count: guestTrialPreview ? r.ingredients.length : null,
-        step_count: guestTrialPreview ? r.steps.length : null,
+        ingredient_count: guestLockedPreview ? r.ingredients.length : null,
+        step_count: guestLockedPreview ? r.steps.length : null,
       };
     }) };
   }
@@ -508,7 +514,7 @@ describe('GET /content/recipes — access_level matrix', () => {
     expectStripped(data.find(r => r.id === 'pro-1'));
   });
 
-  it('guest: trial recipe exposes only four ingredient names and the first step text', async () => {
+  it('guest: trial and pro recipes expose only four ingredient names and the first step text', async () => {
     const res = await app.inject({ method: 'GET', url: '/content/recipes' });
     expect(res.statusCode).toBe(200);
     const data = res.json();
@@ -522,8 +528,13 @@ describe('GET /content/recipes — access_level matrix', () => {
     expect(trial.ingredient_count).toBe(6);
     expect(trial.step_count).toBe(3);
     expect(JSON.stringify(trial)).not.toContain('secret-1.webp');
-    expect(pro.preview_ingredients).toBeUndefined();
-    expect(pro.preview_steps).toBeUndefined();
+    expect(pro.preview_ingredients).toEqual([
+      { name: 'd1: 50 g' }, { name: 'd2' }, { name: 'd3' }, { name: 'd4' },
+    ]);
+    expect(pro.preview_steps).toEqual([{ text: 'v1' }]);
+    expect(pro.ingredient_count).toBe(5);
+    expect(pro.step_count).toBe(2);
+    expect(JSON.stringify(pro)).not.toContain('pro-secret-1.webp');
   });
 
   it('trial user: free=full, trial=full, pro=stripped', async () => {

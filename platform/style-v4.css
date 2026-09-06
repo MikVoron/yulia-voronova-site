@@ -1113,6 +1113,16 @@ img { display: block; max-width: 100%; }
     text-decoration: underline;
     text-underline-offset: 3px;
 }
+.recipe-preview--guest-pro .rp-cta-price {
+    margin: 16px 0 14px;
+}
+.recipe-preview--guest-pro .rp-cta-trial {
+    margin-top: 18px;
+    padding: 16px 0;
+}
+.recipe-preview--guest-pro .rp-cta-tariffs {
+    margin-top: 16px;
+}
 @media (max-width: 1024px) {
     .recipe-preview.recipe-preview--guest-trial {
         grid-template-columns: minmax(0, 1fr) 300px;

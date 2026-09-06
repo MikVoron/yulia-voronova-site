@@ -44,7 +44,8 @@ describe('guest content browser cache', () => {
     const state = runtime({
       initial: {
         'sp_content_cache_v1:user%3A1%3Auser': JSON.stringify({ recipes: [{ steps: ['secret'] }] }),
-        'sp_content_cache_v4:guest': JSON.stringify({ recipes: [{ id: 'free', steps: [] }] })
+        'sp_content_cache_v4:guest': JSON.stringify({ recipes: [{ id: 'free', steps: [] }] }),
+        'sp_content_cache_v5:guest': JSON.stringify({ recipes: [{ id: 'pro' }] })
       }
     });
     expect(state.sessionStorage.dump()).toEqual({});
@@ -66,13 +67,13 @@ describe('guest content browser cache', () => {
     expect(cached.ingredients).toEqual([]);
   });
 
-  it('keeps explicit trial preview fields but strips protected content', () => {
+  it('keeps explicit trial and pro preview fields but strips protected content', () => {
     const state = runtime();
-    vm.runInContext("_writeContentCache({ recipes: [{ id: 'trial', access_level: 'trial', ingredients: ['secret'], steps: ['secret'], note: 'secret', preview_ingredients: [{ name: 'public' }], preview_steps: [{ text: 'public step' }], ingredient_count: 8, step_count: 5 }, { id: 'pro', access_level: 'pro', ingredients: ['secret'], steps: ['secret'], note: 'secret' }], categories: [], ingredients: [] })", state.context);
+    vm.runInContext("_writeContentCache({ recipes: [{ id: 'trial', access_level: 'trial', ingredients: ['secret'], steps: ['secret'], note: 'secret', preview_ingredients: [{ name: 'public' }], preview_steps: [{ text: 'public step' }], ingredient_count: 8, step_count: 5 }, { id: 'pro', access_level: 'pro', ingredients: ['secret'], steps: ['secret'], note: 'secret', preview_ingredients: [{ name: 'paid preview' }], preview_steps: [{ text: 'paid step' }], ingredient_count: 9, step_count: 6 }], categories: [], ingredients: [] })", state.context);
     const cached = JSON.parse(Object.values(state.localStorage.dump())[0]);
     expect(cached.recipes).toEqual([
       { id: 'trial', access_level: 'trial', preview_ingredients: [{ name: 'public' }], preview_steps: [{ text: 'public step' }], ingredient_count: 8, step_count: 5 },
-      { id: 'pro', access_level: 'pro' },
+      { id: 'pro', access_level: 'pro', preview_ingredients: [{ name: 'paid preview' }], preview_steps: [{ text: 'paid step' }], ingredient_count: 9, step_count: 6 },
     ]);
   });
 });

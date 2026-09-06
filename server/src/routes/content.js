@@ -367,7 +367,7 @@ async function contentRoutes(fastify) {
   // GET /content/recipes — all published recipes
   // Stripping (ingredients, steps, note) применяется по матрице:
   //   guest        → full только для access_level='free'
-  //                  trial-рецептам добавляет безопасный тизер: 4 названия ингредиентов и 1 шаг без фото
+  //                  закрытым рецептам добавляет безопасный тизер: 4 названия ингредиентов и 1 шаг без фото
   //   trial        → full для 'free' и 'trial', stripped для 'pro'
   //   active/admin → full для всех
   // См. docs/guest-mode-mvp.md §5A.3
@@ -395,7 +395,7 @@ async function contentRoutes(fastify) {
               THEN r.note ELSE NULL END AS note,
               CASE WHEN
                 $1 = 'guest'
-                AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'trial'
+                AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) IN ('trial', 'pro')
               THEN (
                 SELECT COALESCE(jsonb_agg(
                   CASE WHEN jsonb_typeof(item.value) = 'object'
@@ -409,7 +409,7 @@ async function contentRoutes(fastify) {
               ) ELSE NULL END AS preview_ingredients,
               CASE WHEN
                 $1 = 'guest'
-                AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'trial'
+                AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) IN ('trial', 'pro')
               THEN (
                 SELECT COALESCE(jsonb_agg(
                   CASE WHEN jsonb_typeof(step.value) = 'object'
@@ -423,11 +423,11 @@ async function contentRoutes(fastify) {
               ) ELSE NULL END AS preview_steps,
               CASE WHEN
                 $1 = 'guest'
-                AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'trial'
+                AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) IN ('trial', 'pro')
               THEN jsonb_array_length(COALESCE(r.ingredients, '[]'::jsonb)) ELSE NULL END AS ingredient_count,
               CASE WHEN
                 $1 = 'guest'
-                AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'trial'
+                AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) IN ('trial', 'pro')
               THEN jsonb_array_length(COALESCE(r.steps, '[]'::jsonb)) ELSE NULL END AS step_count,
               r.vk_video, r.yt_video, r.dzen_video,
               r.add_protein, r.add_fat, r.add_carbs, r.add_fiber, r.auto_addons, r.is_soup,
@@ -451,7 +451,7 @@ async function contentRoutes(fastify) {
       } = r;
       if (userCanSeeRecipe(tier, level)) return recipe;
       const { ingredients, steps, note, ...meta } = recipe;
-      if (tier === 'guest' && level === 'trial') {
+      if (tier === 'guest' && (level === 'trial' || level === 'pro')) {
         return {
           ...meta,
           preview_ingredients: preview_ingredients || [],

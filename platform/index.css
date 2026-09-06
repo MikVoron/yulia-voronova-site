@@ -710,6 +710,13 @@ main {
 	outline-offset: 3px;
 }
 
+@media (min-width: 768px) {
+	.sp-hero-trial-btn {
+		width: 290px;
+		max-width: 100%;
+	}
+}
+
 .sp-hero-trial-note {
 	margin: 0;
 	color: var(--text-2);
