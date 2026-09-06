@@ -37,7 +37,7 @@
 	<link rel="stylesheet" href="index-critical.css?v=20260713-csp-static">
 	<link rel="stylesheet" href="style-v4.css?v=20260828-mobile-updates-bell" id="vcss">
 	<link rel="stylesheet" href="tawk-chat-modal.css?v=20260713-csp-styles">
-	<link rel="stylesheet" href="index.css?v=20260906-guest-trial-cta">
+	<link rel="stylesheet" href="index.css?v=20260906-catalog-value-hero">
 </head>
 
 <body class="v-page sp-home">
@@ -292,8 +292,8 @@
 							<path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
 						</svg>
 					</a>
-					<div class="sp-hero-eyebrow" id="sp-hero-eyebrow"><span id="sp-hero-date"></span> <span id="sp-hero-weekday"></span></div>
-					<h1 class="sp-hero-title" id="sp-hero-title">Не очередной сайт<br>с чужими или<br>ИИ-рецептами.</h1>
+					<div class="sp-hero-eyebrow" id="sp-hero-eyebrow"><span id="sp-hero-guest-eyebrow">Более 90 сбалансированных рецептов</span><span id="sp-hero-date"></span> <span id="sp-hero-weekday"></span></div>
+					<h1 class="sp-hero-title" id="sp-hero-title">Сбалансированные блюда на каждый день</h1>
 					<p class="sp-hero-sub" id="sp-hero-sub">Выбирайте понравившееся блюдо, сбалансируйте его по методу Гарвардской тарелки, формируйте список покупок и сохраняйте приём пищи в журнале — всё в одном понятном пространстве.</p>
 
 					<!-- Hero search (функционал прежний; добавлена editorial-кнопка submit) -->
@@ -311,8 +311,11 @@
 						<div class="hero-search-results" id="hero-search-results"></div>
 					</form>
 					<div class="sp-hero-trial" id="hero-trial-cta" hidden>
-						<a class="sp-hero-trial-btn" id="hero-trial-link" href="login.html" aria-describedby="hero-trial-note">Попробовать 7 дней бесплатно</a>
-						<p class="sp-hero-trial-note" id="hero-trial-note"><span>Пробные рецепты и возможности сервиса.</span><span>Без привязки карты.</span></p>
+						<div class="sp-hero-trial-details" id="hero-trial-details">
+							<p class="sp-hero-trial-price"><strong>7 дней бесплатно</strong><span>далее <span id="hero-monthly-price">по подписке</span></span></p>
+							<p class="sp-hero-trial-note"><span aria-hidden="true">✓</span> Карту привязывать не нужно</p>
+						</div>
+						<a class="sp-hero-trial-btn" id="hero-trial-link" href="login.html" aria-describedby="hero-trial-details">Попробовать бесплатно</a>
 					</div>
 					<button class="sp-guest-tour-reopen" id="guest-tour-trigger" type="button" data-index-action="open-guest-tour">Как пользоваться Умной тарелкой →</button>
 				</div>
@@ -518,7 +521,7 @@
 	<script src="data-v2.js?v=20260828-mobile-updates-bell"></script>
 	<script src="ingredients.js?v=20260711-oats-seabass"></script>
 <script src="header-nav.js?v=20260714-category-nav"></script>
-<script src="index-page.js?v=20260906-guest-trial-cta"></script>
+<script src="index-page.js?v=20260906-catalog-value-hero"></script>
 	<script src="tawk-chat-modal.js?v=20260803-tawk-singleton"></script>
 </body>
 

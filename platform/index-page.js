@@ -97,6 +97,7 @@
 			Auth.checkAccess({ allowGuest: true }).finally(function () {
 				updateGuestOnboardingVisibility();
 				updateHeroTrialCta();
+				updateHeroGuestRecipeCount();
 				// Сначала заполняем #new-block синхронно (featured из RECIPES + skeleton
 				// новостей справа), чтобы он занял место ДО renderCats() — иначе
 				// категории прыгают вниз после loadNewsFeed().
@@ -113,15 +114,40 @@
 			});
 		});
 		const user = Auth.getUser();
+		let heroPriceRequested = false;
+		function updateHeroOfferPrice() {
+			if (heroPriceRequested) return;
+			heroPriceRequested = true;
+			fetch(API_BASE + '/subscription/early-bird', { credentials: 'include' })
+				.then(function (response) { return response.ok ? response.json() : null; })
+				.then(function (data) {
+					const price = Number(data && data.prices && data.prices['1']);
+					const priceEl = document.getElementById('hero-monthly-price');
+					if (priceEl && Number.isFinite(price) && price > 0) {
+						priceEl.textContent = Math.round(price) + ' ₽/мес';
+					}
+				})
+				.catch(function () { });
+		}
 		function updateHeroTrialCta() {
 			const trialCta = document.getElementById('hero-trial-cta');
 			if (!trialCta) return;
 			const isGuest = Auth.isGuest();
+			document.body.classList.toggle('sp-home-guest', isGuest);
 			trialCta.hidden = !isGuest;
 			if (isGuest) {
 				const trialLink = document.getElementById('hero-trial-link');
 				if (trialLink) trialLink.href = Auth._loginUrl();
+				updateHeroOfferPrice();
 			}
+		}
+		function updateHeroGuestRecipeCount() {
+			if (!Auth.isGuest()) return;
+			const countEl = document.getElementById('sp-hero-guest-eyebrow');
+			const count = Object.keys(RECIPES).length;
+			if (!countEl || !count) return;
+			const rounded = _roundDownMarketing(count);
+			countEl.textContent = (count > rounded ? 'Более ' : '') + rounded + ' сбалансированных рецептов';
 		}
 		updateHeroTrialCta();
 
@@ -195,10 +221,12 @@
 			return '';
 		}
 
-		if (heroEyebrow) {
+		if (heroEyebrow && user) {
 			const today = new Date();
+			const guestEyebrow = document.getElementById('sp-hero-guest-eyebrow');
 			const dateEl = document.getElementById('sp-hero-date');
 			const weekdayEl = document.getElementById('sp-hero-weekday');
+			if (guestEyebrow) guestEyebrow.hidden = true;
 			if (dateEl) dateEl.textContent = today.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
 			if (weekdayEl) weekdayEl.textContent = today.toLocaleDateString('ru-RU', { weekday: 'long' });
 		}
