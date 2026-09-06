@@ -644,17 +644,19 @@ main {
 
 .sp-hero-trial {
 	max-width: 560px;
-	margin-top: 14px;
+	margin-top: 20px;
 }
 
 .sp-hero-trial-details {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 18px;
-	padding: 11px 0;
-	border-top: 2px solid var(--text);
+	gap: 22px;
+	padding: 18px 20px 18px 22px;
+	border-top: 1px solid var(--border);
 	border-bottom: 1px solid var(--border);
+	border-left: 4px solid var(--accent);
+	background: #fff;
 }
 
 .sp-hero-trial-price {
@@ -665,8 +667,9 @@ main {
 }
 
 .sp-hero-trial-price strong {
-	font-size: 17px;
+	font-size: 19px;
 	font-weight: 800;
+	line-height: 1.2;
 	white-space: nowrap;
 }
 
@@ -674,6 +677,7 @@ main {
 	color: var(--text-2);
 	font-size: 12px;
 	font-weight: 600;
+	line-height: 1.35;
 	white-space: nowrap;
 }
 
@@ -683,7 +687,7 @@ main {
 	justify-content: center;
 	width: 100%;
 	min-height: 50px;
-	margin-top: 12px;
+	margin-top: 14px;
 	padding: 0 22px;
 	border: 1px solid var(--accent);
 	border-radius: 0;
@@ -709,8 +713,8 @@ main {
 .sp-hero-trial-note {
 	margin: 0;
 	color: var(--text-2);
-	font-size: 11px;
-	line-height: 1.4;
+	font-size: 12px;
+	line-height: 1.5;
 	white-space: nowrap;
 }
 
@@ -1861,6 +1865,7 @@ main {
 
 	.sp-hero-trial-details {
 		display: block;
+		padding: 18px 18px 18px 20px;
 	}
 
 	.sp-hero-trial-price {
@@ -1877,7 +1882,7 @@ main {
 	}
 
 	.sp-hero-trial-note {
-		margin-top: 8px;
+		margin-top: 13px;
 		white-space: normal;
 	}
 

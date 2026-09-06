@@ -324,34 +324,55 @@ const Auth = {
             const isSubscriptionRecipe = level === 'pro';
             return {
                 title: isSubscriptionRecipe
-                    ? 'Этот рецепт доступен по Подписке'
-                    : 'Этот рецепт открыт после регистрации',
-                btn: isSubscriptionRecipe ? 'Войти или зарегистрироваться' : 'Войти и получить 7 дней бесплатно',
+                    ? 'Откройте полный рецепт'
+                    : 'Откройте рецепт бесплатно',
+                eyebrow: isSubscriptionRecipe ? 'РЕЦЕПТ ПО ПОДПИСКЕ' : 'ПРОБНЫЙ РЕЦЕПТ',
+                description: isSubscriptionRecipe
+                    ? 'По подписке откроются полный список ингредиентов, пошаговое приготовление, замены продуктов, список покупок и добавление блюда в свою тарелку.'
+                    : 'После регистрации откроются ингредиенты, пошаговое приготовление и возможности Умной тарелки.',
+                price: isSubscriptionRecipe ? '190 ₽/мес' : '',
+                priceNote: isSubscriptionRecipe ? 'доступ ко всей базе' : '',
+                btn: isSubscriptionRecipe ? 'Войти и оформить подписку' : 'Попробовать бесплатно',
                 href: this._loginUrl(),
                 noteLines: isSubscriptionRecipe
                     ? [
-                        'Подписка: 190 ₽ за месяц или 540 ₽ за 3 месяца.',
-                        'После регистрации — 7 дней бесплатного доступа к рецептам категории «Пробный». Карту привязывать не нужно.',
+                        'После регистрации — 7 дней бесплатного доступа к пробным рецептам и возможностям сервиса. Карту привязывать не нужно.',
                     ]
                     : [
                         'Регистрация по email, без привязки карты.',
                         'После пробного периода подписка — по желанию: 190 ₽ за месяц или 540 ₽ за 3 месяца.',
                     ],
+                trialTitle: isSubscriptionRecipe ? 'Хотите сначала попробовать?' : '',
+                trialText: isSubscriptionRecipe
+                    ? 'После регистрации — 7 дней бесплатного доступа к пробным рецептам и возможностям сервиса. Карту привязывать не нужно.'
+                    : '',
+                trialBtn: isSubscriptionRecipe ? 'Попробовать бесплатно' : '',
+                trialHref: isSubscriptionRecipe ? this._loginUrl() : '',
                 tariffsHref: 'how-subscription-works.html',
             };
         }
         if (this.isTrial() && level === 'pro') {
             return {
-                title: 'Этот рецепт доступен по Подписке',
+                eyebrow: 'РЕЦЕПТ ПО ПОДПИСКЕ',
+                title: 'Откройте полный рецепт',
+                description: 'По подписке откроются полный список ингредиентов, пошаговое приготовление, замены продуктов, список покупок и добавление блюда в свою тарелку.',
+                price: '190 ₽/мес',
+                priceNote: 'доступ ко всей базе',
                 btn: 'Оформить Подписку',
                 href: 'cabinet.html?tab=subscription' + (ret ? '&return=' + encodeURIComponent(ret) : ''),
+                tariffsHref: 'how-subscription-works.html',
             };
         }
         // expired / no_sub / error — продлить
         return {
-            title: 'Доступ к рецептам ограничен',
+            eyebrow: 'РЕЦЕПТ ПО ПОДПИСКЕ',
+            title: 'Откройте полный рецепт',
+            description: 'По подписке откроются полный список ингредиентов, пошаговое приготовление, замены продуктов, список покупок и добавление блюда в свою тарелку.',
+            price: '190 ₽/мес',
+            priceNote: 'доступ ко всей базе',
             btn: 'Продлить подписку',
             href: 'cabinet.html?tab=subscription' + (ret ? '&return=' + encodeURIComponent(ret) : ''),
+            tariffsHref: 'how-subscription-works.html',
         };
     },
     _showPaywall(reason) {
@@ -1761,10 +1782,14 @@ function showAppConfirm(opts = {}) {
     });
 }
 
-// ─── LOCKED TOAST (paywall на карточках рецептов) ─────────────────────────────
-// Единый helper для index/category/ingredient (раньше дублировался в 3 файлах).
-// Тосту нужна HTML-ссылка (CTA), поэтому это не showToast (тот ставит textContent).
+// ─── LOCKED RECIPE PREVIEW ───────────────────────────────────────────────────
+// Единый helper для index/category/ingredient. Пользователь сохраняет контекст
+// выбранного блюда и видит фото, описание и условия доступа на recipe.html.
 function showLockedMsg(recipeId) {
+    if (recipeId) {
+        location.href = 'recipe.html?id=' + encodeURIComponent(recipeId);
+        return;
+    }
     const esc = s => String(s == null ? '' : s)
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;');

@@ -496,6 +496,23 @@
 			const photoBlock = photoSrc
 				? '<div class="rp-photo"><img src="' + escHtml(photoSrc) + '" alt="' + escHtml(r.name) + '" data-recipe-image-fallback="hide"></div>'
 				: '';
+			const priceHtml = cta.price
+				? '<div class="rp-cta-price"><strong data-recipe-subscription-price>' + escHtml(cta.price) + '</strong>'
+					+ (cta.priceNote ? '<span>' + escHtml(cta.priceNote) + '</span>' : '') + '</div>'
+				: '';
+			const trialHtml = cta.trialTitle
+				? '<div class="rp-cta-trial">'
+					+ '<strong>' + escHtml(cta.trialTitle) + '</strong>'
+					+ (cta.trialText ? '<p>' + escHtml(cta.trialText) + '</p>' : '')
+					+ (cta.trialBtn ? '<a href="' + escHtml(cta.trialHref || cta.href) + '">' + escHtml(cta.trialBtn) + '</a>' : '')
+					+ '</div>'
+				: '';
+			const notesHtml = !cta.trialTitle && cta.noteLines && cta.noteLines.length
+				? '<div class="rp-cta-note">' + cta.noteLines.map(function(line) { return '<p>' + escHtml(line) + '</p>'; }).join('') + '</div>'
+				: '';
+			const tariffsHtml = cta.tariffsHref
+				? '<a class="rp-cta-tariffs" href="' + escHtml(cta.tariffsHref) + '">Посмотреть тарифы</a>'
+				: '';
 
 			document.getElementById('page-content').innerHTML =
 				'<div class="recipe-preview">' +
@@ -515,17 +532,24 @@
 					'</div>' +
 					tagsHtml +
 					'<div class="rp-cta-block">' +
-						'<div class="rp-cta-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>' +
+						(cta.eyebrow ? '<div class="rp-cta-eyebrow">' + escHtml(cta.eyebrow) + '</div>' : '') +
 						'<div class="rp-cta-title">' + escHtml(cta.title) + '</div>' +
+						(cta.description ? '<p class="rp-cta-copy">' + escHtml(cta.description) + '</p>' : '') +
+						priceHtml +
 						'<a class="rp-cta-btn" href="' + escHtml(cta.href) + '">' + escHtml(cta.btn) + '</a>' +
-						(cta.noteLines && cta.noteLines.length
-							? '<div class="rp-cta-note">'
-								+ cta.noteLines.map(function(line) { return '<p>' + escHtml(line) + '</p>'; }).join('')
-								+ (cta.tariffsHref ? '<a class="rp-cta-tariffs" href="' + escHtml(cta.tariffsHref) + '">Посмотреть все тарифы</a>' : '')
-								+ '</div>'
-							: '') +
+						trialHtml +
+						notesHtml +
+						tariffsHtml +
 					'</div>' +
 				'</div>';
+
+			if (cta.price && typeof Auth.api === 'function') {
+				Auth.api('/subscription/early-bird').then(function(data) {
+					const price = Number(data && data.prices && data.prices['1']);
+					const priceEl = document.querySelector('[data-recipe-subscription-price]');
+					if (priceEl && Number.isFinite(price) && price > 0) priceEl.textContent = Math.round(price) + ' ₽/мес';
+				}).catch(function() {});
+			}
 		}
 
 		// Для гостя Favorites/Plate не подгружаем — это серверные синки за токеном.
