@@ -514,7 +514,7 @@
 					const match = value.match(/^(.*?)(?:\s*:\s*|\s+[—–-]\s+)(.+)$/);
 					return match ? { name: match[1].trim(), amount: match[2].trim() } : { name: value, amount: '' };
 				};
-				const previewIngredients = r.previewIngredients.slice(0, 4);
+				const previewIngredients = r.previewIngredients.slice(0, 3);
 				const ingredientTotal = Math.max(Number(r.ingredientCount) || 0, previewIngredients.length);
 				const stepTotal = Math.max(Number(r.stepCount) || 0, 1);
 				const hiddenIngredientCount = Math.max(ingredientTotal - previewIngredients.length, 0);

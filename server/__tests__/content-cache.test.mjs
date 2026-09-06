@@ -45,7 +45,8 @@ describe('guest content browser cache', () => {
       initial: {
         'sp_content_cache_v1:user%3A1%3Auser': JSON.stringify({ recipes: [{ steps: ['secret'] }] }),
         'sp_content_cache_v4:guest': JSON.stringify({ recipes: [{ id: 'free', steps: [] }] }),
-        'sp_content_cache_v5:guest': JSON.stringify({ recipes: [{ id: 'pro' }] })
+        'sp_content_cache_v5:guest': JSON.stringify({ recipes: [{ id: 'pro' }] }),
+        'sp_content_cache_v6:guest': JSON.stringify({ recipes: [{ id: 'pro', preview_ingredients: [{ name: 'x: 1 kg' }] }] })
       }
     });
     expect(state.sessionStorage.dump()).toEqual({});

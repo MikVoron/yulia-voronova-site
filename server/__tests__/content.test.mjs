@@ -83,7 +83,9 @@ const mockQuery = vi.fn(async (sql, params = []) => {
       return {
         ...r,
         preview_ingredients: guestLockedPreview
-          ? r.ingredients.slice(0, 4).map(item => ({ name: item.name }))
+          ? r.ingredients.slice(0, 3).map(item => ({
+              name: item.name.replace(/\s*(?::\s*|\s+[—–-]\s+).*$/, '').trim(),
+            }))
           : null,
         preview_steps: guestLockedPreview
           ? r.steps.slice(0, 1).map(step => ({ text: step.text }))
@@ -514,7 +516,7 @@ describe('GET /content/recipes — access_level matrix', () => {
     expectStripped(data.find(r => r.id === 'pro-1'));
   });
 
-  it('guest: trial and pro recipes expose only four ingredient names and the first step text', async () => {
+  it('guest: trial and pro recipes expose only three ingredient names without quantities and the first step text', async () => {
     const res = await app.inject({ method: 'GET', url: '/content/recipes' });
     expect(res.statusCode).toBe(200);
     const data = res.json();
@@ -522,14 +524,14 @@ describe('GET /content/recipes — access_level matrix', () => {
     const pro = data.find(r => r.id === 'pro-1');
 
     expect(trial.preview_ingredients).toEqual([
-      { name: 'c1: 100 g' }, { name: 'c2: 2 pcs' }, { name: 'c3' }, { name: 'c4' },
+      { name: 'c1' }, { name: 'c2' }, { name: 'c3' },
     ]);
     expect(trial.preview_steps).toEqual([{ text: 'u1' }]);
     expect(trial.ingredient_count).toBe(6);
     expect(trial.step_count).toBe(3);
     expect(JSON.stringify(trial)).not.toContain('secret-1.webp');
     expect(pro.preview_ingredients).toEqual([
-      { name: 'd1: 50 g' }, { name: 'd2' }, { name: 'd3' }, { name: 'd4' },
+      { name: 'd1' }, { name: 'd2' }, { name: 'd3' },
     ]);
     expect(pro.preview_steps).toEqual([{ text: 'v1' }]);
     expect(pro.ingredient_count).toBe(5);

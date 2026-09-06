@@ -367,7 +367,7 @@ async function contentRoutes(fastify) {
   // GET /content/recipes — all published recipes
   // Stripping (ingredients, steps, note) применяется по матрице:
   //   guest        → full только для access_level='free'
-  //                  закрытым рецептам добавляет безопасный тизер: 4 названия ингредиентов и 1 шаг без фото
+  //                  закрытым рецептам добавляет безопасный тизер: 3 названия ингредиентов и 1 шаг без фото
   //   trial        → full для 'free' и 'trial', stripped для 'pro'
   //   active/admin → full для всех
   // См. docs/guest-mode-mvp.md §5A.3
@@ -398,14 +398,21 @@ async function contentRoutes(fastify) {
                 AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) IN ('trial', 'pro')
               THEN (
                 SELECT COALESCE(jsonb_agg(
-                  CASE WHEN jsonb_typeof(item.value) = 'object'
-                    THEN jsonb_build_object('name', item.value->>'name')
-                    ELSE item.value
-                  END ORDER BY item.ordinality
+                  jsonb_build_object(
+                    'name',
+                    btrim(regexp_replace(
+                      CASE WHEN jsonb_typeof(item.value) = 'object'
+                        THEN COALESCE(item.value->>'name', '')
+                        ELSE COALESCE(item.value #>> '{}', '')
+                      END,
+                      '[[:space:]]*:[[:space:]]*.*$|[[:space:]]+[—–-][[:space:]]+.*$',
+                      ''
+                    ))
+                  ) ORDER BY item.ordinality
                 ), '[]'::jsonb)
                 FROM jsonb_array_elements(COALESCE(r.ingredients, '[]'::jsonb))
                   WITH ORDINALITY AS item(value, ordinality)
-                WHERE item.ordinality <= 4
+                WHERE item.ordinality <= 3
               ) ELSE NULL END AS preview_ingredients,
               CASE WHEN
                 $1 = 'guest'
