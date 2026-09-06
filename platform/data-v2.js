@@ -384,33 +384,36 @@ const Auth = {
         document.body.style.visibility = 'visible';
         const main = document.querySelector('main');
         if (main) { main.style.filter = 'blur(8px)'; main.style.pointerEvents = 'none'; main.style.userSelect = 'none'; }
+        const existingOverlay = document.getElementById('paywall-overlay');
+        if (existingOverlay) existingOverlay.remove();
         const overlay = document.createElement('div');
         overlay.id = 'paywall-overlay';
         overlay.className = 'paywall-overlay';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-labelledby', 'paywall-title');
         const isNetworkError = reason === 'error';
         const isExpired = reason === 'expired' || reason === 'cancelled';
         const isTrialNotGranted = reason === 'trial_not_granted';
-        // Тонкие stroke-SVG в стиле modal/balance-модалок (вместо emoji).
-        const LOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
-        const NET_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><line x1="12" y1="20" x2="12.01" y2="20"/><line x1="2" y1="2" x2="22" y2="22"/></svg>';
-        let icon, title, text, actionHtml;
+        let kicker, title, text, actionHtml, offerHtml;
         if (isNetworkError) {
-            icon = NET_SVG;
-            title = 'Не удалось связаться с сервером';
-            text = 'Проверьте подключение к интернету и попробуйте снова. Если проблема не исчезнет — напишите нам.';
+            kicker = 'ПРОВЕРКА ДОСТУПА';
+            title = 'Не удалось проверить доступ';
+            text = 'Проверьте подключение к интернету и попробуйте снова.';
             actionHtml = '<button class="paywall-btn" data-shared-action="reload">Повторить</button>';
+            offerHtml = '';
         } else {
-            icon = LOCK_SVG;
-            title = isTrialNotGranted ? 'Пробный период не активирован' : (isExpired ? 'Подписка завершена' : 'Нужна подписка');
+            kicker = 'ДОСТУП К УМНОЙ ТАРЕЛКЕ';
+            title = isTrialNotGranted ? 'Пробный период недоступен' : (isExpired ? 'Подписка завершена' : 'Нужна подписка');
             text = isTrialNotGranted
-                ? 'Бесплатный пробный период уже использовался на этом устройстве или в вашей сети. Оформите подписку, чтобы продолжить пользоваться рецептами и конструктором тарелки.'
+                ? 'Бесплатный пробный период для этого аккаунта недоступен. Оформите подписку, чтобы открыть рецепты, списки покупок и конструктор тарелки. После оплаты вы вернётесь на эту страницу.'
                 : isExpired
-                ? 'Продлите подписку, чтобы продолжить пользоваться рецептами и конструктором тарелки.'
-                : 'Оформите подписку, чтобы получить доступ к рецептам и конструктору тарелки.';
+                ? 'Продлите подписку, чтобы снова открыть рецепты, списки покупок и конструктор тарелки. После оплаты вы вернётесь на эту страницу.'
+                : 'Оформите подписку, чтобы открыть рецепты, списки покупок и конструктор тарелки. После оплаты вы вернётесь на эту страницу.';
             var ret = this._currentReturnUrl();
             var subHref = 'cabinet.html?tab=subscription' + (ret ? '&return=' + encodeURIComponent(ret) : '');
-            actionHtml = '<a class="paywall-btn" href="' + subHref + '">Оформить подписку</a>'
-                + '<a class="paywall-link" href="cabinet.html">Личный кабинет</a>';
+            actionHtml = '<a class="paywall-btn" href="' + subHref + '">' + (isExpired ? 'Продлить подписку' : 'Оформить подписку') + '</a>';
+            offerHtml = '<div class="paywall-price"><strong id="paywall-monthly-price">190 ₽/мес</strong><span>доступ ко всей базе</span></div>';
         }
         var policyLink = '<a href="personal-data-processing-policy.html" target="_blank" rel="noopener">Политика обработки персональных данных</a>';
         var offerLink = '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener">Оферта</a>';
@@ -418,13 +421,27 @@ const Auth = {
         var legalHtml = isNetworkError ? '' :
             '<div class="paywall-legal">' + legalLinks + '</div>';
         overlay.innerHTML = '<div class="paywall-card">'
-            + '<div class="paywall-icon">' + icon + '</div>'
-            + '<h2 class="paywall-title">' + title + '</h2>'
+            + '<div class="paywall-kicker">' + kicker + '</div>'
+            + '<h2 class="paywall-title" id="paywall-title">' + title + '</h2>'
             + '<p class="paywall-text">' + text + '</p>'
+            + offerHtml
             + '<div class="paywall-actions">' + actionHtml + '</div>'
+            + (isNetworkError ? '' : '<a class="paywall-tariffs" href="how-subscription-works.html">Посмотреть тарифы</a>')
             + legalHtml
             + '</div>';
         document.body.appendChild(overlay);
+        const primaryAction = overlay.querySelector('.paywall-btn');
+        if (primaryAction) primaryAction.focus();
+        if (!isNetworkError) {
+            fetch(API_BASE + '/subscription/early-bird', { credentials: 'include' })
+                .then(function(response) { return response.ok ? response.json() : null; })
+                .then(function(data) {
+                    const price = Number(data && data.prices && data.prices['1']);
+                    const priceEl = document.getElementById('paywall-monthly-price');
+                    if (priceEl && Number.isFinite(price) && price > 0) priceEl.textContent = Math.round(price) + ' ₽/мес';
+                })
+                .catch(function() {});
+        }
     },
     // Refresh-токены на сервере ротируются и одноразовые. Single-flight защищает
     // параллельные запросы внутри одной вкладки, а Web Locks + BroadcastChannel

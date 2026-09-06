@@ -2780,35 +2780,64 @@ img { display: block; max-width: 100%; }
 .paywall-overlay {
     position: fixed; inset: 0; z-index: 9999;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(255,255,255,.85);
+    background: rgba(255,255,255,.84);
     backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
-    padding: 20px;
+    padding: 16px;
 }
-.paywall-card { text-align: center; max-width: 400px; width: 100%; }
-.paywall-icon { color: var(--accent); margin-bottom: 16px; display: flex; justify-content: center; }
-.paywall-icon svg { width: 48px; height: 48px; }
+.paywall-card {
+    box-sizing: border-box; width: min(540px, 100%); padding: 30px 32px 24px;
+    background: #fff; border-top: 2px solid var(--text); text-align: left;
+    box-shadow: 0 18px 50px rgba(17,17,17,.12);
+}
+.paywall-kicker {
+    margin-bottom: 12px; color: var(--accent);
+    font-size: 10px; font-weight: 800; line-height: 1.2;
+    letter-spacing: .13em; text-transform: uppercase;
+}
 .paywall-title {
     font-family: 'Playfair Display', var(--serif);
-    font-size: 28px; color: var(--text); line-height: 1.2; margin: 0 0 12px;
+    font-size: 30px; color: var(--text); line-height: 1.15; margin: 0 0 12px;
+    text-align: left;
 }
-.paywall-text { color: var(--text-2); font-size: 15px; line-height: 1.5; margin: 0 0 24px; }
-.paywall-actions { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.paywall-text {
+    max-width: 48ch; color: var(--text-2); font-size: 14px; line-height: 1.6;
+    margin: 0 0 22px; text-align: left;
+}
+.paywall-price {
+    display: flex; align-items: baseline; gap: 12px; padding: 15px 0;
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+.paywall-price strong { color: var(--text); font-size: 20px; font-weight: 800; }
+.paywall-price span { color: var(--text-2); font-size: 12px; }
+.paywall-actions { margin-top: 18px; }
 .paywall-btn {
-    display: inline-block; background: var(--accent); color: #fff;
-    border: 1px solid var(--accent); padding: 13px 32px; border-radius: 0;
-    font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: .12em;
+    display: flex; align-items: center; justify-content: center;
+    box-sizing: border-box; width: 100%; min-height: 50px;
+    background: var(--accent); color: #fff; border: 1px solid var(--accent);
+    padding: 0 18px; border-radius: 0; font-family: inherit;
+    font-size: 12px; font-weight: 800; letter-spacing: .04em;
     text-transform: uppercase; text-decoration: none; cursor: pointer;
     transition: background .2s ease, border-color .2s ease;
 }
 .paywall-btn:hover, .paywall-btn:focus-visible { background: var(--text); border-color: var(--text); outline: none; }
-.paywall-link { color: var(--text-3); font-size: 13px; text-decoration: underline; }
-.paywall-link:hover { color: var(--accent); }
-.paywall-legal { margin-top: 24px; font-size: 11px; color: var(--text-3); line-height: 1.5; }
+.paywall-tariffs {
+    display: inline-block; margin-top: 15px; color: var(--text);
+    font-size: 12px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px;
+}
+.paywall-tariffs:hover, .paywall-tariffs:focus-visible { color: var(--accent); outline: none; }
+.paywall-legal {
+    margin-top: 24px; padding-top: 15px; border-top: 1px solid var(--border);
+    color: var(--text-3); font-size: 10px; line-height: 1.5; text-align: left;
+}
 .paywall-legal a { color: var(--text-3); text-decoration: underline; }
 .paywall-legal a:hover { color: var(--accent); }
 @media (max-width: 480px) {
-    .paywall-title { font-size: 24px; }
-    .paywall-btn { width: 100%; max-width: 280px; }
+    .paywall-overlay { align-items: flex-start; overflow: auto; padding: 18px 16px; }
+    .paywall-card { margin: auto 0; padding: 26px 20px 21px; }
+    .paywall-title { font-size: 27px; }
+    .paywall-text { margin-bottom: 19px; font-size: 13px; }
+    .paywall-price { display: block; }
+    .paywall-price span { display: block; margin-top: 4px; }
 }
 
 /* ── JULIA STRIP ─────────────────────────────────────── */
