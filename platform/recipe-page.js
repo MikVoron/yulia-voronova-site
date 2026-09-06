@@ -493,6 +493,14 @@
 			const tagsHtml = Array.isArray(r.tags) && r.tags.length
 				? '<div class="rp-tags">' + r.tags.map(t => '<span class="rp-tag">' + escHtml(tagLabels[t] || t) + '</span>').join('') + '</div>'
 				: '';
+			const trialTextHtml = function(data) {
+				if (!data.trialText) return '';
+				if (!data.trialTextMobile || data.trialTextMobile === data.trialText) {
+					return '<p>' + escHtml(data.trialText) + '</p>';
+				}
+				return '<p class="rp-cta-trial-text rp-cta-trial-text--desktop">' + escHtml(data.trialText) + '</p>'
+					+ '<p class="rp-cta-trial-text rp-cta-trial-text--mobile">' + escHtml(data.trialTextMobile) + '</p>';
+			};
 			const previewAccessLevel = Auth.recipeAccessLevel(r);
 			const isGuestDetailedPreview = Auth.isGuest()
 				&& (previewAccessLevel === 'trial' || previewAccessLevel === 'pro')
@@ -553,7 +561,7 @@
 					: '';
 				const detailedTrialHtml = isSubscriptionPreview && cta.trialTitle
 					? '<div class="rp-cta-trial"><strong>' + escHtml(cta.trialTitle) + '</strong>'
-						+ (cta.trialText ? '<p>' + escHtml(cta.trialText) + '</p>' : '')
+						+ trialTextHtml(cta)
 						+ (cta.trialBtn ? '<a href="' + escHtml(cta.trialHref || cta.href) + '">' + escHtml(cta.trialBtn) + '</a>' : '')
 						+ '</div>'
 					: '';
@@ -617,7 +625,7 @@
 			const trialHtml = cta.trialTitle
 				? '<div class="rp-cta-trial">'
 					+ '<strong>' + escHtml(cta.trialTitle) + '</strong>'
-					+ (cta.trialText ? '<p>' + escHtml(cta.trialText) + '</p>' : '')
+					+ trialTextHtml(cta)
 					+ (cta.trialBtn ? '<a href="' + escHtml(cta.trialHref || cta.href) + '">' + escHtml(cta.trialBtn) + '</a>' : '')
 					+ '</div>'
 				: '';

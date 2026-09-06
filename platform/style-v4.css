@@ -851,6 +851,7 @@ img { display: block; max-width: 100%; }
 }
 .recipe-preview .rp-cta-trial strong { display: block; margin-bottom: 6px; color: var(--text); font-size: 13px; }
 .recipe-preview .rp-cta-trial p { max-width: 66ch; margin: 0 0 9px; }
+.recipe-preview .rp-cta-trial-text--mobile { display: none; }
 .recipe-preview .rp-cta-trial a {
     color: var(--text); font-size: 12px; font-weight: 700;
     text-decoration: underline; text-underline-offset: 3px;
@@ -1130,6 +1131,8 @@ img { display: block; max-width: 100%; }
     }
 }
 @media (max-width: 767px) {
+    .recipe-preview .rp-cta-trial-text--desktop { display: none; }
+    .recipe-preview .rp-cta-trial-text--mobile { display: block; }
     .recipe-preview.recipe-preview--guest-trial {
         display: block;
         padding-bottom: 54px;
