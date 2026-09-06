@@ -367,6 +367,7 @@ async function contentRoutes(fastify) {
   // GET /content/recipes — all published recipes
   // Stripping (ingredients, steps, note) применяется по матрице:
   //   guest        → full только для access_level='free'
+  //                  trial-рецептам добавляет безопасный тизер: 4 названия ингредиентов и 1 шаг без фото
   //   trial        → full для 'free' и 'trial', stripped для 'pro'
   //   active/admin → full для всех
   // См. docs/guest-mode-mvp.md §5A.3
@@ -392,6 +393,42 @@ async function contentRoutes(fastify) {
                 OR COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'free'
                 OR ($1 = 'trial' AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'trial')
               THEN r.note ELSE NULL END AS note,
+              CASE WHEN
+                $1 = 'guest'
+                AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'trial'
+              THEN (
+                SELECT COALESCE(jsonb_agg(
+                  CASE WHEN jsonb_typeof(item.value) = 'object'
+                    THEN jsonb_build_object('name', item.value->>'name')
+                    ELSE item.value
+                  END ORDER BY item.ordinality
+                ), '[]'::jsonb)
+                FROM jsonb_array_elements(COALESCE(r.ingredients, '[]'::jsonb))
+                  WITH ORDINALITY AS item(value, ordinality)
+                WHERE item.ordinality <= 4
+              ) ELSE NULL END AS preview_ingredients,
+              CASE WHEN
+                $1 = 'guest'
+                AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'trial'
+              THEN (
+                SELECT COALESCE(jsonb_agg(
+                  CASE WHEN jsonb_typeof(step.value) = 'object'
+                    THEN jsonb_build_object('text', step.value->>'text')
+                    ELSE step.value
+                  END ORDER BY step.ordinality
+                ), '[]'::jsonb)
+                FROM jsonb_array_elements(COALESCE(r.steps, '[]'::jsonb))
+                  WITH ORDINALITY AS step(value, ordinality)
+                WHERE step.ordinality = 1
+              ) ELSE NULL END AS preview_steps,
+              CASE WHEN
+                $1 = 'guest'
+                AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'trial'
+              THEN jsonb_array_length(COALESCE(r.ingredients, '[]'::jsonb)) ELSE NULL END AS ingredient_count,
+              CASE WHEN
+                $1 = 'guest'
+                AND COALESCE(r.access_level, CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'trial'
+              THEN jsonb_array_length(COALESCE(r.steps, '[]'::jsonb)) ELSE NULL END AS step_count,
               r.vk_video, r.yt_video, r.dzen_video,
               r.add_protein, r.add_fat, r.add_carbs, r.add_fiber, r.auto_addons, r.is_soup,
               r.main_ingredients, r.dietary_flags, r.dietary_verified,
@@ -408,8 +445,21 @@ async function contentRoutes(fastify) {
     return result.rows.filter(r => isRecipeCompatible(r, dietaryPreferences)).map(r => {
       // Fallback: если access_level пуст (старые данные до миграции) — выводим из is_free
       const level = r.access_level || (r.is_free ? 'free' : 'pro');
-      if (userCanSeeRecipe(tier, level)) return r;
-      const { ingredients, steps, note, ...meta } = r;
+      const {
+        preview_ingredients, preview_steps, ingredient_count, step_count,
+        ...recipe
+      } = r;
+      if (userCanSeeRecipe(tier, level)) return recipe;
+      const { ingredients, steps, note, ...meta } = recipe;
+      if (tier === 'guest' && level === 'trial') {
+        return {
+          ...meta,
+          preview_ingredients: preview_ingredients || [],
+          preview_steps: preview_steps || [],
+          ingredient_count: Number(ingredient_count) || 0,
+          step_count: Number(step_count) || 0,
+        };
+      }
       return meta;
     });
   });

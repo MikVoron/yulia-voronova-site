@@ -493,6 +493,90 @@
 			const tagsHtml = Array.isArray(r.tags) && r.tags.length
 				? '<div class="rp-tags">' + r.tags.map(t => '<span class="rp-tag">' + escHtml(tagLabels[t] || t) + '</span>').join('') + '</div>'
 				: '';
+			const isGuestTrialPreview = Auth.isGuest()
+				&& Auth.recipeAccessLevel(r) === 'trial'
+				&& Array.isArray(r.previewIngredients)
+				&& r.previewIngredients.length;
+
+			if (isGuestTrialPreview) {
+				const ingredientParts = function(raw) {
+					const value = String(raw && typeof raw === 'object' ? raw.name : raw || '').trim();
+					const match = value.match(/^(.*?)(?:\s*:\s*|\s+[—–-]\s+)(.+)$/);
+					return match ? { name: match[1].trim(), amount: match[2].trim() } : { name: value, amount: '' };
+				};
+				const previewIngredients = r.previewIngredients.slice(0, 4);
+				const ingredientTotal = Math.max(Number(r.ingredientCount) || 0, previewIngredients.length);
+				const stepTotal = Math.max(Number(r.stepCount) || 0, 1);
+				const hiddenIngredientCount = Math.max(ingredientTotal - previewIngredients.length, 0);
+				const wordForm = function(number, one, few, many) {
+					const n = Math.abs(Number(number) || 0);
+					const mod10 = n % 10;
+					const mod100 = n % 100;
+					if (mod10 === 1 && mod100 !== 11) return one;
+					if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) return few;
+					return many;
+				};
+				const firstStep = Array.isArray(r.previewSteps) && r.previewSteps.length
+					? String(r.previewSteps[0] && typeof r.previewSteps[0] === 'object' ? r.previewSteps[0].text : r.previewSteps[0] || '').trim()
+					: '';
+				const ingredientsHtml = previewIngredients.map(function(item) {
+					const parts = ingredientParts(item);
+					return '<div class="rp-preview-ingredient"><strong>' + escHtml(parts.name) + '</strong>'
+						+ (parts.amount ? '<span>' + escHtml(parts.amount) + '</span>' : '') + '</div>';
+				}).join('');
+				const hiddenIngredientsHtml = hiddenIngredientCount
+					? '<div class="rp-preview-more" aria-label="Остальные ингредиенты доступны после регистрации">'
+						+ '<span class="rp-preview-blur" aria-hidden="true"></span>'
+						+ '<strong>Ещё ' + hiddenIngredientCount + ' ' + wordForm(hiddenIngredientCount, 'ингредиент', 'ингредиента', 'ингредиентов') + '</strong></div>'
+					: '';
+				const lockedStepsHtml = stepTotal > 1
+					? '<div class="rp-preview-step is-locked"><span class="rp-preview-step-num">2</span><div><h3>Следующий шаг</h3><span class="rp-preview-step-blur" aria-hidden="true"></span></div></div>'
+						+ (stepTotal > 2 ? '<div class="rp-preview-step is-locked"><span class="rp-preview-step-num">3</span><div><h3>Остальные этапы</h3><span class="rp-preview-step-blur" aria-hidden="true"></span></div></div>' : '')
+					: '';
+				const previewPhoto = photoSrc
+					? '<div class="rp-photo"><img src="' + escHtml(photoSrc) + '" alt="' + escHtml(r.name) + '" data-recipe-image-fallback="hide"></div>'
+					: '';
+				const servingsText = r.servings
+					? escHtml(String(r.servings)) + ' ' + wordForm(r.servings, 'порция', 'порции', 'порций')
+					: '';
+				const stepsText = stepTotal + ' ' + wordForm(stepTotal, 'шаг', 'шага', 'шагов');
+				const description = quote ? '<p class="rp-preview-description">' + escHtml(quote) + '</p>' : '';
+				const offerCopy = 'После регистрации станут доступны все ингредиенты, ' + (stepTotal === 1 ? 'весь ' : 'все ')
+					+ stepsText + ', замены продуктов, список покупок и добавление блюда в тарелку.';
+
+				document.getElementById('page-content').innerHTML =
+					'<div class="recipe-preview recipe-preview--guest-trial">'
+						+ '<article class="rp-preview-main">'
+							+ '<div class="rp-preview-kicker">Рецепт с доступом на 7 дней</div>'
+							+ '<h1 class="rp-title">' + escHtml(r.name) + '</h1>'
+							+ description
+							+ previewPhoto
+							+ '<div class="rp-preview-facts">'
+								+ '<div><small>Время</small><strong>' + escHtml(timeMeta.short) + '</strong></div>'
+								+ '<div><small>Калории</small><strong>' + (Number(r.kcal) || 0) + '</strong></div>'
+								+ '<div><small>Белки</small><strong>' + (Number(r.protein) || 0) + ' г</strong></div>'
+								+ '<div><small>Жиры</small><strong>' + (Number(r.fat) || 0) + ' г</strong></div>'
+								+ '<div><small>Углеводы</small><strong>' + (Number(r.carbs) || 0) + ' г</strong></div>'
+							+ '</div>'
+							+ '<section class="rp-preview-section"><div class="rp-preview-section-head"><h2>Ингредиенты</h2><span>' + servingsText + '</span></div>'
+								+ ingredientsHtml + hiddenIngredientsHtml + '</section>'
+							+ '<section class="rp-preview-section"><div class="rp-preview-section-head"><h2>Приготовление</h2><span>' + stepsText + '</span></div>'
+								+ (firstStep ? '<div class="rp-preview-step"><span class="rp-preview-step-num">1</span><div><h3>Первый шаг</h3><p>' + escHtml(firstStep) + '</p></div></div>' : '')
+								+ lockedStepsHtml + '</section>'
+						+ '</article>'
+						+ '<aside class="rp-preview-offer"><div class="rp-preview-offer-inner">'
+							+ '<div class="rp-cta-eyebrow">Продолжить приготовление</div>'
+							+ '<div class="rp-cta-title">' + escHtml(cta.title) + '</div>'
+							+ '<p class="rp-cta-copy">' + escHtml(offerCopy) + '</p>'
+							+ '<div class="rp-preview-unlocks"><p>Полный состав и точные количества</p><p>Все шаги приготовления</p><p>Баланс блюда и список покупок</p></div>'
+							+ '<a class="rp-cta-btn" href="' + escHtml(cta.href) + '" data-recipe-action="track-registration-cta">' + escHtml(cta.btn) + '</a>'
+							+ '<strong class="rp-preview-trial">7 дней доступа бесплатно</strong>'
+							+ '<span class="rp-preview-no-card">Карту привязывать не нужно</span>'
+							+ '<a class="rp-preview-login" href="' + escHtml(cta.href) + '">Уже есть аккаунт? Войти</a>'
+						+ '</div></aside>'
+					+ '</div>';
+				return;
+			}
 			const photoBlock = photoSrc
 				? '<div class="rp-photo"><img src="' + escHtml(photoSrc) + '" alt="' + escHtml(r.name) + '" data-recipe-image-fallback="hide"></div>'
 				: '';

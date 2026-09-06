@@ -325,22 +325,22 @@ const Auth = {
             return {
                 title: isSubscriptionRecipe
                     ? 'Откройте полный рецепт'
-                    : 'Откройте рецепт бесплатно',
-                eyebrow: isSubscriptionRecipe ? 'РЕЦЕПТ ПО ПОДПИСКЕ' : 'ПРОБНЫЙ РЕЦЕПТ',
+                    : 'Откройте полный рецепт',
+                eyebrow: isSubscriptionRecipe ? 'РЕЦЕПТ ПО ПОДПИСКЕ' : 'РЕЦЕПТ С ДОСТУПОМ НА 7 ДНЕЙ',
                 description: isSubscriptionRecipe
                     ? 'По подписке откроются полный список ингредиентов, пошаговое приготовление, замены продуктов, список покупок и добавление блюда в свою тарелку.'
                     : 'После регистрации откроются ингредиенты, пошаговое приготовление и возможности Умной тарелки.',
                 price: isSubscriptionRecipe ? '190 ₽/мес' : '',
                 priceNote: isSubscriptionRecipe ? 'доступ ко всей базе' : '',
-                btn: isSubscriptionRecipe ? 'Войти и оформить подписку' : 'Попробовать бесплатно',
+                btn: isSubscriptionRecipe ? 'Войти и оформить подписку' : 'Открыть рецепт бесплатно',
                 href: this._loginUrl(),
                 noteLines: isSubscriptionRecipe
                     ? [
                         'После регистрации — 7 дней бесплатного доступа к пробным рецептам и возможностям сервиса. Карту привязывать не нужно.',
                     ]
                     : [
-                        'Регистрация по email, без привязки карты.',
-                        'После пробного периода подписка — по желанию: 190 ₽ за месяц или 540 ₽ за 3 месяца.',
+                        '7 дней доступа бесплатно.',
+                        'Карту привязывать не нужно.',
                     ],
                 trialTitle: isSubscriptionRecipe ? 'Хотите сначала попробовать?' : '',
                 trialText: isSubscriptionRecipe
@@ -1271,6 +1271,10 @@ function _mapRecipe(r) {
         quote: r.quote || null,
         ingredients: r.ingredients || [],
         steps: (r.steps || []).map(s => typeof s === 'object' && s && s.photo ? {...s, photo: _fixPhoto(s.photo)} : s),
+        previewIngredients: r.preview_ingredients || [],
+        previewSteps: r.preview_steps || [],
+        ingredientCount: Number(r.ingredient_count) || 0,
+        stepCount: Number(r.step_count) || 0,
         note: r.note || null,
         vkVideo: r.vk_video || null,
         ytVideo: r.yt_video || null,
@@ -1300,8 +1304,8 @@ let _contentRefreshInFlight = null;
 const LEGACY_CONTENT_CACHE_PREFIX = 'sp_content_cache_v1:';
 // v4 fixes a guest regression: free recipes retain their public instructions
 // (including step photos), while trial/pro recipe fields stay out of storage.
-const PREVIOUS_CONTENT_CACHE_PREFIX = 'sp_content_cache_v3:';
-const CONTENT_CACHE_PREFIX = 'sp_content_cache_v4:';
+const PREVIOUS_CONTENT_CACHE_PREFIX = 'sp_content_cache_v4:';
+const CONTENT_CACHE_PREFIX = 'sp_content_cache_v5:';
 const CONTENT_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
 const CONTENT_STALE_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
 

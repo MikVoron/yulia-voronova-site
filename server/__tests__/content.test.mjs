@@ -33,7 +33,12 @@ const PAID_RECIPE = {
 const TRIAL_RECIPE = {
   id: 'trial-1', cat: 'mains', name: 'Trial recipe',
   is_free: false, access_level: 'trial',
-  ingredients: [{ name: 'c' }], steps: [{ text: 'u' }], note: 'trial-note',
+  ingredients: [
+    { name: 'c1: 100 g' }, { name: 'c2: 2 pcs' }, { name: 'c3' },
+    { name: 'c4' }, { name: 'c5' }, { name: 'c6' },
+  ],
+  steps: [{ text: 'u1', photo: 'secret-1.webp' }, { text: 'u2' }, { text: 'u3' }],
+  note: 'trial-note',
   categories: ['mains'],
 };
 const PRO_RECIPE = {
@@ -49,7 +54,7 @@ const CATEGORIES = [
   { id: 'mains', name: 'Горячее', emoji: '🍽️', color: '#fff', description: 'Сытные горячие блюда', sort_order: 3, auto_addons: {} },
 ];
 
-const mockQuery = vi.fn(async (sql /*, params */) => {
+const mockQuery = vi.fn(async (sql, params = []) => {
   if (/SELECT is_blocked FROM users WHERE id/.test(sql)) {
     return { rows: [{ is_blocked: userState.is_blocked }] };
   }
@@ -66,7 +71,21 @@ const mockQuery = vi.fn(async (sql /*, params */) => {
     return { rows: newsRows.map(row => ({ ...row })) };
   }
   if (/FROM recipes r WHERE r\.is_published = true/.test(sql)) {
-    return { rows: RECIPES.map(r => ({ ...r })) };
+    const tier = params[0];
+    return { rows: RECIPES.map(r => {
+      const guestTrialPreview = tier === 'guest' && r.access_level === 'trial';
+      return {
+        ...r,
+        preview_ingredients: guestTrialPreview
+          ? r.ingredients.slice(0, 4).map(item => ({ name: item.name }))
+          : null,
+        preview_steps: guestTrialPreview
+          ? r.steps.slice(0, 1).map(step => ({ text: step.text }))
+          : null,
+        ingredient_count: guestTrialPreview ? r.ingredients.length : null,
+        step_count: guestTrialPreview ? r.steps.length : null,
+      };
+    }) };
   }
   if (/FROM recipes(?: r)?\s+WHERE (?:r\.)?id=\$1 AND (?:r\.)?is_published=true/.test(sql)) {
     return { rows: [{ ...FREE_RECIPE, quote: 'Public recipe description', photo: 'images/free.webp', time_min: 20 }] };
@@ -487,6 +506,24 @@ describe('GET /content/recipes — access_level matrix', () => {
     expectFull(data.find(r => r.id === 'free-1'));
     expectStripped(data.find(r => r.id === 'trial-1'));
     expectStripped(data.find(r => r.id === 'pro-1'));
+  });
+
+  it('guest: trial recipe exposes only four ingredient names and the first step text', async () => {
+    const res = await app.inject({ method: 'GET', url: '/content/recipes' });
+    expect(res.statusCode).toBe(200);
+    const data = res.json();
+    const trial = data.find(r => r.id === 'trial-1');
+    const pro = data.find(r => r.id === 'pro-1');
+
+    expect(trial.preview_ingredients).toEqual([
+      { name: 'c1: 100 g' }, { name: 'c2: 2 pcs' }, { name: 'c3' }, { name: 'c4' },
+    ]);
+    expect(trial.preview_steps).toEqual([{ text: 'u1' }]);
+    expect(trial.ingredient_count).toBe(6);
+    expect(trial.step_count).toBe(3);
+    expect(JSON.stringify(trial)).not.toContain('secret-1.webp');
+    expect(pro.preview_ingredients).toBeUndefined();
+    expect(pro.preview_steps).toBeUndefined();
   });
 
   it('trial user: free=full, trial=full, pro=stripped', async () => {

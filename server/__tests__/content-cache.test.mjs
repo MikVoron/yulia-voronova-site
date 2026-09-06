@@ -40,11 +40,11 @@ function runtime({ loggedIn = false, initial = {} } = {}) {
 }
 
 describe('guest content browser cache', () => {
-  it('purges legacy and v3 cache entries before they can be read', () => {
+  it('purges legacy and previous cache entries before they can be read', () => {
     const state = runtime({
       initial: {
         'sp_content_cache_v1:user%3A1%3Auser': JSON.stringify({ recipes: [{ steps: ['secret'] }] }),
-        'sp_content_cache_v3:guest': JSON.stringify({ recipes: [{ id: 'free', steps: [] }] })
+        'sp_content_cache_v4:guest': JSON.stringify({ recipes: [{ id: 'free', steps: [] }] })
       }
     });
     expect(state.sessionStorage.dump()).toEqual({});
@@ -66,10 +66,13 @@ describe('guest content browser cache', () => {
     expect(cached.ingredients).toEqual([]);
   });
 
-  it('strips protected content from trial and pro recipes', () => {
+  it('keeps explicit trial preview fields but strips protected content', () => {
     const state = runtime();
-    vm.runInContext("_writeContentCache({ recipes: [{ id: 'trial', access_level: 'trial', ingredients: ['x'], steps: ['y'], note: 'z' }, { id: 'pro', access_level: 'pro', ingredients: ['x'], steps: ['y'], note: 'z' }], categories: [], ingredients: [] })", state.context);
+    vm.runInContext("_writeContentCache({ recipes: [{ id: 'trial', access_level: 'trial', ingredients: ['secret'], steps: ['secret'], note: 'secret', preview_ingredients: [{ name: 'public' }], preview_steps: [{ text: 'public step' }], ingredient_count: 8, step_count: 5 }, { id: 'pro', access_level: 'pro', ingredients: ['secret'], steps: ['secret'], note: 'secret' }], categories: [], ingredients: [] })", state.context);
     const cached = JSON.parse(Object.values(state.localStorage.dump())[0]);
-    expect(cached.recipes).toEqual([{ id: 'trial', access_level: 'trial' }, { id: 'pro', access_level: 'pro' }]);
+    expect(cached.recipes).toEqual([
+      { id: 'trial', access_level: 'trial', preview_ingredients: [{ name: 'public' }], preview_steps: [{ text: 'public step' }], ingredient_count: 8, step_count: 5 },
+      { id: 'pro', access_level: 'pro' },
+    ]);
   });
 });
