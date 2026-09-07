@@ -1,4 +1,4 @@
-const CACHE = 'yulia-v2';
+const CACHE = 'yulia-v3-questionnaires';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE = [
