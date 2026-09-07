@@ -1896,14 +1896,17 @@
 					Auth.recipeAccessLevel(recipe) === 'trial'
 				).length;
 				if (!trialRecipeCount) return '';
-				const recipeWord = trialRecipeCount === 1 ? 'рецепту' : 'рецептам';
+				const lastTwoDigits = trialRecipeCount % 100;
+				const lastDigit = trialRecipeCount % 10;
+				const recipeWord = (lastTwoDigits >= 11 && lastTwoDigits <= 14)
+					? 'рецептов'
+					: lastDigit === 1 ? 'рецепт'
+						: (lastDigit >= 2 && lastDigit <= 4) ? 'рецепта' : 'рецептов';
 				return `<section class="recipe-preview free-recipe-cta" aria-label="Пробный доступ">
 					<div class="rp-cta-block">
-						<div class="rp-cta-icon" aria-hidden="true">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
-						</div>
-						<div class="rp-cta-title">Хотите больше рецептов?</div>
-						<div class="free-recipe-cta-copy">Получите 7 дней доступа ещё к ${trialRecipeCount} ${recipeWord} — бесплатно и без привязки карты.</div>
+						<div class="rp-cta-eyebrow">7 дней бесплатно</div>
+						<div class="rp-cta-title">Откройте ещё ${trialRecipeCount} ${recipeWord}</div>
+						<div class="free-recipe-cta-copy">Полный доступ на 7 дней — бесплатно и без привязки карты.</div>
 						<a class="rp-cta-btn" href="${escHtml(Auth._loginUrl())}" data-recipe-action="track-registration-cta">Получить доступ на 7 дней</a>
 						<div class="rp-cta-note"><p>Регистрация по email. После пробного периода подписка — только по вашему желанию.</p></div>
 					</div>
