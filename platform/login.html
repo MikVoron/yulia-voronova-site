@@ -10,7 +10,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400;1,700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="login.css?v=20260905-mobile-media-contrast">
+	<link rel="stylesheet" href="login.css?v=20260907-registration-success">
 	<link rel="stylesheet" href="tawk-chat-modal.css?v=20260713-csp-styles">
 </head>
 
@@ -100,9 +100,14 @@
 							<polyline points="5 12 10 17 19 7" />
 						</svg>
 					</div>
-					<div class="form-eyebrow">Готово</div>
-					<h1 class="lp-h2">Добро пожаловать</h1>
-					<p class="lp-lead">Загружаем платформу…</p>
+					<div class="form-eyebrow" id="success-eyebrow">Готово</div>
+					<h1 class="lp-h2" id="success-title">Добро пожаловать</h1>
+					<p class="lp-lead" id="success-copy">Загружаем платформу…</p>
+					<div class="lp-success-context" id="success-context" hidden></div>
+					<div class="lp-success-actions" id="success-actions" hidden>
+						<a class="btn-primary lp-success-primary" id="success-primary" href="index.html">Открыть каталог →</a>
+						<a class="lp-success-secondary" id="success-secondary" href="index.html?guestTour=1">Как пользоваться Умной тарелкой</a>
+					</div>
 				</section>
 
 				<!-- Features (kept compact for trust signal) -->
@@ -120,7 +125,7 @@
 <script src="google-analytics.js?v=20260809"></script>
 <script src="metrika.js?v=20260903-server-goals"></script>
 <script src="data-v2.js?v=20260828-mobile-updates-bell"></script>
-	<script src="login.js?v=20260905-mobile-first-screen"></script>
+	<script src="login.js?v=20260907-registration-success"></script>
 
 	<a class="chat-fab" id="support-fab" data-tawk-open href="https://tawk.to/chat/699610c27418241c38dd96b3/1js4rtjr9" target="_blank" rel="noopener" aria-label="Открыть чат поддержки Tawk" title="Чат с отделом заботы">
 		<svg class="chat-fab-icon" viewBox="0 0 24 24" aria-hidden="true">

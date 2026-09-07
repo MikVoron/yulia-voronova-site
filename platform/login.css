@@ -525,6 +525,44 @@ body {
 	stroke-linejoin: round;
 }
 
+.lp-success-context {
+	margin: -4px 0 22px;
+	padding: 12px 14px;
+	border-left: 3px solid var(--accent);
+	background: #faf8f5;
+	color: var(--text-2);
+	font-size: 13px;
+	line-height: 1.55;
+}
+
+.lp-success-actions {
+	display: grid;
+	gap: 14px;
+}
+
+.lp-success-primary {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+}
+
+.lp-success-secondary {
+	color: var(--text-2);
+	font-size: 12px;
+	font-weight: 700;
+	text-align: center;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.lp-success-secondary:hover,
+.lp-success-secondary:focus-visible {
+	color: var(--accent);
+}
+
+.lp-features.is-hidden { display: none; }
+
 /* ── Features under form (decoupled from card grid) ──── */
 .lp-features {
 	margin-top: 28px;

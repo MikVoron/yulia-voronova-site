@@ -83,6 +83,11 @@ const Auth = {
         var ret = this._currentReturnUrl();
         return ret ? 'login.html?return=' + encodeURIComponent(ret) : 'login.html';
     },
+    _loginUrlForRecipe(accessLevel) {
+        var url = this._loginUrl();
+        var entry = accessLevel === 'pro' ? 'pro-recipe' : 'trial-recipe';
+        return url + (url.indexOf('?') === -1 ? '?' : '&') + 'entry=' + entry;
+    },
     requireAuth() {
         if (this.isLoggedIn()) return true;
         // На новом домене сначала даём API-cookie восстановить профиль. Сам
@@ -333,7 +338,7 @@ const Auth = {
                 price: isSubscriptionRecipe ? '190 ₽/мес' : '',
                 priceNote: isSubscriptionRecipe ? 'доступ ко всей базе' : '',
                 btn: isSubscriptionRecipe ? 'Войти и оформить подписку' : 'Открыть рецепт бесплатно',
-                href: this._loginUrl(),
+                href: this._loginUrlForRecipe(level),
                 noteLines: isSubscriptionRecipe
                     ? [
                         'После регистрации — 7 дней бесплатного доступа к пробным рецептам и возможностям сервиса. Карту привязывать не нужно.',
@@ -350,7 +355,7 @@ const Auth = {
                     ? '7 дней бесплатно: все основные шаги с фотографиями, а в некоторых рецептах — видео приготовления. Карту привязывать не нужно.'
                     : '',
                 trialBtn: isSubscriptionRecipe ? 'Попробовать бесплатно' : '',
-                trialHref: isSubscriptionRecipe ? this._loginUrl() : '',
+                trialHref: isSubscriptionRecipe ? this._loginUrlForRecipe(level) : '',
                 tariffsHref: 'how-subscription-works.html',
             };
         }

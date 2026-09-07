@@ -11,6 +11,10 @@
 		}
 		var _rawReturn = new URLSearchParams(location.search).get('return');
 		var _returnUrl = _safeReturn(_rawReturn) || 'index.html';
+		var _entry = new URLSearchParams(location.search).get('entry');
+		var _isRecipeReturn = /^recipe\.html(?:[?#]|$)/.test(_returnUrl);
+		var _isProRecipeEntry = _entry === 'pro-recipe' && _isRecipeReturn;
+		var _isTrialRecipeEntry = _entry === 'trial-recipe' && _isRecipeReturn;
 		var _isAdminLogin = _returnUrl.indexOf('admin.html') !== -1 || _returnUrl.indexOf('recipe-editor.html') !== -1;
 		var _hasReturn = !!_safeReturn(_rawReturn);
 		// Дописываем оферту, только если она опубликована (флаг в data-v2.js)
@@ -125,6 +129,76 @@
 				btn.disabled = false;
 				btn.textContent = btn.dataset.text || 'Отправить';
 			}
+		}
+
+		function setSuccessContent(title, copy, primaryLabel, primaryHref, secondaryLabel, secondaryHref, context) {
+			document.getElementById('success-title').textContent = title;
+			document.getElementById('success-copy').textContent = copy;
+			var primary = document.getElementById('success-primary');
+			var secondary = document.getElementById('success-secondary');
+			primary.textContent = primaryLabel;
+			primary.href = primaryHref;
+			secondary.textContent = secondaryLabel;
+			secondary.href = secondaryHref;
+			var contextEl = document.getElementById('success-context');
+			contextEl.textContent = context || '';
+			contextEl.hidden = !context;
+			document.getElementById('success-actions').hidden = false;
+			var features = document.querySelector('.lp-features');
+			if (features) features.classList.add('is-hidden');
+		}
+
+		function showRegistrationSuccess(subscription) {
+			if (subscription === undefined && (_isProRecipeEntry || _isTrialRecipeEntry)) {
+				setSuccessContent(
+					'Вы зарегистрированы',
+					'Проверяем доступ к выбранному рецепту…',
+					'К рецепту →', _returnUrl,
+					'Открыть каталог', 'index.html',
+					''
+				);
+				return;
+			}
+			var isTrial = subscription && subscription.status === 'trial'
+				&& subscription.trialEndsAt && new Date(subscription.trialEndsAt) > new Date();
+			if (_isProRecipeEntry) {
+				setSuccessContent(
+					'Вы зарегистрированы',
+					isTrial
+						? 'Этот рецепт откроется по подписке. Вам доступны рецепты категории «Пробный» с доступом на 7 дней и все возможности сервиса.'
+						: 'Этот рецепт откроется по подписке. Сейчас пробный доступ не предоставлен — вы всё равно можете посмотреть каталог и вернуться к рецепту.',
+					'К рецепту →', _returnUrl,
+					isTrial ? 'Посмотреть рецепты на 7 дней' : 'Открыть каталог', 'index.html',
+					'Контекст сохранён: на странице рецепта останется понятный путь к подписке.'
+				);
+				return;
+			}
+			if (_isTrialRecipeEntry) {
+				setSuccessContent(
+					isTrial ? 'Готово — рецепт открыт' : 'Вы зарегистрированы',
+					isTrial
+						? 'Теперь доступны полный состав, точные количества, все шаги и подсказки для сбалансированной тарелки.'
+						: 'Вернём вас к выбранному рецепту. Доступ к нему зависит от статуса пробного периода.',
+					'К рецепту →', _returnUrl,
+					'Как пользоваться Умной тарелкой', 'index.html?guestTour=1',
+					''
+				);
+				return;
+			}
+			setSuccessContent(
+				'Добро пожаловать в Умную тарелку',
+				'Начните с блюда, которое хочется приготовить сегодня. Остальное подскажем по ходу.',
+				'Открыть каталог →', 'index.html',
+				'Как пользоваться Умной тарелкой', 'index.html?guestTour=1',
+				''
+			);
+		}
+
+		function loadRegistrationSubscription() {
+			return Auth.api('/auth/me')
+				.then(function(res) { return res.ok ? res.json() : null; })
+				.then(function(data) { return data && data.subscription ? data.subscription : null; })
+				.catch(function() { return null; });
 		}
 
 		async function sendCode() {
@@ -250,7 +324,15 @@
 				document.getElementById('step-code').classList.add('is-hidden');
 				var success = document.getElementById('step-success');
 				success.classList.add('is-visible');
-				setTimeout(function () { location.href = _returnUrl; }, 900);
+				if (data.isNew) {
+					showRegistrationSuccess();
+					loadRegistrationSubscription().then(function(subscription) {
+						showRegistrationSuccess(subscription);
+					});
+					setTimeout(function () { location.href = _returnUrl; }, 3500);
+				} else {
+					setTimeout(function () { location.href = _returnUrl; }, 900);
+				}
 			} catch (e) {
 				showError('code-error', 'Ошибка сети');
 				setLoading('verify-btn', false);
