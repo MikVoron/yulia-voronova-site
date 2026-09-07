@@ -13948,6 +13948,10 @@ button[class*="btn-"]:hover,
     cursor: pointer;
 }
 
+.form-flow-controls [hidden] {
+    display: none !important;
+}
+
 .form-flow-back {
     border: 1.5px solid var(--sage-green);
     background: var(--white);
