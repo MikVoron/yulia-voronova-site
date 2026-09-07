@@ -13777,6 +13777,221 @@ button[class*="btn-"]:hover,
 }
 
 /* ====================
+   Adult questionnaire flow
+   ==================== */
+.questionnaire-form-page:not(.child-questionnaire-page) .form-progress {
+    margin: 0 0 28px;
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .form-progress-track {
+    overflow: hidden;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--light-sage);
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .form-progress-track span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--sage-green);
+    transition: width 0.25s ease;
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .form-progress p {
+    margin: 8px 0 0;
+    color: var(--dark-sage);
+    font-family: var(--font-montserrat);
+    font-size: 13px;
+    text-align: right;
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .form-step {
+    min-width: 0;
+    margin: 0;
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .form-step[hidden] {
+    display: none;
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .custom-radio,
+.questionnaire-form-page:not(.child-questionnaire-page) .custom-checkbox {
+    position: relative;
+    min-height: 44px;
+    margin-bottom: 10px;
+    padding: 10px 12px 10px 46px;
+    border-radius: 8px;
+    transition: background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .custom-radio:hover,
+.questionnaire-form-page:not(.child-questionnaire-page) .custom-checkbox:hover {
+    background: rgba(212, 230, 216, 0.36);
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .custom-radio:has(input:checked),
+.questionnaire-form-page:not(.child-questionnaire-page) .custom-checkbox:has(input:checked) {
+    background: rgba(212, 230, 216, 0.52);
+    box-shadow: inset 0 0 0 1px rgba(95, 111, 98, 0.2);
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .custom-radio input[type="radio"],
+.questionnaire-form-page:not(.child-questionnaire-page) .custom-checkbox input[type="checkbox"],
+.questionnaire-form-page:not(.child-questionnaire-page) .privacy-checkbox input[type="checkbox"] {
+    display: block;
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 12px;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    opacity: 0;
+    transform: translateY(-50%);
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .radiomark,
+.questionnaire-form-page:not(.child-questionnaire-page) .checkmark {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    margin: 0;
+    border-width: 1.5px;
+    transform: translateY(-50%);
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .custom-radio input:checked + .radiomark::after {
+    width: 10px;
+    height: 10px;
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .custom-checkbox input:checked + .checkmark::after {
+    font-size: 16px;
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .custom-radio input:focus-visible + .radiomark,
+.questionnaire-form-page:not(.child-questionnaire-page) .custom-checkbox input:focus-visible + .checkmark,
+.questionnaire-form-page:not(.child-questionnaire-page) .privacy-checkbox input:focus-visible + .privacy-checkmark {
+    outline: 3px solid rgba(95, 111, 98, 0.28);
+    outline-offset: 2px;
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .conditional-frequency {
+    margin: 0 0 14px 46px;
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .form-privacy {
+    margin: 16px 0 8px !important;
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .privacy-checkbox {
+    position: relative;
+    display: block;
+    min-height: 44px;
+    padding: 10px 10px 10px 42px;
+    border-radius: 8px;
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .privacy-checkbox:hover {
+    background: rgba(212, 230, 216, 0.3);
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .privacy-checkbox input[type="checkbox"],
+.questionnaire-form-page:not(.child-questionnaire-page) .privacy-checkbox .privacy-checkmark {
+    left: 8px;
+}
+
+.questionnaire-form-page:not(.child-questionnaire-page) .privacy-checkbox .privacy-checkmark {
+    position: absolute;
+    top: 50%;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    margin: 0;
+    border-width: 1.5px;
+    transform: translateY(-50%);
+}
+
+.form-privacy-error {
+    min-height: 1.3em;
+    margin: 8px 0 0;
+    color: #b34b4b;
+    font-family: var(--font-montserrat);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.form-flow-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.form-flow-back,
+.form-flow-next,
+.form-flow-submit {
+    min-height: 48px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-family: var(--font-montserrat);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.form-flow-back {
+    border: 1.5px solid var(--sage-green);
+    background: var(--white);
+    color: var(--dark-sage);
+}
+
+.form-flow-next,
+.form-flow-submit.submit-button {
+    width: auto;
+    max-width: none;
+    margin: 0 0 0 auto;
+    border: 1.5px solid var(--sage-green);
+    background: var(--sage-green);
+    color: var(--white);
+    box-shadow: none;
+}
+
+.form-flow-next:hover,
+.form-flow-submit.submit-button:hover {
+    background: var(--dark-sage);
+    border-color: var(--dark-sage);
+    box-shadow: 0 8px 20px rgba(74, 94, 79, 0.2);
+}
+
+.form-flow-back:focus-visible,
+.form-flow-next:focus-visible,
+.form-flow-submit:focus-visible {
+    outline: 3px solid rgba(95, 111, 98, 0.28);
+    outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+    .questionnaire-form-page:not(.child-questionnaire-page) .form-flow-controls {
+        flex-wrap: wrap;
+    }
+
+    .questionnaire-form-page:not(.child-questionnaire-page) .form-flow-next,
+    .questionnaire-form-page:not(.child-questionnaire-page) .form-flow-submit.submit-button {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+}
+
+/* ====================
    Child questionnaire
    ==================== */
 .child-questionnaire-page {

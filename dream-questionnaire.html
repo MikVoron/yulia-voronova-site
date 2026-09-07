@@ -45,7 +45,7 @@
 			<p class="instructions">Пожалуйста, ответьте на все вопросы.</p>
 		</div>
 
-		<form action="https://api.web3forms.com/submit" method="POST">
+		<form action="https://api.web3forms.com/submit" method="POST" data-questionnaire-flow="sleep">
 			<input type="hidden" name="redirect" value="https://voronova.online/thanks.html">
 			<input type="hidden" name="access_key" value="8ef42372-869f-4c26-8be7-74ffe9feebc3">
 			<input type="checkbox" name="botcheck" style="display:none">
@@ -178,34 +178,8 @@
 
 	<script src="main.min.js" defer></script>
 
-	<script>
-		(function() {
-			var checkbox = document.getElementById('privacyCheck');
-			var btn = document.getElementById('submitBtn');
-			var label = checkbox.closest('.privacy-checkbox');
-			var form = btn.closest('form');
 
-			// Обновить вид кнопки
-			function updateBtn() {
-				var ok = checkbox.checked;
-				btn.style.opacity = ok ? '' : '0.5';
-				btn.style.cursor = ok ? '' : 'not-allowed';
-			}
-
-			checkbox.addEventListener('change', updateBtn);
-
-			// Перехват submit — трясти чекбокс если не отмечен
-			btn.addEventListener('click', function(e) {
-				if (!checkbox.checked) {
-					e.preventDefault();
-					label.classList.remove('shake');
-					void label.offsetWidth;
-					label.classList.add('shake');
-					setTimeout(function() { label.classList.remove('shake'); }, 600);
-				}
-			});
-		})();
-	</script>
+	<script src="questionnaire-flow.js" defer></script>
 
 	<script src="analytics.js" defer></script>
 	<noscript>
