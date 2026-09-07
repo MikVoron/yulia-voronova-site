@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="referrer" content="strict-origin-when-cross-origin">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="robots" content="noindex, nofollow">
+	<title>Анкета о питании ребёнка — Юлия Воронова</title>
+	<meta name="description" content="Анкета для родителей перед консультацией по питанию ребёнка с Юлией Вороновой.">
+	<meta property="og:title" content="Анкета о питании ребёнка — Юлия Воронова">
+	<meta property="og:description" content="Заполните анкету перед консультацией по питанию ребёнка.">
+	<meta property="og:image" content="https://voronova.online/images/YV-og-image.webp">
+	<meta property="og:url" content="https://voronova.online/child-questionnaire.html">
+	<meta property="og:type" content="website">
+	<meta property="og:locale" content="ru_RU">
+	<link rel="stylesheet" href="style.min.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<link rel="icon" type="image/png" href="images/favicons/favicon-96x96.png" sizes="96x96">
+	<link rel="icon" type="image/svg+xml" href="images/favicons/favicon.svg">
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon.png">
+</head>
+
+<body class="questionnaire-form-page child-questionnaire-page">
+	<main class="form-container child-form-container">
+		<div class="intro-card child-intro-card">
+			<div class="logo-container">
+				<a href="/" aria-label="На главную страницу Юлии Вороновой"><img src="images/YV-small.webp" alt="Юлия Воронова"></a>
+			</div>
+			<p class="child-kicker">Для родителей и законных представителей</p>
+			<h1>Анкета о питании ребёнка</h1>
+			<p class="instructions">Пожалуйста, заполните анкету перед консультацией. Это займёт около 10 минут и поможет мне лучше понять питание ребёнка и привычный ритм вашей семьи.</p>
+			<p class="child-required-note"><span aria-hidden="true">*</span> Обязательный вопрос</p>
+		</div>
+
+		<div class="child-progress" aria-label="Ход заполнения анкеты">
+			<div class="child-progress-track" aria-hidden="true"><span id="childProgressBar"></span></div>
+			<p id="childProgressText" aria-live="polite">Раздел 1 из 5</p>
+		</div>
+
+		<form action="https://api.web3forms.com/submit" method="POST" id="childQuestionnaireForm">
+			<input type="hidden" name="access_key" value="8ef42372-869f-4c26-8be7-74ffe9feebc3">
+			<input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
+			<input type="hidden" name="subject" value="Анкета о питании ребёнка">
+			<input type="hidden" name="redirect" value="https://voronova.online/thanks.html">
+			<input type="hidden" name="Источник" value="Сайт Юлии Вороновой — детская анкета">
+
+			<fieldset class="child-step" data-step="1">
+				<legend><span class="step-number">1</span> О вас и ребёнке</legend>
+				<p class="step-description">Сначала — несколько вопросов, чтобы связаться с вами и понять, с кем будем работать.</p>
+
+				<label class="child-field">
+					<span>1. Электронная почта <b aria-hidden="true">*</b></span>
+					<input type="email" name="Электронная почта" required autocomplete="email" placeholder="name@example.com">
+				</label>
+				<label class="child-field">
+					<span>2. Как вас зовут? <b aria-hidden="true">*</b></span>
+					<input type="text" name="Имя родителя или законного представителя" required autocomplete="name" placeholder="Например: Анна">
+				</label>
+
+				<div class="child-choice-group" data-required-choice="request" role="group" aria-labelledby="requestTitle">
+					<p class="child-choice-title" id="requestTitle">3. Повод для обращения за консультацией <b aria-hidden="true">*</b></p>
+					<p>Отметьте все, что актуально в настоящий момент.</p>
+					<label class="custom-checkbox"><input type="checkbox" name="Повод для обращения" value="Однообразный рацион питания ребёнка"><span class="checkmark"></span>Однообразный рацион питания ребёнка</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Повод для обращения" value="Ребёнок имеет лишний или недостаточный вес"><span class="checkmark"></span>Ребёнок имеет лишний или недостаточный вес</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Повод для обращения" value="Ребёнок не ест определённые группы продуктов"><span class="checkmark"></span>Ребёнок не ест определённые группы продуктов</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Повод для обращения" value="Нужна помощь в организации режима питания"><span class="checkmark"></span>Нужна помощь в организации режима питания</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Повод для обращения" value="Консультация по введению прикорма"><span class="checkmark"></span>Консультация по введению прикорма</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Повод для обращения" value="Есть ограничения в питании по медицинским показаниям, нужно сбалансировать рацион"><span class="checkmark"></span>Есть ограничения в питании по медицинским показаниям, нужно сбалансировать рацион</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Повод для обращения" value="Другое" data-reveals="requestOther"><span class="checkmark"></span>Другое</label>
+					<input class="child-reveal" id="requestOther" type="text" name="Повод для обращения — другое" placeholder="Уточните, пожалуйста" disabled>
+					<p class="choice-error" data-choice-error="request" role="alert"></p>
+				</div>
+
+				<label class="child-field">
+					<span>4. Укажите возраст ребёнка <b aria-hidden="true">*</b></span>
+					<input type="text" name="Возраст ребёнка" required inputmode="numeric" placeholder="Например: 6 лет">
+				</label>
+			</fieldset>
+
+			<fieldset class="child-step" data-step="2" hidden>
+				<legend><span class="step-number">2</span> Привычки и перекусы</legend>
+				<p class="step-description">Опишите обычную жизнь ребёнка — здесь нет правильных или неправильных ответов.</p>
+				<label class="child-field">
+					<span>6. Какие особенности и ограничения по питанию есть у детей (ребёнка)? <b aria-hidden="true">*</b></span>
+					<textarea name="Особенности и ограничения по питанию" required rows="4" placeholder="Например: аллергия, непереносимость, рекомендации врача или другие особенности"></textarea>
+				</label>
+				<label class="child-field">
+					<span>7. Опишите в двух словах характер ребёнка дома и его поведение за столом <b aria-hidden="true">*</b></span>
+					<textarea name="Характер ребёнка и поведение за столом" required rows="3" placeholder="Например: активный, отвлекается, ест медленно"></textarea>
+				</label>
+
+				<div class="child-choice-group" data-required-choice="snacks" role="group" aria-labelledby="snacksTitle">
+					<p class="child-choice-title" id="snacksTitle">8. Если вы не дома, какие перекусы чаще всего покупаете? <b aria-hidden="true">*</b></p>
+					<p>Отметьте все подходящие варианты.</p>
+					<label class="custom-checkbox"><input type="checkbox" name="Перекусы вне дома" value="Фастфуд"><span class="checkmark"></span>Фастфуд</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Перекусы вне дома" value="Выпечка"><span class="checkmark"></span>Выпечка</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Перекусы вне дома" value="Шоколад, шоколадные батончики, конфеты"><span class="checkmark"></span>Шоколад, шоколадные батончики, конфеты</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Перекусы вне дома" value="Мороженое"><span class="checkmark"></span>Мороженое</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Перекусы вне дома" value="Сок"><span class="checkmark"></span>Сок</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Перекусы вне дома" value="Фрукты, сухофрукты"><span class="checkmark"></span>Фрукты, сухофрукты</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Перекусы вне дома" value="Орехи"><span class="checkmark"></span>Орехи</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Перекусы вне дома" value="Ничего не покупаю, всё беру из дома"><span class="checkmark"></span>Ничего не покупаю, всё беру из дома</label>
+					<label class="custom-checkbox"><input type="checkbox" name="Перекусы вне дома" value="Другое" data-reveals="snacksOther"><span class="checkmark"></span>Другое</label>
+					<input class="child-reveal" id="snacksOther" type="text" name="Перекусы вне дома — другое" placeholder="Уточните, пожалуйста" disabled>
+					<p class="choice-error" data-choice-error="snacks" role="alert"></p>
+				</div>
+
+				<div class="child-choice-group child-radio-group" data-required-radio="water" role="radiogroup" aria-labelledby="waterTitle">
+					<p class="child-choice-title" id="waterTitle">9. Сколько воды ребёнок выпивает в день? <b aria-hidden="true">*</b></p>
+					<p>Отметьте только один вариант.</p>
+					<label class="custom-radio"><input type="radio" name="Количество воды в день" value="Не знаю, не слежу за тем, сколько ребёнок пьёт"><span class="radiomark"></span>Не знаю, не слежу за тем, сколько ребёнок пьёт</label>
+					<label class="custom-radio"><input type="radio" name="Количество воды в день" value="1–3 стакана"><span class="radiomark"></span>1–3 стакана</label>
+					<label class="custom-radio"><input type="radio" name="Количество воды в день" value="4–6 стаканов"><span class="radiomark"></span>4–6 стаканов</label>
+					<label class="custom-radio"><input type="radio" name="Количество воды в день" value="Более 6 стаканов"><span class="radiomark"></span>Более 6 стаканов</label>
+					<label class="custom-radio"><input type="radio" name="Количество воды в день" value="Не пьёт воду; пьёт морс, сок, компот или другие напитки"><span class="radiomark"></span>Не пьёт воду; пьёт морс, сок, компот или другие напитки</label>
+					<p class="choice-error" data-radio-error="water" role="alert"></p>
+				</div>
+			</fieldset>
+
+			<fieldset class="child-step" data-step="3" hidden>
+				<legend><span class="step-number">3</span> Еда и отношение к ней</legend>
+				<label class="child-field">
+					<span>10. Какие блюда у ребёнка любимые? А в семье? Те блюда, которые обязательно останутся в вашем рационе на регулярной основе <b aria-hidden="true">*</b></span>
+					<textarea name="Любимые блюда ребёнка и семьи" required rows="5"></textarea>
+				</label>
+				<label class="child-field">
+					<span>11. Какие продукты ребёнок не ест и не будет пробовать ни при каких условиях? <b aria-hidden="true">*</b></span>
+					<small>Например: зелень в блюдах, лук, брокколи и т. п.</small>
+					<textarea name="Продукты, которые ребёнок не ест" required rows="4"></textarea>
+				</label>
+				<label class="child-field">
+					<span>12. Кратко опишите отношения со сладким в вашей семье <b aria-hidden="true">*</b></span>
+					<textarea name="Отношения со сладким" required rows="4"></textarea>
+				</label>
+			</fieldset>
+
+			<fieldset class="child-step" data-step="4" hidden>
+				<legend><span class="step-number">4</span> Семейный ритм</legend>
+				<label class="child-field">
+					<span>13. Если вам кажется, что ребёнок периодически недоедает/переедает — напишите, с какими эмоциями он приходит за стол и с какими встаёт из-за стола <b aria-hidden="true">*</b></span>
+					<small>Например: радостно, возбуждённо, спокойно, встревоженно, с грустью, взволнованно, испуганно.</small>
+					<textarea name="Эмоции ребёнка до и после еды" required rows="5"></textarea>
+				</label>
+				<label class="child-field">
+					<span>14. Опишите, в какой обстановке обычно проходят приёмы пищи в вашей семье. Вы едите вместе с ребёнком или отдельно? Как часто вся семья ест вместе? <b aria-hidden="true">*</b></span>
+					<textarea name="Обстановка приёмов пищи" required rows="5"></textarea>
+				</label>
+				<label class="child-field">
+					<span>15. Хотели бы вы оптимизировать некоторые процессы, связанные с готовкой и питанием дома? Возможно, больше рецептов? <b aria-hidden="true">*</b></span>
+					<textarea name="Запрос на оптимизацию готовки и питания" required rows="3"></textarea>
+				</label>
+			</fieldset>
+
+			<fieldset class="child-step" data-step="5" hidden>
+				<legend><span class="step-number">5</span> Комментарии и отправка</legend>
+				<p class="step-description">Проверьте ответы. При необходимости можно вернуться к предыдущему разделу — введённые данные останутся на странице.</p>
+				<label class="child-field">
+					<span>16. Дополнительные вопросы и комментарии</span>
+					<textarea name="Дополнительные вопросы и комментарии" rows="5"></textarea>
+				</label>
+				<div class="form-privacy">
+					<label class="privacy-checkbox child-privacy-checkbox">
+						<input type="checkbox" id="privacyCheck" name="Согласие на обработку персональных данных" value="Согласие подтверждено" aria-describedby="privacyError">
+						<span class="privacy-checkmark" aria-hidden="true"></span>
+						<span class="privacy-text">Я являюсь родителем или законным представителем ребёнка и согласен(на) с <a href="personal-data-processing-policy.html" target="_blank" rel="noopener noreferrer">Политикой обработки персональных данных</a>.</span>
+					</label>
+				</div>
+				<p class="choice-error" id="privacyError" role="alert"></p>
+				<p class="child-submit-note">После отправки анкета поступит Юлии Вороновой на электронную почту.</p>
+			</fieldset>
+
+			<div class="child-form-actions">
+				<button class="child-button child-button-secondary" type="button" id="childBack" hidden>← Назад</button>
+				<button class="child-button child-button-primary" type="button" id="childNext">Продолжить →</button>
+				<button class="child-button child-button-primary" type="submit" id="childSubmit" hidden>Отправить анкету</button>
+			</div>
+		</form>
+
+		<p class="back-link"><a href="questionnaires.html">← Вернуться к анкетам</a></p>
+	</main>
+
+	<script src="child-questionnaire.js" defer></script>
+	<script src="analytics.js" defer></script>
+	<noscript><div><img src="https://mc.yandex.ru/watch/106615581" style="position:absolute;left:-9999px" alt=""></div></noscript>
+</body>
+
+</html>

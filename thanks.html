@@ -33,25 +33,18 @@
 </head>
 
 <body class="thanks-page">
-	<div class="thanks-card">
+	<main class="thanks-card" aria-labelledby="thanksTitle">
 		<svg class="checkmark-icon" viewBox="0 0 100 100">
 			<circle class="checkmark-circle" cx="50" cy="50" r="45"/>
 			<path class="checkmark-check" d="M30 50 L45 65 L70 35"/>
 		</svg>
-		<h1 class="thanks-title">Спасибо!</h1>
-		<p class="thanks-subtitle">Ваша анкета успешно отправлена</p>
+		<h1 class="thanks-title" id="thanksTitle">Анкета отправлена</h1>
+		<p class="thanks-subtitle">Спасибо за доверие</p>
 		<p class="thanks-text">
-			Я внимательно изучу ваши ответы и свяжусь с вами в ближайшее время.
+			Юлия получит ваши ответы на почту, внимательно изучит их и свяжется с вами в ближайшее время.
 		</p>
-		<p class="thanks-redirect">
-			Через несколько секунд вы будете перенаправлены на страницу с анкетами.<br>
-			Если этого не произошло, <a href="questionnaires.html">нажмите здесь</a>.
-		</p>
-	</div>
-
-	<script>
-		setTimeout(function() { window.location.href = 'questionnaires.html'; }, 5000);
-	</script>
+		<a class="thanks-action" href="questionnaires.html">Вернуться к анкетам</a>
+	</main>
 	<script src="main.min.js" defer></script>
 	
 		<script src="analytics.js" defer></script>

@@ -11827,22 +11827,39 @@ button[class*="btn-"]:hover,
     line-height: 1.7;
 }
 
-.thanks-redirect {
+.thanks-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    margin-top: 24px;
+    padding: 12px 24px;
+    border: 1.5px solid var(--sage-green);
+    border-radius: 999px;
+    background: var(--sage-green);
+    color: var(--white);
     font-family: var(--font-montserrat);
     font-size: 14px;
-    color: #999;
-    margin-top: 30px;
-}
-
-.thanks-redirect a {
-    color: var(--sage-green);
-    text-decoration: none;
     font-weight: 500;
-    transition: color 0.3s ease;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.thanks-redirect a:hover {
-    color: var(--dark-sage);
+.thanks-action:hover {
+    background: var(--dark-sage);
+    border-color: var(--dark-sage);
+    box-shadow: 0 8px 20px rgba(74, 94, 79, 0.2);
+    transform: translateY(-1px);
+}
+
+.thanks-action:focus-visible {
+    outline: 3px solid rgba(117, 151, 124, 0.45);
+    outline-offset: 3px;
+}
+
+.thanks-page .chat-launcher {
+    display: none;
 }
 
 .checkmark-icon {
@@ -13757,6 +13774,395 @@ button[class*="btn-"]:hover,
 .privacy-checkbox.shake .privacy-checkmark {
     border-color: #e74c3c;
     box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+}
+
+/* ====================
+   Child questionnaire
+   ==================== */
+.child-questionnaire-page {
+    padding-bottom: 72px;
+}
+
+.child-form-container {
+    max-width: 760px;
+}
+
+.child-intro-card {
+    margin-bottom: 24px;
+}
+
+.child-kicker {
+    margin: 0 0 6px;
+    color: var(--sage-green);
+    font-family: var(--font-montserrat);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.child-required-note {
+    margin: 14px 0 0;
+    color: #777;
+    font-family: var(--font-montserrat);
+    font-size: 12px;
+}
+
+.child-required-note span,
+.child-field b,
+.child-choice-group legend b {
+    color: #b55b5b;
+}
+
+.child-progress {
+    margin: 0 0 28px;
+}
+
+.child-progress-track {
+    overflow: hidden;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--light-sage);
+}
+
+.child-progress-track span {
+    display: block;
+    width: 20%;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--sage-green);
+    transition: width 0.25s ease;
+}
+
+.child-progress p {
+    margin: 8px 0 0;
+    color: var(--dark-sage);
+    font-family: var(--font-montserrat);
+    font-size: 13px;
+    text-align: right;
+}
+
+.child-step {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.js-ready .child-step[hidden] {
+    display: none;
+}
+
+.child-step > legend {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: 0 0 12px;
+    padding: 0 0 13px;
+    border-bottom: 1px solid var(--light-sage);
+    color: var(--dark-sage);
+    font-family: var(--font-cormorant);
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1.15;
+}
+
+.step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--light-sage);
+    color: var(--dark-sage);
+    font-family: var(--font-montserrat);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.step-description {
+    margin: 0 0 24px;
+    color: #666;
+    font-family: var(--font-montserrat);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.child-field {
+    display: block;
+    margin: 0 0 23px;
+}
+
+.child-field > span,
+.child-choice-title {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--dark-text);
+    font-family: var(--font-montserrat);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.child-field small {
+    display: block;
+    margin: -4px 0 10px;
+    color: #777;
+    font-family: var(--font-montserrat);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.child-form-container input[type="text"],
+.child-form-container input[type="email"],
+.child-form-container textarea {
+    font-size: 16px;
+}
+
+.child-choice-group {
+    min-width: 0;
+    margin: 0 0 25px;
+    padding: 20px;
+    border: 1px solid #e1e8e2;
+    border-radius: 12px;
+    background: rgba(212, 230, 216, 0.18);
+}
+
+.child-choice-group > p:not(.choice-error) {
+    margin: -3px 0 13px;
+    color: #777;
+    font-family: var(--font-montserrat);
+    font-size: 13px;
+    font-style: italic;
+}
+
+.child-choice-group .custom-checkbox,
+.child-choice-group .custom-radio {
+    position: relative;
+    min-height: 44px;
+    margin-bottom: 12px;
+    padding: 10px 12px 10px 46px;
+    border-radius: 8px;
+    transition: background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.child-choice-group .custom-checkbox:last-of-type,
+.child-choice-group .custom-radio:last-of-type {
+    margin-bottom: 0;
+}
+
+#childQuestionnaireForm .child-choice-group .custom-checkbox:hover,
+#childQuestionnaireForm .child-choice-group .custom-radio:hover {
+    background: rgba(255, 255, 255, 0.72);
+}
+
+#childQuestionnaireForm .child-choice-group .custom-checkbox:has(input:checked),
+#childQuestionnaireForm .child-choice-group .custom-radio:has(input:checked) {
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: inset 0 0 0 1px rgba(95, 111, 98, 0.2);
+}
+
+#childQuestionnaireForm .child-choice-group .custom-checkbox input[type="checkbox"],
+#childQuestionnaireForm .child-choice-group .custom-radio input[type="radio"],
+#childQuestionnaireForm .child-privacy-checkbox input[type="checkbox"] {
+    display: block;
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 12px;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    opacity: 0;
+    transform: translateY(-50%);
+}
+
+#childQuestionnaireForm .child-choice-group .checkmark,
+#childQuestionnaireForm .child-choice-group .radiomark {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    margin: 0;
+    border-width: 1.5px;
+    transform: translateY(-50%);
+}
+
+#childQuestionnaireForm .child-choice-group .custom-checkbox input:checked + .checkmark::after {
+    font-size: 16px;
+}
+
+#childQuestionnaireForm .child-choice-group .custom-radio input:checked + .radiomark::after {
+    width: 10px;
+    height: 10px;
+}
+
+.child-choice-group .custom-checkbox input:focus-visible + .checkmark,
+.child-choice-group .custom-radio input:focus-visible + .radiomark,
+.child-privacy-checkbox input:focus-visible + .privacy-checkmark {
+    outline: 3px solid rgba(95, 111, 98, 0.28);
+    outline-offset: 2px;
+}
+
+.child-reveal {
+    display: none;
+    margin: 4px 0 3px 30px;
+}
+
+.child-reveal.is-visible {
+    display: block;
+}
+
+.choice-error {
+    min-height: 1.3em;
+    margin: 8px 0 0;
+    color: #b34b4b;
+    font-family: var(--font-montserrat);
+    font-size: 13px;
+}
+
+.child-choice-group.has-error {
+    border-color: #c56e6e;
+    box-shadow: 0 0 0 3px rgba(197, 110, 110, 0.12);
+}
+
+.child-radio-group {
+    background: var(--white);
+}
+
+.form-privacy {
+    margin: 4px 0 20px;
+}
+
+#childQuestionnaireForm .child-privacy-checkbox {
+    min-height: 44px;
+    padding: 9px 8px 9px 42px;
+    font-size: 13px;
+    line-height: 1.45;
+    border-radius: 8px;
+}
+
+#childQuestionnaireForm .child-privacy-checkbox:hover {
+    background: rgba(212, 230, 216, 0.3);
+}
+
+#childQuestionnaireForm .child-privacy-checkbox input[type="checkbox"] {
+    left: 8px;
+}
+
+#childQuestionnaireForm .child-privacy-checkbox .privacy-checkmark {
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    margin: 0;
+    border-width: 1.5px;
+    transform: translateY(-50%);
+}
+
+#childQuestionnaireForm .child-privacy-checkbox input:checked + .privacy-checkmark::after {
+    font-size: 15px;
+}
+
+.child-submit-note {
+    margin: 0 0 22px;
+    padding: 13px 15px;
+    border-radius: 10px;
+    background: rgba(212, 230, 216, 0.4);
+    color: var(--dark-sage);
+    font-family: var(--font-montserrat);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.child-form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 8px;
+}
+
+.child-button {
+    min-height: 48px;
+    padding: 12px 24px;
+    border: 1px solid var(--beige);
+    border-radius: 999px;
+    font-family: var(--font-montserrat);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.child-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.child-button:focus-visible {
+    outline: 3px solid rgba(95, 111, 98, 0.3);
+    outline-offset: 3px;
+}
+
+.child-button-primary {
+    margin-left: auto;
+    background: var(--dark-sage);
+    border-color: var(--dark-sage);
+    color: var(--white);
+}
+
+.child-button-primary:hover {
+    background: #4c5e50;
+}
+
+.child-button-secondary {
+    background: var(--white);
+    color: var(--dark-sage);
+}
+
+@media (max-width: 600px) {
+    .child-questionnaire-page {
+        padding: 20px 12px 104px;
+    }
+
+    .child-form-container {
+        padding: 30px 18px;
+    }
+
+    .child-intro-card .instructions {
+        font-size: 14px;
+    }
+
+    .child-step > legend {
+        font-size: 23px;
+    }
+
+    .child-choice-group {
+        padding: 16px;
+    }
+
+    .child-choice-group > label {
+        font-size: 14px;
+    }
+
+    .child-form-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .child-button,
+    .child-button-primary {
+        width: 100%;
+        margin-left: 0;
+    }
 }
 
 /* ==================== */
