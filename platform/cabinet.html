@@ -413,6 +413,15 @@
 		.pay-country-message a { color: var(--accent); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 		.pay-country-contact { display: none; align-items: center; justify-content: center; width: 260px; padding: 14px 22px; border: 1px solid #111; background: #111; color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-decoration: none; text-transform: uppercase; }
 		.pay-country-contact:hover, .pay-country-contact:focus-visible { background: #fff; color: #111; }
+		.pay-country-grid--compact { margin: 0 0 18px; }
+		.pay-country-grid--compact .pay-country-card { min-height: 0; padding: 15px 17px; }
+		.pay-country-grid--compact .pay-country-card.selected { padding: 14px 16px; }
+		.pay-country-grid--compact .pay-country-icon { display: none; }
+		.pay-country-grid--compact .pay-country-title { font-family: var(--sans); font-size: 14px; }
+		.pay-country-grid--compact .pay-country-subtitle { margin-top: 3px; }
+		.pay-country-grid--compact .pay-country-price,
+		.pay-country-grid--compact .pay-country-note { display: none; }
+		.pay-country-grid--compact .pay-country-card.selected::after { top: 12px; right: 12px; }
 		.pay-early-note { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-2); line-height: 1.55; }
 		.pay-early-note strong { color: var(--text); }
 		.pay-early-link { display: inline-block; margin-top: 8px; color: var(--accent); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
@@ -437,6 +446,13 @@
 		.pay-action-back { width: 140px; }
 		.pay-action-primary { width: 260px; }
 		.pay-actions--single .pay-action-primary { width: 220px; }
+		.pay-order-summary {
+			display: none; align-items: center; justify-content: space-between; gap: 16px;
+			margin-top: 18px; padding: 15px 17px; border-top: 2px solid var(--text); background: #f7f4f1;
+		}
+		.pay-order-summary-copy { font-size: 12px; line-height: 1.45; color: var(--text-2); }
+		.pay-order-summary-copy strong { display: block; color: var(--text); font-size: 13px; }
+		.pay-order-summary-amount { font-family: var(--serif); font-size: 27px; font-weight: 700; color: var(--accent); white-space: nowrap; }
 		.pay-next-btn {
 			background: #111111;
 			color: #ffffff;
@@ -468,8 +484,14 @@
 			.pay-country-icon { margin-bottom: 13px; }
 			.pay-country-price { margin-top: 14px; }
 			.pay-country-contact { width: 100%; }
+			.pay-country-grid--compact { grid-template-columns: 1fr 1fr; }
+			.pay-country-grid--compact .pay-country-card { padding: 14px 12px; }
+			.pay-country-grid--compact .pay-country-card.selected { padding: 13px 11px; }
+			.pay-country-grid--compact .pay-country-title { font-size: 12px; }
+			.pay-country-grid--compact .pay-country-subtitle { font-size: 10px; line-height: 1.35; }
 			.pay-plan-grid { grid-template-columns: 1fr; }
 			.pay-plan-card { min-height: 0; }
+			.pay-order-summary { align-items: flex-start; }
 		}
 
 		.pay-info-card {
@@ -1954,21 +1976,31 @@
 					<div id="pay-details" style="display:none;margin-top:24px">
 						<div class="cab-sec-title-row" style="margin-top:8px">
 							<h2 class="cab-sec-title" id="pay-details-title" tabindex="-1">Оформление подписки</h2>
-							<span class="cab-sec-title-meta">4 шага</span>
+							<span class="cab-sec-title-meta">3 шага</span>
 						</div>
 
 						<!-- Шаги -->
 						<div class="pay-steps">
-							<div class="pay-step active" data-step="0"><span class="pay-step-num">1</span> Страна оплаты</div>
-							<div class="pay-step" data-step="1"><span class="pay-step-num">2</span> Подписка</div>
-							<div class="pay-step" data-step="2"><span class="pay-step-num">3</span> Перевод</div>
-							<div class="pay-step" data-step="3"><span class="pay-step-num">4</span> Подтверждение</div>
+							<div class="pay-step active" data-step="0"><span class="pay-step-num">1</span> Период</div>
+							<div class="pay-step" data-step="1"><span class="pay-step-num">2</span> Перевод</div>
+							<div class="pay-step" data-step="2"><span class="pay-step-num">3</span> Подтверждение</div>
 						</div>
 
-						<!-- Шаг 1: страна оплаты -->
+						<!-- Шаг 1: период и страна оплаты -->
 						<div class="pay-wizard-step" id="pay-step-0">
-							<p class="pay-country-intro">Сначала выберите страну оплаты — так мы покажем подходящий способ и валюту.</p>
-							<div class="pay-country-grid" role="radiogroup" aria-label="Страна оплаты">
+							<p class="pay-country-intro">Выберите период и страну оплаты. Сумма перевода будет видна до перехода к реквизитам.</p>
+							<div class="pay-early-summary" id="pay-early-summary">
+								<div class="pay-early-summary-title">Ранний доступ</div>
+								<div class="pay-early-summary-copy">Оформите подписку по стартовой цене. После раннего доступа действуют актуальные тарифы.</div>
+								<div class="pay-early-summary-count" id="pay-early-summary-count">Проверяем доступные места…</div>
+							</div>
+							<div class="pay-plan-grid" id="pay-plan-grid"></div>
+							<div class="pay-early-note" id="pay-early-note">
+								<strong>Как сохраняется ранняя цена.</strong> Продлевайте подписку до окончания периода или в течение 7 календарных дней после него. Во время перерыва доступ к платным материалам приостанавливается.<br>
+								<a class="pay-early-link" href="how-subscription-works.html">Подробнее о том, как работает подписка</a>
+							</div>
+							<p class="pay-country-intro" style="margin-top:20px">Страна оплаты</p>
+							<div class="pay-country-grid pay-country-grid--compact" role="radiogroup" aria-label="Страна оплаты">
 								<button class="pay-country-card" data-cabinet-action="select-payment-country" data-country="ru" type="button" role="radio" aria-checked="false">
 									<span class="pay-country-icon"><span class="pay-country-flag" aria-hidden="true"><span></span><span></span><span></span></span></span>
 									<span class="pay-country-title">Россия</span>
@@ -1985,32 +2017,18 @@
 								</button>
 							</div>
 							<div class="pay-country-message" id="pay-country-message" aria-live="polite"></div>
+							<div class="pay-order-summary" id="pay-order-summary" aria-live="polite">
+								<div class="pay-order-summary-copy"><strong>Итого к переводу</strong>Без автоматических списаний</div>
+								<div class="pay-order-summary-amount" id="pay-order-summary-amount">—</div>
+							</div>
 							<div class="pay-actions pay-actions--single">
-								<button class="btn btn-orange pay-action-btn pay-action-primary pay-next-btn" id="pay-country-next" data-cabinet-action="go-pay-step" data-step="1" type="button" disabled>Выбрать подписку</button>
+								<button class="btn btn-orange pay-action-btn pay-action-primary pay-next-btn" id="pay-next-0" data-cabinet-action="go-pay-step" data-step="1" type="button" disabled>К реквизитам</button>
 								<a class="pay-country-contact" id="pay-country-contact" href="mailto:hello@voronova.online?subject=%D0%9E%D0%BF%D0%BB%D0%B0%D1%82%D0%B0%20%D0%A3%D0%BC%D0%BD%D0%BE%D0%B9%20%D1%82%D0%B0%D1%80%D0%B5%D0%BB%D0%BA%D0%B8%20%D0%B8%D0%B7%20%D0%B4%D1%80%D1%83%D0%B3%D0%BE%D0%B9%20%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%8B">Уточнить способ оплаты</a>
 							</div>
 						</div>
 
-						<!-- Шаг 2: Выбор тарифа -->
-						<div class="pay-wizard-step" id="pay-step-1" style="display:none">
-							<div class="pay-early-summary" id="pay-early-summary">
-								<div class="pay-early-summary-title">Ранний доступ</div>
-								<div class="pay-early-summary-copy">Оформите подписку по стартовой цене. После раннего доступа действуют актуальные тарифы.</div>
-								<div class="pay-early-summary-count" id="pay-early-summary-count">Проверяем доступные места…</div>
-							</div>
-							<div class="pay-plan-grid" id="pay-plan-grid"></div>
-							<div class="pay-early-note" id="pay-early-note">
-								<strong>Как сохраняется ранняя цена.</strong> Продлевайте подписку до окончания периода или в течение 7 календарных дней после него. Во время перерыва доступ к платным материалам приостанавливается.<br>
-								<a class="pay-early-link" href="how-subscription-works.html">Подробнее о том, как работает подписка</a>
-							</div>
-							<div class="pay-actions">
-								<button class="btn btn-ghost pay-action-btn pay-action-back" data-cabinet-action="go-pay-step" data-step="0" type="button">Назад</button>
-								<button class="btn btn-orange pay-action-btn pay-action-primary pay-next-btn" id="pay-next-1" data-cabinet-action="go-pay-step" data-step="2" type="button" disabled>Далее</button>
-							</div>
-						</div>
-
 						<!-- Шаг 2: Реквизиты -->
-						<div class="pay-wizard-step" id="pay-step-2" style="display:none">
+						<div class="pay-wizard-step" id="pay-step-1" style="display:none">
 							<div class="pay-info-card">
 								<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);margin-bottom:12px">Реквизиты для перевода</div>
 								<div class="pay-card-row">
@@ -2029,13 +2047,13 @@
 								</div>
 							</div>
 						<div class="pay-actions">
-							<button class="btn btn-ghost pay-action-btn pay-action-back" data-cabinet-action="go-pay-step" data-step="1" type="button">Назад</button>
-							<button class="btn btn-orange pay-action-btn pay-action-primary pay-transfer-btn" data-cabinet-action="go-pay-step" data-step="3" type="button">Я перевёл, далее</button>
+							<button class="btn btn-ghost pay-action-btn pay-action-back" data-cabinet-action="go-pay-step" data-step="0" type="button">Назад</button>
+							<button class="btn btn-orange pay-action-btn pay-action-primary pay-transfer-btn" data-cabinet-action="go-pay-step" data-step="2" type="button">Я перевёл, далее</button>
 							</div>
 						</div>
 
 						<!-- Шаг 3: Подтверждение -->
-						<div class="pay-wizard-step" id="pay-step-3" style="display:none">
+						<div class="pay-wizard-step" id="pay-step-2" style="display:none">
 							<div class="pay-form" id="pay-form">
 								<input type="hidden" id="pay-amount">
 								<div class="pay-field">
@@ -2066,7 +2084,7 @@
 								<div id="pay-error" style="color:#c0392b;font-size:13px;display:none"></div>
 								<div id="pay-wizard-legal" style="font-size:12px;color:var(--text-3);line-height:1.5;margin-bottom:10px"></div>
 								<div class="pay-actions" style="margin-top:0">
-									<button class="btn btn-ghost pay-action-btn pay-action-back" data-cabinet-action="go-pay-step" data-step="2" type="button">Назад</button>
+									<button class="btn btn-ghost pay-action-btn pay-action-back" data-cabinet-action="go-pay-step" data-step="1" type="button">Назад</button>
 									<button class="btn btn-orange pay-action-btn pay-action-primary" id="pay-submit-btn" data-cabinet-action="submit-payment" type="button">Отправить на проверку</button>
 								</div>
 							</div>

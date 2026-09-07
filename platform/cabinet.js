@@ -763,11 +763,11 @@
 				if (s === step) el.classList.add('active');
 			});
 			// Show/hide panels
-			for (var i = 0; i <= 3; i++) {
+			for (var i = 0; i <= 2; i++) {
 				document.getElementById('pay-step-' + i).style.display = (i === step) ? 'block' : 'none';
 			}
-			// Populate sender on step 3
-			if (step === 3) {
+			// Populate sender on confirmation step
+			if (step === 2) {
 				var user = Auth.getUser();
 				if (user && user.email) document.getElementById('pay-sender-display').textContent = user.email;
 			}
@@ -779,7 +779,22 @@
 			document.getElementById('pay-transfer-amount').textContent = amount + ' ₽';
 			document.querySelectorAll('.pay-plan-card').forEach(function(c) { c.classList.remove('selected'); });
 			el.classList.add('selected');
-			document.getElementById('pay-next-1').disabled = false;
+			updatePaymentStep0();
+		}
+
+		function updatePaymentStep0() {
+			var next = document.getElementById('pay-next-0');
+			var contact = document.getElementById('pay-country-contact');
+			var summary = document.getElementById('pay-order-summary');
+			var amount = document.getElementById('pay-order-summary-amount');
+			var isRussianTransfer = _selectedPaymentCountry === 'ru';
+			var canContinue = isRussianTransfer && !!_selectedPlan;
+
+			next.disabled = !canContinue;
+			next.style.display = _selectedPaymentCountry === 'world' ? 'none' : '';
+			contact.style.display = _selectedPaymentCountry === 'world' ? 'inline-flex' : 'none';
+			summary.style.display = canContinue ? 'flex' : 'none';
+			if (canContinue) amount.textContent = _selectedPlan.amount.toLocaleString('ru-RU') + ' ₽';
 		}
 
 		function selectPaymentCountry(country, el) {
@@ -792,20 +807,14 @@
 			el.setAttribute('aria-checked', 'true');
 
 			var message = document.getElementById('pay-country-message');
-			var next = document.getElementById('pay-country-next');
-			var contact = document.getElementById('pay-country-contact');
 			if (country === 'ru') {
-				message.innerHTML = '<strong>Оплата в рублях.</strong> На следующем шаге выберите период, затем получите реквизиты для перевода на российскую карту.';
+				message.innerHTML = '<strong>Оплата в рублях.</strong> Выберите период — реквизиты для перевода появятся на следующем шаге.';
 				message.style.display = 'block';
-				next.style.display = '';
-				next.disabled = false;
-				contact.style.display = 'none';
 			} else {
 				message.innerHTML = '<strong>Международную оплату подключаем.</strong> Сейчас напишите нам на <a href="mailto:hello@voronova.online">hello@voronova.online</a> — уточним доступный вариант для вашей страны.';
 				message.style.display = 'block';
-				next.style.display = 'none';
-				contact.style.display = 'inline-flex';
 			}
+			updatePaymentStep0();
 		}
 
 		function renderPlanCards() {
@@ -849,15 +858,15 @@
 			var planGrid = document.getElementById('pay-plan-grid');
 			if (planGrid && !planGrid.children.length) renderPlanCards();
 			document.querySelectorAll('.pay-plan-card').forEach(function(c) { c.classList.remove('selected'); });
-			document.getElementById('pay-next-1').disabled = true;
+			document.getElementById('pay-next-0').disabled = true;
 			document.querySelectorAll('.pay-country-card').forEach(function(card) {
 				card.classList.remove('selected');
 				card.setAttribute('aria-checked', 'false');
 			});
 			document.getElementById('pay-country-message').style.display = 'none';
-			document.getElementById('pay-country-next').style.display = '';
-			document.getElementById('pay-country-next').disabled = true;
+			document.getElementById('pay-next-0').style.display = '';
 			document.getElementById('pay-country-contact').style.display = 'none';
+			document.getElementById('pay-order-summary').style.display = 'none';
 			document.getElementById('pay-form').style.display = 'flex';
 			document.getElementById('pay-comment').value = '';
 			clearScreenshot();
@@ -907,7 +916,7 @@
 				if (window.SmartPlateMetrika) window.SmartPlateMetrika.goal('payment_submitted');
 				if (window.SmartPlateGoogleAnalytics) window.SmartPlateGoogleAnalytics.event('payment_submitted');
 				// Hide all wizard steps, show success
-				for (var i = 1; i <= 3; i++) document.getElementById('pay-step-' + i).style.display = 'none';
+				for (var i = 0; i <= 2; i++) document.getElementById('pay-step-' + i).style.display = 'none';
 				document.querySelector('.pay-steps').style.display = 'none';
 				_injectSuccessSupportNote();
 				var success = document.getElementById('pay-success');
