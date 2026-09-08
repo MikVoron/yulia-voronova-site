@@ -111,6 +111,32 @@
         });
     }
 
+    function enhanceConditionalFields() {
+        if (flowType !== 'health') return;
+        Array.prototype.slice.call(form.querySelectorAll('[data-conditional-field]')).forEach(function (group) {
+            var field = document.getElementById(group.getAttribute('data-conditional-field'));
+            var expectedValue = group.getAttribute('data-conditional-value');
+            if (!field || !expectedValue) return;
+
+            var inputs = Array.prototype.slice.call(field.querySelectorAll('input, textarea, select'));
+            var radios = Array.prototype.slice.call(group.querySelectorAll('input[type="radio"]'));
+
+            function updateVisibility() {
+                var selected = group.querySelector('input[type="radio"]:checked');
+                var isVisible = Boolean(selected && selected.value === expectedValue);
+                field.hidden = !isVisible;
+                inputs.forEach(function (input) {
+                    input.disabled = !isVisible;
+                });
+            }
+
+            radios.forEach(function (radio) {
+                radio.addEventListener('change', updateVisibility);
+            });
+            updateVisibility();
+        });
+    }
+
     function validateCurrentStep() {
         var fields = Array.prototype.slice.call(steps[currentStep].querySelectorAll('input:not([type="hidden"]):not([disabled]), textarea:not([disabled]), select:not([disabled])'));
         for (var index = 0; index < fields.length; index += 1) {
@@ -197,6 +223,7 @@
     });
 
     enhanceFoodFrequency();
+    enhanceConditionalFields();
     form.classList.add('is-stepped');
     document.body.classList.add('js-ready');
     showStep(0, false);

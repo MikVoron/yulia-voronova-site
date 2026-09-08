@@ -118,31 +118,10 @@
 					<textarea name="Запрос для обращения" rows="6" placeholder="Укажите один основной запрос, с которым мы будем работать"></textarea>
 				</label>
 
-				<div class="custom-radio-group">
-					<span class="checkbox-title">1.9 Оцените Вашу готовность вносить изменения в Ваш рацион и повседневные привычки:</span>
-
-					<label class="custom-radio">
-						<input type="radio" name="Готовность вносить изменения в Ваш рацион и повседневные привычки" value="Полностью готов">
-						<span class="radiomark"></span>
-						Готов к любым переменам <svg class="inline-icon" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-							<path d="M12.28 15.7l-2.5-2.5c-.39-.39-.39-1.02 0-1.41s1.02-.39 1.41 0l1.8 1.8 4.3-4.3c.39-.39 1.02-.39 1.41 0s.39 1.02 0 1.41l-5 5c-.39.39-1.02.39-1.42 0zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
-						</svg>
-					</label>
-					<label class="custom-radio">
-						<input type="radio" name="Готовность вносить изменения в Ваш рацион и повседневные привычки" value="Готов частично">
-						<span class="radiomark"></span>
-						Готов частично/постепенно <svg class="inline-icon" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-							<path d="M12 4C7 4 2.73 7.11 1 11.5 2.73 15.89 7 19 12 19s9.27-3.11 11-7.5C21.27 7.11 17 4 12 4zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-						</svg>
-					</label>
-					<label class="custom-radio">
-						<input type="radio" name="Готовность вносить изменения в Ваш рацион и повседневные привычки" value="Не готов">
-						<span class="radiomark"></span>
-						Совсем не готов <svg class="inline-icon" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-							<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM7 9.5C7 8.67 7.67 8 8.5 8s1.5.67 1.5 1.5S9.33 11 8.5 11 7 10.33 7 9.5zm5 7.73c-1.75 0-3.29-.73-4.19-1.81L9.23 14c.45.72 1.52 1.23 2.77 1.23s2.32-.51 2.77-1.23l1.42 1.42c-.9 1.08-2.44 1.81-4.19 1.81zM15.5 11c-.83 0-1.5-.67-1.5-1.5S14.67 8 15.5 8s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
-						</svg>
-					</label>
-				</div>
+				<label>
+					<span class="label-title">1.9 Над чем Вы готовы поработать для достижения Ваших целей (уровень физической активности, рацион питания, изменение режима дня и т. д.)?</span>
+					<textarea name="Готовность работать над привычками" rows="5" placeholder="Опишите, какие изменения Вы готовы попробовать"></textarea>
+				</label>
 			</section>
 
 			<hr class="svg-divider">
@@ -184,79 +163,54 @@
 				<h3><svg class="section-icon" viewBox="0 0 24 24" fill="currentColor">
 						<path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z" />
 					</svg> 3. Ваше питание</h3>
+				<div class="custom-radio-group" data-conditional-field="medications-details" data-conditional-value="Да">
+					<span class="checkbox-title">3.1 Принимаете ли Вы медикаменты или БАДы в настоящее время?</span>
+					<label class="custom-radio"><input type="radio" name="Приём медикаментов или БАДов" value="Нет"><span class="radiomark"></span>Нет</label>
+					<label class="custom-radio"><input type="radio" name="Приём медикаментов или БАДов" value="Да"><span class="radiomark"></span>Да</label>
+					<label class="conditional-detail" id="medications-details" hidden>
+						<span class="label-title">Что именно?</span>
+						<input type="text" name="Принимаемые медикаменты или БАДы" placeholder="Укажите название">
+					</label>
+				</div>
+
 				<label>
-					<span class="label-title">3.1 Что Вас беспокоит в Вашем питании и привычках (коротко)?</span>
-					<textarea name="Питание" rows="5" placeholder="Например: нерегулярное питание, много сладкого, мало овощей, перекусы..."></textarea>
+					<span class="label-title">3.2 Сколько раз в день Вы едите?</span>
+					<input type="number" name="Количество приёмов пищи в день" min="0" max="20" inputmode="numeric" placeholder="Например: 3">
 				</label>
 
 				<div class="custom-radio-group">
-					<span class="checkbox-title">3.2 Какой сейчас у Вас тип питания?</span>
-
-					<label class="custom-radio">
-						<input type="radio" name="Тип питания" value="Смешанный тип">
-						<span class="radiomark"></span>
-						Смешанный тип
-					</label>
-
-					<label class="custom-radio">
-						<input type="radio" name="Тип питания" value="Преимущественно растительный">
-						<span class="radiomark"></span>
-						Преимущественно растительный
-					</label>
-
-					<label class="custom-radio">
-						<input type="radio" name="Тип питания" value="100% растительный">
-						<span class="radiomark"></span>
-						100% растительный
-					</label>
-
-					<label class="custom-radio">
-						<input type="radio" name="Тип питания" value="Я — мясоед">
-						<span class="radiomark"></span>
-						Я — мясоед
-					</label>
-				</div>
-
-				<div class="checkbox-group soft-style">
-					<label class="label-title">3.3 Какие животные продукты присутствуют в Вашем рационе?</label>
-
-					<label class="custom-checkbox">
-						<input type="checkbox" name="Животные продукты в рационе" value="Молочные">
-						<span class="checkmark"></span>
-						Молочные
-					</label>
-					<input type="text" name="Как часто молоко:" placeholder="Сколько раз в день/неделю?" class="light-input">
-
-					<label class="custom-checkbox">
-						<input type="checkbox" name="Животные продукты в рационе" value="Мясо">
-						<span class="checkmark"></span>
-						Мясо
-					</label>
-					<input type="text" name="Как часто едите мясо" placeholder="Сколько раз в день/неделю?" class="light-input">
-
-					<label class="custom-checkbox">
-						<input type="checkbox" name="Животные продукты в рационе" value="Рыба">
-						<span class="checkmark"></span>
-						Рыба
-					</label>
-					<input type="text" name="Как часто едите рыбу:" placeholder="Сколько раз в день/неделю?" class="light-input">
-
-					<label class="custom-checkbox">
-						<input type="checkbox" name="Животные продукты в рационе" value="Яйца">
-						<span class="checkmark"></span>
-						Яйца
-					</label>
-					<input type="text" name="Как часто едите яйца:" placeholder="Сколько раз в день/неделю?" class="light-input">
+					<span class="checkbox-title">3.3 Сколько выпиваете воды в день?</span>
+					<label class="custom-radio"><input type="radio" name="Количество воды в день" value="Не знаю, не слежу за этим"><span class="radiomark"></span>Не знаю, не слежу за этим</label>
+					<label class="custom-radio"><input type="radio" name="Количество воды в день" value="1–3 стакана"><span class="radiomark"></span>1–3 стакана</label>
+					<label class="custom-radio"><input type="radio" name="Количество воды в день" value="4–6 стаканов"><span class="radiomark"></span>4–6 стаканов</label>
+					<label class="custom-radio"><input type="radio" name="Количество воды в день" value="Более 6 стаканов"><span class="radiomark"></span>Более 6 стаканов</label>
+					<label class="custom-radio"><input type="radio" name="Количество воды в день" value="Не пью воду, предпочитаю другие напитки"><span class="radiomark"></span>Не пью воду, предпочитаю другие напитки</label>
 				</div>
 
 				<label>
-					<span class="label-title">3.4 Ваше отношение к сладостям?</span>
-					<textarea name="Сладости" rows="3" placeholder="Как часто Вы едите их? Например: шоколад — 3 раза в неделю, по половине плитки."></textarea>
+					<span class="label-title">3.4 Какие особенности и ограничения по питанию у Вас есть (аллергии, непереносимости, религиозные или другие ограничения)?</span>
+					<textarea name="Особенности и ограничения по питанию" rows="4"></textarea>
 				</label>
 
 				<label>
-					<span class="label-title">3.5 Сколько воды (в литрах) Вы пьете в течение дня?</span>
-					<input type="text" name="Вода" placeholder="Например: 1.5 – 2 литра">
+					<span class="label-title">3.5 Кратко охарактеризуйте Ваше отношение к сладостям</span>
+					<textarea name="Отношение к сладостям" rows="3"></textarea>
+				</label>
+
+				<div class="custom-radio-group">
+					<span class="checkbox-title">3.6 Вы предпочитаете готовить дома или покупать готовую еду?</span>
+					<label class="custom-radio"><input type="radio" name="Предпочтительный способ питания" value="Готовить дома"><span class="radiomark"></span>Готовить дома</label>
+					<label class="custom-radio"><input type="radio" name="Предпочтительный способ питания" value="Покупать готовую еду"><span class="radiomark"></span>Покупать готовую еду</label>
+				</div>
+
+				<label>
+					<span class="label-title">3.7 Имеются ли у Вас хронические заболевания или ограничения по здоровью?</span>
+					<textarea name="Хронические заболевания или ограничения по здоровью" rows="4"></textarea>
+				</label>
+
+				<label>
+					<span class="label-title">3.8 Имеется ли у Вас опыт снижения веса, следования какой-либо диете? Укажите какой.</span>
+					<textarea name="Опыт снижения веса или диет" rows="4"></textarea>
 				</label>
 			</section>
 
@@ -280,10 +234,26 @@
 
 				</div>
 
+				<div class="slider-wrapper">
+					<label for="change-ability-level">Оцените Вашу <strong>ВОЗМОЖНОСТЬ</strong> внести изменения в Ваши повседневные привычки</label>
+					<div class="slider-hint">Шкала от 1 до 10, где 1 — нет, а 10 — мне всё под силу</div>
+					<input type="range" name="Возможность изменить повседневные привычки" id="change-ability-level" min="1" max="10" value="5">
+					<div class="slider-value"><span id="changeAbilityDisplay">5</span></div>
+				</div>
+
+				<div class="slider-wrapper">
+					<label for="change-readiness-level">Оцените Вашу <strong>ГОТОВНОСТЬ</strong> вносить изменения в Ваши повседневные привычки</label>
+					<div class="slider-hint">Шкала от 1 до 10, где 1 — не готов, а 10 — готов начать хоть сейчас</div>
+					<input type="range" name="Готовность изменить повседневные привычки" id="change-readiness-level" min="1" max="10" value="5">
+					<div class="slider-value"><span id="changeReadinessDisplay">5</span></div>
+				</div>
+
 			</section>
 
 			<hr class="svg-divider">
 
+			<!-- Удалённые разделы 5–7 сохранены в истории Git; в анкету и отправку больше не входят. -->
+			<!--
 			<section class="custom-checkbox-group">
 				<h3 class="checkbox-title"><svg class="section-icon" viewBox="0 0 24 24" fill="currentColor">
 						<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z" />
@@ -606,13 +576,12 @@
 					<textarea name="Диагнозы, связанные с женским здоровьем" placeholder="Если есть, пожалуйста, напишите "></textarea>
 				</label>
 			</section>
-
-			<hr class="svg-divider">
+			-->
 
 			<section>
 				<h3><svg class="section-icon" viewBox="0 0 24 24" fill="currentColor">
 						<path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
-					</svg> 8. Дополнительные комментарии</h3>
+					</svg> Дополнительные комментарии</h3>
 				<label><textarea name="Комментарии" rows="5"></textarea></label>
 
 			</section>
@@ -658,6 +627,13 @@
 				{ text: 'Высокий стресс', color: '#f28482' },
 				{ text: 'Постоянный ежедневный стресс', color: '#e76f51' }
 			];
+			var HABIT_SCALE_LABELS = [''];
+			for (var scaleValue = 1; scaleValue <= 10; scaleValue += 1) {
+				HABIT_SCALE_LABELS.push({
+					text: 'Выбрано: ' + scaleValue + ' из 10',
+					color: scaleValue <= 3 ? '#e76f51' : (scaleValue <= 7 ? '#f5c542' : '#74c69d')
+				});
+			}
 
 			function initSlider(inputId, displayId, labels) {
 				var input = document.getElementById(inputId);
@@ -734,12 +710,14 @@
 				initSlider('energy-level', 'energyDisplay', ENERGY_LABELS);
 				initSlider('activity-level', 'activityDisplay', ACTIVITY_LABELS);
 				initSlider('stress-level', 'valueDisplay', STRESS_LABELS);
+				initSlider('change-ability-level', 'changeAbilityDisplay', HABIT_SCALE_LABELS);
+				initSlider('change-readiness-level', 'changeReadinessDisplay', HABIT_SCALE_LABELS);
 			});
 		})();
 	</script>
 
 
-    <script src="questionnaire-flow.js?v=20260907-questionnaires-cache" defer></script>
+    <script src="questionnaire-flow.js?v=20260908-health-content" defer></script>
 
 	<script src="analytics.js" defer></script>
 	<noscript>
