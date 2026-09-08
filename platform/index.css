@@ -450,6 +450,13 @@ main {
 	max-width: 50ch;
 	margin: 0 0 24px;
 }
+.sp-hero-sub--list { max-width: 52ch; margin-bottom: 20px; }
+.sp-hero-list-title { margin: 0 0 7px; font-size: 17px; font-weight: 700; line-height: 1.35; }
+.sp-hero-value-list { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.sp-hero-value-list li { display: flex; align-items: flex-start; gap: 8px; font-size: 17px; line-height: 1.42; }
+.sp-hero-value-list li::before { content: ''; width: 6px; height: 6px; flex: 0 0 6px; margin-top: .52em; border-radius: 50%; background: var(--accent); }
+.sp-hero-proof-values { display: grid; gap: 8px; margin: 14px 0 0; }
+.sp-hero-proof-values p { margin: 0; font-size: 15px; font-weight: 500; line-height: 1.48; }
 
 .sp-hero-aside {
 	display: flex;
@@ -1865,6 +1872,9 @@ main {
 		color: var(--text);
 		margin-bottom: 20px;
 	}
+	.sp-hero-list-title { font-size: 15px; }
+	.sp-hero-value-list li { font-size: 15px; }
+	.sp-hero-proof-values p { font-size: 14px; }
 
 	.sp-hero-trial-btn {
 		box-sizing: border-box;

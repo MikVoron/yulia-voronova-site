@@ -35,9 +35,9 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700;800&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="index-critical.css?v=20260713-csp-static">
-	<link rel="stylesheet" href="style-v4.css?v=20260908-mobile-chat-attention" id="vcss">
+	<link rel="stylesheet" href="style-v4.css?v=20260908-chat-lines" id="vcss">
 	<link rel="stylesheet" href="tawk-chat-modal.css?v=20260713-csp-styles">
-	<link rel="stylesheet" href="index.css?v=20260908-subscription-card-price">
+	<link rel="stylesheet" href="index.css?v=20260908-hero-value-list">
 </head>
 
 <body class="v-page sp-home">
@@ -294,7 +294,11 @@
 					</a>
 					<div class="sp-hero-eyebrow" id="sp-hero-eyebrow"><span id="sp-hero-guest-eyebrow">Более 90 рецептов</span><span id="sp-hero-date"></span> <span id="sp-hero-weekday"></span></div>
 					<h1 class="sp-hero-title" id="sp-hero-title">Сбалансированные блюда на каждый день</h1>
-					<p class="sp-hero-sub" id="sp-hero-sub">Выбирайте понравившееся блюдо, сбалансируйте его по методу Гарвардской тарелки, формируйте список покупок и сохраняйте приём пищи в журнале — всё в одном понятном пространстве. <strong>Все фотографии блюд здесь реальные: без ИИ и чужих снимков из фуд-блогов.</strong> Если что-то в рецепте останется непонятным, спросите в онлайн-чате.</p>
+					<div class="sp-hero-sub sp-hero-sub--list" id="sp-hero-sub">
+						<p class="sp-hero-list-title">В одном понятном пространстве:</p>
+						<ul class="sp-hero-value-list"><li>Выбирайте понравившееся блюдо</li><li>Сбалансируйте его по методу Гарвардской тарелки</li><li>Формируйте список покупок</li><li>Сохраняйте приём пищи в журнале</li></ul>
+						<div class="sp-hero-proof-values"><p>Все фотографии блюд здесь реальные: без ИИ и чужих снимков из фуд-блогов.</p><p>Если что-то в рецепте останется непонятным, спросите в онлайн-чате.</p></div>
+					</div>
 
 					<!-- Hero search (функционал прежний; добавлена editorial-кнопка submit) -->
 					<form class="hero-search" id="hero-search" data-index-submit="hero-search" role="search">
@@ -511,8 +515,8 @@
 
 	<!-- CHAT FAB -->
 	<a class="chat-fab" id="support-fab" data-tawk-open href="https://tawk.to/chat/699610c27418241c38dd96b3/1js4rtjr9" target="_blank" rel="noopener" aria-label="Открыть чат поддержки Tawk" title="Чат с отделом заботы">
-		<svg class="chat-fab-icon" viewBox="0 0 24 24">
-			<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+		<svg class="chat-fab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+			<path class="chat-fab-bubble" d="M4 4h16v12H8l-4 4V4Z" /><path class="chat-fab-line chat-fab-line--1" d="M8 9h8" /><path class="chat-fab-line chat-fab-line--2" d="M8 12h6" /><path class="chat-fab-line chat-fab-line--3" d="M8 15h4" />
 		</svg>
 	</a>
 
