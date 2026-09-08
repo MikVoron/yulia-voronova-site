@@ -477,6 +477,9 @@
 		// один CTA-блок вместо них.
 		function renderRecipePreview(r) {
 			document.title = r.name + ' — рецепт | Умная тарелка';
+			if (window.SmartPlateMetrika && typeof SmartPlateMetrika.goal === 'function') {
+				SmartPlateMetrika.goal('locked_recipe_opened');
+			}
 			const cta = Auth.recipePaywallCta(r) || {
 				title: 'Доступ к рецепту ограничен',
 				btn: 'Оформить подписку',
