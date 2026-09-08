@@ -265,7 +265,8 @@ const Auth = {
             const now = new Date();
             if (sub.status === 'trial' && new Date(sub.trialEndsAt) > now) { this.startAutoRefresh(); return true; }
             if (sub.status === 'active' && new Date(sub.activeUntil) > now) { this.startAutoRefresh(); return true; }
-            this._showPaywall(sub.trialNotGranted ? 'trial_not_granted' : sub.status); return false;
+            const isExpiredTrial = sub.status === 'expired' && !!sub.trialEndsAt && !sub.activeUntil && !sub.trialNotGranted;
+            this._showPaywall(sub.trialNotGranted ? 'trial_not_granted' : (isExpiredTrial ? 'trial_ended' : sub.status)); return false;
         } catch {
             // Fail-close: на сетевой ошибке не давать доступ. localStorage-роль
             // не источник истины — реальный admin переавторизуется и пройдёт.
@@ -402,6 +403,7 @@ const Auth = {
         overlay.setAttribute('aria-labelledby', 'paywall-title');
         const isNetworkError = reason === 'error';
         const isExpired = reason === 'expired' || reason === 'cancelled';
+        const isTrialEnded = reason === 'trial_ended';
         const isTrialNotGranted = reason === 'trial_not_granted';
         let kicker, title, text, actionHtml, offerHtml;
         if (isNetworkError) {
@@ -411,10 +413,12 @@ const Auth = {
             actionHtml = '<button class="paywall-btn" data-shared-action="reload">Повторить</button>';
             offerHtml = '';
         } else {
-            kicker = 'ДОСТУП К УМНОЙ ТАРЕЛКЕ';
-            title = isTrialNotGranted ? 'Пробный период недоступен' : (isExpired ? 'Подписка завершена' : 'Нужна подписка');
+            kicker = isTrialEnded ? 'ПРОБНЫЙ ДОСТУП ЗАВЕРШЁН' : 'ДОСТУП К УМНОЙ ТАРЕЛКЕ';
+            title = isTrialNotGranted ? 'Пробный период недоступен' : (isTrialEnded ? 'Продолжите с подпиской' : (isExpired ? 'Подписка завершена' : 'Нужна подписка'));
             text = isTrialNotGranted
                 ? 'Бесплатный пробный период для этого аккаунта недоступен. Оформите подписку, чтобы открыть рецепты, списки покупок и конструктор тарелки. После оплаты вы вернётесь на эту страницу.'
+                : isTrialEnded
+                ? 'Пробные 7 дней завершены. Подписка вернёт доступ ко всей базе рецептов, списку покупок и конструктору тарелки.'
                 : isExpired
                 ? 'Продлите подписку, чтобы снова открыть рецепты, списки покупок и конструктор тарелки. После оплаты вы вернётесь на эту страницу.'
                 : 'Оформите подписку, чтобы открыть рецепты, списки покупок и конструктор тарелки. После оплаты вы вернётесь на эту страницу.';
