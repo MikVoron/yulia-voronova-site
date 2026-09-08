@@ -15,6 +15,8 @@
 		var _isRecipeReturn = /^recipe\.html(?:[?#]|$)/.test(_returnUrl);
 		var _isProRecipeEntry = _entry === 'pro-recipe' && _isRecipeReturn;
 		var _isTrialRecipeEntry = _entry === 'trial-recipe' && _isRecipeReturn;
+		var _recipeContext = document.getElementById('lp-recipe-context');
+		if (_recipeContext) _recipeContext.hidden = !_isProRecipeEntry;
 		var _isAdminLogin = _returnUrl.indexOf('admin.html') !== -1 || _returnUrl.indexOf('recipe-editor.html') !== -1;
 		var _hasReturn = !!_safeReturn(_rawReturn);
 		// Дописываем оферту, только если она опубликована (флаг в data-v2.js)

@@ -202,6 +202,28 @@ body {
 	font-weight: 700;
 }
 
+.lp-recipe-context {
+	display: grid;
+	gap: 3px;
+	margin: -12px 0 16px;
+	color: var(--text);
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1.45;
+}
+
+.lp-recipe-context[hidden] {
+	display: none;
+}
+
+.lp-recipe-context strong {
+	font-weight: 700;
+}
+
+.lp-recipe-context span {
+	color: var(--text-2);
+}
+
 .lp-delivery-help {
 	margin: -12px 0 22px;
 	padding: 11px 13px;
