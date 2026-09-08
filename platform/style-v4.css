@@ -3525,10 +3525,11 @@ img { display: block; max-width: 100%; }
 .chat-fab-icon { width: 22px; height: 22px; fill: currentColor; }
 .chat-fab-tip { display: none; }
 @media (max-width: 700px) {
-    .chat-fab.is-over-card-media {
-        visibility: hidden;
-        pointer-events: none;
-    }
+    .chat-fab { animation: chat-fab-attention 2.6s ease-in-out 3; }
+}
+@keyframes chat-fab-attention {
+    0%, 100% { transform: scale(1); box-shadow: 0 4px 20px rgba(0,0,0,.28); }
+    50% { transform: scale(1.045); box-shadow: 0 6px 24px rgba(232,64,10,.32); }
 }
 
 /* Общий контракт reduced motion: состояние меняется без движения, сценарий сохраняется. */

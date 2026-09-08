@@ -113,14 +113,6 @@
 		if (!fab || !footer || !window.requestAnimationFrame) return;
 
 		var frame = null;
-		function isOverHomeRecipePhoto(fabRect) {
-			if (!document.body.classList.contains('sp-home') || !window.matchMedia('(max-width: 700px)').matches) return false;
-			return Array.prototype.some.call(document.querySelectorAll('.sp-card-media'), function (media) {
-				var mediaRect = media.getBoundingClientRect();
-				return fabRect.bottom > mediaRect.top && fabRect.top < mediaRect.bottom &&
-					fabRect.right > mediaRect.left && fabRect.left < mediaRect.right;
-			});
-		}
 		function update() {
 			frame = null;
 			var fabRect = fab.getBoundingClientRect();
@@ -129,11 +121,7 @@
 				fabRect.top < footerRect.bottom &&
 				fabRect.right > footerRect.left &&
 				fabRect.left < footerRect.right;
-			var isOverHomePhoto = isOverHomeRecipePhoto(fabRect);
 			fab.classList.toggle('is-over-footer', isOverFooter);
-			fab.classList.toggle('is-over-card-media', isOverHomePhoto);
-			if (isOverHomePhoto) fab.setAttribute('aria-hidden', 'true');
-			else fab.removeAttribute('aria-hidden');
 		}
 		function schedule() {
 			if (frame) return;
