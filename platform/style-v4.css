@@ -1117,6 +1117,13 @@ img { display: block; max-width: 100%; }
 .recipe-preview--guest-pro .rp-cta-price {
     margin: 16px 0 14px;
 }
+.recipe-preview--guest-pro .rp-cta-subscription-note {
+    margin: 14px 0 0;
+    color: var(--text-2);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+}
 .recipe-preview--guest-pro .rp-cta-trial {
     margin-top: 18px;
     padding: 16px 0;

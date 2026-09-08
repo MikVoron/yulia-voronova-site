@@ -570,6 +570,12 @@
 					: '<strong class="rp-preview-trial">7 дней доступа бесплатно</strong>'
 						+ '<span class="rp-preview-no-card">Карту привязывать не нужно</span>'
 						+ '<a class="rp-preview-login" href="' + escHtml(cta.href) + '">Уже есть аккаунт? Войти</a>';
+				const detailedSubscriptionNoteHtml = isSubscriptionPreview && cta.noteLines && cta.noteLines.length
+					? '<p class="rp-cta-subscription-note">' + escHtml(cta.noteLines[0]) + '</p>'
+					: '';
+				const detailedUnlocksHtml = isSubscriptionPreview
+					? ''
+					: '<div class="rp-preview-unlocks"><p>Полный состав и точные количества</p><p>Все шаги приготовления</p><p>Баланс блюда и список покупок</p></div>';
 				const detailedTariffsHtml = isSubscriptionPreview && cta.tariffsHref
 					? '<a class="rp-cta-tariffs" href="' + escHtml(cta.tariffsHref) + '">Посмотреть тарифы</a>'
 					: '';
@@ -599,8 +605,9 @@
 							+ '<div class="rp-cta-title">' + escHtml(cta.title) + '</div>'
 							+ detailedPriceHtml
 							+ '<p class="rp-cta-copy">' + escHtml(offerCopy) + '</p>'
-							+ '<div class="rp-preview-unlocks"><p>Полный состав и точные количества</p><p>Все шаги приготовления</p><p>Баланс блюда и список покупок</p></div>'
+							+ detailedUnlocksHtml
 							+ '<a class="rp-cta-btn" href="' + escHtml(cta.href) + '" data-recipe-action="track-registration-cta">' + escHtml(cta.btn) + '</a>'
+							+ detailedSubscriptionNoteHtml
 							+ detailedTrialNotesHtml
 							+ detailedTrialHtml
 							+ detailedTariffsHtml
