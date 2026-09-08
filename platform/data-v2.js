@@ -363,10 +363,10 @@ const Auth = {
             return {
                 eyebrow: 'РЕЦЕПТ ПО ПОДПИСКЕ',
                 title: 'Откройте полный рецепт',
-                description: 'По подписке откроются полный список ингредиентов, пошаговое приготовление, замены продуктов, список покупок и добавление блюда в свою тарелку.',
+                description: 'В подписке — все ингредиенты, шаги приготовления, список покупок и конструктор тарелки.',
                 price: '190 ₽/мес',
                 priceNote: 'доступ ко всей базе',
-                btn: 'Оформить Подписку',
+                btn: 'Оформить подписку',
                 href: 'cabinet.html?tab=subscription' + (ret ? '&return=' + encodeURIComponent(ret) : ''),
                 tariffsHref: 'how-subscription-works.html',
             };
