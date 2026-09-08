@@ -3524,6 +3524,12 @@ img { display: block; max-width: 100%; }
 .chat-fab.is-over-footer:hover { background: #fff7f3; }
 .chat-fab-icon { width: 22px; height: 22px; fill: currentColor; }
 .chat-fab-tip { display: none; }
+@media (max-width: 700px) {
+    .chat-fab.is-over-card-media {
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
 
 /* Общий контракт reduced motion: состояние меняется без движения, сценарий сохраняется. */
 @media (prefers-reduced-motion: reduce) {
