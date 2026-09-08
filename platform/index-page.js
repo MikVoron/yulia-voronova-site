@@ -115,6 +115,22 @@
 		});
 		const user = Auth.getUser();
 		let heroPriceRequested = false;
+		let subscriptionMonthlyPrice = null;
+		function subscriptionCardPriceHtml() {
+			const hasPrice = Number.isFinite(subscriptionMonthlyPrice) && subscriptionMonthlyPrice > 0;
+			return '<span class="sp-bd__price" data-subscription-price' + (hasPrice ? '' : ' hidden') + '>'
+				+ (hasPrice ? subscriptionMonthlyPrice + ' ₽/мес' : '') + '</span>';
+		}
+		function syncSubscriptionCardPrices() {
+			if (!Number.isFinite(subscriptionMonthlyPrice) || subscriptionMonthlyPrice <= 0) return;
+			const label = subscriptionMonthlyPrice + ' ₽/мес';
+			document.querySelectorAll('[data-subscription-price]').forEach(function (priceEl) {
+				priceEl.textContent = label;
+				priceEl.hidden = false;
+				const badge = priceEl.closest('.sp-bd, .locked-badge');
+				if (badge) badge.classList.add(badge.classList.contains('sp-bd') ? 'sp-bd--priced' : 'locked-badge--priced');
+			});
+		}
 		function updateHeroOfferPrice() {
 			if (heroPriceRequested) return;
 			heroPriceRequested = true;
@@ -123,8 +139,10 @@
 				.then(function (data) {
 					const price = Number(data && data.prices && data.prices['1']);
 					const priceEl = document.getElementById('hero-monthly-price');
-					if (priceEl && Number.isFinite(price) && price > 0) {
-						priceEl.textContent = Math.round(price) + ' ₽/мес';
+					if (Number.isFinite(price) && price > 0) {
+						subscriptionMonthlyPrice = Math.round(price);
+						if (priceEl) priceEl.textContent = subscriptionMonthlyPrice + ' ₽/мес';
+						syncSubscriptionCardPrices();
 					}
 				})
 				.catch(function () { });
@@ -132,13 +150,13 @@
 		function updateHeroTrialCta() {
 			const trialCta = document.getElementById('hero-trial-cta');
 			if (!trialCta) return;
+			updateHeroOfferPrice();
 			const isGuest = Auth.isGuest();
 			document.body.classList.toggle('sp-home-guest', isGuest);
 			trialCta.hidden = !isGuest;
 			if (isGuest) {
 				const trialLink = document.getElementById('hero-trial-link');
 				if (trialLink) trialLink.href = Auth._loginUrl();
-				updateHeroOfferPrice();
 			}
 		}
 		function updateHeroGuestRecipeCount() {
@@ -550,13 +568,16 @@
 				const access = Auth.recipeCardAccess(d);
 				const locked = access.locked;
 				const lockLevel = locked ? access.level : null;
+				const hasSubscriptionPrice = lockLevel === 'pro' && Number.isFinite(subscriptionMonthlyPrice);
 				const photoHtml = _photo
 					? `<img src="${_photo}" alt="${_name}" loading="lazy" data-fallback-emoji="${_emoji}">`
 					: `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:56px">${_emoji}</div>`;
 				const lockBadgeIcon = '<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>';
-				const lockBadgeClass = lockLevel === 'pro' ? 'locked-badge' : 'trial-badge';
+				const lockBadgeClass = (lockLevel === 'pro' ? 'locked-badge' : 'trial-badge')
+					+ (hasSubscriptionPrice ? ' locked-badge--priced' : '');
 				const lockBadge = locked
-					? '<div class="' + lockBadgeClass + '">' + lockBadgeIcon + access.label + '</div>'
+					? '<div class="' + lockBadgeClass + '">' + lockBadgeIcon + '<span class="locked-badge__label">' + access.label + '</span>'
+						+ (lockLevel === 'pro' ? '<span class="locked-badge__price" data-subscription-price' + (hasSubscriptionPrice ? '' : ' hidden') + '>' + (hasSubscriptionPrice ? subscriptionMonthlyPrice + ' ₽/мес' : '') + '</span>' : '') + '</div>'
 					: '';
 				// «Бесплатно» — показываем гостю/триалу как маркер витрины. Для пользователя с доступом не дублируем.
 				const freeBadge = !locked && access.isFree && !Auth.hasFullAccess()
@@ -933,7 +954,9 @@
 				const lbl = escHtml(access.label || '');
 				const cls = lvl === 'pro' ? 'sp-bd--pro' : 'sp-bd--trial';
 				const lock = '<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>';
-				return { html: `<span class="sp-bd ${cls}">${lock}${lbl}</span>`, locked: true, access };
+				const hasSubscriptionPrice = lvl === 'pro' && Number.isFinite(subscriptionMonthlyPrice);
+				const priceHtml = lvl === 'pro' ? subscriptionCardPriceHtml() : '';
+				return { html: `<span class="sp-bd ${cls}${hasSubscriptionPrice ? ' sp-bd--priced' : ''}">${lock}${lbl}${priceHtml}</span>`, locked: true, access };
 			}
 			// «Бесплатно» — маркер витрины для гостя/триала, не для подписчика.
 			if (access.isFree && !Auth.hasFullAccess()) {

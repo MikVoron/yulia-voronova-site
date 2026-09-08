@@ -3036,6 +3036,24 @@ main {
 	color: #fff;
 }
 
+.sp-bd--priced {
+	height: 24px;
+	padding: 0 7px;
+	gap: 3px;
+	font-size: 9px;
+	letter-spacing: .05em;
+}
+
+.sp-bd__price {
+	margin-left: 2px;
+	padding-left: 6px;
+	border-left: 1px solid rgba(255, 255, 255, .48);
+	font-size: 9px;
+	font-weight: 700;
+	letter-spacing: 0;
+	text-transform: none;
+}
+
 .sp-bd--trial {
 	background: rgba(255, 255, 255, .95);
 	color: var(--text);
@@ -3260,6 +3278,11 @@ main {
 		font-size: 9px;
 		height: 20px;
 		padding: 0 8px;
+	}
+
+	.sp-bd--priced {
+		height: 22px;
+		padding: 0 7px;
 	}
 
 	.sp-plate-summary {
