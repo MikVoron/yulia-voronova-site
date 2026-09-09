@@ -18,13 +18,16 @@
     "@fastify/rate-limit": "^10.3.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.3.1",
-    "fastify": "^5.8.5",
+    "fastify": "^5.12.3",
     "jsonwebtoken": "^9.0.3",
-    "nodemailer": "^9.0.1",
+    "nodemailer": "^9.1.1",
     "pg": "^8.20.0"
   },
   "devDependencies": {
     "vite": "^6.4.3",
     "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "fast-uri": "3.1.6"
   }
 }
