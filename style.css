@@ -13779,6 +13779,16 @@ button[class*="btn-"]:hover,
 /* ====================
    Adult questionnaire flow
    ==================== */
+.health-questionnaire-document {
+    scrollbar-gutter: stable;
+}
+
+@supports not (scrollbar-gutter: stable) {
+    .health-questionnaire-document {
+        overflow-y: scroll;
+    }
+}
+
 .questionnaire-form-page:not(.child-questionnaire-page) .form-progress {
     margin: 0 0 28px;
 }
