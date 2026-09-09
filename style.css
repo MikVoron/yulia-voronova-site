@@ -13783,6 +13783,10 @@ button[class*="btn-"]:hover,
     scrollbar-gutter: stable;
 }
 
+.health-questionnaire-document .form-container {
+    width: 100%;
+}
+
 @supports not (scrollbar-gutter: stable) {
     .health-questionnaire-document {
         overflow-y: scroll;
