@@ -344,6 +344,96 @@
 			const current = carousel.querySelector('[data-carousel-current]');
 			if (current) current.textContent = String(idx + 1);
 		}
+
+		let _recipeImageViewer = null;
+		let _recipeImageViewerImages = [];
+		let _recipeImageViewerIndex = 0;
+		let _recipeImageViewerReturnFocus = null;
+
+		function ensureRecipeImageViewer() {
+			if (_recipeImageViewer) return _recipeImageViewer;
+			const viewer = document.createElement('div');
+			viewer.className = 'recipe-image-viewer';
+			viewer.hidden = true;
+			viewer.setAttribute('role', 'dialog');
+			viewer.setAttribute('aria-modal', 'true');
+			viewer.setAttribute('aria-label', 'Просмотр фотографии');
+			viewer.innerHTML = `
+				<div class="recipe-image-viewer__backdrop" data-recipe-action="close-image-viewer"></div>
+				<div class="recipe-image-viewer__content">
+					<img class="recipe-image-viewer__image" alt="">
+					<button class="recipe-image-viewer__close" type="button" data-recipe-action="close-image-viewer" aria-label="Закрыть просмотр фотографии">
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+					</button>
+					<button class="recipe-image-viewer__nav recipe-image-viewer__prev" type="button" data-recipe-action="image-viewer-prev" aria-label="Предыдущее фото">
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+					</button>
+					<button class="recipe-image-viewer__nav recipe-image-viewer__next" type="button" data-recipe-action="image-viewer-next" aria-label="Следующее фото">
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+					</button>
+					<div class="recipe-image-viewer__count" aria-live="polite"></div>
+				</div>`;
+			document.body.appendChild(viewer);
+			_recipeImageViewer = viewer;
+			return viewer;
+		}
+
+		function renderRecipeImageViewer() {
+			if (!_recipeImageViewer || !_recipeImageViewerImages.length) return;
+			const image = _recipeImageViewerImages[_recipeImageViewerIndex];
+			const viewerImage = _recipeImageViewer.querySelector('.recipe-image-viewer__image');
+			viewerImage.src = image.currentSrc || image.src;
+			viewerImage.alt = image.alt || 'Фотография рецепта';
+			const hasMultiple = _recipeImageViewerImages.length > 1;
+			_recipeImageViewer.querySelectorAll('.recipe-image-viewer__nav').forEach((button) => {
+				button.hidden = !hasMultiple;
+			});
+			const count = _recipeImageViewer.querySelector('.recipe-image-viewer__count');
+			count.hidden = !hasMultiple;
+			count.textContent = hasMultiple ? `${_recipeImageViewerIndex + 1} / ${_recipeImageViewerImages.length}` : '';
+		}
+
+		function openRecipeImageViewer(source) {
+			const image = source instanceof HTMLImageElement
+				? source
+				: source && source.closest('.recipe-hero-img, .recipe-ingredients-photo, .step-photo-wrap')?.querySelector('.step-photo-img.is-active, img:not([hidden])');
+			if (!image || image.hidden || !(image.currentSrc || image.src)) return;
+			const carousel = image.closest('.step-photo-carousel');
+			_recipeImageViewerImages = carousel
+				? Array.from(carousel.querySelectorAll('.step-photo-img')).filter((item) => !item.hidden)
+				: [image];
+			if (!_recipeImageViewerImages.length) return;
+			_recipeImageViewerIndex = Math.max(0, _recipeImageViewerImages.indexOf(image));
+			_recipeImageViewerReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+			const viewer = ensureRecipeImageViewer();
+			renderRecipeImageViewer();
+			viewer.hidden = false;
+			document.body.classList.add('recipe-image-viewer-open');
+			requestAnimationFrame(() => viewer.classList.add('is-open'));
+			viewer.querySelector('.recipe-image-viewer__close').focus();
+		}
+
+		function closeRecipeImageViewer() {
+			if (!_recipeImageViewer || _recipeImageViewer.hidden) return;
+			_recipeImageViewer.classList.remove('is-open');
+			_recipeImageViewer.hidden = true;
+			document.body.classList.remove('recipe-image-viewer-open');
+			_recipeImageViewerImages = [];
+			if (_recipeImageViewerReturnFocus && _recipeImageViewerReturnFocus.isConnected) _recipeImageViewerReturnFocus.focus();
+			_recipeImageViewerReturnFocus = null;
+		}
+
+		function moveRecipeImageViewer(direction) {
+			if (!_recipeImageViewerImages.length) return;
+			_recipeImageViewerIndex = (_recipeImageViewerIndex + direction + _recipeImageViewerImages.length) % _recipeImageViewerImages.length;
+			renderRecipeImageViewer();
+		}
+
+		function recipeImageZoomButton(label) {
+			return `<button class="recipe-photo-zoom" type="button" data-recipe-action="open-image-viewer" aria-label="Открыть ${escHtml(label)} на весь экран">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="5.5"/><path d="m16 16 4 4M11 8.5v5M8.5 11h5"/></svg>
+			</button>`;
+		}
 		function markRecipeImageError(image) {
 			if (!image) return;
 			image.hidden = true;
@@ -1701,21 +1791,22 @@
 				} else if (Array.isArray(photo)) {
 					const imgs = photo.filter(p => typeof p === 'string' && p);
 					if (imgs.length === 1) {
-						photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(imgs[0]))}" alt="Фото шага ${i + 1}" loading="lazy" decoding="async" data-recipe-image-fallback="step">`;
+						photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(imgs[0]))}" alt="Фото шага ${i + 1}" loading="lazy" decoding="async" data-recipe-image-fallback="step" data-recipe-action="open-image-viewer">${recipeImageZoomButton('фото шага ' + (i + 1))}`;
 					} else if (imgs.length > 1) {
 						photoHtml = `<div class="step-photo-carousel" data-index="0">` +
 							imgs.map((p, idx) =>
-								`<img class="step-photo-img${idx === 0 ? ' is-active' : ''}" src="${escHtml(photoUrl(p))}" alt="Фото шага ${i + 1} (${idx + 1})" loading="lazy" decoding="async" data-recipe-image-fallback="step">`
+								`<img class="step-photo-img${idx === 0 ? ' is-active' : ''}" src="${escHtml(photoUrl(p))}" alt="Фото шага ${i + 1} (${idx + 1})" loading="lazy" decoding="async" data-recipe-image-fallback="step" data-recipe-action="open-image-viewer">`
 							).join('') +
 							`<button type="button" class="step-photo-nav step-photo-prev" data-recipe-action="step-photo-move" data-direction="-1" aria-label="Предыдущее фото">‹</button>` +
 							`<button type="button" class="step-photo-nav step-photo-next" data-recipe-action="step-photo-move" data-direction="1" aria-label="Следующее фото">›</button>` +
 							`<div class="step-photo-hint">Листайте фото</div>` +
 							`<div class="step-photo-dots">` + imgs.map((_, idx) => `<span class="step-photo-dot${idx === 0 ? ' is-active' : ''}"></span>`).join('') + `</div>` +
 							`<div class="step-photo-counter"><span data-carousel-current>1</span> / ${imgs.length}</div>` +
+							recipeImageZoomButton('фото шага ' + (i + 1)) +
 							`</div>`;
 					}
 				} else if (typeof photo === 'string' && photo) {
-					photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i + 1}" loading="lazy" decoding="async" data-recipe-image-fallback="step">`;
+					photoHtml = `<img class="step-photo-img" src="${escHtml(photoUrl(photo))}" alt="Шаг ${i + 1}" loading="lazy" decoding="async" data-recipe-image-fallback="step" data-recipe-action="open-image-viewer">${recipeImageZoomButton('фото шага ' + (i + 1))}`;
 				}
 				return `<div class="step-item" id="recipe-step-${i + 1}">
                 <div class="step-num">${i + 1}</div>
@@ -1740,7 +1831,7 @@
                 <div class="step-num">${n}</div>
                 <div class="step-body">
                     <div class="step-text">Наслаждайтесь! Приятного вам аппетита 😋</div>
-					<div class="step-photo-wrap"><img class="step-photo-img" src="${escHtml(photoUrl(finalPhoto))}" alt="Готовое блюдо" loading="lazy" decoding="async" data-recipe-image-fallback="step"></div>
+					<div class="step-photo-wrap"><img class="step-photo-img" src="${escHtml(photoUrl(finalPhoto))}" alt="Готовое блюдо" loading="lazy" decoding="async" data-recipe-image-fallback="step" data-recipe-action="open-image-viewer">${recipeImageZoomButton('фото готового блюда')}</div>
                 </div>
             </div>`);
 			}
@@ -1953,9 +2044,10 @@
 						<img src="${escHtml(photoUrl(r.photo) || PHOTO_BY_CAT[r.cat] || PHOTO_FALLBACK)}"
 							 alt="${escHtml(r.name)}"
 							 loading="eager" fetchpriority="high" decoding="async"
-                             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
-                             data-fallback-emoji="${escHtml(r.emoji)}">
-                        ${!r.photo ? `<div class="recipe-hero-emoji" style="position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)">${escHtml(r.emoji)}</div>` : ''}
+							 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
+							 data-fallback-emoji="${escHtml(r.emoji)}" data-recipe-action="open-image-viewer">
+						${!r.photo ? `<div class="recipe-hero-emoji" style="position:relative;font-size:64px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)">${escHtml(r.emoji)}</div>` : ''}
+						${recipeImageZoomButton('обложку рецепта')}
 						<button class="card-fav-btn${isFav ? ' active' : ''}" id="recipe-fav-btn" type="button"
 							aria-label="${isFav ? 'Убрать рецепт из избранного' : 'Добавить рецепт в избранное'}" aria-pressed="${isFav ? 'true' : 'false'}"
 							data-recipe-action="toggle-favorite">
@@ -2009,7 +2101,7 @@
                     </section>` : ''}
                     ${(() => {
                         const startPhoto = r.photo ? derivePhoto(r.photo, 'start') : (r.id ? `images/recipes/${r.id}/${r.id}-start.webp` : '');
-						return startPhoto ? `<div class="recipe-ingredients-photo"><img class="step-photo-img" src="${escHtml(photoUrl(startPhoto))}" alt="Ингредиенты" loading="lazy" decoding="async" data-recipe-image-fallback="step"></div>` : '';
+						return startPhoto ? `<div class="recipe-ingredients-photo"><img class="step-photo-img" src="${escHtml(photoUrl(startPhoto))}" alt="Ингредиенты" loading="lazy" decoding="async" data-recipe-image-fallback="step" data-recipe-action="open-image-viewer">${recipeImageZoomButton('фото ингредиентов')}</div>` : '';
                     })()}
 
                     <div class="steps-head">
@@ -4069,6 +4161,10 @@
 				else if (action === 'toggle-review-reply-helpful') toggleReviewReplyHelpful(Number(actionTarget.dataset.reviewId));
 				else if (action === 'history-back') history.back();
 				else if (action === 'step-photo-move') stepPhotoCarouselMove(actionTarget, Number(actionTarget.dataset.direction));
+				else if (action === 'open-image-viewer') openRecipeImageViewer(actionTarget);
+				else if (action === 'close-image-viewer') closeRecipeImageViewer();
+				else if (action === 'image-viewer-prev') moveRecipeImageViewer(-1);
+				else if (action === 'image-viewer-next') moveRecipeImageViewer(1);
 				else if (action === 'balance-wizard') balWizardGo(Number(actionTarget.dataset.delta));
 				else if (action === 'scroll-to-reviews') scrollToReviews();
 				else if (action === 'dismiss-guest-helper') dismissRecipeGuestHelper();
@@ -4127,6 +4223,20 @@
 				Number(balanceItem.dataset.carbs),
 				Number(balanceItem.dataset.fiber)
 			);
+		});
+
+		document.addEventListener('keydown', function (event) {
+			if (!_recipeImageViewer || _recipeImageViewer.hidden) return;
+			if (event.key === 'Escape') {
+				event.preventDefault();
+				closeRecipeImageViewer();
+			} else if (event.key === 'ArrowLeft') {
+				event.preventDefault();
+				moveRecipeImageViewer(-1);
+			} else if (event.key === 'ArrowRight') {
+				event.preventDefault();
+				moveRecipeImageViewer(1);
+			}
 		});
 
 		document.addEventListener('change', function (event) {
