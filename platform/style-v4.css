@@ -1381,6 +1381,7 @@ img { display: block; max-width: 100%; }
 .recipe-image-viewer__nav { position: absolute; border: 1px solid rgba(255,255,255,.7); background: rgba(32,24,18,.72); color: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
 .recipe-image-viewer__close { top: 12px; right: 12px; width: 42px; height: 42px; border-radius: 50%; }
 .recipe-image-viewer__nav { top: 50%; width: 46px; height: 46px; border-radius: 50%; transform: translateY(-50%); }
+.recipe-image-viewer__nav[hidden] { display: none; }
 .recipe-image-viewer__prev { left: 12px; }
 .recipe-image-viewer__next { right: 12px; }
 .recipe-image-viewer__close svg, .recipe-image-viewer__nav svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
