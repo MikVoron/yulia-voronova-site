@@ -99,8 +99,72 @@ test('ordinary successful lifecycle includes all health gates and persists termi
     state = transition(state, command(state, action));
   }
   assert.equal(state.phase, 'confirmed'); assert.equal(state.revision, 5);
-  for (const action of ['arm', 'switch', 'confirm', 'rollback', 'commit']) {
+  assert.equal(state.cleanupComplete, false);
+  assert.deepEqual(transition(state, command(state, 'rollback')), state);
+  for (const action of ['arm', 'switch', 'confirm', 'commit']) {
     assert.throws(() => transition(state, command(state, action)), /INVALID_TRANSITION/);
+  }
+});
+
+test('terminal decision precedes cleanup; interrupted cleanup is retryable without changing files', () => {
+  const decided = toPhase('confirmed');
+  const disk = JSON.parse(JSON.stringify(decided)); // simulated atomic persisted state
+  assert.equal(disk.cleanupComplete, false);
+  assert.deepEqual(transition(disk, command(disk, 'rollback', disk.deadlineMs + 1)), disk);
+  for (const key of CHECKS.cleanup) {
+    const bad = command(disk, 'cleanup'); bad.evidence[key] = false;
+    assert.throws(() => transition(disk, bad), /EVIDENCE_FAILED/);
+    assert.equal(disk.cleanupComplete, false);
+  }
+  const clean = transition(disk, command(disk, 'cleanup', disk.deadlineMs + 2));
+  assert.equal(clean.phase, 'confirmed'); assert.equal(clean.cleanupComplete, true);
+  assert.deepEqual(transition(clean, command(clean, 'cleanup', clean.lastNowMs)), clean);
+  assert.deepEqual(transition(clean, command(clean, 'rollback', clean.lastNowMs)), clean);
+});
+
+test('cleanup is forbidden before a terminal decision, including during an interrupted restore', () => {
+  const rolling = transition(toPhase('pending'), command(toPhase('pending'), 'rollback'));
+  for (const state of [createState(fixture().manifest), ...['armed', 'switching', 'pending', 'confirming'].map(toPhase), rolling]) {
+    assert.throws(() => transition(state, command(state, 'cleanup')), /INVALID_TRANSITION/);
+  }
+  const restored = transition(rolling, command(rolling, 'restored'));
+  assert.equal(restored.phase, 'rolled_back'); assert.equal(restored.cleanupComplete, false);
+  assert.deepEqual(transition(restored, command(restored, 'rollback')), restored);
+  assert.equal(transition(restored, command(restored, 'cleanup')).cleanupComplete, true);
+});
+
+test('commit requires fresh saved-PM2, health and armed-timer evidence, not a stopped timer', () => {
+  const state = toPhase('confirming');
+  assert.ok(CHECKS.commit.includes('savedPm2997'));
+  assert.ok(CHECKS.commit.includes('timerVerified'));
+  assert.ok(!CHECKS.commit.includes('timerStopped'));
+  assert.ok(!CHECKS.restored.includes('timerStopped'));
+  const stopped = command(state, 'commit'); stopped.evidence.timerStopped = true;
+  assert.throws(() => transition(state, stopped), /EVIDENCE_FIELDS/);
+  assert.throws(() => transition(state, command(state, 'commit', state.deadlineMs - 120000)), /DEADLINE/);
+  assert.equal(transition(state, command(state, 'commit', state.deadlineMs - 120001)).phase, 'confirmed');
+});
+
+test('commit-versus-rollback has only one winner under serialized revision checks', () => {
+  const state = toPhase('confirming');
+  const commit = command(state, 'commit'), rollback = command(state, 'rollback');
+  const confirmed = transition(state, commit);
+  assert.throws(() => transition(confirmed, rollback), /STALE_REVISION/);
+  assert.deepEqual(transition(confirmed, command(confirmed, 'rollback')), confirmed);
+  const rolling = transition(state, rollback);
+  assert.throws(() => transition(rolling, commit), /STALE_REVISION/);
+  assert.throws(() => transition(rolling, command(rolling, 'commit')), /INVALID_TRANSITION/);
+});
+
+test('old state schema and impossible cleanup flags fail closed; manifest remains schema 1', () => {
+  const state = toPhase('pending');
+  assert.equal(fixture().manifest.schemaVersion, 1);
+  assert.equal(state.schemaVersion, 2);
+  const old = { ...state, schemaVersion: 1 }; delete old.cleanupComplete;
+  assert.throws(() => transition(old, command(old, 'confirm')), /STATE_FIELDS/);
+  assert.throws(() => transition({ ...state, schemaVersion: 1 }, command(state, 'confirm')), /STATE_ID/);
+  for (const cleanupComplete of [true, 'false', null]) {
+    assert.throws(() => transition({ ...state, cleanupComplete }, command(state, 'confirm')), /STATE_CLEANUP/);
   }
 });
 test('stale commands after another serialized actor are rejected in either race order', () => {
@@ -148,10 +212,11 @@ test('read-only CLI verifies an actual bundle and refuses every execution comman
   const before = fs.readdirSync(dir);
   const plan = main(['--plan', manifestPath, dir]);
   assert.equal(plan.productionExecutionEnabled, false);
+  assert.equal(plan.helperVersion, '0.2.0');
   assert.equal(plan.releaseId, manifest.releaseId);
   assert.deepEqual(fs.readdirSync(dir), before);
   for (const [name, content] of Object.entries(bytes)) assert.deepEqual(fs.readFileSync(path.join(dir, name)), content);
-  for (const action of ['--apply', '--confirm', '--rollback', '--recover-current', '--rollback-locked']) {
+  for (const action of ['--apply', '--confirm', '--rollback', '--cleanup', '--recover-current', '--rollback-locked']) {
     const result = spawnSync(process.execPath, [path.resolve(__dirname, '../plan.cjs'), action], { encoding: 'utf8' });
     assert.equal(result.status, 1); assert.match(result.stderr, /production execution unavailable/);
   }

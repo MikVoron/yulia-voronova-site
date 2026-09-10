@@ -2,7 +2,7 @@
 
 // Pure protocol prototype. No subprocesses, filesystem mutations or production adapter.
 const crypto = require('node:crypto');
-const VERSION = '0.1.0';
+const VERSION = '0.2.0';
 const FILES = Object.freeze(['package.json', 'package-lock.json']);
 const STATES = Object.freeze(['prepared', 'armed', 'switching', 'pending',
   'confirming', 'confirmed', 'rolling_back', 'rolled_back']);
@@ -17,10 +17,15 @@ const CHECKS = Object.freeze({
     'publicHealth', 'catalogAccess', 'sitemap', 'privateRoutes', 'stableProcess'],
   confirm: ['newHashesMatch', 'uidGid997', 'capabilitiesZero', 'localHealth',
     'publicHealth', 'catalogAccess', 'sitemap', 'privateRoutes', 'stableProcess', 'timerVerified'],
-  commit: ['savedPm2997', 'timerStopped', 'rollbackServiceInactive'],
+  // Recheck evidence immediately before the durable terminal decision. The timer
+  // MUST remain armed until that decision has been atomically persisted + fsynced.
+  commit: ['savedPm2997', 'newHashesMatch', 'uidGid997', 'capabilitiesZero',
+    'localHealth', 'publicHealth', 'catalogAccess', 'sitemap', 'privateRoutes',
+    'stableProcess', 'timerVerified'],
   restored: ['oldHashesMatch', 'oldModulesVerified', 'uidGid997', 'capabilitiesZero',
     'localHealth', 'publicHealth', 'catalogAccess', 'sitemap', 'privateRoutes',
-    'stableProcess', 'savedPm2997', 'timerStopped', 'rollbackServiceInactive']
+    'stableProcess', 'savedPm2997'],
+  cleanup: ['timerStopped', 'rollbackServiceInactive']
 });
 function ensure(ok, code) { if (!ok) throw new Error(code); }
 function exact(object, keys, code) {
@@ -86,13 +91,16 @@ function validateCandidate(input, bytes) {
 }
 function createState(input) {
   const m = validateManifest(input);
-  return { schemaVersion: 1, releaseId: m.releaseId, manifestSha256: manifestDigest(m),
-    phase: 'prepared', revision: 0, deadlineMs: null, lastNowMs: null };
+  return { schemaVersion: 2, releaseId: m.releaseId, manifestSha256: manifestDigest(m),
+    phase: 'prepared', revision: 0, deadlineMs: null, lastNowMs: null, cleanupComplete: false };
 }
 function validateState(state) {
   exact(state, ['schemaVersion', 'releaseId', 'manifestSha256', 'phase', 'revision',
-    'deadlineMs', 'lastNowMs'], 'STATE_FIELDS');
-  ensure(state.schemaVersion === 1 && ID.test(state.releaseId) && SHA.test(state.manifestSha256), 'STATE_ID');
+    'deadlineMs', 'lastNowMs', 'cleanupComplete'], 'STATE_FIELDS');
+  ensure(state.schemaVersion === 2 && typeof state.releaseId === 'string' && ID.test(state.releaseId) &&
+    typeof state.manifestSha256 === 'string' && SHA.test(state.manifestSha256), 'STATE_ID');
+  ensure(typeof state.cleanupComplete === 'boolean' &&
+    (!state.cleanupComplete || ['confirmed', 'rolled_back'].includes(state.phase)), 'STATE_CLEANUP');
   ensure(STATES.includes(state.phase) && Number.isSafeInteger(state.revision) && state.revision >= 0, 'STATE_PHASE');
   ensure(state.deadlineMs === null || (Number.isSafeInteger(state.deadlineMs) && state.deadlineMs > 0), 'STATE_DEADLINE');
   ensure(state.lastNowMs === null || (Number.isSafeInteger(state.lastNowMs) && state.lastNowMs >= 0), 'STATE_CLOCK');
@@ -115,23 +123,34 @@ function transition(state, event) {
     commit: ['confirming', 'confirmed'], restored: ['rolling_back', 'rolled_back']
   };
   let phase;
+  const terminal = ['confirmed', 'rolled_back'].includes(state.phase);
   if (action === 'rollback') {
+    exact(event.evidence, [], 'EVIDENCE_FIELDS');
+    // A timer already queued before commit must not reverse a durable decision.
+    // The adapter still checks cleanupComplete and arranges cleanup separately.
+    if (terminal) return { ...state };
     ensure(['armed', 'switching', 'pending', 'confirming', 'rolling_back'].includes(state.phase), 'INVALID_TRANSITION');
     phase = 'rolling_back'; // Retry must keep backup and armed recovery available.
   } else {
-    ensure(Object.hasOwn(routes, action) && routes[action][0] === state.phase, 'INVALID_TRANSITION');
-    phase = routes[action][1];
+    if (action === 'cleanup') {
+      ensure(terminal, 'INVALID_TRANSITION');
+      phase = state.phase;
+    } else {
+      ensure(Object.hasOwn(routes, action) && routes[action][0] === state.phase, 'INVALID_TRANSITION');
+      phase = routes[action][1];
+    }
     const checks = CHECKS[action];
     exact(event.evidence, checks, 'EVIDENCE_FIELDS');
     ensure(checks.every(k => event.evidence[k] === true), 'EVIDENCE_FAILED');
     if (['switch', 'pending', 'confirm', 'commit'].includes(action)) {
-      const reserve = action === 'confirm' ? 120000 : 0;
+      const reserve = ['confirm', 'commit'].includes(action) ? 120000 : 0;
       ensure(nowMs < state.deadlineMs - reserve, 'DEADLINE');
     }
   }
-  if (action === 'rollback') exact(event.evidence, [], 'EVIDENCE_FIELDS');
+  if (action === 'cleanup' && state.cleanupComplete) return { ...state };
   const next = { ...state, phase, revision: state.revision + 1, lastNowMs: nowMs,
-    deadlineMs: action === 'arm' ? nowMs + 600000 : state.deadlineMs };
+    deadlineMs: action === 'arm' ? nowMs + 600000 : state.deadlineMs,
+    cleanupComplete: action === 'cleanup' };
   validateState(next);
   return next;
 }
@@ -145,7 +164,9 @@ function preview(input) {
       'arm independent timer using protected helper copy',
       'record switching before touching live files',
       'switch reviewed files; restart once; verify access and health',
-      'confirm under same OS lock as rollback; verify saved PM2 and stopped timer'] };
+      'recheck health and saved PM2; persist terminal decision under same OS lock as rollback',
+      'after durable decision stop timer; outside lock wait for queued rollback to exit',
+      'reacquire lock and record verified cleanup; only then report completion'] };
 }
 module.exports = { VERSION, FILES, CHECKS, sha256, validateManifest, validateCandidate,
   manifestDigest, createState, transition, preview };
