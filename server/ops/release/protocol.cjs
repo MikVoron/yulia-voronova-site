@@ -3,6 +3,7 @@
 // Pure protocol prototype. No subprocesses, filesystem mutations or production adapter.
 const crypto = require('node:crypto');
 const VERSION = '0.2.0';
+const ROLLBACK_WINDOW_MS = 600000;
 const FILES = Object.freeze(['package.json', 'package-lock.json']);
 const STATES = Object.freeze(['prepared', 'armed', 'switching', 'pending',
   'confirming', 'confirmed', 'rolling_back', 'rolled_back']);
@@ -149,7 +150,7 @@ function transition(state, event) {
   }
   if (action === 'cleanup' && state.cleanupComplete) return { ...state };
   const next = { ...state, phase, revision: state.revision + 1, lastNowMs: nowMs,
-    deadlineMs: action === 'arm' ? nowMs + 600000 : state.deadlineMs,
+    deadlineMs: action === 'arm' ? nowMs + ROLLBACK_WINDOW_MS : state.deadlineMs,
     cleanupComplete: action === 'cleanup' };
   validateState(next);
   return next;
@@ -168,5 +169,5 @@ function preview(input) {
       'after durable decision stop timer; outside lock wait for queued rollback to exit',
       'reacquire lock and record verified cleanup; only then report completion'] };
 }
-module.exports = { VERSION, FILES, CHECKS, sha256, validateManifest, validateCandidate,
-  manifestDigest, createState, transition, preview };
+module.exports = { VERSION, ROLLBACK_WINDOW_MS, FILES, CHECKS, sha256, validateManifest, validateCandidate,
+  manifestDigest, createState, validateState, transition, preview };
