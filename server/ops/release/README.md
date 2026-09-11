@@ -194,6 +194,97 @@ UID 997. Приложение SmartPlate и его `.env` в fixture не имп
 в защищённое место на VPS. Текущий шаг не завершает пункт 1 roadmap и не даёт
 оснований запускать старые одноразовые deploy-скрипты для нового релиза.
 
+## Интеграционный PM2/systemd-стенд — подготовлен, root-прогон ожидается
+
+`integrated-contract.cjs`, `integrated-worker.cjs`, `integrated-rehearsal.cjs` и
+`tests/integrated-contract.test.cjs` добавляют отдельный root-стенд для протокола
+0.2.0 с control-envelope. **Результата привилегированного прогона пока нет.**
+Staging: `/home/smartplate-admin/integrated-rehearsal-20260911-i5M6bz/`.
+
+Что уже проверено 2026-09-11:
+
+- Непривилегированный preflight на VPS: `INTEGRATED_PREFLIGHT_OK`. Поддерживаются
+  установленный PM2 6.0.14 и systemd 249; проверены root-owned системные исполняемые
+  файлы, UID/GID 997, доступность typed D-Bus ответа и запас MemAvailable >= 512 MiB.
+- Новые contract-тесты: 6/6 на Windows/VPS. Вместе с control-envelope/storage
+  в новом staging: 24/24 на VPS. Они **не запускают** root-менеджер PM2 или новые
+  systemd units. Общий локальный набор: 58 passed, 14 Linux-only skipped.
+- Перед тестами сверены SHA-256 12 staging-файлов; после финальных правок дополнительно
+  совпал fingerprint всех семи helper-модулей:
+  `a27279c7d954870342a9631c88b0b0886fd61e2d87bf64674e197fbe608194c1`.
+
+Границы будущего запуска:
+
+- Только новый `/var/lib/smartplate-pm2-rehearsals/run-<16 hex>/`, case-01…case-10,
+  units `sp-ir-<16 hex>-*`. Произвольные пути, имена служб, PM2-команды и внешние
+  manifest не принимаются. Предыдущие run-каталоги сохраняются.
+- Семь helper-файлов считываются один раз, сверяются с fingerprint из команды,
+  затем эти же байты копируются в root-owned `code/`; таймеры используют эту копию.
+  Первоначальный запуск из admin staging — явный доверенный bootstrap пользователя,
+  не механизм запуска произвольного недоверенного кода с sudo.
+- Root-owned `control/` с правами 700 и JSON/lock 600; код и искусственные модули
+  root-owned и доступны UID997 только для чтения. Один flock на run. Worker пишет
+  лишь свои ready-файлы в отдельный каталог UID997; чтение проверяет fd, владельца,
+  тип и размер файла, не следует symlink последнего компонента.
+- Отдельный foreground PM2 в собственной systemd cgroup и PM2_HOME. Оба искусственных
+  процесса работают под UID/GID997; проверяются capabilities, cgroup, PID/starttime,
+  фактическая загрузка модуля, HTTP и точная сохранённая конфигурация.
+  CLI list/save требует существующего менеджера/сокетов и проверяет его PID до/после.
+  Если менеджер погибнет внутри вызова и CLI попробует autostart, проверка завершится
+  отказом; потомок остаётся в ограниченной cgroup вызывающего контроллера.
+- Запуск кандидата отдельно через setpriv UID/GID997 с очищенными дополнительными
+  группами; приложение SmartPlate, `.env`, cron, Telegram и npm не запускаются.
+- Offline-откат сверяет исходное дерево/права и dump до остановки менеджера, сохраняет
+  `rolling_back` до действий, восстанавливает оба dump.pm2/dump.pm2.bak и запускает
+  отдельный PM2 через resurrect. Данные БД не копируются и не восстанавливаются.
+- Срок часов журнала остаётся 600000 ms. Таймер задаётся абсолютным `OnBootSec` в
+  шкале CLOCK_MONOTONIC (`process.hrtime.bigint`, WakeSystem=no); typed D-Bus deadline
+  должен точно совпасть. Confirm требует >120 s и до реального срабатывания таймера.
+  В одном сценарии таймер намеренно срабатывает раньше, через 20 s: это проверка
+  раннего безопасного rollback, а не ожидание истечения десятиминутного окна.
+- Отмена `arming` и терминальное решение записываются до уборки. Suite снимает таймер
+  и ждёт окончания rollback-service без flock, затем записывает cleanup под lock.
+  Сам rollback-service не ждёт собственного завершения. При ошибке service может
+  повториться через 3 s; во время обычного восстановления таймер не снимается.
+- Suite ограничен 8 минутами/256 MiB/64 tasks, каждый PM2 manager — 150 s/256 MiB/
+  64 tasks/50% CPU, rollback-service — 60 s/128 MiB/32 tasks. Независимый watchdog
+  через 12 минут сначала останавливает suite со всеми потомками, затем остальные
+  ресурсы run. При нормальном выходе и ошибке bootstrap делает такую же уборку.
+  Это teardown тестового окружения; он не является production rollback.
+- Production только читается: local/public health, API PID/UID/GID, PM2 MainPID,
+  SHA-256 index.js/package.json/package-lock.json до/после. Управляющие вызовы
+  рабочего PM2_HOME, изменения API/БД/SSH/nginx отсутствуют.
+
+Планируемые 10 сценариев: confirm + поздний rollback; настоящий ранний timer rollback;
+обрыв после intent и после таймера; обрыв после switching и перемещения старых файлов;
+обрыв после confirmed с повторным cleanup; повтор отката после остановки менеджера;
+повреждённый dump без остановки здорового процесса + восстановление после исправления;
+одновременные confirm/rollback под flock. Только полный root-прогон проверит эти связи.
+
+Предел доказательства даже при успехе: `auditZero` и `publicHealth` явно модельные
+(`modeledEvidence` в result.json); HTTP catalog/private/sitemap проверяют искусственные
+ответы fixture. Это не npm audit, не проверка публичного доступа реального приложения
+и не проверка native-зависимостей production. Настоящая перезагрузка не выполняется:
+`osBootTested: false`, `productionExecutionEnabled: false`. Root-owned системный boot
+recovery service пока не установлен. Рабочий release helper остаётся незавершённым.
+
+Одна подготовленная команда для Timeweb, **ещё не выполнена**:
+
+```bash
+sudo /usr/bin/node /home/smartplate-admin/integrated-rehearsal-20260911-i5M6bz/integrated-rehearsal.cjs --run a27279c7d954870342a9631c88b0b0886fd61e2d87bf64674e197fbe608194c1
+```
+
+Для подтверждения нужны все три строки: `PRODUCTION_PID_FILES_AND_HEALTH_UNCHANGED`,
+`INTEGRATED_PM2_REHEARSAL_OK cases=10`, `INTEGRATED_FIXTURE_RESOURCES_STOPPED`.
+После этого отдельно проверить result.json, состояние units и production.
+При ошибке не повторять запуск; сохранить `INTEGRATED_REHEARSAL_DIRECTORY` и вывод.
+Диагностика в root-only `control/result.json`, `control/last-command-error.json`,
+case `control/last-action.json` и systemd journal. Содержимое этих файлов не
+публиковать автоматически. До оценки результата остаёмся на Astra High.
+
+Основание выбора часов: [systemd 249 timer](https://github.com/systemd/systemd/blob/v249/man/systemd.timer.xml)
+и [libuv CLOCK_MONOTONIC](https://github.com/libuv/libuv/blob/v1.46.0/src/unix/linux.c).
+
 ## Единый журнал state/recovery — подготовительный шаг 2026-09-11
 
 `control-envelope.cjs` соединяет состояние протокола 0.2.0, recovery-record и
@@ -262,10 +353,10 @@ SIGKILL не моделирует потерю питания: видимая п
 её сохранность после сбоя диска, если fsync каталога не завершился. Ошибка fsync
 не возвращает успех; контроллер обязан остановить дальнейшие действия.
 
-Следующий малый шаг на Astra High — реализовать адаптер защищённого хранилища и
-реального timer/PM2-evidence с этим журналом, затем пройти интегрированную
-репетицию. Запуск UID 997 и boot recovery требуют отдельных проверок. Пункт 1
-roadmap остаётся открытым; рабочий helper ещё не готов к релизу.
+Продолжение этого шага — подготовленный выше интеграционный root-стенд; его
+привилегированный прогон ещё ожидается. Для запуска и оценки результата остаёмся
+на Astra High. Boot recovery требует отдельной проверки. Пункт 1 roadmap остаётся
+открытым; рабочий helper ещё не готов к релизу.
 
 ## Изолированная конфигурация PM2 — выполнено 2026-09-10
 
