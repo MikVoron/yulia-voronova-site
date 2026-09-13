@@ -153,6 +153,9 @@
 			updateHeroOfferPrice();
 			const isGuest = Auth.isGuest();
 			document.body.classList.toggle('sp-home-guest', isGuest);
+			const tourTrigger = document.getElementById('guest-tour-trigger');
+			if (tourTrigger) tourTrigger.textContent = isGuest
+				? 'Посмотреть, как работает Умная тарелка ↗' : 'Как пользоваться Умной тарелкой →';
 			trialCta.hidden = !isGuest;
 			if (isGuest) {
 				const trialLink = document.getElementById('hero-trial-link');
@@ -162,10 +165,13 @@
 		function updateHeroGuestRecipeCount() {
 			if (!Auth.isGuest()) return;
 			const countEl = document.getElementById('sp-hero-guest-eyebrow');
+			const benefitsCountEl = document.getElementById('sp-benefits-recipe-count');
 			const count = Object.keys(RECIPES).length;
-			if (!countEl || !count) return;
+			if (!count) return;
 			const rounded = _roundDownMarketing(count);
-			countEl.textContent = (count > rounded ? 'Более ' : '') + rounded + ' рецептов';
+			const countLabel = (count > rounded ? 'Более ' : '') + rounded;
+			if (countEl) countEl.textContent = countLabel + ' рецептов';
+			if (benefitsCountEl) benefitsCountEl.textContent = countLabel;
 		}
 		updateHeroTrialCta();
 
@@ -1206,6 +1212,8 @@
 		// Важно: hero уважает paywall так же, как карточки/seasonal — locked-клик идёт в showLockedMsg,
 		// а не на recipe.html.
 		function renderHero() {
+			// Guests see the benefits block; avoid loading its hidden seasonal photo.
+			if (Auth.isGuest()) return;
 			const aside = document.getElementById('sp-hero-aside');
 			const media = document.getElementById('sp-hero-media');
 			const cap = document.getElementById('sp-hero-caption');

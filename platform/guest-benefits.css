@@ -1,0 +1,166 @@
+/* Approved guest homepage benefits. The member hero keeps its existing layout. */
+.sp-benefits-content { display: none; }
+.sp-home-guest .sp-benefits-content { display: block; }
+.sp-home-guest #intro-block {
+ display: block;
+ padding: 32px 0 25px;
+ animation: none;
+ transform: none;
+ line-height: normal;
+ --benefits-line: #dedbd7;
+}
+.sp-guest-tour-preview .sp-home-guest #intro-block,
+.sp-home-guest.sp-guest-tour-preview #intro-block,
+.sp-home-guest.sp-guest-onboarding-active #intro-block { display: none; }
+.sp-home-guest #intro-block .sp-hero-eyebrow,
+.sp-home-guest #intro-block .sp-hero-title,
+.sp-home-guest #intro-block .sp-hero-sub,
+.sp-home-guest #intro-block .sp-hero-favorites,
+.sp-home-guest #intro-block .sp-hero-aside { display: none; }
+.sp-benefits-intro {
+ display: grid;
+ grid-template-columns: 1.25fr 1fr;
+ gap: 42px;
+ align-items: end;
+ margin-bottom: 29px;
+}
+.sp-benefits-kicker {
+ color: var(--accent);
+ font-size: 10px;
+ font-weight: 800;
+ letter-spacing: 1.5px;
+ text-transform: uppercase;
+ margin-bottom: 14px;
+}
+.sp-benefits-title {
+ font: 700 48px/1.1 var(--serif);
+ letter-spacing: -1.5px;
+ margin: 0;
+}
+.sp-benefits-intro-copy { padding-bottom: 4px; }
+.sp-benefits-intro-copy p { font-size: 15px; line-height: 1.75; color: #444; }
+.sp-benefits-intro-copy .sp-benefits-author { font-size: 11px; margin-top: 14px; color: #666; }
+.sp-benefits-author b { color: var(--text); }
+.sp-benefits-grid {
+ display: grid;
+ grid-template-columns: repeat(3, minmax(0, 1fr));
+ border-top: 1px solid var(--benefits-line);
+ border-left: 1px solid var(--benefits-line);
+}
+.sp-benefits-feature {
+ position: relative;
+ min-width: 0;
+ padding: 23px 25px 24px;
+ border-right: 1px solid var(--benefits-line);
+ border-bottom: 1px solid var(--benefits-line);
+ background: #fff;
+}
+.sp-benefits-feature-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.sp-benefits-symbol { display: block; width: 43px; height: 43px; color: var(--accent); }
+.sp-benefits-symbol svg {
+ display: block;
+ width: 100%;
+ height: 100%;
+ fill: none;
+ stroke: currentColor;
+ stroke-width: 1.55;
+ stroke-linecap: round;
+ stroke-linejoin: round;
+}
+.sp-benefits-number { font-size: 11px; letter-spacing: 1px; font-weight: 600; color: #8b8580; }
+.sp-benefits-feature h2 { font: 700 23px/1.2 var(--serif); letter-spacing: -.4px; margin: 0 0 10px; }
+.sp-benefits-feature p { font-size: 12.5px; line-height: 1.7; color: #4a4643; max-width: 310px; }
+.sp-benefits-tag { font-size: 9px; letter-spacing: 1px; font-weight: 800; display: inline-block; color: var(--accent); margin-top: 14px; text-transform: uppercase; }
+.sp-home-guest #intro-block .sp-hero-text { display: grid; grid-template-columns: 1fr 335px; gap: 18px 20px; }
+.sp-home-guest .sp-benefits-offer:not([hidden]) {
+ grid-column: 1 / -1;
+ order: 0;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 22px;
+ max-width: none;
+ background: #faf8f5;
+ padding: 21px 25px;
+ margin: 20px 0 0;
+}
+.sp-benefits-offer-title { font: 700 25px/1.25 var(--serif); letter-spacing: -.5px; margin-bottom: 6px; }
+.sp-benefits-offer-note { font-size: 11px; color: #555; line-height: 1.6; }
+.sp-benefits-cta-area { display: flex; align-items: center; gap: 23px; }
+.sp-benefits-price { font-size: 11px; line-height: 1.7; white-space: nowrap; }
+.sp-benefits-price strong { display: block; font-size: 15px; }
+.sp-benefits-cta {
+ display: inline-flex;
+ align-items: center;
+ gap: 27px;
+ background: var(--accent);
+ color: #fff;
+ padding: 18px 25px;
+ font-size: 13px;
+ font-weight: 800;
+ white-space: nowrap;
+ text-decoration: none;
+}
+.sp-benefits-cta > span { font-size: 21px; font-weight: 400; line-height: 1; }
+.sp-benefits-cta:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.sp-home-guest #guest-tour-trigger { order: 1; justify-self: start; align-self: center; margin: 0; padding: 0; font-size: 11px; font-weight: 600; text-align: left; }
+.sp-home-guest #hero-search { order: 2; width: 100%; max-width: none; margin: 0; }
+.sp-home-guest #hero-search-input {
+ height: 34px;
+ border: 0;
+ border-bottom: 1px solid #bbb;
+ padding: 7px 28px 7px 27px;
+ font-size: 12px;
+}
+.sp-home-guest #hero-search .hero-search-icon { left: 0; width: 16px; height: 16px; }
+.sp-home-guest #hero-search .hero-search-submit { right: 0; width: 24px; height: 28px; background: transparent; color: var(--text); }
+.sp-home-guest #hero-search .hero-search-results { width: max(100%, 360px); right: 0; left: auto; max-width: calc(100vw - 40px); }
+/* All six cards remain visible. Hover feedback is limited to mouse/trackpad. */
+@media (hover: hover) and (pointer: fine) {
+ .sp-benefits-feature { transition: background-color .16s ease, border-color .16s ease; }
+ .sp-benefits-feature:hover { background-color: #faf8f5; border-color: #c6b6ab; }
+ .sp-benefits-cta:hover { background: var(--accent-d); }
+}
+@media (prefers-reduced-motion: reduce) {
+ .sp-benefits-feature { transition: none !important; }
+}
+@media (min-width: 1400px) {
+ .sp-benefits-feature { padding: 27px; }
+ .sp-benefits-intro { margin-bottom: 34px; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+ .sp-benefits-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+ .sp-benefits-intro { grid-template-columns: 1fr; gap: 20px; }
+ .sp-home-guest .sp-benefits-offer:not([hidden]) { flex-wrap: wrap; }
+ .sp-benefits-cta-area { width: 100%; justify-content: space-between; }
+}
+@media (min-width: 768px) and (max-width: 1230px) {
+ .sp-benefits-title { font-size: 45px; }
+}
+@media (max-width: 767px) {
+ .sp-home-guest #intro-block { padding: 26px 0 24px; }
+ .sp-benefits-intro { display: block; margin-bottom: 24px; }
+ .sp-benefits-kicker { font-size: 9px; letter-spacing: 1.1px; margin-bottom: 13px; }
+ .sp-benefits-title { font-size: 36px; letter-spacing: -1px; line-height: 1.12; }
+ .sp-benefits-intro-copy { margin-top: 17px; }
+ .sp-benefits-intro-copy p { font-size: 13px; line-height: 1.65; }
+ .sp-benefits-intro-copy .sp-benefits-author { font-size: 10px; margin-top: 12px; }
+ .sp-benefits-grid { grid-template-columns: 1fr; }
+ .sp-benefits-feature { padding: 19px 17px 19px 74px; min-height: 132px; }
+ .sp-benefits-feature-top { position: absolute; left: 17px; top: 20px; margin: 0; }
+ .sp-benefits-symbol { width: 36px; height: 36px; }
+ .sp-benefits-number { display: none; }
+ .sp-benefits-feature h2 { font-size: 21px; margin-bottom: 8px; }
+ .sp-benefits-feature p { font-size: 12px; line-height: 1.65; }
+ .sp-benefits-tag { font-size: 8px; margin-top: 10px; }
+ .sp-home-guest #intro-block .sp-hero-text { grid-template-columns: minmax(0, 1fr); gap: 15px; }
+ .sp-home-guest .sp-benefits-offer:not([hidden]) { display: block; margin-top: 18px; padding: 21px 18px; }
+ .sp-benefits-cta-area { display: flex; flex-direction: column; align-items: stretch; gap: 12px; margin-top: 18px; }
+ .sp-benefits-price { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 9px; white-space: normal; }
+ .sp-benefits-price strong { font-size: 14px; }
+ .sp-benefits-cta { justify-content: space-between; padding: 17px 19px; font-size: 12px; gap: 8px; white-space: normal; }
+ .sp-home-guest #guest-tour-trigger { font-size: 10px; }
+}
+@media (max-width: 359px) {
+ .sp-benefits-title { font-size: 30px; }
+}
