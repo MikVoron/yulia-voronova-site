@@ -124,6 +124,15 @@
 @media (prefers-reduced-motion: reduce) {
  .sp-benefits-feature { transition: none !important; }
 }
+@keyframes sp-benefits-icon-enter {
+ from { transform: translateY(4px); }
+ to { transform: translateY(0); }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+ .sp-home-guest .sp-benefits-symbol--enter {
+  animation: sp-benefits-icon-enter 250ms ease-out;
+ }
+}
 @media (min-width: 1400px) {
  .sp-benefits-feature { padding: 27px; }
  .sp-benefits-intro { margin-bottom: 34px; }

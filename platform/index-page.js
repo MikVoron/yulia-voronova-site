@@ -175,6 +175,45 @@
 		}
 		updateHeroTrialCta();
 
+		// A single, small icon movement as each mobile benefit enters the viewport.
+		(function initGuestBenefitMotion() {
+			const cards = Array.from(document.querySelectorAll('.sp-benefits-feature'));
+			if (!cards.length || !('IntersectionObserver' in window)) return;
+			const mobile = window.matchMedia('(max-width: 767px)');
+			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+			const seen = new WeakSet();
+			let observer;
+			const motionClass = 'sp-benefits-symbol--enter';
+			cards.forEach(function (card) {
+				const icon = card.querySelector('.sp-benefits-symbol');
+				if (!icon) return;
+				const finish = function () { icon.classList.remove(motionClass); };
+				icon.addEventListener('animationend', finish);
+				icon.addEventListener('animationcancel', finish);
+			});
+			function syncMotion() {
+				if (observer) observer.disconnect();
+				cards.forEach(function (card) {
+					card.querySelector('.sp-benefits-symbol')?.classList.remove(motionClass);
+				});
+				if (!mobile.matches || reducedMotion.matches) return;
+				observer = new IntersectionObserver(function (entries) {
+					entries.forEach(function (entry) {
+						if (!entry.isIntersecting || entry.intersectionRatio < .2 || seen.has(entry.target)) return;
+						if (!document.body.classList.contains('sp-home-guest')) return;
+						const icon = entry.target.querySelector('.sp-benefits-symbol');
+						if (icon) icon.classList.add(motionClass);
+						seen.add(entry.target);
+						observer.unobserve(entry.target);
+					});
+				}, { threshold: .2 });
+				cards.forEach(function (card) { if (!seen.has(card)) observer.observe(card); });
+			}
+			mobile.addEventListener('change', syncMotion);
+			reducedMotion.addEventListener('change', syncMotion);
+			syncMotion();
+		})();
+
 		// Quote bank — rotates without repeating
 		(function () {
 			const quotes = [
