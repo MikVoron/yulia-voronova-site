@@ -461,7 +461,10 @@ async function run(expectedHash) {
     }
     throw new Error('INTEGRATED_SUITE_TIMEOUT');
   } finally {
-    stopAll(id); stop(p.watchdog + '.timer'); stop(p.watchdog + '.service');
+    // Bootstrap runs from admin staging; only the protected copy may stop fixtures.
+    // Keep the watchdog armed if that child fails. It must not stop its own service.
+    command('/usr/bin/node', [p.code + '/integrated-rehearsal.cjs', '--cleanup', id], { timeout: 120000 });
+    stop(p.watchdog + '.timer'); stop(p.watchdog + '.service');
     process.stdout.write('INTEGRATED_FIXTURE_RESOURCES_STOPPED\n');
   }
 }

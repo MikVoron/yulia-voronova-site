@@ -56,8 +56,19 @@ release helper показал, что права файлов после `npm ci
 - [x] Подготовлен отдельный root PM2/systemd-стенд (`integrated-rehearsal.cjs`):
   root-owned журнал, искусственные процессы UID997, offline dump/модули и 10
   сценариев. Staging `integrated-rehearsal-20260911-i5M6bz`, preflight OK,
-  непривилегированные тесты VPS 24/24. **Root-прогон ещё не выполнен**; команда
-  с fingerprint и критерии результата находятся в README helper.
+  непривилегированные тесты VPS 24/24. Пользователь выполнил root-прогон
+  `run-0314706e92e8e57f`: 10/10 сценариев и production unchanged, но финальная уборка
+  bootstrap отказала с `INTEGRATED_PROTECTED_COPY`. В репозитории исправлен вызов
+  через защищённую копию без ослабления проверки; 3 новых регрессионных теста,
+  общий локальный набор 61 passed / 14 Linux-only skipped. Исправленный bootstrap
+  прошёл последующий root-прогон `run-9416adc255eb91cb` с тремя маркерами успеха;
+  его root-only результаты переданы пользователем и подтвердили успех и уборку
+  (подробности ниже). После команды cleanup первого run
+  в 17:42:06 UTC независимо подтверждены 0 units / 0 timers этого run и прежние
+  API/PM2 PID, health ok. Пользователь отдельно передал root-only результаты:
+  `passed: true`, `cases: 10`, `productionUnchanged: true`, `cleanupComplete: true`,
+  а в `resources-stopped.json` — `complete: true`. Уборка текущего стенда завершена.
+  Подробности — в README helper.
 - [ ] Добавить PM2/evidence-адаптер и отдельную репетицию изолированного PM2,
   включая интеграцию протокола 0.2.0 и recovery после перезагрузки.
 - [ ] Установить проверенный helper и пройти первый согласованный малый релиз.
@@ -65,10 +76,25 @@ release helper показал, что права файлов после `npm ci
 Прототип не выполняет deploy. Старый временный helper не становится универсальным
 после переноса файлов. Пункт 1 целиком пока не завершён.
 
-Ближайший малый шаг: выполнить через Timeweb подготовленный root PM2/systemd-прогон
-с control-envelope, затем проверить результат, cleanup и неизменность production.
-Он должен проверить timer rollback и обрывы под общим flock на искусственных
-процессах UID997. Boot recovery и все проверки реального приложения — последующие
+Ближайший малый шаг: подготовить план изолированной проверки boot/PM2 recovery,
+не перезагружая рабочий VPS и не меняя production. Сквозная проверка исправленного
+bootstrap завершена в `run-9416adc255eb91cb`.
+Новый staging `integrated-bootstrap-20260911-Tcp2v8` проверен:
+SHA-256 всех 13 файлов сверены, fingerprint семи helpers совпал, preflight OK,
+непривилегированные VPS-тесты 27/27; локально 61 passed / 14 Linux-only skipped.
+Пользователь выполнил новый sudo-прогон: 10/10, production unchanged и
+`INTEGRATED_FIXTURE_RESOURCES_STOPPED`, без ошибки helper. В 18:14:32 UTC
+независимо подтверждены 0 units / 0 timers нового run, API PID 2918793,
+PM2 PID 762, публичный health status/db ok. Повторять запуск не нужно.
+Пользователь отдельно передал root-only файлы нового run: `passed: true`, `cases: 10`,
+`fixtureProtocolIntegrated: true`, `fixtureUid997Tested: true`, `productionUnchanged: true`,
+`cleanupComplete: true`; `resources-stopped.json` содержит `complete: true`.
+`auditZero`/`publicHealth` остаются модельными, `productionExecutionEnabled: false`,
+`osBootTested: false`. Успех стенда не является допуском к production-релизу.
+Уборка `run-0314706e92e8e57f` завершена:
+root-only результаты переданы пользователем, в 17:42:06 UTC независимо подтверждены
+0 units / 0 timers, API PID 2918793, PM2 PID 762, health ok. Повторять cleanup не нужно.
+Boot recovery и все проверки реального приложения — последующие
 обязательные этапы до допуска к production. Рабочий PM2_HOME не использовать.
 
 Локальная политика boot/clock recovery исправлена после проверки:
@@ -83,8 +109,12 @@ Unit-тесты не запускают PM2/API; отдельный PM2-прог
 в отдельном файловом стенде: новые тесты VPS 18/18, общий локальный набор 52 passed,
 14 Linux-only skipped. Прикладное evidence в этом стенде модельное. Подключение
 журнала к root-owned хранилищу, реальным таймерам, PM2 и UID997 реализовано в новом
-fixture-стенде, но ещё ожидает привилегированного прогона. Интегрированная boot/PM2-
-репетиция не подтверждена. Пункт 1 остаётся открытым.
+fixture-стенде; 10 сценариев root PM2/systemd прошли по выводу пользователя,
+тестовые units/timers остановлены; переданные пользователем root-only результаты
+подтвердили успех сценариев и уборки первого run. Исправленный bootstrap прошёл
+отдельный root-прогон с финальным маркером уборки; root-only файлы переданы пользователем
+и подтвердили успех и завершённую уборку.
+Интегрированная boot/PM2-репетиция пока не подтверждена. Пункт 1 остаётся открытым.
 
 Сделать:
 
@@ -104,9 +134,41 @@ fixture-стенде, но ещё ожидает привилегированн�
 
 ### 2. Реальная проверка восстановления backup
 
-Сейчас подтверждены расшифровка и структура локального encrypted dump, а также
-есть свежие checkpoints. Нужен отдельный restore-drill в одноразовую БД и проверка
-скачивания одного зашифрованного файла из Backblaze B2.
+2026-09-12 пользователь выбрал этот пункт следующим; boot-recovery пока отложен.
+Начата read-only подготовка: инструменты и ресурсы VPS проверены, выбран encrypted
+архив от 2026-09-12 03:00 (1585086 bytes). Пользователь передал SHA-256: серверный
+backup.sh совпал с локальным кодом; hash архива закреплён. Подготовлен отдельный
+download/decrypt/TOC helper, staging `backup-prepare-20260912-hbvNrb`; preflight OK,
+VPS-тесты 6/6 и hash parity обоих файлов. Пользователь выполнил этот helper:
+`run-e76d043900822355`, B2-копия совпала по hash, затем wrapper отказал с `PREPARE_TOC`.
+Воспроизведён вероятный источник ошибки: EPIPE при успешном раннем выходе pg_restore --list.
+Подготовлено узкое исправление и новый staging `backup-recheck-20260912-v2JX8E`,
+preflight OK, VPS-тесты 9/9. Пользователь выполнил recheck без B2/SQL:
+`run-623e21cd8157fdbf`, копия проверена, TOC status=0/error=EPIPE, 32 public-таблицы,
+`DATABASE_RESTORE_NOT_RUN`. В 18:46:12 UTC PostgreSQL main online, API/PM2 PID прежние,
+публичный health status/db ok. Root-only result.json передан пользователем и сверён:
+271 entries, 32 publicTables/publicTableData, decrypted SHA-256 закреплён.
+13 сентября подготовлен helper восстановления и отдельный synthetic-only режим.
+14 сентября пользователь выполнил systemd-репетицию `run-8acaf76e2ed8eb7f`: все маркеры
+успеха и уборки присутствуют. Независимо подтверждены inactive unit, отсутствие runtime,
+совпадение hash защищённого кода, прежние production PID и health ok.
+Root-only отчёты переданы и сверены: DynamicUser UID 62120, изоляция подтверждена,
+2 таблицы / 4 строки, constraintTest=true, invalidIndexes=0, полная уборка.
+В 06:43:58 UTC preflight и hash защищённой копии повторно проверены; подготовлена команда
+реального restore в новый временный PostgreSQL. Пользователь выполнил её:
+`run-5ddf3bdfa61a59f5`, все маркеры успешны, `RESTORE_DATABASE_OK tables=32`.
+В 06:46:34 UTC независимо подтверждены отсутствие обоих runtime, inactive временные unit,
+прежние API/PM2/PostgreSQL PID и health ok. Итоговый result.json и оба cleanup-отчёта
+переданы пользователем и сверены: databaseRestored=true, 32 таблицы, 17369 строк,
+29 непустых таблиц, invalidIndexes=0, DynamicUser UID 61245, изоляция и уборка подтверждены.
+Закреплённые encrypted/decrypted hashes совпали, productionUnchanged=true.
+Подробности и безопасные границы: [план restore-drill](smartplate-backup-restore-drill.md).
+
+Подтверждены скачивание выбранной B2-копии, совпадение encrypted SHA-256, расшифровка
+и чтение TOC (результат передан пользователем; result.json сверён).
+**Ограниченный restore-drill выбранного архива завершён 2026-09-14.**
+Восстановление исходных владельцев/ACL и бизнес-сценарии приложения не входили в проверку.
+Полная аварийная готовность сервиса и boot-recovery этим прогоном не подтверждены.
 
 Критерий готовности: без обращения к production DB восстановлены данные в
 одноразовую БД, проверены таблицы и удалена тестовая БД. Повторять ежемесячно и

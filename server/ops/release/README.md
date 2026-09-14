@@ -194,12 +194,85 @@ UID 997. Приложение SmartPlate и его `.env` в fixture не имп
 в защищённое место на VPS. Текущий шаг не завершает пункт 1 roadmap и не даёт
 оснований запускать старые одноразовые deploy-скрипты для нового релиза.
 
-## Интеграционный PM2/systemd-стенд — подготовлен, root-прогон ожидается
+## Интеграционный PM2/systemd-стенд — 10 сценариев прошли, ресурсы остановлены
 
 `integrated-contract.cjs`, `integrated-worker.cjs`, `integrated-rehearsal.cjs` и
 `tests/integrated-contract.test.cjs` добавляют отдельный root-стенд для протокола
-0.2.0 с control-envelope. **Результата привилегированного прогона пока нет.**
-Staging: `/home/smartplate-admin/integrated-rehearsal-20260911-i5M6bz/`.
+0.2.0 с control-envelope. Пользователь выполнил root-прогон 2026-09-11:
+`/var/lib/smartplate-pm2-rehearsals/run-0314706e92e8e57f`.
+Все 10 сценариев сообщили успех и `PRODUCTION_PID_FILES_AND_HEALTH_UNCHANGED`,
+но bootstrap завершился ошибкой `INTEGRATED_PROTECTED_COPY` вместо маркера финальной уборки.
+Первоначальный bootstrap завершился ошибкой; последующая остановка ресурсов
+подтверждена независимо. Пользователь также передал содержимое обоих root-only
+файлов результата после отдельной команды чтения: сценарии и уборка подтверждены.
+Исходный staging: `/home/smartplate-admin/integrated-rehearsal-20260911-i5M6bz/`.
+Он и защищённая копия прогона сохранены без обновления.
+
+Причина: `finally` загрузочного файла из admin staging вызывал `stopAll()` напрямую,
+а `verifyBundle()` разрешает уборку лишь из root-owned `code/`. Проверка правильно
+отказала. Исправление в репозитории запускает `/usr/bin/node <run>/code/integrated-rehearsal.cjs
+--cleanup <run-id>` отдельным процессом с чистым окружением; watchdog снимается лишь
+после успешного возврата. Проверка защищённой копии и hashes не ослаблена.
+Три регрессионных теста исполняют настоящий bootstrap/finally с подменой внешних
+операций: успех, ошибка suite, ошибка cleanup с сохранением watchdog. Локально:
+9/9 bootstrap/contract; весь release-набор 61 passed, 14 Linux-only skipped.
+Последующий root-прогон исправленного bootstrap описан ниже.
+
+Независимая read-only проверка 17:35–17:38 UTC: API PID 2918793, UID/GID997,
+PM2 MainPID 762, публичный `/health` status/db ok; fixture workers отсутствуют.
+На тот момент из units остались только inactive watchdog.service и active watchdog.timer;
+таймер назначен на 17:42:37 UTC и использует правильную защищённую копию.
+После команды cleanup пользователя, в 17:42:06 UTC, независимо подтверждены:
+0 загруженных units и 0 timers с префиксом этого run, API PID 2918793 / UID/GID997,
+PM2 MainPID 762, публичный health status/db ok. Это раньше назначенного времени watchdog.
+Пользователь отдельно прочитал root-only `result.json` и `resources-stopped.json`
+через Timeweb и передал вывод: `passed: true`, `cases: 10`,
+`fixtureProtocolIntegrated: true`, `fixtureUid997Tested: true`,
+`productionUnchanged: true`, `cleanupComplete: true`; второй файл — `complete: true`.
+Это дополняет независимую проверку units, а не выводится из их отсутствия.
+Ограничения результата сохранены: `modeledEvidence: ['auditZero', 'publicHealth']`,
+`productionExecutionEnabled: false`, `osBootTested: false`.
+`cleanupComplete` в suite result описывает уборку отдельных cases, а не завершение bootstrap.
+Первый стенд убран; его первоначальная ошибка остаётся зафиксированной. Ручной
+cleanup сам по себе не подтверждает исправление bootstrap; для него проведён отдельный запуск ниже.
+
+### Проверка исправленного bootstrap — 10/10 и финальная уборка без ошибки
+
+2026-09-11 подготовлен отдельный staging:
+`/home/smartplate-admin/integrated-bootstrap-20260911-Tcp2v8/`.
+Прежний staging и root-owned run сохранены без изменений. В helper изменён только
+вызов финальной уборки: защищённый дочерний `--cleanup` вместо локального `stopAll`.
+Новые регрессионные тесты не входят в привилегированный bundle.
+
+- SHA-256 всех 13 переданных файлов совпали с локальными исходниками.
+- Fingerprint семи helper-файлов совпал на Windows/VPS:
+  `01435fff54926ce8abda1ad7f60176037cf3f52533c413728922767d0368e86a`.
+- VPS preflight OK; bootstrap/contract/control-envelope/control-storage: 27/27,
+  без sudo и без пропусков. Общий Windows-набор повторно: 61 passed, 14 Linux-only skipped.
+- В 18:06 UTC перед подготовкой независимо проверены 0 units / 0 timers `sp-ir-*`,
+  API PID 2918793 / UID/GID997, PM2 MainPID 762 и публичный health status/db ok.
+
+Пользователь выполнил новый изолированный `run-9416adc255eb91cb`: повторены 10 сценариев
+стенда, чтобы проверить именно сквозной выход через исправленный bootstrap. Это не
+повтор уборки прежнего run и не production deploy; новые режимы исполнения не добавлялись.
+Историческая команда Timeweb, **уже выполнена, не повторять**:
+
+```bash
+sudo /usr/bin/node /home/smartplate-admin/integrated-bootstrap-20260911-Tcp2v8/integrated-rehearsal.cjs --run 01435fff54926ce8abda1ad7f60176037cf3f52533c413728922767d0368e86a
+```
+
+В выводе пользователя появились все три маркера: `PRODUCTION_PID_FILES_AND_HEALTH_UNCHANGED`,
+`INTEGRATED_PM2_REHEARSAL_OK cases=10`, `INTEGRATED_FIXTURE_RESOURCES_STOPPED`,
+без последующего `FAILED`. В 18:14:32 UTC независимо подтверждены 0 units / 0 timers
+`sp-ir-9416adc255eb91cb-*`, API PID 2918793 / UID/GID997, PM2 MainPID 762,
+публичный health status/db ok. Пользователь отдельно прочитал через Timeweb root-only
+`control/result.json` и `control/resources-stopped.json` нового run и передал вывод:
+`passed: true`, `cases: 10`, `fixtureProtocolIntegrated: true`,
+`fixtureUid997Tested: true`, `productionUnchanged: true`, `cleanupComplete: true`;
+второй файл — `complete: true`. Проверка исправленного bootstrap и уборки завершена.
+Ограничения подтверждены тем же результатом: `modeledEvidence: ['auditZero', 'publicHealth']`,
+`productionExecutionEnabled: false`, `osBootTested: false`.
+Boot recovery и модельные evidence этим запуском не закрываются.
 
 Что уже проверено 2026-09-11:
 
@@ -213,7 +286,7 @@ Staging: `/home/smartplate-admin/integrated-rehearsal-20260911-i5M6bz/`.
   совпал fingerprint всех семи helper-модулей:
   `a27279c7d954870342a9631c88b0b0886fd61e2d87bf64674e197fbe608194c1`.
 
-Границы будущего запуска:
+Границы стенда:
 
 - Только новый `/var/lib/smartplate-pm2-rehearsals/run-<16 hex>/`, case-01…case-10,
   units `sp-ir-<16 hex>-*`. Произвольные пути, имена служб, PM2-команды и внешние
@@ -255,11 +328,11 @@ Staging: `/home/smartplate-admin/integrated-rehearsal-20260911-i5M6bz/`.
   SHA-256 index.js/package.json/package-lock.json до/после. Управляющие вызовы
   рабочего PM2_HOME, изменения API/БД/SSH/nginx отсутствуют.
 
-Планируемые 10 сценариев: confirm + поздний rollback; настоящий ранний timer rollback;
+Проверенные по выводу пользователя 10 сценариев: confirm + поздний rollback; настоящий ранний timer rollback;
 обрыв после intent и после таймера; обрыв после switching и перемещения старых файлов;
 обрыв после confirmed с повторным cleanup; повтор отката после остановки менеджера;
 повреждённый dump без остановки здорового процесса + восстановление после исправления;
-одновременные confirm/rollback под flock. Только полный root-прогон проверит эти связи.
+одновременные confirm/rollback под flock. Ошибка последующей уборки описана выше.
 
 Предел доказательства даже при успехе: `auditZero` и `publicHealth` явно модельные
 (`modeledEvidence` в result.json); HTTP catalog/private/sitemap проверяют искусственные
@@ -268,7 +341,7 @@ Staging: `/home/smartplate-admin/integrated-rehearsal-20260911-i5M6bz/`.
 `osBootTested: false`, `productionExecutionEnabled: false`. Root-owned системный boot
 recovery service пока не установлен. Рабочий release helper остаётся незавершённым.
 
-Одна подготовленная команда для Timeweb, **ещё не выполнена**:
+Историческая команда первого прогона — **уже выполнена, не повторять**:
 
 ```bash
 sudo /usr/bin/node /home/smartplate-admin/integrated-rehearsal-20260911-i5M6bz/integrated-rehearsal.cjs --run a27279c7d954870342a9631c88b0b0886fd61e2d87bf64674e197fbe608194c1
@@ -281,6 +354,17 @@ sudo /usr/bin/node /home/smartplate-admin/integrated-rehearsal-20260911-i5M6bz/i
 Диагностика в root-only `control/result.json`, `control/last-command-error.json`,
 case `control/last-action.json` и systemd journal. Содержимое этих файлов не
 публиковать автоматически. До оценки результата остаёмся на Astra High.
+
+Для справки: пользователю была передана команда уборки из неизменённой защищённой
+копии (только этот run, не новый прогон). После неё отсутствие units подтверждено;
+повторять команду сейчас не нужно:
+
+```bash
+sudo /usr/bin/node /var/lib/smartplate-pm2-rehearsals/run-0314706e92e8e57f/code/integrated-rehearsal.cjs --cleanup run-0314706e92e8e57f
+```
+
+У этой версии `--cleanup` нет строки успеха: затем отдельно проверить отсутствие
+активных units/workers, root-only результат уборки и здоровье production.
 
 Основание выбора часов: [systemd 249 timer](https://github.com/systemd/systemd/blob/v249/man/systemd.timer.xml)
 и [libuv CLOCK_MONOTONIC](https://github.com/libuv/libuv/blob/v1.46.0/src/unix/linux.c).
