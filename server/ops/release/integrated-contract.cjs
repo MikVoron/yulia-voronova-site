@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const BASE = '/var/lib/smartplate-pm2-rehearsals';
 const PM2 = '/usr/lib/node_modules/pm2/bin/pm2';
 const HELPERS = Object.freeze(['integrated-contract.cjs', 'integrated-rehearsal.cjs', 'integrated-worker.cjs',
-  'protocol.cjs', 'recovery-policy.cjs', 'control-envelope.cjs', 'linux-storage.cjs']);
+  'protocol.cjs', 'recovery-policy.cjs', 'control-envelope.cjs', 'linux-storage.cjs', 'startup-recovery.cjs']);
 const ENV = Object.freeze({ PATH: '/usr/sbin:/usr/bin:/sbin:/bin', LANG: 'C' });
 function check(ok, code) { if (!ok) throw new Error(code); }
 function layout(id, name = 'case-01') {

@@ -13,7 +13,7 @@ const id = 'run-0123456789abcdef', p = layout(id), hash = 'a'.repeat(64);
 
 // Exercise the actual bootstrap/finally from a staging filename, without root,
 // filesystem writes, timers or child processes. Only external boundaries are fake.
-function fixture({ suiteFails = false, cleanupFails = false } = {}) {
+function fixture({ suiteFails = false, cleanupFails = false, bootOnly = false, omitColdEvidence = false } = {}) {
   const files = new Map(), calls = [], output = [];
   const fakeFs = { existsSync: () => true, mkdirSync() {}, realpathSync: x => x };
   const fakeStorage = {
@@ -26,7 +26,9 @@ function fixture({ suiteFails = false, cleanupFails = false } = {}) {
     if (file === '/usr/bin/systemd-run') {
       if (args.includes('--unit=' + p.suite)) {
         fakeStorage.atomicJson(p.root + '/control/result.json', suiteFails
-          ? { passed: false, error: 'TEST_SUITE_FAILED' } : { passed: true, cases: 10 });
+          ? { passed: false, error: 'TEST_SUITE_FAILED' } : { passed: true, cases: 10,
+            ...(bootOnly && !omitColdEvidence ? { coldStartRecoveryTested: true, osBootTested: false,
+              modeledEvidence: ['bootIdChange'] } : {}) });
       }
     } else if (file === '/usr/bin/systemctl') {
       assert.ok(args[1].startsWith('sp-ir-0123456789abcdef-'));
@@ -65,7 +67,7 @@ function fixture({ suiteFails = false, cleanupFails = false } = {}) {
     readBytes = testRead;
     module.exports.run = run;
   `, sandbox, { filename });
-  return { run: () => sandbox.module.exports.run(hash), calls, output };
+  return { run: () => sandbox.module.exports.run(hash, bootOnly), calls, output };
 }
 
 test('bootstrap success invokes protected cleanup before stopping watchdog and reporting completion', async () => {
@@ -91,4 +93,17 @@ test('failed protected cleanup leaves watchdog armed and does not claim completi
   assert.equal(f.calls.filter(x => x.file === '/usr/bin/node').length, 1);
   assert.equal(f.calls.filter(x => x.args[0] === 'stop').length, 0);
   assert.doesNotMatch(f.output.join(''), /INTEGRATED_FIXTURE_RESOURCES_STOPPED/);
+});
+
+test('cold-start bootstrap invokes the separate suite and retains protected cleanup', async () => {
+  const f = fixture({ bootOnly: true }); await f.run();
+  const launch = f.calls.find(x => x.file === '/usr/bin/systemd-run' && x.args.includes('--unit=' + p.suite));
+  assert.ok(launch.args.includes('--boot-suite')); assert.ok(!launch.args.includes('--suite'));
+  assert.equal(f.calls.filter(x => x.file === '/usr/bin/node').length, 1);
+});
+
+test('ordinary suite result cannot masquerade as completed cold-start rehearsal', async () => {
+  const f = fixture({ bootOnly: true, omitColdEvidence: true });
+  await assert.rejects(f.run(), /INTEGRATED_COLD_START_RESULT/);
+  assert.equal(f.calls.filter(x => x.file === '/usr/bin/node').length, 1);
 });

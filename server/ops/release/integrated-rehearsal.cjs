@@ -11,6 +11,7 @@ const { BASE, PM2, HELPERS, ENV, check, layout, environment, definition, verifyD
 const { protectedPath, atomicJson, atomicWrite, inventory, verifyTree, copyVerified, syncDir } = require('./linux-storage.cjs');
 const protocol = require('./protocol.cjs');
 const control = require('./control-envelope.cjs');
+const startup = require('./startup-recovery.cjs');
 let diagnosticsRoot;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const clock = () => ({ bootId: fs.readFileSync('/proc/sys/kernel/random/boot_id', 'utf8').trim(),
@@ -228,6 +229,15 @@ async function evidence(p, action, version) {
 async function action(p, operation, crash) {
   verify(p);
   atomicJson(p.control + '/last-action.json', { operation, crash, at: clock() });
+  if (operation === 'startup-recover') return startupRecovery(p, crash);
+  if (operation === 'model-previous-boot') {
+    check(stopped(p.manager) && stopped(p.rollback + '.timer') && stopped(p.rollback + '.service'),
+      'INTEGRATED_BOOT_LOSS_RESOURCES');
+    const before = state(p);
+    atomicJson(p.control + '/before-modeled-boot.json', before);
+    atomicJson(p.control + '/control.json', startup.modelPreviousBoot(before, clock().bootId));
+    return;
+  }
   if (operation === 'init') {
     check(!fs.existsSync(p.control + '/control.json'), 'INTEGRATED_STATE_EXISTS');
     atomicJson(p.control + '/control.json', control.create(json(p.control + '/manifest.json'))); return;
@@ -273,6 +283,29 @@ async function action(p, operation, crash) {
   startManager(p, 'old', true); await waitHealth(p, 'old');
   check(saved(p, 'old').equals(dump), 'INTEGRATED_RESTORED_DUMP_BYTES');
   transition(p, 'restored', await evidence(p, 'restored', 'old'));
+}
+async function startupRecovery(p, crash) {
+  // This is a fixture adapter, not a production boot service. The CLI holds the
+  // same flock used by all normal transitions and rollback controllers.
+  check(stopped(p.manager) && stopped(p.rollback + '.timer') && stopped(p.rollback + '.service'),
+    'INTEGRATED_STARTUP_RESOURCES_ACTIVE');
+  const before = state(p), observed = clock(), choice = startup.plan(before, observed);
+  atomicJson(p.control + '/startup-choice.json', { choice, observed, generation: before.generation });
+  if (choice.action === 'rollback') {
+    await action(p, 'rollback', crash);
+    check(state(p).state.phase === 'rolled_back', 'INTEGRATED_STARTUP_NOT_RESTORED');
+    return;
+  }
+  if (choice.action === 'cancel-start-old') transition(p, 'cancel-arm');
+  // Verify both module bytes and PM2 definitions before starting any process.
+  // Confirmed new state must fail closed if its saved dump or live tree is bad;
+  // it must never silently substitute the old release for a durable commit.
+  verifyTree(p.live, tree(p, choice.version));
+  const dump = choice.version === 'new' ? saved(p, 'new') : backup(p);
+  for (const file of ['dump.pm2', 'dump.pm2.bak']) atomicWrite(p.pm2 + '/' + file, dump);
+  startManager(p, choice.version, true);
+  await waitHealth(p, choice.version);
+  check(saved(p, choice.version).equals(dump), 'INTEGRATED_STARTUP_DUMP_BYTES');
 }
 async function cleanupCase(p) {
   // Called by the suite, never by the rollback service itself. No lock while waiting.
@@ -389,6 +422,71 @@ async function suite(id) {
     productionUnchanged: true, osBootTested: false, cleanupComplete: true });
   report('PRODUCTION_PID_FILES_AND_HEALTH_UNCHANGED'); report('INTEGRATED_PM2_REHEARSAL_OK cases=10');
 }
+function modelBootLoss(p) {
+  // Model disappearance of transient services and a different boot ID. No OS
+  // clock or host boot ID is changed; only this new fixture's protected journal.
+  stop(p.rollback + '.timer'); stop(p.rollback + '.service'); stop(p.manager);
+  call(p, 'model-previous-boot');
+  check(stopped(p.manager) && stopped(p.rollback + '.timer') && stopped(p.rollback + '.service'),
+    'INTEGRATED_BOOT_LOSS_RESOURCES');
+}
+async function bootSuite(id) {
+  const root = layout(id).root, baseline = await productionSnapshot(), hostBoot = clock().bootId;
+  atomicJson(root + '/control/production-before.json', baseline);
+  const progress = [];
+  function report(value) { progress.push(value); atomicJson(root + '/control/progress.json', progress); }
+  const scenarios = ['prepared', 'arming', 'armed', 'switching', 'pending', 'confirming',
+    'confirmed', 'interrupted-recovery', 'corrupt-journal', 'corrupt-dump'];
+  for (let index = 0; index < scenarios.length; index++) {
+    const scenario = scenarios[index], p = await newCase(id, index + 1);
+    if (scenario === 'arming') {
+      check(call(p, 'arm', 'intent', true).status === 137, 'INTEGRATED_EXPECTED_KILL');
+    } else if (scenario !== 'prepared') {
+      call(p, 'arm');
+      if (scenario === 'switching') {
+        check(call(p, 'apply', 'old-moved', true).status === 137, 'INTEGRATED_EXPECTED_KILL');
+      } else if (scenario !== 'armed') {
+        call(p, 'apply');
+        if (['confirming', 'confirmed'].includes(scenario)) {
+          check(call(p, 'confirm', scenario, true).status === 137, 'INTEGRATED_EXPECTED_KILL');
+        }
+      }
+    }
+    modelBootLoss(p);
+    if (scenario === 'corrupt-journal' || scenario === 'corrupt-dump') {
+      const file = p.control + (scenario === 'corrupt-journal' ? '/control.json' : '/old.dump.json');
+      const original = readBytes(file); atomicWrite(file, '{}');
+      check(call(p, 'startup-recover', 'none', true).status !== 0, 'INTEGRATED_STARTUP_CORRUPTION_ACCEPTED');
+      check(stopped(p.manager), 'INTEGRATED_STARTUP_CORRUPTION_STARTED_PM2');
+      atomicWrite(file, original);
+    }
+    if (scenario === 'interrupted-recovery') {
+      check(call(p, 'startup-recover', 'rollback-copied', true).status === 137, 'INTEGRATED_EXPECTED_KILL');
+      check(stopped(p.manager) && state(p).state.phase === 'rolling_back', 'INTEGRATED_STARTUP_CRASH_STATE');
+    }
+    call(p, 'startup-recover');
+    const version = scenario === 'confirmed' ? 'new' : 'old';
+    await health(p, version);
+    if (scenario !== 'prepared') await cleanupCase(p);
+    const terminal = state(p);
+    check(terminal.stage === 'prepared' || (terminal.stage === 'cancelled' && terminal.cancelCleanupComplete) ||
+      (terminal.stage === 'active' && terminal.state.cleanupComplete &&
+        terminal.state.phase === (version === 'new' ? 'confirmed' : 'rolled_back')), 'INTEGRATED_STARTUP_TERMINAL');
+    // Retry after a second manager stop must preserve the complete durable state.
+    stop(p.manager); call(p, 'startup-recover'); await health(p, version);
+    check(JSON.stringify(state(p)) === JSON.stringify(terminal), 'INTEGRATED_STARTUP_RETRY_CHANGED_STATE');
+    stop(p.manager);
+    report('INTEGRATED_COLD_START_OK ' + scenario);
+  }
+  const after = await productionSnapshot(); atomicJson(root + '/control/production-after.json', after);
+  check(JSON.stringify(baseline) === JSON.stringify(after), 'INTEGRATED_PRODUCTION_CHANGED');
+  check(clock().bootId === hostBoot, 'INTEGRATED_HOST_BOOT_CHANGED');
+  atomicJson(root + '/control/result.json', { passed: true, cases: scenarios.length,
+    fixtureProtocolIntegrated: true, fixtureUid997Tested: true, coldStartRecoveryTested: true,
+    modeledEvidence: ['auditZero', 'publicHealth', 'bootIdChange'], productionExecutionEnabled: false,
+    productionUnchanged: true, osBootTested: false, cleanupComplete: true });
+  report('PRODUCTION_PID_FILES_AND_HEALTH_UNCHANGED'); report('INTEGRATED_COLD_START_REHEARSAL_OK cases=10');
+}
 function stopAll(id) {
   const p = layout(id);
   verifyBundle(p);
@@ -424,7 +522,7 @@ function readBundle() {
   }
   return { sources, hashes, sha256: protocol.sha256(JSON.stringify(hashes)) };
 }
-async function run(expectedHash) {
+async function run(expectedHash, bootOnly = false) {
   preflight();
   check(/^[a-f0-9]{64}$/.test(expectedHash), 'INTEGRATED_BUNDLE_HASH');
   const { sources, hashes, sha256 } = readBundle();
@@ -447,7 +545,8 @@ async function run(expectedHash) {
     command('/usr/bin/systemd-run', ['--quiet', '--unit=' + p.suite, '--property=Type=exec',
       '--property=RuntimeMaxSec=8min', '--property=TimeoutStopSec=5s', '--property=KillMode=control-group',
       '--property=MemoryMax=256M', '--property=TasksMax=64',
-      '/usr/bin/env', '-i', 'PATH=' + ENV.PATH, 'LANG=C', '/usr/bin/node', p.code + '/integrated-rehearsal.cjs', '--suite', id]);
+      '/usr/bin/env', '-i', 'PATH=' + ENV.PATH, 'LANG=C', '/usr/bin/node', p.code + '/integrated-rehearsal.cjs',
+      bootOnly ? '--boot-suite' : '--suite', id]);
     let printed = 0;
     for (let i = 0; i < 1020; i++) {
       const progress = json(p.root + '/control/progress.json');
@@ -455,6 +554,8 @@ async function run(expectedHash) {
       if (stopped(p.suite)) {
         const result = json(p.root + '/control/result.json');
         check(result.passed === true && result.cases === 10, result.error || 'INTEGRATED_SUITE_FAILED');
+        if (bootOnly) check(result.coldStartRecoveryTested === true && result.osBootTested === false &&
+          result.modeledEvidence?.includes('bootIdChange'), 'INTEGRATED_COLD_START_RESULT');
         return;
       }
       await sleep(500);
@@ -474,18 +575,19 @@ async function main(args) {
   check(process.platform === 'linux' && process.getuid() === 0, 'INTEGRATED_ROOT_REQUIRED');
   process.umask(0o022);
   if (args.length === 2 && args[0] === '--run') return run(args[1]);
+  if (args.length === 2 && args[0] === '--boot-rehearse') return run(args[1], true);
   const [mode, id, name, operation, crash] = args, p = layout(id, name || 'case-01');
   verifyBundle(p);
   diagnosticsRoot = p.root;
   if (mode === '--cleanup' && args.length === 2) { stopAll(id); stop(p.watchdog + '.timer'); return; }
-  if (mode === '--suite' && args.length === 2) {
+  if (['--suite', '--boot-suite'].includes(mode) && args.length === 2) {
     check(property(p.suite, 'MainPID') === String(process.pid), 'INTEGRATED_SUITE_UNIT');
-    try { await suite(id); }
+    try { await (mode === '--boot-suite' ? bootSuite(id) : suite(id)); }
     catch (e) { atomicJson(p.root + '/control/result.json', { passed: false, error: e.code || e.message }); throw e; }
     return;
   }
   check(mode === '--locked' && args.length === 5, 'INTEGRATED_USAGE');
-  check(['init', 'arm', 'apply', 'confirm', 'rollback', 'cleanup-record'].includes(operation), 'INTEGRATED_ACTION');
+  check(['init', 'arm', 'apply', 'confirm', 'rollback', 'cleanup-record', 'startup-recover', 'model-previous-boot'].includes(operation), 'INTEGRATED_ACTION');
   check(['none', 'intent', 'timer', 'switching', 'stopped', 'old-moved', 'new-copied', 'confirming', 'confirmed',
     'rollback-recorded', 'rollback-stopped', 'rollback-copied'].includes(crash), 'INTEGRATED_CRASH');
   check(fs.realpathSync('/proc/' + process.ppid + '/exe') === '/usr/bin/flock', 'INTEGRATED_LOCK_PARENT');

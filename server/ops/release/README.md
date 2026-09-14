@@ -286,12 +286,62 @@ Boot recovery и модельные evidence этим запуском не за
   совпал fingerprint всех семи helper-модулей:
   `a27279c7d954870342a9631c88b0b0886fd61e2d87bf64674e197fbe608194c1`.
 
-Границы стенда:
+### Холодный старт: 10/10 по выводу прогона 2026-09-14
+
+Пользователь выполнил `--boot-rehearse`: `run-e0824dc6a8402e72`, все десять
+сценариев прошли. Получены `INTEGRATED_COLD_START_REHEARSAL_OK cases=10`,
+`PRODUCTION_PID_FILES_AND_HEALTH_UNCHANGED` и
+`INTEGRATED_FIXTURE_RESOURCES_STOPPED`. В 11:51:59 UTC независимо проверены:
+0 загруженных units / 0 timers этого run, прежние API PID 2918793 (UID/GID997),
+PM2 PID 762, PostgreSQL PID 721; публичный health status/db ok.
+Пользователь передал root-only `control/result.json`: `passed: true`, `cases: 10`,
+`coldStartRecoveryTested: true`, `productionUnchanged: true`,
+`osBootTested: false`, `cleanupComplete: true`. В `resources-stopped.json`:
+`complete: true`. Отчёты подтверждены; повторять запуск не нужно.
+
+Непривилегированные
+тесты release-набора: Windows 73 passed / 14 Linux-only skipped; VPS 87 passed,
+0 failed / 0 skipped. Preflight VPS успешен. Fingerprint восьми helpers и SHA-256
+трёх изменённых/новых тестовых файлов сверены между локальным деревом и VPS.
+
+Staging: `/home/smartplate-admin/cold-start-20260914-jgHd8A/release/`.
+Fingerprint: `3c0af3216040c422808cfbe090aa1cfe43da457f3a5184cde004c389c7442e8d`.
+В комплект добавлен `startup-recovery.cjs`; старые защищённые run-копии не меняются.
+
+Десять сценариев: prepared, arming, armed, switching, pending, confirming,
+confirmed, обрыв восстановления, повреждённый журнал и повреждённый старый dump.
+Перед восстановлением останавливаются только manager/timer/service данного case;
+под общим flock в его журнале моделируется другая boot ID. Холодный запуск
+неподтверждённой новой версии запрещён даже до истечения прежнего таймера.
+Подтверждённая версия запускается только после проверки дерева и PM2 dump;
+повреждение блокирует запуск, а не подменяет подтверждённый релиз старым.
+После каждого сценария повторный старт проверяет неизменность терминального журнала.
+
+Историческая команда выполненного прогона — не повторять:
+
+```bash
+sudo /usr/bin/node /home/smartplate-admin/cold-start-20260914-jgHd8A/release/integrated-rehearsal.cjs --boot-rehearse 3c0af3216040c422808cfbe090aa1cfe43da457f3a5184cde004c389c7442e8d
+```
+
+Получены `INTEGRATED_COLD_START_REHEARSAL_OK cases=10`,
+`PRODUCTION_PID_FILES_AND_HEALTH_UNCHANGED` и финальный
+`INTEGRATED_FIXTURE_RESOURCES_STOPPED`; result.json и resources-stopped.json
+защищённой run-копии также подтверждены пользователем.
+
+Это реальные отдельные PM2/systemd-процессы UID997, но **не перезагрузка ОС**:
+`bootIdChange`, `auditZero`, `publicHealth` остаются модельными evidence;
+`osBootTested: false`, `productionExecutionEnabled: false`. Системные часы и boot ID
+хоста не меняются; production PM2_HOME не используется для управления. Boot service
+не устанавливается. Порядок запуска служб при настоящей загрузке и production
+evidence-адаптер остаются отдельными обязательными этапами.
+
+### Границы интегрированного стенда
 
 - Только новый `/var/lib/smartplate-pm2-rehearsals/run-<16 hex>/`, case-01…case-10,
   units `sp-ir-<16 hex>-*`. Произвольные пути, имена служб, PM2-команды и внешние
   manifest не принимаются. Предыдущие run-каталоги сохраняются.
-- Семь helper-файлов считываются один раз, сверяются с fingerprint из команды,
+- Helper-файлы (семь в прежнем комплекте, восемь с cold-start модулем) считываются
+  один раз, сверяются с fingerprint из команды,
   затем эти же байты копируются в root-owned `code/`; таймеры используют эту копию.
   Первоначальный запуск из admin staging — явный доверенный bootstrap пользователя,
   не механизм запуска произвольного недоверенного кода с sudo.
