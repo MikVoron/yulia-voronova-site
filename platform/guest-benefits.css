@@ -115,6 +115,21 @@
 .sp-home-guest #hero-search .hero-search-icon { left: 0; width: 16px; height: 16px; }
 .sp-home-guest #hero-search .hero-search-submit { right: 0; width: 24px; height: 28px; background: transparent; color: var(--text); }
 .sp-home-guest #hero-search .hero-search-results { width: max(100%, 360px); right: 0; left: auto; max-width: calc(100vw - 40px); }
+
+/* Desktop: give recipe search its own, visible row directly below the tour link.
+   The compact underline treatment remains on tablet and mobile. */
+@media (min-width: 1024px) {
+ .sp-home-guest #guest-tour-trigger { grid-column: 1 / -1; }
+ .sp-home-guest #hero-search { grid-column: 1 / -1; max-width: 720px; }
+ .sp-home-guest #hero-search-input {
+  height: 52px;
+  border: 1px solid var(--border);
+  padding: 15px 52px 15px 46px;
+  font-size: 14px;
+ }
+ .sp-home-guest #hero-search .hero-search-icon { left: 16px; width: 18px; height: 18px; }
+ .sp-home-guest #hero-search .hero-search-submit { right: 8px; width: 36px; height: 36px; background: var(--text); color: #fff; }
+}
 /* All six cards remain visible. Hover feedback is limited to mouse/trackpad. */
 @media (hover: hover) and (pointer: fine) {
  .sp-benefits-feature { transition: background-color .16s ease, border-color .16s ease; }
