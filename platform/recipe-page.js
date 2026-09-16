@@ -313,7 +313,14 @@
 			if (_stepperIdx > 0) { _stepperIdx--; renderStepperCurrent(); }
 		}
 		function stepperNext() {
-			if (_stepperIdx < _stepsHtmlArr.length - 1) { _stepperIdx++; renderStepperCurrent(); }
+			if (_stepperIdx < _stepsHtmlArr.length - 1) {
+				_stepperIdx++;
+				renderStepperCurrent();
+				// WebKit keeps the old button position after replacing the step markup.
+				// Return to the beginning of the new step so its photo is not left above
+				// the viewport on mobile.
+				requestAnimationFrame(() => scrollRecipeElementIntoView(document.getElementById('stepper-current'), 'start'));
+			}
 		}
 		function toggleStepperDone() {
 			const cb = document.getElementById('stepper-done-cb');

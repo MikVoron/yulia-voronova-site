@@ -1762,7 +1762,11 @@ body.recipe-image-viewer-open { overflow: hidden; }
 }
 .stepper-bar-segment.is-done { background: var(--accent); }
 .stepper-bar-segment.is-current:not(.is-done) { background: #f2c2b0; }
-.stepper-current { margin-top: 14px; }
+.stepper-current {
+    margin-top: 14px;
+    /* Leave the new step below the sticky mobile header after "Далее". */
+    scroll-margin-top: calc(var(--recipe-mobile-header-height, 60px) + 12px);
+}
 .stepper-current .step-item { padding: 0; border: none; }
 .step-item.is-done .step-text {
     text-decoration: line-through;
