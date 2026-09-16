@@ -1120,7 +1120,7 @@
     };
 
     window.openRecipeEditor = function(id) {
-        location.href = 'recipe-editor.html?v=20260612-soups-category' + (id ? '&id=' + encodeURIComponent(id) : '');
+        location.href = 'recipe-editor.html?v=20260916-optional-emoji' + (id ? '&id=' + encodeURIComponent(id) : '');
     };
 
     window.deleteRecipe = function(id) {

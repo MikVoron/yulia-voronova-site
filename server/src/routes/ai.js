@@ -51,7 +51,6 @@ async function aiRoutes(fastify) {
 {
   "name": "Название рецепта",
   "cat": "mains",
-  "emoji": "🍲",
   "time_min": 45,
   "time_label": "45–50 минут",
   "difficulty": "easy",

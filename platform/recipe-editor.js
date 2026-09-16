@@ -345,7 +345,7 @@
         document.getElementById('btn-gen-slug').style.display = 'none';
         setCategories(r.categories || (r.cat ? [r.cat] : []));
         document.getElementById('re-name').value = r.name;
-        document.getElementById('re-emoji').value = r.emoji || '🍴';
+        document.getElementById('re-emoji').value = r.emoji || '';
         document.getElementById('re-time').value = r.time_min || 30;
         document.getElementById('re-time-label').value = r.time_label || '';
         document.getElementById('re-diff').value = r.difficulty || 'easy';
@@ -1202,7 +1202,7 @@
             categories: categories,
             cat: categories[0] || '',
             name: document.getElementById('re-name').value.trim(),
-            emoji: document.getElementById('re-emoji').value || '🍴',
+            emoji: document.getElementById('re-emoji').value.trim() || null,
             time_min: parseInt(document.getElementById('re-time').value) || 30,
             time_label: document.getElementById('re-time-label').value.trim() || null,
             difficulty: document.getElementById('re-diff').value,
@@ -1570,7 +1570,7 @@
             if (!editId && r.id) { document.getElementById('re-id').value = r.id; }
             if (r.categories) { setCategories(r.categories); } else if (r.cat) { setCategories([r.cat]); }
             if (r.name) document.getElementById('re-name').value = r.name;
-            document.getElementById('re-emoji').value = r.emoji || '🍴';
+            document.getElementById('re-emoji').value = r.emoji || '';
             document.getElementById('re-time').value = r.time_min || 30;
             if (r.time_label) document.getElementById('re-time-label').value = r.time_label;
             document.getElementById('re-diff').value = r.difficulty || 'easy';

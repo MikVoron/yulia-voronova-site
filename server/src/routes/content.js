@@ -1103,7 +1103,7 @@ async function contentRoutes(fastify) {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37)
        RETURNING *`,
       [
-        r.id, primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, timeLabel, r.difficulty || 'easy',
+        r.id, primaryCat, r.name, r.emoji || null, r.time_min || 30, timeLabel, r.difficulty || 'easy',
         r.servings || 4, is_free, access_level,
         r.kcal || 0, r.protein || 0, r.fat || 0, r.carbs || 0, r.fiber || 0,
         r.tags || [], r.photo || null, r.img_position || null, r.quote || null,
@@ -1216,7 +1216,7 @@ async function contentRoutes(fastify) {
           dietary_verified=COALESCE($36::boolean, dietary_verified), updated_at=now()
        WHERE id=$37 RETURNING *`,
       [
-        primaryCat, r.name, r.emoji || '🍴', r.time_min || 30, timeLabel, r.difficulty || 'easy',
+        primaryCat, r.name, r.emoji || null, r.time_min || 30, timeLabel, r.difficulty || 'easy',
         r.servings || 4, is_free, access_level,
         r.kcal || 0, r.protein || 0, r.fat || 0, r.carbs || 0, r.fiber || 0,
         r.tags || [], r.photo || null, r.img_position || null, r.quote || null,
