@@ -519,10 +519,10 @@
 							date: _spFormatNewsDate(n.created_at)
 						};
 					});
-					// Правая колонка показывает все свежие обновления, включая анонс
-					// рецепта. Карточка слева остаётся главным визуальным анонсом,
-					// а строка справа подтверждает посетителю, что лента обновляется.
-					var rightNews = all.slice(0, 4);
+					// Анонс рецепта уже полностью показан карточкой слева. В правой
+					// колонке оставляем только обычные текстовые новости, чтобы один
+					// и тот же рецепт не повторялся, особенно в мобильной раскладке.
+					var rightNews = all.filter(function (item) { return item.type === 'news'; }).slice(0, 4);
 					// Последний добавленный рецепт — автоматически закрепляется в левой колонке.
 					// Селектор `_latestRecipeId()` тот же, что использует renderNewsFeedInitial(),
 					// чтобы featured не менялся после ответа /api/news.
@@ -700,7 +700,7 @@
 		}
 
 		// Editorial 2-column «Новое»: слева vertical-карточка последнего рецепта,
-		// справа — лента свежих обновлений, включая новые рецепты. См. #new-block.
+		// справа — лента обычных текстовых новостей. См. #new-block.
 		function renderNewsFeed() {
 			const block = document.getElementById('new-block');
 			const featureEl = document.getElementById('new-feature');
@@ -708,9 +708,9 @@
 			if (!block || !featureEl || !listEl) return;
 
 			const recipeItems = NEWS_FEED.filter(function (i) { return i.type === 'recipe'; });
-			// У синтетической featured-записи нет текста; она нужна только слева.
-			// Все реальные обновления API, включая новые рецепты, идут вправо.
-			const rightItems = NEWS_FEED.filter(function (i) { return i.type === 'news' || !!i.text; });
+			// Анонсы рецептов, в том числе с текстом из API, показываются только
+			// featured-карточкой слева. Справа остаются самостоятельные новости.
+			const rightItems = NEWS_FEED.filter(function (i) { return i.type === 'news'; });
 
 			// display блока больше не трогаем — он показан с first paint,
 			// а инициализация прошла через renderNewsFeedInitial().
