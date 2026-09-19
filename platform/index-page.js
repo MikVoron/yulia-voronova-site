@@ -519,19 +519,22 @@
 							date: _spFormatNewsDate(n.created_at)
 						};
 					});
-					// Анонс рецепта уже полностью показан карточкой слева. В правой
-					// колонке оставляем только обычные текстовые новости, чтобы один
-					// и тот же рецепт не повторялся, особенно в мобильной раскладке.
-					var rightNews = all.filter(function (item) { return item.type === 'news'; }).slice(0, 4);
 					// Последний добавленный рецепт — автоматически закрепляется в левой колонке.
 					// Селектор `_latestRecipeId()` тот же, что использует renderNewsFeedInitial(),
 					// чтобы featured не менялся после ответа /api/news.
 					var latestId = _latestRecipeId();
+					// Скрываем только анонс текущей featured-карточки: все предыдущие
+					// анонсы рецептов остаются в ленте и вернутся в неё автоматически,
+					// когда следующий рецепт займёт место слева.
+					var rightNews = all.filter(function (item) {
+						return item.type === 'news'
+							|| (item.type === 'recipe' && String(item.id || '') !== String(latestId || ''));
+					}).slice(0, 4);
 					var latestRecipe = latestId ? RECIPES[latestId] : null;
 					NEWS_FEED = [];
 					if (latestRecipe) {
 						NEWS_FEED.push({
-							type: 'recipe', id: latestRecipe.id, badge: 'Новинка',
+							type: 'recipe', id: latestRecipe.id, isFeatured: true, badge: 'Новинка',
 							date: _spFormatNewsDate(latestRecipe.added || latestRecipe.addedTs)
 						});
 					}
@@ -543,7 +546,7 @@
 					var latestRecipe2 = latestId2 ? RECIPES[latestId2] : null;
 					if (latestRecipe2) {
 						NEWS_FEED.push({
-							type: 'recipe', id: latestRecipe2.id, badge: 'Новинка',
+							type: 'recipe', id: latestRecipe2.id, isFeatured: true, badge: 'Новинка',
 							date: _spFormatNewsDate(latestRecipe2.added || latestRecipe2.addedTs)
 						});
 					}
@@ -700,17 +703,17 @@
 		}
 
 		// Editorial 2-column «Новое»: слева vertical-карточка последнего рецепта,
-		// справа — лента обычных текстовых новостей. См. #new-block.
+		// справа — лента остальных новостей и прошлых анонсов рецептов. См. #new-block.
 		function renderNewsFeed() {
 			const block = document.getElementById('new-block');
 			const featureEl = document.getElementById('new-feature');
 			const listEl = document.getElementById('new-list');
 			if (!block || !featureEl || !listEl) return;
 
-			const recipeItems = NEWS_FEED.filter(function (i) { return i.type === 'recipe'; });
-			// Анонсы рецептов, в том числе с текстом из API, показываются только
-			// featured-карточкой слева. Справа остаются самостоятельные новости.
-			const rightItems = NEWS_FEED.filter(function (i) { return i.type === 'news'; });
+			const recipeItems = NEWS_FEED.filter(function (i) { return i.isFeatured; });
+			// Не дублируем только текущую featured-карточку. Более ранние анонсы
+			// рецептов — самостоятельные элементы ленты справа.
+			const rightItems = NEWS_FEED.filter(function (i) { return !i.isFeatured; });
 
 			// display блока больше не трогаем — он показан с first paint,
 			// а инициализация прошла через renderNewsFeedInitial().
