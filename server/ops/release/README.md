@@ -10,6 +10,66 @@ Production-планировщик `plan.cjs` поддерживает тольк
 
 ## Файлы и безопасный запуск
 
+Новый этап 2026-09-20: [проект boot-recovery](BOOT_RECOVERY_DESIGN.md) и read-only
+наблюдатель `production-observe.cjs` / `production-evidence.cjs`. Подготовлены
+реальные HTTP/процессные проверки и безопасная проекция root-only PM2 dump.
+Новый набор тестов: 14/14; общий Windows release-набор: 87 passed, 14 Linux-only
+skipped, 0 failed. После явного согласия пользователя два файла переданы в
+`/home/smartplate-admin/evidence-20260920-TWYXSL/`; SHA-256 обоих файлов совпали,
+синтаксис проверен на VPS. Fingerprint комплекта:
+`79c7edd9154e393b2d7066c397fbaa4cd2b301405aa59419521fef76d0cdb2f3`.
+Непривилегированный `--observe` прошёл 2026-09-20 08:18:34 UTC: все восемь
+проверок true. Каталог: 94 рецепта (41 free, 25 trial, 28 pro); sitemap: 114 URL,
+включая все 94 рецепта. API PID3164825, UID/GID997, capabilities zero; PM2 PID762.
+Снимки процессов и хешей до/после совпали. Пользователь выполнил root-only
+`--inspect-pm2` в 08:47:35 UTC: passed true, в обоих dump один smartplate-api,
+проверенные script/cwd/UID/GID/fork/autorestart/interpreter совпадают с ожиданиями.
+Primary SHA256 `747f9485f9340ed5d14e806da0181e37998f82f8630d3dac5712d0cd9a04ddf1`,
+fallback `fa9a48bee59c1de1111a4838fb8c5cecbb9642a2babed062253c9db98ab13dcb`.
+На этом этапе различия полного содержимого ещё не были классифицированы;
+savedPm2997 остаётся неподтверждённым. Unit-файлы не устанавливались.
+
+Для разбора добавлено сравнение parsed JSON без вывода значений и произвольных
+названий ключей. Известные поля разделяются на metadata и configuration;
+неизвестные различия учитываются числом и не могут дать metadata-only результат.
+Новые пять регрессионных тестов прошли (весь observer-набор 19/19).
+Обновлённый fingerprint, сверенный локально/VPS:
+`41d49e67b35e5beb73733e62bffd5e612995751b1b62c858633820243c7c458d`.
+Непривилегированный --observe обновлённого комплекта прошёл в 08:51:14 UTC,
+все восемь проверок true, PID и хеши прежние. Следующий root-only запуск нужен
+для поля pm2Files.comparison; сам dump и PM2 не изменяются.
+
+Пользователь передал этот запуск (08:53:27 UTC): passed true, все восемь checks
+true, те же PID и file/dump hashes. Comparison: sameProcessNames/Order true,
+четыре изменённых поля — created_at, pm_uptime, restart_time и одно неизвестное;
+configurationFields пуст, unclassifiedFieldCount=1, onlyListedMetadataDiffers=false.
+Полную эквивалентность конфигураций этот отчёт ещё не подтверждает.
+
+В наблюдатель добавлен закрытый список стандартных полей PM2 (включая axm_monitor,
+axm_options, node_version) и сравнение структуры метрик: считаются изменения
+значений, определений и состава метрик, их названия и значения не выводятся.
+Неизвестные поля остаются значимыми; изменение instrumentation не разрешает
+автоматический релиз. Целевой набор 22/22. Обновлённый комплект передан в тот же
+staging; синтаксис VPS и SHA-256 сверены. Текущий fingerprint:
+`57579f3d69a0f9a8959d01be2678ad594c0268f5d45dedcdc7781a0bbe4f4909`.
+Пользователь передал результат обновлённого root-only чтения за 09:00:41 UTC:
+все восемь checks true, PID и хеши не изменились. Имена и порядок процессов в
+primary/fallback равны. Три различия — `created_at`, `pm_uptime`, `restart_time`;
+четвёртое — `axm_monitor`. В нём одинаковые 10 метрик и их определения,
+различаются только значения 8 метрик; новых/исчезнувших метрик нет.
+`unclassifiedFieldCount: 0`. Таким образом, обнаруженных изменений launch/env
+конфигурации нет. `onlyListedMetadataDiffers: false` остаётся верным: код
+консервативно считает `axm_monitor` полем конфигурации и не выдаёт разрешение на
+релиз даже при разнице только значений метрик. `completeSavedPm2PolicyVerified`
+и `savedPm2997` остаются false до полной реализации production policy.
+После финального отчёта общий Windows release-набор: 95 passed, 14 Linux-only
+skipped, 0 failed. Разбор отчёта и Git выполняются на Sol High; privileged
+boot-service — отдельный этап на Astra High.
+
+CLI: `--observe` (Linux, без sudo), `--bundle-hash` (локальное чтение),
+`--inspect-pm2 <bundle SHA256>` (только root, чтение pid/dump). Вывод является
+наблюдением и перечисляет непроверенные gates; он не даёт разрешение на релиз.
+
 - `protocol.cjs`: валидация manifest, хешей, package/lock и переходов состояний.
 - `plan.cjs`: чтение manifest и bundle, вывод плана без записи и запуска команд.
 - `tests/protocol.test.cjs`: тесты протокола и файлового планировщика; без npm,
