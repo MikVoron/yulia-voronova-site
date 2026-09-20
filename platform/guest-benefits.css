@@ -71,28 +71,27 @@
 .sp-benefits-feature h2 { font: 700 23px/1.2 var(--serif); letter-spacing: -.4px; margin: 0 0 10px; }
 .sp-benefits-feature p { font-size: 12.5px; line-height: 1.7; color: #4a4643; max-width: 310px; }
 .sp-benefits-tag { font-size: 9px; letter-spacing: 1px; font-weight: 800; display: inline-block; color: var(--accent); margin-top: 14px; text-transform: uppercase; }
-.sp-home-guest #intro-block .sp-hero-text { display: grid; grid-template-columns: 1fr 335px; gap: 18px 20px; }
+.sp-benefits-more {
+ color: #77716c;
+ font-size: 10px;
+ font-weight: 800;
+ letter-spacing: 1.1px;
+ text-transform: uppercase;
+ margin: 0 0 9px;
+}
 .sp-home-guest .sp-benefits-offer:not([hidden]) {
- grid-column: 1 / -1;
- order: 0;
  display: flex;
  align-items: center;
- justify-content: space-between;
- gap: 22px;
- max-width: none;
- background: #faf8f5;
- padding: 21px 25px;
- margin: 20px 0 0;
+ justify-content: center;
+ gap: 20px;
+ padding: 22px 0 24px;
 }
-.sp-benefits-offer-title { font: 700 25px/1.25 var(--serif); letter-spacing: -.5px; margin-bottom: 6px; }
-.sp-benefits-offer-note { font-size: 11px; color: #555; line-height: 1.6; }
-.sp-benefits-cta-area { display: flex; align-items: center; gap: 23px; }
-.sp-benefits-price { font-size: 11px; line-height: 1.7; white-space: nowrap; }
-.sp-benefits-price strong { display: block; font-size: 15px; }
+.sp-benefits-offer-note { max-width: 250px; font-size: 11px; color: #555; line-height: 1.45; }
 .sp-benefits-cta {
  display: inline-flex;
  align-items: center;
- gap: 27px;
+ justify-content: center;
+ min-width: 340px;
  background: var(--accent);
  color: #fff;
  padding: 18px 25px;
@@ -101,8 +100,8 @@
  white-space: nowrap;
  text-decoration: none;
 }
-.sp-benefits-cta > span { font-size: 21px; font-weight: 400; line-height: 1; }
 .sp-benefits-cta:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.sp-home-guest #intro-block .sp-hero-text { display: grid; grid-template-columns: 1fr 335px; gap: 18px 20px; }
 .sp-home-guest #guest-tour-trigger { order: 1; justify-self: start; align-self: center; margin: 0; padding: 0; font-size: 11px; font-weight: 600; text-align: left; }
 .sp-home-guest #hero-search { order: 2; width: 100%; max-width: none; margin: 0; }
 .sp-home-guest #hero-search-input {
@@ -156,7 +155,6 @@
  .sp-benefits-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
  .sp-benefits-intro { grid-template-columns: 1fr; gap: 20px; }
  .sp-home-guest .sp-benefits-offer:not([hidden]) { flex-wrap: wrap; }
- .sp-benefits-cta-area { width: 100%; justify-content: space-between; }
 }
 @media (min-width: 768px) and (max-width: 1230px) {
  .sp-benefits-title { font-size: 45px; }
@@ -170,19 +168,18 @@
  .sp-benefits-intro-copy p { font-size: 13px; line-height: 1.65; }
  .sp-benefits-intro-copy .sp-benefits-author { font-size: 10px; margin-top: 12px; }
  .sp-benefits-grid { grid-template-columns: 1fr; }
- .sp-benefits-feature { padding: 19px 17px 19px 74px; min-height: 132px; }
- .sp-benefits-feature-top { position: absolute; left: 17px; top: 20px; margin: 0; }
+ .sp-benefits-feature { padding: 20px 17px 19px; min-height: 0; }
+ .sp-benefits-feature-top { position: static; margin: 0 0 17px; }
  .sp-benefits-symbol { width: 36px; height: 36px; }
- .sp-benefits-number { display: none; }
+ .sp-benefits-number { display: block; color: #8b8580; font-size: 9px; letter-spacing: .8px; }
  .sp-benefits-feature h2 { font-size: 21px; margin-bottom: 8px; }
  .sp-benefits-feature p { font-size: 12px; line-height: 1.65; }
  .sp-benefits-tag { font-size: 8px; margin-top: 10px; }
  .sp-home-guest #intro-block .sp-hero-text { grid-template-columns: minmax(0, 1fr); gap: 15px; }
- .sp-home-guest .sp-benefits-offer:not([hidden]) { display: block; margin-top: 18px; padding: 21px 18px; }
- .sp-benefits-cta-area { display: flex; flex-direction: column; align-items: stretch; gap: 12px; margin-top: 18px; }
- .sp-benefits-price { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 9px; white-space: normal; }
- .sp-benefits-price strong { font-size: 14px; }
- .sp-benefits-cta { justify-content: space-between; padding: 17px 19px; font-size: 12px; gap: 8px; white-space: normal; }
+ .sp-home-guest .sp-benefits-offer:not([hidden]) { display: block; padding: 18px 10px 27px; text-align: center; }
+ .sp-benefits-offer-note { margin: 12px auto 0; font-size: 10.5px; }
+ .sp-benefits-cta { display: flex; min-width: 0; width: 100%; padding: 17px 19px; font-size: 12px; white-space: normal; }
+ .sp-benefits-more { margin-left: 8px; }
  .sp-home-guest #guest-tour-trigger { font-size: 10px; }
 }
 @media (max-width: 359px) {
