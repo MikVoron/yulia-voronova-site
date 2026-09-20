@@ -1875,6 +1875,12 @@ main {
 		color: var(--text);
 		margin-bottom: 20px;
 	}
+
+	/* Mobile recipe search is the first control in the burger drawer.
+	   Keep one clear search entry point instead of duplicating it in the hero. */
+	.sp-hero #hero-search {
+		display: none;
+	}
 	.sp-hero-value-flow li { min-height: 48px; padding-top: 11px; padding-bottom: 10px; font-size: 12px; }
 	.sp-hero-value-flow span { font-size: 19px; }
 	.sp-hero-proof-values { font-size: 11px; }
