@@ -154,8 +154,15 @@
 			const isGuest = Auth.isGuest();
 			document.body.classList.toggle('sp-home-guest', isGuest);
 			const tourTrigger = document.getElementById('guest-tour-trigger');
-			if (tourTrigger) tourTrigger.textContent = isGuest
-				? 'Посмотреть, как работает Умная тарелка ↗' : 'Как пользоваться Умной тарелкой →';
+			if (tourTrigger) {
+				tourTrigger.textContent = isGuest
+					? 'Как работает Умная тарелка'
+					: 'Как пользоваться Умной тарелкой';
+				const arrow = document.createElement('span');
+				arrow.setAttribute('aria-hidden', 'true');
+				arrow.textContent = '→';
+				tourTrigger.appendChild(arrow);
+			}
 			trialCta.hidden = !isGuest;
 			if (isGuest) {
 				const trialLink = document.getElementById('hero-trial-link');

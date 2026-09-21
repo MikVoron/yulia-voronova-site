@@ -101,8 +101,26 @@
  text-decoration: none;
 }
 .sp-benefits-cta:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-.sp-home-guest #intro-block .sp-hero-text { display: grid; grid-template-columns: 1fr 335px; gap: 18px 20px; }
-.sp-home-guest #guest-tour-trigger { order: 1; justify-self: start; align-self: center; margin: 0; padding: 0; font-size: 11px; font-weight: 600; text-align: left; }
+.sp-home-guest #intro-block .sp-hero-text { display: grid; grid-template-columns: 1fr 335px; gap: 18px 20px; margin-top: 16px; }
+.sp-home-guest #guest-tour-trigger {
+ order: 1;
+ justify-self: start;
+ display: inline-flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 14px;
+ margin: 0;
+ padding: 11px 14px;
+ border: 1px solid var(--benefits-line);
+ background: #faf8f5;
+ color: var(--text);
+ font-size: 11px;
+ font-weight: 700;
+ line-height: 1.3;
+ text-align: left;
+ transition: border-color .16s ease, background-color .16s ease;
+}
+.sp-home-guest #guest-tour-trigger > span { color: var(--accent); font-size: 16px; font-weight: 400; line-height: .8; }
 .sp-home-guest #hero-search { order: 2; width: 100%; max-width: none; margin: 0; }
 .sp-home-guest #hero-search-input {
  height: 34px;
@@ -134,9 +152,10 @@
  .sp-benefits-feature { transition: background-color .16s ease, border-color .16s ease; }
  .sp-benefits-feature:hover { background-color: #faf8f5; border-color: #c6b6ab; }
  .sp-benefits-cta:hover { background: var(--accent-d); }
+ .sp-home-guest #guest-tour-trigger:hover { background: #fff; border-color: #c6b6ab; }
 }
 @media (prefers-reduced-motion: reduce) {
- .sp-benefits-feature { transition: none !important; }
+ .sp-benefits-feature, .sp-home-guest #guest-tour-trigger { transition: none !important; }
 }
 @keyframes sp-benefits-icon-enter {
  from { transform: translateY(4px); }
@@ -175,12 +194,12 @@
  .sp-benefits-feature h2 { font-size: 21px; margin-bottom: 8px; }
  .sp-benefits-feature p { font-size: 12px; line-height: 1.65; }
  .sp-benefits-tag { font-size: 8px; margin-top: 10px; }
- .sp-home-guest #intro-block .sp-hero-text { grid-template-columns: minmax(0, 1fr); gap: 15px; }
+ .sp-home-guest #intro-block .sp-hero-text { grid-template-columns: minmax(0, 1fr); gap: 15px; margin-top: 16px; }
  .sp-home-guest .sp-benefits-offer:not([hidden]) { display: block; padding: 18px 10px 27px; text-align: center; }
  .sp-benefits-offer-note { margin: 12px auto 0; font-size: 10.5px; }
  .sp-benefits-cta { display: flex; min-width: 0; width: 100%; padding: 17px 19px; font-size: 12px; white-space: normal; }
  .sp-benefits-more { margin-left: 8px; }
- .sp-home-guest #guest-tour-trigger { font-size: 10px; }
+ .sp-home-guest #guest-tour-trigger { width: 100%; min-height: 44px; padding: 12px 14px; font-size: 11px; }
 }
 @media (max-width: 359px) {
  .sp-benefits-title { font-size: 30px; }
