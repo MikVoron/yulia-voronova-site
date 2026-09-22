@@ -57,9 +57,17 @@ const CATEGORIES = [
   { id: 'breakfasts', name: 'Завтраки', emoji: '🥣', color: '#fff', description: '', sort_order: 1, auto_addons: {} },
   { id: 'soups', name: 'Супы', emoji: '🍲', color: '#d97706', description: 'Супы, борщи, щи и бульонные блюда', sort_order: 2, auto_addons: {} },
   { id: 'mains', name: 'Горячее', emoji: '🍽️', color: '#fff', description: 'Сытные горячие блюда', sort_order: 3, auto_addons: {} },
+  { id: 'breads', name: 'Хлеб и крекеры', description: 'Домашний хлеб и крекеры' },
+  { id: 'spreads', name: 'Намазки', description: 'Полезные намазки' },
 ];
 
 const mockQuery = vi.fn(async (sql, params = []) => {
+  if (/SELECT id, name, description FROM categories WHERE id=\$1/.test(sql)) {
+    return { rows: CATEGORIES.filter(c => c.id === params[0]) };
+  }
+  if (/SELECT DISTINCT r.id, r.name\s+FROM recipe_categories rc/.test(sql)) {
+    return { rows: RECIPES.filter(r => r.categories?.includes(params[0])).map(r => ({ id: r.id, name: r.name })) };
+  }
   if (/SELECT is_blocked FROM users WHERE id/.test(sql)) {
     return { rows: [{ is_blocked: userState.is_blocked }] };
   }
@@ -227,6 +235,40 @@ describe('GET /content/news', () => {
       recipe_name: 'Блины из цельнозерновой муки',
     })]);
     expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining('r.name AS recipe_name'), [20]);
+  });
+});
+
+describe('GET /_seo/category', () => {
+  it('renders distinct initial HTML for breads and spreads', async () => {
+    RECIPES.push(
+      { id: 'bread-1', name: 'Цельнозерновой хлеб', categories: ['breads'] },
+      { id: 'spread-1', name: 'Хумус', categories: ['spreads'] }
+    );
+    try {
+      const breads = await app.inject({ method: 'GET', url: '/_seo/category?cat=breads' });
+      const spreads = await app.inject({ method: 'GET', url: '/_seo/category?cat=spreads' });
+      expect(breads.statusCode).toBe(200);
+      expect(spreads.statusCode).toBe(200);
+      expect(breads.body).toContain('<link rel="canonical" href="https://plate.voronova.online/category.html?cat=breads">');
+      expect(spreads.body).toContain('<link rel="canonical" href="https://plate.voronova.online/category.html?cat=spreads">');
+      expect(breads.body).toContain('<h1 class="cat-hero-name">Хлеб и крекеры</h1>');
+      expect(spreads.body).toContain('<h1 class="cat-hero-name">Намазки</h1>');
+      expect(breads.body).toContain('recipe.html?id=bread-1');
+      expect(spreads.body).toContain('recipe.html?id=spread-1');
+      expect(breads.body).not.toContain('category.html?cat=soups');
+      expect(spreads.body).not.toContain('category.html?cat=soups');
+    } finally {
+      RECIPES.splice(-2);
+    }
+  });
+
+  it('keeps search results out of the index and rejects unknown categories', async () => {
+    const search = await app.inject({ method: 'GET', url: '/_seo/category?q=hummus' });
+    expect(search.statusCode).toBe(200);
+    expect(search.body).toContain('<meta name="robots" content="noindex, follow">');
+    expect(search.body).toContain('<link rel="canonical" href="https://plate.voronova.online/category.html">');
+    const missing = await app.inject({ method: 'GET', url: '/_seo/category?cat=missing' });
+    expect(missing.statusCode).toBe(404);
   });
 });
 

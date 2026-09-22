@@ -43,6 +43,13 @@ server {
         include /etc/nginx/snippets/smartplate-api-proxy.conf;
     }
 
+    # Category query URLs need distinct canonical metadata in initial HTML.
+    location = /category.html {
+        limit_except GET { deny all; }
+        rewrite ^ /_seo/category break;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
     # Keep administrative HTML and JavaScript behind a second, independent
     # authentication layer. Query strings do not affect location matching.
     location ~ ^/(?:admin|recipe-editor)(?:[./_-]|$) {

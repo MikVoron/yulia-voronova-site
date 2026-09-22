@@ -5,6 +5,7 @@ const audit = require('../audit');
 const { refreshSitemapSafely } = require('../sitemap');
 const { readRecipeTemplate, renderRecipeDocument } = require('../recipe-seo');
 const { getStaticIngredient, readIngredientTemplate, renderIngredientDocument } = require('../ingredient-seo');
+const { readCategoryTemplate, renderCategoryDocument } = require('../category-seo');
 const {
   buildRecipeSnapshot,
   changedRecipeFields,
@@ -220,6 +221,30 @@ function normalizeIngredientCatalogItem(body) {
 }
 
 async function contentRoutes(fastify) {
+  // Category URLs must expose unique metadata before JavaScript runs.
+  fastify.get('/_seo/category', async (req, reply) => {
+    const template = await readCategoryTemplate();
+    const query = typeof req.query?.q === 'string' ? req.query.q.trim() : '';
+    if (query) return reply.type('text/html; charset=utf-8')
+      .send(renderCategoryDocument(template, null, [], { search: true }));
+    const id = typeof req.query?.cat === 'string' ? req.query.cat.trim() : '';
+    if (!id) return reply.type('text/html; charset=utf-8')
+      .send(renderCategoryDocument(template, null));
+    if (!/^[a-z0-9_-]{1,100}$/.test(id)) return reply.status(404).type('text/html; charset=utf-8').send(template);
+    const categoryResult = await db.query('SELECT id, name, description FROM categories WHERE id=$1', [id]);
+    const category = categoryResult.rows[0];
+    if (!category) return reply.status(404).type('text/html; charset=utf-8').send(template);
+    const recipesResult = await db.query(
+      `SELECT DISTINCT r.id, r.name
+         FROM recipe_categories rc
+         JOIN recipes r ON r.id = rc.recipe_id
+        WHERE rc.category_id=$1 AND r.is_published=true
+        ORDER BY r.name LIMIT 100`, [id]
+    );
+    return reply.type('text/html; charset=utf-8')
+      .send(renderCategoryDocument(template, category, recipesResult.rows));
+  });
+
   // Nginx serves this route for recipe.html?id=... so crawlers receive the
   // same canonical URL with useful HTML before the regular JS app hydrates it.
   fastify.get('/_seo/recipe', async (req, reply) => {

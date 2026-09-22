@@ -130,6 +130,7 @@
                         name: cat.name + ' — полезные рецепты',
                         description: cat.desc || ('Подборка рецептов категории «' + cat.name + '» с расчётом КБЖУ и пошаговым приготовлением.'),
                         canonical: SmartPlateSEO.origin + '/category.html?cat=' + encodeURIComponent(catId),
+                        noindex: !getDishesForView().length,
                         items: getDishesForView()
                     });
                 }
