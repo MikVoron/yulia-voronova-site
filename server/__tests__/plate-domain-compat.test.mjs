@@ -31,6 +31,8 @@ describe('plate domain migration', () => {
     expect(plateNginx).toContain('/etc/letsencrypt/live/plate.voronova.online/fullchain.pem');
     expect(plateNginx).toContain('location = /recipe.html');
     expect(plateNginx).toContain('rewrite ^ /_seo/recipe break;');
+    expect(plateNginx).toContain('location = /api/unsubscribe');
+    expect(plateNginx).toContain('rewrite ^/api/(.*)$ /$1 break;');
     expect(plateNginx).toContain('location = /ingredient.html');
     expect(plateNginx).toContain('rewrite ^ /_seo/ingredient break;');
     expect(plateNginx).toContain('return 301 https://plate.voronova.online$request_uri;');

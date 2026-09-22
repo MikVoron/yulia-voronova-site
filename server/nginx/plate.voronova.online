@@ -26,6 +26,15 @@ server {
         include /etc/nginx/snippets/smartplate-api-proxy.conf;
     }
 
+    # Newsletter links use the frontend origin. Keep this narrowly scoped to
+    # the public, token-based unsubscribe endpoint rather than proxying the
+    # rest of the API through the static host.
+    location = /api/unsubscribe {
+        limit_except GET { deny all; }
+        rewrite ^/api/(.*)$ /$1 break;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
     # Keep the public recipe URL unchanged while supplying canonical metadata,
     # Open Graph fields and Recipe JSON-LD in the initial HTML response. The
     # regular client application hydrates the same document after it loads.
