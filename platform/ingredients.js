@@ -72,7 +72,8 @@
     { id: 'shrimp',      name: 'Креветки', group: 'fish' },
     { id: 'seabass',     name: 'Сибас', group: 'fish' },
     // Птица
-    { id: 'chicken',     name: 'Курица', group: 'poultry' }
+    { id: 'chicken',     name: 'Курица', group: 'poultry' },
+    { id: 'turkey',      name: 'Индейка', group: 'poultry' }
   ];
 
   var ITEM_BY_ID  = {};
