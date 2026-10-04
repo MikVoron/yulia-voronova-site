@@ -37,7 +37,12 @@ function loadDzenLinks() {
 }
 
 function isPublishablePost(plainText) {
-    return !TELEGRAM_SERVICE_POST_PATTERNS.some((pattern) => pattern.test(plainText));
+    if (TELEGRAM_SERVICE_POST_PATTERNS.some((pattern) => pattern.test(plainText))) return false;
+    const normalized = plainText.normalize('NFKC').toLowerCase()
+        .replace(/[\p{P}\p{S}\p{Cf}\uFE0F]/gu, ' ').replace(/\s+/g, ' ').trim();
+    // Exclude the standalone contact prompt, while retaining articles that
+    // include the same call to action alongside useful content.
+    return normalized !== 'для связи со мной нажмите кнопку написать';
 }
 
 const PREVIEW_LENGTH = 200;
@@ -143,6 +148,13 @@ function parseTelegramPosts(html) {
 
     for (let i = 1; i < parts.length; i++) {
         const part = parts[i];
+
+        // The current message's opening tag is just before data-post, hence
+        // at the end of the previous split part. Do not inspect the following
+        // message's markup: pin notifications use Telegram's service class.
+        const openingTag = parts[i - 1].match(/<[^>]+$/)?.[0] || '';
+        const classes = openingTag.match(/\bclass\s*=\s*["']([^"']*)["']/)?.[1]?.split(/\s+/) || [];
+        if (classes.includes('service_message')) continue;
 
         // Extract post number
         const numMatch = part.match(/^voronova_nutrition\/(\d+)"/);

@@ -30,7 +30,7 @@ jobs:
         run: npx playwright-core install --with-deps --no-shell chromium
 
       - name: Check automatic social-link matching
-        run: node --test scripts/__tests__/blog-dzen-sync.test.js scripts/__tests__/blog-vk-links.test.js scripts/__tests__/blog-vk-session.test.js scripts/__tests__/blog-vk-state.test.js scripts/__tests__/blog-vk-sync.test.js scripts/__tests__/blog-vk-reader.test.js scripts/__tests__/blog-vk-collector.test.js scripts/__tests__/blog-vk-login-viewer.test.js scripts/__tests__/blog-telegram-source.test.js
+        run: node --test scripts/__tests__/blog-dzen-sync.test.js scripts/__tests__/blog-vk-links.test.js scripts/__tests__/blog-vk-session.test.js scripts/__tests__/blog-vk-state.test.js scripts/__tests__/blog-vk-sync.test.js scripts/__tests__/blog-vk-reader.test.js scripts/__tests__/blog-vk-collector.test.js scripts/__tests__/blog-vk-login-viewer.test.js scripts/__tests__/blog-telegram-source.test.js scripts/__tests__/blog-post-filter.test.js
 
       - name: Fetch and update blog posts
         env:
