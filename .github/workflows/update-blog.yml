@@ -1,6 +1,10 @@
 name: Update Blog Posts
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - data/blog-vk-links.json
   schedule:
     - cron: '0 */6 * * *'
   workflow_dispatch:
@@ -26,20 +30,12 @@ jobs:
         run: npx playwright-core install --with-deps --no-shell chromium
 
       - name: Check automatic social-link matching
-        run: node --test scripts/__tests__/blog-dzen-sync.test.js scripts/__tests__/blog-vk-links.test.js scripts/__tests__/blog-vk-session.test.js scripts/__tests__/blog-vk-state.test.js scripts/__tests__/blog-vk-sync.test.js scripts/__tests__/blog-vk-reader.test.js
-
-      - name: Prepare private VK session
-        continue-on-error: true
-        env:
-          BLOG_VK_STATE: ${{ secrets.BLOG_VK_STATE }}
-        run: node scripts/prepare-blog-vk-state.js
+        run: node --test scripts/__tests__/blog-dzen-sync.test.js scripts/__tests__/blog-vk-links.test.js scripts/__tests__/blog-vk-session.test.js scripts/__tests__/blog-vk-state.test.js scripts/__tests__/blog-vk-sync.test.js scripts/__tests__/blog-vk-reader.test.js scripts/__tests__/blog-vk-collector.test.js
 
       - name: Fetch and update blog posts
+        env:
+          BLOG_VK_SYNC_MODE: external
         run: node scripts/update-blog.js
-
-      - name: Remove private VK session
-        if: always()
-        run: node scripts/prepare-blog-vk-state.js --cleanup
 
       - name: Commit and push if changed
         run: |

@@ -366,7 +366,13 @@ async function main() {
     console.log(`Current posts in blog: ${currentPosts.join(', ')}`);
 
     const dzenSync = await syncDzenLinks(posts);
-    const vkSync = await syncVkLinks(posts);
+    let vkSync;
+    if (process.env.BLOG_VK_SYNC_MODE === 'external') {
+        console.log('[VK] Using links supplied by the persistent channel collector.');
+        vkSync = { additions: {}, warnings: [] };
+    } else {
+        vkSync = await syncVkLinks(posts);
+    }
     if (process.env.GITHUB_ENV) {
         fs.appendFileSync(process.env.GITHUB_ENV, `BLOG_DZEN_SYNC_FAILED=${Boolean(dzenSync.failed)}\n`);
         fs.appendFileSync(process.env.GITHUB_ENV, `BLOG_VK_SYNC_FAILED=${Boolean(vkSync.failed)}\n`);
