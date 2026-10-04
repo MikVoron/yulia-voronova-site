@@ -8,6 +8,7 @@ test -f "$collector_root/private/github-deploy-key"
 test -f "$collector_root/private/github-known-hosts"
 cd "$collector_root/repo"
 test -z "$(git status --porcelain)"
+export GIT_SSH_COMMAND="ssh -i $collector_root/private/github-deploy-key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$collector_root/private/github-known-hosts"
 git pull --ff-only origin main
 git remote set-url origin git@github.com:MikVoron/yulia-voronova-site.git
 cp scripts/run-blog-vk-server.sh "$collector_root/run.sh"
