@@ -26,7 +26,10 @@ if (probe) {
   const body = { fixture: true, token, role, version, pid: process.pid, uid: 997, gid: 997 };
   const server = http.createServer((req, res) => {
     res.setHeader('Content-Type', 'application/json');
-    if (req.url === '/health') return res.end(JSON.stringify(body));
+    if (req.url === '/health') {
+      if (fs.existsSync(p.runtime + '/health-unavailable')) { res.statusCode = 503; return res.end('{"fixture":true,"unavailable":true}'); }
+      return res.end(JSON.stringify(body));
+    }
     if (req.url === '/catalog') return res.end(JSON.stringify({ fixture: true, public: ['sample'], privateDetails: null }));
     if (req.url === '/private') { res.statusCode = 401; return res.end('{}'); }
     if (req.url === '/sitemap.xml') { res.setHeader('Content-Type', 'application/xml'); return res.end('<urlset/>'); }

@@ -12,6 +12,9 @@ const { protectedPath, atomicJson, atomicWrite, inventory, verifyTree, copyVerif
 const protocol = require('./protocol.cjs');
 const control = require('./control-envelope.cjs');
 const startup = require('./startup-recovery.cjs');
+const bootState = require('./boot-state.cjs');
+const bootController = require('./boot-controller.cjs');
+const bootUnits = require('./boot-fixture-units.cjs');
 let diagnosticsRoot;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const clock = () => ({ bootId: fs.readFileSync('/proc/sys/kernel/random/boot_id', 'utf8').trim(),
@@ -72,7 +75,7 @@ function stop(unit) {
   check(!result.error && stopped(unit), 'INTEGRATED_UNIT_NOT_STOPPED');
 }
 function pm2(p, action) {
-  check(property(p.manager, 'ActiveState') === 'active', 'INTEGRATED_PM2_UNIT_INACTIVE');
+  check(['active', 'activating'].includes(property(p.manager, 'ActiveState')), 'INTEGRATED_PM2_UNIT_INACTIVE');
   // Reject absent managers before invoking a CLI that can otherwise autostart.
   const pid = Number(readBytes(p.pm2 + '/pm2.pid').toString().trim());
   check(Number.isSafeInteger(pid) && pid > 1 && fs.statSync('/proc/' + pid).uid === 0 &&
@@ -97,7 +100,7 @@ function processIdentity(pid) {
   return { pid, start: fs.readFileSync('/proc/' + pid + '/stat', 'utf8').split(') ')[1].split(' ')[19] };
 }
 async function health(p, version) {
-  const cfg = verify(p), list = JSON.parse(pm2(p, 'list'));
+  const cfg = verify(p), list = JSON.parse(pm2(p, 'list')), manager = bootManagerIdentity(p);
   verifyDefinitions(list, p.id, p.name, cfg.token, version, true);
   const identities = [];
   for (const role of ['app', 'sentinel']) {
@@ -126,6 +129,7 @@ async function health(p, version) {
     }
     check(JSON.stringify(processIdentity(entry.pid)) === JSON.stringify(identity), 'INTEGRATED_PROCESS_CHANGED');
   }
+  check(bootState.equal(bootManagerIdentity(p), manager), 'INTEGRATED_MANAGER_CHANGED');
   return identities;
 }
 async function waitHealth(p, version) {
@@ -229,6 +233,9 @@ async function evidence(p, action, version) {
 async function action(p, operation, crash) {
   verify(p);
   atomicJson(p.control + '/last-action.json', { operation, crash, at: clock() });
+  if (operation === 'boot-prepare') return bootController.prepare(bootPorts(p, crash));
+  if (operation === 'boot-post') return bootController.postStart(bootPorts(p, crash));
+  if (operation !== 'init') bootState.assertOpen(bootSlot(p), state(p));
   if (operation === 'startup-recover') return startupRecovery(p, crash);
   if (operation === 'model-previous-boot') {
     check(stopped(p.manager) && stopped(p.rollback + '.timer') && stopped(p.rollback + '.service'),
@@ -240,7 +247,9 @@ async function action(p, operation, crash) {
   }
   if (operation === 'init') {
     check(!fs.existsSync(p.control + '/control.json'), 'INTEGRATED_STATE_EXISTS');
-    atomicJson(p.control + '/control.json', control.create(json(p.control + '/manifest.json'))); return;
+    const manifest = json(p.control + '/manifest.json'), entry = control.create(manifest);
+    atomicJson(p.control + '/control.json', entry);
+    atomicJson(p.control + '/active.json', bootState.createActive(manifest, entry)); return;
   }
   const before = state(p);
   if (operation === 'arm') {
@@ -307,6 +316,128 @@ async function startupRecovery(p, crash) {
   await waitHealth(p, choice.version);
   check(saved(p, choice.version).equals(dump), 'INTEGRATED_STARTUP_DUMP_BYTES');
 }
+const BOOT_FAULTS = Object.freeze(['gate-written', 'decision-written', 'tree-ready', 'live-displaced',
+  'live-installed', 'primary-written', 'fallback-written', 'receipt-written', 'verification-written',
+  'restored-written', 'cleanup-written', 'verified-written']);
+function bootSlot(p) {
+  const file = p.control + '/active.json', bytes = readBytes(file);
+  check((fs.lstatSync(file).mode & 0o077) === 0, 'INTEGRATED_BOOT_SLOT_MODE');
+  return bootState.validate(JSON.parse(bytes));
+}
+function bootQuiescent(p) {
+  check(stopped(p.rollback + '.timer') && stopped(p.rollback + '.service'), 'INTEGRATED_BOOT_RECOVERY_ACTIVE');
+  const active = property(p.manager, 'ActiveState');
+  check(['inactive', 'failed', 'activating'].includes(active) &&
+    (active !== 'activating' || property(p.manager, 'MainPID') === '0'), 'INTEGRATED_BOOT_MANAGER_ACTIVE');
+  // ExecStartPre may run in this cgroup, but no PM2/worker may survive the old manager.
+  for (const pid of fs.readdirSync('/proc').filter(x => /^\d+$/.test(x))) {
+    if ([String(process.pid), String(process.ppid)].includes(pid)) continue;
+    try {
+      const cgroup = fs.readFileSync('/proc/' + pid + '/cgroup', 'utf8');
+      const cmdline = fs.readFileSync('/proc/' + pid + '/cmdline', 'utf8');
+      const args = cmdline.split('\0');
+      check(!cgroup.split('\n').some(line => line.endsWith('/' + p.manager)) &&
+        !cmdline.includes(p.pm2) && !(args.includes(p.code + '/integrated-worker.cjs') &&
+          args.includes(p.id) && args.includes(p.name)), 'INTEGRATED_BOOT_PROCESS_ALIVE');
+    } catch (e) { if (!['ENOENT', 'ESRCH'].includes(e.code)) throw e; }
+  }
+}
+function bootVerify(p, version) {
+  check(['old', 'new'].includes(version), 'INTEGRATED_BOOT_VERSION');
+  verifyTree(p.live, tree(p, version)); verifyTree(p.stable, json(p.control + '/stable-tree.json'));
+  const dump = saved(p, version), fallback = readBytes(p.pm2 + '/dump.pm2.bak');
+  verifyDefinitions(JSON.parse(fallback), p.id, p.name, verify(p).token, version);
+  check(dump.equals(fallback), 'INTEGRATED_BOOT_DUMP_PAIR');
+  return { treeSha256: bootState.digest({ live: inventory(p.live), stable: inventory(p.stable) }),
+    dumpSha256: protocol.sha256(dump) };
+}
+function bootManagerIdentity(p) {
+  const pid = Number(readBytes(p.pm2 + '/pm2.pid').toString().trim());
+  check(Number.isSafeInteger(pid) && pid > 1 && fs.statSync('/proc/' + pid).uid === 0 &&
+    fs.readFileSync('/proc/' + pid + '/cgroup', 'utf8').includes('/' + p.manager), 'INTEGRATED_BOOT_MANAGER_ID');
+  return { pid, start: fs.readFileSync('/proc/' + pid + '/stat', 'utf8').split(') ')[1].split(' ')[19] };
+}
+function bootLock(p, operation, crash) {
+  check(fs.realpathSync('/proc/' + process.ppid + '/exe') === '/usr/bin/flock', 'INTEGRATED_LOCK_PARENT');
+  const actual = fs.readFileSync('/proc/' + process.ppid + '/cmdline', 'utf8').split('\0').filter(Boolean);
+  check(JSON.stringify(actual) === JSON.stringify(['/usr/bin/flock', ...lockedArgs(p, operation, crash)]),
+    'INTEGRATED_LOCK_COMMAND');
+}
+function bootPorts(p, crash) {
+  const operation = json(p.control + '/last-action.json').operation;
+  const checkpoint = point => {
+    let selected = crash;
+    const file = p.control + '/boot-fault.json';
+    if (fs.existsSync(file)) {
+      const injected = json(file);
+      check(injected.point === null || BOOT_FAULTS.includes(injected.point), 'INTEGRATED_BOOT_FAULT');
+      if (injected.point === point) { atomicJson(file, { point: null }); selected = point; }
+    }
+    fault(point, selected);
+  };
+  return {
+    assertLocked: () => bootLock(p, operation, crash), clock, checkpoint,
+    readSlot: () => bootSlot(p), writeSlot: value => atomicJson(p.control + '/active.json', value),
+    readControl: () => state(p), readManifest: () => json(p.control + '/manifest.json'),
+    writeControl: value => atomicJson(p.control + '/control.json', control.validate(value)),
+    assertQuiescent: () => bootQuiescent(p),
+    prepareArtifacts(version, restore) {
+      const dump = version === 'new' ? saved(p, 'new') : backup(p);
+      if (restore) {
+        const restored = unique(p, 'boot-restore'); copyVerified(p.backup, restored, tree(p, 'old'));
+        checkpoint('tree-ready');
+        if (fs.existsSync(p.live)) move(p.live, unique(p, 'boot-displaced'));
+        checkpoint('live-displaced'); move(restored, p.live); checkpoint('live-installed');
+      } else verifyTree(p.live, tree(p, version));
+      // Complete configuration of BOTH processes survives every replay, including sentinel.
+      atomicWrite(p.pm2 + '/dump.pm2', dump); checkpoint('primary-written');
+      atomicWrite(p.pm2 + '/dump.pm2.bak', dump); checkpoint('fallback-written');
+      return bootVerify(p, version);
+    },
+    verifyArtifacts: version => bootVerify(p, version),
+    async observe(version) {
+      const identities = await waitHealth(p, version);
+      bootVerify(p, version);
+      check(stopped(p.rollback + '.timer') && stopped(p.rollback + '.service'), 'INTEGRATED_BOOT_CLEANUP_ACTIVE');
+      return { evidence: Object.fromEntries(bootController.checks(version).map(key => [key, true])),
+        processSha256: bootState.digest({ manager: bootManagerIdentity(p), workers: identities }) };
+    },
+    assertProcessIdentity(digest) {
+      const cfg = verify(p), list = JSON.parse(pm2(p, 'list')), version = bootSlot(p).receipt.version;
+      verifyDefinitions(list, p.id, p.name, cfg.token, version, true);
+      const identities = ['app', 'sentinel'].map(role => processIdentity(list.find(x =>
+        x.name === definition(p.id, p.name, cfg.token, role, role === 'app' ? version : 'stable').name).pid));
+      check(bootState.digest({ manager: bootManagerIdentity(p), workers: identities }) === digest, 'INTEGRATED_BOOT_PROCESS_CHANGED');
+    }
+  };
+}
+function installBootUnits(p) {
+  verify(p); bootQuiescent(p); protectedPath('/run/systemd/system', true);
+  const directory = p.control + '/units'; fs.mkdirSync(directory, { mode: 0o700 });
+  const generated = bootUnits.units(p.id, p.name);
+  for (const [name, bytes] of Object.entries(generated)) {
+    try { fs.lstatSync('/run/systemd/system/' + name); throw new Error('INTEGRATED_BOOT_UNIT_EXISTS'); }
+    catch (e) { if (e.code !== 'ENOENT') throw e; }
+    atomicWrite(directory + '/' + name, bytes);
+  }
+  command('/usr/bin/systemd-analyze', ['verify', ...Object.keys(generated).map(name => directory + '/' + name)]);
+  command('/usr/bin/systemctl', ['link', '--runtime', ...Object.keys(generated).map(name => directory + '/' + name)]);
+  command('/usr/bin/systemctl', ['daemon-reload']);
+  check(property(p.manager, 'Transient') === 'no' &&
+    property(p.manager, 'FragmentPath') === directory + '/' + p.manager, 'INTEGRATED_BOOT_UNIT_NOT_LOADED');
+}
+function removeBootUnits(p) {
+  const generated = bootUnits.units(p.id, p.name); let changed = false;
+  for (const [name, expected] of Object.entries(generated)) {
+    const target = '/run/systemd/system/' + name; let st;
+    try { st = fs.lstatSync(target); } catch (e) { if (e.code === 'ENOENT') continue; throw e; }
+    const source = p.control + '/units/' + name;
+    check(st.isSymbolicLink() && st.uid === 0 && fs.readlinkSync(target) === source &&
+      readBytes(source).equals(Buffer.from(expected)), 'INTEGRATED_BOOT_UNIT_OWNERSHIP');
+    stop(name); fs.unlinkSync(target); changed = true; // generated link; source remains recoverable
+  }
+  if (changed) { syncDir('/run/systemd/system'); command('/usr/bin/systemctl', ['daemon-reload']); }
+}
 async function cleanupCase(p) {
   // Called by the suite, never by the rollback service itself. No lock while waiting.
   const choice = control.decision(state(p), clock());
@@ -339,6 +470,7 @@ async function newCase(id, index, timerMs = 600000) {
   makeTree(p.live, 'old'); makeTree(p.candidate, 'new'); makeTree(p.stable, 'stable');
   const oldTree = inventory(p.live); copyVerified(p.live, p.backup, oldTree);
   atomicJson(p.control + '/old-tree.json', oldTree); atomicJson(p.control + '/new-tree.json', inventory(p.candidate));
+  atomicJson(p.control + '/stable-tree.json', inventory(p.stable));
   const manifest = { schemaVersion: 1, releaseId: 'pm2-fixture-' + id.slice(4) + '-' + p.name, commit: 'a'.repeat(40), kind: 'dependencies',
     files: protocol.FILES.map(file => ({ path: file, beforeSha256: protocol.sha256(readBytes(p.live + '/' + file)),
       afterSha256: protocol.sha256(readBytes(p.candidate + '/' + file)) })),
@@ -494,13 +626,14 @@ function stopAll(id) {
   for (const name of json(p.root + '/control/cases.json')) {
     const item = layout(id, name);
     stop(item.rollback + '.timer'); stop(item.rollback + '.service'); stop(item.manager);
+    removeBootUnits(item);
   }
   atomicJson(p.root + '/control/resources-stopped.json', { complete: true });
 }
 function preflight() {
   check(process.platform === 'linux', 'INTEGRATED_LINUX_REQUIRED');
   check(fs.realpathSync('/usr/bin/pm2') === PM2, 'INTEGRATED_PM2_PATH');
-  for (const file of ['/usr/bin/node', '/usr/bin/flock', '/usr/bin/systemd-run', '/usr/bin/systemctl', '/usr/bin/busctl', '/usr/bin/setpriv']) protectedPath(fs.realpathSync(file));
+  for (const file of ['/usr/bin/node', '/usr/bin/flock', '/usr/bin/systemd-run', '/usr/bin/systemctl', '/usr/bin/systemd-analyze', '/usr/bin/busctl', '/usr/bin/setpriv']) protectedPath(fs.realpathSync(file));
   protectedPath(PM2);
   check(JSON.parse(readBytes('/usr/lib/node_modules/pm2/package.json')).version === '6.0.14', 'INTEGRATED_PM2_VERSION');
   check(command('/usr/bin/id', ['-u', 'smartplate-api']).stdout.trim() === '997' &&
@@ -545,8 +678,9 @@ async function run(expectedHash, bootOnly = false) {
     command('/usr/bin/systemd-run', ['--quiet', '--unit=' + p.suite, '--property=Type=exec',
       '--property=RuntimeMaxSec=8min', '--property=TimeoutStopSec=5s', '--property=KillMode=control-group',
       '--property=MemoryMax=256M', '--property=TasksMax=64',
-      '/usr/bin/env', '-i', 'PATH=' + ENV.PATH, 'LANG=C', '/usr/bin/node', p.code + '/integrated-rehearsal.cjs',
-      bootOnly ? '--boot-suite' : '--suite', id]);
+      '/usr/bin/env', '-i', 'PATH=' + ENV.PATH, 'LANG=C', '/usr/bin/node',
+      p.code + (bootOnly === 'adapter' ? '/boot-rehearsal.cjs' : '/integrated-rehearsal.cjs'),
+      bootOnly === true ? '--boot-suite' : '--suite', id]);
     let printed = 0;
     for (let i = 0; i < 1020; i++) {
       const progress = json(p.root + '/control/progress.json');
@@ -554,8 +688,11 @@ async function run(expectedHash, bootOnly = false) {
       if (stopped(p.suite)) {
         const result = json(p.root + '/control/result.json');
         check(result.passed === true && result.cases === 10, result.error || 'INTEGRATED_SUITE_FAILED');
-        if (bootOnly) check(result.coldStartRecoveryTested === true && result.osBootTested === false &&
+        if (bootOnly === true) check(result.coldStartRecoveryTested === true && result.osBootTested === false &&
           result.modeledEvidence?.includes('bootIdChange'), 'INTEGRATED_COLD_START_RESULT');
+        if (bootOnly === 'adapter') check(result.splitStartupTested === true && result.unitOrderingTested === true &&
+          result.manualRestartTested === true && result.automaticRestartTested === true &&
+          result.osBootTested === false && result.productionExecutionEnabled === false, 'INTEGRATED_SPLIT_START_RESULT');
         return;
       }
       await sleep(500);
@@ -576,6 +713,7 @@ async function main(args) {
   process.umask(0o022);
   if (args.length === 2 && args[0] === '--run') return run(args[1]);
   if (args.length === 2 && args[0] === '--boot-rehearse') return run(args[1], true);
+  if (args.length === 2 && args[0] === '--startup-rehearse') return run(args[1], 'adapter');
   const [mode, id, name, operation, crash] = args, p = layout(id, name || 'case-01');
   verifyBundle(p);
   diagnosticsRoot = p.root;
@@ -587,9 +725,10 @@ async function main(args) {
     return;
   }
   check(mode === '--locked' && args.length === 5, 'INTEGRATED_USAGE');
-  check(['init', 'arm', 'apply', 'confirm', 'rollback', 'cleanup-record', 'startup-recover', 'model-previous-boot'].includes(operation), 'INTEGRATED_ACTION');
+  check(['init', 'arm', 'apply', 'confirm', 'rollback', 'cleanup-record', 'startup-recover', 'model-previous-boot',
+    'boot-prepare', 'boot-post'].includes(operation), 'INTEGRATED_ACTION');
   check(['none', 'intent', 'timer', 'switching', 'stopped', 'old-moved', 'new-copied', 'confirming', 'confirmed',
-    'rollback-recorded', 'rollback-stopped', 'rollback-copied'].includes(crash), 'INTEGRATED_CRASH');
+    'rollback-recorded', 'rollback-stopped', 'rollback-copied', ...BOOT_FAULTS].includes(crash), 'INTEGRATED_CRASH');
   check(fs.realpathSync('/proc/' + process.ppid + '/exe') === '/usr/bin/flock', 'INTEGRATED_LOCK_PARENT');
   const actual = fs.readFileSync('/proc/' + process.ppid + '/cmdline', 'utf8').split('\0').filter(Boolean);
   const expected = ['/usr/bin/flock', ...lockedArgs(p, operation, crash)].filter(Boolean);
@@ -599,4 +738,6 @@ async function main(args) {
 if (require.main === module) main(process.argv.slice(2)).catch(e => {
   process.stderr.write('INTEGRATED_PM2_REHEARSAL_FAILED ' + (e.code || e.message) + '\n'); process.exitCode = 1;
 });
-module.exports = { main };
+module.exports = { main, fixture: { command, clock, readBytes, json, verifyBundle, verify, state, property,
+  stopped, stop, call, fault, health, waitHealth, newCase, productionSnapshot, bootSlot, bootVerify,
+  installBootUnits, removeBootUnits } };

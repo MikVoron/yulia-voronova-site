@@ -1,3 +1,4 @@
 *.sh text eol=lf
+server/ops/release/*.cjs text eol=lf
 server/ops/release/production-observe.cjs text eol=lf
 server/ops/release/production-evidence.cjs text eol=lf

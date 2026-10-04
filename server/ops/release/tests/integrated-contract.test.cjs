@@ -72,7 +72,7 @@ test('timer identities cannot target production units and numeric deadlines must
 });
 test('entrypoint rejects every privileged operation before writes when not root',
   { skip: process.platform === 'linux' && process.getuid() === 0 }, () => {
-    for (const args of [['--run', 'a'.repeat(64)], ['--boot-rehearse', 'a'.repeat(64)],
+    for (const args of [['--run', 'a'.repeat(64)], ['--boot-rehearse', 'a'.repeat(64)], ['--startup-rehearse', 'a'.repeat(64)],
       ['--boot-suite', id], ['--suite', id], ['--cleanup', id],
       ['--locked', id, name, 'rollback', ''], ['--deploy']]) {
       const result = cp.spawnSync(process.execPath, [path.join(__dirname, '../integrated-rehearsal.cjs'), ...args],
@@ -80,10 +80,13 @@ test('entrypoint rejects every privileged operation before writes when not root'
       assert.equal(result.status, 1); assert.match(result.stderr, /INTEGRATED_ROOT_REQUIRED/);
     }
   });
-test('read-only bundle fingerprint covers the exact eight helper files in the defined order', () => {
+test('read-only bundle fingerprint covers all twelve helper files in the defined order', () => {
   const hashes = Object.fromEntries(HELPERS.map(file => [file, sha256(fs.readFileSync(path.join(__dirname, '..', file)))]));
   const result = cp.spawnSync(process.execPath, [path.join(__dirname, '../integrated-rehearsal.cjs'), '--bundle-hash'],
     { encoding: 'utf8', timeout: 5000 });
   assert.equal(result.status, 0, result.stderr); assert.equal(result.stdout.trim(), sha256(JSON.stringify(hashes)));
-  assert.equal(HELPERS.length, 8);
+  assert.equal(HELPERS.length, 12);
+  for (const file of ['boot-state.cjs', 'boot-controller.cjs', 'boot-fixture-units.cjs', 'boot-rehearsal.cjs']) {
+    assert.ok(HELPERS.includes(file));
+  }
 });

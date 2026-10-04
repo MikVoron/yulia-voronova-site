@@ -13,7 +13,7 @@ const id = 'run-0123456789abcdef', p = layout(id), hash = 'a'.repeat(64);
 
 // Exercise the actual bootstrap/finally from a staging filename, without root,
 // filesystem writes, timers or child processes. Only external boundaries are fake.
-function fixture({ suiteFails = false, cleanupFails = false, bootOnly = false, omitColdEvidence = false } = {}) {
+function fixture({ suiteFails = false, cleanupFails = false, bootOnly = false, omitColdEvidence = false, omitSplitEvidence = false } = {}) {
   const files = new Map(), calls = [], output = [];
   const fakeFs = { existsSync: () => true, mkdirSync() {}, realpathSync: x => x };
   const fakeStorage = {
@@ -27,8 +27,10 @@ function fixture({ suiteFails = false, cleanupFails = false, bootOnly = false, o
       if (args.includes('--unit=' + p.suite)) {
         fakeStorage.atomicJson(p.root + '/control/result.json', suiteFails
           ? { passed: false, error: 'TEST_SUITE_FAILED' } : { passed: true, cases: 10,
-            ...(bootOnly && !omitColdEvidence ? { coldStartRecoveryTested: true, osBootTested: false,
-              modeledEvidence: ['bootIdChange'] } : {}) });
+            ...(bootOnly === true && !omitColdEvidence ? { coldStartRecoveryTested: true, osBootTested: false,
+              modeledEvidence: ['bootIdChange'] } : {}),
+            ...(bootOnly === 'adapter' && !omitSplitEvidence ? { splitStartupTested: true, unitOrderingTested: true,
+              manualRestartTested: true, automaticRestartTested: true, osBootTested: false, productionExecutionEnabled: false } : {}) });
       }
     } else if (file === '/usr/bin/systemctl') {
       assert.ok(args[1].startsWith('sp-ir-0123456789abcdef-'));
@@ -106,4 +108,14 @@ test('ordinary suite result cannot masquerade as completed cold-start rehearsal'
   const f = fixture({ bootOnly: true, omitColdEvidence: true });
   await assert.rejects(f.run(), /INTEGRATED_COLD_START_RESULT/);
   assert.equal(f.calls.filter(x => x.file === '/usr/bin/node').length, 1);
+});
+
+test('split startup uses its own suite and rejects results without both restart paths and ordering', async () => {
+  const f = fixture({ bootOnly: 'adapter' }); await f.run();
+  const launch = f.calls.find(x => x.file === '/usr/bin/systemd-run' && x.args.includes('--unit=' + p.suite));
+  assert.ok(launch.args.includes(p.code + '/boot-rehearsal.cjs'));
+  assert.ok(launch.args.includes('--suite')); assert.ok(!launch.args.includes('--boot-suite'));
+  const bad = fixture({ bootOnly: 'adapter', omitSplitEvidence: true });
+  await assert.rejects(bad.run(), /INTEGRATED_SPLIT_START_RESULT/);
+  assert.equal(bad.calls.filter(x => x.file === '/usr/bin/node').length, 1);
 });
