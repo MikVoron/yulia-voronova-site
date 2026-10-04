@@ -72,7 +72,10 @@ async function main() {
     process.once('SIGTERM', stop);
     process.once('SIGINT', stop);
     try {
-        const context = await browser.newContext({ storageState: readVkSession(stateFile), locale: 'ru-RU' });
+        const context = await browser.newContext({
+            storageState: fs.existsSync(stateFile) ? readVkSession(stateFile) : { cookies: [], origins: [] },
+            locale: 'ru-RU',
+        });
         const page = await context.newPage();
         await page.goto(CHANNEL_URL, { waitUntil: 'domcontentloaded', timeout: 45000 });
         let previousCode;
