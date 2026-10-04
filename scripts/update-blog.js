@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
+const { syncDzenLinks } = require('./blog-dzen-sync');
 
 const CHANNEL = 'voronova_nutrition';
 const BLOG_FILE = path.join(__dirname, '..', 'blog.html');
@@ -132,11 +133,7 @@ function formatDateRu(isoDate) {
     });
 }
 
-async function fetchPostsData() {
-    const url = `https://t.me/s/${CHANNEL}`;
-    const res = await fetch(url);
-    const html = await res.text();
-
+function parseTelegramPosts(html) {
     // Split by message wrapper boundaries
     const parts = html.split(/data-post="/);
     const posts = [];
@@ -175,7 +172,14 @@ async function fetchPostsData() {
         return true;
     }).sort((a, b) => b.postNumber - a.postNumber);
 
-    const top = unique.slice(0, MAX_POSTS);
+    return unique.slice(0, MAX_POSTS);
+}
+
+async function fetchPostsData() {
+    const url = `https://t.me/s/${CHANNEL}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Telegram HTTP ${res.status}`);
+    const top = parseTelegramPosts(await res.text());
 
     // Download images locally
     if (!fs.existsSync(BLOG_IMAGES_DIR)) {
@@ -360,6 +364,11 @@ async function main() {
     const currentPosts = getCurrentPosts();
     console.log(`Current posts in blog: ${currentPosts.join(', ')}`);
 
+    const dzenSync = await syncDzenLinks(posts);
+    if (process.env.GITHUB_ENV) {
+        fs.appendFileSync(process.env.GITHUB_ENV, `BLOG_DZEN_SYNC_FAILED=${Boolean(dzenSync.failed)}\n`);
+    }
+
     console.log('Updating blog.html...');
     updateBlogHtml(posts);
     updateSitemap();
@@ -377,7 +386,11 @@ async function main() {
     }
 }
 
-main().catch(err => {
-    console.error('Error:', err.message);
-    process.exit(1);
-});
+if (require.main === module) {
+    main().catch(err => {
+        console.error('Error:', err.message);
+        process.exit(1);
+    });
+}
+
+module.exports = { parseTelegramPosts, articleCardTemplate };

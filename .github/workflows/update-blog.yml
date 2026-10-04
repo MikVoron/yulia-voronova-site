@@ -11,6 +11,7 @@ permissions:
 jobs:
   update-blog:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -21,17 +22,29 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install browser for Dzen
+        run: npx playwright-core install --with-deps --no-shell chromium
+
+      - name: Check automatic social-link matching
+        run: node --test scripts/__tests__/blog-dzen-sync.test.js
+
       - name: Fetch and update blog posts
         run: node scripts/update-blog.js
 
       - name: Commit and push if changed
         run: |
-          if git diff --quiet blog.html && ! (git status --porcelain images/blog/ | grep -q '.'); then
+          if git diff --quiet blog.html sitemap.xml data/blog-dzen-links.json && ! (git status --porcelain images/blog/ | grep -q '.'); then
             echo "No changes"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add blog.html images/blog/ sitemap.xml
+          git add blog.html images/blog/ sitemap.xml data/blog-dzen-links.json
           git commit -m "Auto-update blog posts from Telegram"
           git push
+
+      - name: Report failed Dzen sync
+        if: env.BLOG_DZEN_SYNC_FAILED == 'true'
+        run: |
+          echo "::error title=Dzen synchronization failed::Existing links were preserved. The automatic Dzen reader needs attention."
+          exit 1
