@@ -1,5 +1,6 @@
 #!/bin/sh
 set -eu
+export BLOG_TELEGRAM_SOURCE=github
 umask 077
 collector_root=/home/smartplate-admin/blog-vk-sync
 test "$(id -un)" = smartplate-admin

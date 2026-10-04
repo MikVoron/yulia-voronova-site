@@ -6,6 +6,7 @@ const { readVkChannelPage, assertChannelLocation } = require('./blog-vk-reader')
 const { readVkSession, saveVkSession } = require('./blog-vk-session');
 const { syncVkLinks } = require('./blog-vk-sync');
 const { parseTelegramPosts } = require('./update-blog');
+const { fetchTelegramFeed } = require('./blog-telegram-source');
 
 const REMOTE = 'git@github.com:MikVoron/yulia-voronova-site.git';
 
@@ -74,9 +75,14 @@ async function collectOnce(page, options = {}) {
     const repository = options.repository || path.join(__dirname, '..');
     const linksFile = options.linksFile || path.join(repository, 'data/blog-vk-links.json');
     const publications = await readVkChannelPage(page, options.readerOptions);
-    const response = await (options.fetchTelegram || fetch)('https://t.me/s/voronova_nutrition', { signal: AbortSignal.timeout(30000) });
-    if (!response.ok) throw new Error('VK_COLLECTOR_TELEGRAM_UNAVAILABLE');
-    const posts = parseTelegramPosts(await response.text());
+    let posts;
+    if (options.fetchPosts || process.env.BLOG_TELEGRAM_SOURCE === 'github') {
+        posts = await (options.fetchPosts || fetchTelegramFeed)();
+    } else {
+        const response = await (options.fetchTelegram || fetch)('https://t.me/s/voronova_nutrition', { signal: AbortSignal.timeout(30000) });
+        if (!response.ok) throw new Error('VK_COLLECTOR_TELEGRAM_UNAVAILABLE');
+        posts = parseTelegramPosts(await response.text());
+    }
     if (!posts.length) throw new Error('VK_COLLECTOR_TELEGRAM_UNAVAILABLE');
     const result = await syncVkLinks(posts, { linksFile, fetchPublications: async () => publications, logger: options.logger || console });
     if (result.failed) throw new Error('VK_COLLECTOR_MATCH_FAILED');
@@ -141,7 +147,7 @@ async function main() {
             }
             // Poll a pending human login without reloading or solving its challenge.
             await new Promise(resolve => setTimeout(resolve,
-                ['VK_CHALLENGE_REQUIRED', 'VK_LOGIN_REQUIRED', 'VK_CHANNEL_LAYOUT_CHANGED'].includes(code) ? 5000 : 5 * 60 * 1000));
+                ['VK_CHALLENGE_REQUIRED', 'VK_LOGIN_REQUIRED', 'VK_UNEXPECTED_REDIRECT', 'VK_CHANNEL_LAYOUT_CHANGED'].includes(code) ? 5000 : 5 * 60 * 1000));
         }
     } finally { await browser.close(); }
 }

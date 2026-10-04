@@ -3,6 +3,7 @@ const path = require('path');
 const sharp = require('sharp');
 const { syncDzenLinks } = require('./blog-dzen-sync');
 const { syncVkLinks } = require('./blog-vk-sync');
+const { createTelegramFeed } = require('./blog-telegram-source');
 
 const CHANNEL = 'voronova_nutrition';
 const BLOG_FILE = path.join(__dirname, '..', 'blog.html');
@@ -11,6 +12,7 @@ const BLOG_IMAGES_DIR = path.join(__dirname, '..', 'images', 'blog');
 const VK_LINKS_FILE = path.join(__dirname, '..', 'data', 'blog-vk-links.json');
 const DZEN_LINKS_FILE = path.join(__dirname, '..', 'data', 'blog-dzen-links.json');
 const MAX_POSTS = 6;
+const TELEGRAM_FEED_FILE = path.join(__dirname, '..', 'data', 'blog-telegram-posts.json');
 const TELEGRAM_SERVICE_POST_PATTERNS = [
     /^Channel name was changed to\b/i,
     /^Channel photo updated\b/i,
@@ -364,6 +366,11 @@ async function main() {
 
     const currentPosts = getCurrentPosts();
     console.log(`Current posts in blog: ${currentPosts.join(', ')}`);
+
+    // Publish only the author's public post IDs and text for the site-server reader.
+    // GitHub can access Telegram even when the site's network cannot.
+    fs.writeFileSync(`${TELEGRAM_FEED_FILE}.tmp`, `${JSON.stringify(createTelegramFeed(posts), null, 2)}\n`);
+    fs.renameSync(`${TELEGRAM_FEED_FILE}.tmp`, TELEGRAM_FEED_FILE);
 
     const dzenSync = await syncDzenLinks(posts);
     let vkSync;
