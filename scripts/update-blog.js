@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 const { syncDzenLinks } = require('./blog-dzen-sync');
+const { syncVkLinks } = require('./blog-vk-sync');
 
 const CHANNEL = 'voronova_nutrition';
 const BLOG_FILE = path.join(__dirname, '..', 'blog.html');
@@ -365,8 +366,10 @@ async function main() {
     console.log(`Current posts in blog: ${currentPosts.join(', ')}`);
 
     const dzenSync = await syncDzenLinks(posts);
+    const vkSync = await syncVkLinks(posts);
     if (process.env.GITHUB_ENV) {
         fs.appendFileSync(process.env.GITHUB_ENV, `BLOG_DZEN_SYNC_FAILED=${Boolean(dzenSync.failed)}\n`);
+        fs.appendFileSync(process.env.GITHUB_ENV, `BLOG_VK_SYNC_FAILED=${Boolean(vkSync.failed)}\n`);
     }
 
     console.log('Updating blog.html...');

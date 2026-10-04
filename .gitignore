@@ -13,6 +13,7 @@ package-lock.json
 *.key
 *.p12
 *.pfx
+.blog-sync-private/
 
 # Windows reserved names
 nul
