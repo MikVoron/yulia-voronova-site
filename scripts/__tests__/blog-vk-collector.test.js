@@ -4,7 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { test } = require('node:test');
-const { publishLinks, refreshRepository } = require('../blog-vk-collector');
+const { publishLinks, refreshRepository, publishSnapshot } = require('../blog-vk-collector');
 
 test('publishes only the VK map and refuses unrelated dirty files or a different production remote', t => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-vk-publisher-'));
@@ -41,4 +41,22 @@ test('publishes only the VK map and refuses unrelated dirty files or a different
     assert.equal(git('rev-parse', 'HEAD'), published);
     assert.equal(git('--git-dir=' + remote, 'rev-parse', 'main'), published);
     assert.equal(fs.readFileSync(path.join(repository, 'README.md'), 'utf8'), 'User change\n');
+    git('restore', 'README.md', 'data/blog-vk-links.json');
+    const snapshotFile = path.join(root, 'snapshot.json');
+    const healthFile = path.join(root, 'health.json');
+    fs.writeFileSync(snapshotFile, JSON.stringify({ '363': 'https://vk.ru/im/channels/-232523704?cmid=999',
+        '362': 'https://vk.ru/im/channels/-232523704?cmid=502' }));
+    fs.writeFileSync(healthFile, JSON.stringify({ ok: true, lastSuccess: new Date().toISOString() }));
+    assert.equal(publishSnapshot(repository, snapshotFile, healthFile, remote), 1);
+    const saved = JSON.parse(fs.readFileSync(mapFile, 'utf8'));
+    assert.equal(saved['363'], 'https://vk.ru/im/channels/-232523704?cmid=501');
+    assert.equal(saved['362'], 'https://vk.ru/im/channels/-232523704?cmid=502');
+    const bytes = fs.readFileSync(mapFile);
+    fs.writeFileSync(healthFile, JSON.stringify({ ok: true, lastSuccess: new Date(Date.now() - 3600000).toISOString() }));
+    assert.throws(() => publishSnapshot(repository, snapshotFile, healthFile, remote), /VK_COLLECTOR_SNAPSHOT_STALE/);
+    assert.deepEqual(fs.readFileSync(mapFile), bytes);
+    fs.writeFileSync(healthFile, JSON.stringify({ ok: true, lastSuccess: new Date().toISOString() }));
+    fs.writeFileSync(snapshotFile, JSON.stringify({ '360': 'https://vk.ru/wall-229107522_350' }));
+    assert.throws(() => publishSnapshot(repository, snapshotFile, healthFile, remote), /VK_COLLECTOR_SNAPSHOT_INVALID/);
+    assert.deepEqual(fs.readFileSync(mapFile), bytes);
 });

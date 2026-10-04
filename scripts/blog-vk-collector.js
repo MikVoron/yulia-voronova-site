@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
-const { CHANNEL_URL } = require('./blog-vk-links');
+const { CHANNEL_URL, canonicalVkChannelUrl } = require('./blog-vk-links');
 const { readVkChannelPage, assertChannelLocation } = require('./blog-vk-reader');
 const { readVkSession, saveVkSession } = require('./blog-vk-session');
 const { syncVkLinks } = require('./blog-vk-sync');
@@ -15,11 +15,42 @@ function repositoryCommand(repository, args) {
     } catch { throw new Error('VK_COLLECTOR_GIT_FAILED'); }
 }
 
-function refreshRepository(repository) {
-    if (repositoryCommand(repository, ['remote', 'get-url', 'origin']) !== REMOTE) throw new Error('VK_COLLECTOR_REPOSITORY_INVALID');
+function refreshRepository(repository, expectedRemote = REMOTE) {
+    if (repositoryCommand(repository, ['remote', 'get-url', 'origin']) !== expectedRemote) throw new Error('VK_COLLECTOR_REPOSITORY_INVALID');
     if (repositoryCommand(repository, ['status', '--porcelain'])) throw new Error('VK_COLLECTOR_WORKTREE_DIRTY');
     repositoryCommand(repository, ['fetch', 'origin', 'main']);
     repositoryCommand(repository, ['rebase', 'origin/main']);
+}
+
+function publishSnapshot(repository, snapshotFile, healthFile, expectedRemote = REMOTE) {
+    const health = JSON.parse(fs.readFileSync(healthFile, 'utf8'));
+    const age = Date.now() - Date.parse(health.lastSuccess);
+    if (!health.ok || !Number.isFinite(age) || age < -60000 || age > 30 * 60 * 1000) {
+        throw new Error('VK_COLLECTOR_SNAPSHOT_STALE');
+    }
+    const snapshot = JSON.parse(fs.readFileSync(snapshotFile, 'utf8'));
+    if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)
+        || Object.entries(snapshot).some(([key, url]) => !/^[1-9]\d{0,9}$/.test(key) || !canonicalVkChannelUrl(url))) {
+        throw new Error('VK_COLLECTOR_SNAPSHOT_INVALID');
+    }
+    refreshRepository(repository, expectedRemote);
+    const file = path.join(repository, 'data/blog-vk-links.json');
+    const existing = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (!existing || typeof existing !== 'object' || Array.isArray(existing)) throw new Error('VK_LINKS_INVALID');
+    const claimed = new Set(Object.values(existing).map(canonicalVkChannelUrl).filter(Boolean));
+    const additions = {};
+    for (const [key, value] of Object.entries(snapshot)) {
+        const url = canonicalVkChannelUrl(value);
+        if (Object.hasOwn(existing, key) || claimed.has(url)) continue;
+        additions[key] = url;
+        claimed.add(url);
+    }
+    if (Object.keys(additions).length) {
+        fs.writeFileSync(`${file}.tmp`, `${JSON.stringify({ ...existing, ...additions }, null, '\t')}\n`);
+        fs.renameSync(`${file}.tmp`, file);
+    }
+    publishLinks(repository, expectedRemote);
+    return Object.keys(additions).length;
 }
 
 function publishLinks(repository, expectedRemote = REMOTE) {
@@ -115,9 +146,21 @@ async function main() {
     } finally { await browser.close(); }
 }
 
-if (require.main === module) main().catch(() => {
-    console.error('VK_COLLECTOR_START_FAILED');
-    process.exitCode = 1;
-});
+if (require.main === module) {
+    if (process.argv.includes('--publish-snapshot')) {
+        try {
+            if (!process.env.BLOG_VK_STATE_FILE || !process.env.BLOG_VK_HEALTH_FILE) throw new Error('VK_COLLECTOR_CONFIG_REQUIRED');
+            const additions = publishSnapshot(path.join(__dirname, '..'),
+                path.join(path.dirname(process.env.BLOG_VK_STATE_FILE), 'vk-links-preview.json'), process.env.BLOG_VK_HEALTH_FILE);
+            console.log(`[VK publisher] ${additions} new links saved.`);
+        } catch (error) {
+            console.error(/^VK_[A-Z_]+$/.test(error.message) ? error.message : 'VK_COLLECTOR_PUBLISH_FAILED');
+            process.exitCode = 1;
+        }
+    } else main().catch(() => {
+        console.error('VK_COLLECTOR_START_FAILED');
+        process.exitCode = 1;
+    });
+}
 
-module.exports = { collectOnce, refreshRepository, publishLinks };
+module.exports = { collectOnce, refreshRepository, publishLinks, publishSnapshot };
