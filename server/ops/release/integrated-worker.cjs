@@ -27,7 +27,7 @@ if (probe) {
   const server = http.createServer((req, res) => {
     res.setHeader('Content-Type', 'application/json');
     if (req.url === '/health') {
-      if (fs.existsSync(p.runtime + '/health-unavailable')) { res.statusCode = 503; return res.end('{"fixture":true,"unavailable":true}'); }
+      if (fs.existsSync(p.healthFlag)) { res.statusCode = 503; return res.end('{"fixture":true,"unavailable":true}'); }
       return res.end(JSON.stringify(body));
     }
     if (req.url === '/catalog') return res.end(JSON.stringify({ fixture: true, public: ['sample'], privateDetails: null }));

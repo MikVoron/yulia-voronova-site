@@ -196,7 +196,8 @@ test('unprepared post-start, contradictory version and incomplete receipt fields
 test('fixture unit templates cover dependency failure, every restart and bounded post-start checks', () => {
   const generated = units('run-0123456789abcdef', 'case-01');
   const prepare = generated['sp-ir-0123456789abcdef-case-01-prepare.service'];
-  const manager = generated['sp-ir-0123456789abcdef-case-01-manager.service'];
+  const manager = generated['sp-ir-0123456789abcdef-case-01-boot-manager.service'];
+  assert.equal(generated['sp-ir-0123456789abcdef-case-01-manager.service'], undefined);
   assert.match(prepare, /Type=oneshot\nRemainAfterExit=no/);
   assert.match(manager, /Requires=sp-ir-0123456789abcdef-case-01-prepare.service\nAfter=/);
   assert.match(manager, /ExecStartPre=.*boot-prepare none/);

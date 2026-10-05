@@ -24,9 +24,15 @@ function command(file, args, options = {}) {
   const result = cp.spawnSync(file, args, { env: ENV, encoding: 'utf8', timeout: 30000,
     maxBuffer: 2 * 1024 * 1024, ...rest });
   if (result.error || result.status !== 0) {
-    if (diagnosticsRoot) atomicJson(diagnosticsRoot + '/control/last-command-error.json',
-      { file, args, status: result.status, error: result.error?.code || null, stderr: (result.stderr || '').slice(0, 8192) });
-    if (!allowFailure) throw new Error('COMMAND_FAILED_' + path.basename(file));
+    const detail = { file, args, status: result.status, error: result.error?.code || null,
+      stderr: (result.stderr || '').slice(0, 8192) };
+    // Expected refusals and best-effort cleanup must not erase a fatal error.
+    if (diagnosticsRoot) atomicJson(diagnosticsRoot + '/control/' +
+      (allowFailure ? 'last-allowed-command-error.json' : 'last-command-error.json'), detail);
+    if (!allowFailure) {
+      const failure = new Error('COMMAND_FAILED_' + path.basename(file));
+      failure.commandFailure = detail; throw failure;
+    }
   }
   return result;
 }
@@ -52,6 +58,9 @@ function verify(p) {
   const config = json(p.control + '/config.json');
   check(config.fixture === true && config.id === p.id && config.name === p.name &&
     /^[a-f0-9]{32}$/.test(config.token) && [20000, 600000].includes(config.timerMs), 'INTEGRATED_CONFIG');
+  check(config.managerMode === undefined || ['bootstrap', 'boot'].includes(config.managerMode), 'INTEGRATED_MANAGER_MODE');
+  const fixed = layout(p.id, p.name);
+  p.manager = config.managerMode === 'boot' ? fixed.bootManager : fixed.bootstrapManager;
   return config;
 }
 function state(p) {
@@ -144,6 +153,7 @@ function saved(p, version) {
 }
 function startManager(p, version, resurrect = false) {
   const cfg = verify(p);
+  check(cfg.managerMode !== 'boot', 'INTEGRATED_TRANSIENT_BOOT_MANAGER_REFUSED');
   check(stopped(p.manager), 'INTEGRATED_MANAGER_ALREADY_RUNNING');
   if (!resurrect) {
     const expected = { apps: [definition(p.id, p.name, cfg.token, 'app', version),
@@ -326,6 +336,8 @@ function bootSlot(p) {
 }
 function bootQuiescent(p) {
   check(stopped(p.rollback + '.timer') && stopped(p.rollback + '.service'), 'INTEGRATED_BOOT_RECOVERY_ACTIVE');
+  const other = p.manager === p.bootManager ? p.bootstrapManager : p.bootManager;
+  check(stopped(other), 'INTEGRATED_BOOT_OTHER_MANAGER_ACTIVE');
   const active = property(p.manager, 'ActiveState');
   check(['inactive', 'failed', 'activating'].includes(active) &&
     (active !== 'activating' || property(p.manager, 'MainPID') === '0'), 'INTEGRATED_BOOT_MANAGER_ACTIVE');
@@ -336,7 +348,7 @@ function bootQuiescent(p) {
       const cgroup = fs.readFileSync('/proc/' + pid + '/cgroup', 'utf8');
       const cmdline = fs.readFileSync('/proc/' + pid + '/cmdline', 'utf8');
       const args = cmdline.split('\0');
-      check(!cgroup.split('\n').some(line => line.endsWith('/' + p.manager)) &&
+      check(!cgroup.split('\n').some(line => [p.manager, other].some(unit => line.endsWith('/' + unit))) &&
         !cmdline.includes(p.pm2) && !(args.includes(p.code + '/integrated-worker.cjs') &&
           args.includes(p.id) && args.includes(p.name)), 'INTEGRATED_BOOT_PROCESS_ALIVE');
     } catch (e) { if (!['ENOENT', 'ESRCH'].includes(e.code)) throw e; }
@@ -412,7 +424,9 @@ function bootPorts(p, crash) {
   };
 }
 function installBootUnits(p) {
-  verify(p); bootQuiescent(p); protectedPath('/run/systemd/system', true);
+  const config = verify(p);
+  check(config.managerMode !== 'boot', 'INTEGRATED_BOOT_UNITS_ALREADY_SELECTED');
+  bootQuiescent(p); protectedPath('/run/systemd/system', true);
   const directory = p.control + '/units'; fs.mkdirSync(directory, { mode: 0o700 });
   const generated = bootUnits.units(p.id, p.name);
   for (const [name, bytes] of Object.entries(generated)) {
@@ -423,8 +437,26 @@ function installBootUnits(p) {
   command('/usr/bin/systemd-analyze', ['verify', ...Object.keys(generated).map(name => directory + '/' + name)]);
   command('/usr/bin/systemctl', ['link', '--runtime', ...Object.keys(generated).map(name => directory + '/' + name)]);
   command('/usr/bin/systemctl', ['daemon-reload']);
-  check(property(p.manager, 'Transient') === 'no' &&
-    property(p.manager, 'FragmentPath') === directory + '/' + p.manager, 'INTEGRATED_BOOT_UNIT_NOT_LOADED');
+  // Inspect BOTH units and retain observations before any assertion. systemd may
+  // report the runtime link rather than its resolved fragment; only these two
+  // exact protected paths to the expected bytes are accepted, never any alias.
+  const observations = Object.keys(generated).map(name => ({ name,
+    loadState: property(name, 'LoadState'), transient: property(name, 'Transient'),
+    fragmentPath: property(name, 'FragmentPath') }));
+  atomicJson(p.control + '/boot-unit-observation.json', observations);
+  for (const observed of observations) {
+    const source = directory + '/' + observed.name, target = '/run/systemd/system/' + observed.name;
+    const st = fs.lstatSync(target);
+    check(st.isSymbolicLink() && st.uid === 0 && fs.readlinkSync(target) === source &&
+      readBytes(source).equals(Buffer.from(generated[observed.name])), 'INTEGRATED_BOOT_UNIT_OWNERSHIP');
+    check(observed.loadState === 'loaded' && observed.transient === 'no' &&
+      [source, target].includes(observed.fragmentPath) && fs.realpathSync(observed.fragmentPath) === source,
+      'INTEGRATED_BOOT_UNIT_NOT_LOADED');
+  }
+  // Separate names prevent a still-loaded transient bootstrap unit from hiding
+  // the linked recovery unit. Children read this protected selection too.
+  atomicJson(p.control + '/config.json', { ...config, managerMode: 'boot' });
+  verify(p);
 }
 function removeBootUnits(p) {
   const generated = bootUnits.units(p.id, p.name); let changed = false;
@@ -465,7 +497,7 @@ async function newCase(id, index, timerMs = 600000) {
   for (const dir of [p.control, p.pm2, p.home, p.runtime]) fs.mkdirSync(dir, { mode: 0o700 });
   fs.chownSync(p.runtime, 997, 997);
   const token = crypto.randomBytes(16).toString('hex');
-  atomicJson(p.control + '/config.json', { fixture: true, id, name: p.name, token, timerMs });
+  atomicJson(p.control + '/config.json', { fixture: true, id, name: p.name, token, timerMs, managerMode: 'bootstrap' });
   const cases = json(p.root + '/control/cases.json'); cases.push(p.name); atomicJson(p.root + '/control/cases.json', cases);
   makeTree(p.live, 'old'); makeTree(p.candidate, 'new'); makeTree(p.stable, 'stable');
   const oldTree = inventory(p.live); copyVerified(p.live, p.backup, oldTree);
@@ -625,7 +657,8 @@ function stopAll(id) {
   stop(p.suite); // Prevent any controller/child from starting new fixture resources.
   for (const name of json(p.root + '/control/cases.json')) {
     const item = layout(id, name);
-    stop(item.rollback + '.timer'); stop(item.rollback + '.service'); stop(item.manager);
+    stop(item.rollback + '.timer'); stop(item.rollback + '.service');
+    stop(item.bootManager); stop(item.bootstrapManager);
     removeBootUnits(item);
   }
   atomicJson(p.root + '/control/resources-stopped.json', { complete: true });
@@ -687,6 +720,8 @@ async function run(expectedHash, bootOnly = false) {
       for (; printed < progress.length; printed++) process.stdout.write(progress[printed] + '\n');
       if (stopped(p.suite)) {
         const result = json(p.root + '/control/result.json');
+        if (result.passed !== true && result.commandFailure)
+          process.stdout.write('INTEGRATED_SUITE_COMMAND_ERROR ' + JSON.stringify(result.commandFailure) + '\n');
         check(result.passed === true && result.cases === 10, result.error || 'INTEGRATED_SUITE_FAILED');
         if (bootOnly === true) check(result.coldStartRecoveryTested === true && result.osBootTested === false &&
           result.modeledEvidence?.includes('bootIdChange'), 'INTEGRATED_COLD_START_RESULT');

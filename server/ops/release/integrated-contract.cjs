@@ -14,8 +14,13 @@ function layout(id, name = 'case-01') {
   const root = BASE + '/' + id, dir = root + '/' + name, prefix = 'sp-ir-' + id.slice(4);
   return { id, name, root, dir, code: root + '/code', lock: root + '/control/transition.lock',
     control: dir + '/control', pm2: dir + '/pm2', home: dir + '/home', runtime: dir + '/runtime',
+    // Root-owned, worker-readable failure injection; never beneath UID997 runtime.
+    healthFlag: dir + '/health-unavailable',
     live: dir + '/live', candidate: dir + '/candidate', backup: dir + '/backup', stable: dir + '/stable',
-    manager: prefix + '-' + name + '-manager.service', rollback: prefix + '-' + name + '-rollback',
+    manager: prefix + '-' + name + '-manager.service',
+    bootstrapManager: prefix + '-' + name + '-manager.service',
+    bootManager: prefix + '-' + name + '-boot-manager.service',
+    prepare: prefix + '-' + name + '-prepare.service', rollback: prefix + '-' + name + '-rollback',
     suite: prefix + '-suite.service', watchdog: prefix + '-watchdog' };
 }
 function environment(id, name) {

@@ -9,7 +9,22 @@ const { fixture: f } = require('./integrated-rehearsal.cjs');
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 function recoveryStopped(p) { f.stop(p.rollback + '.timer'); f.stop(p.rollback + '.service'); f.stop(p.manager); }
 function reset(p) {
-  f.command('/usr/bin/systemctl', ['reset-failed', p.manager, p.manager.replace('-manager.service', '-prepare.service')]);
+  // A dependency-refused manager need never enter failed state and may be
+  // collected before ResetFailedUnit (which does not load units in systemd 249).
+  // Still reset inactive loaded units to clear their start-limit counters.
+  for (const unit of [p.manager, p.prepare]) {
+    const active = f.property(unit, 'ActiveState');
+    check(['inactive', 'failed'].includes(active), 'BOOT_REHEARSAL_RESET_RUNNING');
+    try { f.command('/usr/bin/systemctl', ['reset-failed', unit]); }
+    catch (e) {
+      const detail = e.commandFailure;
+      const collected = active === 'inactive' && detail?.file === '/usr/bin/systemctl' &&
+        JSON.stringify(detail.args) === JSON.stringify(['reset-failed', unit]) &&
+        detail.status === 1 && detail.error === null && detail.stderr.trim() ===
+          'Failed to reset failed state of unit ' + unit + ': Unit ' + unit + ' not loaded.';
+      if (!collected) throw e; // never suppress authorization, timeout or other failures
+    }
+  }
 }
 async function ready(p, version, previousAttempt = null) {
   for (let n = 0; n < 120; n++) {
@@ -45,6 +60,19 @@ async function setup(id, index, phase) {
     }
   }
   recoveryStopped(p); return p;
+}
+async function healthFailureRetry(p) {
+  // The case directory is root-owned 0755, unlike the UID997 runtime directory.
+  // Workers can inspect this flag; protected root reads retain their full guard.
+  atomicWrite(p.healthFlag, 'fixture-only', 0o644);
+  const failed = f.command('/usr/bin/systemctl', ['start', p.manager], { allowFailure: true, timeout: 100000 });
+  check(failed.status !== 0 && !failed.error, 'BOOT_REHEARSAL_UNHEALTHY_ACCEPTED');
+  recoveryStopped(p);
+  check(f.bootSlot(p).status === 'prepared' && f.state(p).state.phase === 'rolling_back' &&
+    !f.state(p).state.cleanupComplete, 'BOOT_REHEARSAL_UNHEALTHY_FINALIZED');
+  check(f.readBytes(p.healthFlag).toString() === 'fixture-only', 'BOOT_REHEARSAL_FLAG');
+  fs.unlinkSync(p.healthFlag); reset(p); await launch(p, 'old');
+  recoveryStopped(p); f.removeBootUnits(p);
 }
 async function suite(id) {
   const root = layout(id).root, baseline = await f.productionSnapshot(), hostBoot = f.clock().bootId;
@@ -93,15 +121,7 @@ async function suite(id) {
   recoveryStopped(p); f.removeBootUnits(p); emit('SPLIT_START_ALL_OFFLINE_CRASH_BOUNDARIES_OK');
 
   p = await setup(id, 6, 'confirming'); f.call(p, 'model-previous-boot'); f.installBootUnits(p);
-  atomicWrite(p.runtime + '/health-unavailable', 'fixture-only', 0o644);
-  const failed = f.command('/usr/bin/systemctl', ['start', p.manager], { allowFailure: true, timeout: 100000 });
-  check(failed.status !== 0 && !failed.error, 'BOOT_REHEARSAL_UNHEALTHY_ACCEPTED');
-  recoveryStopped(p);
-  check(f.bootSlot(p).status === 'prepared' && f.state(p).state.phase === 'rolling_back' &&
-    !f.state(p).state.cleanupComplete, 'BOOT_REHEARSAL_UNHEALTHY_FINALIZED');
-  check(f.readBytes(p.runtime + '/health-unavailable').toString() === 'fixture-only', 'BOOT_REHEARSAL_FLAG');
-  fs.unlinkSync(p.runtime + '/health-unavailable'); reset(p); await launch(p, 'old');
-  recoveryStopped(p); f.removeBootUnits(p); emit('SPLIT_START_HEALTH_FAILURE_AND_RETRY_OK');
+  await healthFailureRetry(p); emit('SPLIT_START_HEALTH_FAILURE_AND_RETRY_OK');
 
   p = await setup(id, 7, 'confirmed'); f.installBootUnits(p);
   const dump = f.readBytes(p.pm2 + '/dump.pm2'), confirmed = f.readBytes(p.control + '/control.json');
@@ -137,7 +157,11 @@ async function main(args) {
   check(fs.realpathSync(__filename) === p.code + '/boot-rehearsal.cjs' &&
     f.property(p.suite, 'MainPID') === String(process.pid), 'BOOT_REHEARSAL_PROTECTED_SUITE');
   try { await suite(p.id); }
-  catch (e) { atomicJson(p.root + '/control/result.json', { passed: false, error: e.code || e.message }); throw e; }
+  catch (e) {
+    atomicJson(p.root + '/control/result.json', { passed: false, error: e.code || e.message,
+      commandFailure: e.commandFailure || null });
+    throw e;
+  }
 }
 if (require.main === module) main(process.argv.slice(2)).catch(e => {
   process.stderr.write('SPLIT_START_REHEARSAL_FAILED ' + (e.code || e.message) + '\n'); process.exitCode = 1;

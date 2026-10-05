@@ -1,4 +1,4 @@
-# Восстановление API при старте PM2: проект, обновлён 2026-10-04
+# Восстановление API при старте PM2: проект, обновлён 2026-10-05
 
 Статус: проект следующего адаптера. Production boot service не реализован и не
 установлен. Проверка реальной загрузки ОС остаётся открытой. Реализован отдельный
@@ -21,7 +21,11 @@ Root-only отчёт обновления получен от пользоват
 Обновление 2026-10-04: реализованы чистый `boot-controller.cjs`, схема устойчивого
 шлюза `boot-state.cjs` и OS-адаптер в фиксированном пространстве fixture. Подготовлен
 режим `--startup-rehearse` с настоящими runtime unit-файлами systemd, отдельным
-PM2_HOME и двумя процессами UID997. **Новый Linux-прогон ещё не выполнен.**
+PM2_HOME и двумя процессами UID997. **Linux-прогон завершён 2026-10-05, 10/10**:
+`run-40e2327ea17efeeb`, root-only result/cleanup JSON подтверждены пользователем;
+unit ordering, ручной/автоматический restart, 8 offline и 4 post-start SIGKILL
+границы пройдены. Production unchanged, cleanup complete; publicHealth/bootIdChange
+модельные, actual OS boot не проверялся. Windows-набор: 129 passed, 14 skipped.
 Production-пути и unit `pm2-root.service` к этому контроллеру не подключены.
 План прогона и границы проверок: [STARTUP_REHEARSAL.md](STARTUP_REHEARSAL.md).
 
@@ -150,9 +154,9 @@ audit, timer, привязку old/new hashes и полный savedPm2997. Пе�
    окружения и прав доступа под защищённым lock, а метрики рассматривать отдельно.
 3. Реализовано локально: offline prepare/receipt и post-start контроллер,
    OS-адаптер для fixture, runtime units и отдельная suite. Windows-набор:
-   110 passed / 14 Linux-only skipped / 0 failed. Выполнить новый Linux-прогон:
-   оба пути рестарта и все 12 выделенных границ SIGKILL.
-4. В Linux suite проверить unit ordering, отказ prepare, отсутствие/порчу active
+   129 passed / 14 Linux-only skipped / 0 failed. Linux-прогон выполнен 10/10:
+   оба пути рестарта и все 12 выделенных границ SIGKILL подтверждены.
+4. В Linux suite проверены unit ordering, отказ prepare, отсутствие/порча active
    pointer, сбой HTTP health и повтор после таймаута. Локальные тесты отдельно
    проверяют смену процесса, boot ID, generation и tree/dump во время evidence.
    Реальный отказ production БД/сети и полный production savedPm2997 ещё открыты.

@@ -2,7 +2,7 @@
 // Runtime unit templates for the FIXED fixture namespace, never pm2-root.service.
 const { layout, environment, ENV, PM2 } = require('./integrated-contract.cjs');
 function units(id, name) {
-  const p = layout(id, name), prepare = p.manager.replace('-manager.service', '-prepare.service');
+  const p = layout(id, name), prepare = p.prepare;
   const command = action => '/usr/bin/env -i PATH=' + ENV.PATH + ' LANG=C /usr/bin/flock --exclusive --wait 40 --close ' +
     p.lock + ' /usr/bin/node ' + p.code + '/integrated-rehearsal.cjs --locked ' + id + ' ' + name + ' ' + action + ' none';
   const limits = ['NoNewPrivileges=yes', 'ProtectSystem=strict', 'ReadWritePaths=' + p.dir + ' ' + p.root + '/control',
@@ -11,7 +11,7 @@ function units(id, name) {
     [prepare]: ['[Unit]', 'Description=SmartPlate isolated offline startup preparation', '[Service]',
       'Type=oneshot', 'RemainAfterExit=no', 'TimeoutStartSec=60s', ...limits,
       'ExecStart=' + command('boot-prepare'), ''].join('\n'),
-    [p.manager]: ['[Unit]', 'Description=SmartPlate isolated startup recovery manager',
+    [p.bootManager]: ['[Unit]', 'Description=SmartPlate isolated startup recovery manager',
       'Requires=' + prepare, 'After=' + prepare, 'StartLimitIntervalSec=60s', 'StartLimitBurst=3', '[Service]',
       'Type=exec', 'Restart=on-failure', 'RestartSec=1s', 'TimeoutStartSec=90s', 'RuntimeMaxSec=150s', ...limits,
       // Required dependency checks ordering/failure. This also runs at EVERY

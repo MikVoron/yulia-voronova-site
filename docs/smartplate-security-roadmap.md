@@ -1,6 +1,6 @@
 # План безопасности и надёжности SmartPlate
 
-Статус: обновлён 2026-10-04. Это рабочая последовательность: один крупный этап
+Статус: обновлён 2026-10-05. Это рабочая последовательность: один крупный этап
 за раз, с checkpoint, проверкой и понятным откатом. Она не заменяет продуктовый
 план и не требует изменений дизайна.
 
@@ -124,10 +124,12 @@ Root-only inventory получен от пользователя в 08:47:35 UTC
 
 2026-10-04 локально реализованы offline prepare/receipt и post-start контроллер
 с устойчивой блокировкой новых release-команд, плюс изолированный systemd-адаптер
-и suite на 10 cases / 12 границ SIGKILL. Windows: 110 passed, 14 Linux-only skipped,
-0 failed. [Новый Linux-прогон](../server/ops/release/STARTUP_REHEARSAL.md) ожидается;
-успех systemd ordering, обоих restart-путей и SIGKILL пока не подтверждён.
-Итоговый Windows release-набор: 95 passed, 14 Linux-only skipped, 0 failed.
+и suite на 10 cases / 12 границ SIGKILL. После исправлений Windows: 129 passed,
+14 Linux-only skipped, 0 failed. [Linux-прогон](../server/ops/release/STARTUP_REHEARSAL.md)
+завершён 2026-10-05 в `run-40e2327ea17efeeb`, 10/10: systemd ordering, оба
+restart-пути, 8 offline и 4 post-start crash boundaries подтверждены. Пользователь
+прочитал root-only result/cleanup JSON: production unchanged, cleanup complete,
+resources stopped; publicHealth/bootIdChange модельные, actual OS boot не проверялся.
 Полная политика savedPm2997 пока не подтверждена: наблюдатель не даёт разрешение
 на production release или реальную перезагрузку.
 Production boot service не установлен.
