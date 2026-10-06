@@ -2611,6 +2611,18 @@ main {
 	letter-spacing: -.01em;
 }
 
+.sp-news-item-title-link,
+.sp-news-item-title-link:visited {
+	color: inherit;
+	text-decoration: none;
+}
+
+.sp-news-item-title-link:hover,
+.sp-news-item-title-link:focus-visible {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
 .sp-news-item-desc {
 	font-size: 13px;
 	line-height: 1.5;

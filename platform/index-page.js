@@ -848,9 +848,12 @@
 				}
 				if (item.type === 'recipe') title = 'Новый рецепт: ' + title;
 			}
+			const titleHtml = item.type === 'recipe' && item.id
+				? `<a class="sp-news-item-title-link" href="${escHtml('recipe.html?id=' + encodeURIComponent(String(item.id)))}">${escHtml(title)}</a>`
+				: escHtml(title);
 			return `<article class="sp-news-item" role="listitem">
 				<div class="sp-news-item-date">${escHtml(item.date || '')}</div>
-				<h3 class="sp-news-item-title">${escHtml(title)}</h3>
+				<h3 class="sp-news-item-title">${titleHtml}</h3>
 				${desc ? `<p class="sp-news-item-desc">${escHtml(desc)}</p>` : ''}
 			</article>`;
 		}

@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import vm from 'node:vm';
 import { describe, expect, it } from 'vitest';
 import { readPlatformSource } from './helpers/platform-source.mjs';
 
@@ -80,12 +81,31 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(cabinetJs).toContain("location.href = 'category.html'");
   });
 
-  it('presents text updates as a non-interactive list without an extra label', () => {
+  it('links recipe announcements to their recipe pages while keeping text updates plain', () => {
     expect(indexHtml).toContain('id="new-list" role="list"');
     expect(indexHtml).not.toMatch(/id="new-list"[^>]*aria-label=/);
     expect(indexHtml).not.toMatch(/sp-new-list::before/);
     expect(indexHtml).toContain('<article class="sp-news-item" role="listitem">');
-    expect(indexHtml).not.toMatch(/renderNewsListItem[\s\S]{0,900}<a\s/);
+    const script = read('index-page.js');
+    const start = script.indexOf('function renderNewsListItem(item)');
+    const end = script.indexOf('function renderNewsListToggle(count)', start);
+    const render = vm.runInNewContext('(' + script.slice(start, end).trim() + ')', {
+      escHtml: value => String(value).replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[char])
+    });
+    const recipe = {
+      type: 'recipe', id: 'green-buckwheat-turkey-vegetables',
+      recipeName: 'Зелёная гречка с индейкой и овощами', text: 'Описание анонса'
+    };
+    const html = render(recipe);
+    expect(html).toContain('href="recipe.html?id=green-buckwheat-turkey-vegetables"');
+    expect(html).toContain('>Новый рецепт: Зелёная гречка с индейкой и овощами</a>');
+    expect(html).toContain('<p class="sp-news-item-desc">Описание анонса</p>');
+    expect(render({ ...recipe, recipeName: null })).toContain('href="recipe.html?id=green-buckwheat-turkey-vegetables"');
+    expect(render({ ...recipe, id: 'a&"<', recipeName: '<Название>' })).toContain('href="recipe.html?id=a%26%22%3C">Новый рецепт: &lt;Название&gt;</a>');
+    expect(render({ ...recipe, id: null })).not.toContain('<a ');
+    expect(render({ type: 'news', id: 'some-id', text: 'Обновление — Описание новости' })).not.toContain('<a ');
   });
 
   it('adds a Russian chat loading state and a bounded email fallback', () => {
