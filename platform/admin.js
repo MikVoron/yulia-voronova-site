@@ -63,7 +63,7 @@
     }
 
     // ── Tabs ──
-    var ADMIN_TABS = ['dashboard', 'users', 'payments', 'news', 'recipes', 'video-requests', 'categories', 'feedback', 'audit'];
+    var ADMIN_TABS = ['dashboard', 'users', 'payments', 'news', 'recipes', 'recipe-views', 'video-requests', 'categories', 'feedback', 'audit'];
 
     function normalizeAdminTab(tab) {
         return ADMIN_TABS.includes(tab) ? tab : 'users';
@@ -80,6 +80,7 @@
         if (tab === 'payments') { loadPayments('pending'); loadEarlyAccessState(); }
         if (tab === 'news') loadNews();
         if (tab === 'recipes') loadRecipesList();
+        if (tab === 'recipe-views') loadRecipeViews();
         if (tab === 'video-requests') loadVideoRequests();
         if (tab === 'categories') loadCategoriesList();
         if (tab === 'feedback') loadFeedback('waiting_admin');
@@ -145,6 +146,60 @@
             '<div class="adm-stat-num">' + num + '</div>' +
             '<div class="adm-stat-note">' + note + '</div></div>';
     }
+
+    // Recipe popularity: only this admin report exposes aggregate counts.
+    var recipeViewsRows = [];
+    var recipeViewsRequest = 0;
+
+    function renderRecipeViews() {
+        var query = document.getElementById('recipe-views-search').value.trim().toLowerCase();
+        var sort = document.getElementById('recipe-views-sort').value;
+        var rows = recipeViewsRows.filter(function(row) { return row.name.toLowerCase().includes(query); });
+        rows.sort(function(a, b) {
+            return Number(b[sort]) - Number(a[sort]) || Number(b.openings) - Number(a.openings) || a.name.localeCompare(b.name, 'ru');
+        });
+        var tbody = document.getElementById('recipe-views-tbody');
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="7" class="adm-empty">По выбранным условиям рецептов нет</td></tr>';
+            return;
+        }
+        function modeCell(row, mode) {
+            return '<td>' + Number(row[mode + '_visitors']) + ' посетителей<br><small>' + Number(row[mode + '_openings']) + ' открытий</small></td>';
+        }
+        tbody.innerHTML = rows.map(function(row) {
+            return '<tr><td><a href="recipe.html?id=' + encodeURIComponent(row.id) + '" target="_blank" rel="noopener">' + esc(row.name) + '</a></td>' +
+                '<td>' + Number(row.unique_visitors) + '</td><td>' + Number(row.openings) + '</td>' +
+                modeCell(row, 'full') + modeCell(row, 'preview') +
+                '<td>' + Number(row.favorites) + '</td><td>' + Number(row.reviews) + '</td></tr>';
+        }).join('');
+    }
+
+    function loadRecipeViews() {
+        var request = ++recipeViewsRequest;
+        var period = document.getElementById('recipe-views-period').value;
+        var info = document.getElementById('recipe-views-info');
+        recipeViewsRows = [];
+        document.getElementById('recipe-views-tbody').innerHTML = '<tr><td colspan="7" class="adm-empty">Загрузка…</td></tr>';
+        info.textContent = '';
+        api('/admin/recipe-views?period=' + encodeURIComponent(period)).then(function(data) {
+            if (request !== recipeViewsRequest) return;
+            recipeViewsRows = data.recipes || [];
+            var hasViews = recipeViewsRows.some(function(row) { return Number(row.openings) > 0; });
+            info.textContent = hasViews ? 'Рецепты отсортированы по выбранному показателю.' : 'За выбранный период просмотров пока нет.';
+            if (data.firstRecordedAt) info.textContent += ' Первый учтённый просмотр: ' + fmtDateTime(data.firstRecordedAt) + '.';
+            renderRecipeViews();
+        }).catch(function(error) {
+            if (request !== recipeViewsRequest) return;
+            document.getElementById('recipe-views-tbody').innerHTML = '<tr><td colspan="7" class="adm-empty">Не удалось загрузить статистику. Нажмите «Обновить».</td></tr>';
+            info.textContent = error.message || 'Ошибка загрузки';
+        });
+    }
+
+    document.querySelector('[data-admin-action="recipe-views-tab"]').addEventListener('click', function() { switchTab('recipe-views'); });
+    document.getElementById('recipe-views-period').addEventListener('change', loadRecipeViews);
+    document.getElementById('recipe-views-refresh').addEventListener('click', loadRecipeViews);
+    document.getElementById('recipe-views-search').addEventListener('input', renderRecipeViews);
+    document.getElementById('recipe-views-sort').addEventListener('change', renderRecipeViews);
 
     // ── Users ──
     function loadUsers() {

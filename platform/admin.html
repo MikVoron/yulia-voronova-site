@@ -1787,6 +1787,7 @@
     <div class="adm-nav-group" aria-hidden="true">Контент</div>
     <button class="adm-tab" data-tab="news" data-admin-click="ff4a35111351">Новости</button>
     <button class="adm-tab" data-tab="recipes" data-admin-click="7c5d2f2d56d3">Рецепты</button>
+    <button class="adm-tab" data-tab="recipe-views" data-admin-action="recipe-views-tab">Популярность рецептов</button>
     <button class="adm-tab" data-tab="video-requests" data-admin-click="08960e2bb8be">
         Видеозапросы <span class="adm-tab-badge" id="video-requests-badge" style="display:none">0</span>
     </button>
@@ -2041,6 +2042,44 @@
             <span class="recipe-filter-result" id="recipe-filter-result"></span>
         </div>
         <div id="recipes-list"></div>
+    </div>
+
+    <div class="adm-section" id="sec-recipe-views">
+        <div class="adm-section-title">Популярность рецептов</div>
+        <p style="font-size:13px;line-height:1.6;color:var(--text-2)">
+            Посетитель учитывается один раз на рецепт за выбранный период. Открытия включают повторные посещения.
+            Полный рецепт и превью с ограниченным доступом учитываются отдельно. Посещения админа и Юлии исключены.
+            Избранное и отзывы — текущее количество, независимо от периода.
+        </p>
+        <div class="adm-toolbar" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+            <select class="adm-modal-select" id="recipe-views-period" aria-label="Период статистики">
+                <option value="7">7 дней</option>
+                <option value="30" selected>30 дней</option>
+                <option value="all">Всё время</option>
+            </select>
+            <input type="search" class="adm-search" id="recipe-views-search" placeholder="Поиск рецепта" aria-label="Поиск в статистике рецептов">
+            <select class="adm-modal-select" id="recipe-views-sort" aria-label="Сортировка статистики">
+                <option value="unique_visitors">По посетителям</option>
+                <option value="openings">По открытиям</option>
+                <option value="full_visitors">По посетителям полного рецепта</option>
+                <option value="preview_visitors">По посетителям превью</option>
+                <option value="favorites">По избранному</option>
+                <option value="reviews">По отзывам</option>
+            </select>
+            <button class="adm-btn" type="button" id="recipe-views-refresh">Обновить</button>
+        </div>
+        <p id="recipe-views-info" style="font-size:13px;color:var(--text-2)" aria-live="polite"></p>
+        <div class="adm-table-wrap" style="overflow-x:auto">
+            <table class="adm-table" style="min-width:900px">
+                <thead><tr><th scope="col">Рецепт</th><th scope="col">Уникальные посетители</th><th scope="col">Все открытия</th><th scope="col">Полный рецепт</th><th scope="col">Превью</th><th scope="col">В избранном</th><th scope="col">Отзывы</th></tr></thead>
+                <tbody id="recipe-views-tbody"></tbody>
+            </table>
+        </div>
+        <p style="font-size:12px;line-height:1.6;color:var(--text-3)">
+            Для вошедших пользователей уникальность определяется по аккаунту, для гостей — по браузеру.
+            Другой браузер, очистка данных или вход после гостевого просмотра могут дать дополнительного посетителя.
+            Просмотр не означает, что рецепт приготовили. Исторические просмотры до запуска счётчика сюда не входят.
+        </p>
     </div>
 
     <!-- Video requests -->
@@ -2457,6 +2496,6 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260908-trial-ended-paywall"></script>
-<script src="admin.js?v=20260916-optional-emoji"></script>
+<script src="admin.js?v=20261007-recipe-views"></script>
 </body>
 </html>

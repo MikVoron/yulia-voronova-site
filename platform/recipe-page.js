@@ -562,10 +562,12 @@
 			} else if (!Auth.canViewRecipe(r)) {
 				// Нет доступа — preview-state по матрице из docs/guest-mode-mvp.md §6.4
 				renderRecipePreview(r);
+				if (window.SmartPlateRecipeViews) SmartPlateRecipeViews.track(r, 'preview');
 			} else if (r.isSublist) {
 				renderSublist(r);
 			} else {
 				renderRecipe(r);
+				if (window.SmartPlateRecipeViews) SmartPlateRecipeViews.track(r, 'full');
 				setTimeout(loadReviews, 300);
 			}
 		} // end initRecipe
