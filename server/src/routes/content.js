@@ -228,8 +228,21 @@ async function contentRoutes(fastify) {
     if (query) return reply.type('text/html; charset=utf-8')
       .send(renderCategoryDocument(template, null, [], { search: true }));
     const id = typeof req.query?.cat === 'string' ? req.query.cat.trim() : '';
-    if (!id) return reply.type('text/html; charset=utf-8')
-      .send(renderCategoryDocument(template, null));
+    if (!id) {
+      const categoriesResult = await db.query(
+        `SELECT c.id, c.name, c.description
+           FROM categories c
+          WHERE EXISTS (
+            SELECT 1
+              FROM recipe_categories rc
+              JOIN recipes r ON r.id = rc.recipe_id
+             WHERE rc.category_id = c.id AND r.is_published = true
+          )
+          ORDER BY c.sort_order, c.name`
+      );
+      return reply.type('text/html; charset=utf-8')
+        .send(renderCategoryDocument(template, null, [], { categories: categoriesResult.rows }));
+    }
     if (!/^[a-z0-9_-]{1,100}$/.test(id)) return reply.status(404).type('text/html; charset=utf-8').send(template);
     const categoryResult = await db.query('SELECT id, name, description FROM categories WHERE id=$1', [id]);
     const category = categoryResult.rows[0];

@@ -20,6 +20,7 @@ function upsertMeta(document, attribute, key, value) {
 
 function renderCategoryDocument(template, category, recipes = [], options = {}) {
   const search = Boolean(options.search);
+  const categories = Array.isArray(options.categories) ? options.categories : [];
   const name = search ? 'Поиск по рецептам' : category ? category.name : 'Каталог полезных рецептов';
   const title = `${name} | Умная тарелка`;
   const description = search
@@ -39,6 +40,13 @@ function renderCategoryDocument(template, category, recipes = [], options = {}) 
     itemListElement: recipes.slice(0, 100).map((recipe, index) => ({
       '@type': 'ListItem', position: index + 1, name: recipe.name,
       url: `${ORIGIN}/recipe.html?id=${encodeURIComponent(recipe.id)}`,
+    })),
+  };
+  if (!category && !search && categories.length) schema.mainEntity = {
+    '@type': 'ItemList',
+    itemListElement: categories.slice(0, 100).map((item, index) => ({
+      '@type': 'ListItem', position: index + 1, name: item.name,
+      url: `${ORIGIN}/category.html?cat=${encodeURIComponent(item.id)}`,
     })),
   };
 
@@ -63,6 +71,15 @@ function renderCategoryDocument(template, category, recipes = [], options = {}) 
     document = document.replace('<div class="cat-hero" id="cat-hero"></div>', hero);
     const links = recipes.slice(0, 100).map(recipe =>
       `<a href="recipe.html?id=${encodeURIComponent(recipe.id)}">${escapeHtml(recipe.name)}</a>`
+    ).join(' ');
+    document = document.replace('<div class="recipe-card-grid anim anim-d1" id="dish-list" style="margin-top:14px"></div>',
+      `<div class="recipe-card-grid anim anim-d1" id="dish-list" style="margin-top:14px">${links}</div>`);
+  }
+  if (!category && !search) {
+    const hero = `<div class="cat-hero" id="cat-hero"><h1 class="cat-hero-name">${escapeHtml(name)}</h1><p class="cat-hero-desc">${escapeHtml(description)}</p></div>`;
+    document = document.replace('<div class="cat-hero" id="cat-hero"></div>', hero);
+    const links = categories.slice(0, 100).map(item =>
+      `<a href="category.html?cat=${encodeURIComponent(item.id)}">${escapeHtml(item.name)}</a>`
     ).join(' ');
     document = document.replace('<div class="recipe-card-grid anim anim-d1" id="dish-list" style="margin-top:14px"></div>',
       `<div class="recipe-card-grid anim anim-d1" id="dish-list" style="margin-top:14px">${links}</div>`);

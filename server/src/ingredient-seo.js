@@ -56,6 +56,10 @@ async function getStaticIngredient(id) {
   return (await readStaticCatalog()).get(id) || null;
 }
 
+async function listStaticIngredients() {
+  return [...(await readStaticCatalog()).values()];
+}
+
 function ingredientDescription(name) {
   return `Подборка полезных рецептов с ингредиентом «${name}» и расчётом КБЖУ.`;
 }
@@ -97,7 +101,16 @@ function renderIngredientDocument(template, ingredient, recipes) {
   document = upsertMeta(document, 'name', 'twitter:image', SOCIAL_IMAGE);
   document = upsertMeta(document, 'name', 'twitter:image:alt', collectionName);
   const schemaTag = `<script id="smartplate-page-schema" type="application/ld+json">${JSON.stringify(schema).replace(/</g, '\\u003c')}</script>`;
-  return document.replace(/<\/head>/i, `${schemaTag}\n</head>`);
+  document = document.replace(/<\/head>/i, `${schemaTag}\n</head>`);
+
+  const hero = `<div class="cat-hero" id="cat-hero"><h1 class="cat-hero-name">${escapeHtml(collectionName)}</h1><p class="cat-hero-desc">${escapeHtml(description)}</p></div>`;
+  document = document.replace('<div class="cat-hero" id="cat-hero"></div>', hero);
+  const links = (recipes || []).slice(0, 100).map(recipe =>
+    `<a href="recipe.html?id=${encodeURIComponent(recipe.id)}">${escapeHtml(recipe.name)}</a>`
+  ).join(' ');
+  document = document.replace('<div class="recipe-card-grid anim anim-d1" id="dish-list" style="margin-top:14px"></div>',
+    `<div class="recipe-card-grid anim anim-d1" id="dish-list" style="margin-top:14px">${links}</div>`);
+  return document;
 }
 
 async function readIngredientTemplate() {
@@ -106,6 +119,7 @@ async function readIngredientTemplate() {
 
 module.exports = {
   getStaticIngredient,
+  listStaticIngredients,
   ingredientDescription,
   readIngredientTemplate,
   renderIngredientDocument,

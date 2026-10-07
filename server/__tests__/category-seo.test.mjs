@@ -34,4 +34,15 @@ describe('server-rendered category SEO', () => {
     expect(search).toContain('<meta name="robots" content="noindex, follow">');
     expect(search).toContain('<link rel="canonical" href="https://plate.voronova.online/category.html">');
   });
+
+  it('renders the root catalog with server-visible category links', () => {
+    const html = renderCategoryDocument(template, null, [], { categories: [
+      { id: 'breakfasts', name: 'Завтраки' },
+      { id: 'soups', name: 'Супы' },
+    ] });
+    expect(html).toContain('<h1 class="cat-hero-name">Каталог полезных рецептов</h1>');
+    expect(html).toContain('<a href="category.html?cat=breakfasts">Завтраки</a>');
+    expect(html).toContain('<a href="category.html?cat=soups">Супы</a>');
+    expect(html).toContain('"url":"https://plate.voronova.online/category.html?cat=breakfasts"');
+  });
 });

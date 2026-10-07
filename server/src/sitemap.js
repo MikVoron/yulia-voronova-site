@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises');
 const fsSync = require('node:fs');
 const path = require('node:path');
+const { listStaticIngredients } = require('./ingredient-seo');
 
 const ORIGIN = 'https://plate.voronova.online';
 const LOCAL_SITEMAP_PATH = path.resolve(__dirname, '..', '..', 'platform', 'sitemap.xml');
@@ -45,20 +46,34 @@ function buildSitemap({ recipes, categories, ingredients }) {
   ].join('\n');
 }
 
+function selectIndexableIngredients(usedIngredients, catalogIngredients, staticIngredients) {
+  const knownIds = new Set([...catalogIngredients, ...staticIngredients]
+    .filter(item => item && item.id)
+    .map(item => item.id));
+  return [...new Map(usedIngredients
+    .filter(item => item && knownIds.has(item.id))
+    .map(item => [item.id, { id: item.id }])).values()];
+}
+
 async function refreshSitemap(db, options = {}) {
   // Route tests use lightweight DB stubs; never let a test request overwrite
   // the checked-in sitemap with fixture data.
   if (process.env.VITEST && !options.output) return { skipped: true, urlCount: 0 };
-  const [recipesResult, categoriesResult, ingredientsResult] = await Promise.all([
+  const [recipesResult, categoriesResult, catalogResult, usedIngredientsResult, staticIngredients] = await Promise.all([
     db.query('SELECT id FROM recipes WHERE is_published = true ORDER BY sort_order, created_at'),
     db.query('SELECT id FROM categories ORDER BY sort_order, id'),
     db.query('SELECT id FROM ingredient_catalog ORDER BY group_id, sort_order, id'),
+    db.query(`SELECT DISTINCT unnest(main_ingredients) AS id
+                FROM recipes
+               WHERE is_published = true
+               ORDER BY id`),
+    listStaticIngredients(),
   ]);
   const output = options.output || process.env.SMARTPLATE_SITEMAP_PATH || defaultSitemapPath();
   const xml = buildSitemap({
     recipes: recipesResult.rows,
     categories: categoriesResult.rows,
-    ingredients: ingredientsResult.rows,
+    ingredients: selectIndexableIngredients(usedIngredientsResult.rows, catalogResult.rows, staticIngredients),
   });
   const temporaryOutput = `${output}.${process.pid}.tmp`;
   await fs.writeFile(temporaryOutput, xml, 'utf8');
@@ -77,4 +92,4 @@ async function refreshSitemapSafely(db, log) {
   }
 }
 
-module.exports = { buildSitemap, refreshSitemap, refreshSitemapSafely };
+module.exports = { buildSitemap, refreshSitemap, refreshSitemapSafely, selectIndexableIngredients };

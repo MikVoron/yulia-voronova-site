@@ -62,6 +62,9 @@ const CATEGORIES = [
 ];
 
 const mockQuery = vi.fn(async (sql, params = []) => {
+  if (/SELECT c.id, c.name, c.description\s+FROM categories c\s+WHERE EXISTS/.test(sql)) {
+    return { rows: CATEGORIES.filter(c => RECIPES.some(r => r.categories?.includes(c.id))) };
+  }
   if (/SELECT id, name, description FROM categories WHERE id=\$1/.test(sql)) {
     return { rows: CATEGORIES.filter(c => c.id === params[0]) };
   }
@@ -239,6 +242,14 @@ describe('GET /content/news', () => {
 });
 
 describe('GET /_seo/category', () => {
+  it('renders the root catalog with links to non-empty categories', async () => {
+    const root = await app.inject({ method: 'GET', url: '/_seo/category' });
+    expect(root.statusCode).toBe(200);
+    expect(root.body).toContain('<h1 class="cat-hero-name">Каталог полезных рецептов</h1>');
+    expect(root.body).toContain('category.html?cat=breakfasts');
+    expect(root.body).toContain('category.html?cat=mains');
+  });
+
   it('renders distinct initial HTML for breads and spreads', async () => {
     RECIPES.push(
       { id: 'bread-1', name: 'Цельнозерновой хлеб', categories: ['breads'] },

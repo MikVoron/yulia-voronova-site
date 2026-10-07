@@ -26,10 +26,14 @@ describe('server ingredient SEO document', () => {
   });
 
   it('replaces generic metadata in the production template without duplicates', () => {
-    const html = ingredientSeo.renderIngredientDocument(productionTemplate, { id: 'rice', name: 'Рис' }, []);
+    const html = ingredientSeo.renderIngredientDocument(productionTemplate, { id: 'rice', name: 'Рис' }, [
+      { id: 'rice-bowl', name: 'Рис с овощами' },
+    ]);
     expect(html).toContain('<title>Рецепты с ингредиентом «Рис» | Умная тарелка</title>');
     expect(html.match(/rel="canonical"/g)).toHaveLength(1);
     expect(html.match(/name="description"/g)).toHaveLength(1);
     expect(html.match(/id="smartplate-page-schema"/g)).toHaveLength(1);
+    expect(html).toContain('<h1 class="cat-hero-name">Рецепты с ингредиентом «Рис»</h1>');
+    expect(html).toContain('<a href="recipe.html?id=rice-bowl">Рис с овощами</a>');
   });
 });
