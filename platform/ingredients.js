@@ -46,6 +46,7 @@
     { id: 'zucchini',    name: 'Кабачок',         group: 'vegetables' },
     { id: 'potato',      name: 'Картофель',       group: 'vegetables' },
     { id: 'sweet-potato',name: 'Батат',           group: 'vegetables' },
+    { id: 'pumpkin',     name: 'Тыква',          group: 'vegetables' },
     { id: 'celery',      name: 'Сельдерей',       group: 'vegetables' },
     { id: 'tomatoes',    name: 'Томаты',          group: 'vegetables' },
     // Бобовые
