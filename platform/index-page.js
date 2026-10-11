@@ -1187,7 +1187,7 @@
 				const bd = spBadgesHtml(d, latestId);
 				const accessHint = bd.locked ? `. ${bd.access.label}. ${bd.access.actionLabel}` : '';
 				return `
-					<button class="sp-card${bd.locked ? ' locked' : ''}" type="button" ${spActionAttrs(d, bd.locked)} aria-label="${_name}${accessHint}">
+					<a class="sp-card${bd.locked ? ' locked' : ''}" href="recipe.html?id=${escHtml(encodeURIComponent(d.id))}" ${spActionAttrs(d, bd.locked)} aria-label="${_name}${accessHint}">
 						<div class="sp-card-media">
 							${photoHtml}
 							${bd.html}
@@ -1204,7 +1204,7 @@
 								<span class="val">${_kcal}<small>ккал</small></span>
 							</div>
 						</div>
-					</button>`;
+					</a>`;
 			}).join('');
 		}
 		function renderRecommended() {
@@ -1558,13 +1558,13 @@
 					: `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:40px">${_emoji}</div>`;
 				const bd = spBadgesHtml(r, latestId);
 				const accessHint = bd.locked ? `. ${bd.access.label}. ${bd.access.actionLabel}` : '';
-				return `<button class="cat-card${bd.locked ? ' locked' : ''}" ${spActionAttrs(r, bd.locked)} aria-label="${_name}${accessHint}">
+				return `<a class="cat-card${bd.locked ? ' locked' : ''}" href="recipe.html?id=${escHtml(encodeURIComponent(r.id))}" ${spActionAttrs(r, bd.locked)} aria-label="${_name}${accessHint}">
 					<div class="cat-icon-wrap" style="position:relative">${photoHtml}${bd.html}</div>
 					<div class="cat-body">
 						<div class="cat-name">${_name}</div>
 						<div class="cat-desc">${starsHtml}</div>
 					</div>
-				</button>`;
+				</a>`;
 			}).join('');
 		}
 
@@ -1897,6 +1897,7 @@
 			}
 			const lockedTarget = event.target.closest('[data-locked-recipe-id]');
 			if (lockedTarget) {
+				if (lockedTarget.matches('a[href]') && (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)) return;
 				event.preventDefault();
 				if (Auth.isGuest()) {
 					location.href = lockedTarget.dataset.lockedRecipeHref || ('recipe.html?id=' + encodeURIComponent(lockedTarget.dataset.lockedRecipeId || ''));
@@ -1907,6 +1908,8 @@
 			}
 			const recipeTarget = event.target.closest('[data-recipe-href]');
 			if (recipeTarget) {
+				if (recipeTarget.matches('a[href]') && (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)) return;
+				event.preventDefault();
 				location.href = recipeTarget.dataset.recipeHref;
 				return;
 			}

@@ -66,7 +66,7 @@
             if (hero) hero.innerHTML =
                 '<div class="cat-hero-row">' +
                 '<div class="cat-hero-ava">🤔</div>' +
-                '<div><div class="cat-hero-name">Ингредиент не найден</div>' +
+                '<div><h1 class="cat-hero-name">Ингредиент не найден</h1>' +
                 '<div class="cat-hero-desc">Проверьте ссылку или вернитесь в меню «Ингредиенты».</div></div></div>';
             if (crumbs) crumbs.innerHTML =
                 '<a href="index.html">Главная</a><span class="crumb-sep">›</span>' +
@@ -88,7 +88,7 @@
             '<div class="cat-hero-ava cat-hero-ava--image" aria-hidden="true">' +
             '<img src="images/icons/ingredients.png" alt="">' +
             '</div>' +
-            '<div><div class="cat-hero-name">' + escHtml(String(ING.name)) + '</div>' +
+            '<div><h1 class="cat-hero-name">' + escHtml(String(ING.name)) + '</h1>' +
             '<div class="cat-hero-desc">Рецепты на основе этого ингредиента</div></div></div>';
         if (crumbs) crumbs.innerHTML =
             '<a href="index.html">Главная</a><span class="crumb-sep">›</span>' +
@@ -323,7 +323,7 @@
         const accessHint = locked
             ? '. ' + access.label + (hasSubscriptionPrice ? ', ' + subscriptionMonthlyPrice + ' рублей в месяц' : '') + '. ' + access.actionLabel
             : '';
-        return `<article class="recipe-card${locked ? ' locked' : ''}" role="button" tabindex="0" aria-label="${_name}${escHtml(accessHint)}" data-ingredient-card-action="${locked ? 'locked' : 'open'}" data-recipe-id="${escHtml(_id)}">
+        return `<article class="recipe-card${locked ? ' locked' : ''}" data-ingredient-card-action="${locked ? 'locked' : 'open'}" data-recipe-id="${escHtml(_id)}">
             <div class="recipe-card__media">
                 ${photoHtml}
                 ${lockBadge}${freeBadge}
@@ -332,7 +332,7 @@
                 </button>`}
             </div>
             <div class="recipe-card__body">
-                <h3 class="recipe-card__title">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</h3>
+                <h3 class="recipe-card__title"><a class="recipe-card__title-link" href="recipe.html?id=${escHtml(encodeURIComponent(_id))}" aria-label="${_name}${escHtml(accessHint)}">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</a></h3>
                 <div class="recipe-card__details-line">
                 ${!locked ? `<div class="recipe-card__rating" id="rrow-${_id}">
                     <div class="rating-popup" id="rpop-${_id}">
@@ -999,6 +999,12 @@ document.addEventListener('click', function (event) {
     }
     var card = event.target.closest('[data-ingredient-card-action]');
     if (!card) return;
+    var link = event.target.closest('a.recipe-card__title-link');
+    if (link) {
+        // Keep native new-tab actions; normal clicks retain access checks and back context.
+        if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+    }
     var cardRecipeId = card.dataset.recipeId || '';
     if (card.dataset.ingredientCardAction === 'locked') openLockedRecipe(cardRecipeId);
     else goToRecipe(cardRecipeId);
@@ -1012,10 +1018,6 @@ document.addEventListener('keydown', function (event) {
         actionTarget.click();
         return;
     }
-    var card = event.target.closest('[data-ingredient-card-action]');
-    if (!card || event.target !== card) return;
-    event.preventDefault();
-    card.click();
 });
 
 document.addEventListener('mouseover', function (event) {

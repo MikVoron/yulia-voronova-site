@@ -626,6 +626,14 @@ img { display: block; max-width: 100%; }
     /* Let each grid row fit its longest title without reserving empty lines. */
     min-height: 0;
 }
+.recipe-card__title-link {
+    color: inherit;
+    text-decoration: none;
+}
+.recipe-card__title-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
 .recipe-card__rating {
     display: flex; align-items: center; gap: 6px;
     min-height: 16px;

@@ -32,7 +32,7 @@
             if (hero) hero.innerHTML =
                 '<div class="cat-hero-row">' +
                 '<div class="cat-hero-ava">🔍</div>' +
-                '<div><div class="cat-hero-name">Поиск</div></div></div>';
+                '<div><h1 class="cat-hero-name">Поиск</h1></div></div>';
             if (crumbs) crumbs.innerHTML =
                 '<a href="index.html">Главная</a>' +
                 '<span class="crumb-sep">›</span>' +
@@ -46,7 +46,7 @@
                 '<div class="cat-hero-ava cat-hero-ava--image" aria-hidden="true">' +
                 '<img src="images/icons/all-recepies.png" alt="">' +
                 '</div>' +
-                '<div><div class="cat-hero-name">Все рецепты</div>' +
+                '<div><h1 class="cat-hero-name">Все рецепты</h1>' +
                 '<div class="cat-hero-desc">Все блюда платформы — завтраки, супы, горячее, намазки и соусы в одном каталоге</div></div></div>';
             if (crumbs) crumbs.innerHTML =
                 '<a href="index.html">Главная</a>' +
@@ -73,7 +73,7 @@
             '<div class="cat-hero-ava cat-hero-ava--logo">' +
             '<img src="https://voronova.online/images/icons/logo-small.png" alt="Юлия Воронова">' +
             '</div>' +
-            '<div><div class="cat-hero-name">' + fb.name + '</div>' +
+            '<div><h1 class="cat-hero-name">' + fb.name + '</h1>' +
             '<div class="cat-hero-desc">' + fb.desc + '</div></div></div>';
         if (crumbs) crumbs.innerHTML =
             '<a href="index.html">Главная</a>' +
@@ -105,7 +105,7 @@
             document.getElementById('cat-hero').innerHTML =
                 '<div class="cat-hero-row">' +
                 '<div class="cat-hero-ava">🔍</div>' +
-                '<div><div class="cat-hero-name">Поиск: «' + escHtml(searchQuery) + '»</div>' +
+                '<div><h1 class="cat-hero-name">Поиск: «' + escHtml(searchQuery) + '»</h1>' +
                 '<div class="cat-hero-desc">Всего найдено: ' + pluralR(total) + '</div></div></div>';
             var crumbsEl = document.getElementById('cat-crumbs');
             if (crumbsEl) {
@@ -147,7 +147,7 @@
                     : '<div class="cat-hero-ava">' + escHtml(String(cat.emoji)) + '</div>';
                 document.getElementById('cat-hero').innerHTML =
                     '<div class="cat-hero-row">' + avaImg +
-                    '<div><div class="cat-hero-name">' + escHtml(String(cat.name)) + '</div>' +
+                    '<div><h1 class="cat-hero-name">' + escHtml(String(cat.name)) + '</h1>' +
                     '<div class="cat-hero-desc">' + escHtml(String(cat.desc)) + '</div></div></div>';
             }
         }
@@ -385,7 +385,7 @@
         const accessHint = locked
             ? '. ' + access.label + (hasSubscriptionPrice ? ', ' + subscriptionMonthlyPrice + ' рублей в месяц' : '') + '. ' + access.actionLabel
             : '';
-        return `<article class="recipe-card${locked ? ' locked' : ''}" role="button" tabindex="0" aria-label="${_name}${escHtml(accessHint)}" data-card-action="${locked ? 'locked' : 'open'}" data-recipe-id="${escHtml(_id)}">
+        return `<article class="recipe-card${locked ? ' locked' : ''}" data-card-action="${locked ? 'locked' : 'open'}" data-recipe-id="${escHtml(_id)}">
             <div class="recipe-card__media">
                 ${photoHtml}
                 ${lockBadge}${freeBadge}
@@ -394,7 +394,7 @@
                 </button>` : ''}
             </div>
             <div class="recipe-card__body">
-                <h3 class="recipe-card__title">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</h3>
+                <h3 class="recipe-card__title"><a class="recipe-card__title-link" href="recipe.html?id=${escHtml(encodeURIComponent(_id))}" aria-label="${_name}${escHtml(accessHint)}">${_name}${isSublist ? ' <span class="dish-sublist-badge">Список →</span>' : ''}</a></h3>
                 <div class="recipe-card__details-line">
                 <div class="recipe-card__rating" id="rrow-${escHtml(_id)}">
                     <div class="rating-popup" id="rpop-${escHtml(_id)}">
@@ -425,6 +425,12 @@
         dishListEl.addEventListener('click', function(event) {
             const actionEl = event.target.closest('[data-card-action]');
             if (!actionEl || !dishListEl.contains(actionEl)) return;
+            const link = event.target.closest('a.recipe-card__title-link');
+            if (link) {
+                // Keep native new-tab actions; normal clicks retain access checks and back context.
+                if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+                event.preventDefault();
+            }
             const recipeId = actionEl.dataset.recipeId || '';
             const action = actionEl.dataset.cardAction;
             if (action === 'open') goToRecipe(recipeId);
@@ -433,13 +439,6 @@
             else if (action === 'rating') openRatingPopup(recipeId, actionEl);
             else if (action === 'comments') openComments(recipeId);
             else if (action === 'rate') rateFromPop(recipeId, Number(actionEl.dataset.n));
-        });
-        dishListEl.addEventListener('keydown', function(event) {
-            const card = event.target.closest('article[data-card-action]');
-            if (!card || event.target !== card || (event.key !== 'Enter' && event.key !== ' ')) return;
-            event.preventDefault();
-            if (card.dataset.cardAction === 'locked') openLockedRecipe(card.dataset.recipeId || '');
-            else goToRecipe(card.dataset.recipeId || '');
         });
         dishListEl.addEventListener('mouseover', function(event) {
             const star = event.target.closest('.rp-star[data-recipe-id]');
