@@ -118,6 +118,17 @@ UID 997, boot recovery или связь событий протокола с ev
   `/tmp`; запускать через `sudo -u postgres psql -v ON_ERROR_STOP=1`.
 - После миграции проверить целевые строки/индексы и API. Не делать restore dump
   поверх `smartplate_db`.
+- Если миграция создаёт рецепт или меняет `recipes.is_published`, до завершения
+  релиза проверить опубликованный динамический sitemap. Published-рецепт обязан
+  присутствовать по каноническому URL, unpublished-рецепт — отсутствовать:
+
+  ```bash
+  curl -fsS https://plate.voronova.online/sitemap.xml | grep -F 'recipe.html?id=<recipe-id>'
+  ```
+
+  Ручная пересборка файла не требуется: `/sitemap.xml` формируется из текущей БД.
+  Успешный commit, SQL apply или ответ API без этой production-проверки не считается
+  доказательством обновления sitemap.
 
 ## 7. Обязательная проверка после API-релиза
 

@@ -35,6 +35,15 @@ server {
         include /etc/nginx/snippets/smartplate-api-proxy.conf;
     }
 
+    # Build the public sitemap from the current database on every request.
+    # This also covers recipes published by reviewed SQL releases, which do
+    # not pass through the administrative API mutation routes.
+    location = /sitemap.xml {
+        limit_except GET { deny all; }
+        rewrite ^ /_seo/sitemap break;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
     # Keep the public recipe URL unchanged while supplying canonical metadata,
     # Open Graph fields and Recipe JSON-LD in the initial HTML response. The
     # regular client application hydrates the same document after it loads.

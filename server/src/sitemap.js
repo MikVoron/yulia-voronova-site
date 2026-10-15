@@ -59,6 +59,15 @@ async function refreshSitemap(db, options = {}) {
   // Route tests use lightweight DB stubs; never let a test request overwrite
   // the checked-in sitemap with fixture data.
   if (process.env.VITEST && !options.output) return { skipped: true, urlCount: 0 };
+  const { xml, urlCount } = await generateSitemap(db);
+  const output = options.output || process.env.SMARTPLATE_SITEMAP_PATH || defaultSitemapPath();
+  const temporaryOutput = `${output}.${process.pid}.tmp`;
+  await fs.writeFile(temporaryOutput, xml, 'utf8');
+  await fs.rename(temporaryOutput, output);
+  return { output, urlCount };
+}
+
+async function generateSitemap(db) {
   const [recipesResult, categoriesResult, catalogResult, usedIngredientsResult, staticIngredients] = await Promise.all([
     db.query('SELECT id FROM recipes WHERE is_published = true ORDER BY sort_order, created_at'),
     db.query('SELECT id FROM categories ORDER BY sort_order, id'),
@@ -69,27 +78,23 @@ async function refreshSitemap(db, options = {}) {
                ORDER BY id`),
     listStaticIngredients(),
   ]);
-  const output = options.output || process.env.SMARTPLATE_SITEMAP_PATH || defaultSitemapPath();
   const xml = buildSitemap({
     recipes: recipesResult.rows,
     categories: categoriesResult.rows,
     ingredients: selectIndexableIngredients(usedIngredientsResult.rows, catalogResult.rows, staticIngredients),
   });
-  const temporaryOutput = `${output}.${process.pid}.tmp`;
-  await fs.writeFile(temporaryOutput, xml, 'utf8');
-  await fs.rename(temporaryOutput, output);
-  return { output, urlCount: (xml.match(/<loc>/g) || []).length };
+  return { xml, urlCount: (xml.match(/<loc>/g) || []).length };
 }
 
 async function refreshSitemapSafely(db, log) {
   try {
-    const result = await refreshSitemap(db);
-    log.info({ sitemap: result }, 'SmartPlate sitemap refreshed');
+    const result = await generateSitemap(db);
+    log.info({ sitemap: { dynamic: true, urlCount: result.urlCount } }, 'SmartPlate dynamic sitemap validated');
   } catch (error) {
     // Sitemap is derived SEO data. Do not roll back a successfully saved recipe
-    // if filesystem publication is temporarily unavailable.
-    log.error({ err: error }, 'SmartPlate sitemap refresh failed');
+    // if generation is temporarily unavailable.
+    log.error({ err: error }, 'SmartPlate sitemap validation failed');
   }
 }
 
-module.exports = { buildSitemap, refreshSitemap, refreshSitemapSafely, selectIndexableIngredients };
+module.exports = { buildSitemap, generateSitemap, refreshSitemap, refreshSitemapSafely, selectIndexableIngredients };

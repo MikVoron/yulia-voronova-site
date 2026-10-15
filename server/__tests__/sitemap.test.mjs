@@ -51,4 +51,19 @@ describe('SmartPlate sitemap', () => {
       await fs.rm(directory, { recursive: true, force: true });
     }
   });
+
+  it('generates current XML without requiring filesystem write access', async () => {
+    const db = { query: async sql => {
+      if (/SELECT id FROM recipes/.test(sql)) return { rows: [{ id: 'sql-published-recipe' }] };
+      if (/SELECT id FROM categories/.test(sql)) return { rows: [{ id: 'mains' }] };
+      if (/SELECT id FROM ingredient_catalog/.test(sql)) return { rows: [] };
+      if (/SELECT DISTINCT unnest\(main_ingredients\)/.test(sql)) return { rows: [] };
+      throw new Error(`Unexpected query: ${sql}`);
+    } };
+
+    const result = await sitemap.generateSitemap(db);
+
+    expect(result.xml).toContain('recipe.html?id=sql-published-recipe');
+    expect(result.urlCount).toBe((result.xml.match(/<loc>/g) || []).length);
+  });
 });
