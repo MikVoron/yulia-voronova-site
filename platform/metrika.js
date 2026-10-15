@@ -10,7 +10,9 @@
         (window.ym.a = window.ym.a || []).push(arguments);
     };
     window.ym.l = window.ym.l || (new Date()).getTime();
+    var cachedClientId = null;
     function getClientId(timeoutMs) {
+        if (cachedClientId) return Promise.resolve(cachedClientId);
         return new Promise(function (resolve) {
             var settled = false;
             var timeout = setTimeout(function () {
@@ -18,10 +20,15 @@
             }, typeof timeoutMs === 'number' ? timeoutMs : 1500);
             try {
                 window.ym(counterId, 'getClientID', function (clientId) {
+                    // Retain a late reply for the next registration step even if
+                    // this caller has already timed out.
+                    if (typeof clientId === 'string' && /^\d{8,32}$/.test(clientId)) {
+                        cachedClientId = clientId;
+                    }
                     if (settled) return;
                     settled = true;
                     clearTimeout(timeout);
-                    resolve(typeof clientId === 'string' ? clientId : null);
+                    resolve(cachedClientId);
                 });
             } catch (e) {
                 clearTimeout(timeout);

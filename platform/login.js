@@ -54,10 +54,15 @@
 		var timerInterval = null;
 		var _fingerprint = null;
 		var _metrikaClientId = null;
+		var _sendingCode = false;
+		var _verifyingCode = false;
 		function refreshMetrikaClientId() {
-			if (!window.SmartPlateMetrika || typeof window.SmartPlateMetrika.getClientId !== 'function') return;
-			window.SmartPlateMetrika.getClientId().then(function (clientId) {
+			if (_isAdminLogin || _metrikaClientId || !window.SmartPlateMetrika || typeof window.SmartPlateMetrika.getClientId !== 'function') return Promise.resolve(_metrikaClientId);
+			return window.SmartPlateMetrika.getClientId().then(function (clientId) {
 				if (clientId) _metrikaClientId = clientId;
+				return _metrikaClientId;
+			}).catch(function () {
+				return _metrikaClientId;
 			});
 		}
 		refreshMetrikaClientId();
@@ -204,15 +209,17 @@
 		}
 
 		async function sendCode() {
+			if (_sendingCode) return;
 			hideError('email-error');
 			var email = document.getElementById('email-input').value.trim().toLowerCase();
 			if (!email || !email.includes('@') || !email.includes('.')) {
 				showError('email-error', 'Введите корректный email'); return;
 			}
 			currentEmail = email;
-			refreshMetrikaClientId();
+			_sendingCode = true;
 			setLoading('send-code-btn', true);
 			try {
+				await refreshMetrikaClientId();
 				var res = await fetch(API_BASE + '/auth/send-code', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -227,8 +234,10 @@
 				showCodeStep();
 			} catch (e) {
 				showError('email-error', 'Ошибка сети');
+			} finally {
+				_sendingCode = false;
+				setLoading('send-code-btn', false);
 			}
-			setLoading('send-code-btn', false);
 		}
 
 		function showCodeStep() {
@@ -274,10 +283,11 @@
 			var block = document.getElementById('timer-block');
 			block.innerHTML = 'Отправка…';
 			try {
+				await refreshMetrikaClientId();
 				var res = await fetch(API_BASE + '/auth/send-code', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ email: currentEmail, context: _isAdminLogin ? 'admin' : undefined })
+					body: JSON.stringify({ email: currentEmail, context: _isAdminLogin ? 'admin' : undefined, metrikaClientId: _metrikaClientId })
 				});
 				var data = await res.json();
 				if (!res.ok) {
@@ -293,13 +303,16 @@
 		}
 
 		async function verifyCode() {
+			if (_verifyingCode) return;
 			hideError('code-error');
 			var code = document.getElementById('code-input').value.trim();
 			if (code.length !== 6) { showError('code-error', 'Введите 6-значный код'); return; }
 			var mfaCode = document.getElementById('mfa-code-input').value.trim();
 			if (_isAdminLogin && mfaCode.length !== 6) { showError('code-error', 'Введите код приложения-аутентификатора'); return; }
+			_verifyingCode = true;
 			setLoading('verify-btn', true);
 			try {
+				await refreshMetrikaClientId();
 				var res = await fetch(API_BASE + '/auth/verify', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -338,6 +351,8 @@
 			} catch (e) {
 				showError('code-error', 'Ошибка сети');
 				setLoading('verify-btn', false);
+			} finally {
+				_verifyingCode = false;
 			}
 		}
 

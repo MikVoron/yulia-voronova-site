@@ -49,7 +49,7 @@ async function authRoutes(fastify) {
     const metrikaGoals = {};
     if (context !== 'admin') {
       for (const goalId of ['registration_started', 'verification_code_sent']) {
-        try { metrikaGoals[goalId] = await queueMetrikaGoal({ goalId, clientId: metrikaClientId }); }
+        try { metrikaGoals[goalId] = await queueMetrikaGoal({ goalId, clientId: metrikaClientId, logger: fastify.log, requestId: String(req.id) }); }
         catch (e) { metrikaGoals[goalId] = false; fastify.log.error(e, 'Metrika goal queue error'); }
       }
       if (Object.values(metrikaGoals).some(Boolean)) dispatchMetrikaGoals(fastify);
@@ -146,7 +146,8 @@ async function authRoutes(fastify) {
       await db.query('INSERT INTO auth_accounts (user_id, provider, provider_id) VALUES ($1, $2, $3)', [userId, 'email', lower]);
       try {
         registrationGoalQueued = await queueMetrikaGoal({
-          goalId: 'registration_completed', userId, clientId: metrikaClientId
+          goalId: 'registration_completed', userId, clientId: metrikaClientId,
+          logger: fastify.log, requestId: String(req.id)
         });
       } catch (e) {
         fastify.log.error(e, 'Metrika registration goal queue error');

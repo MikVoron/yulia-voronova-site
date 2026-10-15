@@ -14,9 +14,15 @@ function measurementToken() {
   return (process.env.METRIKA_MEASUREMENT_PROTOCOL_TOKEN || '').trim();
 }
 
-async function queueMetrikaGoal({ goalId, userId = null, clientId, occurredAt = new Date() }) {
+async function queueMetrikaGoal({ goalId, userId = null, clientId, occurredAt = new Date(), logger = null, requestId = null }) {
+  if (!GOALS.has(goalId)) return false;
   const normalizedClientId = normalizeClientId(clientId);
-  if (!GOALS.has(goalId) || !normalizedClientId) return false;
+  if (!normalizedClientId) {
+    if (logger) {
+      logger.warn({ goalId, requestId, reason: clientId == null || clientId === '' ? 'missing_client_id' : 'invalid_client_id' }, 'Metrika goal skipped');
+    }
+    return false;
+  }
 
   await db.query(
     `INSERT INTO metrika_goal_outbox (goal_id, user_id, metrika_client_id, occurred_at)
