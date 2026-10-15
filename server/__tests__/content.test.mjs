@@ -74,6 +74,9 @@ const mockQuery = vi.fn(async (sql, params = []) => {
   if (/SELECT is_blocked FROM users WHERE id/.test(sql)) {
     return { rows: [{ is_blocked: userState.is_blocked }] };
   }
+  if (/SELECT id FROM recipes WHERE id=\$1/.test(sql)) {
+    return { rows: RECIPES.filter(r => r.id === params[0]).map(r => ({ id: r.id })) };
+  }
   if (/SELECT role FROM users WHERE id/.test(sql)) {
     return { rows: [{ role: userState.role }] };
   }
@@ -177,6 +180,7 @@ registerMock(path.join(srcDir, 'email.js'), {
   sendWelcome: vi.fn().mockResolvedValue(true),
   sendNewUserNotification: vi.fn().mockResolvedValue(true),
   sendReviewReply,
+  sendReviewNotification: vi.fn().mockResolvedValue(true),
 });
 registerMock(path.join(srcDir, 'audit.js'), { log: vi.fn(), insert: auditInsert });
 
@@ -394,6 +398,53 @@ function expectFull(recipe) {
 }
 
 describe('recipe reviews', () => {
+  it('returns avocado for the seeded anonymous reviewer and gives their personal photo priority', async () => {
+    reviewRows = [{ id: 43, stars: 5, text: 'Круто!', user_id: 'u-7',
+      display_name: null, avatar: null, review_avatar_position: '0' }];
+    let res = await app.inject({ method: 'GET', url: '/content/reviews/free-1' });
+    expect(res.json()[0]).toMatchObject({ author: 'Аноним',
+      avatar: 'https://app.voronova.online/images/review-avatars/avocado.svg' });
+    reviewRows[0].avatar = 'data:image/jpeg;base64,personal';
+    res = await app.inject({ method: 'GET', url: '/content/reviews/free-1' });
+    expect(res.json()[0].avatar).toBe(reviewRows[0].avatar);
+  });
+
+  it('saves a review and new avatar in one transaction', async () => {
+    mockClientQuery.mockImplementation(async sql => {
+      if (sql.includes('INSERT INTO reviews')) return { rows: [{ id: 44 }] };
+      if (sql.includes('SELECT display_name FROM users')) return { rows: [{ display_name: null }] };
+      if (sql.includes('UPDATE review_avatar_counter')) return { rows: [{ position: '1' }] };
+      return { rows: [] };
+    });
+    const res = await app.inject({ method: 'POST', url: '/content/reviews',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { recipe_id: 'free-1', stars: 5, text: 'Вкусно' } });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().id).toBe(44);
+    const calls = mockClientQuery.mock.calls.map(c => c[0]);
+    expect(calls[0]).toBe('BEGIN');
+    expect(calls.at(-1)).toBe('COMMIT');
+    expect(calls.some(sql => sql.includes('INSERT INTO review_avatar_assignments'))).toBe(true);
+    expect(mockClient.release).toHaveBeenCalledOnce();
+  });
+
+  it('rolls back the review and counter if avatar persistence fails', async () => {
+    mockClientQuery.mockImplementation(async sql => {
+      if (sql.includes('INSERT INTO reviews')) return { rows: [{ id: 44 }] };
+      if (sql.includes('SELECT display_name FROM users')) return { rows: [{ display_name: null }] };
+      if (sql.includes('UPDATE review_avatar_counter')) return { rows: [{ position: '1' }] };
+      if (sql.includes('INSERT INTO review_avatar_assignments')) throw new Error('DB failure');
+      return { rows: [] };
+    });
+    const res = await app.inject({ method: 'POST', url: '/content/reviews',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { recipe_id: 'free-1', stars: 5, text: 'Вкусно' } });
+    expect(res.statusCode).toBe(500);
+    expect(mockClientQuery.mock.calls.at(-1)[0]).toBe('ROLLBACK');
+    expect(mockClientQuery.mock.calls.some(c => c[0] === 'COMMIT')).toBe(false);
+    expect(mockClient.release).toHaveBeenCalledOnce();
+  });
+
   it('returns the platform author reply in the public review list', async () => {
     reviewRows = [{
       id: 17, stars: 5, text: 'Подскажите, можно ли заменить рыбу?',

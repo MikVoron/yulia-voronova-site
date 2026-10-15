@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="#111" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Яйцо">
+  <circle cx="24" cy="24" r="23.5" fill="#faf8f5" stroke="#e8e1dc" stroke-width="1"/>
+  <g transform="translate(3 3) scale(.875)"><g transform="rotate(25 24 24)"><path d="M24 8c-6 0-14 11-14 20 0 8 6 13 14 13s14-5 14-13C38 19 30 8 24 8Z" fill="#fff"/><circle cx="24" cy="26" r="7" fill="#e8400a" stroke="#e8400a"/></g></g>
+</svg>

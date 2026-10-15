@@ -2,6 +2,7 @@ const db = require('../db');
 const { authenticate, requireAdmin, optionalAuthenticate, getUserTier, userCanSeeRecipe } = require('../middleware');
 const email = require('../email');
 const audit = require('../audit');
+const { reviewAvatar, assignReviewAvatar } = require('../review-avatars');
 const { refreshSitemapSafely } = require('../sitemap');
 const { readRecipeTemplate, renderRecipeDocument } = require('../recipe-seo');
 const { getStaticIngredient, readIngredientTemplate, renderIngredientDocument } = require('../ingredient-seo');
@@ -577,7 +578,7 @@ async function contentRoutes(fastify) {
     const userId = req.user?.sub || null;
     const result = await db.query(
       `SELECT r.id, r.stars, r.text, r.created_at, r.user_id,
-              u.display_name, u.avatar, u.early_access_member,
+              u.display_name, u.avatar, u.early_access_member, ra.position AS review_avatar_position,
               rr.text AS reply_text, rr.created_at AS reply_created_at,
               rr.updated_at AS reply_updated_at,
               COALESCE((SELECT COUNT(*)::int
@@ -587,6 +588,7 @@ async function contentRoutes(fastify) {
                      FROM review_reply_reactions rrr
                      WHERE rrr.review_id = r.id AND rrr.user_id = $2::uuid) AS reply_helpful_by_user
        FROM reviews r JOIN users u ON u.id = r.user_id
+       LEFT JOIN review_avatar_assignments ra ON ra.user_id = r.user_id
        LEFT JOIN review_replies rr ON rr.review_id = r.id
        WHERE r.recipe_id = $1 ORDER BY r.created_at DESC LIMIT $3`,
       [recipeId, userId, REVIEW_LIST_LIMIT]
@@ -597,8 +599,8 @@ async function contentRoutes(fastify) {
       text: row.text,
       createdAt: row.created_at,
       userId: row.user_id,
-      author: row.display_name || 'Аноним',
-      avatar: row.avatar || null,
+      author: row.display_name?.trim() || 'Аноним',
+      avatar: reviewAvatar(row),
       isEarlyBird: row.early_access_member === true,
       reply: row.reply_text ? {
         text: row.reply_text,
@@ -629,15 +631,28 @@ async function contentRoutes(fastify) {
     const exists = await db.query('SELECT id FROM recipes WHERE id=$1', [recipeId]);
     if (!exists.rows.length) return reply.status(404).send({ error: 'Рецепт не найден' });
 
-    // Upsert: one review per user per recipe
-    const result = await db.query(
-      `INSERT INTO reviews (recipe_id, user_id, stars, text)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (recipe_id, user_id)
-       DO UPDATE SET stars = $3, text = $4, created_at = now()
-       RETURNING *`,
-      [recipeId, req.user.sub, stars, trimmed || null]
-    );
+    // Save the review and its stable avatar together. Rollback also restores the
+    // counter, so failed submissions do not consume an icon in the pack.
+    const client = await db.pool.connect();
+    let result;
+    try {
+      await client.query('BEGIN');
+      result = await client.query(
+        `INSERT INTO reviews (recipe_id, user_id, stars, text)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (recipe_id, user_id)
+         DO UPDATE SET stars = $3, text = $4, created_at = now()
+         RETURNING *`,
+        [recipeId, req.user.sub, stars, trimmed || null]
+      );
+      await assignReviewAvatar(client, req.user.sub);
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
 
     // Email notification to admin
     try {

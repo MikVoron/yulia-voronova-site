@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="#111" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Колос">
+  <circle cx="24" cy="24" r="23.5" fill="#faf8f5" stroke="#e8e1dc" stroke-width="1"/>
+  <g transform="translate(3 3) scale(.875)"><path d="M24 40V10"/><path d="M24 16c-5 0-10-3-10-7 5 0 10 3 10 7Zm0 8c-5 0-10-3-10-7 5 0 10 3 10 7Zm0 8c-5 0-10-3-10-7 5 0 10 3 10 7Z" fill="#fff2ed"/><path d="M24 16c5 0 10-3 10-7-5 0-10 3-10 7Z" fill="#e8400a" stroke="#e8400a"/><path d="M24 24c5 0 10-3 10-7-5 0-10 3-10 7Zm0 8c5 0 10-3 10-7-5 0-10 3-10 7Z" fill="#fff2ed"/></g>
+</svg>
