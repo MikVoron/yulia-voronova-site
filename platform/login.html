@@ -10,7 +10,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400;1,700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="login.css?v=20260908-pro-recipe-context">
+	<link rel="stylesheet" href="login.css?v=20261023-comfort-login">
 	<link rel="stylesheet" href="tawk-chat-modal.css?v=20260713-csp-styles">
 </head>
 
@@ -43,27 +43,25 @@
 
 				<!-- Step 1: Email -->
 				<section id="step-email" class="lp-step">
-					<div class="form-eyebrow">Войти / Регистрация</div>
-					<h1 class="lp-h2">Войти или начать бесплатно</h1>
-					<p class="lp-lead">Введите email — мы пришлём 6-значный код. Без пароля.</p>
+					<div class="form-eyebrow">Вход и регистрация</div>
+					<h1 class="lp-h2">Добро пожаловать</h1>
+					<p class="lp-lead">Введите email — пришлём код для входа. Пароль не нужен.</p>
 					<div class="lp-recipe-context" id="lp-recipe-context" hidden>
 						<strong>Этот рецепт откроется по подписке.</strong>
 						<span>После регистрации будут доступны пробные рецепты на 7 дней.</span>
 					</div>
-					<div class="lp-pricing-note">
-						<p class="lp-pricing-line">7 дней бесплатного доступа</p>
-						<p class="lp-pricing-detail">К пробным рецептам и возможностям сервиса</p>
-						<p class="lp-pricing-line lp-pricing-line--full">Вся база — <strong id="lp-monthly-price">по подписке</strong></p>
-						<p class="lp-no-card-note"><span aria-hidden="true">✓</span>Карту привязывать не нужно</p>
-						<a class="lp-pricing-link" href="how-subscription-works.html">Посмотреть тарифы</a>
+					<div class="lp-offer">
+						<strong>Начните с 7 бесплатных дней</strong>
+						<span>Пробные рецепты и возможности сервиса.<br>Без привязки карты.</span>
 					</div>
 
 					<div class="field">
-						<label class="form-label" for="email-input">Email</label>
-						<input class="form-input" type="email" id="email-input" placeholder="your@email.com" autocomplete="email" aria-describedby="email-error">
+						<label class="form-label" for="email-input">Ваш email</label>
+						<input class="form-input" type="email" id="email-input" placeholder="name@example.com" autocomplete="email" autocapitalize="none" spellcheck="false" aria-describedby="email-error">
 					</div>
 					<div class="lp-error" id="email-error" role="alert" aria-live="polite"></div>
 					<button class="btn-primary" id="send-code-btn" type="button">Получить код →</button>
+					<p class="lp-new-account">Впервые здесь? После подтверждения почты создадим аккаунт автоматически.</p>
 
 					<p class="fine-print" id="lp-footer-legal">
 						Продолжая, вы соглашаетесь с
@@ -73,28 +71,31 @@
 
 				<!-- Step 2: Code -->
 				<section id="step-code" class="lp-step is-hidden">
-					<div class="form-eyebrow">Подтверждение</div>
-					<h1 class="lp-h2">Введите код</h1>
-					<p class="lp-lead">Отправили на <strong id="email-show-text"></strong></p>
-					<p class="lp-delivery-help" role="note">
-						Не нашли письмо? Проверьте папки «Спам», «Рассылки» и «Промоакции». Если письма нет — пожалуйста, напишите нам на <span class="lp-support-email">hello@voronova.online</span> или в чат: нажмите значок внизу.
-					</p>
+					<div class="lp-step-heading"><div class="form-eyebrow">Подтверждение почты</div><span class="lp-step-count">Шаг 2 из 2</span></div>
+					<h1 class="lp-h2">Проверьте почту</h1>
+					<p class="lp-lead lp-code-lead">Отправили 6-значный код на</p>
+					<div class="lp-address-row"><strong id="email-show-text"></strong><button class="lp-text-button" id="login-back-btn" type="button">Изменить</button></div>
+					<p class="lp-code-meta" id="code-expiry">Код действует 10 минут</p>
 
 					<div class="field">
-						<label class="form-label" for="code-input">6-значный код</label>
-						<input class="form-input code-input" type="text" id="code-input" placeholder="------" maxlength="6" inputmode="numeric" autocomplete="one-time-code" aria-describedby="code-error">
+						<label class="form-label" for="code-input">Код из письма</label>
+						<input class="form-input code-input" type="text" id="code-input" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="one-time-code" aria-describedby="code-error code-expiry">
 					</div>
 					<div class="field is-hidden" id="mfa-field">
 						<label class="form-label" for="mfa-code-input">Код приложения-аутентификатора</label>
 						<input class="form-input code-input" type="text" id="mfa-code-input" placeholder="------" maxlength="6" inputmode="numeric" autocomplete="one-time-code" aria-describedby="code-error">
 					</div>
-					<div class="lp-error" id="code-error" role="alert" aria-live="polite"></div>
+					<div class="lp-feedback-space"><div class="lp-error" id="code-error" role="status" aria-live="polite"></div></div>
 					<button class="btn-primary" id="verify-btn" type="button">Войти →</button>
 
 					<div class="lp-timer" id="timer-block">
-						Отправить повторно через <span id="timer-sec">60</span> сек
+						<button class="lp-text-button" id="resend-code-btn" type="button">Отправить код ещё раз</button>
+						<p id="resend-help">Если письмо не пришло</p>
 					</div>
-					<button class="btn-secondary" id="login-back-btn" type="button">← Другой email</button>
+					<details class="lp-login-help">
+						<summary>Не получается войти?</summary>
+						<div><p>Проверьте адрес и папки «Спам», «Рассылки» и «Промоакции». Если запрашивали код ещё раз, откройте самое новое письмо.</p><a class="lp-text-button" data-tawk-open href="https://tawk.to/chat/699610c27418241c38dd96b3/1js4rtjr9" target="_blank" rel="noopener">Написать в поддержку →</a><p>Или напишите на <a href="mailto:hello@voronova.online">hello@voronova.online</a></p></div>
+					</details>
 				</section>
 
 				<!-- Step 3: Success -->
@@ -114,13 +115,7 @@
 					</div>
 				</section>
 
-				<!-- Features (kept compact for trust signal) -->
-				<div class="lp-features">
-					<div class="lp-feat"><span class="lp-feat-dot"></span><span id="lp-recipes-count">70+ рецептов</span></div>
-					<div class="lp-feat"><span class="lp-feat-dot"></span>КБЖУ расчёт</div>
-					<div class="lp-feat"><span class="lp-feat-dot"></span>Конструктор тарелки</div>
-					<div class="lp-feat"><span class="lp-feat-dot"></span>Список покупок</div>
-				</div>
+				<div class="lp-support-line">Есть вопрос? <a class="lp-text-button" data-tawk-open href="https://tawk.to/chat/699610c27418241c38dd96b3/1js4rtjr9" target="_blank" rel="noopener">Мы поможем</a></div>
 
 			</main>
 		</div>
@@ -129,7 +124,7 @@
 <script src="google-analytics.js?v=20260809"></script>
 <script src="metrika.js?v=20261007-client-id"></script>
 <script src="data-v2.js?v=20260908-trial-ended-paywall"></script>
-	<script src="login.js?v=20261007-client-id"></script>
+	<script src="login.js?v=20261023-comfort-login"></script>
 
 	<a class="chat-fab" id="support-fab" data-tawk-open href="https://tawk.to/chat/699610c27418241c38dd96b3/1js4rtjr9" target="_blank" rel="noopener" aria-label="Открыть чат поддержки Tawk" title="Чат с отделом заботы">
 		<svg class="chat-fab-icon" viewBox="0 0 24 24" aria-hidden="true">

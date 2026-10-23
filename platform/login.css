@@ -715,6 +715,82 @@ body {
 	}
 }
 
+/* Email login: approved desktop/mobile layout and recoverable code states. */
+.lp-card { min-height: 670px; }
+.lp-form { padding: 46px 48px; }
+.lp-h2 { font-size: 36px; line-height: 1.15; }
+.lp-lead { margin-bottom: 24px; }
+.lp-offer { padding: 14px 16px; margin-bottom: 24px; background: #faf8f5; border-left: 3px solid var(--accent); font-size: 12px; line-height: 1.6; }
+.lp-offer strong, .lp-offer span { display: block; }
+.lp-offer strong { font-size: 13px; margin-bottom: 3px; }
+.lp-offer span { color: var(--text-2); }
+.lp-new-account { font-size: 12px; line-height: 1.65; color: var(--text-2); margin-top: 16px; }
+.fine-print { font-size: 10px; margin-top: 14px; }
+.lp-step-heading { display: flex; gap: 16px; align-items: baseline; justify-content: space-between; }
+.lp-step-count { color: var(--text-3); font-size: 10px; white-space: nowrap; }
+.lp-code-lead { margin-bottom: 4px; }
+.lp-address-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.lp-address-row strong { font-size: 14px; overflow-wrap: anywhere; min-width: 0; }
+.lp-text-button { border: 0; background: none; font: 600 12px var(--sans); color: var(--accent); padding: 6px 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; line-height: 1.5; }
+.lp-text-button:hover { color: var(--accent-d); }
+.lp-text-button:focus-visible, .lp-login-help summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.lp-text-button:disabled { color: var(--text-3); cursor: default; text-decoration: none; }
+.lp-code-meta { font-size: 11px; color: var(--text-3); margin: 8px 0 26px; font-variant-numeric: tabular-nums; }
+.form-input { font-size: 16px; }
+.form-input.code-input { font-variant-numeric: tabular-nums; letter-spacing: 10px; padding-right: 6px; }
+.code-input::placeholder { color: #c9c5c0; }
+.code-input[aria-invalid="true"] { border-color: #b7432e; }
+#step-code .field { margin-bottom: 0; }
+#mfa-field:not(.is-hidden) { margin-top: 18px; }
+.lp-feedback-space { min-height: 76px; padding: 10px 0 12px; }
+.lp-feedback-space .lp-error { margin: 0; padding: 0; border: 0; background: none; font-size: 12px; font-weight: 400; line-height: 1.65; color: #a33324; }
+.lp-feedback-space .lp-error.is-notice { color: var(--text-2); }
+.lp-timer { margin-top: 14px; min-height: 64px; }
+.lp-timer p { font-size: 10px; color: var(--text-3); line-height: 1.5; margin-top: 1px; }
+.lp-login-help { margin-top: 8px; border-top: 1px solid #ece8e3; border-bottom: 1px solid #ece8e3; font-size: 12px; color: var(--text-2); }
+.lp-login-help summary { padding: 15px 22px 15px 0; list-style: none; cursor: pointer; font-weight: 600; position: relative; }
+.lp-login-help summary::-webkit-details-marker { display: none; }
+.lp-login-help summary::after { content: '+'; position: absolute; right: 2px; font-size: 19px; font-weight: 400; top: 10px; }
+.lp-login-help[open] summary::after { content: '−'; }
+.lp-login-help > div { padding: 0 0 16px; line-height: 1.75; overflow-wrap: anywhere; }
+.lp-login-help p { margin-bottom: 8px; }
+.lp-login-help a { color: var(--accent); }
+.lp-support-line { margin-top: 25px; font-size: 10px; color: var(--text-3); }
+.lp-support-line .lp-text-button { font-size: 10px; margin-left: 3px; }
+@media (max-width: 860px) {
+  .lp-card { min-height: 100dvh; display: flex; flex-direction: column; }
+  .lp-media { flex: 0 0 150px; }
+  .lp-form { padding: 30px 24px 24px; flex: 1; }
+  .lp-h2 { font-size: 30px; }
+  .lp-lead { font-size: 13px; margin-bottom: 20px; }
+  .lp-offer { margin-bottom: 20px; }
+  .lp-code-lead { margin-bottom: 4px; }
+  .lp-address-row { align-items: center; }
+  .lp-address-row strong { font-size: 13px; }
+  .lp-text-button { min-height: 40px; display: inline-flex; align-items: center; padding: 8px 0; }
+  .lp-code-meta { margin: 0 0 22px; }
+  .lp-step-count { font-size: 9px; }
+  .lp-step-heading { gap: 8px; }
+  .form-eyebrow { font-size: 10px; }
+  .lp-timer { margin-top: 8px; }
+  .lp-login-help summary { padding-top: 17px; padding-bottom: 17px; }
+  .lp-support-line { margin-top: auto; padding-top: 18px; }
+  .lp-new-account { font-size: 11px; }
+  .lp-form > section { margin-bottom: 8px; }
+  .chat-fab { display: none; }
+}
+@media (max-width: 380px) {
+  .lp-form { padding: 26px 18px 20px; }
+  .lp-h2 { font-size: 28px; }
+  .lp-step-count { font-size: 8px; }
+  .form-eyebrow { letter-spacing: .1em; }
+}
+@media (max-width: 860px) and (max-height: 600px) {
+  .lp-media { display: none; }
+  .lp-form { padding-top: 20px; }
+  .lp-support-line { padding-top: 12px; }
+}
+
 /* Системная настройка "уменьшить движение": состояния остаются понятными,
    но элементы не перемещаются и не крутятся. */
 @media (prefers-reduced-motion: reduce) {

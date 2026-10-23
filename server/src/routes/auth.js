@@ -18,14 +18,33 @@ const AUTH_PROFILE_RATE_LIMIT = { max: 20, timeWindow: '1 hour' };
 const AUTH_ACTIVITY_RATE_LIMIT = { max: 120, timeWindow: '15 minutes' };
 const LOGIN_CODE_TTL_MINUTES = 10;
 const LOGIN_CODE_MAX_ATTEMPTS = 3;
+const LOGIN_CODE_RESEND_SECONDS = 60;
+const LOGIN_CODE_WINDOW_MS = 15 * 60 * 1000;
+
+function retryDetails(deadline) {
+  const now = Date.now();
+  const retryAt = Math.max(now + 1000, deadline);
+  return { retryAfterSeconds: Math.ceil((retryAt - now) / 1000), retryAt: new Date(retryAt).toISOString() };
+}
+
+function timeOr(value, fallback) {
+  const time = value == null ? NaN : new Date(value).getTime();
+  return Number.isFinite(time) ? time : fallback;
+}
 
 async function authRoutes(fastify) {
+  function rejectCode(req, reply, status, reason, error, extra = {}) {
+    // Keep diagnosis possible without recording email addresses or submitted codes.
+    fastify.log.info({ event: 'auth_code_rejected', reason, requestId: String(req.id) }, 'Auth code rejected');
+    if (extra.retryAfterSeconds) reply.header('Retry-After', String(extra.retryAfterSeconds));
+    return reply.status(status).send({ error, reason, ...extra });
+  }
   // POST /auth/send-code
   fastify.post('/auth/send-code', {
     config: { rateLimit: AUTH_SEND_CODE_RATE_LIMIT }
   }, async (req, reply) => {
     const { email, context, metrikaClientId } = req.body || {};
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply.status(400).send({ error: 'Некорректный email' });
+    if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return reply.status(400).send({ error: 'Некорректный email' });
     const lower = email.toLowerCase().trim();
     // Если вход через админку — проверяем что email принадлежит админу
     // Отвечаем 200 в любом случае, чтобы не раскрывать наличие/роль аккаунта
@@ -37,15 +56,21 @@ async function authRoutes(fastify) {
     }
     // rate limit по IP: макс 10 кодов за 15 минут с одного IP
     const ip = req.ip;
-    const ipRecent = await db.query("SELECT COUNT(*) FROM login_codes WHERE ip=$1 AND created_at > now() - interval '15 minutes'", [ip]);
-    if (Number(ipRecent.rows[0].count) >= 10) return reply.status(429).send({ error: 'Слишком много запросов. Подождите 15 минут' });
+    const ipRecent = await db.query("SELECT COUNT(*) AS count, (array_agg(created_at ORDER BY created_at DESC))[10] AS limit_at, (array_agg(created_at ORDER BY created_at DESC))[9] AS next_limit_at FROM login_codes WHERE ip=$1 AND created_at > now() - interval '15 minutes'", [ip]);
+    if (Number(ipRecent.rows[0].count) >= 10) return rejectCode(req, reply, 429, 'SEND_RATE_LIMIT', 'Слишком много запросов. Подождите перед отправкой нового письма', retryDetails(timeOr(ipRecent.rows[0].limit_at, Date.now()) + LOGIN_CODE_WINDOW_MS));
     // rate limit по email
-    const recent = await db.query("SELECT COUNT(*) FROM login_codes WHERE email=$1 AND created_at > now() - interval '15 minutes'", [lower]);
-    if (Number(recent.rows[0].count) >= 3) return reply.status(429).send({ error: 'Слишком много попыток. Подождите 15 минут' });
+    const recent = await db.query("SELECT COUNT(*) AS count, MAX(created_at) AS last_at, (array_agg(created_at ORDER BY created_at DESC))[3] AS limit_at, (array_agg(created_at ORDER BY created_at DESC))[2] AS next_limit_at FROM login_codes WHERE email=$1 AND created_at > now() - interval '15 minutes'", [lower]);
+    if (Number(recent.rows[0].count) >= 3) return rejectCode(req, reply, 429, 'SEND_RATE_LIMIT', 'Слишком много попыток. Подождите перед отправкой нового письма', retryDetails(timeOr(recent.rows[0].limit_at, Date.now()) + LOGIN_CODE_WINDOW_MS));
+    const lastSent = timeOr(recent.rows[0].last_at, 0);
+    if (lastSent + LOGIN_CODE_RESEND_SECONDS * 1000 > Date.now()) return rejectCode(req, reply, 429, 'SEND_COOLDOWN', 'Письмо уже отправлено. Подождите перед повторной отправкой', retryDetails(lastSent + LOGIN_CODE_RESEND_SECONDS * 1000));
     const code = generateLoginCode();
     const codeHash = await bcrypt.hash(code, 10);
-    await db.query("INSERT INTO login_codes (email, code_hash, expires_at, ip) VALUES ($1, $2, now() + ($3 * interval '1 minute'), $4)", [lower, codeHash, LOGIN_CODE_TTL_MINUTES, ip]);
-    try { await sendLoginCode(lower, code, LOGIN_CODE_TTL_MINUTES); } catch (e) { fastify.log.error(e, 'SMTP error'); return reply.status(500).send({ error: 'Не удалось отправить письмо' }); }
+    const inserted = await db.query("INSERT INTO login_codes (email, code_hash, expires_at, ip) VALUES ($1, $2, now() + ($3 * interval '1 minute'), $4) RETURNING created_at, expires_at", [lower, codeHash, LOGIN_CODE_TTL_MINUTES, ip]);
+    try { await sendLoginCode(lower, code, LOGIN_CODE_TTL_MINUTES); } catch (e) { fastify.log.error(e, 'SMTP error'); return reply.status(500).send({ error: 'Не удалось отправить письмо. Попробуйте чуть позже', reason: 'SEND_FAILED' }); }
+    const sentAt = timeOr(inserted.rows[0]?.created_at, Date.now());
+    const resendAt = Math.max(sentAt + LOGIN_CODE_RESEND_SECONDS * 1000,
+      Number(recent.rows[0].count) >= 2 ? timeOr(recent.rows[0].next_limit_at, sentAt) + LOGIN_CODE_WINDOW_MS : 0,
+      Number(ipRecent.rows[0].count) >= 9 ? timeOr(ipRecent.rows[0].next_limit_at, sentAt) + LOGIN_CODE_WINDOW_MS : 0);
     const metrikaGoals = {};
     if (context !== 'admin') {
       for (const goalId of ['registration_started', 'verification_code_sent']) {
@@ -54,7 +79,10 @@ async function authRoutes(fastify) {
       }
       if (Object.values(metrikaGoals).some(Boolean)) dispatchMetrikaGoals(fastify);
     }
-    return { ok: true, message: 'Код отправлен на ' + lower, metrikaGoals };
+    return { ok: true, message: 'Код отправлен на ' + lower, metrikaGoals,
+      serverTime: new Date().toISOString(),
+      codeExpiresAt: new Date(timeOr(inserted.rows[0]?.expires_at, sentAt + LOGIN_CODE_TTL_MINUTES * 60000)).toISOString(),
+      resendAvailableAt: new Date(resendAt).toISOString() };
   });
 
   // POST /auth/verify
@@ -62,7 +90,8 @@ async function authRoutes(fastify) {
     config: { rateLimit: AUTH_VERIFY_RATE_LIMIT }
   }, async (req, reply) => {
     const { email, code, fingerprint: rawFingerprint, context, mfaCode, metrikaClientId } = req.body || {};
-    if (!email || !code) return reply.status(400).send({ error: 'email и code обязательны' });
+    if (typeof email !== 'string' || !email || !code) return reply.status(400).send({ error: 'email и code обязательны' });
+    if (typeof code !== 'string' || !/^\d{6}$/.test(code)) return rejectCode(req, reply, 400, 'INVALID_CODE_FORMAT', 'Введите 6 цифр из письма');
     const lower = email.toLowerCase().trim();
     const fingerprintCheck = inspectFingerprint(rawFingerprint);
     if (fingerprintCheck.status === 'invalid') {
@@ -76,21 +105,25 @@ async function authRoutes(fastify) {
     }
     // rate limit по IP: макс 20 попыток верификации за 15 минут
     const ipVerify = await db.query("SELECT COALESCE(SUM(attempts), 0) AS total FROM login_codes WHERE ip=$1 AND created_at > now() - interval '15 minutes'", [req.ip]);
-    if (Number(ipVerify.rows[0].total) >= 20) return reply.status(429).send({ error: 'Слишком много попыток. Подождите 15 минут' });
-    const result = await db.query('SELECT * FROM login_codes WHERE email=$1 AND used=false AND expires_at > now() ORDER BY created_at DESC LIMIT 1', [lower]);
-    if (!result.rows.length) return reply.status(400).send({ error: 'Код не найден или истёк' });
+    if (Number(ipVerify.rows[0].total) >= 20) return rejectCode(req, reply, 429, 'VERIFY_RATE_LIMIT', 'Слишком много попыток проверки. Подождите 15 минут', retryDetails(Date.now() + LOGIN_CODE_WINDOW_MS));
+    // Select the latest request even when it is consumed/expired. Never revive an older code.
+    const result = await db.query('SELECT * FROM login_codes WHERE email=$1 ORDER BY created_at DESC, id DESC LIMIT 1', [lower]);
+    if (!result.rows.length) return rejectCode(req, reply, 400, 'CODE_EXPIRED', 'Код не найден или истёк');
     const row = result.rows[0];
+    if (row.used) return rejectCode(req, reply, 400, 'CODE_UNAVAILABLE', 'Код уже использован или недоступен. Запросите новый код');
+    if (timeOr(row.expires_at, Infinity) <= Date.now()) return rejectCode(req, reply, 400, 'CODE_EXPIRED', 'Срок действия кода закончился. Получите новый код');
     if (Number(row.attempts || 0) >= LOGIN_CODE_MAX_ATTEMPTS) {
       await db.query('UPDATE login_codes SET used=true WHERE id=$1 AND used=false', [row.id]);
-      return reply.status(400).send({ error: 'Превышено число попыток' });
+      return rejectCode(req, reply, 400, 'CODE_ATTEMPTS_EXCEEDED', 'Превышено число попыток. Получите новый код', { attemptsRemaining: 0 });
     }
     const valid = await bcrypt.compare(code, row.code_hash);
     if (!valid) {
-      await db.query(
-        'UPDATE login_codes SET attempts=COALESCE(attempts, 0)+1 WHERE id=$1 AND used=false AND COALESCE(attempts, 0) < $2',
+      const failed = await db.query(
+        'UPDATE login_codes SET attempts=COALESCE(attempts, 0)+1 WHERE id=$1 AND used=false AND COALESCE(attempts, 0) < $2 RETURNING attempts',
         [row.id, LOGIN_CODE_MAX_ATTEMPTS]
       );
-      return reply.status(400).send({ error: 'Неверный код' });
+      const remaining = Math.max(0, LOGIN_CODE_MAX_ATTEMPTS - Number(failed.rows[0]?.attempts ?? (Number(row.attempts || 0) + 1)));
+      return rejectCode(req, reply, 400, remaining ? 'INVALID_CODE' : 'CODE_ATTEMPTS_EXCEEDED', remaining ? 'Неверный код' : 'Превышено число попыток. Получите новый код', { attemptsRemaining: remaining });
     }
     // Сначала определяем роль: для администратора email-код сам по себе недостаточен.
     let userRes = await db.query('SELECT * FROM users WHERE email=$1', [lower]);
@@ -119,21 +152,26 @@ async function authRoutes(fastify) {
           ua: req.headers['user-agent']
         });
         if (!attemptState) {
-          return reply.status(400).send({ error: 'Код уже использован или истёк' });
+          return rejectCode(req, reply, 400, 'CODE_UNAVAILABLE', 'Код уже использован или истёк');
         }
         if (attemptState.used) {
-          return reply.status(429).send({ error: 'Превышено число попыток MFA. Запросите новый email-код.' });
+          return rejectCode(req, reply, 429, 'MFA_ATTEMPTS_EXCEEDED', 'Превышено число попыток MFA. Запросите новый email-код.');
         }
         // До исчерпания лимита email-код остаётся действительным, чтобы можно
         // было исправить случайную ошибку TOTP без повторной отправки письма.
-        return reply.status(403).send({ error: 'Неверный код приложения-аутентификатора', mfaRequired: true });
+        return rejectCode(req, reply, 403, 'MFA_INVALID', 'Неверный код приложения-аутентификатора', { mfaRequired: true });
       }
     }
     const consumed = await db.query(
-      'UPDATE login_codes SET used=true WHERE id=$1 AND used=false AND expires_at > now() RETURNING id',
-      [row.id]
+      `UPDATE login_codes SET used=true WHERE id=$1 AND used=false AND expires_at > now()
+         AND COALESCE(attempts, 0) < $2
+         AND NOT EXISTS (SELECT 1 FROM login_codes newer
+                          WHERE newer.email=login_codes.email
+                            AND (newer.created_at, newer.id) > (login_codes.created_at, login_codes.id))
+       RETURNING id`,
+      [row.id, LOGIN_CODE_MAX_ATTEMPTS]
     );
-    if (!consumed.rows.length) return reply.status(400).send({ error: 'Код уже использован или истёк' });
+    if (!consumed.rows.length) return rejectCode(req, reply, 400, 'CODE_UNAVAILABLE', 'Код уже использован, истёк или заменён новым');
 
     // найти или создать пользователя
     let isNew = false;

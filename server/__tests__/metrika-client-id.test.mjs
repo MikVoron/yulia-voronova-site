@@ -13,7 +13,7 @@ function browser() {
     if (!elements.has(id)) elements.set(id, {
       value: id === 'email-input' ? 'test@example.com' : id === 'code-input' ? '123456' : '',
       dataset: {}, classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
-      addEventListener() {}, focus() {}
+      addEventListener() {}, focus() {}, setAttribute() {}
     });
     return elements.get(id);
   };

@@ -18,6 +18,7 @@
 		var _recipeContext = document.getElementById('lp-recipe-context');
 		if (_recipeContext) _recipeContext.hidden = !_isProRecipeEntry;
 		var _isAdminLogin = _returnUrl.indexOf('admin.html') !== -1 || _returnUrl.indexOf('recipe-editor.html') !== -1;
+		var _isAdminEntry = _isAdminLogin;
 		var _hasReturn = !!_safeReturn(_rawReturn);
 		// Дописываем оферту, только если она опубликована (флаг в data-v2.js)
 		if (typeof LEGAL_OFFER_ENABLED !== 'undefined' && LEGAL_OFFER_ENABLED) {
@@ -56,6 +57,83 @@
 		var _metrikaClientId = null;
 		var _sendingCode = false;
 		var _verifyingCode = false;
+		var _codeExpiresAt = 0;
+		var _resendAvailableAt = 0;
+		var _verifyAvailableAt = 0;
+		var _codeUnavailable = false;
+		var _lastRejectedKey = '';
+		var _emailBlockedAddress = '';
+		var _emailAvailableAt = 0;
+		var _emailRateMessage = false;
+		var _pendingKey = 'smartplate.login.pending.v1.' + (_isAdminLogin ? 'admin' : 'email');
+		function clearPendingLogin() {
+			try { sessionStorage.removeItem(_pendingKey); } catch (e) { }
+		}
+		function savePendingLogin() {
+			if (!currentEmail || !_codeExpiresAt) return;
+			try { sessionStorage.setItem(_pendingKey, JSON.stringify({
+				email: currentEmail, expiresAt: _codeExpiresAt, resendAt: _resendAvailableAt,
+				verifyAt: _verifyAvailableAt, unavailable: _codeUnavailable, mfaRequired: _isAdminLogin, savedAt: Date.now()
+			})); } catch (e) { }
+		}
+		function restorePendingLogin() {
+			try {
+				var pending = JSON.parse(sessionStorage.getItem(_pendingKey));
+				if (!pending || typeof pending.email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pending.email)
+					|| !Number.isFinite(pending.savedAt) || pending.savedAt < Date.now() - 30 * 60000 || pending.savedAt > Date.now() + 60000
+					|| !Number.isFinite(pending.expiresAt) || !Number.isFinite(pending.resendAt) || !Number.isFinite(pending.verifyAt)) {
+					clearPendingLogin(); return;
+				}
+				currentEmail = pending.email;
+				_codeExpiresAt = pending.expiresAt;
+				_resendAvailableAt = pending.resendAt;
+				_emailBlockedAddress = pending.email;
+				_emailAvailableAt = pending.resendAt;
+				_verifyAvailableAt = pending.verifyAt;
+				_codeUnavailable = pending.unavailable === true;
+				_isAdminLogin = _isAdminLogin || pending.mfaRequired === true;
+				document.getElementById('email-input').value = currentEmail;
+				showCodeStep(false);
+			} catch (e) { clearPendingLogin(); }
+		}
+		function clockText(ms) {
+			var seconds = Math.max(0, Math.ceil(ms / 1000));
+			return String(Math.floor(seconds / 60)).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0');
+		}
+		function serverDeadline(value, serverTime, fallbackSeconds) {
+			var deadline = Date.parse(value);
+			var now = Date.parse(serverTime);
+			if (Number.isFinite(deadline) && Number.isFinite(now)) return Date.now() + Math.max(0, Math.min(15 * 60000, deadline - now));
+			return Date.now() + fallbackSeconds * 1000;
+		}
+		function retryDeadline(data, response) {
+			var header = response.headers && response.headers.get ? response.headers.get('Retry-After') : null;
+			var seconds = Number(data.retryAfterSeconds || header);
+			return Date.now() + (Number.isFinite(seconds) && seconds > 0 ? Math.min(seconds, 900) : 900) * 1000;
+		}
+		function updateLoginTimers() {
+			var now = Date.now();
+			var resend = document.getElementById('resend-code-btn');
+			var wait = _resendAvailableAt - now;
+			resend.disabled = _sendingCode || _verifyingCode || wait > 0;
+			resend.textContent = _sendingCode ? 'Отправка…' : wait > 0 ? 'Новое письмо через ' + clockText(wait) : 'Отправить код ещё раз';
+			document.getElementById('resend-help').textContent = wait > 60000 ? 'Пауза действует только на отправку писем' : 'Если письмо не пришло';
+			var expiry = document.getElementById('code-expiry');
+			var expired = _codeExpiresAt > 0 && _codeExpiresAt <= now;
+			if (_codeUnavailable) expiry.textContent = 'Этот код больше не действует. Получите новый код.';
+			else if (expired) expiry.textContent = 'Срок действия кода закончился. Получите новый код.';
+			else if (_codeExpiresAt) expiry.textContent = 'Код действует ещё ' + clockText(_codeExpiresAt - now);
+			if (_verifyAvailableAt > now) expiry.textContent = 'Проверку кода можно повторить через ' + clockText(_verifyAvailableAt - now);
+			document.getElementById('verify-btn').disabled = _sendingCode || _verifyingCode || expired || _codeUnavailable || _verifyAvailableAt > now;
+			document.getElementById('login-back-btn').disabled = _sendingCode || _verifyingCode;
+			var email = document.getElementById('email-input').value.trim().toLowerCase();
+			var emailWaiting = email === _emailBlockedAddress && _emailAvailableAt > now;
+			document.getElementById('send-code-btn').disabled = _sendingCode || _verifyingCode || emailWaiting;
+			if (_emailRateMessage) {
+				if (emailWaiting) showError('email-error', 'Новое письмо можно запросить через ' + clockText(_emailAvailableAt - now) + '. Если код уже пришёл, используйте последнее письмо.');
+				else { hideError('email-error'); _emailRateMessage = false; }
+			}
+		}
 		function refreshMetrikaClientId() {
 			if (_isAdminLogin || _metrikaClientId || !window.SmartPlateMetrika || typeof window.SmartPlateMetrika.getClientId !== 'function') return Promise.resolve(_metrikaClientId);
 			return window.SmartPlateMetrika.getClientId().then(function (clientId) {
@@ -66,33 +144,6 @@
 			});
 		}
 		refreshMetrikaClientId();
-
-		// Dynamic recipe count: use the same marketing threshold as the main page.
-		fetch(API_BASE + '/content/stats')
-			.then(function (r) { return r.ok ? r.json() : null; })
-			.then(function (d) {
-				if (d && d.recipes) {
-					var count = Number(d.recipes);
-					var rounded = count < 5 ? count
-						: count < 20 ? Math.floor(count / 5) * 5
-							: Math.floor(count / 10) * 10;
-					document.getElementById('lp-recipes-count').textContent = rounded + '+ рецептов';
-				}
-			})
-			.catch(function () { });
-
-		// Keep the offer on the entry form in sync with the subscription API.
-		// If pricing is temporarily unavailable, the copy remains truthful without guessing.
-		fetch(API_BASE + '/subscription/early-bird', { credentials: 'include' })
-			.then(function (r) { return r.ok ? r.json() : null; })
-			.then(function (d) {
-				var price = Number(d && d.prices && d.prices['1']);
-				var priceEl = document.getElementById('lp-monthly-price');
-				if (priceEl && Number.isFinite(price) && price > 0) {
-					priceEl.textContent = Math.round(price) + ' ₽/мес';
-				}
-			})
-			.catch(function () { });
 
 		// Генерация browser fingerprint (canvas + screen + timezone + UA)
 		(async function () {
@@ -118,11 +169,13 @@
 		function showError(id, msg) {
 			var el = document.getElementById(id);
 			el.textContent = msg;
+			el.classList.remove('is-notice');
 			el.classList.add('is-visible');
 		}
 		function hideError(id) {
 			var el = document.getElementById(id);
 			el.classList.remove('is-visible');
+			el.classList.remove('is-notice');
 			el.textContent = '';
 		}
 
@@ -131,7 +184,7 @@
 			if (loading) {
 				btn.disabled = true;
 				btn.dataset.text = btn.textContent;
-				btn.innerHTML = '<span class="lp-spinner"></span>Отправка…';
+				btn.innerHTML = '<span class="lp-spinner"></span>' + (btnId === 'verify-btn' ? 'Проверяем…' : 'Отправка…');
 			} else {
 				btn.disabled = false;
 				btn.textContent = btn.dataset.text || 'Отправить';
@@ -209,15 +262,25 @@
 		}
 
 		async function sendCode() {
-			if (_sendingCode) return;
+			if (_sendingCode || _verifyingCode) return;
 			hideError('email-error');
 			var email = document.getElementById('email-input').value.trim().toLowerCase();
-			if (!email || !email.includes('@') || !email.includes('.')) {
+			if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
 				showError('email-error', 'Введите корректный email'); return;
 			}
-			currentEmail = email;
+			if (email === _emailBlockedAddress && _emailAvailableAt > Date.now()) {
+				showError('email-error', 'Новое письмо можно запросить через ' + clockText(_emailAvailableAt - Date.now())); return;
+			}
+			await requestLoginCode(email, false);
+		}
+
+		async function requestLoginCode(email, resending) {
+			if (_sendingCode || _verifyingCode) return;
+			var errorId = resending ? 'code-error' : 'email-error';
+			hideError(errorId);
 			_sendingCode = true;
-			setLoading('send-code-btn', true);
+			if (!resending) setLoading('send-code-btn', true);
+			updateLoginTimers();
 			try {
 				await refreshMetrikaClientId();
 				var res = await fetch(API_BASE + '/auth/send-code', {
@@ -226,21 +289,50 @@
 					body: JSON.stringify({ email: email, context: _isAdminLogin ? 'admin' : undefined, metrikaClientId: _metrikaClientId })
 				});
 				var data = await res.json();
-				if (!res.ok) { showError('email-error', data.error || 'Ошибка'); setLoading('send-code-btn', false); return; }
+				if (!res.ok) {
+					if (res.status === 429) {
+						var retryAt = retryDeadline(data, res);
+						_emailBlockedAddress = email;
+						_emailAvailableAt = retryAt;
+						_emailRateMessage = !resending;
+						if (email === currentEmail) _resendAvailableAt = retryAt;
+						savePendingLogin();
+						showError(errorId, 'Новое письмо можно запросить через ' + clockText(retryAt - Date.now()) + '. Если код уже пришёл, используйте последнее письмо.');
+						startTimer();
+					} else showError(errorId, data.error || 'Не удалось отправить письмо. Попробуйте ещё раз.');
+					return;
+				}
+				currentEmail = email;
+				_codeExpiresAt = serverDeadline(data.codeExpiresAt, data.serverTime, 600);
+				_resendAvailableAt = serverDeadline(data.resendAvailableAt, data.serverTime, 60);
+				_verifyAvailableAt = 0;
+				_codeUnavailable = false;
+				_lastRejectedKey = '';
+				_emailBlockedAddress = email;
+				_emailAvailableAt = _resendAvailableAt;
+				document.getElementById('code-input').value = '';
+				document.getElementById('code-input').setAttribute('aria-invalid', 'false');
+				document.getElementById('mfa-code-input').value = '';
+				savePendingLogin();
 				if (!_isAdminLogin && window.SmartPlateMetrika) {
 					if (!data.metrikaGoals || !data.metrikaGoals.registration_started) window.SmartPlateMetrika.goal('registration_started');
 					if (!data.metrikaGoals || !data.metrikaGoals.verification_code_sent) window.SmartPlateMetrika.goal('verification_code_sent');
 				}
-				showCodeStep();
+				showCodeStep(true);
+				if (resending) {
+					showError('code-error', 'Отправили новый код. Используйте самое новое письмо — предыдущий код больше не действует.');
+					document.getElementById('code-error').classList.add('is-notice');
+				}
 			} catch (e) {
-				showError('email-error', 'Ошибка сети');
+				showError(errorId, 'Не удалось связаться с сервером. Проверьте интернет и попробуйте ещё раз.');
 			} finally {
 				_sendingCode = false;
-				setLoading('send-code-btn', false);
+				if (!resending) setLoading('send-code-btn', false);
+				updateLoginTimers();
 			}
 		}
 
-		function showCodeStep() {
+		function showCodeStep(focusCode) {
 			document.getElementById('email-show-text').textContent = currentEmail;
 			document.getElementById('step-email').classList.add('is-hidden');
 			var step2 = document.getElementById('step-code');
@@ -249,68 +341,37 @@
 			step2.classList.remove('is-hidden');
 			requestAnimationFrame(function () {
 				step2.classList.remove('is-animation-reset');
-				document.getElementById('code-input').focus();
+				if (focusCode) document.getElementById('code-input').focus();
 			});
 			startTimer();
 		}
 
 		function startTimer() {
-			var sec = 60;
-			var timerEl = document.getElementById('timer-sec');
-			var block = document.getElementById('timer-block');
-			block.classList.remove('has-error');
-			block.innerHTML = 'Отправить повторно через <span id="timer-sec">60</span> сек';
-			timerEl = document.getElementById('timer-sec');
 			clearInterval(timerInterval);
-			timerInterval = setInterval(function () {
-				sec--;
-				timerEl.textContent = sec;
-				if (sec <= 0) {
-					clearInterval(timerInterval);
-					var resend = document.createElement('a');
-					resend.href = '#';
-					resend.textContent = 'Отправить код повторно';
-					resend.addEventListener('click', function (event) {
-						event.preventDefault();
-						resendCode();
-					});
-					block.replaceChildren(resend);
-				}
-			}, 1000);
+			updateLoginTimers();
+			timerInterval = setInterval(updateLoginTimers, 1000);
 		}
 
 		async function resendCode() {
-			var block = document.getElementById('timer-block');
-			block.innerHTML = 'Отправка…';
-			try {
-				await refreshMetrikaClientId();
-				var res = await fetch(API_BASE + '/auth/send-code', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ email: currentEmail, context: _isAdminLogin ? 'admin' : undefined, metrikaClientId: _metrikaClientId })
-				});
-				var data = await res.json();
-				if (!res.ok) {
-					block.classList.add('has-error');
-					block.textContent = data.error || 'Ошибка';
-					return;
-				}
-				startTimer();
-			} catch (e) {
-				block.classList.add('has-error');
-				block.textContent = 'Ошибка сети';
-			}
+			if (!currentEmail || _resendAvailableAt > Date.now()) return;
+			await requestLoginCode(currentEmail, true);
 		}
 
 		async function verifyCode() {
-			if (_verifyingCode) return;
+			if (_verifyingCode || _sendingCode) return;
+			if (_codeUnavailable || (_codeExpiresAt && _codeExpiresAt <= Date.now()) || _verifyAvailableAt > Date.now()) { updateLoginTimers(); return; }
 			hideError('code-error');
 			var code = document.getElementById('code-input').value.trim();
-			if (code.length !== 6) { showError('code-error', 'Введите 6-значный код'); return; }
+			if (!/^\d{6}$/.test(code)) { showError('code-error', 'Введите 6 цифр из письма'); return; }
 			var mfaCode = document.getElementById('mfa-code-input').value.trim();
-			if (_isAdminLogin && mfaCode.length !== 6) { showError('code-error', 'Введите код приложения-аутентификатора'); return; }
+			if (_isAdminLogin && !/^\d{6}$/.test(mfaCode)) { showError('code-error', 'Введите код приложения-аутентификатора'); return; }
+			var submittedKey = code + ':' + (_isAdminLogin ? mfaCode : '');
+			if (_lastRejectedKey === submittedKey) {
+				showError('code-error', _isAdminLogin ? 'Эти коды уже проверяли. Проверьте код приложения-аутентификатора.' : 'Этот код уже проверяли. Измените его или запросите новое письмо.'); return;
+			}
 			_verifyingCode = true;
 			setLoading('verify-btn', true);
+			updateLoginTimers();
 			try {
 				await refreshMetrikaClientId();
 				var res = await fetch(API_BASE + '/auth/verify', {
@@ -324,18 +385,38 @@
 					// An admin account can arrive here from an ordinary page (for example, a recipe).
 					// The server asks for MFA only after the email code was verified.
 					if (data.mfaRequired) {
+						if (_isAdminLogin && data.reason === 'MFA_INVALID') _lastRejectedKey = submittedKey;
 						_isAdminLogin = true;
+						savePendingLogin();
 						document.getElementById('mfa-field').classList.remove('is-hidden');
 						showError('code-error', 'Введите код из приложения-аутентификатора');
 						document.getElementById('mfa-code-input').focus();
 						setLoading('verify-btn', false);
 						return;
 					}
-					showError('code-error', data.error || 'Ошибка'); setLoading('verify-btn', false); return;
+					var reason = data.reason;
+					if (reason === 'INVALID_CODE' || (!reason && data.error === 'Неверный код')) {
+						_lastRejectedKey = submittedKey;
+						document.getElementById('code-input').setAttribute('aria-invalid', 'true');
+						showError('code-error', 'Код не подошёл. Если запрашивали письмо повторно, возьмите код из самого нового письма.');
+					} else if (reason === 'CODE_EXPIRED' || reason === 'CODE_UNAVAILABLE' || reason === 'CODE_ATTEMPTS_EXCEEDED' || reason === 'MFA_ATTEMPTS_EXCEEDED') {
+						_codeUnavailable = true;
+						showError('code-error', data.error || 'Этот код больше не действует. Получите новый код.');
+					} else if (res.status === 429) {
+						_verifyAvailableAt = retryDeadline(data, res);
+						showError('code-error', 'Слишком много попыток проверки. Можно повторить через ' + clockText(_verifyAvailableAt - Date.now()));
+						startTimer();
+					} else showError('code-error', data.error || 'Не удалось проверить код. Попробуйте ещё раз.');
+					savePendingLogin();
+					return;
 				}
 				if (data.isNew && window.SmartPlateMetrika && (!data.metrikaGoals || !data.metrikaGoals.registration_completed)) window.SmartPlateMetrika.goal('registration_completed');
 				if (data.isNew && window.SmartPlateGoogleAnalytics) window.SmartPlateGoogleAnalytics.event('sign_up');
 				Auth.login(data.user.email, data.user.displayName, data.accessToken, data.user.subscription, data.user.avatar, data.user.role, data.user.createdAt, data.user.id, data.user.weight);
+				clearPendingLogin();
+				clearInterval(timerInterval);
+				document.getElementById('code-input').value = '';
+				document.getElementById('mfa-code-input').value = '';
 				document.getElementById('step-code').classList.add('is-hidden');
 				var success = document.getElementById('step-success');
 				success.classList.add('is-visible');
@@ -349,36 +430,61 @@
 					setTimeout(function () { location.href = _returnUrl; }, 900);
 				}
 			} catch (e) {
-				showError('code-error', 'Ошибка сети');
-				setLoading('verify-btn', false);
+				showError('code-error', 'Не удалось связаться с сервером. Проверьте интернет и попробуйте ввести тот же код ещё раз.');
 			} finally {
 				_verifyingCode = false;
+				setLoading('verify-btn', false);
+				updateLoginTimers();
 			}
 		}
 
 		function goBack() {
+			if (_sendingCode || _verifyingCode) return;
+			clearPendingLogin();
+			_isAdminLogin = _isAdminEntry;
+			_codeExpiresAt = 0;
+			_codeUnavailable = false;
+			_lastRejectedKey = '';
 			clearInterval(timerInterval);
 			document.getElementById('step-code').classList.add('is-hidden');
 			document.getElementById('code-input').value = '';
 			document.getElementById('mfa-code-input').value = '';
+			document.getElementById('email-input').value = currentEmail;
+			hideError('email-error');
+			hideError('code-error');
 			var s1 = document.getElementById('step-email');
 			s1.classList.add('is-animation-reset');
 			s1.classList.remove('is-hidden');
 			requestAnimationFrame(function () { s1.classList.remove('is-animation-reset'); });
 			document.getElementById('email-input').focus();
+			startTimer();
 		}
 
 		document.addEventListener('keydown', function (e) {
-			if (e.key !== 'Enter') return;
+			if (e.key !== 'Enter' || e.repeat || (e.target && e.target.tagName !== 'INPUT')) return;
+			e.preventDefault();
 			if (!document.getElementById('step-email').classList.contains('is-hidden')) sendCode();
 			else if (!document.getElementById('step-code').classList.contains('is-hidden')) verifyCode();
 		});
-		document.getElementById('code-input').addEventListener('input', function () {
-			if (!_isAdminLogin && this.value.length === 6) verifyCode();
+		function normalizeCodeInput(input) { input.value = input.value.replace(/[^0-9]/g, '').slice(0, 6); }
+		['code-input', 'mfa-code-input'].forEach(function (id) {
+			var input = document.getElementById(id);
+			input.addEventListener('input', function () { normalizeCodeInput(input); input.setAttribute('aria-invalid', 'false'); });
+			input.addEventListener('paste', function (event) {
+				if (!event.clipboardData) return;
+				event.preventDefault();
+				input.value = event.clipboardData.getData('text');
+				normalizeCodeInput(input);
+				input.setAttribute('aria-invalid', 'false');
+			});
 		});
+		document.getElementById('email-input').addEventListener('input', updateLoginTimers);
+		document.addEventListener('visibilitychange', updateLoginTimers);
 		document.getElementById('send-code-btn').addEventListener('click', sendCode);
 		document.getElementById('verify-btn').addEventListener('click', verifyCode);
 		document.getElementById('login-back-btn').addEventListener('click', goBack);
+		document.getElementById('resend-code-btn').addEventListener('click', resendCode);
 		document.getElementById('login-media-image').addEventListener('error', function () {
 			this.classList.add('is-hidden');
 		});
+		restorePendingLogin();
