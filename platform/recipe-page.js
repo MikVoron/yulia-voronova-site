@@ -2002,21 +2002,33 @@
 
 			const guestFreeRecipeCtaHtml = (() => {
 				if (_asIngredient || !Auth.isGuest() || !Auth.isFreeRecipe(r)) return '';
-				const trialRecipeCount = Object.values(RECIPES).filter(recipe =>
+				const catalogRecipes = Object.values(RECIPES);
+				const freeRecipeCount = catalogRecipes.filter(recipe => Auth.isFreeRecipe(recipe)).length;
+				const trialRecipeCount = catalogRecipes.filter(recipe =>
 					Auth.recipeAccessLevel(recipe) === 'trial'
 				).length;
 				if (!trialRecipeCount) return '';
-				const lastTwoDigits = trialRecipeCount % 100;
-				const lastDigit = trialRecipeCount % 10;
-				const recipeWord = (lastTwoDigits >= 11 && lastTwoDigits <= 14)
-					? 'рецептов'
-					: lastDigit === 1 ? 'рецепт'
-						: (lastDigit >= 2 && lastDigit <= 4) ? 'рецепта' : 'рецептов';
+				const proRecipeCount = catalogRecipes.filter(recipe => Auth.recipeAccessLevel(recipe) === 'pro').length;
+				const recipeCountLabel = count => {
+					const lastTwoDigits = count % 100;
+					const lastDigit = count % 10;
+					const word = (lastTwoDigits >= 11 && lastTwoDigits <= 14)
+						? 'рецептов'
+						: lastDigit === 1 ? 'рецепт'
+							: (lastDigit >= 2 && lastDigit <= 4) ? 'рецепта' : 'рецептов';
+					return `${count} ${word}`;
+				};
 				return `<section class="recipe-preview free-recipe-cta" aria-label="Пробный доступ">
 					<div class="rp-cta-block">
 						<div class="rp-cta-eyebrow">7 дней бесплатно и без привязки карты</div>
-						<div class="rp-cta-title">Откройте ещё ${trialRecipeCount} ${recipeWord}</div>
+						<div class="rp-cta-title">В каталоге — ${recipeCountLabel(catalogRecipes.length)}</div>
+						<ul class="free-recipe-access">
+							<li><strong>${recipeCountLabel(freeRecipeCount)}</strong><span>Бесплатно без регистрации</span></li>
+							<li><strong>+${recipeCountLabel(trialRecipeCount)}</strong><span>На 7 дней после регистрации</span></li>
+						</ul>
+						<p class="rp-cta-copy">В пробный период — ${recipeCountLabel(freeRecipeCount + trialRecipeCount)}.${proRecipeCount ? ` Ещё ${recipeCountLabel(proRecipeCount)} — по подписке.` : ''}</p>
 						<a class="rp-cta-btn" href="${escHtml(Auth._loginUrl())}" data-recipe-action="track-registration-cta">Получить доступ на 7 дней</a>
+						<a class="rp-cta-tariffs" href="category.html">Посмотреть весь каталог →</a>
 						<div class="rp-cta-note"><p>Регистрация по email. После пробного периода подписка — только по вашему желанию.</p></div>
 					</div>
 				</section>`;

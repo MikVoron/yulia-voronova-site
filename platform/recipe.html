@@ -1032,6 +1032,21 @@
 			margin-top: 0; padding: 30px 24px;
 		}
 		.recipe-main .free-recipe-cta .rp-cta-title { margin-bottom: 8px; }
+		.recipe-main .free-recipe-access {
+			display: flex; flex-wrap: wrap; gap: 18px 24px;
+			list-style: none; margin: 20px 0 18px; padding: 0;
+		}
+		.recipe-main .free-recipe-access li {
+			flex: 1 1 200px; padding-left: 14px; border-left: 2px solid var(--border);
+		}
+		.recipe-main .free-recipe-access li + li { border-left-color: var(--accent); }
+		.recipe-main .free-recipe-access strong {
+			display: block; margin-bottom: 6px; color: var(--text);
+			font-family: var(--serif); font-size: 26px; line-height: 1.2;
+		}
+		.recipe-main .free-recipe-access span {
+			color: var(--text-2); font-size: 12px; line-height: 1.6;
+		}
 		.recipe-main .free-recipe-cta-copy {
 			max-width: 540px; margin: 0 auto 20px;
 			color: var(--text-2); font-size: 13px; line-height: 1.6;
@@ -1441,7 +1456,7 @@
 <script src="ingredients.js?v=20261007-pumpkin"></script>
 <script src="header-nav.js?v=20260714-category-nav"></script>
 <script src="recipe-views.js?v=20261007"></script>
-	<script src="recipe-page.js?v=20261007-recipe-views"></script>
+	<script src="recipe-page.js?v=20261024-catalog-access-counts"></script>
 	<script src="tawk-chat-modal.js?v=20260803-tawk-singleton"></script>
 </body>
 
