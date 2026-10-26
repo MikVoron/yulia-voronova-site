@@ -3,6 +3,7 @@ const { authenticate, requireAdmin, optionalAuthenticate, getUserTier, userCanSe
 const email = require('../email');
 const audit = require('../audit');
 const { reviewAvatar, assignReviewAvatar } = require('../review-avatars');
+const { registerDiscussionRoutes, discussionSummaries } = require('../review-discussions');
 const { refreshSitemapSafely } = require('../sitemap');
 const { readRecipeTemplate, renderRecipeDocument } = require('../recipe-seo');
 const { getStaticIngredient, readIngredientTemplate, renderIngredientDocument } = require('../ingredient-seo');
@@ -222,6 +223,7 @@ function normalizeIngredientCatalogItem(body) {
 }
 
 async function contentRoutes(fastify) {
+  registerDiscussionRoutes(fastify);
   // Category URLs must expose unique metadata before JavaScript runs.
   fastify.get('/_seo/category', async (req, reply) => {
     const template = await readCategoryTemplate();
@@ -593,6 +595,7 @@ async function contentRoutes(fastify) {
        WHERE r.recipe_id = $1 ORDER BY r.created_at DESC LIMIT $3`,
       [recipeId, userId, REVIEW_LIST_LIMIT]
     );
+    const discussions = await discussionSummaries(result.rows.map(row => row.id));
     return result.rows.map(row => ({
       id: row.id,
       stars: row.stars,
@@ -602,6 +605,7 @@ async function contentRoutes(fastify) {
       author: row.display_name?.trim() || 'Аноним',
       avatar: reviewAvatar(row),
       isEarlyBird: row.early_access_member === true,
+      ...(discussions.get(row.id) || { comments: [], commentCount: 0 }),
       reply: row.reply_text ? {
         text: row.reply_text,
         createdAt: row.reply_created_at,
@@ -622,7 +626,10 @@ async function contentRoutes(fastify) {
     if (!recipeId || !stars) {
       return reply.status(400).send({ error: 'recipe_id и stars обязательны' });
     }
-    if (stars < 1 || stars > 5) return reply.status(400).send({ error: 'stars от 1 до 5' });
+    if (!Number.isInteger(stars) || stars < 1 || stars > 5) return reply.status(400).send({ error: 'stars от 1 до 5' });
+    if (text !== null && text !== undefined && typeof text !== 'string') {
+      return reply.status(400).send({ error: 'Текст отзыва должен быть строкой' });
+    }
     const trimmed = (text || '').trim();
     if (trimmed.length > 1000) {
       return reply.status(400).send({ error: 'Максимум 1000 символов' });
@@ -641,9 +648,9 @@ async function contentRoutes(fastify) {
         `INSERT INTO reviews (recipe_id, user_id, stars, text)
          VALUES ($1, $2, $3, $4)
          ON CONFLICT (recipe_id, user_id)
-         DO UPDATE SET stars = $3, text = $4, created_at = now()
+         DO UPDATE SET stars = $3, text = CASE WHEN $5 THEN $4 ELSE reviews.text END
          RETURNING *`,
-        [recipeId, req.user.sub, stars, trimmed || null]
+        [recipeId, req.user.sub, stars, trimmed || null, text !== undefined]
       );
       await assignReviewAvatar(client, req.user.sub);
       await client.query('COMMIT');

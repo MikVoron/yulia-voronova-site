@@ -1,0 +1,23 @@
+.review-discussion { margin-top: 14px; min-width: 0; }
+.discussion-message { padding: 14px 0; border-top: 1px solid var(--border, #e8e0d8); }
+.discussion-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; font-size: 13px; }
+.discussion-meta strong { overflow-wrap: anywhere; }
+.discussion-meta time { color: var(--text-3, #756d64); font-size: 11px; }
+.discussion-avatar, .discussion-initial { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.discussion-initial { display: inline-flex; align-items: center; justify-content: center; background: var(--accent, #c64e20); color: white; }
+.discussion-author-badge, .discussion-origin { font-size: 10px; color: var(--accent, #c64e20); }
+.discussion-author-badge { padding: 2px 5px; border: 1px solid currentColor; }
+.discussion-text { margin-top: 8px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.6; }
+.discussion-actions, .discussion-form-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 6px; }
+.discussion-button { display: inline-flex; align-items: center; min-height: 40px; padding: 4px 0; border: 0; background: transparent; color: var(--accent, #c64e20); font: inherit; font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.discussion-form { padding-top: 10px; }
+.discussion-form label { display: block; font-size: 12px; font-weight: 600; }
+.discussion-input { display: block; width: 100%; box-sizing: border-box; margin-top: 7px; padding: 10px; border: 1px solid var(--border, #cfc6bd); border-radius: 0; background: #fff; color: var(--text, #222); font: inherit; font-size: 14px; line-height: 1.5; resize: vertical; }
+.discussion-counter { margin-right: auto; color: var(--text-3, #756d64); font-size: 11px; }
+.discussion-send { min-height: 40px; padding: 8px 16px; border: 0; background: var(--accent, #c64e20); color: white; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.review-discussion :focus-visible { outline: 2px solid var(--accent, #c64e20); outline-offset: 3px; }
+.review-discussion [disabled] { opacity: .6; cursor: wait; }
+.discussion-error, .discussion-status { margin: 6px 0; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.discussion-error { color: #b42820; }
+.discussion-error:empty, .discussion-status:empty { display: none; }
+.review-discussion [hidden] { display: none !important; }

@@ -593,7 +593,7 @@
         try {
             const res = await Auth.api('/content/reviews', {
                 method: 'POST',
-                body: JSON.stringify({ recipe_id: recipeId, stars, text: '' })
+                body: JSON.stringify({ recipe_id: recipeId, stars })
             });
             if (res.ok) {
                 showToast('Оценка сохранена ★');
@@ -640,7 +640,7 @@
 
     async function loadCommentsFromAPI(recipeId) {
         try {
-            const res = await fetch(API_BASE + '/content/reviews/' + encodeURIComponent(recipeId));
+            const res = await Auth.api('/content/reviews/' + encodeURIComponent(recipeId));
             if (!res.ok) throw new Error('API error');
             const reviews = await res.json();
             _reviewsCache[recipeId] = reviews;
@@ -687,26 +687,36 @@
                         </div>
                         <div style="margin-bottom:4px">${starsHtml(rv.stars)}</div>
                         ${rv.text ? `<div style="font-size:13px;color:var(--text);line-height:1.5">${escHtml(rv.text)}</div>` : ''}
+                        ${ReviewDiscussions.render(rv)}
                     </div>
                 </div>`;
             }).join('')}</div>`
             : `<div style="text-align:center;padding:24px 0;color:var(--text-3);font-size:14px">Отзывов ещё нет. Поделитесь своим впечатлением.</div>`;
 
         _commentStars = 0;
-        const formHtml = Auth.isLoggedIn() && !hasOwnReview
-            ? `<div class="comments-form" style="margin-top:14px">
+        const formHtml = Auth.isLoggedIn()
+            ? `${hasOwnReview ? '<p style="font-size:13px">Ваш отзыв опубликован. Дополните его в обсуждении.<br><button type="button" class="discussion-button" data-ingredient-action="edit-own-review">Редактировать отзыв и оценку</button></p>' : ''}<div class="comments-form" style="margin-top:14px" ${hasOwnReview ? 'hidden' : ''}>
                 <div class="c-star-row">
                     <label>Оценка:</label>
                     ${[1,2,3,4,5].map(i => `<span class="cstar" data-n="${i}" data-ingredient-action="select-comment-star" data-rating="${i}">★</span>`).join('')}
                 </div>
-                <textarea class="c-input" id="c-text" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." rows="3"></textarea>
+                <textarea class="c-input" id="c-text" maxlength="1000" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." rows="3"></textarea>
                 <button class="btn btn-orange btn-full" id="c-submit-btn" data-ingredient-action="submit-comment">Отправить</button>
             </div>`
-            : Auth.isLoggedIn() && hasOwnReview
-                ? `<div style="text-align:center;padding:16px;color:var(--text-3);font-size:13px">Вы уже оставили отзыв на этот рецепт</div>`
-                : `<div style="text-align:center;padding:16px;color:var(--text-3);font-size:13px"><a href="${Auth._loginUrl()}" style="color:var(--accent);text-decoration:underline">Войдите</a>, чтобы оставить отзыв</div>`;
+            : `<div style="text-align:center;padding:16px;color:var(--text-3);font-size:13px"><a href="${Auth._loginUrl()}" style="color:var(--accent);text-decoration:underline">Войдите</a>, чтобы оставить отзыв</div>`;
 
         document.getElementById('comments-body').innerHTML = list + formHtml;
+    }
+
+    function editOwnComment() {
+        const own = (_reviewsCache[commentsRecipeId] || []).find(rv => rv.userId === Auth.getUser()?.id);
+        if (!own) return;
+        const form = document.querySelector('#comments-body .comments-form');
+        form.hidden = false;
+        document.getElementById('c-text').value = own.text || '';
+        selectStar(own.stars);
+        document.getElementById('c-submit-btn').textContent = 'Сохранить';
+        document.getElementById('c-text').focus();
     }
 
     function selectStar(n) {
@@ -718,7 +728,7 @@
     window.deleteCatReview = async function(id, isAdmin) {
         const ok = await showAppConfirm({
             title: 'Удалить отзыв?',
-            text: 'Это действие нельзя отменить.',
+            text: 'Отзыв и все сообщения в его обсуждении будут удалены. Это действие нельзя отменить.',
             confirmText: 'Удалить',
             cancelText: 'Отмена',
             danger: true
@@ -982,6 +992,7 @@ document.addEventListener('click', function (event) {
         else if (action === 'rate-from-popup') rateFromPop(recipeId, Number(actionTarget.dataset.rating));
         else if (action === 'delete-review') deleteCatReview(Number(actionTarget.dataset.reviewId), actionTarget.dataset.isAdmin === '1');
         else if (action === 'select-comment-star') selectStar(Number(actionTarget.dataset.rating));
+        else if (action === 'edit-own-review') editOwnComment();
         else if (action === 'submit-comment') submitComment();
         else if (action === 'close-plate') closePlate();
         else if (action === 'open-plate-recipe') {

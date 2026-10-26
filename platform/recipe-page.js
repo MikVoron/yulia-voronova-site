@@ -3713,7 +3713,7 @@
 			try {
 				const res = await Auth.api('/content/reviews', {
 					method: 'POST',
-					body: JSON.stringify({ recipe_id: r.id, stars: n, text: '' })
+                    body: JSON.stringify({ recipe_id: r.id, stars: n })
 				});
 				if (!res.ok) { showToast('Не удалось сохранить оценку'); return; }
 				_inlineAvg = n;
@@ -3912,6 +3912,7 @@
 		// ── REVIEWS ──────────────────────────────────────────────────────────
 		let _reviewStars = 0;
 		let _reviewFormMarkup = null;
+		let _ownReview = null;
 		let _editingReviewReplyId = null;
 
 		function setReviewStars(n) {
@@ -3939,7 +3940,8 @@
 				const curUserId = curUser && curUser.id;
 				const isAdmin = curUser && curUser.role === 'admin';
 				const canReactToReply = Auth.isLoggedIn();
-				const hasOwnReview = reviews.some(rv => curUserId && rv.userId === curUserId);
+				_ownReview = reviews.find(rv => curUserId && rv.userId === curUserId) || null;
+				const hasOwnReview = !!_ownReview;
 				const reviewActionLabel = document.getElementById('review-action-label');
 				if (reviewActionLabel) reviewActionLabel.textContent = Auth.isLoggedIn() && !hasOwnReview ? 'Оставить отзыв' : 'Отзывы';
 				const formWrap = document.getElementById('review-form-wrap');
@@ -3948,7 +3950,7 @@
 				}
 				if (formWrap && hasOwnReview) {
 					closeReviewForm();
-					formWrap.innerHTML = '<div style="font-size:13px;color:var(--text-3);padding:12px 16px;text-align:center">Вы уже оставили отзыв. Удалите его, чтобы написать новый.</div>';
+					formWrap.innerHTML = '<div style="font-size:13px;color:var(--text-3);padding:12px 16px;text-align:center">Ваш отзыв опубликован. Вы можете дополнить его в обсуждении.<br><button type="button" class="discussion-button" data-recipe-action="edit-own-review">Редактировать отзыв и оценку</button></div>';
 				} else if (formWrap && _reviewFormMarkup !== null && !formWrap.querySelector('.review-form')) {
 					formWrap.innerHTML = _reviewFormMarkup;
 				}
@@ -4027,7 +4029,7 @@
                     </div>
                     <div class="review-stars-row">${starsHtml}</div>
                     <div class="review-text">${escHtml(rv.text)}</div>
-                    ${authorReply}
+                    ${ReviewDiscussions.render(rv, authorReply)}
                     ${replyAction}
                     ${replyEditor}
                 </div>`;
@@ -4039,7 +4041,19 @@
 			}
 		}
 
-		async function submitReview() {
+		function editOwnReview() {
+            if (!_ownReview || !_reviewFormMarkup) return;
+            const wrap = document.getElementById('review-form-wrap');
+            wrap.innerHTML = _reviewFormMarkup;
+            document.getElementById('review-text').value = _ownReview.text || '';
+            document.getElementById('review-char-count').textContent = (_ownReview.text || '').length + ' / 1000';
+            setReviewStars(_ownReview.stars);
+            wrap.querySelector('.review-form-modal-title').textContent = 'Редактировать отзыв';
+            document.getElementById('review-submit-btn').textContent = 'Сохранить';
+            scrollToReviewForm();
+        }
+
+        async function submitReview() {
 			if (!r || !Auth.isLoggedIn()) return;
 			if (!_reviewStars) { showToast('Выберите оценку'); return; }
 			const textEl = document.getElementById('review-text');
@@ -4078,7 +4092,7 @@
 		window.deleteReview = async function (id, isAdmin) {
 			const ok = await showAppConfirm({
 				title: 'Удалить отзыв?',
-				text: 'Это действие нельзя отменить.',
+				text: 'Отзыв и все сообщения в его обсуждении будут удалены. Это действие нельзя отменить.',
 				confirmText: 'Удалить',
 				cancelText: 'Отмена',
 				danger: true
@@ -4176,6 +4190,7 @@
 				else if (action === 'toggle-grocery') toggleRecipeGroceryChecked(index);
 				else if (action === 'remove-grocery') removeRecipeGroceryItem(index);
 				else if (action === 'delete-review') deleteReview(Number(actionTarget.dataset.reviewId), actionTarget.dataset.isAdmin === 'true');
+				else if (action === 'edit-own-review') editOwnReview();
 				else if (action === 'submit-review-reply') submitReviewReply(Number(actionTarget.dataset.reviewId));
 				else if (action === 'open-review-reply-editor') openReviewReplyEditor(Number(actionTarget.dataset.reviewId));
 				else if (action === 'cancel-review-reply-editor') cancelReviewReplyEditor();

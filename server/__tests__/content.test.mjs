@@ -9,6 +9,7 @@ let subState = null; // null = no subscription row; or { status, trial_ends_at, 
 let dietaryPreferences = null;
 let newsRows = [];
 let reviewRows = [];
+let reviewDiscussionRows = [];
 let reviewAlreadyAnswered = false;
 let reviewReactionActive = false;
 const sendReviewReply = vi.fn().mockResolvedValue(true);
@@ -118,6 +119,7 @@ const mockQuery = vi.fn(async (sql, params = []) => {
   if (/LEFT JOIN review_replies rr ON rr.review_id = r.id/.test(sql)) {
     return { rows: reviewRows.map(r => ({ ...r })) };
   }
+  if (/SELECT r.id AS review_id/.test(sql)) return { rows: reviewDiscussionRows };
   if (/SELECT review_id FROM review_replies WHERE review_id/.test(sql)) {
     return { rows: [{ review_id: 17 }] };
   }
@@ -206,6 +208,7 @@ beforeEach(() => {
   dietaryPreferences = null;
   newsRows = [];
   reviewRows = [];
+  reviewDiscussionRows = [];
   reviewAlreadyAnswered = false;
   reviewReactionActive = false;
   mockQuery.mockClear();
@@ -398,6 +401,46 @@ function expectFull(recipe) {
 }
 
 describe('recipe reviews', () => {
+  it('includes discussion messages without exposing account emails or adding reviews', async () => {
+    reviewRows = [{ id: 17, stars: 4, text: 'Первый опыт', user_id: 'u-1', display_name: 'Анна' }];
+    reviewDiscussionRows = [{ review_id: 17, comment_count: 8, comments: [
+      { id: 20, user_id: 'u-2', text: 'Уточнение', display_name: 'Мария', email: 'private@example.test', role: 'user' },
+    ] }];
+    const res = await app.inject({ method: 'GET', url: '/content/reviews/free-1' });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toHaveLength(1);
+    expect(res.json()[0]).toMatchObject({ stars: 4, commentCount: 8, comments: [{ id: 20, author: 'Мария', text: 'Уточнение' }] });
+    expect(res.body).not.toContain('private@example.test');
+  });
+
+  it('validates stars and text before writing a review', async () => {
+    for (const payload of [
+      { recipe_id: 'free-1', stars: 4.5, text: 'text' },
+      { recipe_id: 'free-1', stars: '5', text: 'text' },
+      { recipe_id: 'free-1', stars: 5, text: {} },
+    ]) {
+      const res = await app.inject({ method: 'POST', url: '/content/reviews',
+        headers: { authorization: 'Bearer ' + makeToken() }, payload });
+      expect(res.statusCode).toBe(400);
+    }
+    expect(mockConnect).not.toHaveBeenCalled();
+  });
+
+  it('distinguishes a quick star change from an explicit review text edit', async () => {
+    mockClientQuery.mockImplementation(async sql => {
+      if (sql.includes('INSERT INTO reviews')) return { rows: [{ id: 44 }] };
+      return { rows: [] };
+    });
+    for (const [body, editsText] of [[{ stars: 3 }, false], [{ stars: 4, text: 'Уточнение' }, true], [{ stars: 5, text: '' }, true]]) {
+      const res = await app.inject({ method: 'POST', url: '/content/reviews',
+        headers: { authorization: 'Bearer ' + makeToken() }, payload: { recipe_id: 'free-1', ...body } });
+      expect(res.statusCode).toBe(200);
+      const call = mockClientQuery.mock.calls.filter(([sql]) => sql.includes('INSERT INTO reviews')).at(-1);
+      expect(call[1][4]).toBe(editsText);
+      expect(call[0]).not.toContain('created_at = now()');
+    }
+  });
+
   it('returns avocado for the seeded anonymous reviewer and gives their personal photo priority', async () => {
     reviewRows = [{ id: 43, stars: 5, text: 'Круто!', user_id: 'u-7',
       display_name: null, avatar: null, review_avatar_position: '0' }];
