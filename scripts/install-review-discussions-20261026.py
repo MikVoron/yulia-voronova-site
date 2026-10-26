@@ -88,10 +88,10 @@ def api_identity():
     return processes[0][0]
 
 
-def fetch_json(path, data=None):
+def fetch_json(path, data=None, method=None):
     request = urllib.request.Request('http://127.0.0.1:3000' + path,
                                     data=None if data is None else json.dumps(data).encode(),
-                                    headers={'Content-Type': 'application/json'})
+                                    headers={'Content-Type': 'application/json'}, method=method)
     with urllib.request.urlopen(request, timeout=8) as response:
         return json.load(response)
 
@@ -151,6 +151,12 @@ def api_smoke():
     try:
         fetch_json('/content/reviews/' + review_id + '/comments', {'text': 'must not persist'})
         raise RuntimeError('Anonymous comment unexpectedly accepted')
+    except urllib.error.HTTPError as error:
+        if error.code != 401:
+            raise
+    try:
+        fetch_json('/content/review-comments/1', {'text': 'must not persist'}, method='PUT')
+        raise RuntimeError('Anonymous comment edit unexpectedly accepted')
     except urllib.error.HTTPError as error:
         if error.code != 401:
             raise

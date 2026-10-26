@@ -105,7 +105,7 @@
         try {
             const id = Number(form.dataset.commentId);
             if (id) {
-                await api('/content/review-comments/' + id, { method: 'PATCH', body: JSON.stringify({ text }) });
+                await api('/content/review-comments/' + id, { method: 'PUT', body: JSON.stringify({ text }) });
                 const comment = state.comments.find(item => item.id === id);
                 if (comment) { comment.text = text; comment.updatedAt = new Date().toISOString(); }
             } else {

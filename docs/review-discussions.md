@@ -4,6 +4,8 @@ Each user keeps one editable rated review per recipe. Discussion messages have n
 
 Registered users can add multiple messages under any review and edit/delete their own messages. Administrators can delete messages from other users. Authentication checks blocked accounts; moderation checks the current database role. Deleting a review also deletes its discussion, with an explicit warning in the UI.
 
+Comment edits use `PUT /content/review-comments/:id`, matching the API's existing CORS method allowlist. Browser writes use `Auth.api` and the API hostname; the same-origin `/api` proxy is read-only. Native integration tests load the actual CORS methods from `server/index.js` and verify the edit preflight. The initial live verification found that `PATCH` was absent from that allowlist; the PUT correction and cache version `20261026-put` address that issue.
+
 The existing single author reply and its helpful reactions remain in their original tables. They appear in the same chronological discussion as new messages. Additional author messages use the new comment endpoint. The shared component is used by recipe pages and review modals on category and ingredient pages.
 
 The initial review response includes up to five messages per review, fetched in one batch query, plus `commentCount`. Further pages contain at most 20 messages. The cursor is a comment ID within that review. A newly posted message appears immediately without advancing the cursor past unread messages. Each submission has a UUID request ID, unique per user, to prevent duplication on a network retry. Requests with a reused ID and different content or review are rejected.

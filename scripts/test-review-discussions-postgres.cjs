@@ -42,7 +42,15 @@ async function run() {
   process.env.JWT_SECRET = 'isolated-review-discussion-test-secret-20261026';
   const { generateAccessToken } = require('../server/src/auth');
   const { registerDiscussionRoutes, discussionSummaries } = require('../server/src/review-discussions');
-  app = require('fastify')({ logger: false }); registerDiscussionRoutes(app); await app.ready();
+  app = require('fastify')({ logger: false });
+  const indexSource = fs.readFileSync(path.join(root,'server/index.js'),'utf8');
+  const methods = JSON.parse(indexSource.match(/methods:\s*(\[[^\]]+\])/)[1].replace(/'/g,'"'));
+  await app.register(require('@fastify/cors'), { origin: ['https://plate.voronova.online'], methods, credentials: true });
+  registerDiscussionRoutes(app); await app.ready();
+  const preflight = await app.inject({method:'OPTIONS',url:'/content/review-comments/1',headers:{
+    origin:'https://plate.voronova.online','access-control-request-method':'PUT','access-control-request-headers':'authorization,content-type'}});
+  assert.equal(preflight.statusCode,204);
+  assert.ok(preflight.headers['access-control-allow-methods'].split(/\s*,\s*/).includes('PUT'));
   const tokens = Object.fromEntries([owner,other,admin,blocked].map(id=>[id,generateAccessToken({id,email:'test@example.test',role:id===admin?'admin':'user'})]));
   async function request(method, url, id, payload) {
     return app.inject({method,url,headers:id ? {authorization:'Bearer '+tokens[id]} : {},payload});
@@ -65,8 +73,8 @@ async function run() {
   assert.equal((await pool.query('SELECT COUNT(*)::int AS n FROM review_comments')).rows[0].n,1);
   response = await request('POST','/content/reviews/2/comments',other,{text:'Другой отзыв',requestId:nonce}); assert.equal(response.statusCode,409);
   response = await request('POST','/content/reviews/1/comments',admin,{text:'Да, замените.',requestId:randomUUID()}); assert.equal(response.statusCode,201); assert.equal(response.json().comment.isAuthor,true);
-  response = await request('PATCH','/content/review-comments/'+comment.id,owner,{text:'Чужая правка',role:'admin'}); assert.equal(response.statusCode,404);
-  response = await request('PATCH','/content/review-comments/'+comment.id,other,{text:'А рисовой мукой?'}); assert.equal(response.statusCode,200);
+  response = await request('PUT','/content/review-comments/'+comment.id,owner,{text:'Чужая правка',role:'admin'}); assert.equal(response.statusCode,404);
+  response = await request('PUT','/content/review-comments/'+comment.id,other,{text:'А рисовой мукой?'}); assert.equal(response.statusCode,200);
   response = await request('DELETE','/content/review-comments/'+comment.id,owner); assert.equal(response.statusCode,404);
   let summaries = await discussionSummaries([1,2]); assert.equal(summaries.get(1).commentCount,2); assert.equal(summaries.get(2).commentCount,0);
   assert.equal(summaries.get(1).comments[0].text,'А рисовой мукой?');

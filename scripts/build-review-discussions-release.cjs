@@ -19,6 +19,15 @@ const oldHashes = {
  'platform/review-discussions.js':null,
  'platform/review-discussions.css':null,
 };
+if (process.argv[3]) {
+ const previous=JSON.parse(fs.readFileSync(path.resolve(process.argv[3]),'utf8'));
+ if(previous.release!=='review-discussions-20261026'||previous.files.length!==Object.keys(oldHashes).length)throw Error('Unexpected baseline manifest');
+ for(const name of Object.keys(oldHashes)){
+  const entry=previous.files.find(item=>item.path===name);
+  if(!entry||!/^[a-f0-9]{64}$/.test(entry.new_sha256))throw Error('Invalid baseline '+name);
+  oldHashes[name]=entry.new_sha256;
+ }
+}
 const git = args => execFileSync('git', args, {cwd:root});
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const commit = git(['rev-parse','HEAD']).toString().trim();

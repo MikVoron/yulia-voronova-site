@@ -63,7 +63,7 @@ async function run() {
                     }
                     if(/^\/content\/review-comments\/\d+$/.test(p)) {
                         const id = Number(p.split('/').at(-1));
-                        if(method==='PATCH'){fixture.comments.find(c=>c.id===id).text=payload.text;return json({ok:true});}
+                        if(method==='PUT'){fixture.comments.find(c=>c.id===id).text=payload.text;return json({ok:true});}
                         if(method==='DELETE'){fixture.comments=fixture.comments.filter(c=>c.id!==id);return json({ok:true});}
                     }
                     if(p==='/content/reviews'&&method==='POST'){fixture.ratingWrites.push(payload);reviews[0].stars=payload.stars;if(payload.text!==undefined)reviews[0].text=payload.text;return json({id:1});}

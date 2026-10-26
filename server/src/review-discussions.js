@@ -107,7 +107,7 @@ function registerDiscussionRoutes(fastify) {
     } finally { client.release(); }
   });
 
-  fastify.patch('/content/review-comments/:id', {
+  fastify.put('/content/review-comments/:id', {
     preHandler: [authenticate],
     config: { rateLimit: { max: 30, timeWindow: '1 hour' } },
   }, async (req, reply) => {
