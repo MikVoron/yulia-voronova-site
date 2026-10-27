@@ -71,6 +71,31 @@ test('matches four actual adapted posts and distinguishes two articles about sou
     });
 });
 
+test('matches substantially edited milk and fish articles without linking an unpublished post', () => {
+    const edited = require('./fixtures/blog-edited-match.json');
+    const result = findDzenLinks(edited.posts, edited.articles);
+    assert.deepEqual(result.additions, {
+        '372': 'https://dzen.ru/a/atsrO_jt_DG7lnBU',
+        '370': 'https://dzen.ru/a/atNCK3-lyTIvT0Nz',
+    });
+    assert.deepEqual(result.warnings, []);
+    const milk = edited.posts.find(post => post.postNumber === 372);
+    const article = edited.articles.find(article => article.url.includes('atsrO_'));
+    const evidence = matchingEvidence(milk.plainText, article.text);
+    assert.ok(evidence.score < 0.45 && evidence.sharedWords >= 80);
+    assert.equal(evidence.strong, true);
+    const duplicate = { ...article, url: 'https://dzen.ru/a/anotherMilkArticle' };
+    assert.deepEqual(findDzenLinks([milk], [article, duplicate]).additions, {});
+});
+
+test('edited-post matching still requires substantial vocabulary and an exact passage', () => {
+    const terms = Array.from({ length: 100 }, (_, index) => `topic${index}`);
+    const articleTerms = [...terms.slice(0, 40), ...Array.from({ length: 60 }, (_, i) => `other${i}`)];
+    assert.equal(matchingEvidence(terms.join(' '), articleTerms.join(' ')).strong, false);
+    // Even 80 shared words are insufficient if there is no common passage.
+    assert.equal(matchingEvidence(terms.join(' '), terms.slice().reverse().join(' ')).strong, false);
+});
+
 test('saves additions, remains idempotent, and preserves file bytes on source failures', async t => {
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-dzen-test-'));
     t.after(() => fs.rmSync(directory, { recursive: true, force: true }));

@@ -9,6 +9,16 @@ test('matches four actual channel posts and distinguishes the other soup article
     assert.deepEqual(findVkLinks(vkFixture.posts, vkFixture.publications).additions, vkFixture.expectedLinks);
 });
 
+test('finds the edited fish post and leaves the unpublished acne post unlinked', () => {
+    const edited = require('./fixtures/blog-edited-match.json');
+    const result = findVkLinks(edited.posts, edited.publications);
+    assert.deepEqual(result.additions, {
+        '372': 'https://vk.ru/im/channels/-232523704?cmid=263',
+        '370': 'https://vk.ru/im/channels/-232523704?cmid=260',
+    });
+    assert.deepEqual(result.warnings, []);
+});
+
 test('accepts only precise message links in the configured VK channel', () => {
     assert.equal(canonicalVkChannelUrl('https://vk.com/im/channels/-232523704?cmid=236&from=feed'),
         'https://vk.ru/im/channels/-232523704?cmid=236');

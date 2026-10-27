@@ -36,7 +36,12 @@ function matchingEvidence(postText, articleText) {
     const denominator = Math.min(postTerms.size, articleTerms.size);
     const score = denominator ? sharedWords / denominator : 0;
     let sharedPassage = false;
-    if (sharedWords >= 40 && score >= 0.45) {
+    // Adapted versions can add many new words while retaining substantial
+    // original material. Require twice as much shared vocabulary before
+    // allowing the lower ratio; an exact passage is still mandatory.
+    const enoughVocabulary = (sharedWords >= 40 && score >= 0.45)
+        || (sharedWords >= 80 && score >= 0.40);
+    if (enoughVocabulary) {
         for (let i = 0; i <= post.length - 8 && !sharedPassage; i++) {
             for (let j = 0; j <= article.length - 8; j++) {
                 const fragment = post.slice(i, i + 8);
