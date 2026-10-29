@@ -106,7 +106,7 @@ describe('email visual system', () => {
     await email.sendSubscriptionExpired('user@example.com');
     await email.sendSubscriptionExpiryReminder('user@example.com', '2026-07-04T00:00:00.000Z');
     const expiryReminder = sendMail.mock.calls.at(-1)[0];
-    expect(expiryReminder.subject).toBe('Подписка заканчивается через 3 дня');
+    expect(expiryReminder.subject).toBe('Ваша подписка на «Умную тарелку» скоро завершится');
     expect(expiryReminder.html).toContain('04.07.2026');
     await email.sendSubscriptionExtended('user@example.com', 30, '2026-07-04T00:00:00.000Z');
     await email.sendPaymentConfirmed('user@example.com', 30, '2026-07-04T00:00:00.000Z', 'Спасибо');
