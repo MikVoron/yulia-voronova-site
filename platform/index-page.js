@@ -167,6 +167,8 @@
 			if (isGuest) {
 				const trialLink = document.getElementById('hero-trial-link');
 				if (trialLink) trialLink.href = Auth._loginUrl();
+				const loginLink = document.getElementById('hero-login-link');
+				if (loginLink) loginLink.href = Auth._loginUrl();
 			}
 		}
 		function updateHeroGuestRecipeCount() {
@@ -179,6 +181,15 @@
 			const countLabel = (count > rounded ? 'Более ' : '') + rounded;
 			if (countEl) countEl.textContent = countLabel + ' рецептов';
 			if (benefitsCountEl) benefitsCountEl.textContent = countLabel;
+			const accessCounts = document.getElementById('hero-access-counts');
+			if (accessCounts) {
+				const recipes = Object.values(RECIPES);
+				const free = recipes.filter(recipe => Auth.recipeAccessLevel(recipe) === 'free').length;
+				const trial = recipes.filter(recipe => Auth.recipeAccessLevel(recipe) === 'trial').length;
+				const pro = recipes.filter(recipe => Auth.recipeAccessLevel(recipe) === 'pro').length;
+				accessCounts.textContent = 'В каталоге — ' + pluralR(count) + '. Бесплатно без регистрации: ' + free + '. Ещё на 7 дней после регистрации: ' + trial + '. Только по подписке: ' + pro + '.';
+				accessCounts.hidden = false;
+			}
 		}
 		updateHeroTrialCta();
 
