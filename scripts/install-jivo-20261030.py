@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -19,6 +20,12 @@ NAMES = {'index.html', 'recipe.html', 'category.html', 'ingredient.html',
 TARGETS = {'platform/' + name: PLATFORM / name for name in NAMES}
 CONFIG = 'server/nginx/plate.voronova.online'
 TARGETS[CONFIG] = Path('/etc/nginx/sites-available/plate.voronova.online')
+PUBLIC_ORIGIN = 'https://plate.voronova.online'
+SEO_DOCUMENTS = {
+    'recipe.html': '/recipe.html?id=hummus',
+    'category.html': '/category.html',
+    'ingredient.html': '/ingredient.html?id=pumpkin',
+}
 
 
 def sha(path):
@@ -53,12 +60,40 @@ def health_pid():
     return int(matches[0][0])
 
 
+def public_bytes(url):
+    suffix = ('&' if '?' in url else '?') + 'jivo_release=' + str(time.time_ns())
+    try:
+        with urllib.request.urlopen(url + suffix, timeout=30) as response:
+            if response.status != 200:
+                raise RuntimeError('Public response failed: ' + url)
+            return response.read()
+    except Exception as error:
+        raise RuntimeError('Public request failed: ' + url) from error
+
+
 def public_hash(url):
-    suffix = '?jivo_release=' + str(time.time_ns())
-    with urllib.request.urlopen(url + suffix, timeout=30) as response:
-        if response.status != 200:
-            raise RuntimeError('Public response failed: ' + url)
-        return hashlib.sha256(response.read()).hexdigest()
+    return hashlib.sha256(public_bytes(url)).hexdigest()
+
+
+def verify_public_file(name, digest, origin=PUBLIC_ORIGIN):
+    if name not in SEO_DOCUMENTS:
+        if public_hash(origin + '/' + name) != digest:
+            raise RuntimeError('Public file mismatch: ' + name)
+        return
+    path = SEO_DOCUMENTS[name]
+    document = public_bytes(origin + path).decode('utf-8')
+    # These responses vary by database content and SEO rendering. The installed
+    # template is still hash-checked; verify the actual chat wiring in the HTML.
+    required = ['jivo-chat-modal.js?v=20261030-jivo',
+                'jivo-chat-modal.css?v=20261030-jivo',
+                'data-support-open', 'https://voronova.online/support-chat.html',
+                'id="smartplate-page-schema"']
+    if any(value not in document for value in required) or re.search(r'tawk\.to|tawk-chat-modal|data-tawk-open', document):
+        raise RuntimeError('Rendered chat wiring mismatch: ' + path)
+    canonicals = re.findall(r'<link\s+rel=["\']canonical["\']\s+href=["\']([^"\']+)["\']', document, re.I)
+    expected = PUBLIC_ORIGIN + path
+    if expected not in canonicals:
+        raise RuntimeError('Rendered canonical mismatch: ' + path)
 
 
 def atomic_copy(source, target):
@@ -147,8 +182,8 @@ def main():
             stat = target.stat()
             if sha(target) != entries[name]['new_sha256'] or (stat.st_uid, stat.st_gid, stat.st_mode & 0o777) != (0, 0, 0o644):
                 raise RuntimeError('Installed file mismatch: ' + name)
-            if name.startswith('platform/') and public_hash('https://plate.voronova.online/' + name[9:]) != entries[name]['new_sha256']:
-                raise RuntimeError('Public file mismatch: ' + name)
+            if name.startswith('platform/'):
+                verify_public_file(name[9:], entries[name]['new_sha256'])
         with urllib.request.urlopen('https://plate.voronova.online/login.html?jivo_csp=' + str(time.time_ns()), timeout=20) as response:
             policy = response.headers.get('Content-Security-Policy', '')
             if 'https://voronova.online;' not in policy or 'https://tawk.to' in policy:
