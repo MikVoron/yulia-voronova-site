@@ -4,6 +4,23 @@
 
 ## Область проверки
 
+### Подготовленная замена Tawk на Jivo, 2026-10-30
+
+Кнопки поддержки подключают `jivo-chat-modal.js` и `jivo-chat-modal.css`.
+Окно загружает `https://voronova.online/support-chat.html` только после клика.
+В этой отдельной странице работает виджет Jivo `dQilQUP0Lq`. Его скриптам
+не предоставляется доступ к origin SmartPlate и хранилищу аккаунта.
+В основной CSP заменён только адрес iframe: `https://tawk.to` →
+`https://voronova.online`; списки `script-src` и `connect-src` не расширены.
+Встроенная страница имеет собственную CSP для ресурсов Jivo: динамические
+поддомены, inline-скрипты и eval разрешены только в документе чата.
+Сигналы готовности/ошибки принимаются по `postMessage` после проверки
+точного origin и `event.source`. Событие загрузки HTML не считается
+доказательством готовности виджета; остаются timeout 12 s и email-fallback.
+На основном сайте Jivo также загружается после нажатия «Оператор».
+Эта запись описывает подготовленные файлы; установка на production отдельно
+не подтверждена. Предыдущая схема Tawk описана ниже как история миграции.
+
 Проверены production-страницы `index.html`, `recipe.html`, `category.html`,
 `ingredient.html`, `cabinet.html`, `login.html`, `admin.html`, а также общие источники разметки
 `data-v2.js`, `header-nav.js`, `cabinet.js` и `admin.js`.

@@ -51,7 +51,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Baskervville&family=Cormorant+Garamond:wght@400;500&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="style.min.css">
+	<link rel="stylesheet" href="style.min.css?v=20261030-jivo">
 	<style>
 		/* ── Страница чекапа ── */
 		.checkup-page {
@@ -438,6 +438,8 @@
 			}
 		}
 	</style>
+	<link rel="stylesheet" href="jivo-support.css?v=20261030-jivo">
+	<script src="jivo-support.js?v=20261030-jivo" defer></script>
 </head>
 
 <body class="checkup-page">
@@ -860,11 +862,11 @@
 				</svg>
 				<span>Юлия</span>
 			</a>
-			<button class="chat-option chat-option-tawk" id="tawkOpenBtn" type="button" aria-label="Чат с оператором">
+			<button class="chat-option chat-option-support" id="supportOpenBtn" type="button" aria-label="Чат с оператором">
 				<svg viewBox="0 0 24 24">
 					<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
 				</svg>
-				<span>Оператор</span><span class="chat-option-badge" id="tawkBadge" aria-hidden="true"></span>
+				<span>Оператор</span><span class="chat-option-badge" id="supportBadge" aria-hidden="true"></span>
 			</button>
 		</div>
 		<button class="chat-launcher-btn" id="chatLauncherBtn" type="button" aria-label="Открыть чат" aria-expanded="false">
@@ -881,7 +883,7 @@
 		</button>
 	</div>
 
-	<script src="main.min.js" defer></script>
+	<script src="main.min.js?v=20261030-jivo" defer></script>
 	<script>
 		function getCheckupText() {
 			var lines = ['БАЗОВЫЙ СПИСОК АНАЛИЗОВ', 'Юлия Воронова · Доказательный нутрициолог', 'www.voronova.online', '@voronova_nutrition', ''];
@@ -990,7 +992,7 @@
 		}
 
 		</script>
-	<script src="analytics.js" defer></script>
+	<script src="analytics.js?v=20261030-jivo" defer></script>
 	<noscript>
 		<div><img src="https://mc.yandex.ru/watch/106615581" style="position:absolute;left:-9999px;" alt="" /></div>
 	</noscript>

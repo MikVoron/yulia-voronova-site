@@ -29,7 +29,7 @@
 		const SUPPORT_CONTACT = {
 			label: 'Отдел заботы',
 			text: 'Написать в чат Отдела заботы',
-			url: 'https://tawk.to/chat/699610c27418241c38dd96b3/1js4rtjr9',
+			url: 'https://voronova.online/support-chat.html',
 			fallbackEmail: 'hello@voronova.online'
 		};
 		function _supportEmailHref() { return 'mailto:' + SUPPORT_CONTACT.fallbackEmail; }
@@ -38,14 +38,14 @@
 			const email = SUPPORT_CONTACT.fallbackEmail;
 			const emailLink = '<a href="' + _supportEmailHref() + '" style="color:var(--accent);text-decoration:underline">' + email + '</a>';
 			if (paymentStatus === 'rejected' && hasChat) {
-				const retryChatLink = '<a href="' + SUPPORT_CONTACT.url + '" data-tawk-open target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">чат Отдела заботы</a>';
+				const retryChatLink = '<a href="' + SUPPORT_CONTACT.url + '" data-support-open target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">чат Отдела заботы</a>';
 				return 'Если нужна помощь с повторной оплатой — напишите в ' + retryChatLink + ' или на ' + emailLink + '.';
 			}
 			const lead = paymentStatus === 'pending'
 				? 'Если проверка занимает дольше 30 минут — '
 				: 'Если остался вопрос — ';
 			if (hasChat) {
-				const chatLink = '<a href="' + SUPPORT_CONTACT.url + '" data-tawk-open target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">' + SUPPORT_CONTACT.text + '</a>';
+				const chatLink = '<a href="' + SUPPORT_CONTACT.url + '" data-support-open target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">' + SUPPORT_CONTACT.text + '</a>';
 				return lead + chatLink + ' или напишите на ' + emailLink + '.';
 			}
 			return lead + 'напишите на ' + emailLink + '.';

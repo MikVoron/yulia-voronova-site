@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Chat Launcher Widget
     const chatLauncher = document.getElementById('chatLauncher');
     const chatLauncherBtn = document.getElementById('chatLauncherBtn');
-    const tawkOpenBtn = document.getElementById('tawkOpenBtn');
+    const supportOpenBtn = document.getElementById('supportOpenBtn');
 
     if (chatLauncher && chatLauncherBtn) {
         // Открыть/закрыть меню
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
             chatLauncherBtn.setAttribute('aria-expanded', isOpen);
             document.getElementById('chatOptions').setAttribute('aria-hidden', !isOpen);
             const badge = document.getElementById('chatBadge');
-            if (badge) badge.classList.toggle('visible', !isOpen && document.getElementById('tawkBadge')?.classList.contains('visible'));
+            if (badge) badge.classList.toggle('visible', !isOpen && document.getElementById('supportBadge')?.classList.contains('visible'));
         });
 
         // Закрыть при клике вне виджета
@@ -73,19 +73,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Открыть чат tawk.to через API
-        if (tawkOpenBtn) {
-            tawkOpenBtn.addEventListener('click', () => {
+        // Открыть Jivo через общую кнопку поддержки
+        if (supportOpenBtn) {
+            supportOpenBtn.addEventListener('click', () => {
                 chatLauncher.classList.remove('open');
                 chatLauncherBtn.setAttribute('aria-expanded', 'false');
                 // Сбрасываем оба бейджа при открытии чата
                 const badge = document.getElementById('chatBadge');
                 if (badge) badge.classList.remove('visible');
-                const tawkBadge = document.getElementById('tawkBadge');
-                if (tawkBadge) tawkBadge.classList.remove('visible');
-                if (typeof Tawk_API !== 'undefined' && typeof Tawk_API.maximize === 'function') {
-                    Tawk_API.maximize();
-                }
+                const supportBadge = document.getElementById('supportBadge');
+                if (supportBadge) supportBadge.classList.remove('visible');
+                if (typeof window.openJivo === 'function') window.openJivo(null, supportOpenBtn);
             });
         }
     }

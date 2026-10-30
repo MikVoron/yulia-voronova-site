@@ -27,7 +27,7 @@
 	<link rel="icon" type="image/svg+xml" href="images/favicons/favicon.svg">
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 	<link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon.png">
-	<link rel="stylesheet" href="style.min.css">
+	<link rel="stylesheet" href="style.min.css?v=20261030-jivo">
 	<!-- DNS Prefetch for third-party domains -->
 	<link rel="dns-prefetch" href="https://www.googletagmanager.com">
 	<link rel="dns-prefetch" href="https://mc.yandex.ru">
@@ -36,6 +36,8 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="jivo-support.css?v=20261030-jivo">
+	<script src="jivo-support.js?v=20261030-jivo" defer></script>
 </head>
 
 <body>
@@ -189,9 +191,9 @@
 		</div>
 	</footer>
 
-	<script src="main.min.js" defer></script>
+	<script src="main.min.js?v=20261030-jivo" defer></script>
 	
-		<script src="analytics.js" defer></script>
+		<script src="analytics.js?v=20261030-jivo" defer></script>
 	<noscript>
 		<div><img src="https://mc.yandex.ru/watch/106615581" style="position:absolute; left:-9999px;" alt="" /></div>
 	</noscript>
@@ -202,9 +204,9 @@
 				<svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
 				<span>Юлия</span>
 			</a>
-			<button class="chat-option chat-option-tawk" id="tawkOpenBtn" type="button" aria-label="Чат с оператором">
+			<button class="chat-option chat-option-support" id="supportOpenBtn" type="button" aria-label="Чат с оператором">
 				<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-				<span>Оператор</span><span class="chat-option-badge" id="tawkBadge" aria-hidden="true"></span>
+				<span>Оператор</span><span class="chat-option-badge" id="supportBadge" aria-hidden="true"></span>
 			</button>
 		</div>
 		<button class="chat-launcher-btn" id="chatLauncherBtn" type="button" aria-label="Открыть чат" aria-expanded="false">

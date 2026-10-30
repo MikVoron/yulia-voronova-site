@@ -15958,7 +15958,7 @@ button[class*="btn-"]:hover,
     border: 1.5px solid #e8d8d4;
 }
 
-.chat-option-tawk {
+.chat-option-support {
     background: #faf4f2;
     border: 1.5px solid #e8d8d4;
 }
@@ -15970,7 +15970,7 @@ button[class*="btn-"]:hover,
     flex-shrink: 0;
 }
 
-.chat-option-tawk svg {
+.chat-option-support svg {
     fill: #7ab5c8;
 }
 

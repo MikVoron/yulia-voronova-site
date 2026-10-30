@@ -1,4 +1,4 @@
-const CACHE = 'yulia-v3-questionnaires';
+const CACHE = 'yulia-v4-jivo';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE = [

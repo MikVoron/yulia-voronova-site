@@ -1,0 +1,40 @@
+/* Keep the existing support launcher; the vendor launcher stays hidden. */
+/* Focus must scroll the conversation, not move the header out of the shell. */
+#jcont > jdiv[class^="main__"] { overflow: clip; }
+html:not(.jivo-support-open) body > jdiv,
+html:not(.jivo-support-open) body > jdiv * {
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+.jivo-support-status {
+    position: fixed;
+    right: 16px;
+    bottom: 100px;
+    z-index: 2147483647;
+    max-width: min(360px, calc(100vw - 32px));
+    padding: 18px;
+    border-radius: 12px;
+    background: #fff;
+    color: #222;
+    box-shadow: 0 8px 32px #0003;
+    font: 14px/1.5 Arial, sans-serif;
+}
+.jivo-support-status[hidden] { display: none; }
+.jivo-support-status a { color: #b83208; }
+html[data-support-embed], html[data-support-embed] body { margin: 0; height: 100%; }
+/* Stable vendor IDs keep the embedded chat inside its own viewport. */
+html[data-support-embed] jdiv:has(> #jivo_action) {
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    transform: none !important;
+    animation: none !important;
+}
+html[data-support-embed] #jivo_action {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    border-radius: 0 !important;
+}
+html[data-support-embed] #jivo_close_button { display: none !important; }

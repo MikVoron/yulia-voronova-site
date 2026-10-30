@@ -106,20 +106,20 @@ describe('SmartPlate CSP script migration', () => {
     });
   });
 
-  it('keeps the shared Tawk modal independent of dynamically injected styles', () => {
-    const script = fs.readFileSync(path.join(platformDir, 'tawk-chat-modal.js'), 'utf8');
-    const css = fs.readFileSync(path.join(platformDir, 'tawk-chat-modal.css'), 'utf8');
+  it('keeps the shared Jivo modal independent of dynamically injected styles', () => {
+    const script = fs.readFileSync(path.join(platformDir, 'jivo-chat-modal.js'), 'utf8');
+    const css = fs.readFileSync(path.join(platformDir, 'jivo-chat-modal.css'), 'utf8');
     const consumers = ['index.html', 'recipe.html', 'category.html', 'ingredient.html', 'cabinet.html', 'login.html'];
 
     expect(script).not.toContain("createElement('style')");
     expect(script).not.toMatch(/\.style\./);
-    expect(script).toContain("document.body.classList.add('tawk-chat-open')");
-    expect(script).toContain("document.body.classList.remove('tawk-chat-open')");
-    expect(css).toContain('body.tawk-chat-open');
+    expect(script).toContain("document.body.classList.add('support-chat-open')");
+    expect(script).toContain("document.body.classList.remove('support-chat-open')");
+    expect(css).toContain('body.support-chat-open');
     consumers.forEach(fileName => {
       const html = fs.readFileSync(path.join(platformDir, fileName), 'utf8');
-      expect(html, fileName).toContain('tawk-chat-modal.css?v=20260713-csp-styles');
-      expect(html, fileName).toContain('tawk-chat-modal.js?v=20260803-tawk-singleton');
+      expect(html, fileName).toContain('jivo-chat-modal.css?v=20261030-jivo');
+      expect(html, fileName).toContain('jivo-chat-modal.js?v=20261030-jivo');
     });
   });
 
