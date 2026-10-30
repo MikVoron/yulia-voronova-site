@@ -44,6 +44,12 @@ class PublicVerificationTests(unittest.TestCase):
                 if cls.bad_canonical:
                     body = body.replace(b'id=pumpkin', b'id=incorrect')
                 self.send_response(200)
+                if cls.policy_sequence:
+                    policy = cls.policy_sequence[min(cls.policy_index, len(cls.policy_sequence) - 1)]
+                    cls.policy_index += 1
+                    for name, value in policy.items():
+                        for item in value if isinstance(value, list) else [value]:
+                            self.send_header(name, item)
                 self.end_headers()
                 self.wfile.write(body)
 
@@ -65,6 +71,12 @@ class PublicVerificationTests(unittest.TestCase):
         self.__class__.bad_wiring = False
         self.__class__.bad_canonical = False
         self.__class__.requests = []
+        self.__class__.policy_sequence = []
+        self.__class__.policy_index = 0
+        self.expected_policy = {
+            'Content-Security-Policy': "script-src 'self'; frame-src https://voronova.online;",
+            'Content-Security-Policy-Report-Only': "script-src 'self'; frame-src https://voronova.online;",
+        }
 
     def test_rendered_documents_use_valid_urls_and_need_not_match_template_hash(self):
         for name in installer.SEO_DOCUMENTS:
@@ -96,6 +108,33 @@ class PublicVerificationTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, r'ingredient\.html\?id=pumpkin') as failure:
             installer.verify_public_file('ingredient.html', 'irrelevant', self.origin)
         self.assertEqual(failure.exception.__cause__.code, 404)
+
+    def test_policy_waits_for_two_consecutive_exact_responses(self):
+        previous = {name: value.replace('https://voronova.online', 'https://tawk.to') for name, value in self.expected_policy.items()}
+        self.__class__.policy_sequence = [previous, self.expected_policy, previous, self.expected_policy, self.expected_policy]
+        result = installer.wait_public_policies(self.expected_policy, self.origin + '/policy', timeout=1, interval=.005)
+        self.assertEqual(result['attempts'], 5)
+
+    def test_report_only_policy_must_also_match(self):
+        actual = dict(self.expected_policy)
+        actual['Content-Security-Policy-Report-Only'] = "script-src 'self'; frame-src https://tawk.to;"
+        self.__class__.policy_sequence = [actual]
+        with self.assertRaisesRegex(RuntimeError, 'Served CSP did not converge'):
+            installer.wait_public_policies(self.expected_policy, self.origin + '/policy', timeout=.04, interval=.005)
+
+    def test_duplicate_csp_headers_are_rejected(self):
+        actual = dict(self.expected_policy)
+        actual['Content-Security-Policy'] = [actual['Content-Security-Policy']] * 2
+        self.__class__.policy_sequence = [actual]
+        with self.assertRaisesRegex(RuntimeError, 'Served CSP did not converge'):
+            installer.wait_public_policies(self.expected_policy, self.origin + '/policy', timeout=.04, interval=.005)
+
+    def test_other_csp_directives_cannot_change(self):
+        actual = dict(self.expected_policy)
+        actual['Content-Security-Policy'] = actual['Content-Security-Policy'].replace("script-src 'self'", "script-src 'self' 'unsafe-inline'")
+        self.__class__.policy_sequence = [actual]
+        with self.assertRaisesRegex(RuntimeError, 'Served CSP did not converge'):
+            installer.wait_public_policies(self.expected_policy, self.origin + '/policy', timeout=.04, interval=.005)
 
 
 if __name__ == '__main__':

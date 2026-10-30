@@ -96,6 +96,47 @@ def verify_public_file(name, digest, origin=PUBLIC_ORIGIN):
         raise RuntimeError('Rendered canonical mismatch: ' + path)
 
 
+def read_policies(path):
+    rows = re.findall(r'add_header (Content-Security-Policy(?:-Report-Only)?) "([^"]+)"', path.read_text())
+    required = {'Content-Security-Policy', 'Content-Security-Policy-Report-Only'}
+    if len(rows) != 2 or {name for name, value in rows} != required:
+        raise RuntimeError('Expected exactly two CSP headers in configuration')
+    return dict(rows)
+
+
+def wait_public_policies(expected, url=PUBLIC_ORIGIN + '/login.html', timeout=15, interval=.25, evidence=None):
+    started = time.monotonic()
+    deadline = started + timeout
+    observations = []
+    consecutive = 0
+    try:
+        while True:
+            request = urllib.request.Request(url + ('&' if '?' in url else '?') + 'jivo_csp=' + str(time.time_ns()),
+                                             headers={'Connection': 'close', 'Cache-Control': 'no-cache'})
+            actual = {}
+            try:
+                with urllib.request.urlopen(request, timeout=min(3, max(.1, deadline - time.monotonic()))) as response:
+                    response.read()
+                    actual = {name: response.headers.get_all(name, []) for name in expected}
+                matches = all(len(actual[name]) == 1 and ' '.join(actual[name][0].split()) == ' '.join(value.split())
+                              for name, value in expected.items())
+                observations.append({'elapsed_ms': round((time.monotonic() - started) * 1000, 1), 'headers': actual, 'match': matches})
+            except Exception as error:
+                matches = False
+                observations.append({'elapsed_ms': round((time.monotonic() - started) * 1000, 1), 'error': str(error), 'match': False})
+            consecutive = consecutive + 1 if matches else 0
+            if consecutive >= 2:
+                return {'attempts': len(observations), 'elapsed_ms': observations[-1]['elapsed_ms']}
+            if time.monotonic() >= deadline:
+                summary = {name: [next((part.strip() for part in value.split(';') if part.strip().startswith('frame-src ')), '(no frame-src)')
+                                  for value in values] for name, values in actual.items()}
+                raise RuntimeError('Served CSP did not converge to the exact configured policies: ' + json.dumps(summary))
+            time.sleep(min(interval, max(0, deadline - time.monotonic())))
+    finally:
+        if evidence is not None:
+            evidence.write_text(json.dumps(observations, indent=2))
+
+
 def atomic_copy(source, target):
     descriptor, name = tempfile.mkstemp(prefix='.jivo-', dir=target.parent)
     temporary = Path(name)
@@ -140,6 +181,8 @@ def main():
         if name.endswith('.js'):
             run('/usr/bin/node', '--check', str(source))
     pid_before = health_pid()
+    expected_policies = read_policies(BASE / 'payload' / CONFIG)
+    prior_policies = read_policies(TARGETS[CONFIG])
     if options.check:
         print(json.dumps({'marker': 'JIVO_PREFLIGHT_OK', 'files': len(entries), 'api_pid': pid_before, 'commit': manifest['commit']}))
         return
@@ -178,16 +221,14 @@ def main():
             installed.append(name)
         run('/usr/sbin/nginx', '-t')
         run('/usr/bin/systemctl', 'reload', 'nginx')
+        policy_result = wait_public_policies(expected_policies, evidence=backup / 'installed-csp-observations.json')
+        print('JIVO_CSP_READY ' + json.dumps(policy_result), flush=True)
         for name, target in TARGETS.items():
             stat = target.stat()
             if sha(target) != entries[name]['new_sha256'] or (stat.st_uid, stat.st_gid, stat.st_mode & 0o777) != (0, 0, 0o644):
                 raise RuntimeError('Installed file mismatch: ' + name)
             if name.startswith('platform/'):
                 verify_public_file(name[9:], entries[name]['new_sha256'])
-        with urllib.request.urlopen('https://plate.voronova.online/login.html?jivo_csp=' + str(time.time_ns()), timeout=20) as response:
-            policy = response.headers.get('Content-Security-Policy', '')
-            if 'https://voronova.online;' not in policy or 'https://tawk.to' in policy:
-                raise RuntimeError('Served CSP mismatch')
         if health_pid() != pid_before:
             raise RuntimeError('API process changed during static release')
     except Exception:
@@ -203,9 +244,10 @@ def main():
                 raise RuntimeError('Rollback hash mismatch: ' + name)
         run('/usr/sbin/nginx', '-t')
         run('/usr/bin/systemctl', 'reload', 'nginx')
+        wait_public_policies(prior_policies, evidence=backup / 'rollback-csp-observations.json')
         print('JIVO_ROLLED_BACK', flush=True)
         raise
-    result = {'marker': 'JIVO_LIVE_OK', 'files': len(entries), 'api_pid': pid_before, 'commit': manifest['commit'], 'backup': str(backup)}
+    result = {'marker': 'JIVO_LIVE_OK', 'files': len(entries), 'api_pid': pid_before, 'commit': manifest['commit'], 'backup': str(backup), 'csp': policy_result}
     (backup / 'receipt.json').write_text(json.dumps(result, indent=2))
     print(json.dumps(result))
 
