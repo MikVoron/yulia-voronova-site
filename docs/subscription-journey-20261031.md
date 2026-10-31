@@ -102,3 +102,24 @@ sudo bash /home/smartplate-admin/release-staging/subscription-journey-20261031/r
 Completion requires `SUBSCRIPTION_JOURNEY_LIVE_OK` and independent installed/served
 hash checks plus mobile/desktop browser verification. The staged wrapper and
 manifest hashes are recorded in the local package's `package-proof.json`.
+
+## Production verification, 31 October 2026
+
+Runtime commit `e1f8813ac62394b89f4a590687a80e159c8e5ce0` was installed with
+`SUBSCRIPTION_JOURNEY_LIVE_OK`. The retained rollback snapshot is
+`/root/smartplate-subscription-journey-20261031-4c4uybqe`.
+
+Independent SSH readback confirmed the four installed SHA-256 hashes and
+`root:root`, mode 0644. Eight browser HTTPS checks (ordinary and versioned URLs)
+matched the committed payload hashes. Public API/database health is `ok`;
+the process remains PID 37508, UID/GID 997. Anonymous `/subscription` returns 401.
+
+All **14 served-frontend browser scenarios passed** at 390px/1366px with zero
+JavaScript errors. API/analytics requests were intercepted for controlled states;
+no real email or payment was submitted. Login testing explicitly waits for page
+load before clicking, avoiding a test click before the external script is ready.
+The production login implementation was not changed.
+
+Local evidence: the release package's `live-verification.json` and this worktree's
+`tmp/subscription-journey-live/report.json` and screenshots. Staging and rollback
+files are retained; no other worktree files were installed.

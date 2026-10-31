@@ -185,6 +185,7 @@ async function run() {
         assert.equal(new URL(choice.searchParams.get('return'),t.page.url()).searchParams.get('months'),String(months));
       }
       await link.click();
+      await t.page.waitForLoadState('networkidle');
       await t.page.locator('#email-input').fill(user.email);
       await t.page.locator('#send-code-btn').click();
       await t.page.locator('#code-input').fill('012345');
