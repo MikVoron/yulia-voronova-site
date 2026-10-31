@@ -1,4 +1,9 @@
-.lp-oauth { margin-top: 22px; }
+.lp-oauth-slot { position: relative; min-height: 328px; padding-top: 22px; }
+.lp-oauth-slot[hidden] { display: none; }
+.lp-oauth-loading { position: absolute; top: 26px; left: 0; right: 0; color: var(--text-3); font-size: 11px; line-height: 1.5; text-align: center; }
+.lp-oauth-loading[hidden] { display: none; }
+.lp-oauth { margin-top: 0; }
+.lp-oauth.is-preparing { visibility: hidden; }
 .lp-oauth[hidden], .lp-oauth-button[hidden] { display: none; }
 .lp-oauth-divider { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; color: var(--text-3); font-size: 11px; }
 .lp-oauth-divider::before, .lp-oauth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
@@ -15,6 +20,9 @@
 .lp-oauth-brand-vk { background: #0077ff; }
 .lp-oauth-brand-yandex { background: #fc3f1d; font-size: 18px; }
 @media (max-width: 480px) {
+    .lp-oauth-slot { min-height: 344px; }
     .lp-oauth-buttons { grid-template-columns: 1fr; }
     .lp-oauth-button { font-size: 12px; }
 }
+@media (max-width: 360px) { .lp-oauth-slot { min-height: 360px; } }
+@media (min-width: 861px) and (max-width: 1400px) { .lp-oauth-slot { min-height: 360px; } }

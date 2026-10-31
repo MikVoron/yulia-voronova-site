@@ -20,6 +20,8 @@
 	--serif: 'Playfair Display', Georgia, serif;
 }
 
+@media (min-width: 861px) { html { scrollbar-gutter: stable; } }
+
 body {
 	font-family: var(--sans);
 	color: var(--text);
@@ -89,6 +91,8 @@ body {
 }
 
 .lp-media-picture {
+	position: absolute;
+	inset: 0;
 	display: block;
 	width: 100%;
 	height: 100%;
@@ -476,6 +480,9 @@ body {
 .lp-step {
 	animation: fadeUp .32s ease both;
 }
+
+/* Keep the initial form anchored while optional sign-in providers load. */
+#step-email { animation: none; }
 
 .is-hidden {
 	display: none;

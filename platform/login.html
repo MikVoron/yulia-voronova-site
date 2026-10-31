@@ -9,10 +9,10 @@
 	<link rel="icon" type="image/svg+xml" href="plate-favicon.svg">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400;1,700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="login.css?v=20261023-comfort-login">
+	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400;1,700&family=Montserrat:wght@400;500;600;700;800&display=optional" rel="stylesheet">
+	<link rel="stylesheet" href="login.css?v=20261031-stable-layout">
 	<link rel="stylesheet" href="jivo-chat-modal.css?v=20261030-jivo">
-<link rel="stylesheet" href="oauth-login.css?v=20261031-multibranding">
+<link rel="stylesheet" href="oauth-login.css?v=20261031-stable-layout">
 </head>
 
 <body>
@@ -63,6 +63,8 @@
 					<div class="lp-error" id="email-error" role="alert" aria-live="polite"></div>
 					<button class="btn-primary" id="send-code-btn" type="button">Получить код →</button>
 					<p class="lp-new-account">Впервые здесь? После подтверждения почты создадим аккаунт автоматически.</p>
+                    <div class="lp-oauth-slot" id="lp-oauth-slot">
+                        <p class="lp-oauth-loading" id="lp-oauth-loading" role="status">Загружаем способы входа…</p>
                     <div class="lp-oauth" id="lp-oauth" hidden>
                         <div class="lp-oauth-divider">или войдите через</div>
                         <div class="lp-oauth-buttons">
@@ -71,6 +73,7 @@
                             <button class="lp-oauth-button" data-oauth-provider="yandex" type="button" hidden><span class="lp-oauth-brand lp-oauth-brand-yandex" aria-hidden="true">Я</span>Войти через Яндекс</button>
                         </div>
                         <p class="lp-oauth-note">Уже есть аккаунт? Войдите через сервис с той же почтой.</p>
+                    </div>
                     </div>
 
 
@@ -143,7 +146,7 @@
 		</svg>
 	</a>
 	<script src="jivo-chat-modal.js?v=20261030-jivo"></script>
-<script src="oauth-login.js?v=20261031-multibranding"></script>
+<script src="oauth-login.js?v=20261031-stable-layout"></script>
 </body>
 
 </html>

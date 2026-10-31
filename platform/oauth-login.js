@@ -40,7 +40,16 @@
 
     window.SmartPlateOAuth = { safeReturn: safeReturn, consumePending: consumePending, goal: goal, rememberLogin: rememberLogin, fingerprint: fingerprint };
     var group = document.getElementById('lp-oauth');
-    if (!group || window._isAdminLogin === true || typeof API_BASE !== 'string') return;
+    var slot = document.getElementById('lp-oauth-slot');
+    var loading = document.getElementById('lp-oauth-loading');
+    function reveal() {
+        group.classList.remove('is-preparing');
+        if (loading) loading.hidden = true;
+    }
+    if (!group || window._isAdminLogin === true || typeof API_BASE !== 'string') {
+        if (slot) slot.hidden = true;
+        return;
+    }
     if (new URLSearchParams(location.search).get('error') === 'oauth_email_required' && typeof window.showError === 'function') {
         window.showError('email-error', 'Сервис не передал вашу почту. Введите email ниже и войдите по коду — так вы попадёте в свой аккаунт.');
     }
@@ -88,13 +97,18 @@
                 if (!button.hidden) visible++;
             });
             group.hidden = visible === 0;
+            if (slot) slot.hidden = visible === 0;
             if (ready && ready.vk === true && ready.vkOneTap === true) {
+                group.classList.add('is-preparing');
                 var widgetScript = document.createElement('script');
-                widgetScript.src = 'vk-one-tap.js?v=20261031-multibranding';
+                widgetScript.src = 'vk-one-tap.js?v=20261031-stable-layout';
                 widgetScript.async = true;
+                widgetScript.onerror = reveal;
                 document.head.appendChild(widgetScript);
-            }
+                // A stalled optional script must not hide the ordinary buttons.
+                setTimeout(reveal, 4500);
+            } else reveal();
         })
-        .catch(function () { group.hidden = true; })
+        .catch(function () { group.hidden = true; if (slot) slot.hidden = true; })
         .finally(function () { clearTimeout(timeout); });
 })();

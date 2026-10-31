@@ -13,13 +13,20 @@
         if (!started) { started = true; client.rememberLogin('vk'); }
     }
 
-    function restoreButton() {
+    function reveal() {
+        group.classList.remove('is-preparing');
+        var loading = document.getElementById('lp-oauth-loading');
+        if (loading) loading.hidden = true;
+    }
+
+    function restoreButton(keepLoading) {
         clearTimeout(refreshTimer);
         if (widget) { widget.close(); widget = null; }
         container.replaceChildren();
         container.hidden = true;
         fallback.hidden = false;
         group.removeAttribute('data-onetap-active');
+        if (keepLoading !== true) reveal();
     }
 
     function loadSdk() {
@@ -54,7 +61,8 @@
                 || !/^[a-f0-9]{48}$/.test(config.state) || !/^[A-Za-z0-9_-]{43}$/.test(config.codeChallenge)) {
                 throw new Error('Invalid VK configuration');
             }
-            restoreButton();
+            restoreButton(true);
+            group.classList.add('is-preparing');
             started = false;
             VKID.Config.init({
                 app: config.appId,
@@ -92,6 +100,7 @@
             fallback.hidden = true;
             group.setAttribute('data-onetap-active', 'true');
             widget.render({ container: container, showAlternativeLogin: true, oauthList: ['mail_ru', 'ok_ru'], styles: { height: 46, borderRadius: 12 } });
+            reveal();
             refreshTimer = setTimeout(function () { prepare(VKID).catch(restoreButton); }, 9 * 60000);
         });
     }
