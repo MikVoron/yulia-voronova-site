@@ -136,6 +136,27 @@
 		window.addEventListener('load', update);
 	})();
 
+	(function bindLoginChatHint() {
+		var fab = document.getElementById('support-fab');
+		var line = document.querySelector('.lp-support-line');
+		if (!fab || !line) return;
+		var link = line.querySelector('[data-support-open]');
+		if (!link || !link.nextSibling || link.nextSibling.nodeType !== 3) return;
+		var hint = link.nextSibling;
+		var help = Array.prototype.filter.call(document.querySelectorAll('.lp-login-help p'), function (item) {
+			return item.textContent.indexOf('Кнопка чата находится') === 0;
+		});
+		function updateHint() {
+			var hidden = window.getComputedStyle(fab).display === 'none';
+			hint.textContent = hidden ? ' — ссылка под формой входа.' : ' — кнопка в правом нижнем углу страницы.';
+			help.forEach(function (item) {
+				item.textContent = hidden ? 'Чат с Юлией можно открыть по ссылке под формой входа.' : 'Кнопка чата находится в правом нижнем углу страницы.';
+			});
+		}
+		updateHint();
+		window.addEventListener('resize', updateHint);
+	})();
+
 	document.addEventListener('click', function (event) {
 		var target = event.target;
 		while (target && target !== document) {

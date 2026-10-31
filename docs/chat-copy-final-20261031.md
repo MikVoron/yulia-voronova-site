@@ -24,10 +24,27 @@ dialog. Reports are in `tmp/chat-copy-browser/` in this worktree.
 
 The final installer verifies the three public static responses before any writes,
 then checks installed and public bytes again afterward. It snapshots and atomically
-replaces only those files; a failed post-check rolls them back. The newer login
-HTML is observed and checked before/after, never written. A synthetic unprivileged
+replaces only those files; a failed post-check rolls them back. Other page hashes
+are audited, never written or used to block an unrelated update. A synthetic unprivileged
 rehearsal models file metadata/root admission but writes only temporary files;
 it exercises positive installation, preflight rejection, public failure rollback,
 and preservation of a concurrent login edit. This is not a privileged production
 rehearsal. Production success still requires installer output and independent
 served/browser verification.
+
+## Installed release and responsive hint follow-up
+
+Runtime commit 84d229e6 installed successfully with `CHAT_COPY_LIVE_OK`, three
+files, API PID 178073, no unrelated changes. Backup:
+`/root/smartplate-chat-copy-20261031-final-4nwta7b1`. Independent installed and
+ordinary/versioned public hashes matched all three files. Public API/database
+health is ok; anonymous subscription access returns 401. Six served-frontend
+fixture scenarios pass with zero JS errors. Ten further mobile/desktop checks
+confirmed the shared button name across home/category/ingredient/recipe/login.
+
+The login stylesheet deliberately hides the floating button on mobile. The shared
+script therefore makes login help say "ссылка под формой входа" when the button is
+hidden, and "кнопка в правом нижнем углу страницы" when visible. The detailed login
+help matches. These descriptions update on resize. The existing help link still
+opens the same dialog. This follow-up modifies only the shared chat script; it
+does not replace login HTML/CSS, OAuth, or any other page template.
