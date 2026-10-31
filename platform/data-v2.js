@@ -54,10 +54,39 @@ const Auth = {
     },
     logout() {
         fetch(API_BASE + '/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
+        this._clearLocalSession();
+    },
+    _clearLocalSession() {
         clearContentCache();
         localStorage.removeItem(this.KEY); localStorage.removeItem('hp_token');
         sessionStorage.removeItem(this._ST);
         this._token = null; Plate.clear();
+    },
+    async switchAccount() {
+        const wasRefreshing = !!this._refreshTimer;
+        clearInterval(this._refreshTimer);
+        this._refreshTimer = null;
+        let signedOut = false;
+        try {
+            // Finish any current rotation before revoking the cookie. Use the
+            // same browser lock as refresh so another tab cannot race logout.
+            if (this._refreshInFlight) await this._refreshInFlight;
+            const revoke = async () => {
+                const response = await _fetchWithTimeout(API_BASE + '/auth/logout',
+                    { method: 'POST', credentials: 'include' }, 8000);
+                if (!response.ok) return false;
+                this._clearLocalSession();
+                ['smartplate.login.pending.v1.email', 'smartplate.login.pending.v1.admin',
+                    'smartplate.oauth.pending.v1'].forEach(key => sessionStorage.removeItem(key));
+                return true;
+            };
+            const locks = typeof navigator !== 'undefined' && navigator.locks;
+            signedOut = locks && typeof locks.request === 'function'
+                ? await locks.request('smartplate-auth-refresh', { mode: 'exclusive' }, revoke)
+                : await revoke();
+            return signedOut;
+        } catch { return false; }
+        finally { if (!signedOut && wasRefreshing) this.startAutoRefresh(); }
     },
     isLoggedIn() { return !!localStorage.getItem(this.KEY); },
     getUser() { try { return JSON.parse(localStorage.getItem(this.KEY)); } catch { return null; } },
@@ -438,6 +467,7 @@ const Auth = {
             + '<p class="paywall-text">' + text + '</p>'
             + offerHtml
             + '<div class="paywall-actions">' + actionHtml + '</div>'
+            + '<div><a class="paywall-tariffs" href="' + this._loginUrl() + '" data-shared-action="switch-account">Войти в другой аккаунт</a></div>'
             + (isNetworkError ? '' : '<a class="paywall-tariffs" href="how-subscription-works.html">Посмотреть тарифы</a>')
             + legalHtml
             + '</div>';
@@ -1885,7 +1915,21 @@ function shareShoppingList() {
 }
 
 // CSP: shared retry buttons migrated from JavaScript-template event attributes.
-document.addEventListener('click', function (event) {
+document.addEventListener('click', async function (event) {
+    const switchControl = event.target.closest('[data-shared-action="switch-account"]');
+    if (switchControl) {
+        event.preventDefault();
+        if (switchControl.getAttribute('aria-disabled') === 'true') return;
+        switchControl.setAttribute('aria-disabled', 'true');
+        switchControl.textContent = 'Выходим из аккаунта…';
+        if (await Auth.switchAccount()) {
+            location.href = switchControl.href;
+        } else {
+            switchControl.removeAttribute('aria-disabled');
+            switchControl.textContent = 'Не удалось выйти. Попробовать ещё раз';
+        }
+        return;
+    }
     const reloadControl = event.target.closest('[data-shared-action="reload"]');
     if (reloadControl) location.reload();
 });
