@@ -231,12 +231,49 @@ def preflight(manifest, payload, privileged=False):
     return pid, None
 
 
-def verify_public_csp():
-    with urllib.request.urlopen(PLATFORM + '/login.html', timeout=15) as response:
-        policy = response.headers.get('Content-Security-Policy', '')
-    directives = dict((parts[0], parts[1:]) for parts in (part.strip().split() for part in policy.split(';')) if parts)
-    if any('https://id.vk.ru' not in directives.get(name, []) for name in ['connect-src', 'frame-src', 'child-src']):
-        raise RuntimeError('Public CSP is not ready for VK ID')
+def configured_policies(source):
+    pairs = re.findall(r'add_header (Content-Security-Policy(?:-Report-Only)?) "([^"]+)" always;', source)
+    expected = dict(pairs)
+    if len(pairs) != 2 or set(expected) != {'Content-Security-Policy', 'Content-Security-Policy-Report-Only'}:
+        raise RuntimeError('Expected exactly one configured CSP and report-only policy')
+    return expected
+
+
+def wait_public_policies(expected, url=None, timeout=15, interval=0.25):
+    # nginx reload acknowledges the signal before new workers serve requests.
+    # Require two fresh, consecutive responses with both exact policies.
+    url = url or PLATFORM + '/login.html'
+    started = time.monotonic()
+    deadline = started + timeout
+    consecutive = attempts = 0
+    while True:
+        request = urllib.request.Request(url + ('&' if '?' in url else '?') + 'oauth_csp=' + str(time.time_ns()),
+                                         headers={'Connection': 'close', 'Cache-Control': 'no-cache'})
+        attempts += 1
+        try:
+            with urllib.request.urlopen(request, timeout=min(3, max(0.1, deadline - time.monotonic()))) as response:
+                response.read()
+                actual = {name: response.headers.get_all(name, []) for name in expected}
+            matches = all(len(actual[name]) == 1 and ' '.join(actual[name][0].split()) == ' '.join(value.split())
+                          for name, value in expected.items())
+        except (OSError, urllib.error.URLError, TimeoutError):
+            matches = False
+        consecutive = consecutive + 1 if matches else 0
+        if consecutive >= 2:
+            return {'attempts': attempts, 'elapsed_ms': round((time.monotonic() - started) * 1000, 1)}
+        if time.monotonic() >= deadline:
+            raise RuntimeError('Public CSP did not converge to both exact configured policies')
+        time.sleep(min(interval, max(0, deadline - time.monotonic())))
+
+
+def verify_public_csp(require_vk=True):
+    expected = configured_policies(safe_path(Path(next(iter(NGINX.values())))).read_text())
+    if require_vk:
+        for policy in expected.values():
+            directives = dict((parts[0], parts[1:]) for parts in (part.strip().split() for part in policy.split(';')) if parts)
+            if any('https://id.vk.ru' not in directives.get(name, []) for name in ['connect-src', 'frame-src', 'child-src']):
+                raise RuntimeError('Configured CSP is not ready for VK ID')
+    return wait_public_policies(expected)
 
 
 def verify_api():
@@ -376,6 +413,7 @@ def rollback(directory):
     if any(name in NGINX for name in changed):
         run('/usr/sbin/nginx', '-t')
         run('/bin/systemctl', 'reload', 'nginx')
+        verify_public_csp(require_vk=False)
     if any(name in API or name == 'environment' for name in changed):
         restart_api()
     health()

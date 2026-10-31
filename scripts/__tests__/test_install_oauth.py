@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+from http.client import HTTPMessage
 from unittest.mock import patch
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / 'install-oauth-20261031.py'
@@ -244,6 +245,60 @@ class OAuthInstallerTests(unittest.TestCase):
         target.symlink_to(self.env)
         with self.assertRaisesRegex(RuntimeError, 'Unsafe path'):
             helper.load_package(sha)
+
+
+class PublicPolicyTests(unittest.TestCase):
+    expected = {'Content-Security-Policy': "default-src 'self'; frame-src https://id.vk.ru",
+                'Content-Security-Policy-Report-Only': "default-src 'self'; frame-src https://id.vk.ru"}
+
+    def response(self, values=None, duplicate=False):
+        headers = HTTPMessage()
+        for name, value in (values or self.expected).items():
+            headers.add_header(name, value)
+        if duplicate:
+            headers.add_header('Content-Security-Policy', "default-src 'none'")
+        response = unittest.mock.MagicMock()
+        response.__enter__.return_value.headers = headers
+        return response
+
+    def test_reload_waits_for_two_consecutive_exact_policies(self):
+        old = {name: "default-src 'self'" for name in self.expected}
+        rows = [self.response(old), self.response(), self.response(old), self.response(), self.response()]
+        with patch.object(helper.urllib.request, 'urlopen', side_effect=rows) as fetch, patch.object(helper.time, 'sleep'):
+            result = helper.wait_public_policies(self.expected)
+        self.assertEqual(result['attempts'], 5)
+        urls = [call.args[0].full_url for call in fetch.call_args_list]
+        self.assertEqual(len(set(urls)), 5)
+        self.assertTrue(all('oauth_csp=' in url for url in urls))
+        self.assertEqual(fetch.call_args.args[0].get_header('Connection'), 'close')
+        self.assertEqual(fetch.call_args.args[0].get_header('Cache-control'), 'no-cache')
+
+    def test_stale_report_only_policy_is_refused(self):
+        values = {**self.expected, 'Content-Security-Policy-Report-Only': "default-src 'none'"}
+        with patch.object(helper.urllib.request, 'urlopen', return_value=self.response(values)):
+            with self.assertRaisesRegex(RuntimeError, 'both exact configured policies'):
+                helper.wait_public_policies(self.expected, timeout=0)
+
+    def test_duplicate_enforcement_header_is_refused(self):
+        with patch.object(helper.urllib.request, 'urlopen', return_value=self.response(duplicate=True)):
+            with self.assertRaises(RuntimeError):
+                helper.wait_public_policies(self.expected, timeout=0)
+
+    def test_transient_reload_connection_failure_can_recover(self):
+        rows = [helper.urllib.error.URLError('temporary reload'), self.response(), self.response()]
+        with patch.object(helper.urllib.request, 'urlopen', side_effect=rows), patch.object(helper.time, 'sleep'):
+            self.assertEqual(helper.wait_public_policies(self.expected)['attempts'], 3)
+
+    def test_permanent_connection_failure_times_out(self):
+        with patch.object(helper.urllib.request, 'urlopen', side_effect=helper.urllib.error.URLError('unavailable')):
+            with self.assertRaises(RuntimeError):
+                helper.wait_public_policies(self.expected, timeout=0)
+
+    def test_duplicate_configured_policies_are_refused(self):
+        source = '\n'.join('add_header ' + name + ' "' + value + '" always;' for name, value in self.expected.items())
+        self.assertEqual(helper.configured_policies(source), self.expected)
+        with self.assertRaises(RuntimeError):
+            helper.configured_policies(source + '\n' + source)
 
 
 if __name__ == '__main__':
