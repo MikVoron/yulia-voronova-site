@@ -8,6 +8,7 @@
 
 	var CHAT_URL = 'https://voronova.online/support-chat.html';
 	var SUPPORT_EMAIL = 'hello@voronova.online';
+	var CHAT_TITLE = 'Чат с Юлией';
 	var CHAT_ORIGIN = 'https://voronova.online';
 	var chatFrame = null;
 	var chatLoading = null;
@@ -34,7 +35,7 @@
 		overlay.className = 'support-chat-overlay';
 		overlay.setAttribute('role', 'dialog');
 		overlay.setAttribute('aria-modal', 'true');
-		overlay.setAttribute('aria-label', 'Чат с отделом заботы');
+		overlay.setAttribute('aria-label', CHAT_TITLE);
 
 		var panel = document.createElement('div');
 		panel.className = 'support-chat-panel';
@@ -44,12 +45,7 @@
 
 		var title = document.createElement('div');
 		title.className = 'support-chat-title';
-		title.textContent = 'Чат с отделом заботы';
-
-		var email = document.createElement('a');
-		email.className = 'support-chat-email';
-		email.href = 'mailto:' + SUPPORT_EMAIL;
-		email.textContent = 'Email';
+		title.textContent = CHAT_TITLE;
 
 		var close = document.createElement('button');
 		close.className = 'support-chat-close';
@@ -60,7 +56,7 @@
 
 		var frame = document.createElement('iframe');
 		frame.className = 'support-chat-frame';
-		frame.title = 'Чат поддержки Jivo';
+		frame.title = CHAT_TITLE;
 		frame.src = CHAT_URL;
 		frame.setAttribute('sandbox', 'allow-scripts allow-same-origin');
 		chatFrame = frame;
@@ -86,7 +82,6 @@
 		stage.appendChild(frame);
 
 		header.appendChild(title);
-		header.appendChild(email);
 		header.appendChild(close);
 		panel.appendChild(header);
 		panel.appendChild(stage);

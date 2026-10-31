@@ -79,6 +79,9 @@ const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; ch
             assert(!requests.some(u => u.includes('jivosite.com')));
             const trigger = mobile ? '.lp-support-line [data-support-open]' : '#support-fab';
             await page.locator(trigger).click();
+            assert.equal(await page.locator('.support-chat-title').innerText(), 'Чат с Юлией');
+            assert.equal(await page.locator('.support-chat-header a').count(), 0);
+            assert.equal(await page.locator('.support-chat-overlay').getAttribute('aria-label'), 'Чат с Юлией');
             await page.locator('.support-chat-loading').waitFor({ state: 'hidden', timeout: 30000 });
             if (await page.locator('.support-chat-fallback').isVisible()) {
                 console.log(JSON.stringify({errors, requests: requests.filter(u => /jivo|support-chat/.test(u)), frames: await Promise.all(page.frames().map(async f => ({url:f.url(), state:await f.evaluate(() => ({referrer:document.referrer, open:document.documentElement.className, ready:typeof window.jivo_api, initialized:window.__jivoSupportInitialized, status:document.body.innerText.slice(0,200)}))})))}, null, 2));
