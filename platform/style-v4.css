@@ -3177,6 +3177,15 @@ body.recipe-image-viewer-open { overflow: hidden; }
     transition: background .2s ease, border-color .2s ease;
 }
 .paywall-btn:hover, .paywall-btn:focus-visible { background: var(--text); border-color: var(--text); outline: none; }
+.paywall-btn-secondary {
+    margin-top: 10px; background: transparent; color: var(--text); border-color: var(--border);
+    font-size: 13px; letter-spacing: normal; text-transform: none;
+}
+.paywall-btn-secondary:hover, .paywall-btn-secondary:focus-visible {
+    background: var(--bg-alt); color: var(--text); border-color: var(--text);
+}
+.paywall-btn-secondary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.paywall-btn-secondary:disabled { opacity: .65; cursor: wait; }
 .paywall-tariffs {
     display: inline-block; margin-top: 15px; color: var(--text);
     font-size: 12px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px;

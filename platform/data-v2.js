@@ -466,8 +466,8 @@ const Auth = {
             + '<h2 class="paywall-title" id="paywall-title">' + title + '</h2>'
             + '<p class="paywall-text">' + text + '</p>'
             + offerHtml
-            + '<div class="paywall-actions">' + actionHtml + '</div>'
-            + '<div><a class="paywall-tariffs" href="' + this._loginUrl() + '" data-shared-action="switch-account">Войти в другой аккаунт</a></div>'
+            + '<div class="paywall-actions">' + actionHtml
+            + '<button class="paywall-btn paywall-btn-secondary" type="button" data-shared-action="switch-account">Войти в другой аккаунт</button></div>'
             + (isNetworkError ? '' : '<a class="paywall-tariffs" href="how-subscription-works.html">Посмотреть тарифы</a>')
             + legalHtml
             + '</div>';
@@ -1921,11 +1921,13 @@ document.addEventListener('click', async function (event) {
         event.preventDefault();
         if (switchControl.getAttribute('aria-disabled') === 'true') return;
         switchControl.setAttribute('aria-disabled', 'true');
+        switchControl.disabled = true;
         switchControl.textContent = 'Выходим из аккаунта…';
         if (await Auth.switchAccount()) {
-            location.href = switchControl.href;
+            location.href = Auth._loginUrl();
         } else {
             switchControl.removeAttribute('aria-disabled');
+            switchControl.disabled = false;
             switchControl.textContent = 'Не удалось выйти. Попробовать ещё раз';
         }
         return;

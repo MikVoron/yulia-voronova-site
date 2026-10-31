@@ -51,6 +51,8 @@ fs.mkdirSync(output, { recursive: true });
       await page.evaluate(() => Auth._showPaywall('trial_not_granted'));
       const button = page.locator('[data-shared-action="switch-account"]');
       await button.waitFor({ state: 'visible' });
+      assert.equal(await button.evaluate(element => element.tagName), 'BUTTON');
+      assert.ok((await button.boundingBox()).height >= 50);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
       await page.screenshot({ path: path.join(output, 'paywall-' + width + '.png'), fullPage: true });
       await button.click();
