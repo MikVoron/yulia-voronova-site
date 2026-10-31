@@ -12,6 +12,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400;1,700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="login.css?v=20261023-comfort-login">
 	<link rel="stylesheet" href="jivo-chat-modal.css?v=20261030-jivo">
+<link rel="stylesheet" href="oauth-login.css?v=20261031-multibranding">
 </head>
 
 <body>
@@ -62,6 +63,16 @@
 					<div class="lp-error" id="email-error" role="alert" aria-live="polite"></div>
 					<button class="btn-primary" id="send-code-btn" type="button">Получить код →</button>
 					<p class="lp-new-account">Впервые здесь? После подтверждения почты создадим аккаунт автоматически.</p>
+                    <div class="lp-oauth" id="lp-oauth" hidden>
+                        <div class="lp-oauth-divider">или войдите через</div>
+                        <div class="lp-oauth-buttons">
+                            <div class="lp-vk-one-tap" id="lp-vk-one-tap" hidden></div>
+                            <button class="lp-oauth-button" data-oauth-provider="vk" type="button" hidden><span class="lp-oauth-brand lp-oauth-brand-vk" aria-hidden="true">VK</span>Войти через ВК</button>
+                            <button class="lp-oauth-button" data-oauth-provider="yandex" type="button" hidden><span class="lp-oauth-brand lp-oauth-brand-yandex" aria-hidden="true">Я</span>Войти через Яндекс</button>
+                        </div>
+                        <p class="lp-oauth-note">Уже есть аккаунт? Войдите через сервис с той же почтой.</p>
+                    </div>
+
 
 					<p class="fine-print" id="lp-footer-legal">
 						Продолжая, вы соглашаетесь с
@@ -132,6 +143,7 @@
 		</svg>
 	</a>
 	<script src="jivo-chat-modal.js?v=20261030-jivo"></script>
+<script src="oauth-login.js?v=20261031-multibranding"></script>
 </body>
 
 </html>

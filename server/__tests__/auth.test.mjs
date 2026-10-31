@@ -468,7 +468,7 @@ describe('OAuth state validation', () => {
   it('keeps OAuth providers hidden unless explicitly enabled and configured', async () => {
     const res = await app.inject({ method: 'GET', url: '/auth/oauth/providers' });
     expect(res.statusCode).toBe(200);
-    expect(res.json()).toEqual({ vk: false, yandex: false });
+    expect(res.json()).toEqual({ vk: false, yandex: false, vkOneTap: false });
   });
 
   it('does not start disabled OAuth providers', async () => {

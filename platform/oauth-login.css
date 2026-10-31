@@ -1,0 +1,20 @@
+.lp-oauth { margin-top: 22px; }
+.lp-oauth[hidden], .lp-oauth-button[hidden] { display: none; }
+.lp-oauth-divider { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; color: var(--text-3); font-size: 11px; }
+.lp-oauth-divider::before, .lp-oauth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.lp-oauth-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lp-oauth-note { margin-top: 10px; color: var(--text-3); font-size: 10px; line-height: 1.6; text-align: center; }
+.lp-vk-one-tap { grid-column: 1 / -1; width: 100%; }
+.lp-vk-one-tap[hidden] { display: none; }
+.lp-oauth[data-onetap-active] .lp-oauth-buttons { grid-template-columns: 1fr; }
+.lp-oauth-button { min-height: 46px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border: 1px solid var(--border); border-radius: 12px; background: #fff; color: var(--text); font: 600 11px var(--sans); cursor: pointer; }
+.lp-oauth-button:hover { background: #f7f7f7; border-color: #aaa; }
+.lp-oauth-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.lp-oauth-button:disabled { opacity: .6; cursor: wait; }
+.lp-oauth-brand { width: 23px; height: 23px; border-radius: 7px; display: grid; place-items: center; flex-shrink: 0; color: #fff; font: 700 11px Arial, sans-serif; }
+.lp-oauth-brand-vk { background: #0077ff; }
+.lp-oauth-brand-yandex { background: #fc3f1d; font-size: 18px; }
+@media (max-width: 480px) {
+    .lp-oauth-buttons { grid-template-columns: 1fr; }
+    .lp-oauth-button { font-size: 12px; }
+}
