@@ -27,8 +27,8 @@
 		// Источник контактов поддержки — единая точка правки.
 		// TODO: при росте проекта заменить fallbackEmail на support@voronova.online.
 		const SUPPORT_CONTACT = {
-			label: 'Отдел заботы',
-			text: 'Написать в чат Отдела заботы',
+			label: 'Юлия',
+			text: 'Чат с Юлией',
 			url: 'https://voronova.online/support-chat.html',
 			fallbackEmail: 'hello@voronova.online'
 		};
@@ -37,16 +37,12 @@
 			const hasChat = !!SUPPORT_CONTACT.url;
 			const email = SUPPORT_CONTACT.fallbackEmail;
 			const emailLink = '<a href="' + _supportEmailHref() + '" style="color:var(--accent);text-decoration:underline">' + email + '</a>';
-			if (paymentStatus === 'rejected' && hasChat) {
-				const retryChatLink = '<a href="' + SUPPORT_CONTACT.url + '" data-support-open target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">чат Отдела заботы</a>';
-				return 'Если нужна помощь с повторной оплатой — напишите в ' + retryChatLink + ' или на ' + emailLink + '.';
-			}
 			const lead = paymentStatus === 'pending'
 				? 'Если проверка занимает дольше 30 минут — '
-				: 'Если остался вопрос — ';
+				: (paymentStatus === 'rejected' ? 'Если нужна помощь с повторной оплатой — ' : 'Если остался вопрос — ');
 			if (hasChat) {
 				const chatLink = '<a href="' + SUPPORT_CONTACT.url + '" data-support-open target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">' + SUPPORT_CONTACT.text + '</a>';
-				return lead + chatLink + ' или напишите на ' + emailLink + '.';
+				return lead + 'откройте ' + chatLink + '. Кнопка чата находится в правом нижнем углу страницы. Также можно написать на ' + emailLink + '.';
 			}
 			return lead + 'напишите на ' + emailLink + '.';
 		}
