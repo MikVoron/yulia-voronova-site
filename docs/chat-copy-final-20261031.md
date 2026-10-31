@@ -48,3 +48,17 @@ hidden, and "кнопка в правом нижнем углу страницы
 help matches. These descriptions update on resize. The existing help link still
 opens the same dialog. This follow-up modifies only the shared chat script; it
 does not replace login HTML/CSS, OAuth, or any other page template.
+
+The responsive follow-up in commit `14bfcb4d4ec7425278ffbd2166492f6f696ecdb2`
+is installed and independently verified. Only `jivo-chat-modal.js` changed in
+this pass. Backup: `/root/smartplate-chat-copy-20261031-final-zptqwjdi`.
+All three installed hashes and six ordinary/versioned HTTPS hashes match the
+manifest. API/database are healthy; PID remains 178073 with UID/GID 997.
+Login and homepage hashes remain exactly as observed before this installation.
+Six served-frontend scenarios pass with no JavaScript errors, including chat
+opening/closing and hint changes on resize. Ten cross-page checks confirm the
+button name at mobile/desktop sizes; mobile login deliberately uses the help
+link instead of its hidden floating button. No real messages or payments sent.
+Local evidence is the release package's `live-verification.json` and
+`page-label-verification.json`, plus this worktree's `tmp/chat-copy-live/`.
+The deployment is complete; staging and all rollback snapshots are retained.
