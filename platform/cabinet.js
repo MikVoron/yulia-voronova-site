@@ -68,16 +68,20 @@
 			if (!panel) return;
 			let banner = document.getElementById('cab-return-banner');
 			if (!ret) { if (banner) banner.remove(); return; }
-			if (banner) return;
-			banner = document.createElement('div');
+			if (!banner) banner = document.createElement('div');
 			banner.id = 'cab-return-banner';
 			banner.style.cssText = 'margin:0 0 16px;padding:12px 14px;border-radius:10px;background:#fff8f0;border:1px solid #f0d8b8;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap';
+			banner.replaceChildren();
+			const isRecipe = /^recipe\.html(?:[?#]|$)/.test(ret);
+			const hasAccess = Auth.hasFullAccess();
 			const text = document.createElement('div');
 			text.style.cssText = 'font-size:13px;color:var(--text-2);line-height:1.4';
-			text.textContent = 'Вы пришли с рецепта. После оформления доступа сможете вернуться.';
+			text.textContent = hasAccess
+				? 'Подписка активна. Вы можете вернуться или продлить её здесь.'
+				: (isRecipe ? 'После подтверждения оплаты сможете вернуться к этому рецепту.' : 'После оформления доступа сможете вернуться на предыдущую страницу.');
 			const link = document.createElement('a');
 			link.href = ret;
-			link.textContent = 'Вернуться к рецепту →';
+			link.textContent = isRecipe ? (hasAccess ? 'Открыть ваш рецепт →' : 'Вернуться к рецепту →') : 'Вернуться на предыдущую страницу →';
 			link.style.cssText = 'font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap';
 			banner.appendChild(text);
 			banner.appendChild(link);
@@ -627,10 +631,10 @@
 				+ '</div>';
 		}
 
-		async function loadSubscription() {
+		async function loadSubscription(skipPaymentHistory) {
 			try {
 				const res = await Auth.api('/subscription');
-				if (!res.ok) { renderFallbackSubCard(); loadPaymentHistory(); return false; }
+				if (!res.ok) { renderFallbackSubCard(); if (!skipPaymentHistory) loadPaymentHistory(); return false; }
 				const data = await res.json();
 				const wrap = document.getElementById('sub-status-wrap');
 				const badge = data.status || 'none';
@@ -681,12 +685,12 @@
 
 				// Active users also see their personal early-access renewal status.
 				if (badge === 'active') {
-					loadPaymentHistory();
+					if (!skipPaymentHistory) loadPaymentHistory();
 					return true;
 				}
 			} catch (e) { renderFallbackSubCard(); }
 
-			loadPaymentHistory();
+			if (!skipPaymentHistory) loadPaymentHistory();
 			return false;
 		}
 
@@ -779,6 +783,10 @@
 			document.getElementById('pay-transfer-amount').textContent = amount + ' ₽';
 			document.querySelectorAll('.pay-plan-card').forEach(function(c) { c.classList.remove('selected'); });
 			el.classList.add('selected');
+			// Carry the period through a later login; never carry a price in the URL.
+			var url = new URL(location.href);
+			url.searchParams.set('months', String(months));
+			history.replaceState(history.state, '', url.pathname + url.search + url.hash);
 			updatePaymentStep0();
 		}
 
@@ -840,6 +848,15 @@
 					+ '<div class="pay-plan-benefit">' + pl.benefit + '</div>'
 					+ '</div>';
 			}).join('');
+			restoreSelectedPlan();
+		}
+
+		function restoreSelectedPlan() {
+			var months = _selectedPlan ? _selectedPlan.months : Number(new URLSearchParams(location.search).get('months'));
+			if ([1, 3, 12].includes(months)) {
+				var selectedCard = document.querySelector('#pay-plan-grid [data-months="' + months + '"]');
+				if (selectedCard) selectPlan(months, _currentPrices[months], selectedCard);
+			}
 		}
 
 		function formatRubles(amount) {
@@ -875,9 +892,11 @@
 			now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
 			document.getElementById('pay-date').value = now.toISOString().slice(0, 16);
 			goPayStep(0);
+			restoreSelectedPlan();
 		}
 
 		async function submitPayment() {
+			if (_hasPendingPayment) return;
 			var amount = parseInt(document.getElementById('pay-amount').value);
 			var paymentDate = document.getElementById('pay-date').value;
 			var comment = document.getElementById('pay-comment').value.trim();
@@ -939,32 +958,23 @@
 
 		// Poll payment status every 15s while there are pending payments
 		var _payPollTimer = null;
+		var _paymentHistoryLoading = false;
+		var _hasPendingPayment = false;
+		var _observedPendingPaymentId = null;
 		function startPaymentPolling() {
 			stopPaymentPolling();
 			_payPollTimer = setInterval(async function() {
 				try {
-					var res = await Auth.api('/subscription/payments');
-					if (!res.ok) return;
-					var payments = await res.json();
+					var payments = await loadPaymentHistory();
+					if (!payments) return;
 					var hasPending = payments.some(function(p) { return p.status === 'pending'; });
-					loadPaymentHistory();
 					if (!hasPending) {
 						stopPaymentPolling();
-						// Если платёж подтверждён и пользователь пришёл с рецепта — возвращаем туда
-						var lastPayment = payments[0];
-						if (lastPayment && lastPayment.status === 'confirmed') {
-							clearContentCache();
-							var ret = _getCabReturn();
-							if (ret) {
-								sessionStorage.removeItem('_cab_return_url');
-								if (typeof showToast === 'function') showToast('Доступ открыт — возвращаемся к рецепту', 1800);
-								setTimeout(function() { location.href = ret; }, 1500);
-								return;
-							}
-						}
-						// Refresh both access data and the visible subscription card.
+						clearContentCache();
 						await Auth.checkAccess();
-						await loadSubscription();
+						await loadSubscription(true);
+						_renderReturnBanner();
+						_renderPendingBlock(payments[0] || null);
 					}
 				} catch(e) { /* ignore */ }
 			}, 15000);
@@ -998,6 +1008,8 @@
 			// Only a pending payment blocks a duplicate submission.
 			if (cardBtn) {
 				cardBtn.disabled = isPending;
+				if (isPending) cardBtn.textContent = 'Платёж на проверке';
+				else if (cardBtn.textContent === 'Платёж на проверке') cardBtn.textContent = cardBtn.dataset.ctaDefault || 'Оформить подписку';
 				cardBtn.style.opacity = isPending ? '.55' : '';
 				cardBtn.style.cursor = isPending ? 'not-allowed' : '';
 				cardBtn.style.pointerEvents = isPending ? 'none' : '';
@@ -1015,12 +1027,12 @@
 			var amount = escHtml(String(payment.amount || '')) + '&nbsp;₽';
 			var cardClass = 'pay-pending-card';
 			var title = 'Платёж на проверке';
-			var text = 'Платёж от&nbsp;<b>' + escHtml(d) + '</b> на&nbsp;<b>' + amount + '</b> отправлен. Обычно проверка занимает около 30&nbsp;минут.';
+			var text = 'Заявка на платёж от&nbsp;<b>' + escHtml(d) + '</b> на&nbsp;<b>' + amount + '</b> получена. Обычно подтверждаем в&nbsp;течение 30&nbsp;минут. Повторно отправлять заявку не&nbsp;нужно. Статус обновится автоматически, пока эта страница открыта.';
 			var support = '<div class="pay-pending-support">' + supportContactHtml('pending') + '</div>';
 			if (payment.status === 'confirmed') {
 				cardClass += ' confirmed';
 				title = 'Оплата подтверждена';
-				text = 'Платёж на&nbsp;<b>' + amount + '</b> подтверждён. Доступ по подписке открыт.';
+				text = 'Платёж на&nbsp;<b>' + amount + '</b> подтверждён. ' + (Auth.hasFullAccess() ? 'Доступ по подписке открыт.' : 'Текущий срок подписки указан выше.');
 				support = '';
 			} else if (payment.status === 'rejected') {
 				cardClass += ' rejected';
@@ -1030,17 +1042,43 @@
 					: 'Проверьте данные перевода и отправьте подтверждение ещё раз.';
 				support = '<div class="pay-pending-support">' + supportContactHtml('rejected') + '</div>';
 			}
-			if (!isPending) {
-				var success = document.getElementById('pay-success');
-				if (success) success.style.display = 'none';
-			}
+			// The status card replaces the wizard's fallback acknowledgement.
+			var success = document.getElementById('pay-success');
+			if (success) success.style.display = 'none';
 			var hideAction = payment.status === 'rejected'
 				? '<button type="button" class="pay-notice-hide" data-payment-id="' + escHtml(String(payment.id)) + '" data-cabinet-action="hide-payment-notice">Скрыть уведомление</button>'
 				: '';
-			block.innerHTML = '<div class="' + cardClass + '" role="status" aria-live="polite" tabindex="-1">'
+			var statusHtml = '<div class="' + cardClass + '" role="status" aria-live="polite" tabindex="-1">'
 				+ '<div class="pay-pending-eyebrow">' + title + '</div>'
 				+ '<div class="pay-pending-text">' + text + '</div>'
 				+ support + hideAction + '</div>';
+			if (block.innerHTML !== statusHtml) block.innerHTML = statusHtml;
+		}
+
+		function trackPaymentTransitions(payments) {
+			// Only a previously observed pending payment can become a new conversion.
+			// Persist its ID per account so a reload or return from the bank is safe.
+			var pendingKey = Auth._userKey('pending_payment_confirmation');
+			try { _observedPendingPaymentId = localStorage.getItem(pendingKey) || _observedPendingPaymentId; } catch (e) { /* memory fallback */ }
+			var observed = payments.find(function(p) { return String(p.id) === _observedPendingPaymentId; });
+			if (observed && observed.status !== 'pending') {
+				_observedPendingPaymentId = null;
+				try { localStorage.removeItem(pendingKey); } catch (e) { /* analytics must not block the UI */ }
+				if (observed.status === 'confirmed') {
+					var confirmedKey = 'metrika_payment_confirmed_' + observed.id;
+					var alreadyTracked = false;
+					try { alreadyTracked = !!localStorage.getItem(confirmedKey); localStorage.setItem(confirmedKey, '1'); } catch (e) { /* memory transition still prevents repeats */ }
+					if (!alreadyTracked) {
+						if (window.SmartPlateMetrika) window.SmartPlateMetrika.goal('payment_confirmed');
+						if (window.SmartPlateGoogleAnalytics) window.SmartPlateGoogleAnalytics.event('payment_confirmed');
+					}
+				}
+			}
+			var pending = payments.find(function(p) { return p.status === 'pending'; });
+			if (pending) {
+				_observedPendingPaymentId = String(pending.id);
+				try { localStorage.setItem(pendingKey, _observedPendingPaymentId); } catch (e) { /* memory fallback */ }
+			}
 		}
 
 		async function hidePaymentNotice(button) {
@@ -1110,27 +1148,22 @@
 		}
 
 		async function loadPaymentHistory() {
+			if (_paymentHistoryLoading) return null;
+			_paymentHistoryLoading = true;
 			try {
 				var res = await Auth.api('/subscription/payments');
-				if (!res.ok) return;
+				if (!res.ok) return null;
 				var payments = await res.json();
 				var pending = payments.find(function(p) { return p.status === 'pending'; });
 				var latest = payments[0] || null;
-				var confirmed = payments.find(function(p) { return p.status === 'confirmed'; });
-				if (confirmed && window.SmartPlateMetrika) {
-					var confirmedKey = 'metrika_payment_confirmed_' + confirmed.id;
-					if (!localStorage.getItem(confirmedKey)) {
-						window.SmartPlateMetrika.goal('payment_confirmed');
-						if (window.SmartPlateGoogleAnalytics) window.SmartPlateGoogleAnalytics.event('payment_confirmed');
-						localStorage.setItem(confirmedKey, '1');
-					}
-				}
+				_hasPendingPayment = !!pending;
+				try { trackPaymentTransitions(payments); } catch (e) { /* analytics must not block payment status */ }
 				// Auto-start polling if there are pending payments
 				if (pending && !_payPollTimer) startPaymentPolling();
 				// Pending-блокировка wizard (либо снятие блокировки)
 				_renderPendingBlock(pending || latest);
 				var el = document.getElementById('pay-history');
-				if (!payments.length) { el.innerHTML = ''; return; }
+				if (!payments.length) { el.innerHTML = ''; return payments; }
 				var payCount = payments.length;
 				var payMeta = payCount + ' ' + (payCount === 1 ? 'операция' : payCount < 5 ? 'операции' : 'операций');
 				var existingHistory = el.querySelector('.pay-history-disclosure');
@@ -1161,10 +1194,13 @@
 					}).join('')
 					+ '</div></details>';
 				_injectHistorySupportNote(el, latest && latest.status);
-			} catch (e) { /* ignore */ }
+				return payments;
+			} catch (e) { return null; }
+			finally { _paymentHistoryLoading = false; }
 		}
 
 		function togglePaySection() {
+			if (_hasPendingPayment) return;
 			var details = document.getElementById('pay-details');
 			var btn = document.getElementById('pay-toggle-btn');         // standalone (hidden)
 			var cardBtn = document.getElementById('sub-renew-btn');      // in sub-card
@@ -1245,28 +1281,15 @@
 		}
 
 		// Load subscription tab on init — wait for checkAccess to set _subStatus
-		_cabAccess.then(function() {
-			loadSubscription().then(function(isActive) {
-				loadEarlyBird().then(function() {
-				if (!isActive) {
-					_renderReturnBanner();
-						// Continue a paywall return in context; a normal subscription tab stays concise.
-						if (_getCabReturn()) {
-							var toggleBtn = document.getElementById('pay-toggle-btn');
-							if (toggleBtn && document.getElementById('pay-details').style.display === 'none') {
-								togglePaySection();
-							}
-						}
-				} else {
-					// Подписка уже активна — если есть сохранённый return, сразу предлагаем вернуться
-					const ret = _getCabReturn();
-					if (ret) {
-						sessionStorage.removeItem('_cab_return_url');
-						location.href = ret;
-					}
-				}
-				});
-			});
+		_cabAccess.then(async function() {
+			var isActive = await loadSubscription();
+			await loadEarlyBird();
+			_renderReturnBanner();
+			var hasSelectedPeriod = [1, 3, 12].includes(Number(new URLSearchParams(location.search).get('months')));
+			// Open an explicit purchase in context without navigating away from the cabinet.
+			if ((!isActive && _getCabReturn()) || hasSelectedPeriod) {
+				if (document.getElementById('pay-details').style.display === 'none') togglePaySection();
+			}
 		});
 
 		// ── KPI SUMMARY (4 метрики в шапке кабинета) ──────────────────────────────
