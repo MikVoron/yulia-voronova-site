@@ -45,7 +45,7 @@ const server = http.createServer((req, res) => {
       if (url.pathname === '/api/auth/oauth/providers') { requests.providers++; return json(options.ready || { vk: true, yandex: true, vkOneTap: !!options.oneTap }, options.providerStatus || 200); }
       if (url.pathname === '/api/auth/oauth/vk/config') {
         requests.widgetConfig++;
-        return json({ appId: 54502528, redirectUrl: origin + '/api/auth/oauth/vk/callback', state: 'a'.repeat(48), codeChallenge: 'b'.repeat(43), expiresIn: 600 });
+        return json({ appId: 54502528, redirectUrl: origin + '/api/auth/oauth/vk/callback', state: 'a'.repeat(48), codeChallenge: 'b'.repeat(43), expiresIn: 600 }, options.configStatus || 200);
       }
       if (url.pathname === '/api/auth/oauth/vk/callback') {
         requests.widgetCallback.push(url.toString());
@@ -92,7 +92,7 @@ const server = http.createServer((req, res) => {
     for (const width of [320, 390, 1440]) {
       const item = await create({ width });
       await item.page.locator('#lp-oauth').waitFor({ state: 'visible' });
-      assert.equal(await item.page.locator('[data-oauth-provider]:visible').count(), 2);
+      assert.equal(await item.page.locator('[data-oauth-provider]:visible').count(), 4);
       assert.ok(await item.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       if (width !== 320) await item.page.screenshot({ path: path.join(output, width === 1440 ? 'desktop.png' : 'mobile.png'), fullPage: true, animations: 'disabled' });
       reports.push('both_providers_fit_' + width);
@@ -113,7 +113,7 @@ const server = http.createServer((req, res) => {
     {
       const item = await create({ ready: { vk: false, yandex: true } });
       await item.page.locator('[data-oauth-provider="yandex"]').waitFor({ state: 'visible' });
-      assert.equal(await item.page.locator('[data-oauth-provider="vk"]').isVisible(), false);
+      assert.equal(await item.page.locator('[data-oauth-provider="vk"]:not([data-vk-service])').isVisible(), false);
       reports.push('only_ready_provider_is_visible');
       await item.context.close();
     }
@@ -144,8 +144,8 @@ const server = http.createServer((req, res) => {
     }
     {
       const item = await create({ refreshStatus: 401, search: '?return=recipe.html%3Fid%3Dexisting' });
-      await item.page.locator('[data-oauth-provider="vk"]').waitFor({ state: 'visible' });
-      await item.page.locator('[data-oauth-provider="vk"]').click();
+      await item.page.locator('[data-oauth-provider="vk"]:not([data-vk-service])').waitFor({ state: 'visible' });
+      await item.page.locator('[data-oauth-provider="vk"]:not([data-vk-service])').click();
       await item.page.waitForURL('**/api/auth/oauth/vk?*');
       await item.page.goto(origin + '/platform/auth-callback.html');
       await item.page.locator('.cb-error-link').waitFor({ state: 'visible' });
@@ -165,7 +165,7 @@ const server = http.createServer((req, res) => {
     for (const width of [390, 1440]) {
       const item = await create({ oneTap: 'success', width, search: '?return=recipe.html%3Fid%3Dexisting' });
       await item.page.locator('#lp-vk-one-tap').waitFor({ state: 'visible' });
-      assert.equal(await item.page.locator('[data-oauth-provider="vk"]').isVisible(), false);
+      assert.equal(await item.page.locator('[data-oauth-provider="vk"]:not([data-vk-service])').isVisible(), false);
       assert.equal(await item.page.evaluate(() => window.__vkConfig.scope), 'email');
       assert.equal(await item.page.evaluate(() => window.__vkConfig.codeVerifier), undefined);
       assert.deepEqual(await item.page.evaluate(() => window.__vkRender.oauthList), ['mail_ru', 'ok_ru']);
@@ -206,10 +206,23 @@ const server = http.createServer((req, res) => {
         await item.page.locator('#test-onetap').waitFor({ state: 'visible' });
         await item.page.locator('#test-onetap').click();
       } else await item.page.waitForTimeout(350);
-      await item.page.locator('[data-oauth-provider="vk"]').waitFor({ state: 'visible' });
+      await item.page.locator('[data-oauth-provider="vk"]:not([data-vk-service])').waitFor({ state: 'visible' });
       assert.equal(item.requests.widgetCallback.length, 0);
       assert.equal(await item.page.locator('#send-code-btn').isEnabled(), true);
       reports.push('onetap_' + mode + '_keeps_fallback');
+      await item.context.close();
+    }
+    for (const service of ['mail_ru', 'ok_ru']) {
+      const item = await create({ oneTap: true, configStatus: 429 });
+      const button = item.page.locator('[data-vk-service="' + service + '"]');
+      await button.waitFor({ state: 'visible' });
+      assert.equal(await item.page.locator('#lp-vk-one-tap').isVisible(), false);
+      await button.click();
+      await item.page.waitForURL('**/api/auth/oauth/vk?*');
+      const target = new URL(item.requests.start[0]);
+      assert.equal(target.searchParams.get('provider'), service);
+      assert.match(target.searchParams.get('fingerprint'), /^[a-f0-9]{64}$/);
+      reports.push(service + '_survives_widget_429_without_sdk');
       await item.context.close();
     }
     }

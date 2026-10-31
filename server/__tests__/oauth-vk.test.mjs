@@ -93,6 +93,43 @@ function providerResponses(state, profile = { user: { user_id: 42 } }) {
 }
 
 describe('VK ID authorization code flow', () => {
+  it.each(['mail_ru', 'ok_ru'])('starts %s through the same private PKCE flow', async service => {
+    const response = await app.inject({ method: 'GET', url: '/auth/oauth/vk?provider=' + service });
+    expect(response.statusCode).toBe(302);
+    const url = new URL(response.headers.location);
+    expect(url.origin).toBe('https://id.vk.ru');
+    expect(url.searchParams.get('provider')).toBe(service);
+    expect(url.searchParams.get('prompt')).toBe('login');
+    expect(url.searchParams.get('redirect_uri')).toMatch(/\/auth\/oauth\/vk\/callback$/);
+    const verifier = response.cookies.find(cookie => cookie.name === 'oauth_pkce_vk');
+    expect(verifier.httpOnly).toBe(true);
+    expect(url.searchParams.get('code_challenge')).toBe(createHash('sha256').update(verifier.value).digest('base64url'));
+    expect(url.searchParams.has('code_verifier')).toBe(false);
+  });
+
+  it.each(['invalid', 'mail_ru&redirect_uri=https://example.invalid', 'https://example.invalid'])('rejects unsupported service %s before setting cookies', async service => {
+    const response = await app.inject({ method: 'GET', url: '/auth/oauth/vk?provider=' + encodeURIComponent(service) });
+    expect(response.statusCode).toBe(400);
+    expect(response.headers.location).toBeUndefined();
+    expect(response.cookies).toHaveLength(0);
+  });
+
+  it('allows normal widget reloads while retaining a per-minute limit', async () => {
+    process.env.VK_ONETAP_ENABLED = 'true';
+    const limited = Fastify();
+    try {
+      await limited.register(require('@fastify/rate-limit'), { global: false });
+      await limited.register(cookie);
+      await limited.register(require('../src/routes/oauth.js'));
+      await limited.ready();
+      for (let i = 0; i < 30; i++) {
+        const response = await limited.inject({ method: 'GET', url: '/auth/oauth/vk/config' });
+        expect(response.statusCode).toBe(200);
+      }
+      expect((await limited.inject({ method: 'GET', url: '/auth/oauth/vk/config' })).statusCode).toBe(429);
+    } finally { await limited.close(); }
+  });
+
   it('uses a fresh SHA-256 challenge and a short-lived private verifier cookie', async () => {
     const first = await startVk();
     const second = await startVk();

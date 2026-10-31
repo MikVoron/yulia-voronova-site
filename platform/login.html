@@ -12,7 +12,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400;1,700&family=Montserrat:wght@400;500;600;700;800&display=optional" rel="stylesheet">
 	<link rel="stylesheet" href="login.css?v=20261031-stable-layout">
 	<link rel="stylesheet" href="jivo-chat-modal.css?v=20261030-jivo">
-<link rel="stylesheet" href="oauth-login.css?v=20261031-stable-layout">
+<link rel="stylesheet" href="oauth-login.css?v=20261031-mail-ok-fallback">
 </head>
 
 <body>
@@ -71,6 +71,10 @@
                             <div class="lp-vk-one-tap" id="lp-vk-one-tap" hidden></div>
                             <button class="lp-oauth-button" data-oauth-provider="vk" type="button" hidden><span class="lp-oauth-brand lp-oauth-brand-vk" aria-hidden="true">VK</span>Войти через ВК</button>
                             <button class="lp-oauth-button" data-oauth-provider="yandex" type="button" hidden><span class="lp-oauth-brand lp-oauth-brand-yandex" aria-hidden="true">Я</span>Войти через Яндекс</button>
+                        </div>
+                        <div class="lp-oauth-alternatives" id="lp-oauth-alternatives" hidden>
+                            <button class="lp-oauth-button" data-oauth-provider="vk" data-vk-service="mail_ru" type="button" hidden><span class="lp-oauth-brand lp-oauth-brand-mail" aria-hidden="true">@</span>Войти через Mail</button>
+                            <button class="lp-oauth-button" data-oauth-provider="vk" data-vk-service="ok_ru" type="button" hidden><svg class="lp-oauth-brand" width="23" height="23" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5" fill="#f7931e"/><circle cx="12" cy="7" r="3" fill="none" stroke="#fff" stroke-width="2"/><path d="M7 12q5 4 10 0M12 14v3m0 0-3 4m3-4 3 4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>Одноклассники</button>
                         </div>
                         <p class="lp-oauth-note">Уже есть аккаунт? Войдите через сервис с той же почтой.</p>
                     </div>
@@ -146,7 +150,7 @@
 		</svg>
 	</a>
 	<script src="jivo-chat-modal.js?v=20261030-jivo"></script>
-<script src="oauth-login.js?v=20261031-stable-layout"></script>
+<script src="oauth-login.js?v=20261031-mail-ok-fallback"></script>
 </body>
 
 </html>

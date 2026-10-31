@@ -144,7 +144,9 @@ async function oauthRoutes(fastify) {
   // Only the public challenge reaches the SDK. The verifier remains HttpOnly.
   // A separate cookie for each attempt allows widgets in parallel tabs.
   fastify.get('/auth/oauth/vk/config', {
-    config: { rateLimit: { max: 10, timeWindow: '15 minutes' } }
+    // Public widget preparation is not a login attempt. Reloads and tabs must
+    // not exhaust the stricter callback limit.
+    config: { rateLimit: { max: 30, timeWindow: '1 minute' } }
   }, async (req, reply) => {
     if (!vkOneTapReady()) return disabledProviderReply(reply);
     const state = crypto.randomBytes(24).toString('hex');
@@ -164,6 +166,10 @@ async function oauthRoutes(fastify) {
   // ── VK: redirect ──
   fastify.get('/auth/oauth/vk', async (req, reply) => {
     if (!providerReady('vk')) return disabledProviderReply(reply);
+    const service = req.query.provider;
+    if (service !== undefined && !['mail_ru', 'ok_ru'].includes(service)) {
+      return reply.code(400).send({ error: 'Unsupported login service' });
+    }
     rememberFingerprint('vk', req, reply);
     const state = crypto.randomBytes(24).toString('hex');
     const verifier = crypto.randomBytes(32).toString('base64url');
@@ -177,7 +183,8 @@ async function oauthRoutes(fastify) {
       + '&scope=email'
       + '&code_challenge=' + challenge
       + '&code_challenge_method=s256'
-      + '&state=' + state;
+      + '&state=' + state
+      + (service ? '&provider=' + service + '&prompt=login' : '');
     return reply.redirect(url);
   });
 

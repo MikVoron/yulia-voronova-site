@@ -80,7 +80,11 @@
             rememberLogin(provider);
             fingerprint().then(function (value) {
                 var url = API_BASE + '/auth/oauth/' + provider;
-                if (value) url += '?fingerprint=' + encodeURIComponent(value);
+                var query = new URLSearchParams();
+                var service = button.getAttribute('data-vk-service');
+                if (provider === 'vk' && ['mail_ru', 'ok_ru'].indexOf(service) >= 0) query.set('provider', service);
+                if (value) query.set('fingerprint', value);
+                if (query.toString()) url += '?' + query.toString();
                 location.assign(url);
             });
         });
@@ -98,6 +102,8 @@
             });
             group.hidden = visible === 0;
             if (slot) slot.hidden = visible === 0;
+            var alternatives = document.getElementById('lp-oauth-alternatives');
+            if (alternatives) alternatives.hidden = !ready || ready.vk !== true;
             if (ready && ready.vk === true && ready.vkOneTap === true) {
                 group.classList.add('is-preparing');
                 var widgetScript = document.createElement('script');
