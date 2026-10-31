@@ -107,6 +107,10 @@
 
 	(function bindFooterContrast() {
 		var fab = document.getElementById('support-fab');
+		if (fab) {
+			fab.title = CHAT_TITLE;
+			fab.setAttribute('aria-label', 'Открыть чат с Юлией');
+		}
 		var footer = document.querySelector('.v-footer');
 		if (!fab || !footer || !window.requestAnimationFrame) return;
 
