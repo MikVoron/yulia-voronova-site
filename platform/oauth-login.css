@@ -16,7 +16,7 @@
 .lp-vk-one-tap { grid-column: 1 / -1; width: 100%; }
 .lp-vk-one-tap[hidden] { display: none; }
 .lp-oauth[data-onetap-active] .lp-oauth-buttons { grid-template-columns: 1fr; }
-.lp-oauth-button { min-height: 46px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border: 1px solid var(--border); border-radius: 12px; background: #fff; color: var(--text); font: 600 11px var(--sans); cursor: pointer; }
+.lp-oauth-button { min-height: 46px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border: 1px solid var(--border); border-radius: 2px; background: #fff; color: var(--text); font: 600 11px var(--sans); cursor: pointer; }
 .lp-oauth-button:hover { background: #f7f7f7; border-color: #aaa; }
 .lp-oauth-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .lp-oauth-button:disabled { opacity: .6; cursor: wait; }

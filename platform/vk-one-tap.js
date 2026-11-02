@@ -99,7 +99,7 @@
             container.hidden = false;
             fallback.hidden = true;
             group.setAttribute('data-onetap-active', 'true');
-            widget.render({ container: container, showAlternativeLogin: true, oauthList: ['mail_ru', 'ok_ru'], styles: { height: 46, borderRadius: 12 } });
+            widget.render({ container: container, showAlternativeLogin: true, oauthList: ['mail_ru', 'ok_ru'], styles: { height: 46, borderRadius: 2 } });
             reveal();
             refreshTimer = setTimeout(function () { prepare(VKID).catch(restoreButton); }, 9 * 60000);
         });

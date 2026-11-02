@@ -107,7 +107,7 @@
             if (ready && ready.vk === true && ready.vkOneTap === true) {
                 group.classList.add('is-preparing');
                 var widgetScript = document.createElement('script');
-                widgetScript.src = 'vk-one-tap.js?v=20261031-stable-layout';
+                widgetScript.src = 'vk-one-tap.js?v=20261102-button-corners';
                 widgetScript.async = true;
                 widgetScript.onerror = reveal;
                 document.head.appendChild(widgetScript);
