@@ -4339,6 +4339,7 @@ body.recipe-image-viewer-open { overflow: hidden; }
 .sp-profile.is-guest .v-user-avatar { display: none !important; }
 .sp-profile.is-guest .sp-profile-name {
     font-size: 12px; font-weight: 700;
+    line-height: 1.5;
     letter-spacing: .08em; text-transform: uppercase;
     color: var(--text); max-width: none;
 }
