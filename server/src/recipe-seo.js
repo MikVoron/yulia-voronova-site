@@ -16,7 +16,7 @@ const RECIPE_CATEGORY_NAMES = {
   spreads: 'Намазки',
   sauces: 'Соусы',
   bases: 'Основа',
-  breads: 'Хлеб и крекеры',
+  breads: 'Выпечка',
   drinks: 'Напитки',
 };
 const DEPLOYED_PLATFORM_DIR = path.resolve(__dirname, '..', '..', 'smartplate-platform');

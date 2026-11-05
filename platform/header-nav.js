@@ -47,7 +47,7 @@
     { id: 'spreads', name: 'Намазки', sort_order: 8 },
     { id: 'sauces', name: 'Соусы', sort_order: 9 },
     { id: 'bases', name: 'Основа', sort_order: 10 },
-    { id: 'breads', name: 'Хлеб и Крекеры', sort_order: 11 },
+    { id: 'breads', name: 'Выпечка', sort_order: 11 },
     { id: 'drinks', name: 'Напитки', sort_order: 12 }
   ];
   var RECIPE_ORDER = RECIPE_GROUPS.reduce(function (acc, group, groupIdx) {

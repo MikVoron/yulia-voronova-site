@@ -14,7 +14,7 @@
         spreads: 'Намазки',
         sauces: 'Соусы',
         bases: 'Основа',
-        breads: 'Хлеб и крекеры',
+        breads: 'Выпечка',
         drinks: 'Напитки'
     };
     let activeRecipeSchema = null;
