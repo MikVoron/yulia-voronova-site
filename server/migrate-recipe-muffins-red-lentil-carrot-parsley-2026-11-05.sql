@@ -44,10 +44,10 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM categories
     WHERE id = 'breads'
-      AND lower(name) IN ('хлеб и крекеры', 'выпечка')
+      AND name IN ('Хлеб и Крекеры', 'Хлеб и крекеры', 'Выпечка')
   ) OR EXISTS (
     SELECT 1 FROM categories
-    WHERE id <> 'breads' AND lower(name) = 'выпечка'
+    WHERE id <> 'breads' AND name IN ('Выпечка', 'выпечка')
   ) THEN
     RAISE EXCEPTION 'Category breads / Выпечка conflicts with the expected category; inspect before applying';
   END IF;
