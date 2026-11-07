@@ -86,6 +86,11 @@
 
 		loadContent().then(function () {
 			if (isContentError()) {
+				if (document.querySelector('#cat-grid a[data-category-id]')) {
+					const serverRecommended = document.getElementById('recommended-block');
+					if (serverRecommended) serverRecommended.style.display = '';
+					return;
+				}
 				// Контент не загрузился — прячем динамические блоки, чтобы не висели над ошибкой.
 				const nb = document.getElementById('new-block');
 				if (nb) nb.style.display = 'none';
@@ -499,14 +504,14 @@
 				const photoHtml = photo
 					? `<img src="${escHtml(photo)}" alt="${_name}" loading="lazy">`
 					: `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:48px">${_emoji}</div>`;
-				return `<button class="cat-card" data-category-id="${_id}">
+				return `<a class="cat-card" href="category.html?cat=${_id}" data-category-id="${_id}">
                 <div class="cat-icon-wrap">${photoHtml}</div>
                 <div class="cat-body">
                     <div class="cat-name">${_name}</div>
                     <div class="cat-desc">${_desc}</div>
                     <div class="cat-count">${pluralR(count)}</div>
                 </div>
-            </button>`;
+            </a>`;
 			}).join('');
 		}
 		// ── NEWS FEED ─────────────────────────────────────────────────────────
@@ -1137,6 +1142,7 @@
 		function _renderRecommendedSkeleton() {
 			const grid = document.getElementById('recommended-grid');
 			if (!grid) return;
+			if (grid.querySelector('a[href]')) return;
 			grid.innerHTML = Array.from({ length: _spRecCount }, function () {
 				return '<div class="sp-skel-card" aria-hidden="true">'
 					+ '<div class="sp-skel-img"></div>'
@@ -1150,7 +1156,10 @@
 			const grid = document.getElementById('recommended-grid');
 			if (!block || !grid) return;
 			const all = Object.values(RECIPES);
-			if (!all.length) { block.style.display = 'none'; return; }
+			if (!all.length) {
+				block.style.display = grid.querySelector('a[href]') ? '' : 'none';
+				return;
+			}
 
 			// «Популярные» — только рецепты с реальными оценками.
 			const withRating = [];
@@ -1925,7 +1934,11 @@
 				return;
 			}
 			const categoryTarget = event.target.closest('[data-category-id]');
-			if (categoryTarget) goToCategory(categoryTarget.dataset.categoryId || '');
+			if (categoryTarget) {
+				if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+				event.preventDefault();
+				goToCategory(categoryTarget.dataset.categoryId || '');
+			}
 		});
 
 		document.addEventListener('error', function (event) {

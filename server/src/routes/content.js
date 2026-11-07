@@ -8,6 +8,7 @@ const { refreshSitemapSafely } = require('../sitemap');
 const { readRecipeTemplate, renderRecipeDocument } = require('../recipe-seo');
 const { getStaticIngredient, readIngredientTemplate, renderIngredientDocument } = require('../ingredient-seo');
 const { readCategoryTemplate, renderCategoryDocument } = require('../category-seo');
+const { readHomeTemplate, loadHomeData, loadIngredientLinks, renderIngredientLinks, renderHomeDocument } = require('../home-seo');
 const {
   buildRecipeSnapshot,
   changedRecipeFields,
@@ -224,6 +225,16 @@ function normalizeIngredientCatalogItem(body) {
 
 async function contentRoutes(fastify) {
   registerDiscussionRoutes(fastify);
+  fastify.get('/_seo/home', async (req, reply) => {
+    const template = await readHomeTemplate();
+    try {
+      const data = await loadHomeData(db);
+      return reply.type('text/html; charset=utf-8').send(renderHomeDocument(template, data));
+    } catch (error) {
+      req.log.error({ err: error }, 'Homepage server navigation unavailable');
+      return reply.type('text/html; charset=utf-8').send(template);
+    }
+  });
   // Category URLs must expose unique metadata before JavaScript runs.
   fastify.get('/_seo/category', async (req, reply) => {
     const template = await readCategoryTemplate();
@@ -244,7 +255,9 @@ async function contentRoutes(fastify) {
           ORDER BY c.sort_order, c.name`
       );
       return reply.type('text/html; charset=utf-8')
-        .send(renderCategoryDocument(template, null, [], { categories: categoriesResult.rows }));
+        .send(renderIngredientLinks(
+          renderCategoryDocument(template, null, [], { categories: categoriesResult.rows }),
+          await loadIngredientLinks(db)));
     }
     if (!/^[a-z0-9_-]{1,100}$/.test(id)) return reply.status(404).type('text/html; charset=utf-8').send(template);
     const categoryResult = await db.query('SELECT id, name, description FROM categories WHERE id=$1', [id]);

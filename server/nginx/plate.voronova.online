@@ -44,6 +44,18 @@ server {
         include /etc/nginx/snippets/smartplate-api-proxy.conf;
     }
 
+    # Render current published navigation before JavaScript loads.
+    location = / {
+        limit_except GET { deny all; }
+        rewrite ^ /_seo/home break;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+    location = /index.html {
+        limit_except GET { deny all; }
+        rewrite ^ /_seo/home break;
+        include /etc/nginx/snippets/smartplate-api-proxy.conf;
+    }
+
     # Keep the public recipe URL unchanged while supplying canonical metadata,
     # Open Graph fields and Recipe JSON-LD in the initial HTML response. The
     # regular client application hydrates the same document after it loads.
