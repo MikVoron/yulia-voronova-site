@@ -8,7 +8,7 @@ except ImportError:fcntl=None
 BASE=Path(__file__).resolve().parent
 READY=Path('/home/smartplate-admin/release-staging/review-photos-readiness-e8b9e4b488d3')
 READY_SHA='572356ad84c5abe2a1c23cd298167c842a1028d2db2375403d20b6cf45a5eb36'
-CHECKPOINTS=Path('/root/smartplate-rollbacks')
+CHECKPOINTS=Path('/root/smartplate-review-photos')
 CODECS=Path('/var/lib/smartplate-photo-codecs')
 PHOTOS=Path('/var/lib/smartplate/review-photos')
 HELPER=Path('/opt/voronova/review-photos-backup.py')
@@ -62,7 +62,7 @@ def ensure_directory(path,uid=0,gid=0,mode=0o755):
     if path.is_symlink():raise RuntimeError('Directory is a symlink')
     if path.exists():
         info=path.stat()
-        if not path.is_dir() or (info.st_uid,info.st_gid,stat.S_IMODE(info.st_mode))!=(uid,gid,mode):raise RuntimeError('Unexpected directory ownership or mode: '+str(path))
+        if not path.is_dir() or (info.st_uid,info.st_gid,stat.S_IMODE(info.st_mode))!=(uid,gid,mode):raise RuntimeError('Unexpected directory ownership or mode: '+str(path)+' actual='+str(info.st_uid)+':'+str(info.st_gid)+':'+oct(stat.S_IMODE(info.st_mode)))
     else:
         path.mkdir(mode=mode);os.chown(path,uid,gid);os.chmod(path,mode)
 def atomic_write(file,data,mode):

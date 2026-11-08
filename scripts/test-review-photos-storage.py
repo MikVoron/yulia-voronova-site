@@ -1,5 +1,6 @@
 import importlib.util,json,tempfile,unittest
 from pathlib import Path
+from unittest.mock import patch
 spec=importlib.util.spec_from_file_location('photo_storage_install',Path(__file__).with_name('install-review-photos-storage.py'))
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 class StorageTests(unittest.TestCase):
@@ -28,4 +29,13 @@ class StorageTests(unittest.TestCase):
  def test_rejects_payload_tampering_before_any_install(self):
   digest=self.save();(module.BASE/'install.py').write_text('changed')
   with self.assertRaisesRegex(RuntimeError,'Storage payload drift'):module.verify_manifest(digest)
+ def test_protects_copies_in_its_own_checkpoint_root_before_execution(self):
+  digest=self.save();checkpoints=module.BASE.parent/'dedicated-checkpoints';checkpoints.mkdir()
+  with patch.object(module,'CHECKPOINTS',checkpoints),patch.object(module,'ensure_directory') as ensure,patch.object(module.os,'execv') as launch:
+   module.protect(self.manifest,self.manifest['codecComponentSha256'],digest)
+  ensure.assert_called_once_with(checkpoints,mode=0o700)
+  checkpoint=next(checkpoints.iterdir());self.assertEqual((checkpoint/'install.py').read_text(),'installer')
+  self.assertEqual((checkpoint/'support/fixtures/example.heic').read_text(),'fixture')
+  self.assertEqual((checkpoint/'codecs/package.json').read_text(),'{}')
+  self.assertEqual(launch.call_args.args[1][1],str(checkpoint/'install.py'))
 if __name__=='__main__':unittest.main()
