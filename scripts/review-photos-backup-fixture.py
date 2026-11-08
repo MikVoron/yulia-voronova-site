@@ -5,6 +5,8 @@ from pathlib import Path
 spec=importlib.util.spec_from_file_location('photo_backup',Path(__file__).with_name('review-photos-backup.py'))
 backup=importlib.util.module_from_spec(spec);spec.loader.exec_module(backup)
 socket=os.environ['PHOTO_BACKUP_TEST_SOCKET']
+backup.validate_executables()
+assert backup.execute([backup.Database().prefix[0],'--version']).startswith(b'runuser')
 if not socket.startswith('/tmp/smartplate-photo-backup.') or not socket.endswith('/socket'):raise RuntimeError('Only disposable fixture socket is allowed')
 class FixtureDatabase(backup.Database):
  def dump(self,destination):

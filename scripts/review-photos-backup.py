@@ -22,9 +22,13 @@ def sha(file):
         for block in iter(lambda:stream.read(1024*1024),b''):digest.update(block)
     return digest.hexdigest()
 def clean_env():return {'PATH':'/usr/bin:/bin','LANG':'C.UTF-8','HOME':'/nonexistent'}
+def validate_executables():
+    for program in ('/usr/sbin/runuser','psql','pg_dump','pg_restore','gpg','gpgconf','aws'):
+        if shutil.which(program,path=clean_env()['PATH']) is None:raise BackupError('EXECUTABLE_MISSING_'+Path(program).name)
 def execute(args,**options):
     options.setdefault('stdout',subprocess.PIPE);options.setdefault('stderr',subprocess.PIPE)
     try:return subprocess.run(args,check=True,timeout=options.pop('timeout',180),env=options.pop('env',clean_env()),**options).stdout
+    except FileNotFoundError as error:raise BackupError('EXECUTABLE_MISSING_'+Path(str(args[0])).name) from error
     except subprocess.SubprocessError as error:raise BackupError('SUBPROCESS_'+Path(str(args[0])).name) from error
 def protected_file(file):
     info=file.lstat()
@@ -42,7 +46,7 @@ def credentials(text):
     return values
 
 class Database:
-    def __init__(self,host='/var/run/postgresql',port=5432,user='postgres',name='smartplate_db',prefix=('runuser','-u','postgres','--')):
+    def __init__(self,host='/var/run/postgresql',port=5432,user='postgres',name='smartplate_db',prefix=('/usr/sbin/runuser','-u','postgres','--')):
         self.host,self.port,self.user,self.name,self.prefix=host,port,user,name,list(prefix)
     def command(self,program,*extra):return [*self.prefix,program,'-w','-h',self.host,'-p',str(self.port),'-U',self.user,*extra]
     def query(self,sql):return execute(self.command('psql','-X','-v','ON_ERROR_STOP=1','-qAt','-d',self.name),input=sql.encode()).decode().strip()
@@ -128,7 +132,9 @@ class Cloud:
                 execute(self.command('s3api','delete-object','--bucket',BUCKET,'--key',item['Key']),env=self.env)
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--verify-remote',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--verify-remote',action='store_true');parser.add_argument('--check-tools',action='store_true');args=parser.parse_args()
+    validate_executables()
+    if args.check_tools:print('REVIEW_PHOTOS_BACKUP_TOOLS_OK');return
     if fcntl is None:raise BackupError('LINUX_REQUIRED')
     if os.geteuid()!=0:raise BackupError('ROOT_REQUIRED')
     os.umask(0o077)

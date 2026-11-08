@@ -38,4 +38,15 @@ class StorageTests(unittest.TestCase):
   self.assertEqual((checkpoint/'support/fixtures/example.heic').read_text(),'fixture')
   self.assertEqual((checkpoint/'codecs/package.json').read_text(),'{}')
   self.assertEqual(launch.call_args.args[1][1],str(checkpoint/'install.py'))
+ def test_checkpoint_is_saved_before_replacing_only_the_known_backup_helper(self):
+  helper=module.BASE/'installed-backup.py';helper.write_bytes(b'known-previous');digest=module.digest(b'known-previous')
+  with patch.object(module,'HELPER',helper),patch.object(module,'PREVIOUS_BACKUP_SHA',digest),patch.object(module,'atomic_write') as install:
+   module.install_backup_helper(b'corrected')
+  self.assertEqual((module.BASE/'previous-backup.py').read_bytes(),b'known-previous')
+  install.assert_called_once_with(helper,b'corrected',0o750,previous_sha=digest)
+ def test_unknown_installed_backup_helper_is_not_replaced(self):
+  helper=module.BASE/'installed-backup.py';helper.write_bytes(b'unrelated-script')
+  with patch.object(module,'HELPER',helper),patch.object(module,'atomic_write') as install:
+   with self.assertRaisesRegex(RuntimeError,'not the known previous'):module.install_backup_helper(b'corrected')
+  install.assert_not_called();self.assertEqual(helper.read_bytes(),b'unrelated-script')
 if __name__=='__main__':unittest.main()

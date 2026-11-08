@@ -12,6 +12,7 @@ CHECKPOINTS=Path('/root/smartplate-review-photos')
 CODECS=Path('/var/lib/smartplate-photo-codecs')
 PHOTOS=Path('/var/lib/smartplate/review-photos')
 HELPER=Path('/opt/voronova/review-photos-backup.py')
+PREVIOUS_BACKUP_SHA='e13a84006c361deb95151286b67777cba2bae524047816b78ea74103ff2b6ced'
 CRON=Path('/etc/cron.d/smartplate-review-photos-backup')
 LOG=Path('/var/log/voronova-photo-backup.log')
 CRON_BODY=b'SHELL=/bin/sh\nPATH=/usr/bin:/bin\n30 3 * * * root /usr/bin/python3 /opt/voronova/review-photos-backup.py >> /var/log/voronova-photo-backup.log 2>&1\n'
@@ -65,12 +66,14 @@ def ensure_directory(path,uid=0,gid=0,mode=0o755):
         if not path.is_dir() or (info.st_uid,info.st_gid,stat.S_IMODE(info.st_mode))!=(uid,gid,mode):raise RuntimeError('Unexpected directory ownership or mode: '+str(path)+' actual='+str(info.st_uid)+':'+str(info.st_gid)+':'+oct(stat.S_IMODE(info.st_mode)))
     else:
         path.mkdir(mode=mode);os.chown(path,uid,gid);os.chmod(path,mode)
-def atomic_write(file,data,mode):
+def atomic_write(file,data,mode,previous_sha=None):
     if file.is_symlink() or (file.exists() and not file.is_file()):raise RuntimeError('Unsafe file target')
     if file.exists():
         info=file.stat()
-        if info.st_uid!=0 or stat.S_IMODE(info.st_mode)!=mode or file.read_bytes()!=data:raise RuntimeError('Existing file differs: '+str(file))
-        return
+        if info.st_uid!=0 or stat.S_IMODE(info.st_mode)!=mode:raise RuntimeError('Existing file permissions differ: '+str(file))
+        current=file.read_bytes()
+        if current==data:return
+        if previous_sha is None or digest(current)!=previous_sha:raise RuntimeError('Existing file differs: '+str(file))
     fd,name=tempfile.mkstemp(prefix='.photo-storage-',dir=file.parent)
     try:
         with os.fdopen(fd,'wb') as stream:stream.write(data);stream.flush();os.fsync(stream.fileno());os.fchmod(stream.fileno(),mode);os.fchown(stream.fileno(),0,0)
@@ -102,6 +105,13 @@ def load_readiness():
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);module.BASE=READY
     module.validate(READY_SHA)
     return module
+def install_backup_helper(data):
+    if HELPER.exists() and HELPER.read_bytes()!=data:
+        previous=HELPER.read_bytes()
+        if digest(previous)!=PREVIOUS_BACKUP_SHA:raise RuntimeError('Installed backup helper is not the known previous version')
+        saved=BASE/'previous-backup.py';saved.write_bytes(previous);saved.chmod(0o600)
+        if sha(saved)!=PREVIOUS_BACKUP_SHA:raise RuntimeError('Previous backup checkpoint mismatch')
+    atomic_write(HELPER,data,0o750,previous_sha=PREVIOUS_BACKUP_SHA)
 def probe(component):
     fixture=CODECS/('.photo-probe-'+uuid.uuid4().hex+'.heic');fixture.write_bytes((BASE/'support/fixtures/example.heic').read_bytes());fixture.chmod(0o644)
     marker=PHOTOS/('.access-probe-'+uuid.uuid4().hex)
@@ -126,7 +136,7 @@ def apply(manifest,component):
         ensure_directory(file.parent);atomic_write(file,(BASE/'codecs'/entry['path']).read_bytes(),0o644)
     probe(runtime)
     ensure_directory(Path('/opt/voronova/photo-backups'),mode=0o700)
-    atomic_write(HELPER,(BASE/'backup.py').read_bytes(),0o750)
+    install_backup_helper((BASE/'backup.py').read_bytes())
     if LOG.exists():
         info=LOG.lstat()
         if not stat.S_ISREG(info.st_mode) or info.st_uid!=0 or stat.S_IMODE(info.st_mode)!=0o600:raise RuntimeError('Unexpected backup log')
