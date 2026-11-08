@@ -2204,6 +2204,7 @@
 									${[1, 2, 3, 4, 5].map(i => `<button class="star review-star" type="button" data-recipe-action="set-review-stars" data-n="${i}" aria-label="Оценка ${i} из 5" aria-pressed="false">★</button>`).join('')}
 								</div>
                                 <textarea id="review-text" class="review-textarea" placeholder="Ваш отзыв может помочь другим пользователям сделать выбор." maxlength="1000" rows="3"></textarea>
+                                <div data-review-photo-picker></div>
                                 <div style="display:flex;align-items:center;justify-content:space-between">
                                     <span class="review-char-count" id="review-char-count">0 / 1000</span>
                                     <button class="recipe-review-submit" id="review-submit-btn" type="button" data-recipe-action="submit-review">Отправить</button>
@@ -4050,6 +4051,7 @@
             setReviewStars(_ownReview.stars);
             wrap.querySelector('.review-form-modal-title').textContent = 'Редактировать отзыв';
             document.getElementById('review-submit-btn').textContent = 'Сохранить';
+            window.ReviewPhotos?.ready.then(() => ReviewPhotos.configurePicker(wrap.querySelector('[data-review-photo-picker]'), _ownReview.id));
             scrollToReviewForm();
         }
 
@@ -4060,18 +4062,29 @@
 			const text = (textEl?.value || '').trim();
 
 			const btn = document.getElementById('review-submit-btn');
+			if (btn?.disabled) return;
+			const photoPicker = document.querySelector('#review-form-wrap [data-review-photo-picker]');
 			if (btn) { btn.disabled = true; btn.textContent = '...'; }
+			if (textEl) textEl.readOnly = true;
+			document.querySelectorAll('.review-star').forEach(star => { star.disabled = true; });
 			try {
-				const res = await Auth.api('/content/reviews', {
-					method: 'POST',
-					body: JSON.stringify({ recipe_id: r.id, stars: _reviewStars, text: text || null })
-				});
-				if (!res.ok) {
-					const err = await res.json().catch(() => ({}));
-					showToast(err.error || 'Ошибка');
-					return;
+				const fingerprint = JSON.stringify({ recipe_id: r.id, stars: _reviewStars, text: text || null });
+				let saved = photoPicker?._savedReview;
+				if (!saved || saved.fingerprint !== fingerprint) {
+					const res = await Auth.api('/content/reviews', {
+						method: 'POST',
+						body: fingerprint
+					});
+					if (!res.ok) {
+						const err = await res.json().catch(() => ({}));
+						showToast(err.error || 'Ошибка');
+						return;
+					}
+					saved = { id: (await res.json()).id, fingerprint };
+					if (photoPicker) photoPicker._savedReview = saved;
 				}
-				showToast('Отзыв сохранён!');
+				const photoCount = window.ReviewPhotos ? await ReviewPhotos.uploadPicker(photoPicker, saved.id) : 0;
+				showToast(photoCount ? 'Отзыв сохранён. Фото на проверке' : 'Отзыв сохранён!');
 				closeReviewForm();
 				if (textEl) textEl.value = '';
 				_reviewStars = 0;
@@ -4083,9 +4096,11 @@
 				if (countEl) countEl.textContent = '0 / 1000';
 				loadReviews();
 			} catch (e) {
-				showToast('Ошибка сети');
+				showToast(photoPicker?._savedReview ? 'Повторите загрузку фото' : (e.message || 'Ошибка сети. Повторите отправку.'));
 			} finally {
 				if (btn) { btn.disabled = false; btn.textContent = 'Отправить'; }
+				if (textEl) textEl.readOnly = false;
+				document.querySelectorAll('.review-star').forEach(star => { star.disabled = false; });
 			}
 		}
 

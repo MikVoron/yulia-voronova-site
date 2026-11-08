@@ -63,7 +63,7 @@
     }
 
     // ── Tabs ──
-    var ADMIN_TABS = ['dashboard', 'users', 'payments', 'news', 'recipes', 'recipe-views', 'video-requests', 'categories', 'feedback', 'audit'];
+    var ADMIN_TABS = ['dashboard', 'users', 'payments', 'news', 'recipes', 'recipe-views', 'review-photos', 'video-requests', 'categories', 'feedback', 'audit'];
 
     function normalizeAdminTab(tab) {
         return ADMIN_TABS.includes(tab) ? tab : 'users';
@@ -81,6 +81,7 @@
         if (tab === 'news') loadNews();
         if (tab === 'recipes') loadRecipesList();
         if (tab === 'recipe-views') loadRecipeViews();
+        if (tab === 'review-photos') window.AdminReviewPhotos?.load();
         if (tab === 'video-requests') loadVideoRequests();
         if (tab === 'categories') loadCategoriesList();
         if (tab === 'feedback') loadFeedback('waiting_admin');

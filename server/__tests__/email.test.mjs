@@ -33,6 +33,14 @@ beforeEach(() => {
 });
 
 describe('email template escaping', () => {
+  it('escapes dish photo notification fields and links only to the protected moderation queue', async () => {
+    await email.sendReviewPhotoNotification('<img src=x>', '<script>recipe</script>', 3);
+    const message = sendMail.mock.calls[0][0];
+    expect(message.html).not.toContain('<img src=x>');
+    expect(message.html).toContain('&lt;script&gt;recipe&lt;/script&gt;');
+    expect(message.html).toContain('/admin.html?tab=review-photos');
+    expect(message.html).not.toContain('/content/review-photos/');
+  });
   it('escapes user-controlled feedback fields in admin emails', async () => {
     await email.sendFeedback(
       'bad@example.com"><img src=x>',

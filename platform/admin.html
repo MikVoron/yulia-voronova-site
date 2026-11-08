@@ -1788,6 +1788,7 @@
     <button class="adm-tab" data-tab="news" data-admin-click="ff4a35111351">Новости</button>
     <button class="adm-tab" data-tab="recipes" data-admin-click="7c5d2f2d56d3">Рецепты</button>
     <button class="adm-tab" data-tab="recipe-views" data-admin-action="recipe-views-tab">Популярность рецептов</button>
+    <button class="adm-tab" data-tab="review-photos" data-admin-action="dashboard-tab" data-admin-tab="review-photos">Фото блюд <span class="adm-tab-badge" id="review-photos-badge" style="display:none">0</span></button>
     <button class="adm-tab" data-tab="video-requests" data-admin-click="08960e2bb8be">
         Видеозапросы <span class="adm-tab-badge" id="video-requests-badge" style="display:none">0</span>
     </button>
@@ -1797,6 +1798,17 @@
 </div>
 
 <div class="adm-main">
+    <div class="adm-section" id="sec-review-photos">
+        <h2 class="adm-section-title">Фотографии блюд</h2>
+        <p class="review-photo-hint">Новые фото видны только автору и администратору. Одобрите фотографии готовых блюд по рецептам платформы.</p>
+        <div class="admin-photo-filters">
+            <select id="admin-photo-filter" aria-label="Статус фотографий"><option value="pending">На проверке</option><option value="approved">Одобрены</option><option value="rejected">Отклонены</option></select>
+            <button type="button" class="review-photo-button" id="admin-photo-refresh">Обновить</button>
+        </div>
+        <p id="admin-photo-info" class="review-photo-status" role="status" aria-live="polite"></p>
+        <div class="admin-photo-list" id="admin-photo-list"></div>
+        <button type="button" class="review-photo-button" id="admin-photo-more" hidden>Показать ещё</button>
+    </div>
 
     <!-- Dashboard -->
     <div class="adm-section active" id="sec-dashboard">
@@ -2496,6 +2508,9 @@
 <div class="adm-toast" id="adm-toast"></div>
 
 <script src="data-v2.js?v=20260908-trial-ended-paywall"></script>
-<script src="admin.js?v=20261007-recipe-views"></script>
+<link rel="stylesheet" href="review-photos.css?v=20261108">
+<script src="review-photos.js?v=20261108"></script>
+<script src="admin-review-photos.js?v=20261108"></script>
+<script src="admin.js?v=20261108-review-photos"></script>
 </body>
 </html>

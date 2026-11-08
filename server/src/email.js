@@ -511,6 +511,14 @@ async function sendReviewNotification(author, recipeName, stars, text, recipeId)
   await send('hello@voronova.online', 'Новый отзыв: ' + recipeName, wrap(body));
 }
 
+async function sendReviewPhotoNotification(author, recipeName, count) {
+  const body = heading('Фото блюда на проверке', 'Внутреннее уведомление')
+    + paragraph('<strong>' + escHtml(author) + '</strong> добавил(а) фото к рецепту <strong>' + escHtml(recipeName) + '</strong>.')
+    + paragraph('Фотографий: ' + Number(count) + '. Другие пользователи увидят их после вашего одобрения.')
+    + btn('Проверить фотографии', PLATFORM_URL + '/admin.html?tab=review-photos');
+  await send(ADMIN_EMAIL, 'Фото на проверке: ' + recipeName, wrap(body));
+}
+
 // ── 8. Видеорецепт набрал нужное число голосов ──
 async function sendVideoRequestThresholdNotification(recipeName, recipeId, votes, goal) {
   const adminUrl = PLATFORM_URL + '/admin.html?tab=video-requests';
@@ -644,6 +652,7 @@ module.exports = {
   sendFeedbackReply,
   sendReviewReply,
   sendReviewNotification,
+  sendReviewPhotoNotification,
   sendVideoRequestThresholdNotification,
   sendNewsletter,
   sendTestingInvitation,

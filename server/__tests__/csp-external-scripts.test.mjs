@@ -137,7 +137,7 @@ describe('SmartPlate CSP script migration', () => {
     expect(new Set(htmlBindings).size).toBe(53);
     expect(bindings).toHaveLength(53);
     expect(new Set(bindings)).toEqual(new Set(htmlBindings));
-    expect(html.match(/\sdata-admin-action="dashboard-tab"/g)).toHaveLength(4);
+    expect(html.match(/\sdata-admin-action="dashboard-tab"/g)).toHaveLength(5);
     expect(html).toContain('data-admin-filter="drafts"');
     expect(html).toMatch(/admin\.js\?v=[^"']+/);
     expect(script).toContain("if (action === 'dashboard-tab')");

@@ -41,7 +41,7 @@
             legacyHtml: legacyHtml === undefined ? legacy(review) : legacyHtml,
             after: comments.at(-1)?.id || 0, hasMore: Number(review.commentCount) > comments.length };
         states.set(Number(review.id), state);
-        return `<section class="review-discussion" data-discussion-id="${Number(review.id)}" aria-label="Обсуждение отзыва">
+        return `${window.ReviewPhotos ? ReviewPhotos.markup(review) : ''}<section class="review-discussion" data-discussion-id="${Number(review.id)}" aria-label="Обсуждение отзыва">
             <div class="discussion-messages">${messages(state)}</div>
             <div class="discussion-actions">
                 <button type="button" class="discussion-button discussion-more" data-discussion-action="more"${state.hasMore ? '' : ' hidden'}>Показать ещё сообщения</button>

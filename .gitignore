@@ -3,6 +3,7 @@
 
 # Node.js
 node_modules/
+/.local/
 package-lock.json
 !server/package-lock.json
 
