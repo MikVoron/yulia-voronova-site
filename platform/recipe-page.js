@@ -3914,6 +3914,7 @@
 		// ── REVIEWS ──────────────────────────────────────────────────────────
 		let _reviewStars = 0;
 		let _reviewFormMarkup = null;
+		let _reviewLinkOpened = false;
 		let _ownReview = null;
 		let _editingReviewReplyId = null;
 
@@ -3941,7 +3942,6 @@
 				const curUser = Auth.getUser();
 				const curUserId = curUser && curUser.id;
 				const isAdmin = curUser && curUser.role === 'admin';
-				const canReactToReply = Auth.isLoggedIn();
 				_ownReview = reviews.find(rv => curUserId && rv.userId === curUserId) || null;
 				const hasOwnReview = !!_ownReview;
 				const reviewActionLabel = document.getElementById('review-action-label');
@@ -3987,11 +3987,6 @@
 					const deleteBtn = canDelete
 						? `<button class="review-delete-btn" data-recipe-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? 'true' : 'false'}" aria-label="Удалить отзыв" title="Удалить отзыв"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>`
 						: '';
-					const helpfulCount = Math.max(0, Number(rv.reply?.helpfulCount) || 0);
-					const helpfulActive = rv.reply?.helpfulByCurrentUser === true;
-					const helpfulReaction = rv.reply
-						? `<button class="review-reply-helpful${helpfulActive ? ' is-active' : ''}" type="button" data-recipe-action="toggle-review-reply-helpful" data-review-id="${Number(rv.id)}" aria-pressed="${helpfulActive}" aria-label="${canReactToReply ? (helpfulActive ? 'Убрать реакцию «Полезный ответ»' : 'Отметить ответ как полезный') : 'Войти, чтобы отметить ответ как полезный'}"><span class="review-reply-helpful-mark" aria-hidden="true">${helpfulActive ? '✓' : '🍴'}</span><span>Полезный ответ</span>${helpfulCount ? `<span class="review-reply-helpful-count">${helpfulCount}</span>` : ''}</button>`
-						: '';
 					const authorReply = rv.reply
 						? `<div class="review-author-reply">
 							<div class="review-author-wrap">
@@ -4003,7 +3998,7 @@
 								</div>
 							</div>
 							<div class="review-author-reply-text">${escHtml(rv.reply.text)}</div>
-							${helpfulReaction}
+							${ReviewDiscussions.like('reply', rv.id, rv.reply)}
 						</div>`
 						: '';
 					const replyEditor = isAdmin && _editingReviewReplyId === Number(rv.id)
@@ -4018,7 +4013,7 @@
 					const replyAction = isAdmin && !replyEditor
 						? `<button class="btn" type="button" data-recipe-action="open-review-reply-editor" data-review-id="${Number(rv.id)}" style="margin-top:12px;padding:8px 12px;font-size:12px">${rv.reply ? 'Редактировать ответ' : 'Ответить как Юлия'}</button>`
 						: '';
-					return `<div class="review-item">
+					return `<div class="review-item" id="review-${Number(rv.id)}">
                     <div class="review-header">
                         <div class="review-author-wrap">
                             ${avatarHtml}
@@ -4038,6 +4033,10 @@
                     ${replyEditor}
                 </div>`;
 				}).join('');
+				if (!_reviewLinkOpened && /^#review-\d+$/.test(location.hash)) {
+					const linkedReview = document.getElementById(location.hash.slice(1));
+					if (linkedReview) { linkedReview.scrollIntoView({ block: 'center' }); _reviewLinkOpened = true; }
+				}
 			} catch (e) {
 				console.error('Reviews load error:', e);
 				const list = document.getElementById('reviews-list');
@@ -4162,24 +4161,7 @@
 			loadReviews();
 		}
 
-		async function toggleReviewReplyHelpful(id) {
-			if (!Auth.isLoggedIn()) { location.href = Auth._loginUrl(); return; }
-			const btn = document.querySelector('[data-recipe-action="toggle-review-reply-helpful"][data-review-id="' + id + '"]');
-			if (btn?.disabled) return;
-			if (btn) btn.disabled = true;
-			try {
-				const res = await Auth.api('/content/reviews/' + id + '/reply-helpful', { method: 'POST' });
-				if (!res.ok) {
-					const err = await res.json().catch(() => ({}));
-					showToast(err.error || 'Не удалось сохранить реакцию');
-					return;
-				}
-				await loadReviews();
-			} catch (e) { showToast('Ошибка сети');
-			} finally {
-				if (btn?.isConnected) btn.disabled = false;
-			}
-		}
+
 
 		// Char counter
 		document.addEventListener('input', function (e) {
@@ -4212,7 +4194,6 @@
 				else if (action === 'submit-review-reply') submitReviewReply(Number(actionTarget.dataset.reviewId));
 				else if (action === 'open-review-reply-editor') openReviewReplyEditor(Number(actionTarget.dataset.reviewId));
 				else if (action === 'cancel-review-reply-editor') cancelReviewReplyEditor();
-				else if (action === 'toggle-review-reply-helpful') toggleReviewReplyHelpful(Number(actionTarget.dataset.reviewId));
 				else if (action === 'history-back') history.back();
 				else if (action === 'step-photo-move') stepPhotoCarouselMove(actionTarget, Number(actionTarget.dataset.direction));
 				else if (action === 'open-image-viewer') openRecipeImageViewer(actionTarget);

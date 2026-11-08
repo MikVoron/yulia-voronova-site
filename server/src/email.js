@@ -637,7 +637,18 @@ async function sendReviewReply(to, recipeName, recipeId, originalText, replyText
   await send(to, 'Юлия ответила на ваш отзыв', wrapService(body));
 }
 
+async function sendReviewLike(to, recipeName, recipeId, type, reviewId) {
+  const subject = type === 'review' ? 'Ваш отзыв понравился' : 'Ваш ответ понравился';
+  const body = heading(subject, 'Лайк в Умной тарелке')
+    + paragraph('Участник поставил лайк на ваш ' + (type === 'review' ? 'отзыв' : 'ответ')
+      + ' к рецепту <strong>' + escHtml(recipeName) + '</strong>.')
+    + btn('Открыть обсуждение', PLATFORM_URL + '/recipe.html?id=' + encodeURIComponent(recipeId) + (Number.isInteger(reviewId) && reviewId > 0 ? '#review-' + reviewId : '#reviews-section'))
+    + smallText('<a href="' + PLATFORM_URL + '/cabinet.html?tab=settings" style="color:#77716a;text-decoration:underline">Отключить уведомления о лайках</a>');
+  await send(to, subject, wrapService(body));
+}
+
 module.exports = {
+  sendReviewLike,
   sendLoginCode,
   sendWelcome,
   sendTrialExpired,

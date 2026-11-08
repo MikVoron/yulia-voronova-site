@@ -507,22 +507,18 @@ describe('recipe reviews', () => {
       updatedAt: '2026-08-03T10:00:00.000Z',
       helpfulCount: 3,
       helpfulByCurrentUser: true,
+      likeCount: 0,
+      likedByCurrentUser: false,
     });
   });
 
-  it('toggles one helpful reaction for a published author reply', async () => {
+  it('retires the helpful endpoint so cached clients cannot create divergent reactions', async () => {
     const headers = { authorization: 'Bearer ' + makeToken('user-1') };
     const added = await app.inject({
       method: 'POST', url: '/content/reviews/17/reply-helpful', headers,
     });
-    expect(added.statusCode).toBe(200);
-    expect(added.json()).toEqual({ active: true, helpfulCount: 1 });
-
-    const removed = await app.inject({
-      method: 'POST', url: '/content/reviews/17/reply-helpful', headers,
-    });
-    expect(removed.statusCode).toBe(200);
-    expect(removed.json()).toEqual({ active: false, helpfulCount: 0 });
+    expect(added.statusCode).toBe(410);
+    expect(mockQuery.mock.calls.some(([sql]) => /INSERT INTO review_reply_reactions/.test(sql))).toBe(false);
   });
 
   it('lets an admin publish a reply to an existing review', async () => {

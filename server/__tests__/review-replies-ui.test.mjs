@@ -37,12 +37,11 @@ describe('recipe review reply UI', () => {
     expect(recipePage).toMatch(/_editingReviewReplyId = null;\r?\n\s*await loadReviews\(\);/);
   });
 
-  it('shows and toggles the helpful author-reply reaction in both review views', () => {
-    expect(recipePage).toContain('Полезный ответ');
-    expect(recipePage).toContain('data-recipe-action="toggle-review-reply-helpful"');
-    expect(recipePage).toContain("Auth.api('/content/reviews/' + id + '/reply-helpful'");
-    expect(categoryPage).toContain('Полезный ответ');
-    expect(categoryPage).toContain('data-category-action="toggle-review-reply-helpful"');
-    expect(categoryPage).toContain("Auth.api('/content/reviews/' + id + '/reply-helpful'");
+  it('uses shared likes for author replies in both review views', () => {
+    for (const source of [recipePage, categoryPage]) {
+      expect(source).toContain("ReviewDiscussions.like('reply', rv.id, rv.reply)");
+      expect(source.includes('Полезный ответ')).toBe(false);
+      expect(source.includes('/reply-helpful')).toBe(false);
+    }
   });
 });

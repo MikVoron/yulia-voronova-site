@@ -458,8 +458,6 @@
             deleteCatReview(Number(actionTarget.dataset.reviewId), actionTarget.dataset.isAdmin === 'true');
         } else if (action === 'submit-review-reply') {
             submitReviewReply(Number(actionTarget.dataset.reviewId));
-        } else if (action === 'toggle-review-reply-helpful') {
-            toggleReviewReplyHelpful(Number(actionTarget.dataset.reviewId));
         } else if (action === 'select-star') {
             selectStar(Number(actionTarget.dataset.n));
         } else if (action === 'remove-plate-item') {
@@ -829,16 +827,11 @@
                     ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0" data-review-avatar-fallback>`
                       + `<span class="review-avatar-fallback" style="display:none;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
                     : `<span style="width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
-                const helpfulCount = Math.max(0, Number(rv.reply?.helpfulCount) || 0);
-                const helpfulActive = rv.reply?.helpfulByCurrentUser === true;
-                const helpfulReactionHtml = rv.reply
-                    ? `<button type="button" data-category-action="toggle-review-reply-helpful" data-review-id="${Number(rv.id)}" aria-pressed="${helpfulActive}" aria-label="${Auth.isLoggedIn() ? (helpfulActive ? 'Убрать реакцию «Полезный ответ»' : 'Отметить ответ как полезный') : 'Войти, чтобы отметить ответ как полезный'}" style="display:inline-flex;align-items:center;gap:8px;max-width:100%;min-height:30px;margin-top:10px;padding:5px 8px;border:1px solid ${helpfulActive ? 'var(--accent)' : '#d9b69f'};border-radius:0;background:${helpfulActive ? '#fff3eb' : '#fff'};color:${helpfulActive ? 'var(--accent)' : '#7c3b1c'};cursor:pointer;font:inherit;font-size:12px;font-weight:800;line-height:1;letter-spacing:.015em"><span aria-hidden="true" style="color:var(--accent);font-size:14px;line-height:1">${helpfulActive ? '✓' : '🍴'}</span><span>Полезный ответ</span>${helpfulCount ? `<span style="padding-left:8px;border-left:1px solid #e5cdbd;color:#9a5834;font-size:11px;font-variant-numeric:tabular-nums">${helpfulCount}</span>` : ''}</button>`
-                    : '';
                 const authorReplyHtml = rv.reply
                     ? `<div style="margin-top:10px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--bg-2);font-size:13px;line-height:1.5">
                         <div style="margin-bottom:3px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)">Ответ Юлии</div>
                         <div>${escHtml(rv.reply.text)}</div>
-                        ${helpfulReactionHtml}
+                        ${ReviewDiscussions.like('reply', rv.id, rv.reply)}
                     </div>`
                     : '';
                 const replyFormHtml = isAdmin
@@ -942,24 +935,7 @@
         }
     }
 
-    async function toggleReviewReplyHelpful(id) {
-        if (!Auth.isLoggedIn()) { location.href = Auth._loginUrl(); return; }
-        const btn = document.querySelector('[data-category-action="toggle-review-reply-helpful"][data-review-id="' + id + '"]');
-        if (btn?.disabled) return;
-        if (btn) btn.disabled = true;
-        try {
-            const res = await Auth.api('/content/reviews/' + id + '/reply-helpful', { method: 'POST' });
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                showToast(err.error || 'Не удалось сохранить реакцию');
-                return;
-            }
-            await loadCommentsFromAPI(commentsRecipeId);
-        } catch (e) { showToast('Ошибка сети');
-        } finally {
-            if (btn?.isConnected) btn.disabled = false;
-        }
-    }
+
 
     async function submitComment() {
         if (!_commentStars) { showToast('Выберите оценку'); return; }

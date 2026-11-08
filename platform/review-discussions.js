@@ -8,9 +8,25 @@
     const button = (action, label, id = '') => `<button type="button" class="discussion-button" data-discussion-action="${action}" data-comment-id="${id}">${label}</button>`;
     const date = value => esc(new Date(value).toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }));
 
+    function like(type, id, item) {
+        const active = item?.likedByCurrentUser === true;
+        const label = Auth.isLoggedIn() ? (active ? 'Убрать лайк' : 'Поставить лайк') : 'Войти, чтобы поставить лайк';
+        return `<button type="button" class="discussion-like${active ? ' is-active' : ''}" data-discussion-action="like" data-like-type="${type}" data-like-id="${Number(id)}" aria-pressed="${active}" aria-label="${label}"><span aria-hidden="true">${active ? '♥' : '♡'}</span><span>Нравится</span><span class="discussion-like-count">${Math.max(0, Number(item?.likeCount) || 0)}</span></button>`;
+    }
+
+    function animateLike(control) {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        control?.querySelector('span')?.animate([
+            { transform: 'scale(1)' },
+            { transform: 'scale(1.35)', offset: 0.35 },
+            { transform: 'scale(0.94)', offset: 0.7 },
+            { transform: 'scale(1)' },
+        ], { duration: 380, easing: 'ease-out' });
+    }
+
     function legacy(review) {
         if (!review.reply) return '';
-        return `<div class="discussion-message"><strong>Юлия Воронова</strong> <span class="discussion-author-badge">Автор</span><div class="discussion-text">${esc(review.reply.text)}</div>${button('legacy-helpful', 'Полезный ответ' + (review.reply.helpfulCount ? ' · ' + Number(review.reply.helpfulCount) : ''))}</div>`;
+        return `<div class="discussion-message"><strong>Юлия Воронова</strong> <span class="discussion-author-badge">Автор</span><div class="discussion-text">${esc(review.reply.text)}</div>${like('reply', review.id, review.reply)}</div>`;
     }
 
     function message(comment, state) {
@@ -25,7 +41,7 @@
                 <time datetime="${esc(comment.createdAt)}">${date(comment.createdAt)}</time>
             </div>
             <div class="discussion-text">${esc(comment.text)}</div>
-            <div class="discussion-actions">${own ? button('edit', 'Редактировать', Number(comment.id)) : ''}${own || admin ? button('delete', 'Удалить', Number(comment.id)) : ''}</div>
+            <div class="discussion-actions">${like('comment', comment.id, comment)}${own ? button('edit', 'Редактировать', Number(comment.id)) : ''}${own || admin ? button('delete', 'Удалить', Number(comment.id)) : ''}</div>
         </article>`;
     }
 
@@ -42,6 +58,7 @@
             after: comments.at(-1)?.id || 0, hasMore: Number(review.commentCount) > comments.length };
         states.set(Number(review.id), state);
         return `${window.ReviewPhotos ? ReviewPhotos.markup(review) : ''}<section class="review-discussion" data-discussion-id="${Number(review.id)}" aria-label="Обсуждение отзыва">
+            <div class="discussion-review-like">${like('review', review.id, review)}</div>
             <div class="discussion-messages">${messages(state)}</div>
             <div class="discussion-actions">
                 <button type="button" class="discussion-button discussion-more" data-discussion-action="more"${state.hasMore ? '' : ' hidden'}>Показать ещё сообщения</button>
@@ -179,17 +196,25 @@
                 if (Number(form.dataset.commentId) === id) closeForm(root);
                 redraw(root, state);
                 root.querySelector('.discussion-status').textContent = 'Сообщение удалено';
-            } else if (action === 'legacy-helpful') {
+            } else if (action === 'like') {
                 if (!Auth.isLoggedIn()) { location.href = Auth._loginUrl(); return; }
-                const data = await api('/content/reviews/' + state.review.id + '/reply-helpful', { method: 'POST' });
-                state.review.reply.helpfulCount = data.helpfulCount;
-                state.review.reply.helpfulByCurrentUser = data.active;
-                state.legacyHtml = legacy(state.review);
-                redraw(root, state);
+                const type = control.dataset.likeType, targetId = Number(control.dataset.likeId);
+                const item = type === 'review' ? state.review : type === 'reply' ? state.review.reply : state.comments.find(c => c.id === targetId);
+                const data = await api('/content/review-likes/' + type + '/' + targetId, {
+                    method: 'PUT', body: JSON.stringify({ active: !item.likedByCurrentUser }),
+                });
+                Object.assign(item, data);
+                control.outerHTML = like(type, targetId, item);
+                // Preserve author-reply markup while keeping the next redraw current.
+                if (type === 'reply') state.legacyHtml = state.legacyHtml.replace(/<button\b[^>]*data-discussion-action="like"[^>]*>[\s\S]*?<\/button>/, like(type, targetId, item));
+                const updatedControl = root.querySelector(`[data-like-type="${type}"][data-like-id="${targetId}"]`);
+                updatedControl?.focus({ preventScroll: true });
+                if (data.likedByCurrentUser) animateLike(updatedControl);
+                root.querySelector('.discussion-status').textContent = data.likedByCurrentUser ? 'Лайк добавлен' : 'Лайк убран';
             }
         } catch (err) { root.querySelector('.discussion-status').textContent = err.message || 'Ошибка сети'; }
         finally { control.disabled = false; }
     });
 
-    window.ReviewDiscussions = { render };
+    window.ReviewDiscussions = { render, like };
 })();

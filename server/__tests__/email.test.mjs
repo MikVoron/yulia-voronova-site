@@ -33,6 +33,15 @@ beforeEach(() => {
 });
 
 describe('email template escaping', () => {
+  it('escapes like notifications and links to the exact review and notification settings', async () => {
+    await email.sendReviewLike('user@example.test', '<script>Каша</script>', 'recipe & test', 'comment', 17);
+    const message = sendMail.mock.calls[0][0];
+    expect(message.subject).toBe('Ваш ответ понравился');
+    expect(message.html).toContain('&lt;script&gt;Каша&lt;/script&gt;');
+    expect(message.html).not.toContain('<script>Каша</script>');
+    expect(message.html).toContain('id=recipe%20%26%20test#review-17');
+    expect(message.html).toContain('/cabinet.html?tab=settings');
+  });
   it('escapes dish photo notification fields and links only to the protected moderation queue', async () => {
     await email.sendReviewPhotoNotification('<img src=x>', '<script>recipe</script>', 3);
     const message = sendMail.mock.calls[0][0];

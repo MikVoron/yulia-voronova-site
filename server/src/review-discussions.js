@@ -1,5 +1,6 @@
 const db = require('./db');
-const { authenticate } = require('./middleware');
+const { authenticate, optionalAuthenticate } = require('./middleware');
+const { likeFields, publicLikes } = require('./review-likes');
 const { reviewAvatar, assignReviewAvatar } = require('./review-avatars');
 const audit = require('./audit');
 
@@ -16,20 +17,21 @@ function publicComment(row) {
     createdAt: row.created_at, updatedAt: row.updated_at,
     author: row.display_name?.trim() || 'Аноним', avatar: reviewAvatar(row),
     isAuthor: row.role === 'admin',
+    ...publicLikes(row),
   };
 }
 
 // Bounded first page for every visible review in one query, including empty threads.
-async function discussionSummaries(reviewIds) {
+async function discussionSummaries(reviewIds, userId = null) {
   if (!reviewIds.length) return new Map();
   const result = await db.query(
     `SELECT r.id AS review_id,
        (SELECT COUNT(*)::int FROM review_comments c WHERE c.review_id=r.id) AS comment_count,
        COALESCE((SELECT json_agg(page ORDER BY page.id) FROM (
-         SELECT ${fields} FROM review_comments c ${authors}
+         SELECT ${fields}, ${likeFields('comment', 'c.id', '$3::uuid')} FROM review_comments c ${authors}
          WHERE c.review_id=r.id ORDER BY c.id LIMIT $2
        ) page), '[]'::json) AS comments
-     FROM reviews r WHERE r.id=ANY($1::int[])`, [reviewIds, INITIAL_PAGE_SIZE]
+     FROM reviews r WHERE r.id=ANY($1::int[])`, [reviewIds, INITIAL_PAGE_SIZE, userId]
   );
   return new Map(result.rows.map(row => [row.review_id, {
     comments: row.comments.map(publicComment), commentCount: Number(row.comment_count),
@@ -47,15 +49,15 @@ function commentText(body) {
 }
 
 function registerDiscussionRoutes(fastify) {
-  fastify.get('/content/reviews/:id/comments', async (req, reply) => {
+  fastify.get('/content/reviews/:id/comments', { preHandler: [optionalAuthenticate] }, async (req, reply) => {
     const id = positiveId(req.params.id);
     const after = req.query.after === undefined || req.query.after === '0' ? 0 : positiveId(req.query.after);
     if (!id || after === null) return reply.code(400).send({ error: 'Некорректный адрес обсуждения' });
     const review = await db.query('SELECT id FROM reviews WHERE id=$1', [id]);
     if (!review.rows.length) return reply.code(404).send({ error: 'Отзыв не найден' });
     const result = await db.query(
-      `SELECT ${fields} FROM review_comments c ${authors}
-       WHERE c.review_id=$1 AND c.id>$2 ORDER BY c.id LIMIT $3`, [id, after, PAGE_SIZE + 1]
+      `SELECT ${fields}, ${likeFields('comment', 'c.id', '$4::uuid')} FROM review_comments c ${authors}
+       WHERE c.review_id=$1 AND c.id>$2 ORDER BY c.id LIMIT $3`, [id, after, PAGE_SIZE + 1, req.user?.sub || null]
     );
     const comments = result.rows.slice(0, PAGE_SIZE).map(publicComment);
     return { comments, hasMore: result.rows.length > PAGE_SIZE };

@@ -4,6 +4,7 @@ const email = require('../email');
 const audit = require('../audit');
 const { reviewAvatar, assignReviewAvatar } = require('../review-avatars');
 const { registerDiscussionRoutes, discussionSummaries } = require('../review-discussions');
+const { registerLikeRoutes, likeFields, publicLikes } = require('../review-likes');
 const { refreshSitemapSafely } = require('../sitemap');
 const { readRecipeTemplate, renderRecipeDocument } = require('../recipe-seo');
 const { getStaticIngredient, readIngredientTemplate, renderIngredientDocument } = require('../ingredient-seo');
@@ -225,6 +226,7 @@ function normalizeIngredientCatalogItem(body) {
 
 async function contentRoutes(fastify) {
   registerDiscussionRoutes(fastify);
+  registerLikeRoutes(fastify);
   fastify.get('/_seo/home', async (req, reply) => {
     const template = await readHomeTemplate();
     try {
@@ -622,7 +624,10 @@ async function contentRoutes(fastify) {
       `SELECT r.id, r.stars, r.text, r.created_at, r.user_id,
               u.display_name, u.avatar, u.early_access_member, ra.position AS review_avatar_position,
               rr.text AS reply_text, rr.created_at AS reply_created_at,
-              rr.updated_at AS reply_updated_at,
+              rr.updated_at AS reply_updated_at, rr.admin_id AS reply_user_id,
+              ${likeFields('review', 'r.id', '$2::uuid')},
+              (SELECT COUNT(*)::int FROM review_likes l WHERE l.reply_id=r.id AND l.active) AS reply_like_count,
+              EXISTS(SELECT 1 FROM review_likes l WHERE l.reply_id=r.id AND l.active AND l.user_id=$2::uuid) AS reply_liked_by_user,
               COALESCE((SELECT COUNT(*)::int
                         FROM review_reply_reactions rrr
                         WHERE rrr.review_id = r.id), 0) AS reply_helpful_count,
@@ -635,7 +640,7 @@ async function contentRoutes(fastify) {
        WHERE r.recipe_id = $1 ORDER BY r.created_at DESC LIMIT $3`,
       [recipeId, userId, REVIEW_LIST_LIMIT]
     );
-    const discussions = await discussionSummaries(result.rows.map(row => row.id));
+    const discussions = await discussionSummaries(result.rows.map(row => row.id), userId);
     return result.rows.map(row => ({
       id: row.id,
       stars: row.stars,
@@ -645,8 +650,12 @@ async function contentRoutes(fastify) {
       author: row.display_name?.trim() || 'Аноним',
       avatar: reviewAvatar(row),
       isEarlyBird: row.early_access_member === true,
+      ...publicLikes(row),
       ...(discussions.get(row.id) || { comments: [], commentCount: 0 }),
       reply: row.reply_text ? {
+        userId: row.reply_user_id,
+        likeCount: Number(row.reply_like_count) || 0,
+        likedByCurrentUser: row.reply_liked_by_user === true,
         text: row.reply_text,
         createdAt: row.reply_created_at,
         updatedAt: row.reply_updated_at,
@@ -737,45 +746,9 @@ async function contentRoutes(fastify) {
     return { ok: true };
   });
 
-  // POST /content/reviews/:id/reply-helpful — toggle one helpful reaction per user.
-  fastify.post('/content/reviews/:id/reply-helpful', {
-    preHandler: [authenticate],
-    config: { rateLimit: { max: 60, timeWindow: '1 hour' } }
-  }, async (req, reply) => {
-    const reviewId = Number(req.params.id);
-    if (!Number.isInteger(reviewId) || reviewId < 1) {
-      return reply.status(400).send({ error: 'Некорректный отзыв' });
-    }
-    const hasReply = await db.query(
-      'SELECT review_id FROM review_replies WHERE review_id=$1',
-      [reviewId]
-    );
-    if (!hasReply.rows.length) {
-      return reply.status(404).send({ error: 'Ответ Юлии не найден' });
-    }
-
-    const removed = await db.query(
-      'DELETE FROM review_reply_reactions WHERE review_id=$1 AND user_id=$2 RETURNING review_id',
-      [reviewId, req.user.sub]
-    );
-    let active = false;
-    if (!removed.rows.length) {
-      await db.query(
-        `INSERT INTO review_reply_reactions (review_id, user_id)
-         VALUES ($1, $2)
-         ON CONFLICT (review_id, user_id) DO NOTHING
-         RETURNING review_id`,
-        [reviewId, req.user.sub]
-      );
-      // A simultaneous double click can hit the unique constraint after another
-      // request has already added the reaction; in both cases it is active.
-      active = true;
-    }
-    const total = await db.query(
-      'SELECT COUNT(*)::int AS helpful_count FROM review_reply_reactions WHERE review_id=$1',
-      [reviewId]
-    );
-    return { active, helpfulCount: Number(total.rows[0]?.helpful_count) || 0 };
+  // Retired endpoint: cached clients must not create a second reaction state.
+  fastify.post('/content/reviews/:id/reply-helpful', { preHandler: [authenticate] }, async (req, reply) => {
+    return reply.code(410).send({ error: 'Обновите страницу, чтобы поставить лайк' });
   });
 
   // POST /admin/reviews/:id/reply — public reply by the platform author
