@@ -373,6 +373,9 @@ async function contentRoutes(fastify) {
   // Recipe announcements retain their exact target and cover; regular news
   // renders as a platform update. Guests do not receive a notification badge.
   fastify.get('/content/updates', { preHandler: [authenticate] }, async (req) => {
+    // The notification list needs every unread item to show an exact count.
+    // Keep the limited array response for older clients and other callers.
+    const all = req.query.all === '1';
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 20);
     const result = await db.query(
       `SELECT n.id, n.type, n.text, n.recipe_id, n.badge, n.label, n.created_at,
@@ -388,10 +391,34 @@ async function contentRoutes(fastify) {
          AND n.created_at >= u.created_at
          AND seen.news_id IS NULL
        ORDER BY n.created_at DESC
-       LIMIT $2`,
-      [req.user.sub, limit]
+       ${all ? '' : 'LIMIT $2'}`,
+      all ? [req.user.sub] : [req.user.sub, limit]
     );
     return result.rows;
+  });
+
+  // Acknowledge only the IDs in the list the user actually closed. News
+  // published while that list was open must remain unread.
+  fastify.post('/content/updates/read', {
+    preHandler: [authenticate],
+    config: { rateLimit: { max: 60, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
+    const ids = req.body?.ids;
+    if (!Array.isArray(ids) || !ids.length || ids.length > 500 ||
+        ids.some(id => !Number.isSafeInteger(id) || id <= 0 || id > 2147483647)) {
+      return reply.status(400).send({ error: 'Некорректный список обновлений' });
+    }
+    const result = await db.query(
+      `INSERT INTO user_content_updates_seen (user_id, news_id)
+       SELECT u.id, n.id
+       FROM users u
+       JOIN news n ON n.id = ANY($2::int[]) AND n.is_published = true
+       WHERE u.id = $1 AND n.created_at >= u.created_at
+       ON CONFLICT (user_id, news_id) DO NOTHING
+       RETURNING news_id`,
+      [req.user.sub, [...new Set(ids)]]
+    );
+    return { ok: true, read_ids: result.rows.map(row => row.news_id) };
   });
 
   // POST /content/updates/:id/read — records read state only when the user

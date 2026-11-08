@@ -4325,8 +4325,19 @@ body.recipe-image-viewer-open { overflow: hidden; }
     display: none; background: #fff; border: 1px solid var(--border);
     box-shadow: 0 16px 35px rgba(40,30,20,.14);
 }
-.sp-updates-panel.open { display: block; }
-.sp-updates-panel-head { display: flex; align-items: baseline; justify-content: space-between; padding: 16px 18px 13px; border-bottom: 1px solid var(--border); }
+.sp-updates-panel { max-height: calc(100dvh - 150px); }
+.sp-updates-panel.open { display: flex; flex-direction: column; }
+.sp-updates-panel-head { display: flex; flex: 0 0 auto; align-items: center; gap: 12px; padding: 12px 14px 12px 18px; border-bottom: 1px solid var(--border); }
+.sp-updates-panel-head > span { margin-left: auto; }
+.sp-updates-close { flex: 0 0 auto; width: 40px; height: 40px; border: 0; background: transparent; color: var(--text); font: 28px/1 var(--sans); cursor: pointer; }
+.sp-updates-list { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.sp-updates-done { width: 100%; min-height: 44px; padding: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--accent); font: 600 12px/1.4 var(--sans); cursor: pointer; }
+.sp-updates-panel button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sp-updates-panel button:disabled { opacity: .6; cursor: wait; }
+.sp-updates-panel-foot { flex: 0 0 auto; }
+.sp-updates-panel-foot p { margin: 0 0 10px; }
+.sp-updates-panel-foot .sp-updates-error { margin: 10px 0 0; color: var(--accent); }
+.sp-update-copy { overflow-wrap: anywhere; }
 .sp-updates-panel-head strong { font-family: var(--serif); font-size: 20px; }
 .sp-updates-panel-head span, .sp-update-eyebrow { color: var(--accent); font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .sp-update-item { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 12px; padding: 14px 18px; color: var(--text); text-decoration: none; }

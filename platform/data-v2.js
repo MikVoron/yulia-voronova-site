@@ -752,10 +752,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // ─── CONTENT UPDATES ────────────────────────────────────────────────────────
 // Новые рецепты и важные текстовые новости живут в одной ленте. Бейдж
-// появляется только у авторизованных пользователей и исчезает после открытия
-// конкретного обновления, а не просто после раскрытия панели.
+// появляется только у авторизованных пользователей. Открытие рецепта убирает
+// его уведомление; явное закрытие списка отмечает весь показанный список.
 const ContentUpdates = {
     _wired: false,
+    _items: [],
+    _acknowledged: new Set(),
+    _refreshPromise: null,
+    _recipeId: null,
+    _closing: false,
+    _close() {
+        const panel = document.getElementById('sp-updates-panel');
+        const button = document.getElementById('sp-updates-btn');
+        if (panel) panel.classList.remove('open');
+        if (button) button.setAttribute('aria-expanded', 'false');
+    },
     _escape(value) {
         return String(value == null ? '' : value)
             .replace(/&/g, '&amp;')
@@ -791,8 +802,13 @@ const ContentUpdates = {
             button.setAttribute('aria-expanded', String(open));
         });
         panel.addEventListener('click', async function(event) {
+            if (event.target.closest('[data-updates-close]')) {
+                event.preventDefault();
+                await ContentUpdates.closeAndRead();
+                return;
+            }
             const link = event.target.closest('[data-content-update-id]');
-            if (!link) return;
+            if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
             event.preventDefault();
             const href = link.getAttribute('href');
             try { await ContentUpdates.markRead(link.dataset.contentUpdateId); } catch (e) {}
@@ -820,8 +836,10 @@ const ContentUpdates = {
     _render(items) {
         const panel = document.getElementById('sp-updates-panel');
         if (!panel) return;
-        const countLabel = items.length === 1 ? '1 обновление' : items.length + ' обновления';
-        panel.innerHTML = '<div class="sp-updates-panel-head"><strong>Новое</strong><span>' + countLabel + '</span></div>'
+        const countLabel = items.length + ' новых';
+        panel.innerHTML = '<div class="sp-updates-panel-head"><strong>Новое</strong><span>' + countLabel + '</span>'
+            + '<button type="button" class="sp-updates-close" data-updates-close aria-label="Закрыть и отметить всё прочитанным" title="Закрыть и отметить всё прочитанным">×</button></div>'
+            + '<div class="sp-updates-list">'
             + items.map(function(item) {
                 const isRecipe = item.type === 'recipe' && item.recipe_id && item.recipe_name;
                 const title = isRecipe ? item.recipe_name : 'Обновление в Умной тарелке';
@@ -836,31 +854,83 @@ const ContentUpdates = {
                     + '<strong>' + ContentUpdates._escape(title) + '</strong>'
                     + '<span class="sp-update-text">' + ContentUpdates._escape(item.text || '') + '</span>'
                     + '<span class="sp-update-cta">' + (isRecipe ? 'Открыть рецепт' : 'Посмотреть') + ' →</span></span></a>';
-            }).join('') + '<div class="sp-updates-panel-foot">Отметка исчезнет после открытия обновления.</div>';
+            }).join('') + '</div><div class="sp-updates-panel-foot">'
+            + '<p>Откройте рецепт, чтобы убрать его из новых, или отметьте весь список прочитанным.</p>'
+            + '<button type="button" class="sp-updates-done" data-updates-close>Всё просмотрено — закрыть</button>'
+            + '<p class="sp-updates-error" role="status" hidden></p></div>';
     },
     _apply(items) {
-        const updates = Array.isArray(items) ? items : [];
+        this._items = (Array.isArray(items) ? items : []).filter(item => !this._acknowledged.has(Number(item.id)));
         const wrap = this._ensureUi();
         if (!wrap) return;
-        wrap.hidden = updates.length === 0;
-        if (!updates.length) return;
+        wrap.hidden = this._items.length === 0;
         const badge = document.getElementById('sp-updates-count');
-        if (badge) badge.textContent = updates.length > 9 ? '9+' : String(updates.length);
-        this._render(updates);
+        if (badge) badge.textContent = String(this._items.length);
+        if (!this._items.length) { this._close(); return; }
+        this._render(this._items);
     },
     async refresh() {
         if (!Auth.getToken()) return [];
+        if (this._refreshPromise) return this._refreshPromise;
+        this._refreshPromise = (async () => {
+            try {
+                const res = await Auth.api('/content/updates?all=1');
+                if (!res.ok) return [];
+                const items = await res.json();
+                if (!Array.isArray(items)) return [];
+                this._apply(items);
+                if (this._recipeId) {
+                    const ids = this._items.filter(item => item.type === 'recipe' && item.recipe_id === this._recipeId).map(item => Number(item.id));
+                    if (ids.length) await this._readIds(ids);
+                }
+                return this._items;
+            } catch (e) { return this._items; }
+        })();
+        try { return await this._refreshPromise; }
+        finally { this._refreshPromise = null; }
+    },
+    async _readIds(ids) {
+        // One write request for the list, including lists longer than five.
+        for (let offset = 0; offset < ids.length; offset += 500) {
+            const chunk = ids.slice(offset, offset + 500);
+            const res = await Auth.api('/content/updates/read', { method: 'POST', body: { ids: chunk } });
+            if (!res.ok) throw new Error('Updates could not be marked read');
+            chunk.forEach(id => this._acknowledged.add(Number(id)));
+            this._apply(this._items);
+        }
+    },
+    async recipeOpened(recipeId) {
+        if (!Auth.getToken() || !recipeId) return;
+        this._recipeId = recipeId;
+        await this.refresh();
+        // Also handle a refresh that finished just before the recipe rendered.
+        const ids = this._items.filter(item => item.type === 'recipe' && item.recipe_id === recipeId).map(item => Number(item.id));
+        try { if (ids.length) await this._readIds(ids); } catch (e) { /* Keep unread on a failed write. */ }
+    },
+    async closeAndRead() {
+        if (this._closing) return;
+        this._closing = true;
+        const panel = document.getElementById('sp-updates-panel');
+        if (panel) panel.querySelectorAll('[data-updates-close]').forEach(button => { button.disabled = true; });
         try {
-            const res = await Auth.api('/content/updates?limit=5');
-            if (!res.ok) return [];
-            const items = await res.json();
-            this._apply(items);
-            return items;
-        } catch (e) { return []; }
+            await this._readIds(this._items.map(item => Number(item.id)));
+            this._close();
+            const wrap = document.getElementById('sp-updates');
+            const target = wrap && wrap.hidden ? document.getElementById('user-badge') : document.getElementById('sp-updates-btn');
+            if (target) target.focus();
+        } catch (e) {
+            const error = panel && panel.querySelector('.sp-updates-error');
+            if (error) { error.hidden = false; error.textContent = 'Не удалось сохранить. Попробуйте ещё раз.'; }
+        } finally {
+            this._closing = false;
+            if (panel) panel.querySelectorAll('[data-updates-close]').forEach(button => { button.disabled = false; });
+        }
     },
     async markRead(id) {
         const res = await Auth.api('/content/updates/' + encodeURIComponent(id) + '/read', { method: 'POST' });
         if (!res.ok) throw new Error('Update could not be marked read');
+        this._acknowledged.add(Number(id));
+        this._apply(this._items);
         return res.json();
     }
 };
@@ -869,6 +939,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!Auth.isLoggedIn()) return;
     if (!document.getElementById('user-wrap')) return;
     ContentUpdates.refresh();
+});
+
+window.addEventListener('pageshow', function (event) {
+    if (event.persisted && Auth.isLoggedIn()) ContentUpdates.refresh();
 });
 
 // ─── ACTIVE NAV LINK ─────────────────────────────────────────────────────────

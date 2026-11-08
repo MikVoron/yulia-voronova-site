@@ -570,6 +570,7 @@
 				if (window.SmartPlateRecipeViews) SmartPlateRecipeViews.track(r, 'full');
 				setTimeout(loadReviews, 300);
 			}
+			if (r && !r.isSublist && !isAdminPreview) ContentUpdates.recipeOpened(r.id);
 		} // end initRecipe
 
 		// Preview-режим для locked-рецепта. Никаких пустых блоков ingredients/steps/note —
