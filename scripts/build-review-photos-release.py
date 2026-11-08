@@ -16,7 +16,7 @@ def main():
  files=[];targets=[]
  def write(name,data):
   file=output/name;file.parent.mkdir(parents=True,exist_ok=True);file.write_bytes(data);files.append({'file':name,'sha256':digest(data)})
- for source in ['install-review-photos-release.py','test-review-photos-release.py']:write('scripts/'+source,git('show','HEAD:scripts/'+source))
+ for source in ['install-review-photos-release.py','test-review-photos-release.py','test-review-photos-release-http.cjs']:write('scripts/'+source,git('show','HEAD:scripts/'+source))
  write('install.py',git('show','HEAD:scripts/install-review-photos-release.py'))
  for name in release.TARGETS:
   if name=='env':continue

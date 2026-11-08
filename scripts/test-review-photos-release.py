@@ -33,6 +33,24 @@ class ReleaseTests(unittest.TestCase):
   for key in module.FEATURE_KEYS:
    with self.assertRaisesRegex(RuntimeError,'Existing photo'):module.environment_bytes((' export '+key+'=0\n').encode())
  def test_environment_adds_missing_last_newline(self):self.assertTrue(module.environment_bytes(b'A=b').startswith(b'A=b\nREVIEW_'))
+ def test_bodyless_delete_does_not_claim_to_have_a_json_body(self):
+  with patch.object(module.urllib.request,'urlopen') as request:
+   response=request.return_value.__enter__.return_value;response.status=401;response.read.return_value=b'{}'
+   self.assertEqual(module.fetch('/content/review-photos/fixture','DELETE')[0],401)
+  self.assertIsNone(request.call_args.args[0].get_header('Content-type'));self.assertIsNone(request.call_args.args[0].data)
+ def test_binary_upload_probe_uses_the_real_binary_content_type(self):
+  with patch.object(module.urllib.request,'urlopen') as request:
+   response=request.return_value.__enter__.return_value;response.status=401;response.read.return_value=b'{}'
+   module.fetch('/content/reviews/1/photos/fixture','PUT',b'x',content_type='application/octet-stream')
+  self.assertEqual(request.call_args.args[0].get_header('Content-type'),'application/octet-stream');self.assertEqual(request.call_args.args[0].data,b'x')
+ def test_authentication_smoke_failure_identifies_method_and_status(self):
+  config=(200,json.dumps({'enabled':True,'maxPhotos':3,'maxInputBytes':20*1024*1024}).encode())
+  with patch.object(module,'fetch',side_effect=[config,(401,b'{}'),(400,b'{}')]),self.assertRaisesRegex(RuntimeError,'DELETE /content/review-photos/.+ status 400'):module.smoke_api()
+ def test_public_page_probes_use_existing_catalog_identifiers(self):
+  with patch.object(module,'psql',side_effect=['published-free-recipe','breakfasts','lentils-red']) as query:
+   pages=module.public_page_paths()
+  self.assertEqual(pages,['recipe.html?id=published-free-recipe','category.html?cat=breakfasts','ingredient.html?id=lentils-red']);self.assertIn('FROM ingredient_catalog',query.call_args_list[2].args[0])
+  with patch.object(module,'psql',side_effect=['published-free-recipe','breakfasts','']),self.assertRaisesRegex(RuntimeError,'targets are missing'):module.public_page_paths()
  def test_rejects_payload_path_escape(self):
   for name in ['../secret','/etc/passwd','C:/secret','dir\\secret']:
    with self.assertRaises(RuntimeError):module.relative(name)

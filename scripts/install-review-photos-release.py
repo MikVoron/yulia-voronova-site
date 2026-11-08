@@ -54,9 +54,11 @@ def locked():
     descriptor=os.open(BASE/'release.lock',os.O_CREAT|os.O_RDWR|os.O_NOFOLLOW,0o600)
     with os.fdopen(descriptor,'r+') as stream:
         fcntl.flock(stream,fcntl.LOCK_EX);yield
-def fetch(path,method='GET',body=None,public=False):
+def fetch(path,method='GET',body=None,public=False,content_type='application/json'):
     url=path if public else 'http://127.0.0.1:3000'+path
-    request=urllib.request.Request(url,data=body,method=method,headers={'Cache-Control':'no-cache','Content-Type':'application/json'})
+    headers={'Cache-Control':'no-cache'}
+    if body is not None:headers['Content-Type']=content_type
+    request=urllib.request.Request(url,data=body,method=method,headers=headers)
     try:
         with urllib.request.urlopen(request,timeout=12) as response:return response.status,response.read()
     except urllib.error.HTTPError as error:return error.code,error.read()
@@ -89,7 +91,7 @@ def validate_bundle(expected,baseline=True):
     manifest=json.loads((BASE/'manifest.json').read_text())
     if manifest.get('release')!='review-photos-release-20261108' or len(manifest['targets'])!=len(TARGETS)-1 or {entry['name'] for entry in manifest['targets']}!=set(TARGETS)-{'env'}:raise RuntimeError('Unexpected release scope')
     names=[entry['file'] for entry in manifest['files']]
-    required={'install.py','scripts/install-review-photos-release.py','scripts/test-review-photos-release.py'}|{'payload/'+name for name in set(TARGETS)-{'env'}}
+    required={'install.py','scripts/install-review-photos-release.py','scripts/test-review-photos-release.py','scripts/test-review-photos-release-http.cjs'}|{'payload/'+name for name in set(TARGETS)-{'env'}}
     if len(names)!=len(set(names)) or set(names)!=required:raise RuntimeError('Unexpected payload scope')
     digests={entry['file']:entry['sha256'] for entry in manifest['files']}
     if digests['install.py']!=digests['scripts/install-review-photos-release.py']:raise RuntimeError('Installer copy mismatch')
@@ -222,7 +224,8 @@ def smoke_api():
     status,body=fetch('/content/review-photos/config');config=json.loads(body)
     if status!=200 or config!={'enabled':True,'maxPhotos':3,'maxInputBytes':20*1024*1024}:raise RuntimeError('Photo config smoke failed')
     for method,path,body in [('GET','/admin/review-photos',None),('DELETE','/content/review-photos/'+str(uuid.uuid4()),None),('PUT','/content/reviews/1/photos/'+str(uuid.uuid4())+'?batchId='+str(uuid.uuid4()),b'x')]:
-        if fetch(path,method,body)[0]!=401:raise RuntimeError('Photo authentication smoke failed')
+        status=fetch(path,method,body,content_type='application/octet-stream' if method=='PUT' else 'application/json')[0]
+        if status!=401:raise RuntimeError('Photo authentication smoke failed: '+method+' '+path+' status '+str(status))
     if fetch('/content/review-photos/'+str(uuid.uuid4())+'/thumb')[0]!=404:raise RuntimeError('Private image not-found smoke failed')
     status,body=fetch('/content/review-photos?reviewIds=1')
     if status!=200 or not isinstance(json.loads(body).get('photos'),list):raise RuntimeError('Photo list/database access smoke failed')
@@ -231,6 +234,12 @@ def verify_installed(manifest,plan):
         if sha(TARGETS[entry['name']])!=entry['afterSha256']:raise RuntimeError('Installed file drift')
     for entry in manifest['unchanged']:
         if sha(Path(entry['path']))!=entry['sha256']:raise RuntimeError('Unrelated dependency/configuration drift')
+def public_page_paths():
+    recipe=psql("SELECT id FROM recipes WHERE is_published=true AND access_level='free' ORDER BY sort_order LIMIT 1;")
+    category=psql('SELECT id FROM categories ORDER BY sort_order LIMIT 1;')
+    ingredient=psql('SELECT id FROM ingredient_catalog ORDER BY sort_order,id LIMIT 1;')
+    if not all([recipe,category,ingredient]):raise RuntimeError('Published catalog smoke targets are missing')
+    return ['recipe.html?id='+urllib.parse.quote(recipe),'category.html?cat='+urllib.parse.quote(category),'ingredient.html?id='+urllib.parse.quote(ingredient)]
 def public_smoke(manifest):
     origin='https://plate.voronova.online';marker='?photo_release='+manifest['commit'][:12]
     for entry in manifest['targets']:
@@ -240,9 +249,10 @@ def public_smoke(manifest):
         if name.startswith('admin'):
             if status!=401:raise RuntimeError('Admin basic-auth guard changed')
         elif status!=200 or hashlib.sha256(body).hexdigest()!=entry['afterSha256']:raise RuntimeError('Public asset mismatch: '+name)
-    for page in ['recipe.html?id='+urllib.parse.quote(psql("SELECT id FROM recipes WHERE is_published=true AND access_level='free' ORDER BY sort_order LIMIT 1;")), 'category.html?cat='+urllib.parse.quote(psql('SELECT id FROM categories ORDER BY sort_order LIMIT 1;')), 'ingredient.html?id=oatmeal']:
+    for page in public_page_paths():
         status,body=fetch(origin+'/'+page+'&photo_release='+manifest['commit'][:12],public=True)
-        if status!=200 or b'review-photos.js?v=20261108' not in body or b'review-photos.css?v=20261108' not in body:raise RuntimeError('Public HTML photo assets missing')
+        if status!=200:raise RuntimeError('Public HTML smoke failed: '+page+' status '+str(status))
+        if b'review-photos.js?v=20261108' not in body or b'review-photos.css?v=20261108' not in body:raise RuntimeError('Public HTML photo assets missing: '+page)
     if fetch(origin+'/admin.html'+marker,public=True)[0]!=401:raise RuntimeError('Admin HTML guard changed')
     status,body=fetch('https://api.voronova.online/content/review-photos/config'+marker,public=True)
     if status!=200 or json.loads(body).get('enabled') is not True:raise RuntimeError('Public photo API not enabled')
