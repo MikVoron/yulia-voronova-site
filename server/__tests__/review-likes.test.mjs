@@ -12,7 +12,7 @@ describe.skipIf(!native)('review likes: native PostgreSQL, real HTTP authorizati
   beforeAll(async () => {
     pg=new (require('pg').Pool)({host:'127.0.0.1',port:59480,user:'like_test',password:process.env.REVIEW_LIKES_TEST_PASSWORD,database:'postgres',max:6});
     await pg.query(`CREATE ROLE smartplate;
-      CREATE TABLE users(id uuid PRIMARY KEY, display_name text, email text, avatar text, role text DEFAULT 'user', is_blocked boolean DEFAULT false, early_access_member boolean DEFAULT false);
+      CREATE TABLE users(id uuid PRIMARY KEY, display_name text, email text, avatar text, role text DEFAULT 'user', is_blocked boolean DEFAULT false, early_access_member boolean DEFAULT false, review_friend_badge boolean DEFAULT false);
       CREATE TABLE recipes(id text PRIMARY KEY, name text, is_published boolean DEFAULT true);
       CREATE TABLE reviews(id serial PRIMARY KEY, recipe_id text REFERENCES recipes(id), user_id uuid REFERENCES users(id), stars int, text text, created_at timestamptz DEFAULT now(), UNIQUE(recipe_id,user_id));
       CREATE TABLE review_avatar_assignments(user_id uuid, position int);
@@ -122,6 +122,13 @@ describe.skipIf(!native)('review likes: native PostgreSQL, real HTTP authorizati
     const second=(await app.inject({url:'/content/review-like-notifications?before='+first.items.at(-1).id,headers:auth(owner)})).json();
     expect(second.items).toHaveLength(5);expect(second.hasMore).toBe(false);
     expect(new Set(first.items.concat(second.items).map(item=>item.id)).size).toBe(25);
+    const all=(await app.inject({url:'/content/review-like-notifications?unread=true&all=1',headers:auth(owner)})).json();
+    expect(all.items).toHaveLength(25);expect(all.hasMore).toBe(false);
+    const ids=first.items.map(item=>Number(item.id));
+    expect((await app.inject({method:'POST',url:'/content/review-like-notifications/read',headers:auth(other),payload:{ids}})).statusCode).toBe(200);
+    expect((await app.inject({url:'/content/review-like-notifications?unread=true&all=1',headers:auth(owner)})).json().items).toHaveLength(25);
+    expect((await app.inject({method:'POST',url:'/content/review-like-notifications/read',headers:auth(owner),payload:{ids}})).statusCode).toBe(200);
+    expect((await app.inject({url:'/content/review-like-notifications?unread=true&all=1',headers:auth(owner)})).json().items).toHaveLength(5);
     const grants=await pg.query("SELECT has_table_privilege('smartplate','review_likes','INSERT,SELECT,UPDATE') AS likes, has_sequence_privilege('smartplate','review_like_notifications_id_seq','USAGE') AS notifications");
     expect(grants.rows[0]).toEqual({likes:true,notifications:true});
   });

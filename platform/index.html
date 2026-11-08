@@ -38,7 +38,7 @@
 	<link rel="stylesheet" href="style-v4.css?v=20260908-chat-lines" id="vcss">
 	<link rel="stylesheet" href="jivo-chat-modal.css?v=20261030-jivo">
 	<link rel="stylesheet" href="index.css?v=20261006-recipe-news-hover">
-	<link rel="stylesheet" href="guest-benefits.css?v=20260921-tour-cta">
+	<link rel="stylesheet" href="guest-benefits.css?v=20261031-intro-layout">
 </head>
 
 <body class="v-page sp-home">
@@ -295,9 +295,16 @@
 						</div>
 						<div class="sp-benefits-intro-copy">
 							<p>Начните знакомство с бесплатных рецептов. А после регистрации вам на 7 дней откроются дополнительные рецепты и возможности платформы — попробуйте их в своём ритме. Банковская карта не нужна.</p>
-							<p id="hero-access-counts" hidden></p>
-							<p class="sp-benefits-author">Уже есть аккаунт? <a id="hero-login-link" href="login.html">Войти</a></p>
 						</div>
+						<div class="sp-benefits-access" id="hero-access-counts" hidden>
+							<p class="sp-benefits-access-total" id="hero-access-total"></p>
+							<dl class="sp-benefits-access-options">
+								<div><dt>Бесплатно без регистрации</dt><dd id="hero-access-free"></dd></div>
+								<div><dt>На 7 дней после регистрации</dt><dd id="hero-access-trial"></dd></div>
+								<div><dt>Только по подписке</dt><dd id="hero-access-pro"></dd></div>
+							</dl>
+						</div>
+						<p class="sp-benefits-author">Уже есть аккаунт? <a id="hero-login-link" href="login.html">Войти</a></p>
 					</div>
 					<div class="sp-benefits-grid sp-benefits-grid--primary">
 						<article class="sp-benefits-feature">
@@ -622,7 +629,7 @@
 	</div>
 
 	<!-- CHAT FAB -->
-	<a class="chat-fab" id="support-fab" data-support-open href="https://voronova.online/support-chat.html" target="_blank" rel="noopener" aria-label="Открыть чат с Юлией" title="Чат с Юлией">
+	<a class="chat-fab" id="support-fab" data-support-open href="https://voronova.online/support-chat.html" target="_blank" rel="noopener" aria-label="Открыть чат поддержки Jivo" title="Чат с отделом заботы">
 		<svg class="chat-fab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 			<path class="chat-fab-bubble" d="M4 4h16v12H8l-4 4V4Z" /><path class="chat-fab-line chat-fab-line--1" d="M8 9h8" /><path class="chat-fab-line chat-fab-line--2" d="M8 12h6" /><path class="chat-fab-line chat-fab-line--3" d="M8 15h4" />
 		</svg>
@@ -630,7 +637,7 @@
 
 	<script src="google-analytics.js?v=20260809"></script>
 	<script src="metrika.js?v=20260809"></script>
-	<script src="data-v2.js?v=20261108-likes"></script>
+	<script src="data-v2.js?v=20261029-warm-access"></script>
 	<script src="ingredients.js?v=20261007-pumpkin"></script>
 <script src="header-nav.js?v=20260714-category-nav"></script>
 <script src="index-page.js?v=20261107-server-navigation"></script>

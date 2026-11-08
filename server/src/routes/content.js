@@ -622,7 +622,7 @@ async function contentRoutes(fastify) {
     const userId = req.user?.sub || null;
     const result = await db.query(
       `SELECT r.id, r.stars, r.text, r.created_at, r.user_id,
-              u.display_name, u.avatar, u.early_access_member, ra.position AS review_avatar_position,
+              u.display_name, u.avatar, u.early_access_member, u.review_friend_badge, ra.position AS review_avatar_position,
               rr.text AS reply_text, rr.created_at AS reply_created_at,
               rr.updated_at AS reply_updated_at, rr.admin_id AS reply_user_id,
               ${likeFields('review', 'r.id', '$2::uuid')},
@@ -650,6 +650,7 @@ async function contentRoutes(fastify) {
       author: row.display_name?.trim() || 'Аноним',
       avatar: reviewAvatar(row),
       isEarlyBird: row.early_access_member === true,
+      isSmartPlateFriend: row.early_access_member === true || row.review_friend_badge === true,
       ...publicLikes(row),
       ...(discussions.get(row.id) || { comments: [], commentCount: 0 }),
       reply: row.reply_text ? {
