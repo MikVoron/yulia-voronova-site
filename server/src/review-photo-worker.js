@@ -1,5 +1,6 @@
 'use strict';
-const sharp = require('sharp');
+const {loadCodec}=require('./review-photo-codecs');
+const sharp = loadCodec('sharp');
 sharp.cache(false);
 sharp.concurrency(1);
 
@@ -16,7 +17,7 @@ async function convert(input, maxPixels) {
   if (format === 'heic') {
     // Decode in this short-lived process: HEIC support does not depend on the
     // host libvips build and cannot block the API event loop.
-    const decode = require('heic-decode');
+    const decode = loadCodec('heic-decode');
     const images = await decode.all({ buffer: input });
     try {
       const first = images[0];

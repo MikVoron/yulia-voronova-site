@@ -4021,9 +4021,11 @@
                     <div class="review-header">
                         <div class="review-author-wrap">
                             ${avatarHtml}
-                            <span class="review-author">${escHtml(rv.author)}</span>${rv.isEarlyBird ? '<span style="font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);padding:2px 5px">Друг Умной тарелки</span>' : ''}
+                            <div class="review-identity">
+                                <span class="review-author">${escHtml(rv.author)}</span>${(rv.isSmartPlateFriend || rv.isEarlyBird) ? '<span class="review-friend-badge">Друг Умной тарелки</span>' : ''}
+                            </div>
                         </div>
-                        <div style="display:flex;align-items:center;gap:8px">
+                        <div class="review-header-actions">
                             <span class="review-date">${escHtml(dateStr)}</span>
                             ${deleteBtn}
                         </div>

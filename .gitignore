@@ -6,6 +6,7 @@ node_modules/
 /.local/
 package-lock.json
 !server/package-lock.json
+!server/photo-codecs/package-lock.json
 
 # Secrets & credentials
 .env
