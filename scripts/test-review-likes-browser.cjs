@@ -7,7 +7,8 @@ async function watchLikeLayout(page, type, id) {
     const selector=`[data-like-type="${type}"][data-like-id="${id}"]`;
     const measure=()=>{
       const button=document.querySelector(selector),root=button.closest('.review-discussion');
-      const b=button.getBoundingClientRect(),r=root.getBoundingClientRect(),c=button.querySelector('.discussion-like-count').getBoundingClientRect();
+      const b=button.getBoundingClientRect(),r=root.getBoundingClientRect();
+      const text=document.createRange();text.selectNodeContents(button.querySelector('.discussion-like-count'));const c=text.getBoundingClientRect();
       const next=document.querySelector('.review-discussion[data-discussion-id="2"]');
       return [r.height,b.width,b.height,c.left-b.left,c.top-b.top,next?next.getBoundingClientRect().top-r.top:0];
     };
