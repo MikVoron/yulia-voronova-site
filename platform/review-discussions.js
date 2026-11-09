@@ -71,6 +71,7 @@
                 <p class="discussion-error" role="status" aria-live="polite"></p>
             </form>
             <p class="discussion-status" role="status" aria-live="polite"></p>
+            <span class="discussion-like-status" role="status" aria-live="polite" aria-atomic="true"></span>
         </section>`;
     }
 
@@ -178,7 +179,8 @@
             return;
         }
         control.disabled = true;
-        root.querySelector('.discussion-status').textContent = '';
+        const status = root.querySelector(action === 'like' ? '.discussion-like-status' : '.discussion-status');
+        status.textContent = '';
         try {
             if (action === 'more') {
                 const data = await api('/content/reviews/' + state.review.id + '/comments?after=' + state.after);
@@ -211,9 +213,12 @@
                 const updatedControl = root.querySelector(`[data-like-type="${type}"][data-like-id="${targetId}"]`);
                 updatedControl?.focus({ preventScroll: true });
                 if (data.likedByCurrentUser) animateLike(updatedControl);
-                root.querySelector('.discussion-status').textContent = data.likedByCurrentUser ? 'Лайк добавлен' : 'Лайк убран';
+                status.textContent = data.likedByCurrentUser ? 'Лайк добавлен' : 'Лайк убран';
             }
-        } catch (err) { root.querySelector('.discussion-status').textContent = err.message || 'Ошибка сети'; }
+        } catch (err) {
+            status.textContent = err.message || 'Ошибка сети';
+            if (action === 'like') notice(status.textContent);
+        }
         finally { control.disabled = false; }
     });
 

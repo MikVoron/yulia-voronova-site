@@ -2,6 +2,25 @@
 const {chromium}=require('playwright-core');
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..'),output=path.join(root,'tmp/review-likes/browser');fs.mkdirSync(output,{recursive:true});
+async function watchLikeLayout(page, type, id) {
+  await page.evaluate(({type,id})=>{
+    const selector=`[data-like-type="${type}"][data-like-id="${id}"]`;
+    const measure=()=>{
+      const button=document.querySelector(selector),root=button.closest('.review-discussion');
+      const b=button.getBoundingClientRect(),r=root.getBoundingClientRect(),c=button.querySelector('.discussion-like-count').getBoundingClientRect();
+      const next=document.querySelector('.review-discussion[data-discussion-id="2"]');
+      return [r.height,b.width,b.height,c.left-b.left,c.top-b.top,next?next.getBoundingClientRect().top-r.top:0];
+    };
+    const samples=[measure()];const observer={samples,stop:false,measure};window.__likeLayout=observer;
+    function sample(){if(observer.stop)return;samples.push(measure());requestAnimationFrame(sample);}requestAnimationFrame(sample);
+  },{type,id});
+}
+async function checkLikeLayout(page, control, label) {
+  await control.evaluate(button=>Promise.all(button.getAnimations({subtree:true}).map(a=>a.finished.catch(()=>{}))));
+  const samples=await page.evaluate(()=>{const o=window.__likeLayout;o.stop=true;o.samples.push(o.measure());return o.samples;});
+  const before=samples[0];
+  for(const sample of samples)for(let i=0;i<before.length;i++)assert.ok(Math.abs(before[i]-sample[i])<0.6,`${label}: geometry[${i}] moved ${before[i]} -> ${sample[i]}`);
+}
 const server=http.createServer((req,res)=>{
   const relative=decodeURIComponent(new URL(req.url,'http://local').pathname),file=path.resolve(root,'.'+relative);
   if(!file.startsWith(root+path.sep)||!/^\/(platform|images)\//.test(relative)||!/\.(html|js|css|svg|webp|png|jpe?g)$/.test(file)){res.writeHead(404);res.end();return;}
@@ -19,7 +38,7 @@ async function run(){
       await context.addInitScript(user=>{if(user){localStorage.setItem('hp_user',JSON.stringify(user));sessionStorage.setItem('hp_st','fixture');}},user);
       const fixture={writes:[],reads:[],settings:{enabled:true,email:false},failLike:false,failSettings:false};
       const recipe={id:'fixture',name:'Тестовый рецепт',cat:'breakfasts',categories:['breakfasts'],access_level:'free',is_free:true,is_published:true,ingredients:[{name:'Овсянка',amount:40,unit:'г'}],steps:[{text:'Приготовьте кашу.'}],main_ingredients:['oatmeal'],photo:'images/YV-blog.webp',kcal:100};
-      const review={id:1,stars:4,text:'Отличный рецепт',userId:'u2',author:'Мария',createdAt:'2026-11-01T10:00:00Z',likeCount:2,likedByCurrentUser:false,reply:{text:'Спасибо за отзыв!',createdAt:'2026-11-02T10:00:00Z',likeCount:3,likedByCurrentUser:false},comments:[{id:7,userId:'u3',author:'Анна',text:'А можно с другой крупой?',createdAt:'2026-11-03T10:00:00Z',likeCount:1,likedByCurrentUser:false}],commentCount:1};
+      const review={id:1,stars:4,text:'Отличный рецепт',userId:'u2',author:'Мария',createdAt:'2026-11-01T10:00:00Z',likeCount:9,likedByCurrentUser:false,reply:{text:'Спасибо за отзыв!',createdAt:'2026-11-02T10:00:00Z',likeCount:99,likedByCurrentUser:false},comments:[{id:7,userId:'u3',author:'Анна',text:'А можно с другой крупой?',createdAt:'2026-11-03T10:00:00Z',likeCount:999,likedByCurrentUser:false}],commentCount:1};
       const notification={id:9,created_at:'2026-11-08T10:00:00Z',read_at:null,actor:'Мария <img src=x>',recipe_id:'fixture',recipe_name:'Каша <script>x</script>',review_id:1,comment_id:null,reply_id:null};
       await page.route('**/*',async route=>{
         const request=route.request(),url=new URL(request.url()),p=url.pathname.replace(/^\/api/,''),method=request.method();
@@ -32,6 +51,7 @@ async function run(){
           if(p==='/content/reviews/fixture')return json([review]);
           if(p.startsWith('/content/review-likes/')){
             const body=request.postDataJSON();fixture.writes.push({url:p,...body});
+            await new Promise(resolve=>setTimeout(resolve,60));
             if(fixture.failLike){fixture.failLike=false;return route.abort('connectionfailed');}
             const type=p.split('/')[3],item=type==='review'?review:type==='reply'?review.reply:review.comments[0];
             if(item.likedByCurrentUser!==body.active)item.likeCount+=body.active?1:-1;item.likedByCurrentUser=body.active;
@@ -78,14 +98,18 @@ async function run(){
         assert.equal((await thread.innerText()).includes('Полезный ответ'),false);
         assert.equal(await thread.locator('[data-discussion-action="like"]').count(),3);
         if(scenario.id){
-          for(const [type,id,count] of [['review',1,2],['reply',1,3],['comment',7,1]]){
+          for(const [type,id,count] of [['review',1,9],['reply',1,99],['comment',7,999]]){
             const control=thread.locator(`[data-like-type="${type}"][data-like-id="${id}"]`);
+            await control.scrollIntoViewIfNeeded();await watchLikeLayout(page,type,id);
             await control.click();await page.waitForFunction(({type,id})=>document.querySelector(`[data-like-type="${type}"][data-like-id="${id}"]`).getAttribute('aria-pressed')==='true',{type,id});
             assert.equal(await control.locator('.discussion-like-count').innerText(),String(count+1));
+            await checkLikeLayout(page,control,`${scenario.view}/${scenario.width}/${type}/add`);
+            await watchLikeLayout(page,type,id);
             await control.click();await page.waitForFunction(({type,id})=>document.querySelector(`[data-like-type="${type}"][data-like-id="${id}"]`).getAttribute('aria-pressed')==='false',{type,id});
             assert.equal(await control.locator('.discussion-like-count').innerText(),String(count));
+            await checkLikeLayout(page,control,`${scenario.view}/${scenario.width}/${type}/remove`);
           }
-          fixture.failLike=true;const control=thread.locator('[data-like-type="review"]');await control.click();await thread.locator('.discussion-status:not(:empty)').waitFor();assert.equal(await control.getAttribute('aria-pressed'),'false');
+          fixture.failLike=true;const control=thread.locator('[data-like-type="review"]');await control.click();await thread.locator('.discussion-like-status:not(:empty)').waitFor({state:'attached'});assert.equal(await control.getAttribute('aria-pressed'),'false');
           await control.click();await page.waitForFunction(()=>document.querySelector('[data-like-type="review"]').getAttribute('aria-pressed')==='true');
           assert.equal(fixture.writes.at(-1).active,fixture.writes.at(-2).active);
           if(scenario.view==='recipe'){

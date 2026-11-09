@@ -21,9 +21,10 @@
 .discussion-error { color: #b42820; }
 .discussion-error:empty, .discussion-status:empty { display: none; }
 .review-discussion [hidden] { display: none !important; }
-.discussion-like { display: inline-flex; align-items: center; gap: 5px; min-width: 40px; min-height: 40px; max-width: 100%; padding: 5px 0; border: 0; background: transparent; color: var(--text-2, #756d64); font: inherit; font-size: 12px; cursor: pointer; }
-.discussion-like > span:first-child { font-size: 22px; line-height: 1; }
+.discussion-like { display: inline-flex; align-items: center; vertical-align: middle; gap: 5px; min-width: 40px; height: 40px; min-height: 40px; max-width: 100%; box-sizing: border-box; padding: 0; border: 0; background: transparent; color: var(--text-2, #756d64); font: inherit; font-size: 12px; cursor: pointer; }
+.discussion-like > span:first-child { display: inline-grid; place-items: center; flex: 0 0 32px; width: 32px; height: 32px; font-size: 22px; line-height: 1; }
 .discussion-like.is-active { color: #e43b57; }
 .discussion-messages > * > .discussion-like { margin-top: 10px; }
-.discussion-like-count { font-variant-numeric: tabular-nums; }
+.discussion-like-count { display: inline-block; min-width: 4ch; line-height: 1; font-variant-numeric: tabular-nums; }
+.discussion-like-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .discussion-review-like { margin-bottom: 8px; }
