@@ -12,12 +12,12 @@
         const active = item?.likedByCurrentUser === true;
         const label = Auth.isLoggedIn() ? (active ? 'Убрать лайк' : 'Поставить лайк') : 'Войти, чтобы поставить лайк';
         const count = Math.max(0, Number(item?.likeCount) || 0);
-        return `<button type="button" class="discussion-like${active ? ' is-active' : ''}" data-discussion-action="like" data-like-type="${type}" data-like-id="${Number(id)}" aria-pressed="${active}" aria-label="${label}, лайков: ${count}"><span aria-hidden="true">${active ? '❤️' : '♡'}</span><span class="discussion-like-count">${count}</span></button>`;
+        return `<button type="button" class="discussion-like${active ? ' is-active' : ''}" data-discussion-action="like" data-like-type="${type}" data-like-id="${Number(id)}" aria-pressed="${active}" aria-label="${label}, лайков: ${count}"><span class="discussion-like-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.8-7.7 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg></span><span class="discussion-like-count">${count}</span></button>`;
     }
 
     function animateLike(control) {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        control?.querySelector('span')?.animate([
+        control?.querySelector('.discussion-like-icon')?.animate([
             { transform: 'scale(1)' },
             { transform: 'scale(1.35)', offset: 0.35 },
             { transform: 'scale(0.94)', offset: 0.7 },
