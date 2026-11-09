@@ -11,7 +11,8 @@
     function like(type, id, item) {
         const active = item?.likedByCurrentUser === true;
         const label = Auth.isLoggedIn() ? (active ? 'Убрать лайк' : 'Поставить лайк') : 'Войти, чтобы поставить лайк';
-        return `<button type="button" class="discussion-like${active ? ' is-active' : ''}" data-discussion-action="like" data-like-type="${type}" data-like-id="${Number(id)}" aria-pressed="${active}" aria-label="${label}"><span aria-hidden="true">${active ? '♥' : '♡'}</span><span>Нравится</span><span class="discussion-like-count">${Math.max(0, Number(item?.likeCount) || 0)}</span></button>`;
+        const count = Math.max(0, Number(item?.likeCount) || 0);
+        return `<button type="button" class="discussion-like${active ? ' is-active' : ''}" data-discussion-action="like" data-like-type="${type}" data-like-id="${Number(id)}" aria-pressed="${active}" aria-label="${label}, лайков: ${count}"><span aria-hidden="true">${active ? '❤️' : '♡'}</span><span class="discussion-like-count">${count}</span></button>`;
     }
 
     function animateLike(control) {

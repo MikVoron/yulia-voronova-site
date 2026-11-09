@@ -21,9 +21,9 @@
 .discussion-error { color: #b42820; }
 .discussion-error:empty, .discussion-status:empty { display: none; }
 .review-discussion [hidden] { display: none !important; }
-.discussion-like { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; max-width: 100%; padding: 5px 10px; border: 1px solid var(--border, #e8e0d8); background: transparent; color: var(--text-2, #756d64); font: inherit; font-size: 12px; cursor: pointer; }
+.discussion-like { display: inline-flex; align-items: center; gap: 5px; min-width: 40px; min-height: 40px; max-width: 100%; padding: 5px 0; border: 0; background: transparent; color: var(--text-2, #756d64); font: inherit; font-size: 12px; cursor: pointer; }
 .discussion-like > span:first-child { font-size: 22px; line-height: 1; }
-.discussion-like.is-active { color: var(--accent, #c64e20); border-color: currentColor; }
+.discussion-like.is-active { color: #e43b57; }
 .discussion-messages > * > .discussion-like { margin-top: 10px; }
 .discussion-like-count { font-variant-numeric: tabular-nums; }
 .discussion-review-like { margin-bottom: 8px; }
