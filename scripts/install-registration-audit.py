@@ -88,8 +88,31 @@ def api_contract():
             raise RuntimeError('Admin audit route is missing or unprotected')
 
 
+def protected_admin_asset(url):
+    request = urllib.request.Request(url, headers={'Cache-Control': 'no-cache'})
+    try:
+        with urllib.request.urlopen(request, timeout=20):
+            raise RuntimeError('Admin asset unexpectedly accessible without Basic authentication')
+    except urllib.error.HTTPError as error:
+        challenge = error.headers.get('WWW-Authenticate', '').strip().lower()
+        if error.code != 401 or not challenge.startswith('basic '):
+            raise RuntimeError('Expected HTTP 401 with Basic challenge: ' + url) from error
+        error.close()
+
+
+def protected_admin_assets(rows):
+    # These files are intentionally private. Anonymous HTTP cannot verify their
+    # response-body hashes. Check the Basic barrier here; verify bytes on disk
+    # below, and check the rendered UI separately in an authenticated browser.
+    for row in rows:
+        if row['file'].startswith('platform/'):
+            protected_admin_asset('https://plate.voronova.online/' + Path(row['target']).name
+                                  + '?v=20261110-registration-audit')
+
+
 def verify(rows):
     api_contract()
+    protected_admin_assets(rows)
     for row in rows:
         target = Path(row['target'])
         if sha(target) != row['after']:
@@ -97,13 +120,6 @@ def verify(rows):
         stat = target.stat()
         if (stat.st_uid, stat.st_gid, stat.st_mode & 0o777) != (0, 0, 0o644):
             raise RuntimeError('Installed permissions mismatch')
-        if row['file'].startswith('platform/'):
-            request = urllib.request.Request(
-                'https://plate.voronova.online/' + target.name + '?v=20261110-registration-audit',
-                headers={'Cache-Control': 'no-cache'})
-            with urllib.request.urlopen(request, timeout=20) as response:
-                if hashlib.sha256(response.read()).hexdigest() != row['after']:
-                    raise RuntimeError('Public hash mismatch: ' + row['file'])
     return health()
 
 
@@ -130,8 +146,9 @@ def main():
         if source.suffix == '.js':
             run(['/usr/bin/node', '--check', source])
     pid = health()
+    api_contract()
+    protected_admin_assets(rows)
     if options.check:
-        api_contract()
         print(json.dumps({'marker': 'REGISTRATION_AUDIT_PREFLIGHT_OK', 'files': len(rows), 'api_pid': pid}))
         return
     if options.verify:

@@ -8,6 +8,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+import urllib.error
 from unittest.mock import patch
 
 
@@ -70,6 +71,7 @@ class InstallerTests(unittest.TestCase):
         module.run = run
         module.health = lambda: 123
         module.api_contract = lambda: None
+        module.protected_admin_assets = lambda rows: None
         module.restart = restart
         module.verify = verify
         module.open = open_file
@@ -148,6 +150,51 @@ class InstallerTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'Partial or concurrent installation'):
             self.invoke()
         self.assertEqual(self.restarts, 0)
+
+    def test_missing_basic_barrier_prevents_installation(self):
+        def fail(rows):
+            raise RuntimeError('missing Basic authentication')
+        self.installer.protected_admin_assets = fail
+        with self.assertRaisesRegex(RuntimeError, 'missing Basic authentication'):
+            self.invoke()
+        self.assert_before()
+        self.assertEqual(self.restarts, 0)
+
+
+class ProtectedAssetTests(unittest.TestCase):
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location(
+            'registration_audit_http', Path(__file__).with_name('install-registration-audit.py'))
+        self.installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.installer)
+        self.url = 'https://plate.voronova.online/admin.js?v=fixture'
+
+    def test_expected_basic_challenge_is_accepted(self):
+        error = urllib.error.HTTPError(self.url, 401, 'Unauthorized',
+                                       {'WWW-Authenticate': 'Basic realm="SmartPlate administration"'}, None)
+        with patch.object(self.installer.urllib.request, 'urlopen', side_effect=error):
+            self.installer.protected_admin_asset(self.url)
+
+    def test_wrong_authentication_challenge_is_rejected(self):
+        error = urllib.error.HTTPError(self.url, 401, 'Unauthorized',
+                                       {'WWW-Authenticate': 'Bearer realm="API"'}, None)
+        with patch.object(self.installer.urllib.request, 'urlopen', side_effect=error):
+            with self.assertRaisesRegex(RuntimeError, 'Expected HTTP 401 with Basic challenge'):
+                self.installer.protected_admin_asset(self.url)
+
+    def test_other_http_errors_are_rejected(self):
+        for status in [403, 404, 500]:
+            with self.subTest(status=status):
+                error = urllib.error.HTTPError(self.url, status, 'Error', {}, None)
+                with patch.object(self.installer.urllib.request, 'urlopen', side_effect=error):
+                    with self.assertRaisesRegex(RuntimeError, 'Expected HTTP 401 with Basic challenge'):
+                        self.installer.protected_admin_asset(self.url)
+
+    def test_unprotected_success_is_rejected(self):
+        from unittest.mock import MagicMock
+        with patch.object(self.installer.urllib.request, 'urlopen', return_value=MagicMock()):
+            with self.assertRaisesRegex(RuntimeError, 'unexpectedly accessible'):
+                self.installer.protected_admin_asset(self.url)
 
 
 if __name__ == '__main__':
