@@ -10,6 +10,7 @@ const sendLoginCode = vi.fn();
 const sendWelcome = vi.fn();
 const issueSession = vi.fn(async () => 'test-session');
 const queueGoal = vi.fn(async () => true);
+const auditLog = vi.fn(async () => true);
 const logLines = [];
 function mock(file, exports) {
   const resolved = require.resolve(path.join(src, file));
@@ -18,11 +19,12 @@ function mock(file, exports) {
 }
 mock('db.js', { query });
 mock('email.js', { sendLoginCode, sendWelcome, sendNewUserNotification: vi.fn(async () => {}) });
-mock('audit.js', { log: vi.fn(async () => {}) });
+mock('audit.js', { log: auditLog });
 mock('trial-guard.js', { tryGrantTrial: vi.fn(async () => ({ grant: true })) });
 mock('trial-monitor.js', { inspectFingerprint: () => ({status:'missing',value:null}), reportTrialSignals() {} });
 mock('refresh-sessions.js', { issueRefreshSession: issueSession });
-mock('metrika-conversions.js', { queueMetrikaGoal: queueGoal, dispatchMetrikaGoals() {} });
+const { normalizeClientId } = require('../src/metrika-conversions');
+mock('metrika-conversions.js', { normalizeClientId, queueMetrikaGoal: queueGoal, dispatchMetrikaGoals() {} });
 process.env.JWT_SECRET = 'test-login-ux-secret-with-more-than-32-bytes';
 let app, state, codeHash;
 const user = { id: '00000000-0000-4000-8000-000000000001', email:'test@example.com', role:'user', is_blocked:false };
@@ -54,8 +56,61 @@ beforeEach(() => {
       state.consumed = true; return {rows:[{id:1}]};
     }
     if (/SELECT \* FROM users WHERE email/.test(sql)) return {rows:state.user?[state.user]:[]};
+    if (/SELECT id FROM users WHERE email/.test(sql)) return {rows:state.user?[{id:state.user.id}]:[]};
     if (/INSERT INTO users/.test(sql)) return {rows:[{...user,email:params[0]}]};
     return {rows:[]};
+  });
+});
+
+describe('restricted admin audit of email-code requests', () => {
+  it('keeps the full normalized address and ClientID without the code or hash', async () => {
+    state.user = null;
+    const response = await app.inject({method:'POST',url:'/auth/send-code',payload:{
+      email:' TEST@Example.com ',metrikaClientId:'1234567890123456789'
+    }});
+    expect(response.statusCode).toBe(200);
+    const entry = auditLog.mock.calls.find(([event]) => event === 'auth_code_sent')[1];
+    expect(entry.email).toBe('test@example.com');
+    expect(entry.requestId).toBeTruthy();
+    expect(JSON.parse(entry.detail)).toMatchObject({purpose:'registration',clientId:'1234567890123456789'});
+    const sentCode = sendLoginCode.mock.calls[0][1];
+    expect(JSON.stringify(auditLog.mock.calls)).not.toContain(sentCode);
+    expect(JSON.stringify(auditLog.mock.calls)).not.toContain('code_hash');
+    expect(JSON.stringify(logLines)).not.toContain('test@example.com');
+  });
+  it('distinguishes existing-account login from registration without disclosing it in the response', async () => {
+    const response = await send();
+    expect(response.statusCode).toBe(200);
+    const entry = auditLog.mock.calls.find(([event]) => event === 'auth_code_sent')[1];
+    expect(entry.userId).toBe(user.id);
+    expect(JSON.parse(entry.detail).purpose).toBe('login');
+    expect(response.json()).not.toHaveProperty('purpose');
+  });
+  it('records a mail failure separately and never creates a sent event for it', async () => {
+    sendLoginCode.mockRejectedValueOnce(new Error('SMTP unavailable'));
+    expect((await send()).statusCode).toBe(500);
+    expect(auditLog.mock.calls.map(([event]) => event)).toEqual(['auth_code_send_failed']);
+    expect(JSON.stringify(auditLog.mock.calls)).not.toContain('SMTP unavailable');
+  });
+  it('keeps rejection reason and phase in the audit while the technical log omits the address', async () => {
+    await verify('654321');
+    const entry = auditLog.mock.calls.find(([event]) => event === 'auth_code_rejected')[1];
+    expect(entry.email).toBe('test@example.com');
+    expect(JSON.parse(entry.detail)).toMatchObject({phase:'verify',reason:'INVALID_CODE'});
+    expect(JSON.stringify(auditLog.mock.calls)).not.toContain('654321');
+    expect(JSON.stringify(logLines)).not.toContain('test@example.com');
+  });
+  it('records resend limits and drops invalid ClientIDs', async () => {
+    state.email = {count:'1',last_at:new Date()};
+    const response = await app.inject({method:'POST',url:'/auth/send-code',payload:{email:user.email,metrikaClientId:'invalid'}});
+    expect(response.statusCode).toBe(429);
+    expect(JSON.parse(auditLog.mock.calls[0][1].detail)).toMatchObject({phase:'send',reason:'SEND_COOLDOWN',clientId:null});
+  });
+  it('does not log a sent event when the admin form deliberately returns a neutral response', async () => {
+    const response = await app.inject({method:'POST',url:'/auth/send-code',payload:{email:user.email,context:'admin'}});
+    expect(response.statusCode).toBe(200);
+    expect(sendLoginCode).not.toHaveBeenCalled();
+    expect(auditLog).not.toHaveBeenCalled();
   });
 });
 const send = () => app.inject({method:'POST',url:'/auth/send-code',payload:{email:'test@example.com'}});

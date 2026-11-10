@@ -1940,6 +1940,10 @@
     var auditHasMore = false;
     var auditTotal = 0;
     var EVENT_LABELS = {
+        registration_incomplete: 'Код отправлен, регистрация не завершена',
+        auth_code_sent: '✉ Письмо с кодом отправлено',
+        auth_code_send_failed: '⚠️ Ошибка отправки письма с кодом',
+        auth_code_rejected: '⚠️ Запрос или проверка кода отклонены',
         login: '🔑 Вход на платформу',
         platform_visit: '👋 Пользователь открыл платформу',
         register: '📝 Создан аккаунт',
@@ -2103,6 +2107,29 @@
 
     function formatAuditDetail(event, detail) {
         var value = String(detail || '').trim();
+        if (event === 'auth_code_sent' || event === 'auth_code_send_failed' || event === 'auth_code_rejected') {
+            var codeDetail = {};
+            try { codeDetail = JSON.parse(value) || {}; } catch (ignore) { }
+            var reasonLabels = {
+                SEND_RATE_LIMIT: 'Превышен лимит отправки писем.',
+                SEND_COOLDOWN: 'Повторное письмо запрошено слишком рано.',
+                VERIFY_RATE_LIMIT: 'Превышен лимит проверок кода.',
+                INVALID_CODE_FORMAT: 'Введён код не из 6 цифр.',
+                INVALID_CODE: 'Введён неверный код.',
+                CODE_EXPIRED: 'Код не найден или срок его действия истёк.',
+                CODE_UNAVAILABLE: 'Код уже использован или заменён новым.',
+                CODE_ATTEMPTS_EXCEEDED: 'Исчерпаны попытки ввода кода.',
+                MFA_INVALID: 'Неверный код приложения-аутентификатора.',
+                MFA_ATTEMPTS_EXCEEDED: 'Исчерпаны попытки MFA.'
+            };
+            var text = event === 'auth_code_sent'
+                ? (codeDetail.purpose === 'registration' ? 'Код для создания аккаунта' : 'Код для входа в существующий аккаунт') +
+                    ' передан почтовому серверу. Доставка во входящие не подтверждена.'
+                : event === 'auth_code_send_failed' ? 'Почтовый сервер не подтвердил отправку письма.'
+                : (codeDetail.phase === 'send' ? 'Отправка: ' : 'Проверка: ') + (reasonLabels[codeDetail.reason] || 'Запрос отклонён.');
+            if (codeDetail.clientId) text += ' ClientID: ' + codeDetail.clientId + '.';
+            return text;
+        }
         var trialReason = {
             fingerprint_used: 'На этом устройстве пробный период уже использовали.',
             fingerprint_missing: 'Не удалось подтвердить устройство для выдачи пробного доступа.',
@@ -2167,7 +2194,7 @@
         var value = String(eventName || '');
         return value.includes('denied') || value.includes('blocked') || value.includes('reject')
             || value.includes('alert') || value.includes('invalid') || value === 'admin_mfa_failed'
-            || value === 'admin_oauth_denied';
+            || value === 'admin_oauth_denied' || value === 'auth_code_send_failed';
     }
 
     function updateAuditSummary() {
@@ -2184,6 +2211,7 @@
         var chips = [];
         if (query) chips.push('<span class="audit-filter-chip">Поиск: ' + esc(query) + '</span>');
         if (eventName) chips.push('<span class="audit-filter-chip">' + esc(EVENT_LABELS[eventName] || eventName) + '</span>');
+        if (eventName === 'registration_incomplete') chips.push('<span class="audit-filter-chip">По последнему письму на адрес; пользователь ещё может завершить регистрацию</span>');
         if (query || eventName) chips.push('<button class="audit-filter-reset" data-admin-action="reset-audit-filters">Сбросить</button>');
         chips.push('<span class="audit-filter-result">Показано: ' + count + ' из ' + auditRows.length + ' загруженных · всего ' + auditTotal + '</span>');
         document.getElementById('audit-filter-summary').innerHTML = chips.join('');

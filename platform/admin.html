@@ -2282,6 +2282,10 @@
             <input class="adm-search" id="audit-search" type="search" placeholder="Поиск по email, IP или деталям" aria-label="Поиск в журнале">
             <select class="adm-modal-select" id="audit-filter" data-admin-change="4a89cbc6b5fc" aria-label="Тип события">
                 <option value="">Все события</option>
+                <option value="registration_incomplete">Код отправлен, регистрация не завершена</option>
+                <option value="auth_code_sent">Письмо с кодом отправлено</option>
+                <option value="auth_code_send_failed">Ошибка отправки письма с кодом</option>
+                <option value="auth_code_rejected">Запрос или проверка кода отклонены</option>
                 <option value="login">Вход на платформу</option>
                 <option value="platform_visit">Пользователь открыл платформу</option>
                 <option value="register">Создан аккаунт</option>
@@ -2511,6 +2515,6 @@
 <link rel="stylesheet" href="review-photos.css?v=20261108">
 <script src="review-photos.js?v=20261108"></script>
 <script src="admin-review-photos.js?v=20261108"></script>
-<script src="admin.js?v=20261108-review-photos"></script>
+<script src="admin.js?v=20261110-registration-audit"></script>
 </body>
 </html>

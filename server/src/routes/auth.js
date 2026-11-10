@@ -8,7 +8,7 @@ const { tryGrantTrial } = require('../trial-guard');
 const { inspectFingerprint, reportTrialSignals } = require('../trial-monitor');
 const audit = require('../audit');
 const { verifyTotp } = require('../totp');
-const { queueMetrikaGoal, dispatchMetrikaGoals } = require('../metrika-conversions');
+const { normalizeClientId, queueMetrikaGoal, dispatchMetrikaGoals } = require('../metrika-conversions');
 
 const AUTH_SEND_CODE_RATE_LIMIT = { max: 10, timeWindow: '15 minutes' };
 const AUTH_VERIFY_RATE_LIMIT = { max: 20, timeWindow: '15 minutes' };
@@ -33,9 +33,25 @@ function timeOr(value, fallback) {
 }
 
 async function authRoutes(fastify) {
-  function rejectCode(req, reply, status, reason, error, extra = {}) {
-    // Keep diagnosis possible without recording email addresses or submitted codes.
+  async function recordCodeEvent(req, event, detail, userId = null) {
+    const email = req.body?.email;
+    if (typeof email !== 'string' || email.trim().length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return;
+    // Full addresses belong only in the restricted admin audit, never in analytics
+    // or the general request log. Never record submitted codes or SMTP errors here.
+    await audit.log(event, {
+      userId, email: email.trim().toLowerCase(), ip: req.ip,
+      ua: req.headers['user-agent'], requestId: String(req.id),
+      detail: JSON.stringify({ ...detail,
+        clientId: normalizeClientId(req.body?.metrikaClientId),
+        context: req.body?.context === 'admin' ? 'admin' : 'platform' })
+    });
+  }
+  async function rejectCode(req, reply, status, reason, error, extra = {}) {
+    // Keep general technical logs free of email addresses and submitted codes.
     fastify.log.info({ event: 'auth_code_rejected', reason, requestId: String(req.id) }, 'Auth code rejected');
+    await recordCodeEvent(req, 'auth_code_rejected', {
+      phase: req.routeOptions.url === '/auth/send-code' ? 'send' : 'verify', reason
+    });
     if (extra.retryAfterSeconds) reply.header('Retry-After', String(extra.retryAfterSeconds));
     return reply.status(status).send({ error, reason, ...extra });
   }
@@ -66,7 +82,17 @@ async function authRoutes(fastify) {
     const code = generateLoginCode();
     const codeHash = await bcrypt.hash(code, 10);
     const inserted = await db.query("INSERT INTO login_codes (email, code_hash, expires_at, ip) VALUES ($1, $2, now() + ($3 * interval '1 minute'), $4) RETURNING created_at, expires_at", [lower, codeHash, LOGIN_CODE_TTL_MINUTES, ip]);
-    try { await sendLoginCode(lower, code, LOGIN_CODE_TTL_MINUTES); } catch (e) { fastify.log.error(e, 'SMTP error'); return reply.status(500).send({ error: 'Не удалось отправить письмо. Попробуйте чуть позже', reason: 'SEND_FAILED' }); }
+    // Determine the purpose internally; the response never reveals account existence.
+    const account = await db.query('SELECT id FROM users WHERE email=$1', [lower]);
+    try { await sendLoginCode(lower, code, LOGIN_CODE_TTL_MINUTES); } catch (e) {
+      fastify.log.error(e, 'SMTP error');
+      await recordCodeEvent(req, 'auth_code_send_failed', { reason: 'SEND_FAILED' });
+      return reply.status(500).send({ error: 'Не удалось отправить письмо. Попробуйте чуть позже', reason: 'SEND_FAILED' });
+    }
+    await recordCodeEvent(req, 'auth_code_sent', {
+      purpose: account.rows.length ? 'login' : 'registration',
+      expiresAt: new Date(timeOr(inserted.rows[0]?.expires_at, Date.now() + LOGIN_CODE_TTL_MINUTES * 60000)).toISOString()
+    }, account.rows[0]?.id);
     const sentAt = timeOr(inserted.rows[0]?.created_at, Date.now());
     const resendAt = Math.max(sentAt + LOGIN_CODE_RESEND_SECONDS * 1000,
       Number(recent.rows[0].count) >= 2 ? timeOr(recent.rows[0].next_limit_at, sentAt) + LOGIN_CODE_WINDOW_MS : 0,

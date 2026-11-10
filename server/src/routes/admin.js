@@ -8,6 +8,10 @@ const CONFIRM_PAYMENT_MONTHS = new Set([1, 3, 6, 12]);
 const PAYMENT_STATUSES = new Set(['pending', 'confirmed', 'rejected']);
 const FEEDBACK_STATUSES = new Set(['waiting_admin', 'waiting_user', 'closed', 'new']);
 const AUDIT_EVENTS = new Set([
+  'auth_code_sent',
+  'auth_code_send_failed',
+  'auth_code_rejected',
+  'registration_incomplete',
   'login',
   'platform_visit',
   'login_blocked',
@@ -773,7 +777,20 @@ async function adminRoutes(fastify) {
 
     let where = '';
     const params = [];
-    if (event) {
+    if (event === 'registration_incomplete') {
+      // A current view, not a historical "abandoned" event. A later registration
+      // (including OAuth with the same address) removes the address from this list.
+      // Deduplicate resends and exclude existing-account login attempts.
+      where = ` WHERE event='auth_code_sent'
+        AND CASE WHEN event='auth_code_sent' THEN detail::jsonb->>'purpose' END = 'registration'
+        AND NOT EXISTS (SELECT 1 FROM users u WHERE u.email=audit_log.email)
+        AND NOT EXISTS (SELECT 1 FROM audit_log completed
+          WHERE completed.email=audit_log.email AND completed.event IN ('register', 'login')
+            AND completed.created_at >= audit_log.created_at)
+        AND NOT EXISTS (SELECT 1 FROM audit_log newer
+          WHERE newer.event='auth_code_sent' AND newer.email=audit_log.email
+            AND (newer.created_at, newer.id) > (audit_log.created_at, audit_log.id))`;
+    } else if (event) {
       params.push(event);
       where = ' WHERE event=$' + params.length;
     }
@@ -787,7 +804,7 @@ async function adminRoutes(fastify) {
     params.push(offset);
     const result = await db.query(
       `SELECT id, user_id, email, event, detail, ip, created_at FROM audit_log${where}
-       ORDER BY created_at DESC
+       ORDER BY created_at DESC, id DESC
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
       params
     );
