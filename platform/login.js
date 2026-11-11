@@ -25,7 +25,8 @@
 			var _legalEl = document.getElementById('lp-footer-legal');
 			if (_legalEl) {
 				_legalEl.innerHTML = 'Продолжая, вы соглашаетесь с '
-					+ '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener">офертой</a> и '
+					+ '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener">офертой</a>. '
+					+ 'Данные для входа и работы аккаунта обрабатываются в соответствии с '
 					+ '<a href="personal-data-processing-policy.html" target="_blank" rel="noopener">политикой обработки данных</a>.';
 			}
 		}

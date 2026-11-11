@@ -1122,12 +1122,12 @@
 		(function _renderWizardLegal() {
 			var el = document.getElementById('pay-wizard-legal');
 			if (!el) return;
-			var policy = '<a href="personal-data-processing-policy.html" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">политикой обработки персональных данных</a>';
+			var policy = '<a href="personal-data-processing-policy.html" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">политике обработки персональных данных</a>';
 			if (typeof LEGAL_OFFER_ENABLED !== 'undefined' && LEGAL_OFFER_ENABLED) {
 				var offer = '<a href="https://voronova.online/public-offer.html" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">условиями оферты</a>';
-				el.innerHTML = 'Отправляя заявку на оплату, вы соглашаетесь с ' + offer + ' и ' + policy + '.';
+				el.innerHTML = 'Отправляя заявку на оплату, вы соглашаетесь с ' + offer + '. Порядок обработки данных описан в ' + policy + '.';
 			} else {
-				el.innerHTML = 'Отправляя заявку на оплату, вы соглашаетесь с ' + policy + '.';
+				el.innerHTML = 'Данные заявки используются для проверки оплаты. Порядок обработки данных описан в ' + policy + '.';
 			}
 		})();
 
