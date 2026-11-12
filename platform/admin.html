@@ -1508,7 +1508,8 @@
         .news-card.draft { border-left: 3px solid var(--text-3); }
         .news-card-meta { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
         .news-card-date { color: var(--text-3); font-size: 11px; }
-        .news-card-text { margin-top: 10px; display: -webkit-box; overflow: hidden; color: var(--text); font-size: 13px; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+        .news-card-title { margin: 10px 0 0; font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+        .news-card-text { margin-top: 10px; display: -webkit-box; overflow: hidden; color: var(--text); font-size: 13px; font-weight: 400; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
         .news-card-extra { margin-top: 8px; color: var(--text-3); font-size: 11px; }
         .news-card-actions { min-width: 145px; display: grid; gap: 6px; }
         .news-card-actions .adm-btn { width: 100%; min-height: 34px; }
@@ -2419,8 +2420,12 @@
                 <option value="recipe">Анонс рецепта</option>
             </select>
         </div>
+        <div class="adm-modal-field" id="news-title-field">
+            <label class="adm-modal-label" for="news-title">Заголовок</label>
+            <input type="text" class="adm-modal-input" id="news-title" maxlength="200" placeholder="Короткий заголовок новости">
+        </div>
         <div class="adm-modal-field">
-            <label class="adm-modal-label" id="news-text-label">Текст новости</label>
+            <label class="adm-modal-label" id="news-text-label" for="news-text">Текст новости</label>
             <textarea class="adm-modal-input" id="news-text" rows="4" style="resize:vertical" placeholder="Этот текст появится в новости на платформе и в email-рассылке"></textarea>
         </div>
         <div class="adm-modal-field" id="news-recipe-field" style="display:none">
@@ -2511,10 +2516,10 @@
 <!-- Toast -->
 <div class="adm-toast" id="adm-toast"></div>
 
-<script src="data-v2.js?v=20261108-likes"></script>
+<script src="data-v2.js?v=20261112-news-title"></script>
 <link rel="stylesheet" href="review-photos.css?v=20261108">
 <script src="review-photos.js?v=20261108"></script>
 <script src="admin-review-photos.js?v=20261108"></script>
-<script src="admin.js?v=20261110-registration-audit"></script>
+<script src="admin.js?v=20261112-news-title"></script>
 </body>
 </html>

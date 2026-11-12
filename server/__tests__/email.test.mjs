@@ -199,6 +199,17 @@ describe('email visual system', () => {
     expect(generic).not.toContain('Привет, !');
   });
 
+  it('keeps a text news title separate and escapes both title and body', async () => {
+    await email.sendNewsletter('user@example.com', {
+      type: 'news', title: 'Заголовок <новости>', text: 'Текст <новости>\nВторой абзац'
+    }, 'unsubscribe-token');
+    const message = sendMail.mock.calls[0][0];
+    expect(message.html).toContain('<strong>Заголовок &lt;новости&gt;</strong>');
+    expect(message.html).toContain('Текст &lt;новости&gt;\nВторой абзац');
+    expect(message.html.indexOf('Заголовок &lt;новости&gt;')).toBeLessThan(message.html.indexOf('Текст &lt;новости&gt;'));
+    expect(message.subject).toBe('Новости');
+  });
+
   it('highlights a new recipe announcement and separates its CTA from the signature', async () => {
     await email.sendNewsletter(
       'user@example.com',

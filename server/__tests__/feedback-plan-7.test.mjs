@@ -106,6 +106,12 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(render({ ...recipe, id: 'a&"<', recipeName: '<Название>' })).toContain('href="recipe.html?id=a%26%22%3C">Новый рецепт: &lt;Название&gt;</a>');
     expect(render({ ...recipe, id: null })).not.toContain('<a ');
     expect(render({ type: 'news', id: 'some-id', text: 'Обновление — Описание новости' })).not.toContain('<a ');
+    const news = render({ type: 'news', title: 'Отдельный <заголовок>', text: 'Первый абзац — остаётся целиком.\n\nВторой абзац.' });
+    expect(news).toContain('<h3 class="sp-news-item-title">Отдельный &lt;заголовок&gt;</h3>');
+    expect(news).toContain('<p class="sp-news-item-desc sp-news-item-desc--text">Первый абзац — остаётся целиком.\n\nВторой абзац.</p>');
+    const legacy = render({ type: 'news', text: 'Заголовок без точки\r\nТекст со старым переносом строки.' });
+    expect(legacy).toContain('<h3 class="sp-news-item-title">Заголовок без точки</h3>');
+    expect(legacy).toContain('sp-news-item-desc--text">Текст со старым переносом строки.</p>');
   });
 
   it('adds a Russian chat loading state and a bounded email fallback', () => {

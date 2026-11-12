@@ -29,6 +29,7 @@ const ADMIN_WRITE_RATE_LIMIT = { max: 30, timeWindow: '1 hour' };
 // for other admin mutations, but do not block normal editing mid-session.
 const ADMIN_RECIPE_WRITE_RATE_LIMIT = { max: 120, timeWindow: '1 hour' };
 const ADMIN_NEWS_TEXT_LIMIT = 5000;
+const ADMIN_NEWS_TITLE_LIMIT = 200;
 const ADMIN_RECIPE_JSON_LIMIT = 50000;
 const ADMIN_AUTO_ADDONS_LIMIT = 50000;
 const ADMIN_RECIPE_LIMITS = {
@@ -138,6 +139,7 @@ function validateNewsPayload(body, requireText) {
   const text = body?.text;
   if (requireText && (!text || !String(text).trim())) throw fieldError('Текст обязателен', 'text');
   assertStringLimit(text || '', ADMIN_NEWS_TEXT_LIMIT, 'text');
+  assertStringLimit(body?.title, ADMIN_NEWS_TITLE_LIMIT, 'title');
   assertStringLimit(body?.recipe_id, ADMIN_RECIPE_LIMITS.id, 'recipe_id');
   assertStringLimit(body?.badge, 80, 'badge');
   assertStringLimit(body?.label, 120, 'label');
@@ -350,7 +352,7 @@ async function contentRoutes(fastify) {
     const dietaryPreferences = await getUserDietaryPreferences(db, req.user?.sub);
     const limit = Math.min(parseInt(req.query.limit) || 10, 50);
     const result = await db.query(
-      `SELECT n.id, n.type, n.text, n.recipe_id, n.badge, n.label, n.created_at,
+      `SELECT n.id, n.type, n.title, n.text, n.recipe_id, n.badge, n.label, n.created_at,
               r.name AS recipe_name,
               r.ingredients AS recipe_ingredients,
               r.dietary_flags AS recipe_dietary_flags,
@@ -380,7 +382,7 @@ async function contentRoutes(fastify) {
     const all = req.query.all === '1';
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 20);
     const result = await db.query(
-      `SELECT n.id, n.type, n.text, n.recipe_id, n.badge, n.label, n.created_at,
+      `SELECT n.id, n.type, n.title, n.text, n.recipe_id, n.badge, n.label, n.created_at,
               r.name AS recipe_name, r.photo AS recipe_photo,
               r.time_min AS recipe_time_min, r.difficulty AS recipe_difficulty,
               r.servings AS recipe_servings, r.kcal AS recipe_kcal
@@ -1033,7 +1035,7 @@ async function contentRoutes(fastify) {
     preHandler: [authenticate, requireAdmin],
     config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
   }, async (req, reply) => {
-    const { type, text, recipe_id, badge, label, is_published } = req.body || {};
+    const { type, title, text, recipe_id, badge, label, is_published } = req.body || {};
     try { validateNewsPayload(req.body || {}, true); }
     catch (e) { return reply.status(e.statusCode || 400).send({ error: e.message, field: e.field }); }
     const newsType = type === 'recipe' ? 'recipe' : 'news';
@@ -1050,9 +1052,10 @@ async function contentRoutes(fastify) {
       recipeName = recipe.rows[0].name;
     }
     const result = await db.query(
-      `INSERT INTO news (type, text, recipe_id, badge, label, is_published)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [newsType, text.trim(), newsType === 'recipe' ? recipe_id : null, badge || null, label || null, is_published === true]
+      `INSERT INTO news (type, text, recipe_id, badge, label, is_published, title)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [newsType, text.trim(), newsType === 'recipe' ? recipe_id : null, badge || null, label || null, is_published === true,
+        newsType === 'news' ? (title || '').trim() || null : null]
     );
 
     // Send newsletter to all subscribed users (async, don't block response)
@@ -1077,6 +1080,7 @@ async function contentRoutes(fastify) {
             try {
               await email.sendNewsletter(sub.email, {
                 type: newsType,
+                title: newsType === 'news' ? (title || '').trim() : null,
                 text: text.trim(),
                 recipeId: newsType === 'recipe' ? recipe_id : null,
                 recipeName
@@ -1097,13 +1101,15 @@ async function contentRoutes(fastify) {
     preHandler: [authenticate, requireAdmin],
     config: { rateLimit: ADMIN_WRITE_RATE_LIMIT }
   }, async (req, reply) => {
-    const { type, text, recipe_id, badge, label, is_published } = req.body || {};
+    const { type, title, text, recipe_id, badge, label, is_published } = req.body || {};
     try { validateNewsPayload(req.body || {}, false); }
     catch (e) { return reply.status(e.statusCode || 400).send({ error: e.message, field: e.field }); }
     const result = await db.query(
-      `UPDATE news SET type=$1, text=$2, recipe_id=$3, badge=$4, label=$5, is_published=$6
+      `UPDATE news SET type=$1, text=$2, recipe_id=$3, badge=$4, label=$5, is_published=$6,
+          title=CASE WHEN $8 THEN $9 ELSE title END
        WHERE id=$7 RETURNING *`,
-      [type || 'news', text, recipe_id || null, badge || null, label || null, is_published === true, req.params.id]
+      [type || 'news', text, recipe_id || null, badge || null, label || null, is_published === true, req.params.id,
+        title !== undefined || type === 'recipe', type === 'recipe' ? null : (title || '').trim() || null]
     );
     if (!result.rows.length) return reply.status(404).send({ error: 'Не найдено' });
     await audit.log('news_update', { userId: req.user.sub, detail: 'news#' + req.params.id, ip: req.ip });

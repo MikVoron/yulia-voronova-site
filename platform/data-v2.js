@@ -846,7 +846,7 @@ const ContentUpdates = {
             + items.map(function(item) {
                 const isLike = item.type === 'review_like';
                 const isRecipe = item.type === 'recipe' && item.recipe_id && item.recipe_name;
-                const title = isLike ? (item.comment_id || item.reply_id ? 'Ваш ответ понравился' : 'Ваш отзыв понравился') : isRecipe ? item.recipe_name : 'Обновление в Умной тарелке';
+                const title = isLike ? (item.comment_id || item.reply_id ? 'Ваш ответ понравился' : 'Ваш отзыв понравился') : isRecipe ? item.recipe_name : (item.title || 'Обновление в Умной тарелке');
                 const href = isLike ? 'recipe.html?id=' + encodeURIComponent(item.recipe_id) + '#review-' + Number(item.review_id) : isRecipe ? 'recipe.html?id=' + encodeURIComponent(item.recipe_id) : 'index.html#new-block';
                 const image = isRecipe && item.recipe_photo
                     ? '<img src="' + ContentUpdates._escape(item.recipe_photo) + '" alt="' + ContentUpdates._escape(title) + '">'

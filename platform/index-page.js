@@ -537,7 +537,7 @@
 					const data = await res.json();
 					const all = data.map(function (n) {
 						return {
-							type: n.type, text: n.text, id: n.recipe_id, recipeName: n.recipe_name,
+							type: n.type, title: n.title, text: n.text, id: n.recipe_id, recipeName: n.recipe_name,
 							badge: n.badge, label: n.label,
 							date: _spFormatNewsDate(n.created_at)
 						};
@@ -845,17 +845,25 @@
 
 		// Item в правой ленте новостей: дата → title → desc. У анонса рецепта
 		// заголовок берём из выбранного рецепта, а текст остаётся описанием.
-		// Обычные новости сохраняют прежнее эвристическое разделение текста.
+		// У текстовой новости заголовок задаётся отдельно от основного текста.
+		// Для старых записей сохраняем разделение по первой строке, тире или предложению.
 		function renderNewsListItem(item) {
 			const text = String(item.text || '').trim();
 			let title = '', desc = '';
-			if (item.type === 'recipe' && item.recipeName) {
+			if (item.type === 'news' && String(item.title || '').trim()) {
+				title = String(item.title).trim();
+				desc = text;
+			} else if (item.type === 'recipe' && item.recipeName) {
 				title = 'Новый рецепт: ' + item.recipeName;
 				desc = text;
 			} else {
 				title = text;
+				const lineBreak = text.indexOf('\n');
 				const dashIdx = text.indexOf(' — ');
-				if (dashIdx > 0 && dashIdx < 90) {
+				if (item.type === 'news' && lineBreak > 0) {
+					title = text.slice(0, lineBreak).trim();
+					desc = text.slice(lineBreak + 1).trim();
+				} else if (dashIdx > 0 && dashIdx < 90) {
 					title = text.slice(0, dashIdx).trim();
 					desc = text.slice(dashIdx + 3).trim();
 				} else {
@@ -870,7 +878,7 @@
 			return `<article class="sp-news-item" role="listitem">
 				<div class="sp-news-item-date">${escHtml(item.date || '')}</div>
 				<h3 class="sp-news-item-title">${titleHtml}</h3>
-				${desc ? `<p class="sp-news-item-desc">${escHtml(desc)}</p>` : ''}
+				${desc ? `<p class="sp-news-item-desc${item.type === 'news' ? ' sp-news-item-desc--text' : ''}">${escHtml(desc)}</p>` : ''}
 			</article>`;
 		}
 

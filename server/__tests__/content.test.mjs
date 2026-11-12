@@ -90,6 +90,12 @@ const mockQuery = vi.fn(async (sql, params = []) => {
   if (/FROM news n\s+LEFT JOIN recipes r ON r\.id = n\.recipe_id/.test(sql)) {
     return { rows: newsRows.map(row => ({ ...row })) };
   }
+  if (/INSERT INTO news/.test(sql)) {
+    return { rows: [{ id: 21, type: params[0], text: params[1], title: params[6], is_published: params[5] }] };
+  }
+  if (/UPDATE news SET type=/.test(sql)) {
+    return { rows: [{ id: Number(params[6]), type: params[0], text: params[1], title: params[7] ? params[8] : 'Прежний заголовок' }] };
+  }
   if (/FROM recipes r WHERE r\.is_published = true/.test(sql)) {
     const tier = params[0];
     return { rows: RECIPES.map(r => {
@@ -221,6 +227,14 @@ beforeEach(() => {
 });
 
 describe('GET /content/news', () => {
+  it('returns a text news title separately from its complete body', async () => {
+    newsRows = [{ id: 21, type: 'news', title: 'Новости платформы', text: 'Первый абзац.\n\nВторой абзац.' }];
+    const res = await app.inject({ method: 'GET', url: '/content/news' });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual(newsRows);
+    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining('n.title'), [10]);
+  });
+
   it('returns the selected recipe name for a recipe announcement', async () => {
     newsRows = [{
       id: 17,
@@ -923,6 +937,42 @@ describe('admin /recipes: access_level validation', () => {
     expect(res.statusCode).toBe(400);
     expect(res.json().field).toBe('ingredients');
     expect(mockQuery.mock.calls.some(([sql]) => /INSERT INTO recipes/.test(sql))).toBe(false);
+  });
+
+  it('POST /admin/news: saves the title independently from the body', async () => {
+    userState = { is_blocked: false, role: 'admin' };
+    const res = await app.inject({
+      method: 'POST', url: '/admin/news',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { type: 'news', title: '  Отдельный заголовок  ', text: 'Первый абзац.\n\nВторой абзац.', is_published: false },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({ title: 'Отдельный заголовок', text: 'Первый абзац.\n\nВторой абзац.', is_published: false });
+  });
+
+  it('PUT /admin/news: edits and clears a title, and preserves it for older clients', async () => {
+    userState = { is_blocked: false, role: 'admin' };
+    for (const [title, expected] of [['Новый заголовок', 'Новый заголовок'], ['', null], [undefined, 'Прежний заголовок']]) {
+      const res = await app.inject({
+        method: 'PUT', url: '/admin/news/21',
+        headers: { authorization: 'Bearer ' + makeToken() },
+        payload: { type: 'news', title, text: 'Основной текст', is_published: false },
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toMatchObject({ title: expected, text: 'Основной текст' });
+    }
+  });
+
+  it.each(['x'.repeat(201), { text: 'invalid' }])('POST /admin/news: rejects an invalid title before writing', async title => {
+    userState = { is_blocked: false, role: 'admin' };
+    const res = await app.inject({
+      method: 'POST', url: '/admin/news',
+      headers: { authorization: 'Bearer ' + makeToken() },
+      payload: { type: 'news', title, text: 'Основной текст' },
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().field).toBe('title');
+    expect(mockQuery.mock.calls.some(([sql]) => /INSERT INTO news/.test(sql))).toBe(false);
   });
 
   it('POST /admin/news: oversized text returns 400 before insert', async () => {

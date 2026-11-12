@@ -543,7 +543,7 @@ async function sendNewsletter(to, news, unsubscribeToken, displayName) {
   const subject = isRecipe ? 'Новый рецепт: ' + item.recipeName : 'Новости';
   const title = isRecipe
     ? 'Я добавила новый рецепт: <strong>' + recipeName + '</strong>.'
-    : '';
+    : (item.title ? '<strong>' + escHtml(item.title) + '</strong>' : '');
   const buttonText = isRecipe ? 'Посмотреть рецепт' : 'Открыть Умную тарелку';
   const buttonUrl = isRecipe
     ? PLATFORM_URL + '/recipe.html?id=' + encodeURIComponent(item.recipeId)

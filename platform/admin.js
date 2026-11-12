@@ -731,7 +731,7 @@
         var status = document.getElementById('news-status-filter').value;
         var type = document.getElementById('news-type-filter').value;
         var filtered = allNews.filter(function(n) {
-            var searchable = [n.text, n.recipe_id, n.badge, n.label].filter(Boolean).join(' ').toLowerCase();
+            var searchable = [n.title, n.text, n.recipe_id, n.badge, n.label].filter(Boolean).join(' ').toLowerCase();
             if (query && searchable.indexOf(query) === -1) return false;
             if (status === 'published' && !n.is_published) return false;
             if (status === 'draft' && n.is_published) return false;
@@ -765,6 +765,7 @@
             return '<article class="news-card' + (n.is_published ? '' : ' draft') + '">'
                 + '<div class="news-card-main">'
                 + '<div class="news-card-meta">' + status + '<span class="rbadge">' + kind + '</span><span class="news-card-date">' + esc(d) + '</span></div>'
+                + (n.title ? '<h3 class="news-card-title">' + esc(n.title) + '</h3>' : '')
                 + '<div class="news-card-text">' + esc(n.text) + '</div>'
                 + (extra.length ? '<div class="news-card-extra">' + extra.join(' · ') + '</div>' : '')
                 + '</div>'
@@ -782,6 +783,7 @@
         document.getElementById('news-modal-title').textContent = newsItem ? 'Редактировать' : 'Новая новость';
         document.getElementById('news-edit-id').value = newsItem ? newsItem.id : '';
         document.getElementById('news-type').value = newsItem ? newsItem.type : 'news';
+        document.getElementById('news-title').value = newsItem ? (newsItem.title || '') : '';
         document.getElementById('news-text').value = newsItem ? newsItem.text : '';
         populateNewsRecipeSelect(recipeId);
         document.getElementById('news-badge').value = newsItem ? (newsItem.badge || '') : '';
@@ -819,6 +821,7 @@
         var isRecipe = document.getElementById('news-type').value === 'recipe';
         var textLabel = document.getElementById('news-text-label');
         var textInput = document.getElementById('news-text');
+        document.getElementById('news-title-field').style.display = isRecipe ? 'none' : '';
         document.getElementById('news-recipe-field').style.display = isRecipe ? '' : 'none';
         document.getElementById('news-badge-field').style.display = isRecipe ? '' : 'none';
         document.getElementById('news-label-field').style.display = isRecipe ? '' : 'none';
@@ -872,6 +875,7 @@
         }
         var body = {
             type: type,
+            title: type === 'news' ? document.getElementById('news-title').value.trim() : null,
             text: document.getElementById('news-text').value,
             recipe_id: recipeId || null,
             badge: document.getElementById('news-badge').value || null,
