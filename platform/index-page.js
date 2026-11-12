@@ -891,6 +891,57 @@
 		}
 
 		// ── HERO SEARCH ──────────────────────────────────────────────────────
+		(function initHeroSearchAttention() {
+			const form = document.getElementById('hero-search');
+			const input = document.getElementById('hero-search-input');
+			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+			if (!form || !input || input.value || form.contains(document.activeElement) ||
+				reducedMotion.matches || !('IntersectionObserver' in window)) return;
+
+			let visible = false;
+			let started = false;
+			const observer = new IntersectionObserver(entries => {
+				visible = entries[0].isIntersecting && entries[0].intersectionRatio >= .5;
+				start();
+			}, { threshold: .5 });
+
+			function stop() {
+				observer.disconnect();
+				form.classList.remove('is-search-attention');
+				form.removeEventListener('pointerdown', stop);
+				form.removeEventListener('focusin', stop);
+				input.removeEventListener('input', stop);
+				input.removeEventListener('animationend', onAnimationEnd);
+				document.removeEventListener('visibilitychange', onVisibilityChange);
+				reducedMotion.removeEventListener('change', stop);
+			}
+
+			function start() {
+				if (started || !visible || document.hidden) return;
+				if (input.value || form.contains(document.activeElement)) { stop(); return; }
+				started = true;
+				observer.disconnect();
+				form.classList.add('is-search-attention');
+			}
+
+			function onVisibilityChange() {
+				if (started && document.hidden) stop();
+				else start();
+			}
+
+			function onAnimationEnd(event) {
+				if (event.animationName === 'heroSearchAttentionBorder') stop();
+			}
+
+			form.addEventListener('pointerdown', stop);
+			form.addEventListener('focusin', stop);
+			input.addEventListener('input', stop);
+			input.addEventListener('animationend', onAnimationEnd);
+			document.addEventListener('visibilitychange', onVisibilityChange);
+			reducedMotion.addEventListener('change', stop);
+			observer.observe(form);
+		})();
+
 		(function initHeroSearch() {
 			const input = document.getElementById('hero-search-input');
 			const box = document.getElementById('hero-search-results');

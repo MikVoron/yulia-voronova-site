@@ -651,6 +651,53 @@ main {
 	border-radius: 0;
 }
 
+/* Однократный мягкий акцент после появления поиска в области просмотра. */
+.sp-hero .hero-search.is-search-attention .hero-search-input {
+	/* Пустое поле передаёт анимированный цвет тексту placeholder. */
+	color: var(--text-3);
+	animation: heroSearchAttentionBorder 3.6s .7s ease-in-out,
+		heroSearchAttentionText 3.6s .7s ease-in-out;
+}
+
+.sp-hero .hero-search.is-search-attention .hero-search-input::placeholder {
+	color: inherit;
+}
+
+.sp-hero .hero-search.is-search-attention .hero-search-icon {
+	animation: heroSearchAttentionText 3.6s .7s ease-in-out;
+}
+
+@keyframes heroSearchAttentionBorder {
+	40%, 55% { border-color: #e1a58f; box-shadow: 0 0 0 3px rgba(232, 64, 10, .043); }
+}
+
+@keyframes heroSearchAttentionText {
+	0%, 100% { color: var(--text-3); }
+	40%, 55% { color: var(--accent-d); }
+}
+
+/* Фокус важнее декоративной анимации, даже до обработки события в JS. */
+.sp-hero .hero-search.is-search-attention:focus-within .hero-search-input,
+.sp-hero .hero-search.is-search-attention:focus-within .hero-search-input::placeholder,
+.sp-hero .hero-search.is-search-attention:focus-within .hero-search-icon {
+	animation: none;
+}
+
+.sp-hero .hero-search.is-search-attention:focus-within .hero-search-input::placeholder {
+	color: var(--text-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sp-hero .hero-search.is-search-attention .hero-search-input,
+	.sp-hero .hero-search.is-search-attention .hero-search-input::placeholder,
+	.sp-hero .hero-search.is-search-attention .hero-search-icon {
+		animation: none;
+	}
+	.sp-hero .hero-search.is-search-attention .hero-search-input::placeholder {
+		color: var(--text-3);
+	}
+}
+
 .sp-hero-trial {
 	max-width: 560px;
 	margin-top: 20px;
