@@ -33,6 +33,21 @@ beforeEach(() => {
 });
 
 describe('email template escaping', () => {
+  it('sends personal photo approval, rejection reasons and partial results with safe review links', async () => {
+    await email.sendReviewPhotoResult('user@example.test','Каша <script>','recipe & test',17,[{status:'approved'}],'a'.repeat(64));
+    let message=sendMail.mock.calls.at(-1)[0];
+    expect(message.subject).toBe('Ваши фото опубликованы');
+    expect(message.html).toContain('Я уже опубликовала ваши фото');expect(message.html).toContain('Ваша Юля 🧡');
+    expect(message.html).toContain('id=recipe%20%26%20test#review-17');
+    expect(message.messageId).toBe('<photo-result-'+'a'.repeat(64)+'@voronova.online>');
+    await email.sendReviewPhotoResult('user@example.test','Каша <script>','recipe',17,[{status:'rejected',reason:'Личные данные <img src=x>'}]);
+    message=sendMail.mock.calls.at(-1)[0];
+    expect(message.subject).toBe('Результат проверки ваших фото');
+    expect(message.html).toContain('Личные данные &lt;img src=x&gt;');expect(message.html).not.toContain('<img src=x>');
+    expect(message.html).not.toContain('<script>');expect(message.html).toContain('Буду рада');
+    await email.sendReviewPhotoResult('user@example.test','Каша','recipe',17,[{status:'approved'},{status:'rejected',reason:'Другое блюдо'}]);
+    expect(sendMail.mock.calls.at(-1)[0].subject).toBe('Опубликовано 1 из 2 ваших фото');
+  });
   it('escapes like notifications and links to the exact review and notification settings', async () => {
     await email.sendReviewLike('user@example.test', '<script>Каша</script>', 'recipe & test', 'comment', 17);
     const message = sendMail.mock.calls[0][0];

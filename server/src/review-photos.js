@@ -5,6 +5,7 @@ const path = require('node:path');
 const db = require('./db');
 const storage = require('./review-photo-storage');
 const email = require('./email');
+const results = require('./review-photo-results');
 
 const LOCK = 81743043;
 const MAX_PHOTOS = 3;
@@ -28,6 +29,7 @@ function service({ database = db, files = storage, mail = email } = {}) {
       // try-lock avoids tying up a pool of requests behind expensive conversions.
       const lock = await client.query('SELECT pg_try_advisory_xact_lock($1) AS locked', [LOCK]);
       if (!lock.rows[0].locked) fail(503, 'Сейчас обрабатывается другое фото. Нажмите «Повторить» через несколько секунд.');
+      await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['photo-result:'+userId+':'+batchId]);
       const review = await client.query(`SELECT r.id FROM reviews r JOIN users u ON u.id=r.user_id
         JOIN recipes recipe ON recipe.id=r.recipe_id
         WHERE r.id=$1 AND r.user_id=$2 AND NOT u.is_blocked AND recipe.is_published=true FOR UPDATE OF r`, [reviewId, userId]);
@@ -56,6 +58,7 @@ function service({ database = db, files = storage, mail = email } = {}) {
         (id,review_id,user_id,request_id,batch_id,input_sha256,width,height,bytes)
         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
       [id,reviewId,userId,requestId,batchId,digest,processed.width,processed.height,processed.bytes]);
+      await client.query(`UPDATE review_photo_results SET superseded=true WHERE user_id=$1 AND batch_id=$2`,[userId,batchId]);
       await client.query(`INSERT INTO review_photo_notifications (user_id,batch_id,review_id)
         VALUES ($1,$2,$3) ON CONFLICT (user_id,batch_id) DO UPDATE SET due_at=now()+interval '15 minutes'
         WHERE review_photo_notifications.sent_at IS NULL`, [userId,batchId,reviewId]);
@@ -88,9 +91,7 @@ function service({ database = db, files = storage, mail = email } = {}) {
     catch (error) { if (error.code === 'ENOENT') fail(404,'Фото не найдено.'); throw error; }
   }
   async function remove(id, userId) {
-    const result = await database.query(`UPDATE review_photos SET status='deleted',reason=NULL
-      WHERE id=$1 AND user_id=$2 RETURNING id`, [id,userId]);
-    if (!result.rows.length) fail(404,'Фото не найдено.');
+    await decide(id,userId,null,null,true);
     // Visibility is removed atomically before touching files. Cleanup retries
     // a failed unlink independently; a deleted URL cannot keep serving content.
     await erase(id).catch(() => {});
@@ -100,12 +101,33 @@ function service({ database = db, files = storage, mail = email } = {}) {
     await database.query('UPDATE review_photos SET files_deleted_at=now() WHERE id=$1', [id]);
   }
   async function moderate(id, adminId, status, reason) {
-    const result = await database.query(`UPDATE review_photos SET status=$3,reason=$4,moderated_by=$2,moderated_at=now()
-      WHERE id=$1 AND review_id IS NOT NULL AND files_deleted_at IS NULL
-        AND (status='pending' OR (status='approved' AND $3='rejected')) RETURNING *`, [id,adminId,status,status === 'rejected' ? reason || null : null]);
-    if (!result.rows.length) fail(409,'Фото уже проверено или удалено. Обновите список.');
+    if (!['approved','rejected'].includes(status)) fail(400,'Выберите решение.');
+    if (status==='rejected' && (typeof reason!=='string' || !reason.trim() || reason.length>300)) fail(400,'Укажите причину отклонения до 300 символов.');
+    const row=await decide(id,adminId,status,reason);
     if (status === 'rejected') await erase(id).catch(() => {});
-    return photo(result.rows[0]);
+    return photo(row);
+  }
+  async function decide(id,actorId,status,reason,remove=false) {
+    const client=await database.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const found=await client.query('SELECT user_id,batch_id FROM review_photos WHERE id=$1',[id]);
+      if (!found.rows.length || (remove && found.rows[0].user_id!==actorId)) fail(404,'Фото не найдено.');
+      const {user_id:userId,batch_id:batchId}=found.rows[0];
+      await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['photo-result:'+userId+':'+batchId]);
+      const current=await client.query('SELECT status FROM review_photos WHERE id=$1 FOR UPDATE',[id]);
+      const updated=remove
+        ? await client.query("UPDATE review_photos SET status='deleted',reason=NULL WHERE id=$1 AND user_id=$2 RETURNING *",[id,actorId])
+        : await client.query(`UPDATE review_photos SET status=$3,reason=$4,moderated_by=$2,moderated_at=now()
+          WHERE id=$1 AND review_id IS NOT NULL AND files_deleted_at IS NULL
+          AND (status='pending' OR (status='approved' AND $3='rejected')) RETURNING *`,[id,actorId,status,status==='rejected'?reason.trim():null]);
+      if (!updated.rows.length) fail(409,'Фото уже проверено или удалено. Обновите список.');
+      if (remove) await client.query('UPDATE review_photo_results SET superseded=true WHERE user_id=$1 AND batch_id=$2',[userId,batchId]);
+      if (!remove || current.rows[0]?.status==='pending') await results.enqueue(client,userId,batchId);
+      await client.query('COMMIT');
+      return updated.rows[0];
+    } catch(error) { await client.query('ROLLBACK').catch(()=>{}); throw error; }
+    finally { client.release(); }
   }
   async function queue(status, after) {
     const rows = await database.query(`SELECT p.*, u.display_name AS author, recipe.name AS recipe_name, r.recipe_id

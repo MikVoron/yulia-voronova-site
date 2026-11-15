@@ -143,6 +143,7 @@ function recipientDomain(to) {
 async function send(to, subject, html, options = {}) {
   const message = { from: options.from || FROM, to, subject, html };
   if (options.replyTo) message.replyTo = options.replyTo;
+  if (options.messageId) message.messageId = options.messageId;
   const startedAt = Date.now();
   const domain = recipientDomain(to);
   try {
@@ -647,7 +648,27 @@ async function sendReviewLike(to, recipeName, recipeId, type, reviewId) {
   await send(to, subject, wrapService(body));
 }
 
+async function sendReviewPhotoResult(to, recipeName, recipeId, reviewId, photos, decisionKey) {
+  if (!Array.isArray(photos) || !photos.length || photos.some(p=>!['approved','rejected'].includes(p.status) || (p.status==='rejected' && !p.reason?.trim()))) throw new Error('A completed photo decision and rejection reason are required');
+  const {approved,total,reasons,title}=require('./review-photo-results').summary(photos);
+  const name='«'+escHtml(recipeName)+'»';
+  const url=PLATFORM_URL+'/recipe.html?id='+encodeURIComponent(recipeId)+'#review-'+Number(reviewId);
+  let body=heading(title,'Сообщение от Юлии');
+  if (approved===total) {
+    body+=paragraph('Я уже опубликовала ваши фото к рецепту '+name+'. Спасибо, что делитесь тем, что у вас получилось! Мне очень приятно видеть блюда на вашей кухне.');
+  } else {
+    body+=paragraph(approved ? 'Я опубликовала '+approved+' из '+total+' ваших фото к рецепту '+name+'. Спасибо, что делитесь тем, что у вас получилось!' : 'Спасибо, что прислали фото к рецепту '+name+'!');
+    body+=paragraph(approved ? 'К сожалению, остальные фото я пока не смогла опубликовать.' : 'К сожалению, я пока не смогла их опубликовать.');
+    body+=paragraph('Причина: '+escHtml(reasons.join('; ')), '0 0 16px', '#4a4642', 'white-space:pre-wrap;');
+    body+=paragraph('Буду рада, если вы загрузите другие фотографии!');
+  }
+  body+=btn(approved===total?'Посмотреть фото':'Перейти к отзыву',url)+signature('Ваша Юля 🧡');
+  return send(to,title,wrapService(body),{replyTo:PERSONAL_SENDERS.yulia.address,
+    messageId:/^[a-f0-9]{64}$/.test(decisionKey)?'<photo-result-'+decisionKey+'@voronova.online>':undefined});
+}
+
 module.exports = {
+  sendReviewPhotoResult,
   sendReviewLike,
   sendLoginCode,
   sendWelcome,

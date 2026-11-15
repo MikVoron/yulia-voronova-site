@@ -13,7 +13,7 @@ const testData=process.env.REVIEW_PHOTOS_TEST_DATA;
 const nativeTest=Boolean(testSocket || testData);
 const owner='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222',admin='33333333-3333-4333-8333-333333333333',blocked='44444444-4444-4444-8444-444444444444';
 let pg,database,photos,files,app,directory,jpeg,tokens,queue=Promise.resolve();
-const mail={sendReviewPhotoNotification:vi.fn()};
+const mail={sendReviewPhotoNotification:vi.fn(),sendReviewPhotoResult:vi.fn()};
 function mock(file,exports) { const resolved=require.resolve(file);const entry=new Module(resolved);entry.exports=exports;entry.loaded=true;require.cache[resolved]=entry; }
 beforeAll(async()=>{
     let nativePool;
@@ -24,7 +24,7 @@ beforeAll(async()=>{
       pg={query:(sql,params)=>nativePool.query(sql,params),exec:sql=>nativePool.query(sql),close:()=>nativePool.end()};
     }else pg=new PGlite();
     await pg.exec(`CREATE ROLE smartplate;
-      CREATE TABLE users(id uuid PRIMARY KEY,display_name text,role text DEFAULT 'user',is_blocked boolean DEFAULT false);
+      CREATE TABLE users(id uuid PRIMARY KEY,email text DEFAULT 'fixture@example.test',display_name text,role text DEFAULT 'user',is_blocked boolean DEFAULT false);
       CREATE TABLE recipes(id text PRIMARY KEY,name text,is_published boolean DEFAULT true);
       CREATE TABLE reviews(id serial PRIMARY KEY,recipe_id text REFERENCES recipes(id),user_id uuid REFERENCES users(id),stars int,UNIQUE(recipe_id,user_id));
       INSERT INTO users(id,display_name,role,is_blocked) VALUES ('${owner}','Анна','user',false),('${other}','Мария','user',false),('${admin}','Юлия','admin',false),('${blocked}','Blocked','user',true);
@@ -32,6 +32,8 @@ beforeAll(async()=>{
       INSERT INTO reviews(recipe_id,user_id,stars) VALUES ('recipe','${owner}',5),('recipe','${other}',4);`);
     const migration=await fs.readFile(new URL('../migrations/043_review_photos.sql',import.meta.url),'utf8');
     await pg.exec(migration);await pg.exec(migration);
+    const resultMigration=await fs.readFile(new URL('../migrations/045_review_photo_results.sql',import.meta.url),'utf8');
+    await pg.exec(resultMigration);await pg.exec(resultMigration);
     database={query:(sql,params)=>pg.query(sql,params),pool:{connect:async()=>{
       // PGlite has one session. Serialize test transactions; production uses
       // PostgreSQL advisory/row locks. This is not a multi-process lock test.
@@ -64,10 +66,52 @@ afterAll(async()=>{
     }
     delete process.env.REVIEW_PHOTOS_DIR;
 });
-beforeEach(async()=>{await pg.exec('TRUNCATE review_photos,review_photo_notifications');mail.sendReviewPhotoNotification.mockReset();});
+beforeEach(async()=>{await pg.exec('TRUNCATE review_photos,review_photo_notifications,review_photo_results');mail.sendReviewPhotoNotification.mockReset();mail.sendReviewPhotoResult.mockReset();});
 const auth=id=>id?{authorization:'Bearer '+tokens[id]}:{};
 const upload=(userId=owner,reviewId=1,requestId=randomUUID(),batchId=randomUUID(),input=jpeg)=>app.inject({method:'PUT',url:`/content/reviews/${reviewId}/photos/${requestId}?batchId=${batchId}`,headers:{...auth(userId),'content-type':'application/octet-stream'},payload:input});
 describe('review photos: actual PostgreSQL schema, HTTP permissions, images and storage',()=>{
+    it('waits for the entire batch, creates one private result and retries SMTP without repeating decisions',async()=>{
+        const batch=randomUUID();
+        const a=(await upload(owner,1,randomUUID(),batch)).json().photo;
+        const b=(await upload(owner,1,randomUUID(),batch)).json().photo;
+        await photos.moderate(a.id,admin,'approved');
+        expect((await database.query('SELECT * FROM review_photo_results')).rows).toHaveLength(0);
+        await expect(photos.moderate(b.id,admin,'rejected','   ')).rejects.toMatchObject({statusCode:400});
+        await photos.moderate(b.id,admin,'rejected','На фотографии видны личные данные');
+        await expect(photos.moderate(b.id,admin,'approved')).rejects.toMatchObject({statusCode:409});
+        expect((await database.query('SELECT * FROM review_photo_results')).rows).toHaveLength(1);
+        const resultService=require('../src/review-photo-results').service({database,mail});
+        const [result]=await resultService.list(owner);
+        expect(result).toMatchObject({approved:1,total:2,title:'Опубликовано 1 из 2 ваших фото',reasons:['На фотографии видны личные данные']});
+        expect(await resultService.list(other)).toEqual([]);
+        expect((await app.inject({url:'/content/review-photo-results'})).statusCode).toBe(401);
+        expect((await app.inject({url:'/content/review-photo-results',headers:auth(blocked)})).statusCode).toBe(403);
+        expect((await app.inject({url:'/content/review-photo-results',headers:auth(other)})).json().items).toEqual([]);
+        expect((await app.inject({method:'POST',url:'/content/review-photo-results/read',headers:auth(owner),payload:{ids:['1e0']}})).statusCode).toBe(400);
+        await resultService.read(other,[result.id]);expect(await resultService.list(owner)).toHaveLength(1);
+        await resultService.read(owner,[result.id]);expect(await resultService.list(owner)).toEqual([]);
+        await database.query("UPDATE review_photo_results SET due_at=now()-interval '1 minute'");
+        mail.sendReviewPhotoResult.mockRejectedValueOnce(new Error('SMTP unavailable')).mockResolvedValue({messageId:'accepted-test'});
+        await resultService.notifications();
+        expect((await database.query('SELECT sent_at FROM review_photo_results')).rows[0].sent_at).toBeNull();
+        await database.query("UPDATE review_photo_results SET due_at=now()-interval '1 minute'");
+        await Promise.all([resultService.notifications(),resultService.notifications()]);await resultService.notifications();
+        expect(mail.sendReviewPhotoResult).toHaveBeenCalledTimes(2);
+        expect(mail.sendReviewPhotoResult.mock.calls[1][0]).toBe('fixture@example.test');
+        expect((await database.query('SELECT sent_at,message_id FROM review_photo_results')).rows[0]).toMatchObject({message_id:'accepted-test'});
+    },20000);
+    it('supersedes an unsent approval when the admin revokes it and skips blocked recipients',async()=>{
+        const {photo}=(await upload()).json();
+        await photos.moderate(photo.id,admin,'approved');
+        await photos.moderate(photo.id,admin,'rejected','Другое блюдо');
+        const resultService=require('../src/review-photo-results').service({database,mail});
+        expect(await resultService.list(owner)).toMatchObject([{approved:0,total:1,reasons:['Другое блюдо']}]);
+        await database.query("UPDATE review_photo_results SET due_at=now()-interval '1 minute'");
+        await database.query('UPDATE users SET is_blocked=true WHERE id=$1',[owner]);
+        try{await resultService.notifications();expect(mail.sendReviewPhotoResult).not.toHaveBeenCalled();}
+        finally{await database.query('UPDATE users SET is_blocked=false WHERE id=$1',[owner]);}
+        expect((await database.query('SELECT skipped_at FROM review_photo_results WHERE NOT superseded')).rows[0].skipped_at).toBeTruthy();
+    },15000);
     it('authenticates uploads before accepting content and checks ownership',async()=>{
         expect((await upload(null)).statusCode).toBe(401);
         expect((await upload(blocked)).statusCode).toBe(403);

@@ -5,9 +5,10 @@ import vm from 'node:vm';
 const source = readFileSync(new URL('../../platform/data-v2.js', import.meta.url), 'utf8');
 const updatesSource = source.slice(source.indexOf('const ContentUpdates ='), source.indexOf('\ndocument.addEventListener', source.indexOf('const ContentUpdates =')));
 const item = id => ({ id, type: 'recipe', recipe_id: 'recipe-' + id });
-function client({ items = [1, 2, 3, 4, 5].map(item), likes = [], failWrite = false, token = 'token' } = {}) {
+function client({ items = [1, 2, 3, 4, 5].map(item), likes = [], photos = [], failWrite = false, token = 'token' } = {}) {
     let unread = items.slice();
     let unreadLikes = likes.slice();
+    let unreadPhotos = photos.slice();
     const button = { setAttribute: vi.fn(), focus: vi.fn() };
     const error = { hidden: true, textContent: '' };
     const panel = { classList: { remove: vi.fn() }, querySelectorAll: () => [], querySelector: () => error };
@@ -16,10 +17,12 @@ function client({ items = [1, 2, 3, 4, 5].map(item), likes = [], failWrite = fal
     const nodes = { 'sp-updates': wrap, 'sp-updates-btn': button, 'sp-updates-panel': panel, 'sp-updates-count': badge, 'user-badge': button };
     const api = vi.fn(async (path, options) => {
         const isLike = path.startsWith('/content/review-like-notifications');
-        if (!options) return { ok: true, json: async () => isLike ? { items: unreadLikes.slice(), hasMore: false } : unread.slice() };
+        const isPhoto = path.startsWith('/content/review-photo-results');
+        if (!options) return { ok: true, json: async () => isPhoto ? {items:unreadPhotos.slice()} : isLike ? { items: unreadLikes.slice(), hasMore: false } : unread.slice() };
         if (failWrite) return { ok: false };
         const ids = path.endsWith('/read') && options.body ? options.body.ids : [Number(path.split('/')[3])];
-        if (isLike) unreadLikes = unreadLikes.filter(row => !ids.includes(row.id));
+        if(isPhoto) unreadPhotos=unreadPhotos.filter(row=>!ids.includes(row.id));
+        else if (isLike) unreadLikes = unreadLikes.filter(row => !ids.includes(row.id));
         else unread = unread.filter(row => !ids.includes(row.id));
         return { ok: true, json: async () => ({ ok: true }) };
     });
@@ -28,10 +31,18 @@ function client({ items = [1, 2, 3, 4, 5].map(item), likes = [], failWrite = fal
     const updates = context.updates;
     updates._ensureUi = () => wrap;
     updates._render = vi.fn();
-    return { updates, api, wrap, badge, error, unread: () => unread, unreadLikes: () => unreadLikes };
+    return { updates, api, wrap, badge, error, unread: () => unread, unreadLikes: () => unreadLikes, unreadPhotos:()=>unreadPhotos };
 }
 
 describe('content update read state', () => {
+    it('keeps photo, like and news IDs separate and acknowledges the three channels on close',async()=>{
+        const c=client({likes:[{id:1}],photos:[{id:1}]});await c.updates.refresh();
+        expect(c.badge.textContent).toBe('7');
+        await c.updates.markRead(1,'review_photo');
+        expect(c.unreadPhotos()).toHaveLength(0);expect(c.unreadLikes()).toHaveLength(1);expect(c.unread()).toHaveLength(5);
+        await c.updates.closeAndRead();expect(c.badge.textContent).toBe('0');
+        expect(c.api).toHaveBeenCalledWith('/content/review-photo-results/read',{method:'POST',body:{ids:[1]}});
+    });
     it('keeps likes with matching news IDs unread when a recipe opens, and batches both lists on close', async () => {
         const c = client({ likes: [{ id: 1, recipe_id: 'recipe-1', review_id: 17 }] });
         await c.updates.recipeOpened('recipe-1');

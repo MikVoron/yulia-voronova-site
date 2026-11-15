@@ -74,6 +74,7 @@ describe('photo HTTP routes without expensive database/browser processes',()=>{
         expect(photos.moderate).toHaveBeenCalledTimes(1);
     });
     it('validates moderation fields, queue cursor and completion before calling the service',async()=>{
+        for(const reason of [undefined,'','   '])expect((await app.inject({method:'PUT',url:'/admin/review-photos/'+id,headers:headers(admin),payload:{status:'rejected',reason}})).statusCode).toBe(400);
         expect((await app.inject({method:'PUT',url:'/admin/review-photos/'+id,headers:headers(admin),payload:{status:'pending'}})).statusCode).toBe(400);
         expect((await app.inject({url:'/admin/review-photos?after=invalid',headers:headers(admin)})).statusCode).toBe(400);
         expect((await app.inject({method:'POST',url:`/content/reviews/1/photo-batches/${batchId}/complete`,headers:headers(owner)})).statusCode).toBe(200);

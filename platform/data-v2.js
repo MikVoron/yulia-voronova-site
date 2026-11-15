@@ -762,7 +762,7 @@ const ContentUpdates = {
     _recipeId: null,
     _closing: false,
     _itemKey(id, type) {
-        return (type === 'review_like' ? 'review_like:' : 'news:') + Number(id);
+        return (type === 'review_like' ? 'review_like:' : type === 'review_photo' ? 'review_photo:' : 'news:') + Number(id);
     },
     _close() {
         const panel = document.getElementById('sp-updates-panel');
@@ -845,18 +845,20 @@ const ContentUpdates = {
             + '<div class="sp-updates-list">'
             + items.map(function(item) {
                 const isLike = item.type === 'review_like';
+                const isPhoto = item.type === 'review_photo';
                 const isRecipe = item.type === 'recipe' && item.recipe_id && item.recipe_name;
                 const title = isLike ? (item.comment_id || item.reply_id ? 'Ваш ответ понравился' : 'Ваш отзыв понравился') : isRecipe ? item.recipe_name : (item.title || 'Обновление в Умной тарелке');
-                const href = isLike ? 'recipe.html?id=' + encodeURIComponent(item.recipe_id) + '#review-' + Number(item.review_id) : isRecipe ? 'recipe.html?id=' + encodeURIComponent(item.recipe_id) : 'index.html#new-block';
+                const href = isLike || isPhoto ? 'recipe.html?id=' + encodeURIComponent(item.recipe_id) + '#review-' + Number(item.review_id) : isRecipe ? 'recipe.html?id=' + encodeURIComponent(item.recipe_id) : 'index.html#new-block';
+                const photoText = isPhoto ? (item.approved===item.total ? 'Я уже опубликовала ваши фото к рецепту «'+item.recipe_name+'». Спасибо, что делитесь ими! Ваша Юля 🧡' : (item.approved ? 'Часть ваших фото к рецепту «'+item.recipe_name+'» опубликована. ' : 'Ваши фото к рецепту «'+item.recipe_name+'» пока не опубликованы. ')+'Причина: '+(item.reasons || []).join('; ')+'. Буду рада другим фотографиям! Ваша Юля 🧡') : '';
                 const image = isRecipe && item.recipe_photo
                     ? '<img src="' + ContentUpdates._escape(item.recipe_photo) + '" alt="' + ContentUpdates._escape(title) + '">'
                     : '<span class="sp-update-icon" aria-hidden="true">✦</span>';
-                return '<a class="sp-update-item' + (isRecipe ? ' is-recipe' : '') + '" href="' + href + '" data-update-type="' + (isLike ? 'review_like' : 'news') + '" data-content-update-id="' + Number(item.id) + '">'
+                return '<a class="sp-update-item' + (isRecipe ? ' is-recipe' : '') + '" href="' + href + '" data-update-type="' + (isLike ? 'review_like' : isPhoto ? 'review_photo' : 'news') + '" data-content-update-id="' + Number(item.id) + '">'
                     + image + '<span class="sp-update-copy"><span class="sp-update-eyebrow">'
-                    + ContentUpdates._escape(isLike ? 'Лайк · ' : isRecipe ? 'Новый рецепт · ' : 'Обновление · ')
+                    + ContentUpdates._escape(isLike ? 'Лайк · ' : isPhoto ? 'Фото · ' : isRecipe ? 'Новый рецепт · ' : 'Обновление · ')
                     + ContentUpdates._escape(ContentUpdates._date(item.created_at)) + '</span>'
                     + '<strong>' + ContentUpdates._escape(title) + '</strong>'
-                    + '<span class="sp-update-text">' + ContentUpdates._escape(isLike ? ((item.actor?.trim() || 'Участник') + ' · ' + item.recipe_name) : item.text || '') + '</span>'
+                    + '<span class="sp-update-text">' + ContentUpdates._escape(isPhoto ? photoText : isLike ? ((item.actor?.trim() || 'Участник') + ' · ' + item.recipe_name) : item.text || '') + '</span>'
                     + '<span class="sp-update-cta">' + (isRecipe ? 'Открыть рецепт' : 'Посмотреть') + ' →</span></span></a>';
             }).join('') + '</div><div class="sp-updates-panel-foot">'
             + '<p>Откройте рецепт, чтобы убрать его из новых, или отметьте весь список прочитанным.</p>'
@@ -881,10 +883,12 @@ const ContentUpdates = {
                 const results = await Promise.allSettled([
                     Auth.api('/content/updates?all=1').then(res => { if (!res.ok) throw new Error('Updates unavailable'); return res.json(); }),
                     Auth.api('/content/review-like-notifications?unread=true&all=1').then(res => { if (!res.ok) throw new Error('Likes unavailable'); return res.json(); }),
+                    Auth.api('/content/review-photo-results').then(res => { if (!res.ok) throw new Error('Photo results unavailable'); return res.json(); }),
                 ]);
-                const news = results[0].status === 'fulfilled' && Array.isArray(results[0].value) ? results[0].value : this._items.filter(item => item.type !== 'review_like');
+                const news = results[0].status === 'fulfilled' && Array.isArray(results[0].value) ? results[0].value : this._items.filter(item => item.type !== 'review_like' && item.type !== 'review_photo');
                 const likes = results[1].status === 'fulfilled' && Array.isArray(results[1].value?.items) ? results[1].value.items.map(item => ({ ...item, type: 'review_like' })) : this._items.filter(item => item.type === 'review_like');
-                this._apply(news.concat(likes).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+                const photos = results[2].status === 'fulfilled' && Array.isArray(results[2].value?.items) ? results[2].value.items.map(item => ({ ...item, type: 'review_photo' })) : this._items.filter(item => item.type === 'review_photo');
+                this._apply(news.concat(likes,photos).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
                 if (this._recipeId) {
                     const ids = this._items.filter(item => item.type === 'recipe' && item.recipe_id === this._recipeId).map(item => Number(item.id));
                     if (ids.length) await this._readIds(ids);
@@ -922,6 +926,15 @@ const ContentUpdates = {
         const ids = this._items.filter(item => item.type === 'recipe' && item.recipe_id === recipeId).map(item => Number(item.id));
         try { if (ids.length) await this._readIds(ids); } catch (e) { /* Keep unread on a failed write. */ }
     },
+    async _readPhotoIds(ids) {
+        for (let offset = 0; offset < ids.length; offset += 500) {
+            const chunk=ids.slice(offset,offset+500);
+            const res=await Auth.api('/content/review-photo-results/read',{method:'POST',body:{ids:chunk}});
+            if(!res.ok)throw new Error('Photo results could not be marked read');
+            chunk.forEach(id=>this._acknowledged.add(this._itemKey(id,'review_photo')));
+            this._apply(this._items);
+        }
+    },
     async closeAndRead() {
         if (this._closing) return;
         this._closing = true;
@@ -929,8 +942,9 @@ const ContentUpdates = {
         if (panel) panel.querySelectorAll('[data-updates-close]').forEach(button => { button.disabled = true; });
         try {
             const snapshot = this._items.slice();
-            await this._readIds(snapshot.filter(item => item.type !== 'review_like').map(item => Number(item.id)));
+            await this._readIds(snapshot.filter(item => item.type !== 'review_like' && item.type !== 'review_photo').map(item => Number(item.id)));
             await this._readLikeIds(snapshot.filter(item => item.type === 'review_like').map(item => Number(item.id)));
+            await this._readPhotoIds(snapshot.filter(item => item.type === 'review_photo').map(item => Number(item.id)));
             this._close();
             const wrap = document.getElementById('sp-updates');
             const target = wrap && wrap.hidden ? document.getElementById('user-badge') : document.getElementById('sp-updates-btn');
@@ -944,6 +958,7 @@ const ContentUpdates = {
         }
     },
     async markRead(id, type) {
+        if(type==='review_photo'){await this._readPhotoIds([Number(id)]);return {ok:true};}
         const base = type === 'review_like' ? '/content/review-like-notifications/' : '/content/updates/';
         const res = await Auth.api(base + encodeURIComponent(id) + '/read', { method: 'POST' });
         if (!res.ok) throw new Error('Update could not be marked read');

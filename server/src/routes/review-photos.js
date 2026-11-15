@@ -3,15 +3,27 @@ const { authenticate, optionalAuthenticate, requireAdmin } = require('../middlew
 const audit = require('../audit');
 const storage = require('../review-photo-storage');
 const { service, MAX_PHOTOS } = require('../review-photos');
+const resultService = require('../review-photo-results');
 
 module.exports = async function reviewPhotosRoutes(app, options = {}) {
   const photos = options.service || service();
+  const results = options.results || resultService.service();
   const enabled = options.enabled === undefined ? storage.enabled() : options.enabled;
   app.get('/content/review-photos/config', async (req,reply) => {
     reply.header('Cache-Control','no-store');
     return { enabled, maxPhotos: MAX_PHOTOS, maxInputBytes: storage.MAX_INPUT };
   });
   if (!enabled) return;
+  app.get('/content/review-photo-results', {preHandler:[authenticate]}, async (req,reply)=>{
+    reply.header('Cache-Control','private, no-store');
+    return {items:await results.list(req.user.sub)};
+  });
+  app.post('/content/review-photo-results/read', {preHandler:[authenticate]}, async (req,reply)=>{
+    const ids=req.body?.ids;
+    if (!Array.isArray(ids) || !ids.length || ids.length>500 || ids.some(id=>!Number.isSafeInteger(Number(id)) || Number(id)<=0 || !/^[1-9]\d*$/.test(String(id)))) return reply.code(400).send({error:'Некорректный список уведомлений.'});
+    await results.read(req.user.sub,[...new Set(ids.map(Number))]);
+    return {ok:true};
+  });
   await storage.prepare();
   let receiving = 0;
   app.setErrorHandler((error,req,reply) => {
@@ -75,6 +87,7 @@ module.exports = async function reviewPhotosRoutes(app, options = {}) {
   app.put('/admin/review-photos/:id', { preHandler:[requireAdmin,validId],config:{rateLimit:{max:120,timeWindow:'1 hour'}} }, async (req,reply) => {
     const { status,reason }=req.body || {};
     if (!['approved','rejected'].includes(status) || (reason!==undefined && (typeof reason!=='string' || reason.length>300))) return reply.code(400).send({ error:'Выберите решение и причину до 300 символов.' });
+    if (status==='rejected' && !reason?.trim()) return reply.code(400).send({error:'Укажите причину отклонения: её получит автор фото.'});
     const photo=await photos.moderate(req.params.id,req.user.sub,status,reason?.trim());
     await audit.log('review_photo_'+status,{userId:req.user.sub,detail:'photo#'+req.params.id,ip:req.ip});
     return { photo };
@@ -86,6 +99,8 @@ module.exports = async function reviewPhotosRoutes(app, options = {}) {
       running=true;
       try { await photos.notifications(); if (tick++ % 60===0) await photos.cleanup(); }
       catch(error) { app.log.error(error,'Review photo maintenance failed'); }
+      try { await results.notifications(); }
+      catch(error) { app.log.error(error,'Review photo result notifications failed'); }
       finally { running=false; }
     };
     let timer;

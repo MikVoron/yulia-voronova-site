@@ -20,7 +20,7 @@
             +(photo.status!=='rejected' ? '<button type="button" class="review-photo-open" data-admin-photo-action="view" aria-label="Увеличить фото"><img data-photo-src="'+esc(photo.thumbnail)+'" alt="Фото блюда на проверке"></button>' : '<p>Фото отклонено и удалено из хранилища.</p>')
             +'<p><a href="recipe.html?id='+encodeURIComponent(photo.recipeId)+'#reviews-section" target="_blank" rel="noopener">Открыть рецепт и отзыв</a></p>'
             +(photo.reason ? '<p>'+esc(photo.reason)+'</p>':'')
-            +(photo.status!=='rejected' ? '<label>Причина отклонения (необязательно)<textarea maxlength="300" rows="2" placeholder="Например: на фото нет готового блюда"></textarea></label>'
+            +(photo.status!=='rejected' ? '<label>Причина отклонения — её получит автор фото<textarea maxlength="300" rows="2" placeholder="Например: на фотографии видны личные данные"></textarea></label>'
                 +'<div class="admin-photo-actions">'+(photo.status==='pending' ? '<button type="button" class="review-photo-button" data-admin-photo-action="approved">Одобрить</button>':'')
                 +'<button type="button" class="review-photo-button" data-admin-photo-action="rejected">'+(photo.status==='approved'?'Снять с публикации':'Отклонить')+'</button></div>':'')
             +'<p class="review-photo-error" role="status"></p></article>';
@@ -53,10 +53,12 @@
         if(!button||button.disabled)return;
         const root=button.closest('[data-admin-photo-id]'),id=root.dataset.adminPhotoId,action=button.dataset.adminPhotoAction;
         if(action==='view'){ReviewPhotos.view(id,button);return;}
-        if(action==='rejected' && !confirm('Отклонить и удалить это фото?'))return;
+        const reason=root.querySelector('textarea').value.trim();
+        if(action==='rejected' && !reason){root.querySelector('.review-photo-error').textContent='Укажите причину отклонения: она попадёт в письмо автору.';root.querySelector('textarea').focus();return;}
+        if(action==='rejected' && !confirm('Отклонить и удалить это фото? Автор получит указанную причину.'))return;
         root.querySelectorAll('button').forEach(node=>{node.disabled=true;});
         try {
-            await api('/admin/review-photos/'+id,{method:'PUT',body:{status:action,reason:root.querySelector('textarea').value.trim()}});
+            await api('/admin/review-photos/'+id,{method:'PUT',body:{status:action,reason}});
             root.remove();
             const data=await api('/admin/review-photos?status=pending');badge(data.pendingCount);
             info.textContent=action==='approved'?'Фото одобрено и доступно пользователям.':'Фото отклонено и скрыто.';
