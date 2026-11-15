@@ -8,6 +8,18 @@
     const button = (action, label, id = '') => `<button type="button" class="discussion-button" data-discussion-action="${action}" data-comment-id="${id}">${label}</button>`;
     const date = value => esc(new Date(value).toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }));
 
+    function replyText(review, text, senderUserId) {
+        const value = String(text ?? '');
+        const name = typeof review.authorName === 'string' ? review.authorName.trim() : '';
+        if (!name || (senderUserId && senderUserId === review.userId)) return esc(value);
+        // Keep an existing typed greeting intact and emphasize its name once.
+        const leading = value.slice(0, name.length);
+        if (leading.toLocaleLowerCase('ru-RU') === name.toLocaleLowerCase('ru-RU') && /^[,:!]/.test(value.slice(name.length))) {
+            return `<strong class="discussion-recipient">${esc(leading)}</strong>${esc(value.slice(name.length))}`;
+        }
+        return `<strong class="discussion-recipient">${esc(name)}</strong>, ${esc(value)}`;
+    }
+
     function like(type, id, item) {
         const active = item?.likedByCurrentUser === true;
         const label = Auth.isLoggedIn() ? (active ? 'Убрать лайк' : 'Поставить лайк') : 'Войти, чтобы поставить лайк';
@@ -27,7 +39,7 @@
 
     function legacy(review) {
         if (!review.reply) return '';
-        return `<div class="discussion-message"><strong>Юлия Воронова</strong> <span class="discussion-author-badge">Автор</span><div class="discussion-text">${esc(review.reply.text)}</div>${like('reply', review.id, review.reply)}</div>`;
+        return `<div class="discussion-message"><strong>Юлия Воронова</strong> <span class="discussion-author-badge">Автор</span><div class="discussion-text">${replyText(review, review.reply.text, review.reply.userId)}</div>${like('reply', review.id, review.reply)}</div>`;
     }
 
     function message(comment, state) {
@@ -41,7 +53,7 @@
                 ${comment.isAuthor ? '<span class="discussion-author-badge">Автор</span>' : comment.userId === state.review.userId ? '<span class="discussion-origin">Автор отзыва</span>' : ''}
                 <time datetime="${esc(comment.createdAt)}">${date(comment.createdAt)}</time>
             </div>
-            <div class="discussion-text">${esc(comment.text)}</div>
+            <div class="discussion-text">${replyText(state.review, comment.text, comment.userId)}</div>
             <div class="discussion-actions">${like('comment', comment.id, comment)}${own ? button('edit', 'Редактировать', Number(comment.id)) : ''}${own || admin ? button('delete', 'Удалить', Number(comment.id)) : ''}</div>
         </article>`;
     }
@@ -222,5 +234,5 @@
         finally { control.disabled = false; }
     });
 
-    window.ReviewDiscussions = { render, like };
+    window.ReviewDiscussions = { render, like, replyText };
 })();

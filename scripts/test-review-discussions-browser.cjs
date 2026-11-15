@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert/strict');
 const root = path.resolve(__dirname, '..');
-const output = path.join(root, 'tmp/review-discussions-20261026/browser');
+const output = path.join(root, 'tmp/review-recipients-20261115/browser');
 fs.mkdirSync(output, { recursive: true });
 const server = http.createServer((req,res) => {
     const relative = decodeURIComponent(new URL(req.url,'http://local').pathname);
@@ -29,6 +29,11 @@ async function run() {
             {view:'category',width:390,id:'u1'}, {view:'ingredient',width:390,id:'u1'},
             {view:'recipe',width:390,id:null}, {view:'recipe',width:390,id:'u3'}, {view:'recipe',width:390,id:'admin'},
             {view:'recipe',width:1366,id:'admin'}, {view:'category',width:320,id:'admin'}, {view:'ingredient',width:320,id:'admin'},
+            {view:'recipe',width:320,id:'admin',recipient:'Женя',case:'named'},
+            {view:'recipe',width:320,id:'admin',recipient:null,case:'unnamed'},
+            {view:'category',width:320,id:'admin',recipient:'home_chef',case:'nickname'},
+            {view:'ingredient',width:320,id:'admin',recipient:'Аноним',case:'literal-anonymous-nickname'},
+            {view:'recipe',width:320,id:'admin',recipient:'<b>Женя</b>',case:'escaped-name'},
         ]) {
             const context = await browser.newContext({viewport:{width:scenario.width,height:900}});
             const page = await context.newPage();
@@ -42,7 +47,8 @@ async function run() {
             const currentUser = scenario.id ? {id:scenario.id,email:'fixture@example.test',name:displayName,role:scenario.id==='admin'?'admin':'user'} : null;
             await context.addInitScript(user=>{if(user){localStorage.setItem('hp_user',JSON.stringify(user));sessionStorage.setItem('hp_st','fixture');}},currentUser);
             const recipe = {id:'fixture',name:'Тестовый рецепт',cat:'breakfasts',categories:['breakfasts'],access_level:'free',is_free:true,is_published:true,ingredients:[{name:'Овсянка',amount:40,unit:'г'}],steps:[{text:'Приготовьте кашу.'}],main_ingredients:['oatmeal'],photo:'images/YV-blog.webp',kcal:100};
-            const reviews = [{id:1,stars:4,text:'Первый опыт',userId:'u1',author:'Анна',createdAt:'2026-09-30T10:00:00.000Z',reply:{text:'Попробуйте сократить время.',createdAt:'2026-10-01T10:05:30.000Z',helpfulCount:2,helpfulByCurrentUser:false}},{id:2,stars:5,text:'Отлично',userId:'u2',author:'Мария',createdAt:'2026-09-30T11:00:00.000Z',reply:null,comments:[],commentCount:0}];
+            const recipient = Object.hasOwn(scenario,'recipient') ? scenario.recipient : 'Анна';
+            const reviews = [{id:1,stars:4,text:'Первый опыт',userId:'u1',author:recipient||'Аноним',authorName:recipient,createdAt:'2026-09-30T10:00:00.000Z',reply:{text:'Попробуйте сократить время.',createdAt:'2026-10-01T10:05:30.000Z',helpfulCount:2,helpfulByCurrentUser:false}},{id:2,stars:5,text:'Отлично',userId:'u2',author:'Мария',authorName:'Мария',createdAt:'2026-09-30T11:00:00.000Z',reply:null,comments:[],commentCount:0}];
             await page.route('**/*',async route=>{
                 const url = new URL(route.request().url());
                 const method = route.request().method();
@@ -109,15 +115,28 @@ async function run() {
                 assert.ok(sequence.indexOf('Дополнение 6')<sequence.indexOf('Попробуйте сократить время.'));
                 assert.ok(sequence.indexOf('Попробуйте сократить время.')<sequence.indexOf('Дополнение 7'));
                 const own = thread.locator('.discussion-message[data-comment-id="100"]');
-                assert.equal(await own.locator('strong').innerText(),displayName);
+                assert.equal(await own.locator('.discussion-meta strong').innerText(),displayName);
                 assert.equal(await own.locator('.discussion-author-badge').count(),0);
                 assert.equal(await own.locator('.discussion-avatar').getAttribute('src'),'images/YV-blog.webp?personal-avatar');
                 assert.match(await thread.innerText(), /Ответ Юлии|Юлия Воронова/i);
+                const expectedRecipient = scenario.id !== 'u1' ? recipient : null;
+                assert.equal(await own.locator('.discussion-recipient').count(),expectedRecipient?1:0);
+                if(expectedRecipient) {
+                    assert.equal(await own.locator('.discussion-recipient').innerText(),expectedRecipient);
+                    assert.equal(await own.locator('.discussion-recipient').evaluate(el=>getComputedStyle(el).fontWeight),'700');
+                }
+                assert.equal(fixture.posts[0].text,'Приготовила ещё раз — получилось!');
+                assert.equal(await own.locator('.discussion-text img').count(),0);
+                assert.equal(await own.locator('.discussion-recipient b').count(),0);
+                assert.equal(await page.evaluate(()=>window.__xss||0),0);
+                await own.scrollIntoViewIfNeeded();
+                await page.screenshot({path:path.join(output,'recipient-'+scenario.view+'-'+scenario.width+'-'+scenario.id+'-'+(scenario.case||'default')+'.png')});
                 await own.locator('[data-discussion-action="edit"]').click();
+                assert.equal(await textarea.inputValue(),'Приготовила ещё раз — получилось!');
                 await textarea.fill('Уточнение: пекла на 5 минут меньше.');
                 await thread.locator('.discussion-send').click();
                 await thread.locator('.discussion-form[hidden]').waitFor({state:'attached'});
-                assert.equal(await own.locator('.discussion-text').innerText(),'Уточнение: пекла на 5 минут меньше.');
+                assert.equal(await own.locator('.discussion-text').innerText(),(expectedRecipient?expectedRecipient+', ':'')+'Уточнение: пекла на 5 минут меньше.');
                 await page.evaluate(()=>{window.showAppConfirm=async()=>true;});
                 await own.locator('[data-discussion-action="delete"]').click();
                 await own.waitFor({state:'detached'});

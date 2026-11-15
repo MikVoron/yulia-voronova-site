@@ -8,6 +8,7 @@
 .discussion-author-badge, .discussion-origin { font-size: 10px; color: var(--accent, #c64e20); }
 .discussion-author-badge { padding: 2px 5px; border: 1px solid currentColor; }
 .discussion-text { margin-top: 8px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.6; }
+.discussion-recipient { font-weight: 700; overflow-wrap: anywhere; }
 .discussion-actions, .discussion-form-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 6px; }
 .discussion-button { display: inline-flex; align-items: center; min-height: 40px; padding: 4px 0; border: 0; background: transparent; color: var(--accent, #c64e20); font: inherit; font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .discussion-form { padding-top: 10px; }

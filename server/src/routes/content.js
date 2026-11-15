@@ -650,6 +650,7 @@ async function contentRoutes(fastify) {
       createdAt: row.created_at,
       userId: row.user_id,
       author: row.display_name?.trim() || 'Аноним',
+      authorName: row.display_name?.trim() || null,
       avatar: reviewAvatar(row),
       isEarlyBird: row.early_access_member === true,
       isSmartPlateFriend: row.early_access_member === true || row.review_friend_badge === true,

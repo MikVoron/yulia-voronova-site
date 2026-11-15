@@ -3997,7 +3997,7 @@
 									<span class="review-author-badge"><span class="review-author-badge-full">Автор Умной Тарелки</span><span class="review-author-badge-short">Автор</span></span>
 								</div>
 							</div>
-							<div class="review-author-reply-text">${escHtml(rv.reply.text)}</div>
+							<div class="review-author-reply-text">${ReviewDiscussions.replyText(rv, rv.reply.text, rv.reply.userId)}</div>
 							${ReviewDiscussions.like('reply', rv.id, rv.reply)}
 						</div>`
 						: '';

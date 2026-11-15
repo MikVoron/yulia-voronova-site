@@ -415,6 +415,15 @@ function expectFull(recipe) {
 }
 
 describe('recipe reviews', () => {
+  it.each([null, '', '   ', ' Женя ', 'home_chef', 'Аноним'])('returns a real name separately from the anonymous label: %j', displayName => {
+    reviewRows = [{ id: 17, stars: 5, text: 'Отзыв', user_id: 'u-1', display_name: displayName }];
+    return app.inject({ method: 'GET', url: '/content/reviews/free-1' }).then(res => {
+      expect(res.statusCode).toBe(200);
+      expect(res.json()[0].authorName).toBe(displayName?.trim() || null);
+      expect(res.json()[0].author).toBe(displayName?.trim() || 'Аноним');
+    });
+  });
+
   it('includes discussion messages without exposing account emails or adding reviews', async () => {
     reviewRows = [{ id: 17, stars: 4, text: 'Первый опыт', user_id: 'u-1', display_name: 'Анна' }];
     reviewDiscussionRows = [{ review_id: 17, comment_count: 8, comments: [
