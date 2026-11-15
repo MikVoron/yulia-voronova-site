@@ -21,6 +21,8 @@ for(const [file,target] of Object.entries(targets)){
   // from the original Git baseline; it changes only these two asset references.
   if(['platform/recipe.html','platform/category.html','platform/ingredient.html'].includes(file)) {
     expected=Buffer.from(expected.toString().replace(/(review-discussions\.(?:js|css)\?v=)20261115-reply-recipient/g,'$120261115-author-badge'));
+    // A subsequent production CSS release changed only this stylesheet marker.
+    expected=Buffer.from(expected.toString().replace('review-discussions.css?v=20261115-author-badge','review-discussions.css?v=20261115-friend-badge'));
   }
   if(file==='platform/recipe.html')expected=Buffer.from(expected.toString().replace('recipe-page.js?v=20261115-reply-recipient','recipe-page.js?v=20261115-author-badge'));
   if(expected===null?actual!==null:!actual?.equals(expected))drift.push(file);
