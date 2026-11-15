@@ -7,7 +7,7 @@ const audit = require('./audit');
 const PAGE_SIZE = 20;
 const INITIAL_PAGE_SIZE = 5;
 const fields = `c.id, c.review_id, c.user_id, c.text, c.created_at, c.updated_at,
-  u.display_name, u.avatar, u.role, ra.position AS review_avatar_position`;
+  u.display_name, u.avatar, ra.position AS review_avatar_position`;
 const authors = `JOIN users u ON u.id=c.user_id
   LEFT JOIN review_avatar_assignments ra ON ra.user_id=c.user_id`;
 
@@ -16,7 +16,9 @@ function publicComment(row) {
     id: row.id, userId: row.user_id, text: row.text,
     createdAt: row.created_at, updatedAt: row.updated_at,
     author: row.display_name?.trim() || 'Аноним', avatar: reviewAvatar(row),
-    isAuthor: row.role === 'admin',
+    // Discussion replies always use the account identity. Only the separate
+    // /admin/reviews/:id/reply action publishes on behalf of Yulia.
+    isAuthor: false,
     ...publicLikes(row),
   };
 }

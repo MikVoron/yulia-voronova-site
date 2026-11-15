@@ -29,7 +29,7 @@ async function run() {
     INSERT INTO review_avatar_counter VALUES(1,0);
     GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO smartplate;
     GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO smartplate;`);
-  await bootstrap.query('INSERT INTO users(id,email,display_name,role,is_blocked) VALUES ($1,\'owner@example.test\',\'Анна\',\'user\',false),($2,\'other@example.test\',NULL,\'user\',false),($3,\'admin@example.test\',\'Юлия\',\'admin\',false),($4,\'blocked@example.test\',NULL,\'user\',true)', [owner,other,admin,blocked]);
+  await bootstrap.query('INSERT INTO users(id,email,display_name,role,is_blocked) VALUES ($1,\'owner@example.test\',\'Анна\',\'user\',false),($2,\'other@example.test\',NULL,\'user\',false),($3,\'admin@example.test\',\'Мишель\',\'admin\',false),($4,\'blocked@example.test\',NULL,\'user\',true)', [owner,other,admin,blocked]);
   await bootstrap.query('INSERT INTO reviews(recipe_id,user_id,stars,text,created_at) VALUES (\'recipe\',$1,4,\'Первый опыт\',\'2026-01-01\'),(\'recipe\',$2,5,\'Отлично\',\'2026-01-02\')', [owner,other]);
   for (const file of ['023_review_replies.sql','024_review_reply_reactions.sql','041_review_comments.sql','041_review_comments.sql']) {
     await bootstrap.query(fs.readFileSync(path.join(root,'server/migrations',file),'utf8'));
@@ -72,7 +72,7 @@ async function run() {
   assert.equal(comment.author,'Аноним'); assert.match(comment.avatar,/avocado\.svg$/); assert.equal(comment.isAuthor,false);
   assert.equal((await pool.query('SELECT COUNT(*)::int AS n FROM review_comments')).rows[0].n,1);
   response = await request('POST','/content/reviews/2/comments',other,{text:'Другой отзыв',requestId:nonce}); assert.equal(response.statusCode,409);
-  response = await request('POST','/content/reviews/1/comments',admin,{text:'Да, замените.',requestId:randomUUID()}); assert.equal(response.statusCode,201); assert.equal(response.json().comment.isAuthor,true);
+  response = await request('POST','/content/reviews/1/comments',admin,{text:'Да, замените.',requestId:randomUUID()}); assert.equal(response.statusCode,201); assert.equal(response.json().comment.isAuthor,false); assert.equal(response.json().comment.author,'Мишель');
   response = await request('PUT','/content/review-comments/'+comment.id,owner,{text:'Чужая правка',role:'admin'}); assert.equal(response.statusCode,404);
   response = await request('PUT','/content/review-comments/'+comment.id,other,{text:'А рисовой мукой?'}); assert.equal(response.statusCode,200);
   response = await request('DELETE','/content/review-comments/'+comment.id,owner); assert.equal(response.statusCode,404);

@@ -28,6 +28,7 @@ async function run() {
             {view:'recipe',width:1366,id:'u1'}, {view:'recipe',width:390,id:'u1'},
             {view:'category',width:390,id:'u1'}, {view:'ingredient',width:390,id:'u1'},
             {view:'recipe',width:390,id:null}, {view:'recipe',width:390,id:'u3'}, {view:'recipe',width:390,id:'admin'},
+            {view:'recipe',width:1366,id:'admin'}, {view:'category',width:320,id:'admin'}, {view:'ingredient',width:320,id:'admin'},
         ]) {
             const context = await browser.newContext({viewport:{width:scenario.width,height:900}});
             const page = await context.newPage();
@@ -37,7 +38,8 @@ async function run() {
                 posts:[], ratingWrites:[], failOnce:true, saved:new Map(),
                 comments:Array.from({length:23},(_,i)=>({id:i+1,userId:i===0?'u1':'u2',author:i===0?'Анна':'Мария',text:i===1?'<img src=x onerror="window.__xss=1">':'Дополнение '+(i+1),createdAt:new Date(Date.UTC(2026,9,1,10,i)).toISOString(),isAuthor:false})),
             };
-            const currentUser = scenario.id ? {id:scenario.id,email:'fixture@example.test',name:'Анна',role:scenario.id==='admin'?'admin':'user'} : null;
+            const displayName = scenario.id === 'admin' ? 'Мишель' : 'Анна';
+            const currentUser = scenario.id ? {id:scenario.id,email:'fixture@example.test',name:displayName,role:scenario.id==='admin'?'admin':'user'} : null;
             await context.addInitScript(user=>{if(user){localStorage.setItem('hp_user',JSON.stringify(user));sessionStorage.setItem('hp_st','fixture');}},currentUser);
             const recipe = {id:'fixture',name:'Тестовый рецепт',cat:'breakfasts',categories:['breakfasts'],access_level:'free',is_free:true,is_published:true,ingredients:[{name:'Овсянка',amount:40,unit:'г'}],steps:[{text:'Приготовьте кашу.'}],main_ingredients:['oatmeal'],photo:'images/YV-blog.webp',kcal:100};
             const reviews = [{id:1,stars:4,text:'Первый опыт',userId:'u1',author:'Анна',createdAt:'2026-09-30T10:00:00.000Z',reply:{text:'Попробуйте сократить время.',createdAt:'2026-10-01T10:05:30.000Z',helpfulCount:2,helpfulByCurrentUser:false}},{id:2,stars:5,text:'Отлично',userId:'u2',author:'Мария',createdAt:'2026-09-30T11:00:00.000Z',reply:null,comments:[],commentCount:0}];
@@ -48,7 +50,7 @@ async function run() {
                 const json = (data,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(data)});
                 const p = url.pathname.replace(/^\/api/,'');
                 if(url.hostname==='api.voronova.online'||url.pathname.startsWith('/api/')) {
-                    if(p==='/auth/me')return json({...currentUser,displayName:'Анна',subscription:{status:'active',activeUntil:'2027-01-01'}});
+                    if(p==='/auth/me')return json({...currentUser,displayName,subscription:{status:'active',activeUntil:'2027-01-01'}});
                     if(p==='/content/recipes')return json([recipe]);
                     if(p==='/content/categories')return json([{id:'breakfasts',name:'Завтраки',emoji:'🍴',sort_order:0}]);
                     if(p==='/content/ingredients')return json([{id:'oatmeal',name:'Овсянка',aliases:[],sort_order:0,is_active:true}]);
@@ -57,7 +59,7 @@ async function run() {
                     if(p==='/content/reviews/1/comments'&&method==='POST') {
                         fixture.posts.push(payload);
                         let comment = fixture.saved.get(payload.requestId);
-                        if(!comment){comment={id:100,userId:scenario.id,author:'Анна',text:payload.text,createdAt:'2026-10-26T10:00:00.000Z',isAuthor:scenario.id==='admin'};fixture.saved.set(payload.requestId,comment);fixture.comments.push(comment);}
+                        if(!comment){comment={id:100,userId:scenario.id,author:displayName,avatar:'images/YV-blog.webp?personal-avatar',text:payload.text,createdAt:'2026-10-26T10:00:00.000Z',isAuthor:false};fixture.saved.set(payload.requestId,comment);fixture.comments.push(comment);}
                         if(fixture.failOnce){fixture.failOnce=false;return route.abort('connectionfailed');}
                         return json({comment},201);
                     }
@@ -107,6 +109,10 @@ async function run() {
                 assert.ok(sequence.indexOf('Дополнение 6')<sequence.indexOf('Попробуйте сократить время.'));
                 assert.ok(sequence.indexOf('Попробуйте сократить время.')<sequence.indexOf('Дополнение 7'));
                 const own = thread.locator('.discussion-message[data-comment-id="100"]');
+                assert.equal(await own.locator('strong').innerText(),displayName);
+                assert.equal(await own.locator('.discussion-author-badge').count(),0);
+                assert.equal(await own.locator('.discussion-avatar').getAttribute('src'),'images/YV-blog.webp?personal-avatar');
+                assert.match(await thread.innerText(), /Ответ Юлии|Юлия Воронова/i);
                 await own.locator('[data-discussion-action="edit"]').click();
                 await textarea.fill('Уточнение: пекла на 5 минут меньше.');
                 await thread.locator('.discussion-send').click();
