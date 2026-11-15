@@ -110,8 +110,22 @@ def denied(url, method='GET', basic=False):
         if error.code == 401 and (not basic or error.headers.get('WWW-Authenticate', '').lower().startswith('basic ')):
             error.close()
             return
-        raise
+        status = error.code
+        error.close()
+        raise RuntimeError('Authentication check failed: ' + method + ' ' + url
+                           + '; expected 401, got ' + str(status)) from error
     raise RuntimeError('Authentication unexpectedly allowed: ' + url)
+
+
+def verify_authentication():
+    endpoints = [('GET', '/auth/review-reply-settings'), ('PUT', '/auth/review-reply-settings'),
+                 ('GET', '/content/review-reply-notifications'), ('POST', '/content/review-reply-notifications/read')]
+    # Auth.api sends authenticated requests directly to the API origin.
+    # The frontend /api/content/ proxy permits GET only; it has no /api/auth/.
+    for host in ('http://127.0.0.1:3000', 'https://api.voronova.online'):
+        for method, endpoint in endpoints:
+            denied(host + endpoint, method)
+    denied('https://plate.voronova.online/api/content/review-reply-notifications')
 
 
 def verify(plan):
@@ -139,10 +153,7 @@ def verify(plan):
                 raise RuntimeError('SEO renderer parity or client version: ' + name)
         elif hashlib.sha256(response(url + '?v=' + VERSION.decode())).hexdigest() != row['after']:
             raise RuntimeError('Public hash: ' + name)
-    for host in ('http://127.0.0.1:3000', 'https://plate.voronova.online/api'):
-        for method, endpoint in [('GET', '/auth/review-reply-settings'), ('PUT', '/auth/review-reply-settings'),
-                                 ('GET', '/content/review-reply-notifications'), ('POST', '/content/review-reply-notifications/read')]:
-            denied(host + endpoint, method)
+    verify_authentication()
     return {'api_pid': health(), 'files': len(plan['files'])}
 
 

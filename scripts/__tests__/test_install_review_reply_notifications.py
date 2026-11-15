@@ -4,6 +4,8 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
+import urllib.error
+import urllib.parse
 from unittest.mock import patch
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'install-review-reply-notifications.py'
@@ -126,6 +128,41 @@ class ReleaseTests(unittest.TestCase):
         shutil.copyfile(self.base / 'runtime' / first['file'], first['target'])
         with self.assertRaisesRegex(RuntimeError, 'Partial installation'):
             i.install(self.plan, self.manifest_sha)
+
+    def test_auth_checks_match_actual_api_and_read_only_frontend_proxy(self):
+        calls = []
+        def request(req, **kwargs):
+            url, method = req.full_url, req.get_method()
+            calls.append((url, method))
+            parsed = urllib.parse.urlsplit(url)
+            if parsed.hostname == 'plate.voronova.online':
+                status = 401 if parsed.path.startswith('/api/content/') and method == 'GET' else 404
+            else:
+                status = 401
+            raise urllib.error.HTTPError(url, status, 'fixture', {}, None)
+        with patch.object(i.urllib.request, 'urlopen', side_effect=request):
+            i.verify_authentication()
+        self.assertEqual(len(calls), 9)
+        self.assertIn(('https://api.voronova.online/auth/review-reply-settings', 'PUT'), calls)
+        self.assertIn(('https://api.voronova.online/content/review-reply-notifications/read', 'POST'), calls)
+        self.assertEqual([c for c in calls if 'plate.voronova.online/' in c[0]],
+                         [('https://plate.voronova.online/api/content/review-reply-notifications', 'GET')])
+
+    def test_404_is_not_accepted_as_an_authentication_boundary(self):
+        url = 'https://api.voronova.online/auth/review-reply-settings'
+        with patch.object(i.urllib.request, 'urlopen', side_effect=urllib.error.HTTPError(url, 404, 'fixture', {}, None)):
+            with self.assertRaisesRegex(RuntimeError, 'GET .*review-reply-settings; expected 401, got 404'):
+                i.denied(url)
+
+    def test_protected_assets_still_require_basic_challenge(self):
+        url = 'https://plate.voronova.online/admin.html'
+        for headers, valid in [({}, False), ({'WWW-Authenticate': 'Basic realm="admin"'}, True)]:
+            with patch.object(i.urllib.request, 'urlopen', side_effect=urllib.error.HTTPError(url, 401, 'fixture', headers, None)):
+                if valid:
+                    i.denied(url, basic=True)
+                else:
+                    with self.assertRaises(RuntimeError):
+                        i.denied(url, basic=True)
 
 
 if __name__ == '__main__':
