@@ -3,9 +3,13 @@ const { authenticate, optionalAuthenticate } = require('./middleware');
 const { likeFields, publicLikes } = require('./review-likes');
 const { reviewAvatar, assignReviewAvatar } = require('./review-avatars');
 const audit = require('./audit');
+const replyNotifications = require('./review-reply-notifications');
 
 const PAGE_SIZE = 20;
 const INITIAL_PAGE_SIZE = 5;
+// Yulia's account, verified against her existing discussion replies. This only
+// controls public attribution; it never grants administrator permissions.
+const PLATFORM_AUTHOR_USER_ID = 'dd0522b3-76f6-45da-a867-bd8e2bb4bff3';
 const fields = `c.id, c.review_id, c.user_id, c.text, c.created_at, c.updated_at,
   u.display_name, u.avatar, ra.position AS review_avatar_position`;
 const authors = `JOIN users u ON u.id=c.user_id
@@ -16,9 +20,8 @@ function publicComment(row) {
     id: row.id, userId: row.user_id, text: row.text,
     createdAt: row.created_at, updatedAt: row.updated_at,
     author: row.display_name?.trim() || 'Аноним', avatar: reviewAvatar(row),
-    // Discussion replies always use the account identity. Only the separate
-    // /admin/reviews/:id/reply action publishes on behalf of Yulia.
-    isAuthor: false,
+    // Apply to existing replies too, without rewriting their text or identity.
+    isAuthor: row.user_id === PLATFORM_AUTHOR_USER_ID,
     ...publicLikes(row),
   };
 }
@@ -103,6 +106,7 @@ function registerDiscussionRoutes(fastify) {
       const saved = await client.query(
         `SELECT ${fields} FROM review_comments c ${authors} WHERE c.id=$1`, [row.id]
       );
+      if (inserted.rows.length) await replyNotifications.enqueue(client, 'comment', row.id);
       await client.query('COMMIT');
       return reply.code(inserted.rows.length ? 201 : 200).send({ comment: publicComment(saved.rows[0]) });
     } catch (error) {

@@ -5,10 +5,11 @@ import vm from 'node:vm';
 const source = readFileSync(new URL('../../platform/data-v2.js', import.meta.url), 'utf8');
 const updatesSource = source.slice(source.indexOf('const ContentUpdates ='), source.indexOf('\ndocument.addEventListener', source.indexOf('const ContentUpdates =')));
 const item = id => ({ id, type: 'recipe', recipe_id: 'recipe-' + id });
-function client({ items = [1, 2, 3, 4, 5].map(item), likes = [], photos = [], failWrite = false, token = 'token' } = {}) {
+function client({ items = [1, 2, 3, 4, 5].map(item), likes = [], photos = [], replies = [], failWrite = false, token = 'token' } = {}) {
     let unread = items.slice();
     let unreadLikes = likes.slice();
     let unreadPhotos = photos.slice();
+    let unreadReplies = replies.slice();
     const button = { setAttribute: vi.fn(), focus: vi.fn() };
     const error = { hidden: true, textContent: '' };
     const panel = { classList: { remove: vi.fn() }, querySelectorAll: () => [], querySelector: () => error };
@@ -18,10 +19,12 @@ function client({ items = [1, 2, 3, 4, 5].map(item), likes = [], photos = [], fa
     const api = vi.fn(async (path, options) => {
         const isLike = path.startsWith('/content/review-like-notifications');
         const isPhoto = path.startsWith('/content/review-photo-results');
-        if (!options) return { ok: true, json: async () => isPhoto ? {items:unreadPhotos.slice()} : isLike ? { items: unreadLikes.slice(), hasMore: false } : unread.slice() };
+        const isReply = path.startsWith('/content/review-reply-notifications');
+        if (!options) return { ok: true, json: async () => isReply ? {items:unreadReplies.slice()} : isPhoto ? {items:unreadPhotos.slice()} : isLike ? { items: unreadLikes.slice(), hasMore: false } : unread.slice() };
         if (failWrite) return { ok: false };
         const ids = path.endsWith('/read') && options.body ? options.body.ids : [Number(path.split('/')[3])];
-        if(isPhoto) unreadPhotos=unreadPhotos.filter(row=>!ids.includes(row.id));
+        if(isReply) unreadReplies=unreadReplies.filter(row=>!ids.includes(row.id));
+        else if(isPhoto) unreadPhotos=unreadPhotos.filter(row=>!ids.includes(row.id));
         else if (isLike) unreadLikes = unreadLikes.filter(row => !ids.includes(row.id));
         else unread = unread.filter(row => !ids.includes(row.id));
         return { ok: true, json: async () => ({ ok: true }) };
@@ -31,10 +34,22 @@ function client({ items = [1, 2, 3, 4, 5].map(item), likes = [], photos = [], fa
     const updates = context.updates;
     updates._ensureUi = () => wrap;
     updates._render = vi.fn();
-    return { updates, api, wrap, badge, error, unread: () => unread, unreadLikes: () => unreadLikes, unreadPhotos:()=>unreadPhotos };
+    return { updates, api, wrap, badge, error, unread: () => unread, unreadLikes: () => unreadLikes, unreadPhotos:()=>unreadPhotos, unreadReplies:()=>unreadReplies };
 }
 
 describe('content update read state', () => {
+    it('separates reply IDs from other channels, preserves them on recipe visits and marks them on explicit opening',async()=>{
+        const c=client({likes:[{id:1}],photos:[{id:1}],replies:[{id:1,review_id:65,recipe_id:'recipe-1'}]});
+        await c.updates.recipeOpened('recipe-1');expect(c.badge.textContent).toBe('7');expect(c.unreadReplies()).toHaveLength(1);
+        await c.updates.markRead(1,'review_reply');expect(c.unreadReplies()).toHaveLength(0);expect(c.unreadLikes()).toHaveLength(1);expect(c.unreadPhotos()).toHaveLength(1);
+        await c.updates.closeAndRead();expect(c.badge.textContent).toBe('0');
+        expect(c.api).toHaveBeenCalledWith('/content/review-reply-notifications/read',{method:'POST',body:{ids:[1]}});
+    });
+    it('batches unread replies when closing the complete list',async()=>{
+        const c=client({items:[],replies:[{id:1},{id:2}]});await c.updates.refresh();await c.updates.closeAndRead();
+        expect(c.unreadReplies()).toHaveLength(0);expect(c.badge.textContent).toBe('0');
+        expect(c.api).toHaveBeenCalledWith('/content/review-reply-notifications/read',{method:'POST',body:{ids:[1,2]}});
+    });
     it('keeps photo, like and news IDs separate and acknowledges the three channels on close',async()=>{
         const c=client({likes:[{id:1}],photos:[{id:1}]});await c.updates.refresh();
         expect(c.badge.textContent).toBe('7');

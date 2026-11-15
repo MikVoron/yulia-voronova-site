@@ -667,7 +667,24 @@ async function sendReviewPhotoResult(to, recipeName, recipeId, reviewId, photos,
     messageId:/^[a-f0-9]{64}$/.test(decisionKey)?'<photo-result-'+decisionKey+'@voronova.online>':undefined});
 }
 
+async function sendReviewDiscussionReply(to, data, notificationId) {
+  const actor = String(data.actor || 'Участник').trim();
+  const subject = actor + ' — ответ на ваш отзыв';
+  const greeting = data.display_name?.trim() ? 'Здравствуйте, ' + escHtml(data.display_name.trim()) + '!' : 'Здравствуйте!';
+  const url = PLATFORM_URL + '/recipe.html?id=' + encodeURIComponent(data.recipe_id) + '#review-' + Number(data.review_id);
+  const body = heading(greeting, 'Ответ на ваш отзыв')
+    + paragraph('<strong>' + escHtml(actor) + '</strong> — новый ответ на ваш отзыв к рецепту <strong>' + escHtml(data.recipe_name) + '</strong>.')
+    + smallText('Ваш отзыв', '0 0 7px', '#7c756d')
+    + callout('<div style="white-space:pre-wrap">' + escHtml(data.original_text) + '</div>')
+    + paragraph('<strong>' + escHtml(actor) + ':</strong>', '0 0 6px')
+    + paragraph(escHtml(data.reply_text), '0 0 16px', '#4a4642', 'white-space:pre-wrap;')
+    + btn('Посмотреть ответ', url)
+    + smallText('<a href="' + PLATFORM_URL + '/cabinet.html?tab=settings#review-replies-settings" style="color:#77716a;text-decoration:underline">Настроить уведомления об ответах</a>');
+  return send(to, subject, wrapService(body), { messageId: '<review-reply-' + notificationId + '@voronova.online>' });
+}
+
 module.exports = {
+  sendReviewDiscussionReply,
   sendReviewPhotoResult,
   sendReviewLike,
   sendLoginCode,

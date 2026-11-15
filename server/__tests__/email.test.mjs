@@ -27,6 +27,16 @@ beforeAll(() => {
   email = require(emailPath);
 });
 
+it('escapes personal reply notifications and links to the exact review and independent settings', async () => {
+  sendMail.mockClear();
+  await email.sendReviewDiscussionReply('owner@example.test', { actor:'Юлия <script>',display_name:'Мишель <b>',recipe_name:'Каша <img>',recipe_id:'oats&x=1',review_id:65,original_text:'Мой <отзыв>',reply_text:'Ответ <script>alert(1)</script>' }, 123);
+  const message=sendMail.mock.calls[0][0];
+  expect(message.messageId).toBe('<review-reply-123@voronova.online>');
+  expect(message.html).toContain('Мишель &lt;b&gt;');expect(message.html).toContain('Юлия &lt;script&gt;');
+  expect(message.html).not.toContain('<script>');expect(message.html).toContain('id=oats%26x%3D1#review-65');
+  expect(message.html).toContain('review-replies-settings');
+});
+
 beforeEach(() => {
   sendMail.mockClear();
   appendSentCopy.mockClear();

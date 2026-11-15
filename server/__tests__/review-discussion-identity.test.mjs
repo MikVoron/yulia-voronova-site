@@ -13,6 +13,7 @@ process.env.JWT_SECRET = 'review-discussion-identity-test-secret-only';
 const jwt = require('jsonwebtoken');
 const { publicComment, discussionSummaries, registerDiscussionRoutes } = require('../src/review-discussions');
 const userId = '33333333-3333-4333-8333-333333333333';
+const authorUserId = 'dd0522b3-76f6-45da-a867-bd8e2bb4bff3';
 const row = {
   id: 7, review_id: 1, user_id: userId, text: 'Мой ответ',
   display_name: 'Мишель', avatar: 'https://example.test/michel.webp', role: 'admin',
@@ -20,6 +21,7 @@ const row = {
   like_count: 3, liked_by_user: true,
 };
 let app;
+let storedRow;
 
 beforeAll(async () => {
   app = require('fastify')({ logger: false });
@@ -28,15 +30,55 @@ beforeAll(async () => {
 });
 afterAll(async () => { await app.close(); });
 beforeEach(() => {
+  storedRow = { ...row };
   query.mockReset();
   query.mockImplementation(async sql => {
     if (sql.includes('SELECT is_blocked')) return { rows: [{ is_blocked: false }] };
-    if (sql.includes('SELECT display_name')) return { rows: [{ display_name: row.display_name }] };
-    if (sql.includes('AS comment_count')) return { rows: [{ review_id: 1, comments: [row], comment_count: 1 }] };
-    if (sql.includes('SELECT id, review_id, text')) return { rows: [row] };
-    if (sql.includes('FROM review_comments c')) return { rows: [row] };
+    if (sql.includes('SELECT display_name')) return { rows: [{ display_name: storedRow.display_name }] };
+    if (sql.includes('AS comment_count')) return { rows: [{ review_id: 1, comments: [storedRow], comment_count: 1 }] };
+    if (sql.includes('SELECT id, review_id, text')) return { rows: [storedRow] };
+    if (sql.includes('FROM review_comments c')) return { rows: [storedRow] };
     if (sql.includes('FROM reviews') || sql.includes('INSERT INTO review_comments')) return { rows: [{ id: 7 }] };
     return { rows: [] };
+  });
+});
+
+describe('automatic attribution for Yulia only', () => {
+  it('identifies Yulia by immutable account ID even after a profile rename', () => {
+    expect(publicComment({ ...row, user_id: authorUserId, display_name: 'Новое имя', role: 'user' }))
+      .toMatchObject({ userId: authorUserId, isAuthor: true, text: row.text, likeCount: 3, likedByCurrentUser: true });
+  });
+
+  it.each(['Юлия', 'Юлия Воронова'])('does not recognize another account named %s as the author', display_name => {
+    expect(publicComment({ ...row, display_name, isAuthor: true, is_author: true }).isAuthor).toBe(false);
+  });
+
+  it('marks existing Yulia messages in initial review summaries', async () => {
+    storedRow.user_id = authorUserId;
+    const comment = (await discussionSummaries([1])).get(1).comments[0];
+    expect(comment).toMatchObject({ userId: authorUserId, isAuthor: true, id: row.id, text: row.text, likeCount: 3 });
+  });
+
+  it('marks existing Yulia messages in pagination', async () => {
+    storedRow.user_id = authorUserId;
+    const response = await app.inject({ method: 'GET', url: '/content/reviews/1/comments?after=5' });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().comments[0]).toMatchObject({ userId: authorUserId, isAuthor: true });
+  });
+
+  it('marks her normal reply immediately without an author flag or administrator role', async () => {
+    storedRow.user_id = authorUserId;
+    const token = jwt.sign({ sub: authorUserId, role: 'user' }, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const response = await app.inject({
+      method: 'POST', url: '/content/reviews/1/comments',
+      headers: { authorization: 'Bearer ' + token },
+      payload: { text: row.text, requestId: '11111111-1111-4111-8111-111111111111', isAuthor: false },
+    });
+    expect(response.statusCode).toBe(201);
+    expect(response.json().comment).toMatchObject({ userId: authorUserId, isAuthor: true, text: row.text });
+    const insert = query.mock.calls.find(([sql]) => sql.includes('INSERT INTO review_comments'));
+    expect(insert[1][1]).toBe(authorUserId);
+    expect(query.mock.calls.some(([sql]) => /UPDATE\s+users|INSERT INTO review_replies/i.test(sql))).toBe(false);
   });
 });
 

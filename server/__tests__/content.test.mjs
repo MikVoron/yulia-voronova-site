@@ -153,6 +153,10 @@ const mockQuery = vi.fn(async (sql, params = []) => {
     }] };
   }
   if (/INSERT INTO review_replies/.test(sql)) {
+    if (reviewAlreadyAnswered) return { rows: [] };
+    return { rows: [{ text: 'Спасибо за вопрос!', created_at: '2026-08-03T10:00:00.000Z', updated_at: '2026-08-03T10:00:00.000Z' }] };
+  }
+  if (/UPDATE review_replies SET/.test(sql)) {
     return { rows: [{ text: 'Спасибо за вопрос!', created_at: '2026-08-03T10:00:00.000Z', updated_at: '2026-08-03T10:00:00.000Z' }] };
   }
   if (/FROM recipe_categories rc\s+JOIN recipes r ON r\.id = rc\.recipe_id\s+LEFT JOIN recipe_category_order rco\s+ON rco\.recipe_id = rc\.recipe_id AND rco\.category_id = rc\.category_id\s+WHERE r\.is_published = true/.test(sql)) {
@@ -545,6 +549,7 @@ describe('recipe reviews', () => {
   });
 
   it('lets an admin publish a reply to an existing review', async () => {
+    mockClientQuery.mockImplementation(mockQuery);
     userState = { is_blocked: false, role: 'admin' };
     const res = await app.inject({
       method: 'POST',
@@ -555,13 +560,12 @@ describe('recipe reviews', () => {
     expect(res.statusCode).toBe(200);
     expect(res.json().reply.text).toBe('Спасибо за вопрос!');
     expect(mockQuery.mock.calls.some(([sql]) => /INSERT INTO review_replies/.test(sql))).toBe(true);
-    expect(sendReviewReply).toHaveBeenCalledWith(
-      'galina@example.com', 'Уха', 'salmon-ukha',
-      'Подскажите, можно ли заменить рыбу?', 'Спасибо за вопрос!', 'Галина'
-    );
+    expect(mockClientQuery.mock.calls.some(([sql]) => /INSERT INTO review_reply_notifications/.test(sql))).toBe(true);
+    expect(sendReviewReply).not.toHaveBeenCalled();
   });
 
   it('does not email again when an admin edits an existing review reply', async () => {
+    mockClientQuery.mockImplementation(mockQuery);
     reviewAlreadyAnswered = true;
     userState = { is_blocked: false, role: 'admin' };
     const res = await app.inject({
@@ -572,6 +576,7 @@ describe('recipe reviews', () => {
     });
     expect(res.statusCode).toBe(200);
     expect(sendReviewReply).not.toHaveBeenCalled();
+    expect(mockClientQuery.mock.calls.some(([sql]) => /INSERT INTO review_reply_notifications/.test(sql))).toBe(false);
   });
 });
 

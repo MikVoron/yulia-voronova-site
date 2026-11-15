@@ -5,6 +5,7 @@ const audit = require('../audit');
 const { reviewAvatar, assignReviewAvatar } = require('../review-avatars');
 const { registerDiscussionRoutes, discussionSummaries } = require('../review-discussions');
 const { registerLikeRoutes, likeFields, publicLikes } = require('../review-likes');
+const replyNotifications = require('../review-reply-notifications');
 const { refreshSitemapSafely } = require('../sitemap');
 const { readRecipeTemplate, renderRecipeDocument } = require('../recipe-seo');
 const { getStaticIngredient, readIngredientTemplate, renderIngredientDocument } = require('../ingredient-seo');
@@ -226,9 +227,10 @@ function normalizeIngredientCatalogItem(body) {
   return { id, name, groupId, sortOrder };
 }
 
-async function contentRoutes(fastify) {
+async function contentRoutes(fastify, options = {}) {
   registerDiscussionRoutes(fastify);
   registerLikeRoutes(fastify);
+  replyNotifications.registerRoutes(fastify, { maintenance: options.reviewReplyMaintenance });
   fastify.get('/_seo/home', async (req, reply) => {
     const template = await readHomeTemplate();
     try {
@@ -773,39 +775,43 @@ async function contentRoutes(fastify) {
       return reply.status(400).send({ error: 'Максимум 1000 символов' });
     }
 
-    const review = await db.query(
-      `SELECT r.id, r.recipe_id, r.text AS review_text,
-              u.email, u.display_name, recipe.name AS recipe_name,
-              EXISTS(SELECT 1 FROM review_replies rr WHERE rr.review_id = r.id) AS has_reply
-       FROM reviews r
-       JOIN users u ON u.id = r.user_id
-       JOIN recipes recipe ON recipe.id = r.recipe_id
-       WHERE r.id=$1`,
-      [reviewId]
-    );
-    if (!review.rows.length) return reply.status(404).send({ error: 'Отзыв не найден' });
-    const reviewHead = review.rows[0];
-
-    const result = await db.query(
-      `INSERT INTO review_replies (review_id, admin_id, text)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (review_id)
-       DO UPDATE SET admin_id = EXCLUDED.admin_id, text = EXCLUDED.text, updated_at = now()
-       RETURNING text, created_at, updated_at`,
-      [reviewId, req.user.sub, text]
-    );
+    const client = await db.pool.connect();
+    let row;
+    try {
+      await client.query('BEGIN');
+      const review = await client.query(
+        `SELECT r.id, r.recipe_id, r.text AS review_text,
+                u.email, u.display_name, recipe.name AS recipe_name,
+                EXISTS(SELECT 1 FROM review_replies rr WHERE rr.review_id = r.id) AS has_reply
+         FROM reviews r
+         JOIN users u ON u.id = r.user_id
+         JOIN recipes recipe ON recipe.id = r.recipe_id
+         WHERE r.id=$1 FOR UPDATE OF r`,
+        [reviewId]
+      );
+      if (!review.rows.length) {
+        await client.query('ROLLBACK');
+        return reply.status(404).send({ error: 'Отзыв не найден' });
+      }
+      const result = await client.query(
+        `INSERT INTO review_replies (review_id, admin_id, text)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (review_id) DO NOTHING
+         RETURNING text, created_at, updated_at`,
+        [reviewId, req.user.sub, text]
+      );
+      row = result.rows[0];
+      if (row) {
+        await replyNotifications.enqueue(client, 'reply', reviewId);
+      } else {
+        const updated = await client.query(`UPDATE review_replies SET admin_id=$2,text=$3,updated_at=now()
+          WHERE review_id=$1 RETURNING text,created_at,updated_at`, [reviewId,req.user.sub,text]);
+        row = updated.rows[0];
+      }
+      await client.query('COMMIT');
+    } catch(error) { await client.query('ROLLBACK'); throw error; }
+    finally { client.release(); }
     await audit.log('review_reply', { userId: req.user.sub, detail: 'review#' + reviewId, ip: req.ip });
-    const row = result.rows[0];
-    if (!reviewHead.has_reply) {
-      email.sendReviewReply(
-        reviewHead.email,
-        reviewHead.recipe_name || reviewHead.recipe_id,
-        reviewHead.recipe_id,
-        reviewHead.review_text || '',
-        text,
-        reviewHead.display_name
-      ).catch(e => fastify.log.error(e, 'Review reply email error'));
-    }
     return { reply: { text: row.text, createdAt: row.created_at, updatedAt: row.updated_at } };
   });
 
