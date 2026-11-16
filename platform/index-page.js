@@ -207,6 +207,17 @@
 		}
 		updateHeroTrialCta();
 
+		// Reveal the complete recipe when keyboard focus moves into the mobile rail.
+		const freeRecipeRail = document.querySelector('.wd-recipe-grid');
+		if (freeRecipeRail) {
+			freeRecipeRail.addEventListener('focusin', function (event) {
+				const link = event.target.closest('a');
+				if (link && link.matches(':focus-visible') && window.matchMedia('(max-width: 767px)').matches) {
+					link.scrollIntoView({ block: 'nearest', inline: 'start', behavior: 'instant' });
+				}
+			});
+		}
+
 		// A single, small icon movement as each mobile benefit enters the viewport.
 		(function initGuestBenefitMotion() {
 			const cards = Array.from(document.querySelectorAll('.sp-benefits-feature'));
