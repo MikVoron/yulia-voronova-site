@@ -285,6 +285,12 @@
         } catch(e) { return; }
     })();
 
+    // A shared URL opens the free catalogue in the same state in a new tab too.
+    if (params.get('free') === '1') {
+        Object.keys(activeFilters).forEach(key => delete activeFilters[key]);
+        activeFilters.free = true;
+    }
+
     const CAT_PHOTOS = {
         breakfasts: SITE_BASE + '/images/blog/random-pic-blog-5..webp',
         soups:      SITE_BASE + '/images/recipes/red-lentil-mushroom-soup/red-lentil-mushroom-soup-cover.webp',
