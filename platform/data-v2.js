@@ -1468,10 +1468,12 @@ const LEGACY_CONTENT_CACHE_PREFIX = 'sp_content_cache_v1:';
 // v4 fixes a guest regression: free recipes retain their public instructions.
 // v5 added the first safe preview shape; v6 also carries it for pro recipes.
 // v7 removes quantities and limits the preview to three ingredient names.
+// v8 retains the public ingredient catalogue for navigation between collections.
 const PREVIOUS_CONTENT_CACHE_PREFIX = 'sp_content_cache_v4:';
 const LAST_CONTENT_CACHE_PREFIX = 'sp_content_cache_v5:';
 const RECENT_CONTENT_CACHE_PREFIX = 'sp_content_cache_v6:';
-const CONTENT_CACHE_PREFIX = 'sp_content_cache_v7:';
+const INGREDIENTLESS_CONTENT_CACHE_PREFIX = 'sp_content_cache_v7:';
+const CONTENT_CACHE_PREFIX = 'sp_content_cache_v8:';
 const CONTENT_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
 const CONTENT_STALE_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
 
@@ -1494,6 +1496,7 @@ function clearContentCache() {
                 const key = storage.key(i);
                 if (key && (
                     key.indexOf(CONTENT_CACHE_PREFIX) === 0 ||
+                    key.indexOf(INGREDIENTLESS_CONTENT_CACHE_PREFIX) === 0 ||
                     key.indexOf(PREVIOUS_CONTENT_CACHE_PREFIX) === 0 ||
                     key.indexOf(LAST_CONTENT_CACHE_PREFIX) === 0 ||
                     key.indexOf(RECENT_CONTENT_CACHE_PREFIX) === 0 ||
@@ -1542,7 +1545,7 @@ function _writeContentCache(payload, savedAt = Date.now()) {
         savedAt,
         recipes: publicRecipes,
         categories: payload.categories,
-        ingredients: []
+        ingredients: Array.isArray(payload.ingredients) ? payload.ingredients : []
     });
     try {
         sessionStorage.setItem(_contentCacheKey(), serialized);
@@ -1563,6 +1566,7 @@ function _writeContentCache(payload, savedAt = Date.now()) {
             const key = storage.key(i);
             if (key && (
                 key.indexOf(LEGACY_CONTENT_CACHE_PREFIX) === 0 ||
+                key.indexOf(INGREDIENTLESS_CONTENT_CACHE_PREFIX) === 0 ||
                 key.indexOf(PREVIOUS_CONTENT_CACHE_PREFIX) === 0 ||
                 key.indexOf(LAST_CONTENT_CACHE_PREFIX) === 0 ||
                 key.indexOf(RECENT_CONTENT_CACHE_PREFIX) === 0

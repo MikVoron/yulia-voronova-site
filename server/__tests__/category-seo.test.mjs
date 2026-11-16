@@ -17,7 +17,7 @@ describe('server-rendered category SEO', () => {
     const html = renderCategoryDocument(template,
       { id: 'breads', name: 'Хлеб & крекеры', description: 'Домашний <хлеб>' },
       [{ id: 'bread-1', name: 'Хлеб & семечки' }]);
-    expect(html).toContain('<title>Хлеб &amp; крекеры | Умная тарелка</title>');
+    expect(html).toContain('<title>Хлеб &amp; крекеры — рецепты с КБЖУ — Умная тарелка</title>');
     expect(html).toContain('<link rel="canonical" href="https://plate.voronova.online/category.html?cat=breads">');
     expect(html).toContain('<h1 class="cat-hero-name">Хлеб &amp; крекеры</h1>');
     expect(html).toContain('Домашний &lt;хлеб&gt;');
@@ -40,7 +40,7 @@ describe('server-rendered category SEO', () => {
       { id: 'breakfasts', name: 'Завтраки' },
       { id: 'soups', name: 'Супы' },
     ] });
-    expect(html).toContain('<h1 class="cat-hero-name">Каталог полезных рецептов</h1>');
+    expect(html).toContain('<h1 class="cat-hero-name">Все рецепты</h1>');
     expect(html).toContain('<a href="category.html?cat=breakfasts">Завтраки</a>');
     expect(html).toContain('<a href="category.html?cat=soups">Супы</a>');
     expect(html).toContain('"url":"https://plate.voronova.online/category.html?cat=breakfasts"');

@@ -228,7 +228,7 @@
         };
         if (items.length) schema.mainEntity = { '@type': 'ItemList', itemListElement: items };
         setPage({
-            title: opts.name + ' | Умная тарелка',
+            title: opts.title || opts.name + ' | Умная тарелка',
             description: opts.description,
             canonical: canonical,
             noindex: opts.noindex,

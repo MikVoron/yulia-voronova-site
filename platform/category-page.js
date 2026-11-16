@@ -40,41 +40,36 @@
             return;
         }
         if (allMode) {
-            document.title = 'Все рецепты — Конструктор питания';
+            var allCopy = SmartPlateCollectionCopy.category(null);
+            document.title = allCopy.title;
+            if (hero) hero.classList.add('collection-hero');
             if (hero) hero.innerHTML =
                 '<div class="cat-hero-row">' +
                 '<div class="cat-hero-ava cat-hero-ava--image" aria-hidden="true">' +
                 '<img src="images/icons/all-recepies.png" alt="">' +
                 '</div>' +
-                '<div><h1 class="cat-hero-name">Все рецепты</h1>' +
-                '<div class="cat-hero-desc">Все блюда платформы — завтраки, супы, горячее, намазки и соусы в одном каталоге</div></div></div>';
+                '<div><h1 class="cat-hero-name">' + escHtml(allCopy.heading) + '</h1></div></div>' +
+                '<p class="collection-intro">' + escHtml(allCopy.intro) + '</p>';
             if (crumbs) crumbs.innerHTML =
                 '<a href="index.html">Главная</a>' +
                 '<span class="crumb-sep">›</span>' +
                 '<span class="crumb-current">Все рецепты</span>';
             return;
         }
-        // Источник истины — таблица categories в БД (поле description).
-        // Эти строки должны 1:1 совпадать с тем, что вернёт /content/categories,
-        // иначе текст «прыгает» после loadContent(). Менять — синхронно в БД и здесь.
-        var FB = {
-            breakfasts: { name: 'Завтраки',         desc: 'Каши, омлеты, бутерброды и сырники для энергичного утра' },
-            soups:      { name: 'Супы',             desc: 'Супы, борщи, щи и бульонные блюда' },
-            mains:      { name: 'Горячее',          desc: 'Сытные горячие блюда для обеда и ужина — плов, паста и другие вторые блюда' },
-            pancakes:   { name: 'Блины / Оладьи',   desc: 'Веганские блины и оладьи из цельных продуктов' },
-            spreads:    { name: 'Намазки',          desc: 'Хумус и паштеты — для бутербродов и перекусов' },
-            sauces:     { name: 'Соусы',            desc: 'Кремовые соусы и заправки — из кешью, бобовых и запечённых овощей' }
-        };
-        var fb = FB[id];
+        // The server and the synchronous fallback share the same editorial copy.
+        var fb = Object.prototype.hasOwnProperty.call(SmartPlateCollectionCopy.categories, id)
+            ? SmartPlateCollectionCopy.categories[id] : null;
         if (!fb) return;
-        document.title = fb.name + ' — Конструктор питания';
+        var copy = SmartPlateCollectionCopy.category({ id: id, name: fb.name });
+        document.title = copy.title;
+        if (hero) hero.classList.add('collection-hero');
         if (hero) hero.innerHTML =
             '<div class="cat-hero-row">' +
             '<div class="cat-hero-ava cat-hero-ava--logo">' +
             '<img src="https://voronova.online/images/icons/logo-small.png" alt="Юлия Воронова">' +
             '</div>' +
-            '<div><h1 class="cat-hero-name">' + fb.name + '</h1>' +
-            '<div class="cat-hero-desc">' + fb.desc + '</div></div></div>';
+            '<div><h1 class="cat-hero-name">' + escHtml(copy.heading) + '</h1></div></div>' +
+            '<p class="collection-intro">' + escHtml(copy.intro) + '</p>';
         if (crumbs) crumbs.innerHTML =
             '<a href="index.html">Главная</a>' +
             '<span class="crumb-sep">›</span>' +
@@ -116,19 +111,23 @@
         } else {
             cat = getCategory(catId);
             if (isAllMode && window.SmartPlateSEO) {
+                var allCopy = SmartPlateCollectionCopy.category(null);
                 SmartPlateSEO.setCollection({
-                    name: 'Каталог полезных рецептов',
-                    description: 'Полезные рецепты от нутрициолога Юлии Вороновой: КБЖУ, замены продуктов и пошаговое приготовление.',
+                    name: allCopy.heading,
+                    title: allCopy.title,
+                    description: allCopy.intro,
                     canonical: SmartPlateSEO.origin + '/category.html',
                     items: Object.keys(RECIPES).map(function (key) { return RECIPES[key]; }).filter(Boolean)
                 });
             }
             if (cat) {
-                document.title = cat.name + ' — Конструктор питания';
+                var copy = SmartPlateCollectionCopy.category(cat);
+                document.title = copy.title;
                 if (window.SmartPlateSEO) {
                     SmartPlateSEO.setCollection({
-                        name: cat.name + ' — полезные рецепты',
-                        description: cat.desc || ('Подборка рецептов категории «' + cat.name + '» с расчётом КБЖУ и пошаговым приготовлением.'),
+                        name: copy.heading,
+                        title: copy.title,
+                        description: copy.intro,
                         canonical: SmartPlateSEO.origin + '/category.html?cat=' + encodeURIComponent(catId),
                         noindex: !getDishesForView().length,
                         items: getDishesForView()
@@ -145,10 +144,11 @@
                 var avaImg = avaUrl
                     ? '<div class="cat-hero-ava"><img src="' + escHtml(String(avaUrl)) + '" alt="' + escHtml(String(cat.name)) + '" data-category-fallback-emoji="' + escHtml(String(cat.emoji)) + '"></div>'
                     : '<div class="cat-hero-ava">' + escHtml(String(cat.emoji)) + '</div>';
+                document.getElementById('cat-hero').classList.add('collection-hero');
                 document.getElementById('cat-hero').innerHTML =
                     '<div class="cat-hero-row">' + avaImg +
-                    '<div><h1 class="cat-hero-name">' + escHtml(String(cat.name)) + '</h1>' +
-                    '<div class="cat-hero-desc">' + escHtml(String(cat.desc)) + '</div></div></div>';
+                    '<div><h1 class="cat-hero-name">' + escHtml(copy.heading) + '</h1></div></div>' +
+                    '<p class="collection-intro">' + escHtml(copy.intro) + '</p>';
             }
         }
         Auth.checkAccess({ allowGuest: true }).then(function() {

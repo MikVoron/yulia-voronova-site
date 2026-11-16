@@ -270,7 +270,7 @@ describe('GET /_seo/category', () => {
   it('renders the root catalog with links to non-empty categories', async () => {
     const root = await app.inject({ method: 'GET', url: '/_seo/category' });
     expect(root.statusCode).toBe(200);
-    expect(root.body).toContain('<h1 class="cat-hero-name">Каталог полезных рецептов</h1>');
+    expect(root.body).toContain('<h1 class="cat-hero-name">Все рецепты</h1>');
     expect(root.body).toContain('category.html?cat=breakfasts');
     expect(root.body).toContain('category.html?cat=mains');
   });

@@ -11,8 +11,8 @@ describe('server ingredient SEO document', () => {
     const html = ingredientSeo.renderIngredientDocument(template, { id: 'salmon', name: 'Лосось' }, [
       { id: 'salmon-soup', name: 'Суп с лососем' },
     ]);
-    expect(html).toContain('<title>Рецепты с ингредиентом «Лосось» | Умная тарелка</title>');
-    expect(html).toContain('<meta name="description" content="Подборка полезных рецептов с ингредиентом «Лосось» и расчётом КБЖУ.">');
+    expect(html).toContain('<title>Рецепты с лососем и КБЖУ — Умная тарелка</title>');
+    expect(html).toContain('<meta name="description" content="Уха, рыбные котлеты, горячие блюда и пирог с сёмгой. В рецептах указаны КБЖУ на порцию и пошаговые инструкции.">');
     expect(html).toContain('<link rel="canonical" href="https://plate.voronova.online/ingredient.html?id=salmon">');
     expect(html).toContain('<meta property="og:url" content="https://plate.voronova.online/ingredient.html?id=salmon">');
     expect(html).toContain('"@type":"CollectionPage"');
@@ -29,11 +29,11 @@ describe('server ingredient SEO document', () => {
     const html = ingredientSeo.renderIngredientDocument(productionTemplate, { id: 'rice', name: 'Рис' }, [
       { id: 'rice-bowl', name: 'Рис с овощами' },
     ]);
-    expect(html).toContain('<title>Рецепты с ингредиентом «Рис» | Умная тарелка</title>');
+    expect(html).toContain('<title>Рецепты с рисом и КБЖУ — Умная тарелка</title>');
     expect(html.match(/rel="canonical"/g)).toHaveLength(1);
     expect(html.match(/name="description"/g)).toHaveLength(1);
     expect(html.match(/id="smartplate-page-schema"/g)).toHaveLength(1);
-    expect(html).toContain('<h1 class="cat-hero-name">Рецепты с ингредиентом «Рис»</h1>');
+    expect(html).toContain('<h1 class="cat-hero-name">Рецепты с рисом</h1>');
     expect(html).toContain('<a href="recipe.html?id=rice-bowl">Рис с овощами</a>');
   });
 });

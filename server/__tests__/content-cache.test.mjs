@@ -46,7 +46,8 @@ describe('guest content browser cache', () => {
         'sp_content_cache_v1:user%3A1%3Auser': JSON.stringify({ recipes: [{ steps: ['secret'] }] }),
         'sp_content_cache_v4:guest': JSON.stringify({ recipes: [{ id: 'free', steps: [] }] }),
         'sp_content_cache_v5:guest': JSON.stringify({ recipes: [{ id: 'pro' }] }),
-        'sp_content_cache_v6:guest': JSON.stringify({ recipes: [{ id: 'pro', preview_ingredients: [{ name: 'x: 1 kg' }] }] })
+        'sp_content_cache_v6:guest': JSON.stringify({ recipes: [{ id: 'pro', preview_ingredients: [{ name: 'x: 1 kg' }] }] }),
+        'sp_content_cache_v7:guest': JSON.stringify({ savedAt: Date.now(), recipes: [], categories: [], ingredients: [] })
       }
     });
     expect(state.sessionStorage.dump()).toEqual({});
@@ -65,7 +66,18 @@ describe('guest content browser cache', () => {
     vm.runInContext("_writeContentCache({ recipes: [{ id: 'free', access_level: 'free', name: 'Card', ingredients: ['x'], steps: [{ text: 'y', photo: 'images/step.webp' }], note: 'z' }], categories: [], ingredients: [{ id: 'x' }] })", state.context);
     const cached = JSON.parse(Object.values(state.localStorage.dump())[0]);
     expect(cached.recipes).toEqual([{ id: 'free', access_level: 'free', name: 'Card', ingredients: ['x'], steps: [{ text: 'y', photo: 'images/step.webp' }], note: 'z' }]);
-    expect(cached.ingredients).toEqual([]);
+    expect(cached.ingredients).toEqual([{ id: 'x' }]);
+  });
+
+  it('restores public ingredient names in a new page and clears them with the catalogue', () => {
+    const state = runtime();
+    vm.runInContext("_writeContentCache({ recipes: [], categories: [], ingredients: [{ id: 'cod', name: 'Треска', group: 'fish' }, { id: 'eggplant', name: 'Баклажаны', group: 'vegetables' }] })", state.context);
+    const nextPage = runtime({ initial: state.localStorage.dump() });
+    const cached = vm.runInContext('_readContentCache()', nextPage.context);
+    expect(cached.ingredients.map(item => item.id)).toEqual(['cod', 'eggplant']);
+    vm.runInContext('clearContentCache()', nextPage.context);
+    expect(nextPage.sessionStorage.dump()).toEqual({});
+    expect(nextPage.localStorage.dump()).toEqual({});
   });
 
   it('keeps explicit trial and pro preview fields but strips protected content', () => {

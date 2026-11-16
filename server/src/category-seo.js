@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises');
 const fsSync = require('node:fs');
 const path = require('node:path');
+const collectionCopy = require('./collection-copy');
 
 const ORIGIN = 'https://plate.voronova.online';
 const SOCIAL_IMAGE = `${ORIGIN}/images/smartplate-share-v2.jpg`;
@@ -21,13 +22,12 @@ function upsertMeta(document, attribute, key, value) {
 function renderCategoryDocument(template, category, recipes = [], options = {}) {
   const search = Boolean(options.search);
   const categories = Array.isArray(options.categories) ? options.categories : [];
-  const name = search ? 'Поиск по рецептам' : category ? category.name : 'Каталог полезных рецептов';
-  const title = `${name} | Умная тарелка`;
+  const copy = collectionCopy.category(category);
+  const name = search ? 'Поиск по рецептам' : copy.heading;
+  const title = search ? `${name} | Умная тарелка` : copy.title;
   const description = search
     ? 'Результаты поиска по каталогу полезных рецептов «Умной тарелки».'
-    : category?.description || (category
-      ? `Подборка рецептов категории «${name}» с расчётом КБЖУ и пошаговым приготовлением.`
-      : 'Полезные рецепты от нутрициолога Юлии Вороновой: КБЖУ, замены продуктов и пошаговое приготовление.');
+    : copy.intro;
   const canonical = `${ORIGIN}/category.html${category && !search ? `?cat=${encodeURIComponent(category.id)}` : ''}`;
   const noindex = search || (category && recipes.length === 0);
   const schema = {
@@ -67,7 +67,7 @@ function renderCategoryDocument(template, category, recipes = [], options = {}) 
   document = document.replace(/<\/head>/i, `${schemaTag}\n</head>`);
 
   if (category && !search) {
-    const hero = `<div class="cat-hero" id="cat-hero"><h1 class="cat-hero-name">${escapeHtml(name)}</h1><p class="cat-hero-desc">${escapeHtml(description)}</p></div>`;
+    const hero = `<div class="cat-hero collection-hero" id="cat-hero"><h1 class="cat-hero-name">${escapeHtml(name)}</h1><p class="collection-intro">${escapeHtml(description)}</p></div>`;
     document = document.replace('<div class="cat-hero" id="cat-hero"></div>', hero);
     const links = recipes.slice(0, 100).map(recipe =>
       `<a href="recipe.html?id=${encodeURIComponent(recipe.id)}">${escapeHtml(recipe.name)}</a>`
@@ -76,7 +76,7 @@ function renderCategoryDocument(template, category, recipes = [], options = {}) 
       `<div class="recipe-card-grid anim anim-d1" id="dish-list" style="margin-top:14px">${links}</div>`);
   }
   if (!category && !search) {
-    const hero = `<div class="cat-hero" id="cat-hero"><h1 class="cat-hero-name">${escapeHtml(name)}</h1><p class="cat-hero-desc">${escapeHtml(description)}</p></div>`;
+    const hero = `<div class="cat-hero collection-hero" id="cat-hero"><h1 class="cat-hero-name">${escapeHtml(name)}</h1><p class="collection-intro">${escapeHtml(description)}</p></div>`;
     document = document.replace('<div class="cat-hero" id="cat-hero"></div>', hero);
     const links = categories.slice(0, 100).map(item =>
       `<a href="category.html?cat=${encodeURIComponent(item.id)}">${escapeHtml(item.name)}</a>`

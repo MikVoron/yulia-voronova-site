@@ -74,22 +74,25 @@
             renderUnknownIngredientList();
             return;
         }
-        document.title = ING.name + ' — Умная тарелка';
+        var copy = SmartPlateCollectionCopy.ingredient(ING);
+        document.title = copy.title;
         if (window.SmartPlateSEO) {
             SmartPlateSEO.setCollection({
-                name: 'Рецепты с ингредиентом «' + ING.name + '»',
-                description: 'Подборка полезных рецептов с ингредиентом «' + ING.name + '» и расчётом КБЖУ.',
+                name: copy.heading,
+                title: copy.title,
+                description: copy.intro,
                 canonical: SmartPlateSEO.origin + '/ingredient.html?id=' + encodeURIComponent(ING_ID),
                 items: INGREDIENT_CATALOG_READY ? getDishesForView() : []
             });
         }
+        if (hero) hero.classList.add('collection-hero');
         if (hero) hero.innerHTML =
             '<div class="cat-hero-row">' +
             '<div class="cat-hero-ava cat-hero-ava--image" aria-hidden="true">' +
             '<img src="images/icons/ingredients.png" alt="">' +
             '</div>' +
-            '<div><h1 class="cat-hero-name">' + escHtml(String(ING.name)) + '</h1>' +
-            '<div class="cat-hero-desc">Рецепты на основе этого ингредиента</div></div></div>';
+            '<div><h1 class="cat-hero-name">' + escHtml(copy.heading) + '</h1></div></div>' +
+            '<p class="collection-intro">' + escHtml(copy.intro) + '</p>';
         if (crumbs) crumbs.innerHTML =
             '<a href="index.html">Главная</a><span class="crumb-sep">›</span>' +
             '<span class="crumb-current">' + escHtml(String(ING.name)) + '</span>';
@@ -678,10 +681,10 @@
                 return `<div class="comment-item" style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)">
                     <div style="flex-shrink:0">${avatarHtml}</div>
                     <div style="flex:1;min-width:0">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
-                            <span style="font-weight:700;font-size:14px;color:var(--text)">${escHtml(rv.author)}${rv.isEarlyBird ? '<small style="margin-left:6px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)">Друг Умной тарелки</small>' : ''}</span>
-                            <div style="display:flex;align-items:center;gap:6px">
-                                <span style="font-size:11px;color:var(--text-3)">${fmtDate(rv.createdAt)}</span>
+                        <div class="review-popup-header">
+                            <span class="review-identity"><span class="review-author">${escHtml(rv.author)}</span>${(rv.isSmartPlateFriend || rv.isEarlyBird) ? '<small class="review-friend-badge">Друг Умной тарелки</small>' : ''}</span>
+                            <div class="review-popup-actions">
+                                <span>${fmtDate(rv.createdAt)}</span>
                                 ${canDelete ? `<button style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px" data-ingredient-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? '1' : '0'}" title="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>` : ''}
                             </div>
                         </div>

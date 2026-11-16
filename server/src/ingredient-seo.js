@@ -2,6 +2,7 @@ const fs = require('node:fs/promises');
 const fsSync = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const collectionCopy = require('./collection-copy');
 
 const ORIGIN = 'https://plate.voronova.online';
 const SOCIAL_IMAGE = `${ORIGIN}/images/smartplate-share-v2.jpg`;
@@ -66,9 +67,10 @@ function ingredientDescription(name) {
 
 function renderIngredientDocument(template, ingredient, recipes) {
   const canonical = ingredientUrl(ingredient.id);
-  const collectionName = `Рецепты с ингредиентом «${ingredient.name}»`;
-  const title = `${collectionName} | Умная тарелка`;
-  const description = ingredientDescription(ingredient.name);
+  const copy = collectionCopy.ingredient(ingredient);
+  const collectionName = copy.heading;
+  const title = copy.title;
+  const description = copy.intro;
   const items = (recipes || []).slice(0, 100).map((recipe, index) => ({
     '@type': 'ListItem',
     position: index + 1,
@@ -103,7 +105,7 @@ function renderIngredientDocument(template, ingredient, recipes) {
   const schemaTag = `<script id="smartplate-page-schema" type="application/ld+json">${JSON.stringify(schema).replace(/</g, '\\u003c')}</script>`;
   document = document.replace(/<\/head>/i, `${schemaTag}\n</head>`);
 
-  const hero = `<div class="cat-hero" id="cat-hero"><h1 class="cat-hero-name">${escapeHtml(collectionName)}</h1><p class="cat-hero-desc">${escapeHtml(description)}</p></div>`;
+  const hero = `<div class="cat-hero collection-hero" id="cat-hero"><h1 class="cat-hero-name">${escapeHtml(collectionName)}</h1><p class="collection-intro">${escapeHtml(description)}</p></div>`;
   document = document.replace('<div class="cat-hero" id="cat-hero"></div>', hero);
   const links = (recipes || []).slice(0, 100).map(recipe =>
     `<a href="recipe.html?id=${encodeURIComponent(recipe.id)}">${escapeHtml(recipe.name)}</a>`

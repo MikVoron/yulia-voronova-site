@@ -1,0 +1,17 @@
+.collection-hero .cat-hero-row > div:last-child { min-width: 0; }
+.collection-hero .cat-hero-name { line-height: 1.15; text-wrap: balance; }
+.collection-intro {
+    font-family: var(--font); font-size: 14px; line-height: 1.8; color: var(--text-2);
+    max-width: 740px; margin: 17px 0 0;
+}
+.collection-hero .cat-hero-row + .collection-intro { margin-left: 112px; }
+@media (max-width: 767px) {
+    .collection-hero .cat-hero-name { font-size: 28px; line-height: 1.18; text-wrap: initial; }
+    .collection-intro { font-size: 13px; line-height: 1.7; margin-top: 15px; max-width: none; }
+    .collection-hero .cat-hero-row + .collection-intro { margin-left: 0; }
+}
+@media (max-width: 359px) {
+    .collection-hero .cat-hero-name { font-size: 25px; }
+    .collection-hero .cat-hero-row { gap: 12px; }
+    .collection-hero .cat-hero-ava { width: 54px; height: 54px; }
+}
