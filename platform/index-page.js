@@ -192,7 +192,16 @@
 				const free = recipes.filter(recipe => Auth.recipeAccessLevel(recipe) === 'free').length;
 				const trial = recipes.filter(recipe => Auth.recipeAccessLevel(recipe) === 'trial').length;
 				const pro = recipes.filter(recipe => Auth.recipeAccessLevel(recipe) === 'pro').length;
-				accessCounts.textContent = 'В каталоге — ' + pluralR(count) + '. Бесплатно без регистрации: ' + free + '. Ещё на 7 дней после регистрации: ' + trial + '. Только по подписке: ' + pro + '.';
+				const totalEl = document.getElementById('hero-access-total');
+				const freeEl = document.getElementById('hero-access-free');
+				const trialEl = document.getElementById('hero-access-trial');
+				const proEl = document.getElementById('hero-access-pro');
+				if (totalEl && freeEl && trialEl && proEl) {
+					totalEl.textContent = pluralR(count);
+					freeEl.textContent = String(free);
+					trialEl.textContent = '+' + trial;
+					proEl.textContent = String(pro);
+				}
 				accessCounts.hidden = false;
 			}
 		}

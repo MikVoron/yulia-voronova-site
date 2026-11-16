@@ -38,7 +38,7 @@
 	<link rel="stylesheet" href="style-v4.css?v=20260908-chat-lines" id="vcss">
 	<link rel="stylesheet" href="jivo-chat-modal.css?v=20261030-jivo">
 	<link rel="stylesheet" href="index.css?v=20261112-search-attention">
-	<link rel="stylesheet" href="guest-benefits.css?v=20261031-intro-layout">
+	<link rel="stylesheet" href="guest-benefits.css?v=20261116-welcome">
 </head>
 
 <body class="v-page sp-home">
@@ -287,122 +287,180 @@
 
 			<!-- HERO (editorial, per SmartPlate Homepage Mockup) -->
 			<section class="sp-hero anim" id="intro-block">
-				<div class="sp-benefits-content">
-					<div class="sp-benefits-intro">
-						<div>
-							<p class="sp-benefits-kicker">Рецепты · Баланс · Планирование</p>
-							<h1 id="sp-benefits-title" class="sp-benefits-title">Рада видеть вас на «Умной тарелке»!</h1>
-						</div>
-						<div class="sp-benefits-intro-copy">
-							<p>Начните знакомство с бесплатных рецептов. А после регистрации вам на 7 дней откроются дополнительные рецепты и возможности платформы — попробуйте их в своём ритме. Банковская карта не нужна.</p>
-						</div>
-						<div class="sp-benefits-access" id="hero-access-counts" hidden>
-							<p class="sp-benefits-access-total" id="hero-access-total"></p>
-							<dl class="sp-benefits-access-options">
-								<div><dt>Бесплатно без регистрации</dt><dd id="hero-access-free"></dd></div>
-								<div><dt>На 7 дней после регистрации</dt><dd id="hero-access-trial"></dd></div>
-								<div><dt>Только по подписке</dt><dd id="hero-access-pro"></dd></div>
-							</dl>
-						</div>
-						<p class="sp-benefits-author">Уже есть аккаунт? <a id="hero-login-link" href="login.html">Войти</a></p>
-					</div>
-					<div class="sp-benefits-grid sp-benefits-grid--primary">
-						<article class="sp-benefits-feature">
-							<div class="sp-benefits-feature-top">
-								<div class="sp-benefits-symbol">
-									<svg viewBox="0 0 48 48" aria-hidden="true">
-										<circle cx="24" cy="24" r="19" />
-										<circle cx="24" cy="24" r="14" />
-										<path d="M24 10v28M24 24h14" />
-										<path d="M15 23l3 3 5-6" />
-									</svg>
-								</div>
-								<span class="sp-benefits-number">01 / СОБИРАТЬ</span>
-							</div>
-							<h2>Баланс и КБЖУ</h2>
-							<p>Подсказки, чем дополнить блюдо до полноценного приёма пищи, и расчёт КБЖУ.</p>
-							<span class="sp-benefits-tag">Понятно, что добавить на тарелку</span>
-						</article>
-						<article class="sp-benefits-feature">
-							<div class="sp-benefits-feature-top">
-								<div class="sp-benefits-symbol">
-									<svg viewBox="0 0 48 48" aria-hidden="true">
-										<path d="M24 12c-6-4-12-4-18-2v29c6-2 12-2 18 2 6-4 12-4 18-2V10c-6-2-12-2-18 2Z" />
-										<path d="M24 12v29M12 17l6 1M12 23l6 1M12 29l6 1M30 18l6-1M30 24l6-1M30 30l6-1" />
-									</svg>
-								</div>
-								<span class="sp-benefits-number">02 / ГОТОВИТЬ</span>
-							</div>
-							<h2>Проверенные рецепты</h2>
-							<p><span id="sp-benefits-recipe-count">Более 90</span> семейных рецептов на каждый день. Новый рецепт — каждую неделю.</p>
-							<span class="sp-benefits-tag">Понятные шаги и замены продуктов</span>
-						</article>
-						<article class="sp-benefits-feature">
-							<div class="sp-benefits-feature-top">
-								<div class="sp-benefits-symbol">
-									<svg viewBox="0 0 48 48" aria-hidden="true">
-										<path d="M17 9H9v34h30V9h-8M18 5h12v9H18zM15 23l2 2 4-5M26 23h7M15 33l2 2 4-5M26 33h7" />
-									</svg>
-								</div>
-								<span class="sp-benefits-number">03 / ПЛАНИРОВАТЬ</span>
-							</div>
-							<h2>Список покупок</h2>
-							<p>Соберите нужные продукты из выбранных блюд в один список и берите его в магазин.</p>
-							<span class="sp-benefits-tag">Без переписывания ингредиентов</span>
-						</article>
-					</div>
-					<div class="sp-hero-trial sp-benefits-offer" id="hero-trial-cta" hidden>
-						<a class="sp-benefits-cta" id="hero-trial-link" href="login.html" aria-describedby="hero-trial-details">Попробовать бесплатно</a>
-						<p class="sp-benefits-offer-note" id="hero-trial-details">7 дней доступа к дополнительным рецептам · банковская карта не нужна</p>
-						<span id="hero-monthly-price" hidden></span>
-					</div>
-					<p class="sp-benefits-more">Ещё возможности</p>
-					<div class="sp-benefits-grid sp-benefits-grid--secondary">
-						<article class="sp-benefits-feature">
-							<div class="sp-benefits-feature-top">
-								<div class="sp-benefits-symbol">
-									<svg viewBox="0 0 48 48" aria-hidden="true">
-										<rect x="8" y="8" width="32" height="34" rx="1" />
-										<path d="M8 18h32M16 5v7M32 5v7M15 26h5M15 33h5M27 30l3 3 6-7" />
-									</svg>
-								</div>
-								<span class="sp-benefits-number">04 / СОХРАНЯТЬ</span>
-							</div>
-							<h2>Журнал питания</h2>
-							<p>Сохраняйте собранные тарелки и возвращайтесь к истории своего питания.</p>
-							<span class="sp-benefits-tag">Ваши приёмы пищи — под рукой</span>
-						</article>
-						<article class="sp-benefits-feature">
-							<div class="sp-benefits-feature-top">
-								<div class="sp-benefits-symbol">
-									<svg viewBox="0 0 48 48" aria-hidden="true">
-										<path d="M5 7h33v25H17L5 41V7Z" />
-										<path d="M14 16h15M14 23h10M38 16h5v28l-9-7h-9" />
-									</svg>
-								</div>
-								<span class="sp-benefits-number">05 / СПРАШИВАТЬ</span>
-							</div>
-							<h2>Помощь в онлайн-чате</h2>
-							<p>Что-то непонятно в рецепте? Задайте вопрос автору Умной тарелки — Юле в чате прямо на сайте.</p>
-							<span class="sp-benefits-tag">Есть к кому обратиться</span>
-						</article>
-						<article class="sp-benefits-feature">
-							<div class="sp-benefits-feature-top">
-								<div class="sp-benefits-symbol">
-									<svg viewBox="0 0 48 48" aria-hidden="true">
-										<path d="M6 15h9l4-6h10l4 6h9v25H6z" />
-										<circle cx="24" cy="27" r="8" />
-										<path d="M36 20h1" />
-									</svg>
-								</div>
-								<span class="sp-benefits-number">06 / ДОВЕРЯТЬ</span>
-							</div>
-							<h2>Реальные фото. Без ИИ.</h2>
-							<p>Все фотографии в проекте — настоящие. Вы видите реальные блюда.</p>
-							<span class="sp-benefits-tag">Ни одного сгенерированного фото</span>
-						</article>
-					</div>
-				</div>
+				<div class="sp-benefits-content wd-page wd-c">
+<section class="wd-hero">
+<div class="wd-welcome">
+<p class="wd-kicker">Рецепты · Баланс · Планирование</p>
+<h1 id="sp-benefits-title">Рада видеть вас  <br>на «Умной тарелке»!</h1>
+<p class="wd-lead">Начните знакомство с бесплатных рецептов. После регистрации — ещё больше рецептов и возможностей на 7 дней.</p>
+<div class="wd-actions">
+<a class="wd-btn" href="#recipes">Выбрать бесплатный рецепт <span>→</span>
+</a>
+<a class="wd-link" href="#hero-trial-cta">Попробовать возможности</a>
+</div>
+<p class="wd-small">7 дней после регистрации · банковская карта не нужна</p>
+<p class="wd-login">Уже есть аккаунт? <a id="hero-login-link" href="login.html">Войти</a>
+</p>
+</div>
+<section class="wd-access" id="hero-access-counts" hidden aria-label="Доступ к рецептам">
+<p class="wd-access-label">В каталоге — <b id="hero-access-total">
+</b>
+</p>
+<dl>
+<div>
+<dd id="hero-access-free">
+</dd>
+<dt>бесплатно <br>без регистрации</dt>
+</div>
+<div>
+<dd id="hero-access-trial">
+</dd>
+<dt>на 7 дней <br>после регистрации</dt>
+</div>
+<div>
+<dd id="hero-access-pro">
+</dd>
+<dt>только <br>по подписке</dt>
+</div>
+</dl>
+</section>
+</section>
+<section class="wd-features wd-disclosure" id="features">
+<div class="wd-section-head">
+<p class="wd-kicker">Всё под рукой</p>
+<h2>Одна тарелка. Много возможностей.</h2>
+</div>
+<div class="wd-detail-grid">
+<details open>
+<summary>
+<span class="wd-icon">
+<svg viewBox="0 0 48 48" aria-hidden="true">
+<circle cx="24" cy="24" r="19">
+</circle>
+<circle cx="24" cy="24" r="14">
+</circle>
+<path d="M24 10v28M24 24h14">
+</path>
+<path d="M15 23l3 3 5-6">
+</path>
+</svg>
+</span>
+<h3>Баланс и КБЖУ</h3>
+<span class="wd-plus" aria-hidden="true">+</span>
+</summary>
+<p>Подсказки, чем дополнить блюдо до полноценного приёма пищи, и расчёт КБЖУ.</p>
+</details>
+<details >
+<summary>
+<span class="wd-icon">
+<svg viewBox="0 0 48 48" aria-hidden="true">
+<path d="M24 12c-6-4-12-4-18-2v29c6-2 12-2 18 2 6-4 12-4 18-2V10c-6-2-12-2-18 2Z">
+</path>
+<path d="M24 12v29M12 17l6 1M12 23l6 1M12 29l6 1M30 18l6-1M30 24l6-1M30 30l6-1">
+</path>
+</svg>
+</span>
+<h3>Проверенные рецепты</h3>
+<span class="wd-plus" aria-hidden="true">+</span>
+</summary>
+<p>
+<span id="sp-benefits-recipe-count">Более 100</span> семейных рецептов на каждый день. Новый рецепт — каждую неделю.</p>
+</details>
+<details >
+<summary>
+<span class="wd-icon">
+<svg viewBox="0 0 48 48" aria-hidden="true">
+<path d="M17 9H9v34h30V9h-8M18 5h12v9H18zM15 23l2 2 4-5M26 23h7M15 33l2 2 4-5M26 33h7">
+</path>
+</svg>
+</span>
+<h3>Список покупок</h3>
+<span class="wd-plus" aria-hidden="true">+</span>
+</summary>
+<p>Соберите нужные продукты из выбранных блюд в один список и берите его в магазин.</p>
+</details>
+<details >
+<summary>
+<span class="wd-icon">
+<svg viewBox="0 0 48 48" aria-hidden="true">
+<rect x="8" y="8" width="32" height="34" rx="1">
+</rect>
+<path d="M8 18h32M16 5v7M32 5v7M15 26h5M15 33h5M27 30l3 3 6-7">
+</path>
+</svg>
+</span>
+<h3>Журнал питания</h3>
+<span class="wd-plus" aria-hidden="true">+</span>
+</summary>
+<p>Сохраняйте собранные тарелки и возвращайтесь к истории своего питания.</p>
+</details>
+<details >
+<summary>
+<span class="wd-icon">
+<svg viewBox="0 0 48 48" aria-hidden="true">
+<path d="M5 7h33v25H17L5 41V7Z">
+</path>
+<path d="M14 16h15M14 23h10M38 16h5v28l-9-7h-9">
+</path>
+</svg>
+</span>
+<h3>Помощь в онлайн-чате</h3>
+<span class="wd-plus" aria-hidden="true">+</span>
+</summary>
+<p>Что-то непонятно в рецепте? Задайте вопрос автору Умной тарелки — Юле в чате прямо на сайте.</p>
+</details>
+<details >
+<summary>
+<span class="wd-icon">
+<svg viewBox="0 0 48 48" aria-hidden="true">
+<path d="M6 15h9l4-6h10l4 6h9v25H6z">
+</path>
+<circle cx="24" cy="27" r="8">
+</circle>
+<path d="M36 20h1">
+</path>
+</svg>
+</span>
+<h3>Реальные фото. Без ИИ.</h3>
+<span class="wd-plus" aria-hidden="true">+</span>
+</summary>
+<p>Все фотографии в проекте — настоящие. Вы видите реальные блюда.</p>
+</details>
+</div>
+</section>
+<section class="wd-recipes" id="recipes">
+<div class="wd-section-head">
+<p class="wd-kicker">Начните с того, что хочется приготовить</p>
+<h2>Бесплатные рецепты</h2>
+</div>
+<div class="wd-recipe-grid">
+<a href="recipe.html?id=borscht-red-beans">
+<img src="https://voronova.online/images/recipes/borscht-red-beans/borsch-cover.webp" alt="Борщ с красной фасолью" loading="eager">
+<span>Бесплатно</span>
+<h3>Борщ с красной фасолью</h3>
+</a>
+<a href="recipe.html?id=millet-pancakes-apple">
+<img src="https://voronova.online/images/recipes/millet-pancakes-apple/millet-pancakes-apple-final.webp" alt="Пшенники с яблоком" loading="eager">
+<span>Бесплатно</span>
+<h3>Пшенники с яблоком</h3>
+</a>
+<a href="recipe.html?id=cutlets-chicken-red-lentils">
+<img src="https://voronova.online/images/recipes/cutlets-chicken-red-lentils/cutlets-chicken-red-lentils-cover.webp" alt="Куриные котлеты с красной чечевицей" loading="eager">
+<span>Бесплатно</span>
+<h3>Куриные котлеты с красной чечевицей</h3>
+</a>
+</div>
+</section>
+<section class="wd-trial" id="hero-trial-cta" hidden>
+<div>
+<p class="wd-kicker">Познакомьтесь поближе</p>
+<h2>7 дней, чтобы попробовать</h2>
+<p>Дополнительные рецепты и возможности платформы после регистрации. Банковская карта не нужна.</p>
+</div>
+<a class="wd-btn" id="hero-trial-link" href="login.html">Попробовать бесплатно <span>→</span>
+</a>
+</section>
+</div>
 				<div class="sp-hero-text">
 					<a class="sp-hero-favorites" id="hero-favorites-link" href="cabinet.html?tab=favorites" aria-label="Открыть избранные рецепты">
 						<svg viewBox="0 0 24 24" aria-hidden="true">
@@ -640,7 +698,7 @@
 	<script src="data-v2.js?v=20261115-reply-notifications"></script>
 	<script src="ingredients.js?v=20261007-pumpkin"></script>
 <script src="header-nav.js?v=20260714-category-nav"></script>
-<script src="index-page.js?v=20261112-search-attention"></script>
+<script src="index-page.js?v=20261116-welcome"></script>
 	<script src="jivo-chat-modal.js?v=20261030-jivo"></script>
 </body>
 
