@@ -194,6 +194,7 @@
 
 		// Must be declared before renderRecipe is called (used inside buildGroup)
 		const subItemRegistry = {};
+		let _openAddonAccessKey = '';
 
 		// Steps UX state (mobile compact + stepper) — reset per-recipe in initStepsUI
 		let _stepsHtmlArr = [];
@@ -2255,6 +2256,67 @@
 
 		// subItemRegistry declared above (before renderRecipe call)
 
+		function canUseAddon(item) {
+			if (!item || !item.recipeId) return true;
+			const linked = typeof RECIPES !== 'undefined' && RECIPES[item.recipeId];
+			return !!linked && Auth.canViewRecipe(linked);
+		}
+
+		function orderedAddonEntries(items) {
+			// Keep the original indices: selections and plate updates use these keys.
+			const entries = items.map((item, index) => ({ item, index, locked: !canUseAddon(item) }));
+			return entries.filter(entry => !entry.locked).concat(entries.filter(entry => entry.locked));
+		}
+
+		function toggleAddonAccess(key, close) {
+			const previous = document.getElementById('addon-access-' + _openAddonAccessKey);
+			const previousTrigger = document.getElementById('addon-access-trigger-' + _openAddonAccessKey);
+			if (previous) previous.hidden = true;
+			if (previousTrigger) previousTrigger.setAttribute('aria-expanded', 'false');
+			const open = !close && _openAddonAccessKey !== key;
+			_openAddonAccessKey = '';
+			const notice = document.getElementById('addon-access-' + key);
+			const trigger = document.getElementById('addon-access-trigger-' + key);
+			if (!notice || !trigger) return;
+			notice.hidden = !open;
+			trigger.setAttribute('aria-expanded', String(open));
+			if (open) {
+				_openAddonAccessKey = key;
+				// Reveal the whole explanation inside the existing desktop scroll area.
+				const sidebar = notice.closest('.recipe-sidebar');
+				if (sidebar && window.innerWidth > 1024) {
+					const overflow = notice.getBoundingClientRect().bottom - sidebar.getBoundingClientRect().bottom;
+					if (overflow > 0) sidebar.scrollTop += overflow + 12;
+				}
+			}
+			if (close) trigger.focus({ preventScroll: true });
+		}
+
+		function renderLockedAddon(item, key, linked) {
+			const cta = linked ? Auth.recipePaywallCta(linked) : null;
+			const isPro = linked && Auth.recipeAccessLevel(linked) === 'pro';
+			const label = !linked ? 'Рецепт недоступен'
+				: isPro ? 'По платной подписке'
+					: Auth.isGuest() ? 'После регистрации' : 'По подписке';
+			const description = !linked ? 'Этот рецепт сейчас недоступен. Выберите другую добавку.'
+				: Auth.isGuest() && !isPro ? 'Зарегистрируйтесь, чтобы открыть пробный рецепт и добавить его в тарелку.'
+					: Auth.isTrial() ? 'Этот рецепт доступен по платной подписке. В пробный период выбирайте бесплатные и пробные рецепты.'
+						: 'Оформите подписку, чтобы открыть рецепт и добавить его в тарелку. Сейчас можно выбрать доступные добавки.';
+			const open = _openAddonAccessKey === key;
+			return `<div class="bal-item bal-item-locked" id="ai-${key}">
+				<button class="bal-item-locked-trigger" id="addon-access-trigger-${key}" type="button" data-recipe-action="toggle-addon-access" data-addon-key="${key}" aria-expanded="${open}" aria-controls="addon-access-${key}">
+					<svg class="bal-item-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+					<span class="bal-item-locked-content"><span class="bal-item-name bal-item-text">${escHtml(item.name)}</span>${item.amount ? `<span class="bal-item-amount">${escHtml(item.amount)}</span>` : ''}<span class="bal-item-access-label">${label}</span></span>
+					<span class="bal-item-kcal">+${Number(item.kcal || 0)}</span>
+				</button>
+				<div class="bal-addon-access" id="addon-access-${key}"${open ? '' : ' hidden'}>
+					<div class="bal-addon-access-head"><strong>Доступ к рецепту</strong><button class="bal-addon-access-close" type="button" data-recipe-action="close-addon-access" data-addon-key="${key}" aria-label="Закрыть пояснение"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+					<p>${description}</p>
+					${cta ? `<a class="bal-addon-access-link" href="${escHtml(cta.href)}">${Auth.isGuest() ? escHtml(cta.btn) : 'Посмотреть подписку'} →</a>` : ''}
+				</div>
+			</div>`;
+		}
+
 		function _renderBalItem(item, prefix, i) {
 			const key = prefix + '-' + i;
 			const hasRecipe = item.recipeId;
@@ -2263,8 +2325,14 @@
 			const checkedCls = isChecked ? ' checked' : '';
 			const amountHtml = item.amount ? ` <span class="bal-item-amount">· ${escHtml(item.amount)}</span>` : '';
 			const linkedAmountHtml = item.amount ? `<span class="bal-item-amount bal-item-linked-amount">${escHtml(item.amount)}</span>` : '';
+			if (hasRecipe) {
+				subItemRegistry[key] = item;
+				if (!canUseAddon(item)) {
+					const linked = typeof RECIPES !== 'undefined' && RECIPES[item.recipeId];
+					return renderLockedAddon(item, key, linked);
+				}
+			}
 			if (hasRecipe || hasCat) {
-				if (hasRecipe) subItemRegistry[key] = item;
 				const targetUrl = hasRecipe
 					? recipeLink(item.recipeId, { asIngredient: true, parentRecipeId: r.id })
 					: 'category.html?cat=' + encodeURIComponent(item.catLink);
@@ -2294,11 +2362,8 @@
 		}
 
 		function _hasHiddenSelected(prefix, items) {
-			return Object.keys(checkedItems).some(k => {
-				if (!k.startsWith(prefix + '-')) return false;
-				const idx = parseInt(k.slice(prefix.length + 1), 10);
-				return idx >= GROUP_COLLAPSE_LIMIT && idx < items.length;
-			});
+			return orderedAddonEntries(items).slice(GROUP_COLLAPSE_LIMIT)
+				.some(entry => !!checkedItems[prefix + '-' + entry.index]);
 		}
 
 		function buildGroup(prefix, items, stepIndex) {
@@ -2310,7 +2375,8 @@
 			_groupConfig[prefix] = { items, stepIndex, title, optional };
 			const shouldCollapse = items.length > GROUP_COLLAPSE_LIMIT;
 			const expanded = !!expandedGroups[prefix];
-			const visible = (shouldCollapse && !expanded) ? items.slice(0, GROUP_COLLAPSE_LIMIT) : items;
+			const entries = orderedAddonEntries(items);
+			const visible = (shouldCollapse && !expanded) ? entries.slice(0, GROUP_COLLAPSE_LIMIT) : entries;
 			const openCls = _accordionOpen[prefix] ? ' open' : '';
 			const toggleHtml = shouldCollapse
 				? `<div class="bal-group-toggle-wrap">
@@ -2332,7 +2398,7 @@
             <div class="bal-group-body">
 				${optional ? '<div class="bal-group-optional-note">Добавьте, если хотите больше сытости.</div>' : ''}
                 <div class="bal-group-items" id="bal-group-items-${prefix}">
-                    ${visible.map((item, i) => _renderBalItem(item, prefix, i)).join('')}
+                    ${visible.map(entry => _renderBalItem(entry.item, prefix, entry.index)).join('')}
                 </div>
                 ${toggleHtml}
             </div>
@@ -2463,6 +2529,7 @@
 			if (btn && btn.disabled) return;
 			const item = subItemRegistry[key];
 			if (!item) return;
+			if (!canUseAddon(item)) { toggleAddonAccess(key); return; }
 			const linked = (item.recipeId && typeof RECIPES !== 'undefined') ? RECIPES[item.recipeId] : null;
 			const added = Plate.add({
 				name: item.name,
@@ -2534,6 +2601,7 @@
 			);
 			const occupiedRecipeIds = new Set(kept.map(item => item && item.recipeId).filter(Boolean));
 			const replacements = Object.values(checkedItems)
+				.filter(canUseAddon)
 				.map(plateItemFromSelectedAddon)
 				.filter(item => !item.recipeId || !occupiedRecipeIds.has(item.recipeId));
 			const insertAt = kept.findIndex(item => item && item.recipeId === r.id) + 1;
@@ -2551,6 +2619,7 @@
 		function toggleAddItem(key, kcal, protein, fat, carbs, fiber) {
 			const btn = document.getElementById('ai-' + key);
 			if (!btn) return;
+			if (!canUseAddon(subItemRegistry[key])) { toggleAddonAccess(key); return; }
 			const setSelected = function (el, selected) {
 				if (!el) return;
 				el.classList.toggle('checked', selected);
@@ -2993,6 +3062,7 @@
 			// Add-ons are a one-time choice for the current plate. Once the main
 			// recipe is removed, do not leave its previous choices in the card.
 			checkedItems = {};
+			_openAddonAccessKey = '';
 			expandedGroups = { p: false, f: false, c: false, fi: false };
 			_wizardStep = 0;
 			_wizardCollapsed = false;
@@ -3328,6 +3398,7 @@
 			// Deferred add-ons stay separate in the plate and retain their source recipe
 			// so a later checkbox change can replace only these entries.
 			Object.values(checkedItems).forEach(v => {
+				if (!canUseAddon(v)) return;
 				if (v.recipeId && Plate.get().some(p => p.recipeId === v.recipeId)) return;
 				Plate.add(plateItemFromSelectedAddon(v));
 			});
@@ -4184,6 +4255,8 @@
 				else if (action === 'restore-ingredient') restoreIngredient(index);
 				else if (action === 'set-review-stars') setReviewStars(Number(actionTarget.dataset.n));
 				else if (action === 'toggle-group') toggleGroupExpand(actionTarget.dataset.prefix || '');
+				else if (action === 'toggle-addon-access') toggleAddonAccess(actionTarget.dataset.addonKey);
+				else if (action === 'close-addon-access') toggleAddonAccess(actionTarget.dataset.addonKey, true);
 				else if (action === 'toggle-accordion') balToggleAccordion(actionTarget.dataset.prefix || '');
 				else if (action === 'wizard-step') balWizardSetStep(index);
 				else if (action === 'remove-plate-item') removeItemR(index);
@@ -4261,6 +4334,9 @@
 		});
 
 		document.addEventListener('keydown', function (event) {
+			if (event.key === 'Escape' && _openAddonAccessKey) {
+				toggleAddonAccess(_openAddonAccessKey, true);
+			}
 			if (!_recipeImageViewer || _recipeImageViewer.hidden) return;
 			if (event.key === 'Escape') {
 				event.preventDefault();

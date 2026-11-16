@@ -1176,6 +1176,27 @@
 		.bal-item-select::before { content: ''; position: absolute; inset: -11px; }
 		.bal-item-select:focus-visible,
 		.bal-item-recipe-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+		.bal-item.bal-item-locked { display: block; cursor: default; }
+		.bal-item-locked-trigger {
+			display: flex; align-items: center; gap: 12px; width: 100%;
+			padding: 0; text-align: left; line-height: 1.4;
+		}
+		.bal-item-lock { width: 14px; height: 16px; flex: 0 0 14px; color: var(--text-3); }
+		.bal-item-locked-content { flex: 1; min-width: 0; }
+		.bal-item-locked-content .bal-item-amount { margin-left: 6px; font-size: 11px; }
+		.bal-item-access-label { display: block; margin-top: 3px; font-size: 10px; font-weight: 600; color: var(--text-3); }
+		.bal-item-locked-trigger:hover .bal-item-name { color: var(--accent) !important; }
+		.bal-addon-access { margin: 12px 0 0 26px; padding: 12px; background: var(--bg-alt); border-left: 2px solid var(--border); }
+		.bal-addon-access[hidden] { display: none; }
+		.bal-addon-access-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+		.bal-addon-access-head strong { font-size: 11px; font-weight: 700; color: var(--text); }
+		.bal-addon-access-close { display: inline-flex; align-items: center; justify-content: center; position: relative; width: 20px; height: 20px; flex: 0 0 20px; color: var(--text-3); }
+		.bal-addon-access-close::before { content: ''; position: absolute; inset: -8px; }
+		.bal-addon-access p { margin-top: 6px; font-size: 11px; line-height: 1.6; color: var(--text-2); }
+		.bal-addon-access-link { display: inline-block; margin-top: 8px; padding: 4px 0; font-size: 11px; font-weight: 600; color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+		.bal-item-locked-trigger:focus-visible,
+		.bal-addon-access-close:focus-visible,
+		.bal-addon-access-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 		/* Total */
 		.bal-total { border-top: 2px solid var(--text) !important; background: var(--bg-alt) !important; padding: 18px !important; }
@@ -1460,7 +1481,7 @@
 <script src="recipe-views.js?v=20261007"></script>
     <script src="review-photos.js?v=20261108"></script>
 	<script src="review-discussions.js?v=20261115-author-badge"></script>
-<script src="recipe-page.js?v=20261115-author-badge"></script>
+<script src="recipe-page.js?v=20261116-addon-access"></script>
 	<script src="jivo-chat-modal.js?v=20261030-jivo"></script>
 </body>
 
