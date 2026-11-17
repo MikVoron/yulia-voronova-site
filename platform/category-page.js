@@ -833,13 +833,6 @@
                     ? `<img class="review-avatar" src="${escHtml(rv.avatar)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0" data-review-avatar-fallback>`
                       + `<span class="review-avatar-fallback" style="display:none;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`
                     : `<span style="width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${escHtml(rv.author.charAt(0).toUpperCase())}</span>`;
-                const authorReplyHtml = rv.reply
-                    ? `<div style="margin-top:10px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--bg-2);font-size:13px;line-height:1.5">
-                        <div style="margin-bottom:3px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)">Ответ Юлии</div>
-                        <div>${ReviewDiscussions.replyText(rv, rv.reply.text, rv.reply.userId)}</div>
-                        ${ReviewDiscussions.like('reply', rv.id, rv.reply)}
-                    </div>`
-                    : '';
                 const replyFormHtml = isAdmin
                     ? `<div style="margin-top:10px">
                         <textarea class="c-input" id="review-reply-${Number(rv.id)}" placeholder="Публичный ответ от имени Юлии" rows="3" style="margin:0 0 7px">${escHtml(rv.reply ? rv.reply.text : '')}</textarea>
@@ -858,7 +851,7 @@
                         </div>
                         <div style="margin-bottom:4px">${starsHtml(rv.stars)}</div>
                         ${rv.text ? `<div style="font-size:13px;color:var(--text);line-height:1.5">${escHtml(rv.text)}</div>` : ''}
-                        ${ReviewDiscussions.render(rv, authorReplyHtml)}
+                        ${ReviewDiscussions.render(rv)}
                         ${replyFormHtml}
                     </div>
                 </div>`;

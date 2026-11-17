@@ -39,22 +39,26 @@
 
     function legacy(review) {
         if (!review.reply) return '';
-        return `<div class="discussion-message"><strong>Юлия Воронова</strong> <span class="discussion-author-badge">Автор</span><div class="discussion-text">${replyText(review, review.reply.text, review.reply.userId)}</div>${like('reply', review.id, review.reply)}</div>`;
+        return message({ ...review.reply, isAuthor: true, author: 'Юлия Воронова' }, { review }, true);
     }
 
-    function message(comment, state) {
+    function authorBadge() {
+        return '<span class="discussion-author-badge"><span class="discussion-author-badge-full">Автор Умной тарелки</span><span class="discussion-author-badge-short">Автор</span></span>';
+    }
+
+    function message(comment, state, isLegacy = false) {
         const own = user()?.id === comment.userId;
         const admin = user()?.role === 'admin';
         const avatar = comment.isAuthor ? 'images/YV-blog.webp' : comment.avatar;
-        return `<article class="discussion-message" data-comment-id="${Number(comment.id)}">
+        return `<article class="discussion-message"${isLegacy ? '' : ` data-comment-id="${Number(comment.id)}"`}>
             <div class="discussion-meta">
                 ${avatar ? `<img class="discussion-avatar" src="${esc(avatar)}" alt="" loading="lazy" data-review-avatar-fallback><span class="discussion-initial" style="display:none">${esc(comment.author.charAt(0))}</span>` : `<span class="discussion-initial">${esc(comment.author.charAt(0))}</span>`}
                 <strong>${comment.isAuthor ? 'Юлия Воронова' : esc(comment.author)}</strong>
-                ${comment.isAuthor ? '<span class="discussion-author-badge">Автор</span>' : comment.userId === state.review.userId ? '<span class="discussion-origin">Автор отзыва</span>' : ''}
+                ${comment.isAuthor ? authorBadge() : comment.userId === state.review.userId ? '<span class="discussion-origin">Автор отзыва</span>' : ''}
                 <time datetime="${esc(comment.createdAt)}">${date(comment.createdAt)}</time>
             </div>
             <div class="discussion-text">${replyText(state.review, comment.text, comment.userId)}</div>
-            <div class="discussion-actions">${like('comment', comment.id, comment)}${own ? button('edit', 'Редактировать', Number(comment.id)) : ''}${own || admin ? button('delete', 'Удалить', Number(comment.id)) : ''}</div>
+            <div class="discussion-actions">${like(isLegacy ? 'reply' : 'comment', isLegacy ? state.review.id : comment.id, comment)}${!isLegacy && own ? button('edit', 'Редактировать', Number(comment.id)) : ''}${!isLegacy && (own || admin) ? button('delete', 'Удалить', Number(comment.id)) : ''}</div>
         </article>`;
     }
 
@@ -64,10 +68,10 @@
         return items.sort((a, b) => new Date(a.at) - new Date(b.at) || a.id - b.id).map(item => item.html).join('');
     }
 
-    function render(review, legacyHtml) {
+    function render(review) {
         const comments = Array.isArray(review.comments) ? review.comments : [];
         const state = { review, comments: [...comments], count: Number(review.commentCount) || comments.length,
-            legacyHtml: legacyHtml === undefined ? legacy(review) : legacyHtml,
+            legacyHtml: legacy(review),
             after: comments.at(-1)?.id || 0, hasMore: Number(review.commentCount) > comments.length };
         states.set(Number(review.id), state);
         return `${window.ReviewPhotos ? ReviewPhotos.markup(review) : ''}<section class="review-discussion" data-discussion-id="${Number(review.id)}" aria-label="Обсуждение отзыва">

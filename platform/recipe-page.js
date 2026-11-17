@@ -4058,20 +4058,6 @@
 					const deleteBtn = canDelete
 						? `<button class="review-delete-btn" data-recipe-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? 'true' : 'false'}" aria-label="Удалить отзыв" title="Удалить отзыв"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>`
 						: '';
-					const authorReply = rv.reply
-						? `<div class="review-author-reply">
-							<div class="review-author-wrap">
-								<img class="review-avatar" src="images/YV-blog.webp" alt="Юлия Воронова" data-review-avatar-fallback>
-								<span class="review-avatar-fallback" style="display:none">Ю</span>
-								<div class="review-author-reply-meta">
-									<span class="review-author">Юлия Воронова</span>
-									<span class="review-author-badge"><span class="review-author-badge-full">Автор Умной Тарелки</span><span class="review-author-badge-short">Автор</span></span>
-								</div>
-							</div>
-							<div class="review-author-reply-text">${ReviewDiscussions.replyText(rv, rv.reply.text, rv.reply.userId)}</div>
-							${ReviewDiscussions.like('reply', rv.id, rv.reply)}
-						</div>`
-						: '';
 					const replyEditor = isAdmin && _editingReviewReplyId === Number(rv.id)
 						? `<div style="margin-top:12px">
 							<textarea class="review-textarea" id="review-reply-${Number(rv.id)}" placeholder="Публичный ответ от имени Юлии" maxlength="1000" rows="3">${escHtml(rv.reply ? rv.reply.text : '')}</textarea>
@@ -4099,7 +4085,7 @@
                     </div>
                     <div class="review-stars-row">${starsHtml}</div>
                     <div class="review-text">${escHtml(rv.text)}</div>
-                    ${ReviewDiscussions.render(rv, authorReply)}
+                    ${ReviewDiscussions.render(rv)}
                     ${replyAction}
                     ${replyEditor}
                 </div>`;

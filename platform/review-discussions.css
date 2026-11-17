@@ -7,6 +7,16 @@
 .discussion-initial { display: inline-flex; align-items: center; justify-content: center; background: var(--accent, #c64e20); color: white; }
 .discussion-author-badge, .discussion-origin { font-size: 10px; color: var(--accent, #c64e20); }
 .discussion-author-badge { padding: 2px 5px; border: 1px solid currentColor; }
+.review-identity .review-friend-badge {
+    padding: 2px 5px; border: 1px solid currentColor; color: #35634f;
+    background: transparent; font-size: 10px; font-weight: 400; line-height: 1.6;
+    letter-spacing: normal; text-transform: none;
+}
+.discussion-author-badge-short { display: none; }
+@media (max-width: 767px) {
+    .discussion-author-badge-full, .review-author-badge-full { display: none; }
+    .discussion-author-badge-short, .review-author-badge-short { display: inline; }
+}
 .discussion-text { margin-top: 8px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.6; }
 .discussion-recipient { font-weight: 700; overflow-wrap: anywhere; }
 .discussion-actions, .discussion-form-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 6px; }

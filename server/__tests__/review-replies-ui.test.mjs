@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const categoryPage = fs.readFileSync(path.join(root, 'platform', 'category-page.js'), 'utf8');
 const recipePage = fs.readFileSync(path.join(root, 'platform', 'recipe-page.js'), 'utf8');
+const discussions = fs.readFileSync(path.join(root, 'platform', 'review-discussions.js'), 'utf8');
 
 describe('recipe review reply UI', () => {
   it('waits for the deleted review to disappear before offering a new one', () => {
@@ -17,13 +18,14 @@ describe('recipe review reply UI', () => {
   });
 
   it('shows public author replies and exposes the admin-only reply action', () => {
-    expect(categoryPage).toContain('Ответ Юлии');
+    expect(categoryPage).toContain('ReviewDiscussions.render(rv)');
     expect(categoryPage).toContain('data-category-action="submit-review-reply"');
     expect(categoryPage).toContain("Auth.api('/admin/reviews/' + id + '/reply'");
-    expect(recipePage).toContain('Юлия Воронова');
-    expect(recipePage).toContain('Автор Умной Тарелки');
-    expect(recipePage).toContain('review-author-badge-short');
-    expect(recipePage).toContain('src="images/YV-blog.webp"');
+    expect(recipePage).toContain('ReviewDiscussions.render(rv)');
+    expect(discussions).toContain('Юлия Воронова');
+    expect(discussions).toContain('Автор Умной тарелки');
+    expect(discussions).toContain('discussion-author-badge-short');
+    expect(discussions).toContain('images/YV-blog.webp');
     expect(recipePage).toContain('data-recipe-action="submit-review-reply"');
     expect(recipePage).toContain("Auth.api('/admin/reviews/' + id + '/reply'");
   });
@@ -39,7 +41,7 @@ describe('recipe review reply UI', () => {
 
   it('uses shared likes for author replies in both review views', () => {
     for (const source of [recipePage, categoryPage]) {
-      expect(source).toContain("ReviewDiscussions.like('reply', rv.id, rv.reply)");
+      expect(source).toContain('ReviewDiscussions.render(rv)');
       expect(source.includes('Полезный ответ')).toBe(false);
       expect(source.includes('/reply-helpful')).toBe(false);
     }
