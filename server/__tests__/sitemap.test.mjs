@@ -63,6 +63,7 @@ describe('SmartPlate sitemap', () => {
 
     const result = await sitemap.generateSitemap(db);
 
+    expect(result.xml.split('<loc>https://plate.voronova.online/harvard-plate.html</loc>')).toHaveLength(2);
     expect(result.xml).toContain('recipe.html?id=sql-published-recipe');
     expect(result.urlCount).toBe((result.xml.match(/<loc>/g) || []).length);
   });

@@ -29,6 +29,7 @@ function urlEntry(url) {
 function buildSitemap({ recipes, categories, ingredients }) {
   const urls = [
     `${ORIGIN}/`,
+    `${ORIGIN}/harvard-plate.html`,
     `${ORIGIN}/category.html`,
     `${ORIGIN}/how-subscription-works.html`,
     `${ORIGIN}/personal-data-processing-policy.html`,
