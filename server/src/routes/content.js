@@ -248,6 +248,16 @@ async function contentRoutes(fastify, options = {}) {
     if (query) return reply.type('text/html; charset=utf-8')
       .send(renderCategoryDocument(template, null, [], { search: true }));
     const id = typeof req.query?.cat === 'string' ? req.query.cat.trim() : '';
+    if (!id && req.query?.free === '1') {
+      const recipesResult = await db.query(
+        `SELECT r.id, r.name FROM recipes r
+          WHERE r.is_published = true
+            AND COALESCE(NULLIF(r.access_level, ''), CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'free'
+          ORDER BY r.sort_order, r.created_at, r.id`
+      );
+      return reply.type('text/html; charset=utf-8')
+        .send(renderCategoryDocument(template, null, recipesResult.rows, { free: true }));
+    }
     if (!id) {
       const categoriesResult = await db.query(
         `SELECT c.id, c.name, c.description

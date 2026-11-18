@@ -63,6 +63,10 @@ const CATEGORIES = [
 ];
 
 const mockQuery = vi.fn(async (sql, params = []) => {
+  if (/SELECT r.id, r.name FROM recipes r\s+WHERE r.is_published = true/.test(sql)) {
+    expect(sql).toContain("COALESCE(NULLIF(r.access_level, ''), CASE WHEN r.is_free THEN 'free' ELSE 'pro' END) = 'free'");
+    return { rows: RECIPES.filter(r => r.is_published !== false && (r.access_level || (r.is_free ? 'free' : 'pro')) === 'free') };
+  }
   if (/SELECT c.id, c.name, c.description\s+FROM categories c\s+WHERE EXISTS/.test(sql)) {
     return { rows: CATEGORIES.filter(c => RECIPES.some(r => r.categories?.includes(c.id))) };
   }
@@ -267,6 +271,27 @@ describe('GET /content/news', () => {
 });
 
 describe('GET /_seo/category', () => {
+  it('renders only published guest-accessible recipes on the free collection', async () => {
+    RECIPES.push(
+      { id: 'legacy-free', name: 'Legacy free', access_level: null, is_free: true },
+      { id: 'draft-free', name: 'Draft free', access_level: 'free', is_published: false },
+      { id: 'locked-with-legacy-flag', name: 'Locked', access_level: 'pro', is_free: true }
+    );
+    try {
+      const res = await app.inject({ method: 'GET', url: '/_seo/category?free=1' });
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toContain('<link rel="canonical" href="https://plate.voronova.online/category.html?free=1">');
+      expect(res.body).toContain('<h1 class="cat-hero-name">Бесплатные ПП-рецепты с КБЖУ</h1>');
+      expect(res.body).toContain('<a href="recipe.html?id=free-1">');
+      expect(res.body).toContain('<a href="recipe.html?id=legacy-free">');
+      for (const id of ['draft-free', 'locked-with-legacy-flag', 'trial-1', 'pro-1', 'paid-1']) {
+        expect(res.body).not.toContain('recipe.html?id=' + id);
+      }
+    } finally {
+      RECIPES.splice(-3);
+    }
+  });
+
   it('renders the root catalog with links to non-empty categories', async () => {
     const root = await app.inject({ method: 'GET', url: '/_seo/category' });
     expect(root.statusCode).toBe(200);

@@ -40,7 +40,7 @@
             return;
         }
         if (allMode) {
-            var allCopy = SmartPlateCollectionCopy.category(null);
+            var allCopy = p.get('free') === '1' ? SmartPlateCollectionCopy.freeRecipes : SmartPlateCollectionCopy.category(null);
             document.title = allCopy.title;
             if (hero) hero.classList.add('collection-hero');
             if (hero) hero.innerHTML =
@@ -53,7 +53,7 @@
             if (crumbs) crumbs.innerHTML =
                 '<a href="index.html">Главная</a>' +
                 '<span class="crumb-sep">›</span>' +
-                '<span class="crumb-current">Все рецепты</span>';
+                '<span class="crumb-current">' + escHtml(allCopy.heading) + '</span>';
             return;
         }
         // The server and the synchronous fallback share the same editorial copy.
@@ -111,13 +111,17 @@
         } else {
             cat = getCategory(catId);
             if (isAllMode && window.SmartPlateSEO) {
-                var allCopy = SmartPlateCollectionCopy.category(null);
+                var freeCollection = params.get('free') === '1';
+                var allCopy = freeCollection ? SmartPlateCollectionCopy.freeRecipes : SmartPlateCollectionCopy.category(null);
+                var items = Object.values(RECIPES).filter(Boolean);
+                if (freeCollection) items = items.filter(recipe => Auth.isFreeRecipe(recipe));
                 SmartPlateSEO.setCollection({
                     name: allCopy.heading,
                     title: allCopy.title,
                     description: allCopy.intro,
-                    canonical: SmartPlateSEO.origin + '/category.html',
-                    items: Object.keys(RECIPES).map(function (key) { return RECIPES[key]; }).filter(Boolean)
+                    canonical: SmartPlateSEO.origin + '/category.html' + (freeCollection ? '?free=1' : ''),
+                    noindex: freeCollection && items.length === 0,
+                    items: items
                 });
             }
             if (cat) {

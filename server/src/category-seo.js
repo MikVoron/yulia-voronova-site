@@ -21,15 +21,17 @@ function upsertMeta(document, attribute, key, value) {
 
 function renderCategoryDocument(template, category, recipes = [], options = {}) {
   const search = Boolean(options.search);
+  const free = !search && !category && options.free === true;
   const categories = Array.isArray(options.categories) ? options.categories : [];
-  const copy = collectionCopy.category(category);
+  const copy = free ? collectionCopy.freeRecipes : collectionCopy.category(category);
   const name = search ? 'Поиск по рецептам' : copy.heading;
   const title = search ? `${name} | Умная тарелка` : copy.title;
   const description = search
     ? 'Результаты поиска по каталогу полезных рецептов «Умной тарелки».'
     : copy.intro;
-  const canonical = `${ORIGIN}/category.html${category && !search ? `?cat=${encodeURIComponent(category.id)}` : ''}`;
-  const noindex = search || (category && recipes.length === 0);
+  const query = category && !search ? `?cat=${encodeURIComponent(category.id)}` : '';
+  const canonical = `${ORIGIN}/category.html${free ? '?free=1' : query}`;
+  const noindex = search || ((category || free) && recipes.length === 0);
   const schema = {
     '@context': 'https://schema.org', '@type': 'CollectionPage',
     name, description, url: canonical,
@@ -42,7 +44,7 @@ function renderCategoryDocument(template, category, recipes = [], options = {}) 
       url: `${ORIGIN}/recipe.html?id=${encodeURIComponent(recipe.id)}`,
     })),
   };
-  if (!category && !search && categories.length) schema.mainEntity = {
+  if (!category && !search && !free && categories.length) schema.mainEntity = {
     '@type': 'ItemList',
     itemListElement: categories.slice(0, 100).map((item, index) => ({
       '@type': 'ListItem', position: index + 1, name: item.name,
@@ -66,7 +68,7 @@ function renderCategoryDocument(template, category, recipes = [], options = {}) 
   const schemaTag = `<script id="smartplate-page-schema" type="application/ld+json">${JSON.stringify(schema).replace(/</g, '\\u003c')}</script>`;
   document = document.replace(/<\/head>/i, `${schemaTag}\n</head>`);
 
-  if (category && !search) {
+  if ((category || free) && !search) {
     const hero = `<div class="cat-hero collection-hero" id="cat-hero"><h1 class="cat-hero-name">${escapeHtml(name)}</h1><p class="collection-intro">${escapeHtml(description)}</p></div>`;
     document = document.replace('<div class="cat-hero" id="cat-hero"></div>', hero);
     const links = recipes.slice(0, 100).map(recipe =>
@@ -75,7 +77,7 @@ function renderCategoryDocument(template, category, recipes = [], options = {}) 
     document = document.replace('<div class="recipe-card-grid anim anim-d1" id="dish-list" style="margin-top:14px"></div>',
       `<div class="recipe-card-grid anim anim-d1" id="dish-list" style="margin-top:14px">${links}</div>`);
   }
-  if (!category && !search) {
+  if (!category && !free && !search) {
     const hero = `<div class="cat-hero collection-hero" id="cat-hero"><h1 class="cat-hero-name">${escapeHtml(name)}</h1><p class="collection-intro">${escapeHtml(description)}</p></div>`;
     document = document.replace('<div class="cat-hero" id="cat-hero"></div>', hero);
     const links = categories.slice(0, 100).map(item =>

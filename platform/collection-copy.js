@@ -238,5 +238,10 @@
             intro: known ? known.intro : 'Блюда с ингредиентом «' + item.name + '». В рецептах указаны КБЖУ на порцию и пошаговые инструкции.'
         };
     }
-    return { category: category, ingredient: ingredient, categories: categories };
+    var freeRecipes = {
+        heading: 'Бесплатные ПП-рецепты с КБЖУ',
+        title: 'Бесплатные ПП-рецепты с КБЖУ — Умная тарелка',
+        intro: 'Рецепты с калориями, белками, жирами и углеводами на порцию. Открыты без регистрации.'
+    };
+    return { category: category, ingredient: ingredient, categories: categories, freeRecipes: freeRecipes };
 }));
