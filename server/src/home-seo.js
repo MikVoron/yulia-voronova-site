@@ -2,6 +2,7 @@ const fs = require('node:fs/promises');
 const fsSync = require('node:fs');
 const path = require('node:path');
 const { listStaticIngredients } = require('./ingredient-seo');
+const FEATURED_FREE_RECIPE_IDS = ['borscht-red-beans', 'millet-pancakes-apple', 'cutlets-chicken-red-lentils'];
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -52,7 +53,7 @@ function renderIngredientLinks(document, ingredients) {
 }
 
 async function loadHomeData(db) {
-  const [categories, popular, ingredients] = await Promise.all([
+  const [categories, popular, ingredients, freeRecipes] = await Promise.all([
     db.query(`SELECT c.id, c.name, c.description, c.emoji, cover.photo,
                      COUNT(r.id)::int AS recipe_count
                 FROM categories c
@@ -68,8 +69,14 @@ async function loadHomeData(db) {
                GROUP BY r.id HAVING AVG(v.stars)>0
                ORDER BY rating DESC, review_count DESC, r.created_at DESC, r.id LIMIT 8`),
     loadIngredientLinks(db),
+    db.query(`SELECT id, cat, name, photo, time_min, time_label, difficulty, kcal
+                FROM recipes
+               WHERE is_published = true
+                 AND COALESCE(NULLIF(access_level, ''), CASE WHEN is_free THEN 'free' ELSE 'pro' END) = 'free'
+               ORDER BY array_position($1::text[], id::text) NULLS LAST, sort_order, created_at
+               LIMIT 3`, [FEATURED_FREE_RECIPE_IDS]),
   ]);
-  return { categories: categories.rows, popular: popular.rows, ingredients };
+  return { categories: categories.rows, popular: popular.rows, ingredients, freeRecipes: freeRecipes.rows };
 }
 
 function recipeCard(recipe) {
@@ -87,6 +94,23 @@ function recipeCard(recipe) {
       <div class="sp-card-foot"><span class="lbl">В порции</span><span class="val">${Number(recipe.kcal)}<small>ккал</small></span></div></div></a>`;
 }
 
+function freeRecipeCard(recipe) {
+  const name = escapeHtml(recipe.name);
+  const photo = imageUrl(recipe.photo);
+  const id = encodeURIComponent(recipe.id);
+  const category = encodeURIComponent(recipe.cat || '');
+  const time = String(recipe.time_label || '').trim()
+    .replace(/\s*\([^)]+\)\s*$/, '').replace(/,\s*без\s+.+$/i, '').replace(/^без\s+.+$/i, '')
+    .replace(/минут[ауы]?/gi, 'мин').replace(/\s+/g, ' ').trim() || `${Number(recipe.time_min) || 0} мин`;
+  const difficulty = { easy: 'Легкая', medium: 'Средняя', hard: 'Сложная' }[recipe.difficulty] || recipe.difficulty || '';
+  return `<a class="approved-recipe" data-free-recipe-id="${id}" href="recipe.html?id=${id}&amp;from=${category}">
+    <div class="approved-recipe-photo">${photo ? `<img src="${escapeHtml(photo)}" alt="${name}" loading="eager">` : ''}
+      <div class="sp-badges"><span class="sp-bd sp-bd--free">Бесплатно</span></div></div>
+    <div class="approved-recipe-details"><p class="approved-recipe-meta">${escapeHtml(time)} · ${escapeHtml(difficulty)}</p>
+      <h3>${name}</h3><div class="approved-recipe-foot"><span>${Number(recipe.kcal) || 0} ккал / порция</span>
+      <span data-free-recipe-rating hidden></span></div></div></a>`;
+}
+
 function renderHomeDocument(template, data) {
   let document = renderIngredientLinks(template, data.ingredients);
   document = document.replace('</head>', '<noscript><style>body{visibility:visible!important}.anim{opacity:1!important;transform:none!important}</style></noscript>\n</head>');
@@ -98,6 +122,8 @@ function renderHomeDocument(template, data) {
       <div class="cat-desc">${escapeHtml(item.description)}</div><div class="cat-count">${recipeCount(item.recipe_count)}</div></div></a>`;
   }).join('');
   document = document.replace('<div class="cat-grid" id="cat-grid"></div>', `<div class="cat-grid" id="cat-grid">${categories}</div>`);
+  document = document.replace(/(<div id="approved-free-recipes"[^>]*>)<\/div>/,
+    (_, opening) => `${opening}${(data.freeRecipes || []).map(freeRecipeCard).join('')}</div>`);
   return document.replace('<div class="sp-grid" id="recommended-grid"></div>',
     `<div class="sp-grid" id="recommended-grid">${data.popular.map(recipeCard).join('')}</div>`);
 }

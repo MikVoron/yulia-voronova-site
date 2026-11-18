@@ -44,6 +44,21 @@ describe('server-visible home navigation', () => {
     expect(queries.filter(s => s.includes('AVG(v.stars)'))).toHaveLength(2);
     expect(queries.find(s => s.includes('AVG(v.stars)'))).toContain('r.is_published=true');
     expect(queries.find(s => s.includes('COUNT(r.id)'))).toContain('r.is_published=true');
+    const freeQuery = queries.find(s => s.includes('array_position'));
+    expect(freeQuery).toContain('is_published = true');
+    expect(freeQuery).toContain("COALESCE(NULLIF(access_level, ''), CASE WHEN is_free THEN 'free' ELSE 'pro' END) = 'free'");
+    expect(freeQuery).toContain('LIMIT 3');
+  });
+
+  it('adds free cards to the existing carousel with crawlable links and escaped copy', () => {
+    const html = renderHomeDocument('<div id="approved-free-recipes" class="approved-recipe-grid"></div>', {
+      ingredients: [], categories: [], popular: [],
+      freeRecipes: [{ id: 'borscht', cat: 'soups', name: 'Борщ & фасоль', time_min: 40, difficulty: 'easy', kcal: 123 }],
+    });
+    expect(html).toContain('href="recipe.html?id=borscht&amp;from=soups"');
+    expect(html).toContain('Борщ &amp; фасоль');
+    expect(html).toContain('40 мин · Легкая');
+    expect(html).toContain('123 ккал / порция');
   });
 
   it('fills the existing ingredient menu without adding another navigation section', () => {
