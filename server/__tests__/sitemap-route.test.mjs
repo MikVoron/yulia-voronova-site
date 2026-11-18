@@ -6,7 +6,9 @@ const Fastify = require('fastify');
 const { createSitemapRoutes } = require('../src/routes/sitemap');
 
 const db = { query: async sql => {
-  if (/SELECT id FROM recipes/.test(sql)) return { rows: [{ id: 'fresh-recipe' }] };
+  if (/FROM recipes WHERE is_published = true/.test(sql)) {
+    return { rows: [{ id: 'fresh-recipe', is_guest_accessible: true }] };
+  }
   if (/SELECT id FROM categories/.test(sql)) return { rows: [{ id: 'mains' }] };
   if (/SELECT id FROM ingredient_catalog/.test(sql)) return { rows: [] };
   if (/SELECT DISTINCT unnest\(main_ingredients\)/.test(sql)) return { rows: [] };
@@ -27,5 +29,6 @@ describe('GET /_seo/sitemap', () => {
     expect(response.headers['content-type']).toContain('application/xml');
     expect(response.headers['cache-control']).toBe('no-cache');
     expect(response.body).toContain('recipe.html?id=fresh-recipe');
+    expect(response.body).toContain('<loc>https://plate.voronova.online/category.html?free=1</loc>');
   });
 });

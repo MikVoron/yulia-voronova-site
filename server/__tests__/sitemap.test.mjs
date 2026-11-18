@@ -32,7 +32,7 @@ describe('SmartPlate sitemap', () => {
     const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'smartplate-sitemap-'));
     const output = path.join(directory, 'sitemap.xml');
     const db = { query: async sql => {
-      if (/SELECT id FROM recipes/.test(sql)) return { rows: [{ id: 'salmon-soup' }] };
+      if (/FROM recipes WHERE is_published = true/.test(sql)) return { rows: [{ id: 'salmon-soup' }] };
       if (/SELECT id FROM categories/.test(sql)) return { rows: [{ id: 'soups' }] };
       if (/SELECT id FROM ingredient_catalog/.test(sql)) return { rows: [{ id: 'dynamic-herb' }] };
       if (/SELECT DISTINCT unnest\(main_ingredients\)/.test(sql)) {
@@ -47,6 +47,7 @@ describe('SmartPlate sitemap', () => {
       expect(xml).toContain('ingredient.html?id=salmon');
       expect(xml).toContain('ingredient.html?id=dynamic-herb');
       expect(xml).not.toContain('ingredient.html?id=unknown');
+      expect(xml).not.toContain('category.html?free=1');
     } finally {
       await fs.rm(directory, { recursive: true, force: true });
     }
@@ -54,7 +55,9 @@ describe('SmartPlate sitemap', () => {
 
   it('generates current XML without requiring filesystem write access', async () => {
     const db = { query: async sql => {
-      if (/SELECT id FROM recipes/.test(sql)) return { rows: [{ id: 'sql-published-recipe' }] };
+      if (/FROM recipes WHERE is_published = true/.test(sql)) {
+        return { rows: [{ id: 'sql-published-recipe', is_guest_accessible: true }] };
+      }
       if (/SELECT id FROM categories/.test(sql)) return { rows: [{ id: 'mains' }] };
       if (/SELECT id FROM ingredient_catalog/.test(sql)) return { rows: [] };
       if (/SELECT DISTINCT unnest\(main_ingredients\)/.test(sql)) return { rows: [] };
@@ -64,6 +67,7 @@ describe('SmartPlate sitemap', () => {
     const result = await sitemap.generateSitemap(db);
 
     expect(result.xml.split('<loc>https://plate.voronova.online/harvard-plate.html</loc>')).toHaveLength(2);
+    expect(result.xml.split('<loc>https://plate.voronova.online/category.html?free=1</loc>')).toHaveLength(2);
     expect(result.xml).toContain('recipe.html?id=sql-published-recipe');
     expect(result.urlCount).toBe((result.xml.match(/<loc>/g) || []).length);
   });

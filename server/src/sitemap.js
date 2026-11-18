@@ -31,6 +31,7 @@ function buildSitemap({ recipes, categories, ingredients }) {
     `${ORIGIN}/`,
     `${ORIGIN}/harvard-plate.html`,
     `${ORIGIN}/category.html`,
+    ...(recipes.some(recipe => recipe?.is_guest_accessible === true) ? [`${ORIGIN}/category.html?free=1`] : []),
     `${ORIGIN}/how-subscription-works.html`,
     `${ORIGIN}/personal-data-processing-policy.html`,
     ...categories.filter(item => item && item.id).map(item => `${ORIGIN}/category.html?cat=${encodeURIComponent(item.id)}`),
@@ -70,7 +71,9 @@ async function refreshSitemap(db, options = {}) {
 
 async function generateSitemap(db) {
   const [recipesResult, categoriesResult, catalogResult, usedIngredientsResult, staticIngredients] = await Promise.all([
-    db.query('SELECT id FROM recipes WHERE is_published = true ORDER BY sort_order, created_at'),
+    db.query(`SELECT id,
+                     COALESCE(NULLIF(access_level, ''), CASE WHEN is_free THEN 'free' ELSE 'pro' END) = 'free' AS is_guest_accessible
+                FROM recipes WHERE is_published = true ORDER BY sort_order, created_at`),
     db.query('SELECT id FROM categories ORDER BY sort_order, id'),
     db.query('SELECT id FROM ingredient_catalog ORDER BY group_id, sort_order, id'),
     db.query(`SELECT DISTINCT unnest(main_ingredients) AS id
