@@ -5795,6 +5795,7 @@ button[class*="btn-"]:hover,
 
 .footer-social {
     display: flex;
+    flex-wrap: wrap;
     gap: 15px;
 }
 
