@@ -143,7 +143,7 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(cabinetJs).toContain("+ planHtml");
     expect(cabinetJs).toContain("+ headlineHtml");
     expect(cabinetJs).not.toContain("badge === 'trial' ? 'Пробный период'");
-    expect(cabinetJs).toContain("/мес. · все рецепты и&nbsp;БЖУ");
+    expect(cabinetJs).toContain("Все рецепты и&nbsp;БЖУ");
     expect(cabinetHtml).toMatch(/cabinet\.js\?v=[^"']+/);
   });
 
@@ -159,7 +159,6 @@ describe('SmartPlate feedback plan 7 contracts', () => {
     expect(cabinetHtml).toContain('class="cab-tab-panel" id="panel-settings"');
     expect(cabinetHtml).toContain('.cab-tabs { flex-wrap: wrap; overflow-x: visible; }');
     expect(cabinetHtml).toContain('flex: 1 1 30%; justify-content: center;');
-    expect(cabinetHtml).toContain('<details class="early-bird-disclosure">');
     expect(cabinetJs).toContain("if (!payments.length) { el.innerHTML = ''; return; }");
   });
 

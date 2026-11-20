@@ -682,7 +682,7 @@
                     <div style="flex-shrink:0">${avatarHtml}</div>
                     <div style="flex:1;min-width:0">
                         <div class="review-popup-header">
-                            <span class="review-identity"><span class="review-author">${escHtml(rv.author)}</span>${(rv.isSmartPlateFriend || rv.isEarlyBird) ? '<small class="review-friend-badge">Друг Умной тарелки</small>' : ''}</span>
+                            <span class="review-identity"><span class="review-author">${escHtml(rv.author)}</span>${ReviewBadges.markup(rv)}</span>
                             <div class="review-popup-actions">
                                 <span>${fmtDate(rv.createdAt)}</span>
                                 ${canDelete ? `<button style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px" data-ingredient-action="delete-review" data-review-id="${Number(rv.id)}" data-is-admin="${isAdmin ? '1' : '0'}" title="Удалить"><svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg></button>` : ''}

@@ -4075,7 +4075,7 @@
                         <div class="review-author-wrap">
                             ${avatarHtml}
                             <div class="review-identity">
-                                <span class="review-author">${escHtml(rv.author)}</span>${(rv.isSmartPlateFriend || rv.isEarlyBird) ? '<span class="review-friend-badge">Друг Умной тарелки</span>' : ''}
+                                <span class="review-author">${escHtml(rv.author)}</span>${ReviewBadges.markup(rv)}
                             </div>
                         </div>
                         <div class="review-header-actions">

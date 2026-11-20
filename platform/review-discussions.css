@@ -7,7 +7,12 @@
 .discussion-initial { display: inline-flex; align-items: center; justify-content: center; background: var(--accent, #c64e20); color: white; }
 .discussion-author-badge, .discussion-origin { font-size: 10px; color: var(--accent, #c64e20); }
 .discussion-author-badge { padding: 2px 5px; border: 1px solid currentColor; }
+.review-identity {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 4px 7px; min-width: 0;
+}
+.review-identity .review-author { overflow-wrap: anywhere; }
 .review-identity .review-friend-badge {
+    display: inline-block; max-width: 100%; box-sizing: border-box; overflow-wrap: anywhere;
     padding: 2px 5px; border: 1px solid currentColor; color: #35634f;
     background: transparent; font-size: 10px; font-weight: 400; line-height: 1.6;
     letter-spacing: normal; text-transform: none;

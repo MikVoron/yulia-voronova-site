@@ -165,6 +165,7 @@
 			}
 		}
 
+		_cabAccess.then(loadCabinetReviewBadges).catch(function () {});
 		// After checkAccess, sync favorites + notes from server then re-sync displayName + avatar
 		_cabAccess.then(function() {
 			return Favorites.load();
@@ -205,6 +206,57 @@
 			if (freshAva) {
 				setCabinetAvatarImage(freshAva);
 				Auth.renderAvatar(document.getElementById('u-ava'));
+			}
+		});
+
+		function renderCabinetReviewBadges(profile) {
+			const list = document.getElementById('cab-badge-list');
+			const select = document.getElementById('cab-public-badge');
+			const badges = profile.badges.filter(badge => ReviewBadges.details.has(badge));
+			list.replaceChildren();
+			select.replaceChildren();
+			for (const badge of badges) {
+				const { label, description } = ReviewBadges.details.get(badge);
+				const item = document.createElement('li');
+				const name = document.createElement('span');
+				name.className = 'review-badge';
+				name.dataset.reviewBadge = badge;
+				name.textContent = label;
+				const detail = document.createElement('span');
+				detail.className = 'cab-badge-description';
+				detail.textContent = description;
+				item.append(name, detail);
+				list.append(item);
+				select.add(new Option(label, badge, badge === profile.publicBadge));
+			}
+			select.value = profile.publicBadge || '';
+			document.getElementById('cab-badge-choice').hidden = badges.length < 2;
+			document.getElementById('cab-badge-empty').hidden = badges.length > 0;
+			document.getElementById('cab-review-badges').hidden = false;
+		}
+
+		async function loadCabinetReviewBadges() {
+			const response = await Auth.api('/content/my-review-badges');
+			if (!response.ok) return;
+			renderCabinetReviewBadges(await response.json());
+		}
+
+		document.getElementById('cab-public-badge').addEventListener('change', async function () {
+			const select = this;
+			const status = document.getElementById('cab-badge-status');
+			const previousOption = Array.from(select.options).find(option => option.defaultSelected);
+			select.disabled = true;
+			status.textContent = '';
+			try {
+				const response = await Auth.api('/content/my-review-badges', { method: 'PUT', body: { badge: select.value } });
+				if (!response.ok) throw new Error();
+				renderCabinetReviewBadges(await response.json());
+				status.textContent = 'Бейдж в отзывах обновлён.';
+			} catch (error) {
+				select.value = previousOption?.value || '';
+				status.textContent = 'Не удалось сохранить бейдж. Попробуйте ещё раз.';
+			} finally {
+				select.disabled = false;
 			}
 		});
 
@@ -601,8 +653,8 @@
 		// ── ПОДПИСКА ──────────────────────────────────────────────────────────────
 		const SUB_LABELS = { trial: 'Пробный период', active: 'Активна', expired: 'Завершена' };
 		function subscriptionPricePreviewHtml() {
-			var price = (_currentPrices && Number(_currentPrices[1])) || 250;
-			return '<div class="sub-price-preview">От&nbsp;' + formatRubles(price) + '/мес. · все рецепты и&nbsp;БЖУ</div>';
+			const price = _currentPrices?.[1];
+			return '<div class="sub-price-preview">' + (price ? 'От&nbsp;' + formatRubles(price) + '/мес. · ' : '') + 'Все рецепты и&nbsp;БЖУ</div>';
 		}
 		function updateSubscriptionPricePreview() {
 			var preview = document.querySelector('.sub-price-preview');
@@ -638,7 +690,6 @@
 				let label = SUB_LABELS[badge] || 'Нет подписки';
 				if (data.trialNotGranted) label = 'Пробный период не активирован';
 				else if (badge === 'expired' && data.trialEndsAt) label = 'Пробный период завершён';
-				const earlyBadge = data.isEarlyBird ? '<span class="sub-badge early-bird">Друг Умной тарелки</span>' : '';
 				let untilStr = '';
 				if (data.activeUntil) {
 					untilStr = new Date(data.activeUntil).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -663,7 +714,7 @@
 						+ headlineHtml
 					: '';
 				const defaultSummaryHtml = activeSummaryHtml || (
-					'<div class="sub-status-row"><span class="status-pill' + pillClass + '">' + escHtml(label) + '</span>' + planHtml + earlyBadge + '</div>'
+					'<div class="sub-status-row"><span class="status-pill' + pillClass + '">' + escHtml(label) + '</span>' + planHtml + '</div>'
 					+ headlineHtml + untilHtml + pricePreviewHtml
 				);
 				const ctaText = badge === 'active' ? 'Продлить подписку' : 'Оформить подписку';
@@ -679,7 +730,6 @@
 					+ actionsHtml
 					+ '</div>';
 
-				// Active users also see their personal early-access renewal status.
 				if (badge === 'active') {
 					if (!skipPaymentHistory) loadPaymentHistory();
 					return true;
@@ -823,25 +873,25 @@
 
 		function renderPlanCards() {
 			var plans = [
-				{ months: 1, name: '1 месяц', label: 'Для знакомства', amount: _currentPrices[1], future: _regularPrices[1], perMonth: '', benefit: 'Можно не продлевать' },
-				{ months: 3, name: '3 месяца', label: 'Оптимальный старт', amount: _currentPrices[3], future: _regularPrices[3], perMonth: Math.round(_currentPrices[3] / 3) + ' ₽ в месяц', benefit: _showFuturePrices ? 'Экономия ' + formatPlainRubles(_regularPrices[3] - _currentPrices[3]) + ' относительно обычной цены' : 'Экономия ' + formatPlainRubles(_regularPrices[1] * 3 - _regularPrices[3]) + ' по сравнению с ежемесячной оплатой', badge: 'Рекомендуем', featured: true },
-				{ months: 12, name: '12 месяцев', label: 'Максимальная выгода', amount: _currentPrices[12], future: _regularPrices[12], perMonth: '≈ ' + Math.round(_currentPrices[12] / 12) + ' ₽ в месяц', benefit: _showFuturePrices ? 'Экономия ' + formatPlainRubles(_regularPrices[12] - _currentPrices[12]) + ' относительно обычной цены' : 'Экономия ' + formatPlainRubles(_regularPrices[1] * 12 - _regularPrices[12]) + ' по сравнению с ежемесячной оплатой', badge: 'Лучшая цена' }
+				{ months: 1, name: '1 месяц', label: 'Для знакомства' },
+				{ months: 3, name: '3 месяца', label: 'Оптимальный старт', badge: 'Рекомендуем', featured: true },
+				{ months: 12, name: '12 месяцев', label: 'Максимальная выгода', badge: 'Лучшая цена' }
 			];
 			var grid = document.getElementById('pay-plan-grid');
 			grid.innerHTML = plans.map(function(pl) {
+				var amount = _currentPrices[pl.months];
+				var perMonth = Math.round(amount / pl.months) + ' ₽ в месяц';
+				var saving = _currentPrices[1] * pl.months - amount;
+				var benefit = saving > 0 ? 'Экономия ' + formatPlainRubles(saving) + ' по сравнению с ежемесячной оплатой' : '';
 				var badgeHtml = pl.badge ? '<div class="pay-plan-badge">' + pl.badge + '</div>' : '';
-				var futureHtml = _showFuturePrices
-					? '<div class="pay-plan-future">Цена после раннего доступа — ' + formatRubles(pl.future) + '</div>'
-					: '';
-				return '<div class="pay-plan-card' + (pl.featured ? ' featured' : '') + '" data-cabinet-action="select-plan" data-months="' + Number(pl.months) + '" data-amount="' + Number(pl.amount) + '">'
+				return '<div class="pay-plan-card' + (pl.featured ? ' featured' : '') + '" data-cabinet-action="select-plan" data-months="' + pl.months + '" data-amount="' + amount + '">'
 					+ badgeHtml
 					+ '<span class="pay-plan-selected-label">Выбрано</span>'
 					+ '<div class="pay-plan-name">' + pl.name + '</div>'
 					+ '<div class="pay-plan-duration">' + pl.label + '</div>'
-					+ '<div class="pay-plan-price">' + formatRubles(pl.amount) + '</div>'
-					+ (pl.perMonth ? '<div class="pay-plan-permonth">' + pl.perMonth + '</div>' : '<div class="pay-plan-permonth">Оплата только за один месяц</div>')
-					+ futureHtml
-					+ '<div class="pay-plan-benefit">' + pl.benefit + '</div>'
+					+ '<div class="pay-plan-price">' + formatRubles(amount) + '</div>'
+					+ '<div class="pay-plan-permonth">' + (pl.months > 1 ? '≈ ' + perMonth : 'Оплата только за один месяц') + '</div>'
+					+ (benefit ? '<div class="pay-plan-benefit">' + benefit + '</div>' : '')
 					+ '</div>';
 			}).join('');
 			restoreSelectedPlan();
@@ -866,10 +916,8 @@
 			_selectedPlan = null;
 			_selectedPaymentCountry = null;
 			document.getElementById('pay-success').style.display = 'none';
-			// Гарантируем, что план-карточки отрисованы. loadEarlyBird() пропускается
-			// для active-подписки, поэтому при «Продлить» grid мог быть пустым.
 			var planGrid = document.getElementById('pay-plan-grid');
-			if (planGrid && !planGrid.children.length) renderPlanCards();
+			if (_currentPrices && !planGrid.children.length) renderPlanCards();
 			document.querySelectorAll('.pay-plan-card').forEach(function(c) { c.classList.remove('selected'); });
 			document.getElementById('pay-next-0').disabled = true;
 			document.querySelectorAll('.pay-country-card').forEach(function(card) {
@@ -1220,10 +1268,7 @@
 			}
 		}
 
-		var _currentPrices = { 1: 250, 3: 690, 12: 2500 };
-		var _regularPrices = { 1: 250, 3: 690, 12: 2500 };
-		var _showFuturePrices = false;
-		var _futurePriceLabel = 'После раннего доступа';
+		var _currentPrices = null;
 
 		function pluralMonths(n) {
 			var abs = Math.abs(n) % 100;
@@ -1234,52 +1279,26 @@
 			return 'месяцев';
 		}
 
-		async function loadEarlyBird() {
-			var statusEl = document.getElementById('early-access-user-status');
+		async function loadSubscriptionPrices() {
+			const status = document.getElementById('pay-price-status');
 			try {
-				var res = await Auth.api('/subscription/early-bird');
-				if (!res.ok) return;
-				var data = await res.json();
-				document.getElementById('early-bird-remaining').textContent = data.remaining;
-				_currentPrices = data.prices || _currentPrices;
-				_regularPrices = data.regularPrices || _regularPrices;
-				_showFuturePrices = !!data.eligible;
-				_futurePriceLabel = 'Цена после раннего доступа';
-				var countryPrice = document.getElementById('pay-country-price-ru');
-				if (countryPrice) countryPrice.innerHTML = formatRubles(_currentPrices[1]) + ' <small>за 1 месяц</small>';
-				var summary = document.getElementById('pay-early-summary');
-				var summaryCount = document.getElementById('pay-early-summary-count');
-				if (summary && summaryCount) {
-					if (data.active && !data.isEarlyBird) {
-						summary.style.display = '';
-						summaryCount.textContent = 'По стартовой цене осталось ' + data.remaining + ' мест';
-					} else if (data.isEarlyBird) {
-						summary.style.display = '';
-						summary.querySelector('.pay-early-summary-title').textContent = 'Друг Умной тарелки';
-						summary.querySelector('.pay-early-summary-copy').textContent = 'За вами сохранена ранняя цена: продлевайте вовремя или в течение 7 дней после окончания доступа.';
-						summaryCount.textContent = 'Ранняя цена закреплена за вами';
-					} else {
-						summary.style.display = 'none';
-					}
-				}
-				if (statusEl) {
-					if (data.eligibility === 'renewal') {
-						statusEl.textContent = 'Вы — Друг Умной тарелки. Ранняя цена сохранена при своевременном продлении.';
-					} else if (data.eligible) {
-						statusEl.textContent = 'Стартовая цена закрепляется после подтверждения оплаты. Затем она сохраняется при своевременном продлении.';
-					} else {
-						statusEl.textContent = 'Ранний доступ завершён. Для оформления действуют актуальные цены.';
-					}
-				}
-			} catch (e) { /* ignore */ }
-			renderPlanCards();
-			updateSubscriptionPricePreview();
+				const response = await Auth.api('/subscription/early-bird');
+				if (!response.ok) throw new Error();
+				const { prices } = await response.json();
+				if (![1, 3, 12].every(months => Number.isInteger(prices?.[months]) && prices[months] > 0)) throw new Error();
+				_currentPrices = prices;
+				status.hidden = true;
+				renderPlanCards();
+				updateSubscriptionPricePreview();
+			} catch (error) {
+				status.textContent = 'Не удалось загрузить цены подписки. Обновите страницу и попробуйте ещё раз.';
+			}
 		}
 
 		// Load subscription tab on init — wait for checkAccess to set _subStatus
 		_cabAccess.then(async function() {
 			var isActive = await loadSubscription();
-			await loadEarlyBird();
+			await loadSubscriptionPrices();
 			_renderReturnBanner();
 			var hasSelectedPeriod = [1, 3, 12].includes(Number(new URLSearchParams(location.search).get('months')));
 			// Open an explicit purchase in context without navigating away from the cabinet.

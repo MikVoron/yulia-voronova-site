@@ -9,6 +9,7 @@ let subState = null; // null = no subscription row; or { status, trial_ends_at, 
 let dietaryPreferences = null;
 let newsRows = [];
 let reviewRows = [];
+let reviewBadgeRows = [];
 let reviewDiscussionRows = [];
 let reviewAlreadyAnswered = false;
 let reviewReactionActive = false;
@@ -129,6 +130,7 @@ const mockQuery = vi.fn(async (sql, params = []) => {
   if (/LEFT JOIN review_replies rr ON rr.review_id = r.id/.test(sql)) {
     return { rows: reviewRows.map(r => ({ ...r })) };
   }
+  if (/COUNT\(DISTINCT recipe.id\)::int AS reviewed_recipes/.test(sql)) return { rows: reviewBadgeRows };
   if (/SELECT r.id AS review_id/.test(sql)) return { rows: reviewDiscussionRows };
   if (/SELECT review_id FROM review_replies WHERE review_id/.test(sql)) {
     return { rows: [{ review_id: 17 }] };
@@ -222,6 +224,7 @@ beforeEach(() => {
   dietaryPreferences = null;
   newsRows = [];
   reviewRows = [];
+  reviewBadgeRows = [];
   reviewDiscussionRows = [];
   reviewAlreadyAnswered = false;
   reviewReactionActive = false;
@@ -444,6 +447,15 @@ function expectFull(recipe) {
 }
 
 describe('recipe reviews', () => {
+  it('returns the selected badge for the review without exposing the list of earned badges', async () => {
+    reviewRows = [{ id: 17, stars: 5, user_id: 'u-1', review_friend_badge: true }];
+    reviewBadgeRows = [{ id: 'u-1', review_friend_badge: true, has_published_photo: true, public_review_badge: 'cooks-with-us' }];
+    const response = await app.inject({ method: 'GET', url: '/content/reviews/free-1' });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()[0]).toMatchObject({ reviewBadge: 'cooks-with-us', isSmartPlateFriend: true, isEarlyBird: false });
+    expect(response.json()[0]).not.toHaveProperty('badges');
+  });
+
   it.each([null, '', '   ', ' Женя ', 'home_chef', 'Аноним'])('returns a real name separately from the anonymous label: %j', displayName => {
     reviewRows = [{ id: 17, stars: 5, text: 'Отзыв', user_id: 'u-1', display_name: displayName }];
     return app.inject({ method: 'GET', url: '/content/reviews/free-1' }).then(res => {

@@ -10,9 +10,11 @@ const platform = path.resolve(here, '../../platform');
 const read = file => readPlatformSource(platform, file);
 
 describe('SmartPlate feedback plan 3 contracts', () => {
-  it('keeps payment details above the longer early-access explanation', () => {
+  it('links to subscription terms without an early-access counter at checkout', () => {
     const html = read('cabinet.html');
-    expect(html.indexOf('class="pay-section"')).toBeLessThan(html.indexOf('id="early-bird-card"'));
+    expect(html).toContain('href="how-subscription-works.html">Условия подписки</a>');
+    expect(html).not.toContain('early-bird-remaining');
+    expect(html).not.toContain('Ранний доступ');
     expect(html).toContain('id="pay-success" class="pay-success-card" role="status"');
     expect(html).toContain('id="pay-details-title" tabindex="-1"');
   });

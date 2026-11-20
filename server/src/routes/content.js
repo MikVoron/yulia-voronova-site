@@ -3,6 +3,7 @@ const { authenticate, requireAdmin, optionalAuthenticate, getUserTier, userCanSe
 const email = require('../email');
 const audit = require('../audit');
 const { reviewAvatar, assignReviewAvatar } = require('../review-avatars');
+const { REVIEW_BADGE_IDS, getReviewBadges } = require('../review-badges');
 const { registerDiscussionRoutes, discussionSummaries } = require('../review-discussions');
 const { registerLikeRoutes, likeFields, publicLikes } = require('../review-likes');
 const replyNotifications = require('../review-reply-notifications');
@@ -654,7 +655,10 @@ async function contentRoutes(fastify, options = {}) {
        WHERE r.recipe_id = $1 ORDER BY r.created_at DESC LIMIT $3`,
       [recipeId, userId, REVIEW_LIST_LIMIT]
     );
-    const discussions = await discussionSummaries(result.rows.map(row => row.id), userId);
+    const [discussions, reviewBadges] = await Promise.all([
+      discussionSummaries(result.rows.map(row => row.id), userId),
+      getReviewBadges([...new Set(result.rows.map(row => row.user_id).filter(Boolean))])
+    ]);
     return result.rows.map(row => ({
       id: row.id,
       stars: row.stars,
@@ -666,6 +670,7 @@ async function contentRoutes(fastify, options = {}) {
       avatar: reviewAvatar(row),
       isEarlyBird: row.early_access_member === true,
       isSmartPlateFriend: row.early_access_member === true || row.review_friend_badge === true,
+      reviewBadge: reviewBadges.get(row.user_id)?.publicBadge || null,
       ...publicLikes(row),
       ...(discussions.get(row.id) || { comments: [], commentCount: 0 }),
       reply: row.reply_text ? {
@@ -679,6 +684,53 @@ async function contentRoutes(fastify, options = {}) {
         helpfulByCurrentUser: row.reply_helpful_by_user === true
       } : null
     }));
+  });
+
+  fastify.get('/content/my-review-badges', { preHandler: [authenticate] }, async (req, reply) => {
+    reply.header('Cache-Control', 'private, no-store');
+    const userId = req.user.sub;
+    const [profiles, seen] = await Promise.all([
+      getReviewBadges([userId]),
+      db.query('SELECT badge FROM user_review_badges_seen WHERE user_id = $1', [userId])
+    ]);
+    const profile = profiles.get(userId) || { badges: [], publicBadge: null };
+    const seenBadges = new Set(seen.rows.map(row => row.badge));
+    return { ...profile, newBadges: profile.badges.filter(badge => !seenBadges.has(badge)) };
+  });
+
+  fastify.post('/content/my-review-badges/seen', {
+    preHandler: [authenticate],
+    config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
+    const badges = req.body?.badges;
+    if (!Array.isArray(badges) || !badges.length || badges.length > REVIEW_BADGE_IDS.length ||
+        !badges.every(badge => REVIEW_BADGE_IDS.includes(badge))) {
+      return reply.code(400).send({ error: 'Некорректный список бейджей.' });
+    }
+    const userId = req.user.sub;
+    const earned = (await getReviewBadges([userId])).get(userId)?.badges || [];
+    await db.query(
+      `INSERT INTO user_review_badges_seen (user_id, badge)
+       SELECT $1, unnest($2::text[]) ON CONFLICT DO NOTHING`,
+      [userId, badges.filter(badge => earned.includes(badge))]
+    );
+    return { ok: true };
+  });
+
+  fastify.put('/content/my-review-badges', {
+    preHandler: [authenticate],
+    config: { rateLimit: { max: 30, timeWindow: '1 hour' } }
+  }, async (req, reply) => {
+    reply.header('Cache-Control', 'private, no-store');
+    const badge = req.body?.badge;
+    if (!REVIEW_BADGE_IDS.includes(badge)) return reply.code(400).send({ error: 'Неизвестный бейдж.' });
+    const profiles = await getReviewBadges([req.user.sub]);
+    const profile = profiles.get(req.user.sub);
+    if (!profile?.badges.includes(badge)) {
+      return reply.code(409).send({ error: 'Этот бейдж пока недоступен.' });
+    }
+    await db.query('UPDATE users SET public_review_badge = $1 WHERE id = $2', [badge, req.user.sub]);
+    return { badges: profile.badges, publicBadge: badge };
   });
 
   // POST /content/reviews — submit or update a review (auth required)
