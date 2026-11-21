@@ -586,13 +586,17 @@
 				btn: 'Оформить подписку',
 				href: 'cabinet.html?tab=subscription',
 			};
-			const videoCopy = [r.vkVideo, r.ytVideo, r.dzenVideo].some(toEmbedUrl)
-				? ' Также откроется полное видео приготовления.'
-				: '';
+			const hasVideo = [r.vkVideo, r.ytVideo, r.dzenVideo].some(toEmbedUrl);
+			const videoCopy = hasVideo ? ' Также откроется полное видео приготовления.' : '';
 			const photo = r.photo
 				? (Array.isArray(r.photo) ? r.photo[0] : (r.photo === true ? '' : r.photo))
 				: '';
 			const photoSrc = photo ? photoUrl(photo) : '';
+			const photoBlock = photoSrc
+				? '<div class="rp-photo' + (hasVideo ? ' rp-photo--with-video-caption' : '') + '">'
+					+ '<img src="' + escHtml(photoSrc) + '" alt="' + escHtml(r.name) + '" data-recipe-image-fallback="hide"></div>'
+					+ (hasVideo ? '<p class="rp-preview-video-caption">В полном рецепте есть <strong>видео приготовления</strong></p>' : '')
+				: '';
 			const diffLabel = (typeof DIFF_LABELS !== 'undefined' && DIFF_LABELS[r.diff]) || r.diff || '';
 			const timeMeta = formatTimeMeta(r.time, r.timeLabel);
 			const quote = String(r.quote || '').replace(/^[«"']|[»"']$/g, '').trim();
@@ -650,9 +654,6 @@
 					? '<div class="rp-preview-step is-locked"><span class="rp-preview-step-num">2</span><div><h3>Следующий шаг</h3><span class="rp-preview-step-blur" aria-hidden="true"></span></div></div>'
 						+ (stepTotal > 2 ? '<div class="rp-preview-step is-locked"><span class="rp-preview-step-num">3</span><div><h3>Остальные этапы</h3><span class="rp-preview-step-blur" aria-hidden="true"></span></div></div>' : '')
 					: '';
-				const previewPhoto = photoSrc
-					? '<div class="rp-photo"><img src="' + escHtml(photoSrc) + '" alt="' + escHtml(r.name) + '" data-recipe-image-fallback="hide"></div>'
-					: '';
 				const servingsText = r.servings
 					? escHtml(String(r.servings)) + ' ' + wordForm(r.servings, 'порция', 'порции', 'порций')
 					: '';
@@ -693,7 +694,7 @@
 							+ '<div class="rp-preview-kicker">' + (isSubscriptionPreview ? 'Рецепт по подписке' : 'Рецепт с доступом на 7 дней') + '</div>'
 							+ '<h1 class="rp-title">' + escHtml(r.name) + '</h1>'
 							+ description
-							+ previewPhoto
+							+ photoBlock
 							+ '<div class="rp-preview-facts">'
 								+ '<div><small>Время</small><strong>' + escHtml(timeMeta.short) + '</strong></div>'
 								+ '<div><small>Калории</small><strong>' + (Number(r.kcal) || 0) + '</strong></div>'
@@ -729,9 +730,6 @@
 				}
 				return;
 			}
-			const photoBlock = photoSrc
-				? '<div class="rp-photo"><img src="' + escHtml(photoSrc) + '" alt="' + escHtml(r.name) + '" data-recipe-image-fallback="hide"></div>'
-				: '';
 			const priceHtml = cta.price
 				? '<div class="rp-cta-price"><strong data-recipe-subscription-price>' + escHtml(cta.price) + '</strong>'
 					+ (cta.priceNote ? '<span>' + escHtml(cta.priceNote) + '</span>' : '') + '</div>'
