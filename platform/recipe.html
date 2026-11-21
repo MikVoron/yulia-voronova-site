@@ -1031,19 +1031,20 @@
 			line-height: 1.6 !important;
 		}
 
-		.recipe-preview .rp-photo.rp-photo--with-video-caption {
-			margin-bottom: 0;
+		.recipe-preview .rp-photo {
+			position: relative;
 		}
-		.recipe-preview .rp-preview-video-caption {
-			margin: 10px 0 20px;
-			color: var(--text-2);
+		.recipe-preview .rp-preview-video-badge {
+			position: absolute;
+			left: 12px;
+			bottom: 12px;
+			max-width: calc(100% - 24px);
+			padding: 7px 10px;
+			background: #1a1a1a;
+			color: #fff;
 			font-size: 13px;
-			font-weight: 500;
-			line-height: 1.45;
-		}
-		.recipe-preview .rp-preview-video-caption strong {
-			color: var(--text);
 			font-weight: 700;
+			line-height: 1.35;
 		}
 
 		/* Guest-only continuation after a complete free recipe. Reuses the
@@ -1506,7 +1507,7 @@
     <script src="review-photos.js?v=20261108"></script>
 	<script src="review-discussions.js?v=20261117-unified-replies"></script>
 	<script src="review-badges.js?v=20261120-badge-notice"></script>
-	<script src="recipe-page.js?v=20261121-video-caption"></script>
+	<script src="recipe-page.js?v=20261121-video-badge"></script>
 	<script src="jivo-chat-modal.js?v=20261030-jivo"></script>
 </body>
 

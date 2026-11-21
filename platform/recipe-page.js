@@ -593,9 +593,10 @@
 				: '';
 			const photoSrc = photo ? photoUrl(photo) : '';
 			const photoBlock = photoSrc
-				? '<div class="rp-photo' + (hasVideo ? ' rp-photo--with-video-caption' : '') + '">'
-					+ '<img src="' + escHtml(photoSrc) + '" alt="' + escHtml(r.name) + '" data-recipe-image-fallback="hide"></div>'
-					+ (hasVideo ? '<p class="rp-preview-video-caption">В полном рецепте есть <strong>видео приготовления</strong></p>' : '')
+				? '<div class="rp-photo">'
+					+ '<img src="' + escHtml(photoSrc) + '" alt="' + escHtml(r.name) + '" data-recipe-image-fallback="hide">'
+					+ (hasVideo && Auth.isGuest() ? '<span class="rp-preview-video-badge">Видео в полном рецепте</span>' : '')
+					+ '</div>'
 				: '';
 			const diffLabel = (typeof DIFF_LABELS !== 'undefined' && DIFF_LABELS[r.diff]) || r.diff || '';
 			const timeMeta = formatTimeMeta(r.time, r.timeLabel);
