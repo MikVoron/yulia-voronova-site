@@ -586,6 +586,9 @@
 				btn: 'Оформить подписку',
 				href: 'cabinet.html?tab=subscription',
 			};
+			const videoCopy = [r.vkVideo, r.ytVideo, r.dzenVideo].some(toEmbedUrl)
+				? ' Также откроется полное видео приготовления.'
+				: '';
 			const photo = r.photo
 				? (Array.isArray(r.photo) ? r.photo[0] : (r.photo === true ? '' : r.photo))
 				: '';
@@ -708,7 +711,7 @@
 							+ '<div class="rp-cta-eyebrow">' + escHtml(isSubscriptionPreview ? (cta.eyebrow || 'Рецепт по подписке') : 'Продолжить приготовление') + '</div>'
 							+ '<div class="rp-cta-title">' + escHtml(cta.title) + '</div>'
 							+ detailedPriceHtml
-							+ '<p class="rp-cta-copy">' + escHtml(offerCopy) + '</p>'
+							+ '<p class="rp-cta-copy">' + escHtml(offerCopy + videoCopy) + '</p>'
 							+ detailedUnlocksHtml
 							+ '<a class="rp-cta-btn" href="' + escHtml(cta.href) + '" data-recipe-action="track-registration-cta">' + escHtml(cta.btn) + '</a>'
 							+ detailedSubscriptionNoteHtml
@@ -746,6 +749,7 @@
 			const tariffsHtml = cta.tariffsHref
 				? '<a class="rp-cta-tariffs" href="' + escHtml(cta.tariffsHref) + '">Посмотреть тарифы</a>'
 				: '';
+			const ctaCopy = ((cta.description || '') + videoCopy).trim();
 
 			document.getElementById('page-content').innerHTML =
 				'<div class="recipe-preview">' +
@@ -767,7 +771,7 @@
 					'<div class="rp-cta-block">' +
 						(cta.eyebrow ? '<div class="rp-cta-eyebrow">' + escHtml(cta.eyebrow) + '</div>' : '') +
 						'<div class="rp-cta-title">' + escHtml(cta.title) + '</div>' +
-						(cta.description ? '<p class="rp-cta-copy">' + escHtml(cta.description) + '</p>' : '') +
+						(ctaCopy ? '<p class="rp-cta-copy">' + escHtml(ctaCopy) + '</p>' : '') +
 						priceHtml +
 						'<a class="rp-cta-btn" href="' + escHtml(cta.href) + '">' + escHtml(cta.btn) + '</a>' +
 						trialHtml +
