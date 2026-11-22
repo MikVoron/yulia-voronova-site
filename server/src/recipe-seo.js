@@ -73,6 +73,11 @@ function recipeDescription(recipe) {
   return summary(recipe.quote) || `${recipe.name} — рецепт с расчётом КБЖУ в сервисе «Умная тарелка».`;
 }
 
+function recipeContentDescription(recipe) {
+  const isFree = recipe.access_level === 'free' || recipe.is_free === true;
+  return (isFree && cleanText(recipe.quote)) || recipeDescription(recipe);
+}
+
 function ingredientName(item) {
   return cleanText(typeof item === 'string' ? item : item && item.name).replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
 }
@@ -107,7 +112,7 @@ function buildSchema(recipe) {
     '@context': 'https://schema.org',
     '@type': isFree ? 'Recipe' : 'WebPage',
     name: recipe.name,
-    description: recipeDescription(recipe),
+    description: recipeContentDescription(recipe),
     url: recipeUrl(recipe.id),
     image: [absoluteImage(recipe.photo)],
     author: { '@type': 'Person', name: 'Юлия Воронова', url: `${SITE_ORIGIN}/` },
@@ -163,7 +168,7 @@ function buildArticle(recipe) {
     <p class="seo-recipe-kicker">Умная тарелка · рецепт</p>
     <h1>${escapeHtml(recipe.name)}</h1>
     <img src="${escapeHtml(absoluteImage(recipe.photo))}" alt="${escapeHtml(recipe.name)}" width="1200" height="630">
-    <p class="seo-recipe-description">${escapeHtml(recipeDescription(recipe))}</p>
+    <p class="seo-recipe-description">${escapeHtml(recipeContentDescription(recipe))}</p>
     <dl class="seo-recipe-nutrition"><div><dt>Время</dt><dd>${Number(recipe.time_min || 0)} мин.</dd></div><div><dt>Калорийность</dt><dd>${Number(recipe.kcal || 0)} ккал</dd></div><div><dt>Белки</dt><dd>${Number(recipe.protein || 0)} г</dd></div><div><dt>Жиры</dt><dd>${Number(recipe.fat || 0)} г</dd></div><div><dt>Углеводы</dt><dd>${Number(recipe.carbs || 0)} г</dd></div></dl>
     ${tags ? `<ul class="seo-recipe-tags">${tags}</ul>` : ''}
     ${ingredients ? `<h2>Ингредиенты</h2><ul>${ingredients}</ul>` : ''}

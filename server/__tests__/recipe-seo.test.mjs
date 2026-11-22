@@ -7,6 +7,44 @@ const template = '<!doctype html><html><head><title>Recipe</title><meta name="de
 const productionTemplate = fs.readFileSync(path.resolve(import.meta.dirname, '../../platform/recipe.html'), 'utf8');
 
 describe('server recipe SEO document', () => {
+  it('preserves the complete free introduction while keeping metadata concise', () => {
+    const quote = 'Пшено лучше варить на воде в пропорции 1:2. Очень тщательно промыть крупу, залить водой, довести до кипения и варить под крышкой на слабом огне около 25 минут. Затем дать каше постоять 5–10 минут и полностью охладить - так пшенники лучше держат форму и получаются нежнее.';
+    const recipe = { id: 'millet-pancakes-apple', name: 'Пшенники с яблоком', access_level: 'free', quote };
+    const html = recipeSeo.renderRecipeDocument(template, recipe);
+    expect(html).toContain(`<p class="seo-recipe-description">${quote}</p>`);
+    const schema = JSON.parse(html.match(/<script id="smartplate-page-schema" type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+    expect(schema.description).toBe(quote);
+    for (const key of ['description', 'og:description', 'twitter:description']) {
+      const text = html.match(new RegExp(`<meta (?:name|property)="${key}" content="([^"]*)">`))[1];
+      expect(text.length).toBeLessThanOrEqual(181);
+      expect(text).toMatch(/…$/);
+      expect(quote.startsWith(text.slice(0, -1))).toBe(true);
+    }
+  });
+
+  it.each(['trial', 'pro'])('retains the existing %s preview and access boundary', (access_level) => {
+    const recipe = {
+      id: 'locked', name: 'Закрытый рецепт', access_level,
+      quote: 'Краткое описание рецепта. '.repeat(12) + 'КОНЕЦ ПОЛНОГО ТЕКСТА',
+      ingredients: [{ name: 'ЗАКРЫТЫЙ ИНГРЕДИЕНТ' }],
+      steps: [{ text: 'ЗАКРЫТЫЙ ШАГ' }],
+    };
+    const html = recipeSeo.renderRecipeDocument(template, recipe);
+    expect(html).not.toContain('КОНЕЦ ПОЛНОГО ТЕКСТА');
+    expect(html).not.toContain('ЗАКРЫТЫЙ ИНГРЕДИЕНТ');
+    expect(html).not.toContain('ЗАКРЫТЫЙ ШАГ');
+    expect(recipeSeo.buildSchema(recipe)).toMatchObject({ '@type': 'WebPage', isAccessibleForFree: false });
+  });
+
+  it('escapes markup in the newly retained introduction tail', () => {
+    const quote = 'Обычный авторский текст. '.repeat(12) + '<script>alert(1)</script> & конец';
+    const html = recipeSeo.renderRecipeDocument(template, { id: 'free', name: 'Рецепт', is_free: true, quote });
+    expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt; &amp; конец');
+    expect(html).not.toContain('<script>alert(1)</script>');
+    const schema = JSON.parse(html.match(/<script id="smartplate-page-schema" type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+    expect(schema.description).toBe(quote);
+  });
+
   it('renders canonical metadata and public recipe content', () => {
     const html = recipeSeo.renderRecipeDocument(template, {
       id: 'free-pasta', name: 'Паста', quote: 'Описание рецепта', photo: 'images/pasta.webp',
