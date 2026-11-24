@@ -20,6 +20,32 @@
 .sp-home-guest .approved-home .sp-site h2{font:400 clamp(26px,3.1cqi,34px)/1.2 'DM Serif Text',Georgia,serif;letter-spacing:-.5px}
 .sp-home-guest .approved-home .sp-site h3{font:400 22px/1.25 'DM Serif Text',Georgia,serif}
 .sp-home-guest .approved-home .sp-lead{font-size:14px;color:var(--sp-muted);max-width:480px;line-height:1.8;text-wrap:pretty}
+.sp-home-guest .approved-home .sp-question {
+  max-width:460px;
+  margin-top:12px;
+  padding:12px 14px 4px;
+  border-inline-start:2px solid var(--sp-orange);
+  background:var(--sp-paper);
+  color:var(--sp-muted);
+  font-size:13px;
+  line-height:1.65;
+}
+.sp-home-guest .approved-home .sp-site .sp-question h2 {
+  margin-bottom:4px;
+  color:var(--sp-text);
+  font:600 14px/1.45 var(--sans);
+  letter-spacing:normal;
+}
+.sp-home-guest .approved-home .sp-site .sp-question a {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-height:44px;
+  color:light-dark(#a6320e,#ff9d75);
+  font-weight:600;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
 .sp-home-guest .approved-home .sp-site a.approved-plate-method {
   white-space:nowrap;
   text-decoration:underline;
