@@ -1485,7 +1485,8 @@
 		}
 
 		function renderRecipe(r) {
-			const portionDetail = r.portionGrams ? ('1 порция ≈ ' + Number(r.portionGrams) + ' г') : '';
+			const portionDetail = r.portionLabel
+				|| (r.portionGrams ? ('1 порция ≈ ' + Number(r.portionGrams) + ' г') : '');
 			const quantityBadge = r.yieldLabel
 				? escHtml(r.yieldLabel)
 				: r.id === 'veggie-concentrate'
